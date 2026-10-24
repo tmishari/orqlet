@@ -1,0 +1,251 @@
+{
+  "controls_level": 3,
+  "files": [
+    {
+      "path": "baseline/baseline.md",
+      "sha256": "aff710c5ac8853ad09ea07c7bdb0ff240d8ba0b73160a552a5fe00fbac64de80"
+    },
+    {
+      "path": "commands/doctor.md",
+      "sha256": "7e1ff1c4cb56bd875a3f47ee02017745656eaeffa711931148a65161a1353731"
+    },
+    {
+      "path": "commands/profile.md",
+      "sha256": "3f41a3ac132ffcba64ce6ca303d6aa7f4937d2df965cc783701c19b85903da21"
+    },
+    {
+      "path": "commands/standards.md",
+      "sha256": "62985a26c930b58b42cfbf122c780c5ced56411abafd1bec7aabe6ecd5852dfa"
+    },
+    {
+      "path": "commands/upgrade.md",
+      "sha256": "f8661ef08f50d6683566058734e920132f7e49ace12a19f88fd57c4b036e8fb7"
+    },
+    {
+      "path": "exempt.yaml",
+      "sha256": "33872ba916f322f6047784b50046c894339ed95e2d94731d8d708a95a9e4ba0a"
+    },
+    {
+      "path": "identity.json",
+      "sha256": "0f3bad3653babb46c609f62ee9732e198e118063a1d2ef0bbc827ea20c85273e"
+    },
+    {
+      "path": "pr_template/workflow-section.md",
+      "sha256": "e085147d281d19faf31199a7e5195717967927b32190f09e31ab51103b7c186c"
+    },
+    {
+      "path": "roles/orqlet-arch-reviewer.md",
+      "sha256": "5d05bcdd130b2cdbc54f79a3ef60bdeb914299ac05d5aa1b56b6f67b84da9409"
+    },
+    {
+      "path": "roles/orqlet-inventory.md",
+      "sha256": "7355c3aeeaf95f9eb265ae56ba80c214eca148a28a07da775beeaf6c4b3442c3"
+    },
+    {
+      "path": "roles/orqlet-security-reviewer.md",
+      "sha256": "b409b62fafe4c0ace0cd85bf7edbb4e2512187ce4a33bcc5e8cd60f7d60862f4"
+    },
+    {
+      "path": "roles/orqlet-tester.md",
+      "sha256": "faaac63c518885125b5f268d3dd47d8ff7ba6e118d171bf5a6428320ec3f764c"
+    },
+    {
+      "path": "roles/orqlet-tracer.md",
+      "sha256": "8403a74eefa9cafd2c58821f2e8f7a8f948b03fc5f5844107e6decfccce77fa6"
+    },
+    {
+      "path": "rules/orqlet-workflow.md",
+      "sha256": "4b61b79c2e174ce3e8ff5c52032d43c24bead4796f40b6863a2764887dca879d"
+    },
+    {
+      "path": "rules/orqlet-workflow.meta.yaml",
+      "sha256": "a7ed19c98fd81011e2863602e5fa1a235c75e5e28ba4e2d64e62bf66e9c76fd5"
+    },
+    {
+      "path": "schemas/orqlet.artifact-header.v1.json",
+      "sha256": "a1e66984a52cc1e700f24abfaa7e6f938469066976ba9ed4e82e5cdc11535876"
+    },
+    {
+      "path": "schemas/orqlet.as-is-fragment.v1.json",
+      "sha256": "1ed0db7810f3cc5f1e9b70134d8f24cb99a81de3955e08746ba7e4ca1031bbcb"
+    },
+    {
+      "path": "schemas/orqlet.as-is.v1.json",
+      "sha256": "4992d90b44e67c5f461b87163a9d2efe176d9348e4455396e909b368e18c79c4"
+    },
+    {
+      "path": "schemas/orqlet.cli-result.v1.json",
+      "sha256": "081a0a201faa875314d7af1103bdc891d348ff3f6f152f59ba346af31ce2fe3c"
+    },
+    {
+      "path": "schemas/orqlet.design-set.v1.json",
+      "sha256": "d749303b39bbd1bc0cac3e0ed7edd3ea9bbdb18939f1a6a2894000e295aa2e84"
+    },
+    {
+      "path": "schemas/orqlet.docs-map.v1.json",
+      "sha256": "2768f552f5b57d182f1b4daad2cb5b33af44714fd65a72c0986d8d2827d18ba0"
+    },
+    {
+      "path": "schemas/orqlet.exempt.v1.json",
+      "sha256": "877c5d90fc088f405b8c721ac01fecfe778357884a48e7decd3d7a34d5eda8a3"
+    },
+    {
+      "path": "schemas/orqlet.finding.v1.json",
+      "sha256": "973468e0b998f7bcc50c9a842505140884b91c76dce43082e3bc5040921fce54"
+    },
+    {
+      "path": "schemas/orqlet.generated-lock.v1.json",
+      "sha256": "cfc89e84de3c7a3a32d38d78c489a0a3a50931a1f58a52917da7f3d57b2c0194"
+    },
+    {
+      "path": "schemas/orqlet.implementation-plan.v1.json",
+      "sha256": "fb7debb7337ff4257b0bf7d5ac58e762ee11203034e490cc4d0c5d66a22ae22d"
+    },
+    {
+      "path": "schemas/orqlet.integrations.v1.json",
+      "sha256": "106c4165ab34fb887f91d8d51598eab779dea577b7612e00ab5425b2e5d4ad4c"
+    },
+    {
+      "path": "schemas/orqlet.knowledge-impact.v1.json",
+      "sha256": "5a9928cc363a4a86f157f321051264c314aeea5c13c1104b68c367ff398d92d8"
+    },
+    {
+      "path": "schemas/orqlet.knowledge.v2.json",
+      "sha256": "77ba8e36514fc075300ba4af704896faf0009297fbee40bdb4fcd71600652172"
+    },
+    {
+      "path": "schemas/orqlet.model-policy.v1.json",
+      "sha256": "1de87a5098cb7350e092b31b1038af4f3ed3e66d1d34dd3d4a76bfc6990e28f3"
+    },
+    {
+      "path": "schemas/orqlet.module-card.v1.json",
+      "sha256": "2539c1ac2d6b474a49037cc8b10e18ceeb68e5316fcf112bc65dc96c6bd0235b"
+    },
+    {
+      "path": "schemas/orqlet.project-profile.v1.json",
+      "sha256": "fd9525f4c79b28c066139af2383fce509eecd6e01a49929c4a4fec0242b761f8"
+    },
+    {
+      "path": "schemas/orqlet.question-ledger.v1.json",
+      "sha256": "a701e0804a80750d43eb30389a53e958098b8fca7fb38b2492af8acbb5d19cc9"
+    },
+    {
+      "path": "schemas/orqlet.released.v1.json",
+      "sha256": "a88480f2d311478fb95377e4c26b31ad985180aac06c854b5c31fa6c2c165dd7"
+    },
+    {
+      "path": "schemas/orqlet.review-input.v1.json",
+      "sha256": "4ccdaa8865f727730296097906ce31436628c581f10f78e4d659ea8d2e2fa749"
+    },
+    {
+      "path": "schemas/orqlet.review-result.v1.json",
+      "sha256": "c78201cadfe18b9f76f4d868ea549b746a0fffb51f1c2dd88d5c46a3db33661b"
+    },
+    {
+      "path": "schemas/orqlet.role-bindings.v1.json",
+      "sha256": "2eadfdef5d0e31600dfddc32c6850674312397f20aea4325a6e1de5908a2f955"
+    },
+    {
+      "path": "schemas/orqlet.rules.v1.json",
+      "sha256": "3760b20fe67f146eceb64111af87953c224e85e5d423694ae87032daf1d238e4"
+    },
+    {
+      "path": "schemas/orqlet.self-check.v1.json",
+      "sha256": "ccfd947d9f75aeba55ef43602fe46f6a9b5eef359bb7204b22d7e26a9b23d083"
+    },
+    {
+      "path": "schemas/orqlet.standards-lock.v1.json",
+      "sha256": "204a139aaf647a07f51d4e988bfb67532ab10d3d383b8e9bff680f04092dac34"
+    },
+    {
+      "path": "schemas/orqlet.standards-pack.v1.json",
+      "sha256": "11fbde246bbec88278cbce81ee1cd6b120f67cb049b23330b570947aaba593a1"
+    },
+    {
+      "path": "schemas/orqlet.test-record.v1.json",
+      "sha256": "51503c64b8a60e4778337da7abafa236af37d71342ef9c8afad28b2488b08f68"
+    },
+    {
+      "path": "schemas/orqlet.versions.v1.json",
+      "sha256": "6805197e8e9dae18a91308864417113a9e066da6c51a2ab11655b60843b66a91"
+    },
+    {
+      "path": "schemas/orqlet.workflow-identity.v1.json",
+      "sha256": "8a46382cb49f5a515c403effaf2653385bc54559a4e1a49561272e2e9a4e857b"
+    },
+    {
+      "path": "schemas/orqlet.workflow-lock.v1.json",
+      "sha256": "d042f87f275d5dbc50b18e722cdf37bc1c9bb9cd83c0d08f8a510a329f387166"
+    },
+    {
+      "path": "schemas/orqlet.workflow-manifest.v1.json",
+      "sha256": "d31b036cd9477abb97b4f82162356ebc30f5d4a3fb26572abbac416d74613769"
+    },
+    {
+      "path": "schemas/orqlet.workflow-policy.v2.json",
+      "sha256": "ac8ad0d04d614810ddd564acfdc9b2464c995d558b8d8f49a72cb86344be8ea6"
+    },
+    {
+      "path": "schemas/orqlet.workflow-releases.v1.json",
+      "sha256": "51afe145d13b96632938b75267d4d67c097acad05886c7e8ac9659cd0f0a1675"
+    },
+    {
+      "path": "schemas/orqlet.workflow-rule.v1.json",
+      "sha256": "3e7999e2d16215692953c33c88a5b731c9dcb961a3189f2edbcdbb6b1e3933f1"
+    },
+    {
+      "path": "seeds/prompts/README.md",
+      "sha256": "21b0d380226a29356db0eba0d2c14448a81bdf229f0714927c47dcd25857e5b2"
+    },
+    {
+      "path": "seeds/prompts/foundations.md",
+      "sha256": "691eb4cc8e48e68f62b891dcc663942dd003369b1347ed12aa16fdd4e420a23b"
+    },
+    {
+      "path": "seeds/prompts/rules.yaml",
+      "sha256": "bdc45a526fc30c4bc8b4b4039e3fc36daf06c35c33f697d95a260968945a55e1"
+    },
+    {
+      "path": "skills/orqlet-design/references/design-format.md",
+      "sha256": "84dc87207d37d2a489e36f150c05ea43a910bbdd6921ffdfbd11cb209aafc421"
+    },
+    {
+      "path": "skills/orqlet-design/skill.md",
+      "sha256": "fce8db3135e61bccbe058d78c38fb101886c993d31d0edc91444b3e9a6851c16"
+    },
+    {
+      "path": "skills/orqlet-implement/skill.md",
+      "sha256": "8e906dea64d89e2fb185f38a06bc61c8307c289ae933f85629173c56d02779d3"
+    },
+    {
+      "path": "skills/orqlet-onboard/skill.md",
+      "sha256": "ae1a21dd938655a815c7b29edc74751912fab9473642dd5d918f1252a64921ac"
+    },
+    {
+      "path": "skills/orqlet-plan/references/plan-format.md",
+      "sha256": "28ef93dec453ff01841a8db65eb1c60fa5668eb552b9c48aab731f2924f72a4e"
+    },
+    {
+      "path": "skills/orqlet-plan/skill.md",
+      "sha256": "f70e70df2a0a67dfa8112d59312bb40fa87b8a8ebf1e808a87a1b7c1abc14897"
+    },
+    {
+      "path": "skills/orqlet-research/references/as-is-format.md",
+      "sha256": "3ee724e614ba0e718d7d8a15024902c306403a01eb9d74ead8bbb842725ec014"
+    },
+    {
+      "path": "skills/orqlet-research/skill.md",
+      "sha256": "84be5b0a5d933a9fefbe18f06dabc0fd895123519c84675059cf2dd6208c7575"
+    },
+    {
+      "path": "skills/orqlet-review/references/review-format.md",
+      "sha256": "f0b72737a0244a691b57ab63901fc6522ef6f3d68b1359e730806dbd26ba6df5"
+    },
+    {
+      "path": "skills/orqlet-review/skill.md",
+      "sha256": "500b602fa13312d3f54ce73148aa75d99aaf267cdb43eaa4a1bd6d1b1cc876e6"
+    }
+  ],
+  "schema": "orqlet.workflow-manifest/v1",
+  "workflow_version": "0.3.1"
+}
