@@ -13,7 +13,7 @@ header:
     profile_version: 1
 base_revision: a18faca4ee53440836895989d6e11fb0063d8088
 scope:
-  paths: ["src/orqlet/adapters/render/**", "src/orqlet/domain/front_matter.py", "tests/unit/render/**", "docs/design/orqlet-architecture-proposal.md", ".orqlet/**"]
+  paths: ["src/orqlet/adapters/render/**", "src/orqlet/domain/front_matter.py", "tests/unit/render/**", "docs/design/orqlet-architecture-proposal.md", ".orqlet/workflow.lock"]
   request_ref: harness2-fit
 research_mode: parallel-subagents
 size_budget: {max_words: 1500}
