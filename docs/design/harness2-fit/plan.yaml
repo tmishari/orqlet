@@ -1,0 +1,233 @@
+schema: orqlet.implementation-plan/v1
+header:
+  schema: orqlet.artifact-header/v1
+  task: harness2-fit
+  status: draft
+  workflow_version: 0.3.1
+  protected_set_digest: be7723282aec5a67e8161540bfba464562fb2a53d9bc3f8245ea22b812134eec
+  bound:
+    # The person confirmed that the design pull request merged elsewhere. This repository has no commit, so
+    # `orqlet gate status` returns base_revision null. The all-zero id below names no commit: replace it with
+    # the merge revision of the design pull request before this plan is approved.
+    base_revision: "0000000000000000000000000000000000000000"
+    standards_lock_hash: 89a225016ff9d8b3ed977df39a70dfbe9dbc5f7c6d3762d0f2208b1b7a037a52
+    applicable_rules_hash: 56502a0ec5eda3b13b4c9d97c7d4dfa41df82c86a206e36dd5d2d92aab299b97
+    profile_version: 1
+design_ref: docs/design/harness2-fit/design/manifest.yaml#7d63506c30a9931ab1e5968848878cd5e4cbbb8cc42d3e845727ad52f220d370
+base_revision: "0000000000000000000000000000000000000000"
+knowledge_scope: []
+phases:
+  - id: P-1
+    objective: "Add the two pure front-matter functions of ADR-001 decision 2, with their unit and property tests."
+    depends_on: []
+    implements: ["EC-1", "EC-2"]
+    file_operations:
+      - {op: create, path: src/orqlet/domain/front_matter.py, why: "The line view and the comparison of ADR-001 decision 2. Standard library only (ORQLET-ARCH-002)."}
+      - {op: create, path: tests/unit/domain/test_front_matter.py, why: "Unit tests for both functions and a property test that neither raises (ORQLET-TEST-001)."}
+    acceptance_criteria:
+      - {id: AC-1, text: "simple_front_matter returns, for every top-level `key: value` line of a block, the key and the text after the colon with surrounding blanks removed and any quote characters kept. Indented lines and lines that are not `key: value` are ignored. CRLF line ends give the same result as LF.", source: "ADR-001 decision 2", check_ref: pytest}
+      - {id: AC-2, text: "front_matter_differences returns one message per key whose two values differ, per key present in one view only, and per key whose parsed value is a list, a mapping or another non-scalar. The string form of a parsed scalar is the string itself, `true` or `false` for a boolean, decimal text for an integer and `null` for none, and the boolean case is decided before the integer case.", source: "ADR-001 decision 2", check_ref: pytest}
+      - {id: AC-3, text: "No message contains a value of either view: a test seeds distinctive values and asserts that none appears in any message, only keys.", source: "ADR-001 decision 2", check_ref: pytest}
+      - {id: AC-4, text: "Neither function raises for any text or any mapping, shown by a property test over arbitrary text and mappings.", source: "ADR-001 decision 2", check_ref: pytest}
+      - {id: AC-5, text: "The module imports only the standard library and the layers contract of import-linter passes.", source: "ORQLET-ARCH-002", check_ref: import-linter}
+    checks: ["ruff-check", "ruff-format", "mypy", "import-linter", "pytest"]
+    review_evidence: [architecture-reviewer, security-reviewer, tester]
+    knowledge_step: required
+    completion:
+      - "All checks pass on Python 3.12"
+      - "The public API of the package differs from the base only by EC-1 and EC-2"
+    expected_outputs:
+      - "src/orqlet/domain/front_matter.py"
+      - "tests/unit/domain/test_front_matter.py"
+  - id: P-2
+    objective: "Reword the orqlet-research description, rebuild the workflow manifest and bump the workflow version to 0.3.1 (ADR-001 decision 5, ORQLET-DET-002)."
+    depends_on: []
+    implements: []
+    file_operations:
+      - {op: modify, path: src/orqlet/workflow/skills/orqlet-research/skill.md, why: "Reword the `description` line so that it contains no `: ` and no ` #` and still says the same (ADR-001 decision 5). It stays one line within the limits that tests/unit/render/test_skills.py checks."}
+      - {op: modify, path: src/orqlet/workflow/MANIFEST.json, why: "Rebuilt with tools/build_manifest.py and never by hand (ORQLET-DET-002)."}
+      - {op: modify, path: src/orqlet/workflow/identity.json, why: "workflow_version from 0.3.0 to 0.3.1: patch level under design §20.8, and a changed digest at an unchanged version is the error ORQ-E161 (considerations, compatibility)."}
+      - {op: modify, path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-research/SKILL.md, why: "Regenerated locally with --update-golden: the research description text changes (the quotes stay until P-3)."}
+      - {op: modify, path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-research/SKILL.md, why: "Regenerated locally with --update-golden: the research description text changes (the quotes stay until P-3)."}
+      - {op: modify, path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-research/SKILL.md, why: "Regenerated locally with --update-golden: the research description text changes (the quotes stay until P-3)."}
+      - {op: modify, path: tests/golden/claude-code/docs-2026-10/AGENTS.md, why: "Regenerated locally with --update-golden: the workflow marker carries version 0.3.1."}
+      - {op: modify, path: tests/golden/codex/docs-2026-10/AGENTS.md, why: "Regenerated locally with --update-golden: the workflow marker carries version 0.3.1."}
+      - {op: modify, path: tests/golden/common/pr_template/existing-reconciled.md, why: "Regenerated locally with --update-golden: the workflow marker carries version 0.3.1."}
+      - {op: modify, path: tests/golden/common/pr_template/new-with-team.md, why: "Regenerated locally with --update-golden: the workflow marker carries version 0.3.1."}
+      - {op: modify, path: tests/golden/common/pr_template/new-workflow-only.md, why: "Regenerated locally with --update-golden: the workflow marker carries version 0.3.1."}
+      - {op: modify, path: tests/golden/cursor/docs-2026-10/AGENTS.md, why: "Regenerated locally with --update-golden: the workflow marker carries version 0.3.1."}
+    acceptance_criteria:
+      - {id: AC-1, text: "The description of orqlet-research contains no `: ` and no ` #`, is one line of at most 1024 characters, and still says that the skill produces one concise AS-IS file with verified facts, their evidence, every unknown and every contradiction, and that it is used only when the person runs it.", source: "ADR-001 decision 5", check_ref: architecture-reviewer}
+      - {id: AC-2, text: "`tools/build_manifest.py --check` passes and identity.json says 0.3.1.", source: "ORQLET-DET-002", check_ref: manifest}
+      - {id: AC-3, text: "The golden files differ from before only in the research description (3 files) and in the workflow version of the marker (6 files); no other golden file changes.", source: "ORQLET-DET-001", check_ref: review:golden-diff}
+      - {id: AC-4, text: "The release-gate test passes: 0.3.1 is not in the release history, so no digest change is reported as a release defect.", source: "ORQLET-DET-002", check_ref: pytest}
+    checks: ["ruff-check", "ruff-format", "mypy", "import-linter", "manifest", "pytest"]
+    review_evidence: [architecture-reviewer, security-reviewer, tester]
+    knowledge_step: required
+    completion:
+      - "All checks pass on Python 3.12"
+      - "Golden files were regenerated locally with --update-golden and never in CI"
+    expected_outputs:
+      - "src/orqlet/workflow/skills/orqlet-research/skill.md"
+      - "src/orqlet/workflow/MANIFEST.json"
+      - "src/orqlet/workflow/identity.json"
+  - id: P-3
+    objective: "Add plain_when_safe and the allow-list predicate to the emitter, pass it from the skill, role and command renderers, and regenerate the affected golden files (ADR-001 decision 1, EC-3)."
+    depends_on: ["P-2"]
+    implements: ["EC-3"]
+    file_operations:
+      - {op: modify, path: src/orqlet/adapters/render/emit.py, why: "Add the keyword-only `plain_when_safe: bool = False` to front_matter and the private allow-list predicate (ADR-001 decision 1, EC-3). yaml_scalar and yaml_document keep their signatures."}
+      - {op: modify, path: src/orqlet/adapters/render/skills.py, why: "Pass plain_when_safe=True from the skill renderer (ADR-001 decision 1)."}
+      - {op: modify, path: src/orqlet/adapters/render/roles.py, why: "Pass plain_when_safe=True from the Claude Code and Cursor role renderers. The Codex role stays TOML."}
+      - {op: modify, path: src/orqlet/adapters/render/rules.py, why: "Pass plain_when_safe=True from the command renderer only. The two rule renderers must not pass it, so rule files keep today's bytes."}
+      - {op: modify, path: tests/unit/render/test_emit.py, why: "Table-driven tests of the allow-list through the public front_matter: accepted and rejected strings, the awkward strings of this file, the default unchanged."}
+      - {op: modify, path: tests/unit/render/test_skills.py, why: "Rewrite the two tests that pin quoted forms of a skill and a role (lines 272-273 and 319) to the unquoted forms. No test is deleted or weakened."}
+      - {op: modify, path: tests/golden/claude-code/docs-2026-10/.claude/agents/orqlet-arch-reviewer.md, why: "Regenerated locally with --update-golden: front-matter strings of a skill, agent or command lose their quotes where plain-safe."}
+      - {op: modify, path: tests/golden/claude-code/docs-2026-10/.claude/agents/orqlet-inventory.md, why: "Regenerated locally with --update-golden: front-matter strings of a skill, agent or command lose their quotes where plain-safe."}
+      - {op: modify, path: tests/golden/claude-code/docs-2026-10/.claude/agents/orqlet-security-reviewer.md, why: "Regenerated locally with --update-golden: front-matter strings of a skill, agent or command lose their quotes where plain-safe."}
+      - {op: modify, path: tests/golden/claude-code/docs-2026-10/.claude/agents/orqlet-tester.md, why: "Regenerated locally with --update-golden: front-matter strings of a skill, agent or command lose their quotes where plain-safe."}
+      - {op: modify, path: tests/golden/claude-code/docs-2026-10/.claude/agents/orqlet-tracer.md, why: "Regenerated locally with --update-golden: front-matter strings of a skill, agent or command lose their quotes where plain-safe."}
+      - {op: modify, path: tests/golden/claude-code/docs-2026-10/.claude/commands/orqlet-doctor.md, why: "Regenerated locally with --update-golden: front-matter strings of a skill, agent or command lose their quotes where plain-safe."}
+      - {op: modify, path: tests/golden/claude-code/docs-2026-10/.claude/commands/orqlet-profile.md, why: "Regenerated locally with --update-golden: front-matter strings of a skill, agent or command lose their quotes where plain-safe."}
+      - {op: modify, path: tests/golden/claude-code/docs-2026-10/.claude/commands/orqlet-standards.md, why: "Regenerated locally with --update-golden: front-matter strings of a skill, agent or command lose their quotes where plain-safe."}
+      - {op: modify, path: tests/golden/claude-code/docs-2026-10/.claude/commands/orqlet-upgrade.md, why: "Regenerated locally with --update-golden: front-matter strings of a skill, agent or command lose their quotes where plain-safe."}
+      - {op: modify, path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-design/SKILL.md, why: "Regenerated locally with --update-golden: front-matter strings of a skill, agent or command lose their quotes where plain-safe."}
+      - {op: modify, path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-implement/SKILL.md, why: "Regenerated locally with --update-golden: front-matter strings of a skill, agent or command lose their quotes where plain-safe."}
+      - {op: modify, path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-onboard/SKILL.md, why: "Regenerated locally with --update-golden: front-matter strings of a skill, agent or command lose their quotes where plain-safe."}
+      - {op: modify, path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-plan/SKILL.md, why: "Regenerated locally with --update-golden: front-matter strings of a skill, agent or command lose their quotes where plain-safe."}
+      - {op: modify, path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-research/SKILL.md, why: "Regenerated locally with --update-golden: front-matter strings of a skill, agent or command lose their quotes where plain-safe."}
+      - {op: modify, path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-review/SKILL.md, why: "Regenerated locally with --update-golden: front-matter strings of a skill, agent or command lose their quotes where plain-safe."}
+      - {op: modify, path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-design/SKILL.md, why: "Regenerated locally with --update-golden: front-matter strings of a skill, agent or command lose their quotes where plain-safe."}
+      - {op: modify, path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-implement/SKILL.md, why: "Regenerated locally with --update-golden: front-matter strings of a skill, agent or command lose their quotes where plain-safe."}
+      - {op: modify, path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-onboard/SKILL.md, why: "Regenerated locally with --update-golden: front-matter strings of a skill, agent or command lose their quotes where plain-safe."}
+      - {op: modify, path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-plan/SKILL.md, why: "Regenerated locally with --update-golden: front-matter strings of a skill, agent or command lose their quotes where plain-safe."}
+      - {op: modify, path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-research/SKILL.md, why: "Regenerated locally with --update-golden: front-matter strings of a skill, agent or command lose their quotes where plain-safe."}
+      - {op: modify, path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-review/SKILL.md, why: "Regenerated locally with --update-golden: front-matter strings of a skill, agent or command lose their quotes where plain-safe."}
+      - {op: modify, path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-design/SKILL.md, why: "Regenerated locally with --update-golden: front-matter strings of a skill, agent or command lose their quotes where plain-safe."}
+      - {op: modify, path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-implement/SKILL.md, why: "Regenerated locally with --update-golden: front-matter strings of a skill, agent or command lose their quotes where plain-safe."}
+      - {op: modify, path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-onboard/SKILL.md, why: "Regenerated locally with --update-golden: front-matter strings of a skill, agent or command lose their quotes where plain-safe."}
+      - {op: modify, path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-plan/SKILL.md, why: "Regenerated locally with --update-golden: front-matter strings of a skill, agent or command lose their quotes where plain-safe."}
+      - {op: modify, path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-research/SKILL.md, why: "Regenerated locally with --update-golden: front-matter strings of a skill, agent or command lose their quotes where plain-safe."}
+      - {op: modify, path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-review/SKILL.md, why: "Regenerated locally with --update-golden: front-matter strings of a skill, agent or command lose their quotes where plain-safe."}
+      - {op: modify, path: tests/golden/cursor/docs-2026-10/.cursor/agents/orqlet-arch-reviewer.md, why: "Regenerated locally with --update-golden: front-matter strings of a skill, agent or command lose their quotes where plain-safe."}
+      - {op: modify, path: tests/golden/cursor/docs-2026-10/.cursor/agents/orqlet-inventory.md, why: "Regenerated locally with --update-golden: front-matter strings of a skill, agent or command lose their quotes where plain-safe."}
+      - {op: modify, path: tests/golden/cursor/docs-2026-10/.cursor/agents/orqlet-security-reviewer.md, why: "Regenerated locally with --update-golden: front-matter strings of a skill, agent or command lose their quotes where plain-safe."}
+      - {op: modify, path: tests/golden/cursor/docs-2026-10/.cursor/agents/orqlet-tester.md, why: "Regenerated locally with --update-golden: front-matter strings of a skill, agent or command lose their quotes where plain-safe."}
+      - {op: modify, path: tests/golden/cursor/docs-2026-10/.cursor/agents/orqlet-tracer.md, why: "Regenerated locally with --update-golden: front-matter strings of a skill, agent or command lose their quotes where plain-safe."}
+    acceptance_criteria:
+      - {id: AC-1, text: "front_matter called without the keyword gives byte-identical output to today for every existing test input, and the rule-file goldens (.mdc and .claude/rules) do not change.", source: "ADR-001 decision 1", check_ref: pytest}
+      - {id: AC-2, text: "With plain_when_safe=True a string is written without quotes exactly when it starts with an ASCII letter, has only ASCII letters, digits, space and the characters `, . ; ( ) / _ + = - '` after that, does not end with a space or an apostrophe, and is not a YAML reserved word in any case. Every other string, including non-ASCII text, text starting with a digit or a symbol, text containing `: `, `#`, quotes or brackets, and reserved words, is written exactly as today. Booleans and integers are written as today.", source: "ADR-001 decision 1", check_ref: pytest}
+      - {id: AC-3, text: "The skill, role and command renderers pass the keyword and the rule renderers do not, shown by a test that renders a rule with a project-text description and path and compares it with today's bytes.", source: "ADR-001 decision 1", check_ref: pytest}
+      - {id: AC-4, text: "yaml_scalar and yaml_document keep their signatures and behaviour: the existing tests of them pass unchanged.", source: "ADR-001 decision 1", check_ref: pytest}
+      - {id: AC-5, text: "Only the 32 listed golden files change in this phase, and none of them differs from before except in front-matter quotes.", source: "ORQLET-DET-001", check_ref: review:golden-diff}
+      - {id: AC-6, text: "The change adds no import between the client adapters and no I/O or third-party import to the domain or application layers.", source: "ORQLET-ARCH-003", check_ref: import-linter}
+    checks: ["ruff-check", "ruff-format", "mypy", "import-linter", "pytest"]
+    review_evidence: [architecture-reviewer, security-reviewer, tester]
+    knowledge_step: required
+    completion:
+      - "All checks pass on Python 3.12"
+      - "The public API of the package differs from the base only by EC-1, EC-2 and EC-3"
+      - "Golden files were regenerated locally with --update-golden and never in CI"
+    expected_outputs:
+      - "src/orqlet/adapters/render/emit.py"
+      - "tests/unit/render/test_emit.py"
+  - id: P-4
+    objective: "Add the release test over every rendered skill, agent and Claude Code command and the predicate cross-loader test (ADR-001 decisions 3 and 4)."
+    depends_on: ["P-1", "P-3"]
+    implements: []
+    file_operations:
+      - {op: create, path: tests/unit/render/test_front_matter_views.py, why: "The release test of ADR-001 decision 3 and the predicate test of decision 4. It imports public names only."}
+    acceptance_criteria:
+      - {id: AC-1, text: "For every skill (`*/skills/*/SKILL.md`), agent (`*/agents/*.md`) and Claude Code command (`.claude/commands/*.md`) that the renderers produce for the three clients, the test splits the block with the existing split_front_matter, parses it with the strict loader and asserts that front_matter_differences is empty. Files are chosen by path, so a missing block fails the test. With the packaged workflow this is 32 files.", source: "ADR-001 decision 3", check_ref: pytest}
+      - {id: AC-2, text: "A fixture block with quoted `name`, `model` and `tools` values is reported as three differences, so the test would catch a return of the quoting defect on the keys that carry the read-only controls.", source: "ADR-001 decision 3", check_ref: pytest}
+      - {id: AC-3, text: "For every string that front_matter(..., plain_when_safe=True) writes without quotes, the strict loader, PyYAML's default safe loader and simple_front_matter return the same string. This is tested with the awkward strings of test_emit.py and with a property test over arbitrary text, through the public function only.", source: "ADR-001 decision 4", check_ref: pytest}
+      - {id: AC-4, text: "The test runs with sockets disabled, uses no network and passes on every supported Python version.", source: "ORQLET-TEST-001", check_ref: pytest-matrix}
+    checks: ["ruff-check", "ruff-format", "mypy", "import-linter", "pytest", "pytest-matrix"]
+    review_evidence: [architecture-reviewer, security-reviewer, tester]
+    knowledge_step: required
+    completion:
+      - "All checks pass on Python 3.12, 3.13, 3.14 and 3.15 (`uv sync --locked --all-groups --python <version>` then `uv run pytest`)"
+    expected_outputs:
+      - "tests/unit/render/test_front_matter_views.py"
+  - id: P-5
+    objective: "Write the packet rule of ADR-002 into proposal Section 6.14.1 and the evaluation-harness shape of ADR-004 into a new Section 21.7."
+    depends_on: []
+    implements: []
+    file_operations:
+      - {op: modify, path: docs/design/orqlet-architecture-proposal.md, why: "Section 6.14.1 gains the packet rule and the clarification of the `diff` member (ADR-002); a new Section 21.7 records the eight rules of the evaluation-harness shape (ADR-004). Summaries, tables and diagrams that mention the packet are reconciled in the same edit."}
+    acceptance_criteria:
+      - {id: AC-1, text: "Section 6.14.1 states that the `design` component takes the manifest's `artifacts` and `as_is_ref` and never its `reviews` notes; that a valid review record is left out of every list and out of the `diff`; that any other path at a review-record path (invalid, deleted or unparseable) makes the packet NOT_RUN naming the path; that test and knowledge-impact records are not refused; and the limits listed in ADR-002.", source: "ADR-002", check_ref: architecture-reviewer}
+      - {id: AC-2, text: "A new Section 21.7 lists the eight rules of ADR-004: boundary, two seams with scripted fakes, reference arm, expected session counts, run naming and SHA-256 completion marks, unscored not zero, workspace separation by construction, and a no-model preflight.", source: "ADR-004", check_ref: architecture-reviewer}
+      - {id: AC-3, text: "No other passage of the proposal contradicts the new text: a search for the packet members and for the `diff` member finds only consistent statements, and the result is recorded in the review note.", source: "ADR-002", check_ref: security-reviewer}
+      - {id: AC-4, text: "Nothing in the new text is presented as built: the packet rule says it lands with the v0.5 packet plan, and Section 21.7 says it binds nothing until M7 is planned.", source: "ADR-002 and ADR-004", check_ref: review:status-wording}
+    checks: ["proposal-read-through"]
+    review_evidence: [architecture-reviewer, security-reviewer, tester]
+    knowledge_step: required
+    completion:
+      - "The reviewers read the edited sections and the passages found by the search"
+      - "The document's version and status line are not changed by this phase"
+    expected_outputs:
+      - "docs/design/orqlet-architecture-proposal.md"
+  - id: P-6
+    objective: "Regenerate this repository's own generated files with `orqlet upgrade`, last, after the code, tests and text of P-1 to P-5."
+    depends_on: ["P-4", "P-5"]
+    implements: []
+    file_operations:
+      - {op: modify, path: .claude/skills/orqlet-design/SKILL.md, why: "Written by `orqlet upgrade` only, never by hand: front-matter strings lose their quotes."}
+      - {op: modify, path: .claude/skills/orqlet-implement/SKILL.md, why: "Written by `orqlet upgrade` only, never by hand: front-matter strings lose their quotes."}
+      - {op: modify, path: .claude/skills/orqlet-onboard/SKILL.md, why: "Written by `orqlet upgrade` only, never by hand: front-matter strings lose their quotes."}
+      - {op: modify, path: .claude/skills/orqlet-plan/SKILL.md, why: "Written by `orqlet upgrade` only, never by hand: front-matter strings lose their quotes."}
+      - {op: modify, path: .claude/skills/orqlet-research/SKILL.md, why: "Written by `orqlet upgrade` only, never by hand: front-matter strings lose their quotes."}
+      - {op: modify, path: .claude/skills/orqlet-review/SKILL.md, why: "Written by `orqlet upgrade` only, never by hand: front-matter strings lose their quotes."}
+      - {op: modify, path: .agents/skills/orqlet-design/SKILL.md, why: "Written by `orqlet upgrade` only, never by hand: front-matter strings lose their quotes."}
+      - {op: modify, path: .agents/skills/orqlet-implement/SKILL.md, why: "Written by `orqlet upgrade` only, never by hand: front-matter strings lose their quotes."}
+      - {op: modify, path: .agents/skills/orqlet-onboard/SKILL.md, why: "Written by `orqlet upgrade` only, never by hand: front-matter strings lose their quotes."}
+      - {op: modify, path: .agents/skills/orqlet-plan/SKILL.md, why: "Written by `orqlet upgrade` only, never by hand: front-matter strings lose their quotes."}
+      - {op: modify, path: .agents/skills/orqlet-research/SKILL.md, why: "Written by `orqlet upgrade` only, never by hand: front-matter strings lose their quotes."}
+      - {op: modify, path: .agents/skills/orqlet-review/SKILL.md, why: "Written by `orqlet upgrade` only, never by hand: front-matter strings lose their quotes."}
+      - {op: modify, path: .claude/agents/orqlet-arch-reviewer.md, why: "Written by `orqlet upgrade` only, never by hand: front-matter strings lose their quotes."}
+      - {op: modify, path: .claude/agents/orqlet-inventory.md, why: "Written by `orqlet upgrade` only, never by hand: front-matter strings lose their quotes."}
+      - {op: modify, path: .claude/agents/orqlet-security-reviewer.md, why: "Written by `orqlet upgrade` only, never by hand: front-matter strings lose their quotes."}
+      - {op: modify, path: .claude/agents/orqlet-tester.md, why: "Written by `orqlet upgrade` only, never by hand: front-matter strings lose their quotes."}
+      - {op: modify, path: .claude/agents/orqlet-tracer.md, why: "Written by `orqlet upgrade` only, never by hand: front-matter strings lose their quotes."}
+      - {op: modify, path: .cursor/agents/orqlet-arch-reviewer.md, why: "Written by `orqlet upgrade` only, never by hand: front-matter strings lose their quotes."}
+      - {op: modify, path: .cursor/agents/orqlet-inventory.md, why: "Written by `orqlet upgrade` only, never by hand: front-matter strings lose their quotes."}
+      - {op: modify, path: .cursor/agents/orqlet-security-reviewer.md, why: "Written by `orqlet upgrade` only, never by hand: front-matter strings lose their quotes."}
+      - {op: modify, path: .cursor/agents/orqlet-tester.md, why: "Written by `orqlet upgrade` only, never by hand: front-matter strings lose their quotes."}
+      - {op: modify, path: .cursor/agents/orqlet-tracer.md, why: "Written by `orqlet upgrade` only, never by hand: front-matter strings lose their quotes."}
+      - {op: modify, path: .claude/commands/orqlet-doctor.md, why: "Written by `orqlet upgrade` only, never by hand: front-matter strings lose their quotes."}
+      - {op: modify, path: .claude/commands/orqlet-profile.md, why: "Written by `orqlet upgrade` only, never by hand: front-matter strings lose their quotes."}
+      - {op: modify, path: .claude/commands/orqlet-standards.md, why: "Written by `orqlet upgrade` only, never by hand: front-matter strings lose their quotes."}
+      - {op: modify, path: .claude/commands/orqlet-upgrade.md, why: "Written by `orqlet upgrade` only, never by hand: front-matter strings lose their quotes."}
+      - {op: modify, path: AGENTS.md, why: "Written by `orqlet upgrade` only: the managed block marker carries workflow 0.3.1."}
+      - {op: modify, path: .github/pull_request_template.md, why: "Written by `orqlet upgrade` only: the managed block marker carries workflow 0.3.1."}
+      - {op: modify, path: .orqlet/generated.lock.yaml, why: "Written last by `orqlet upgrade`: new rendered hashes of the files above."}
+      - {op: modify, path: .orqlet/workflow.lock, why: "Written by `orqlet upgrade`: installed workflow 0.3.1 and its digest."}
+      - {op: modify, path: .orqlet/proposals/.orqlet__versions.yaml.diff, why: "Written by `orqlet upgrade` as a proposal for the enforcement baseline `.orqlet/versions.yaml`. A person applies or declines it; this plan never edits versions.yaml."}
+    acceptance_criteria:
+      - {id: AC-1, text: "`orqlet upgrade --dry-run` previews no file outside the list of this phase; the person approves the preview; the files are written by `orqlet upgrade` (journalled, ORQLET-SAFE-001), not by hand.", source: "ORQLET-SAFE-001", check_ref: orqlet-upgrade-dry-run}
+      - {id: AC-2, text: "After the upgrade the generated skills, agents and Claude Code commands of this repository carry unquoted `name`, `model`, `tools` and `description` values where plain-safe, and every file outside the list (rule files, Codex roles, skill sidecars, Cursor commands) is byte-identical to before, compared with the upgrade's backups.", source: "ADR-001 decision 1", check_ref: review:upgrade-backups}
+      - {id: AC-3, text: "`orqlet sync` and `orqlet doctor` report no drift and no new error after the upgrade. Any finding about `.orqlet/versions.yaml` (the proposal is not applied) is listed for the person, who applies or declines the proposal.", source: "ORQLET-QA-001", check_ref: orqlet-doctor}
+      - {id: AC-4, text: "`orqlet gate status harness2-fit` reports this task's own artifacts as stale (warning ORQ-W390) and the completion note records that; no artifact is edited to hide it.", source: "ADR-001 consequences", check_ref: orqlet-gate-status}
+      - {id: AC-5, text: "In Cursor after a restart, calling the subagent `orqlet-inventory` by its plain name works, and the review note records whether it ran on the session model. If the person does not run this, the note says `not observed`; the result is not claimed otherwise.", source: "AS-IS O-11 and O-12", check_ref: review:cursor-agent-names}
+      - {id: AC-6, text: "The full suite, ruff, mypy, import-linter, the schema check and the manifest check pass on every supported Python after the upgrade.", source: "ORQLET-QA-001", check_ref: pytest-matrix}
+    checks: ["ruff-check", "ruff-format", "mypy", "import-linter", "schemas", "manifest", "pytest", "pytest-matrix", "orqlet-upgrade-dry-run", "orqlet-doctor", "orqlet-gate-status"]
+    review_evidence: [architecture-reviewer, security-reviewer, tester]
+    knowledge_step: required
+    completion:
+      - "All checks pass on Python 3.12, 3.13, 3.14 and 3.15"
+      - "The preview of `orqlet upgrade` was approved by the person before it wrote"
+      - "The person decides about the proposal for .orqlet/versions.yaml and about re-approving this task's stale artifacts"
+    expected_outputs:
+      - "The generated files listed in this phase, written by orqlet upgrade"
+      - ".orqlet/proposals/.orqlet__versions.yaml.diff"
+reuse_decisions: []
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against: {role: planner, phase: plan}
+  checks:
+    - {what: design approved, how: "the person confirmed in this session that the design pull request merged elsewhere; this repository has no commit or remote to show it", result: pass}
+    - {what: standards read, how: "orqlet standards for --phase plan --role planner (15 rules)", result: pass}
+    - {what: design manifest hashed, how: "orqlet evidence hash", result: pass}
+    - {what: module catalogue consulted, how: ".orqlet/knowledge.yaml has no sources and no module cards exist, so there is nothing to reuse and reuse_decisions is empty", result: pass}
+    - {what: paths projected, how: "orqlet validate plan needs a base revision that exists in this repository", result: not-run}
