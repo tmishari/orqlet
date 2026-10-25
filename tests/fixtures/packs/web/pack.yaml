@@ -1,0 +1,8 @@
+schema: orqlet.standards-pack/v1
+id: web
+version: 2.1.0
+owner: example-standards-team
+applies_to:
+  languages: [python]
+  frameworks: [FastAPI, Flask, Django]
+rules: [rules/web.yaml]

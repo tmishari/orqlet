@@ -1,0 +1,131 @@
+{
+  "$defs": {
+    "Rule": {
+      "additionalProperties": false,
+      "properties": {
+        "check_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Check Ref"
+        },
+        "enforcement": {
+          "default": "guidance",
+          "enum": [
+            "deterministic",
+            "review",
+            "guidance"
+          ],
+          "title": "Enforcement",
+          "type": "string"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "level": {
+          "enum": [
+            "MUST",
+            "SHOULD",
+            "MAY"
+          ],
+          "title": "Level",
+          "type": "string"
+        },
+        "override": {
+          "const": "stricter-only",
+          "default": "stricter-only",
+          "title": "Override",
+          "type": "string"
+        },
+        "scope": {
+          "$ref": "#/$defs/RuleScope",
+          "default": {
+            "paths": [],
+            "phases": [],
+            "roles": []
+          }
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "waiver": {
+          "default": "none",
+          "enum": [
+            "none",
+            "reviewed"
+          ],
+          "title": "Waiver",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "level",
+        "text"
+      ],
+      "title": "Rule",
+      "type": "object"
+    },
+    "RuleScope": {
+      "additionalProperties": false,
+      "properties": {
+        "paths": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Paths",
+          "type": "array"
+        },
+        "phases": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Phases",
+          "type": "array"
+        },
+        "roles": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Roles",
+          "type": "array"
+        }
+      },
+      "title": "RuleScope",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "`orqlet.rules/v1`: the rules of a pack, or the project's own additions.",
+  "properties": {
+    "rules": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Rule"
+      },
+      "title": "Rules",
+      "type": "array"
+    },
+    "schema": {
+      "const": "orqlet.rules/v1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema"
+  ],
+  "title": "RuleFile",
+  "type": "object"
+}

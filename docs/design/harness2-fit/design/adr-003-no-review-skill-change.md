@@ -1,6 +1,6 @@
 # ADR-003: No change to the review skill about agreement between reviewers
 
-Status: proposed.
+Status: accepted by the person on 2026-10-25, in conversation. No pull request was merged.
 
 ## Context
 

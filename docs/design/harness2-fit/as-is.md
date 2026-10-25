@@ -3,79 +3,112 @@ schema: orqlet.as-is/v1
 header:
   schema: orqlet.artifact-header/v1
   task: harness2-fit
-  status: draft
-  workflow_version: 0.3.1
-  protected_set_digest: be7723282aec5a67e8161540bfba464562fb2a53d9bc3f8245ea22b812134eec
+  status: approved
+  workflow_version: 0.3.0
+  protected_set_digest: 49ef4cd53bcb9b38a1f61707c2ab572c29c92cd9d99e6a85e6303db2fba93bc9
   bound:
-    base_revision: a18faca4ee53440836895989d6e11fb0063d8088
+    base_revision: 2f235673610617120ffc0fc46824d7d7b56c6b87
     standards_lock_hash: 89a225016ff9d8b3ed977df39a70dfbe9dbc5f7c6d3762d0f2208b1b7a037a52
     applicable_rules_hash: 56502a0ec5eda3b13b4c9d97c7d4dfa41df82c86a206e36dd5d2d92aab299b97
     profile_version: 1
-base_revision: a18faca4ee53440836895989d6e11fb0063d8088
+base_revision: 2f235673610617120ffc0fc46824d7d7b56c6b87
 scope:
-  paths: ["src/orqlet/adapters/render/**", "src/orqlet/domain/front_matter.py", "tests/unit/render/**", "docs/design/orqlet-architecture-proposal.md", ".orqlet/workflow.lock"]
+  paths: ["src/orqlet/adapters/render/**", "src/orqlet/adapters/fs/yaml_loader.py", "src/orqlet/application/usecases/render_request.py", "src/orqlet/application/usecases/review_prepare.py", "src/orqlet/application/usecases/binding_inputs.py", "src/orqlet/application/usecases/gate_status.py", "src/orqlet/application/usecases/diagnose.py", "src/orqlet/domain/evidence_artifacts.py", "src/orqlet/workflow/identity.json", "src/orqlet/workflow/releases.json", "src/orqlet/workflow/skills/orqlet-research/skill.md", "tests/unit/render/**", "docs/design/orqlet-architecture-proposal.md", ".orqlet/versions.yaml"]
   request_ref: harness2-fit
 research_mode: parallel-subagents
-size_budget: {max_words: 1500}
+size_budget: {max_words: 1800}
 facts:
   - id: A-101
     kind: interface
-    statement: "In the state at the base revision, `front_matter` has the keyword-only parameter `plain_when_safe`, default `False`, and without it writes every string quoted."
+    statement: "`front_matter` writes every string quoted: it calls `yaml_document` with `quote_all=True`."
     evidence:
-      - {path: src/orqlet/adapters/render/emit.py, lines: "55-64", revision: a18faca4ee53440836895989d6e11fb0063d8088, sha256: 6d7e4bf0e47402d0ad71e96f0053823c2b7314e58d236482a524f7f63593aa0b}
+      - {path: src/orqlet/adapters/render/emit.py, lines: "56-59", revision: 2f235673610617120ffc0fc46824d7d7b56c6b87, sha256: ec55b52b8c046471fe8bf6c8a78a1af7a1b8e1c02549f7afb16f43b40b0a64ad}
   - id: A-102
     kind: structure
-    statement: "A string is written without quotes under `plain_when_safe` only when it matches an ASCII allow-list that starts with a letter, does not end with a space or an apostrophe, and is not a YAML reserved word."
+    statement: "`yaml_scalar` leaves a string bare only when it is a simple word that is not a YAML reserved word, and `quote` writes every other string as a double-quoted JSON string with the characters of `_ESCAPE` escaped."
     evidence:
-      - {path: src/orqlet/adapters/render/emit.py, lines: "28", revision: a18faca4ee53440836895989d6e11fb0063d8088, sha256: da7f0c8ae43f1ba356477db2452eb8150bf557d928ad98cc90721e62b819634c}
-      - {path: src/orqlet/adapters/render/emit.py, lines: "81-86", revision: a18faca4ee53440836895989d6e11fb0063d8088, sha256: bd7174b86a52ca40a85b2613fe4767c9c0cfcfdb6df181412261895a315f113a}
+      - {path: src/orqlet/adapters/render/emit.py, lines: "18-21", revision: 2f235673610617120ffc0fc46824d7d7b56c6b87, sha256: 262b033cb2e154744647943e6186333f053588e51ffea37314e88e16bbebc778}
+      - {path: src/orqlet/adapters/render/emit.py, lines: "37-46", revision: 2f235673610617120ffc0fc46824d7d7b56c6b87, sha256: f4731d7abbfb1b78f8cda39fcfccf2ff187f5d1d31c2a613bc92c2b6e2c499b1}
   - id: A-103
     kind: flow
-    statement: "The skill renderer passes `plain_when_safe=True` to `front_matter`."
+    statement: "The skill renderer builds the front matter of a skill from `name`, `description` and `disable-model-invocation` through `front_matter`."
     evidence:
-      - {path: src/orqlet/adapters/render/skills.py, lines: "44-51", revision: a18faca4ee53440836895989d6e11fb0063d8088, sha256: e593df40e01f8e510c5b00dff5bcb5a08773feb78baf40277eb9bcfa5cc6d3ee}
+      - {path: src/orqlet/adapters/render/skills.py, lines: "44-50", revision: 2f235673610617120ffc0fc46824d7d7b56c6b87, sha256: f4757ef9dbc75a2595383811272f13000dc145170b087f40beab4d74c43073cc}
   - id: A-104
     kind: flow
-    statement: "The Claude Code and Cursor role renderers pass `plain_when_safe=True` through `_markdown`, and the Codex role is written as a TOML file without front matter."
+    statement: "The Claude Code and Cursor role renderers build their front matter through `_markdown` and `front_matter`, with `tools` or `readonly` as the read-only control, and the Codex role is written as a TOML file."
     evidence:
-      - {path: src/orqlet/adapters/render/roles.py, lines: "41-51", revision: a18faca4ee53440836895989d6e11fb0063d8088, sha256: d1848df6d7052f39f262e361adc74b9e34ac2b904446677869757bd625fa373b}
+      - {path: src/orqlet/adapters/render/roles.py, lines: "16-50", revision: 2f235673610617120ffc0fc46824d7d7b56c6b87, sha256: 8cdbf7c469ac9c5af696fa7581fd8379ad670719015410973c2e528710119706}
   - id: A-105
     kind: flow
-    statement: "The Claude Code command renderer passes `plain_when_safe=True`, and the Cursor command renderer writes plain Markdown without front matter."
+    statement: "The Claude Code command renderer and both rule renderers call `front_matter`, and the Cursor command renderer writes plain Markdown without front matter."
     evidence:
-      - {path: src/orqlet/adapters/render/rules.py, lines: "58-68", revision: a18faca4ee53440836895989d6e11fb0063d8088, sha256: 552bdcd317ffefb780dc16cc0f492d895b6ecb3315654bb121d389958ebd6240}
+      - {path: src/orqlet/adapters/render/rules.py, lines: "31-47", revision: 2f235673610617120ffc0fc46824d7d7b56c6b87, sha256: 0591a49e85f0d62cb12fd5f0d2ec5ad3faf2557ade5e3088707b0f272e0504f8}
+      - {path: src/orqlet/adapters/render/rules.py, lines: "58-68", revision: 2f235673610617120ffc0fc46824d7d7b56c6b87, sha256: 9c77b7eb1b42a3604d75fde73ca1753c4196559003a0171f4f3036aab69a4c1c}
   - id: A-106
-    kind: interface
-    statement: "`orqlet.domain.front_matter` defines two public functions, `simple_front_matter` and `front_matter_differences`."
+    kind: flow
+    statement: "The description and the paths of a rule file come from project text: `render_request` builds the description as the rule id, a colon and the rule text."
     evidence:
-      - {path: src/orqlet/domain/front_matter.py, lines: "29", revision: a18faca4ee53440836895989d6e11fb0063d8088, sha256: ed55e8a413c23edb0992011cd388ede3427792ed076df527ed0226673dcca1b7}
-      - {path: src/orqlet/domain/front_matter.py, lines: "43-45", revision: a18faca4ee53440836895989d6e11fb0063d8088, sha256: b0f2367477d29a3aa8b77bfadb94e03f0f9263cd68926033d577258c9543010a}
+      - {path: src/orqlet/application/usecases/render_request.py, lines: "141-145", revision: 2f235673610617120ffc0fc46824d7d7b56c6b87, sha256: ecea8459ef8e574321f96cb8068ea4a69de04318e8b592ac79d4e573669f2bf0}
   - id: A-107
     kind: test
-    statement: "A release test selects skills, agents and Claude Code commands by path for the three clients and compares the line view with the parsed view of each front-matter block."
+    statement: "Two tests pin the quoted forms of a skill and of a role."
     evidence:
-      - {path: tests/unit/render/test_front_matter_views.py, lines: "97-120", revision: a18faca4ee53440836895989d6e11fb0063d8088, sha256: 3751be0837081c6e9be39c6e4cece572d9d706d1ce1a8115afb7feab367ab178}
+      - {path: tests/unit/render/test_skills.py, lines: "272-273", revision: 2f235673610617120ffc0fc46824d7d7b56c6b87, sha256: 86d9363b4f704e02a8bcbbcba73d5de99423bba98b48a664220ae2a047ee2855}
+      - {path: tests/unit/render/test_skills.py, lines: "319", revision: 2f235673610617120ffc0fc46824d7d7b56c6b87, sha256: f84280af291d21fd401e586f0c178b79b132c88c796edb49df1b0a99111786cf}
   - id: A-108
-    kind: operation
-    statement: "The packaged workflow identity says workflow version 0.3.1."
+    kind: test
+    statement: "A test pins a command description that contains a colon as a quoted string."
     evidence:
-      - {path: src/orqlet/workflow/identity.json, lines: "1-5", revision: a18faca4ee53440836895989d6e11fb0063d8088, sha256: b4386c7667ab1aa6aae323bfb9e3279e6c06e9530062dd6193119daf008bebef}
+      - {path: tests/unit/render/test_commands.py, lines: "42", revision: 2f235673610617120ffc0fc46824d7d7b56c6b87, sha256: 1ee92a4ca6e6fc075c58a89a5820c863233f3f896e5d2885d0cd1e7ab6bc3589}
   - id: A-109
-    kind: operation
-    statement: "The installed workflow lock of this repository records workflow version 0.3.1."
+    kind: structure
+    statement: "The evidence-artifact rule excludes a path only when its pattern matches exactly, its task exists, its mode is 100644, its schema is valid and its content matches the path."
     evidence:
-      - {path: .orqlet/workflow.lock, lines: "1-4", revision: a18faca4ee53440836895989d6e11fb0063d8088, sha256: 6df2877c1cb35523ffa71997811f4a2284e4c52efc6b6bc7ac1606544df3e2f7}
+      - {path: src/orqlet/domain/evidence_artifacts.py, lines: "22-35", revision: 2f235673610617120ffc0fc46824d7d7b56c6b87, sha256: c9228b14ff1c717f2ba2417ef014e309dce1b61f9121a8b8c61733c5332a9a52}
+      - {path: src/orqlet/domain/evidence_artifacts.py, lines: "63-77", revision: 2f235673610617120ffc0fc46824d7d7b56c6b87, sha256: 879d5a5f9ae23a0fc6bb45fc17638296882d1f2e5347c74a248ed83b52ecb121}
   - id: A-110
-    kind: structure
-    statement: "Section 6.14.1 of the architecture document lists the review packet members, and its `diff` row says that a valid review record is left out of the diff."
+    kind: flow
+    statement: "The built `review prepare` exports every entry of the staged tree as `snapshot/<path>` and makes no assertion on the member list."
     evidence:
-      - {path: docs/design/orqlet-architecture-proposal.md, lines: "1307", revision: a18faca4ee53440836895989d6e11fb0063d8088, sha256: e1e555fe9abef8b44946c3cd3164769ff6140b110047b7c0a75fee88b273c3f3}
+      - {path: src/orqlet/application/usecases/review_prepare.py, lines: "102-131", revision: 2f235673610617120ffc0fc46824d7d7b56c6b87, sha256: e1add9cf91f9dacbc43f3c49365200841e6e21254dfb49542eb4cff41eee9c51}
   - id: A-111
-    kind: structure
-    statement: "The architecture document holds the packet rule for review records and a Section 21.7 on what the evaluation harness borrows."
+    kind: flow
+    statement: "The design component of the review binding hashes the files that the design manifest names under `artifacts` and its `as_is_ref` file."
     evidence:
-      - {path: docs/design/orqlet-architecture-proposal.md, lines: "1352", revision: a18faca4ee53440836895989d6e11fb0063d8088, sha256: 00f0f909339240ac5eb12a8c33109b123eb26b9d9fe7513e29438e09a9effa19}
-      - {path: docs/design/orqlet-architecture-proposal.md, lines: "4453-4455", revision: a18faca4ee53440836895989d6e11fb0063d8088, sha256: 062833f8aab4510e2ca4373c81ca70810f0c998485282c3252a1d5a9e20843e0}
+      - {path: src/orqlet/application/usecases/binding_inputs.py, lines: "330-340", revision: 2f235673610617120ffc0fc46824d7d7b56c6b87, sha256: 2a49e3fb3ac3e1cb67d2c8ef91fedb39067bc1cb60b1bf1057aef41bedbbf86c}
+  - id: A-112
+    kind: operation
+    statement: "`gate status` compares the `workflow_version` and the `protected_set_digest` of an artifact header with the current values and reports a difference as stale."
+    evidence:
+      - {path: src/orqlet/application/usecases/gate_status.py, lines: "70-77", revision: 2f235673610617120ffc0fc46824d7d7b56c6b87, sha256: 02c727f331b6b5599015b32067b509ec3a82bc6986cbe4ce5a0b176b5b9b703a}
+      - {path: src/orqlet/application/usecases/gate_status.py, lines: "194-202", revision: 2f235673610617120ffc0fc46824d7d7b56c6b87, sha256: 054c97f2e3aebda915b2a33841acaa2ccd93af1b739c71867ed0b86c0c5edff0}
+  - id: A-113
+    kind: operation
+    statement: "`doctor` reports an error when the installed workflow has the same version as this CLI but another digest, and an available upgrade only when the installed version is lower."
+    evidence:
+      - {path: src/orqlet/application/usecases/diagnose.py, lines: "231-248", revision: 2f235673610617120ffc0fc46824d7d7b56c6b87, sha256: a26f85e7f75fb6a35d1155395edee48d29a95bd847176202292ee264f222a3b8}
+  - id: A-114
+    kind: structure
+    statement: "The packaged workflow identity says version 0.3.0, and `releases.json` records only the release 0.1.0."
+    evidence:
+      - {path: src/orqlet/workflow/identity.json, lines: "1-5", revision: 2f235673610617120ffc0fc46824d7d7b56c6b87, sha256: 618984327909bb40662816a9328261df43f7ac41a5d26d65f4cb658b721b5e02}
+      - {path: src/orqlet/workflow/releases.json, lines: "1-10", revision: 2f235673610617120ffc0fc46824d7d7b56c6b87, sha256: 63ad2128350fd7052aacf1ad780bb18d14ddcfc73689a39dbafedeb85424bf62}
+  - id: A-115
+    kind: structure
+    statement: "The description of the `orqlet-research` skill contains a colon followed by a space."
+    evidence:
+      - {path: src/orqlet/workflow/skills/orqlet-research/skill.md, lines: "3", revision: 2f235673610617120ffc0fc46824d7d7b56c6b87, sha256: 022dbf8e20b4510de863cf98fa95b681b984816e7b07edd14037e9ce5d09209b}
+  - id: A-116
+    kind: structure
+    statement: "Section 6.14.1 of the architecture document lists the review packet members, among them `diff`, as the unified diff from the merge base to the tree generated with fixed options."
+    evidence:
+      - {path: docs/design/orqlet-architecture-proposal.md, lines: "1307", revision: 2f235673610617120ffc0fc46824d7d7b56c6b87, sha256: cf1fd9c281958b10cba9c5eddbc94ce9e53eea00252b70eab5c07756cf011aa2}
+  - id: A-117
+    kind: operation
+    statement: "The enforcement baseline `.orqlet/versions.yaml` records workflow 0.3.0 with the floor 0.3.0."
+    evidence:
+      - {path: .orqlet/versions.yaml, lines: "8-12", revision: 2f235673610617120ffc0fc46824d7d7b56c6b87, sha256: f9afaea733111b8142fc1b4dfd6872cd9cdb4f0bf7fefbba5afd9e6dbe67c8c3}
 unknowns:
   - {id: U-3, what: "Whether Harness2 runs on macOS at all: its documentation says Linux, its runners need a `timeout` command that is not on this Mac, and it cannot run on Windows as documented.", material: true}
   - {id: U-4, what: "Whether task data and full trajectories may go to the model endpoints under the company's data-handling policy. Not answered, and superseded while only ideas are borrowed.", material: false, question_ref: Q-4}
@@ -83,11 +116,10 @@ unknowns:
   - {id: U-6, what: "Whether anything in Harness2 applies an adopted harness to a repository, or only stores it under `runs/` and in the library.", material: true}
   - {id: U-7, what: "Whether the reported gains transfer to repository engineering work: the benchmarks are professional-work, legal and office tasks, only the WorkBuddy code subset edits a repository, and the numbers were not reproduced.", material: true}
   - {id: U-8, what: "Whether a representative task set and a judge for Orqlet's own workflow exist: the corpus of design Section 21 is unbuilt and `score` in Harness2 is external to its repository.", material: true}
-  - {id: U-9, what: "Whether Cursor, Claude Code and Codex read generated front matter correctly, quoted or unquoted, for skills, commands and Claude Code agents; only the Cursor agent behaviour with quoted values was observed.", material: true}
+  - {id: U-9, what: "Whether Cursor and Claude Code read generated front matter with quoted values correctly for skills and for Claude Code agents; only the Cursor agent behaviour was observed.", material: true}
   - {id: U-10, what: "Whether the Harness2 project will be maintained: version 0.1.0, 17 days old, not an officially supported Google product.", material: false}
   - {id: U-11, what: "Licences of the bundled benchmark runners and datasets (`LICENSE` and `PROVENANCE.md` were not read).", material: false}
   - {id: U-12, what: "Whether `.env.example` exists in Harness2: the README and SETUP reference it and the clone has none.", material: false}
-  - {id: U-13, what: "Whether Cursor lists and starts the generated agents by their plain names after the change, and which model they run on. The check of phase P-6 was not observed.", material: true}
 contradictions:
   - {id: C-1, sources: ["`PYP`/`README`", "design R-04"], note: "Harness² is POSIX only (Linux documented); Orqlet requires macOS, Linux and Windows"}
   - {id: C-2, sources: ["`README` (executors OpenCode and Codex)", "design §2.2 (clients Cursor, Codex, Claude Code)"], note: "The executor sets overlap only on Codex"}
@@ -119,17 +151,17 @@ self_check:
 ---
 # AS-IS: google-research/harness2 and Orqlet (facts only)
 
-**Format note (2026-10-24).** The YAML front matter above is the validated AS-IS artifact. It holds only facts that resolve at the base revision `a18faca`, which is the state after phases P-1 to P-6, because that is the only commit this repository has. It describes the implemented state, not the state before the change, which no commit holds. Sections 1 to 8 below are the research accepted on 2026-10-23, kept as it was, except the rows marked in the header table. Their facts about Harness2 cite an external repository, a paper or Context7, which the artifact format cannot hold, so **nothing below is validated**. The ids `A-101` and up in the front matter are repository facts; the ids `A-1` to `A-5b` in section 4a are answers.
+**Format note.** The YAML front matter above is the validated AS-IS artifact. It holds 17 facts about Orqlet that resolve at the base revision, which is the reconstructed baseline commit (its message says it is reconstructed, not original). Sections 1 to 8 below are the research accepted on 2026-10-23, kept as it was, except the two rows marked in the header table. Their facts about Harness2 cite an external repository, a paper or Context7, which the artifact format cannot hold, so **nothing below is validated**. The ids `A-101` and up in the front matter are repository facts; the ids `A-1` to `A-5b` in section 4a are answers.
 
 | Field | Value |
 |---|---|
 | Task | `harness2-fit` |
 | Phase | 1, zero-noise research. Facts, unknowns and contradictions only. No design opinions, no recommendations |
 | Request | (1) Based on the old research: is `https://github.com/google-research/harness2` a solution for Orqlet, and if not, is it a good way to integrate it? Use Context7. (2) Read its source code and find out whether anything from it can be used in this project |
-| Date and base | 2026-10-23, rewritten into the tool's format on 2026-10-24. The validated facts are bound to revision `a18faca4ee53440836895989d6e11fb0063d8088` (the only commit). Facts about Harness² are bound to the commit `1cfe254e8d25b15f37048c3730134686abe60335` (2026-10-13, "Fix arXiv link") that was cloned to `/tmp/harness2-src` for reading only; the SHA-256 of each cited file is in section 7 |
+| Date and base | 2026-10-23. The validated facts are bound to the reconstructed baseline revision `2f235673610617120ffc0fc46824d7d7b56c6b87`. Facts about Harness² are bound to the commit `1cfe254e8d25b15f37048c3730134686abe60335` (2026-10-13, "Fix arXiv link") that was cloned to `/tmp/harness2-src` for reading only; the SHA-256 of each cited file is in section 7 |
 | Method | Read-only. Round 1: web fetch of the README, `docs/SETUP.md`, `docs/EXPERIMENTS.md`, `third_party/README.md`, `pyproject.toml`, the GitHub REST API, the text of arXiv 2610.14224, Context7 (once to resolve, once to query), a tool-presence probe, reads of the Orqlet proposal. Round 2: a shallow `git clone` of the public repository to `/tmp`, then three `orqlet-inventory` subagents (core and config; executors and environment; benchmarks, CLI and tests) and one `orqlet-tracer` subagent (one refinement run and the demo), all read-only and told not to execute anything. I re-checked 13 of their claims against the clone with `rg` (section 6). Nothing from the repository was run or installed, no model was called, no authentication was run, no external system was changed |
 | Research mode | `parallel-subagents`. Limitations: the subagents ran on `claude-sonnet-5-5-xhigh` and not on the session model (O-12); the same model family read the code and wrote the reports; I verified a sample, not every line number; `third_party/`, `dependencies/` and `assets/` were not read |
-| Status | Accepted by you on 2026-10-23 (A-5b) in its earlier table form. The rewritten form was accepted by you on 2026-10-24. `orqlet validate ledger docs/design/harness2-fit/questions.yaml` returns PASS. Nothing here was independently reviewed |
+| Status | Accepted by you on 2026-10-23 (A-5b) in its table form. This front-matter form, bound to the reconstructed baseline, was accepted by you on 2026-10-25, in conversation. `orqlet validate ledger docs/design/harness2-fit/questions.yaml` returns PASS. Nothing here was independently reviewed |
 
 Evidence forms: `README`, `SETUP`, `EXPERIMENTS`, `TP`, `PYP` are the raw files on branch `main` read in round 1. `API` is the GitHub REST API. `paper` is arXiv 2610.14224. `C7` is Context7. `h2:<path>:<lines>` is a file of the clone at the commit above. `design §n` is a section of `docs/design/orqlet-architecture-proposal.md` (v0.5). `probe` is a local command run on 2026-10-23.
 

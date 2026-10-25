@@ -1,0 +1,90 @@
+{
+  "$defs": {
+    "DocsMapEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Code",
+          "type": "array"
+        },
+        "docs": {
+          "items": {
+            "$ref": "#/$defs/DocsTarget"
+          },
+          "minItems": 1,
+          "title": "Docs",
+          "type": "array"
+        },
+        "owner": {
+          "minLength": 1,
+          "title": "Owner",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "docs",
+        "owner"
+      ],
+      "title": "DocsMapEntry",
+      "type": "object"
+    },
+    "DocsTarget": {
+      "additionalProperties": false,
+      "properties": {
+        "anchors": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Anchors",
+          "type": "array"
+        },
+        "kind": {
+          "default": "hand-written",
+          "enum": [
+            "hand-written",
+            "generated"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "path": {
+          "title": "Path",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "title": "DocsTarget",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "One more source of candidates. It never waives the knowledge step.",
+  "properties": {
+    "schema": {
+      "const": "orqlet.docs-map/v1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "targets": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/DocsMapEntry"
+      },
+      "title": "Targets",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema"
+  ],
+  "title": "DocsMap",
+  "type": "object"
+}

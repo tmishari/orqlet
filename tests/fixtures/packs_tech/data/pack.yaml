@@ -1,0 +1,7 @@
+schema: orqlet.standards-pack/v1
+id: data
+version: 1.2.0
+owner: example-data-team
+applies_to:
+  technologies: [PostgreSQL, Kafka]
+rules: [rules/data.yaml]

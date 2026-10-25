@@ -1,0 +1,10 @@
+schema: orqlet.knowledge/v2
+sources:
+  - {kind: adr, scope: project, globs: ["docs/adr/**"]}
+  - {kind: module-card, scope: project, globs: ["docs/modules/**"]}
+exclude: ["docs/archive/**"]
+write_scope:
+  - {globs: ["docs/modules/**"], kinds: [module-card, docs]}
+index:
+  views: ["committed:HEAD"]
+  refresh_policy: warn

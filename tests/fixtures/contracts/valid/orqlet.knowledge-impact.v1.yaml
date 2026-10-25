@@ -1,0 +1,34 @@
+schema: orqlet.knowledge-impact/v1
+task: sample-task
+phase: P-1
+review_input:
+  schema: orqlet.review-input/v1
+  covers: [code_tests, knowledge, plan, standards, candidates]
+  components:
+    code_tests: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    knowledge: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    plan: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    standards: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    candidates: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  merge_base: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+outcome: updated
+analysis:
+  command: orqlet knowledge impact
+  orqlet_version: 0.2.0
+  candidates_digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  candidate_count: 1
+  input: pre-draft-tree
+  views: [committed:HEAD]
+  index_state: not-used
+entries:
+  - id: K-1
+    candidate_ref: cand-1
+    action: add
+    scope: project
+    path: docs/modules/service.md
+    claims:
+      - id: CL-1
+        anchor: "## Service"
+        evidence:
+          - {kind: code, ref: "src/pkg/service.py:1-3", sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}

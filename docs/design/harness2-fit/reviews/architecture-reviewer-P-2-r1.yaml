@@ -1,0 +1,127 @@
+schema: orqlet.review-result/v1
+task: harness2-fit
+phase: P-2
+role: architecture-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  schema: orqlet.review-input/v1
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  components:
+    code_tests: 1cde72e851aea3bb6f9f0458ff1d8a1ba4a5a63ada87bb6207434be18dc3617e
+    design: af2ae4a8d23cdc477ccb7e76627628491cdd71baf8c6e3e5fa486b2fa65819ac
+    evidence_inputs: 57de83289dda97372a43a73a4a4a5dddd11e8fdfd8dd39c7b70db333e52e6a64
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 2f4d690be243ae8b9b20b573c59499cac9ff42ef2348fa880b5e7330d3c9ead2
+    reviewer_definition: 7f2385218cce1961990c83f320b38a7dd3147e62b766bd1747d2eea810f24eb0
+    standards: a890bfe048dcd9f6d02a07460914ce1da9eaa59ffb0b1a89eed8a012cdca071e
+  digest: 7405709fe4591a49a98de4006b6ad12ebce5bb33a52ad270f1a62cd4c5261325
+  merge_base: 8fefb0d09defa0a69a3f5fe4f7144fbd253e9583
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: 4800b985d56f60c4fcda08bf688d64b94afc0bcf7cfec49be6a6272a867af56d
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; its shell was unavailable, so it ran no check and recomputed no digest.
+- Quote digests were not computed, so each finding rests on an absence record or is an observation.
+- Cursor used the repository's current agent definition, which is the post-change file, while this record binds the definition in the reviewed tree.
+- The model that ran the reviewer is not observed.
+applicability:
+  examined:
+  - src/orqlet/workflow/skills/orqlet-research/skill.md
+  - src/orqlet/workflow/identity.json
+  - src/orqlet/workflow/MANIFEST.json
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: tests
+  rule_ref: ORQLET-QA-001
+  evidence:
+  - kind: absence
+    searched:
+    - docs/design/harness2-fit/tests/P-2.yaml
+    method: Read every entry under `commands:`. Looked for a run of tests/integration, tests/e2e or tests/fault, or a Python version. Only the pytest entry exists, and its summary says 'tests/unit and tests/contract only, 1405 passed in 35.44s'.
+    revision: 3ac5b96d17df803ce133c261688ec7fb164bcf78
+  claim: 'The plan''s `pytest` check and the completion line ''All checks pass on Python 3.12'' are not shown for the whole suite. The record is honest: verdict NOT_RUN, evidence_kind claimed, ''only'' stated.'
+  suggested_action: Run the full `uv run pytest` on Python 3.12 and update the record before the phase is called complete. CI runs the whole suite on the matrix, and the tests I read that touch the packaged workflow do not pin 0.3.0 or the old description.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: docs
+  evidence: []
+  claim: 'The knowledge-impact record is accurate where I could check it. Both cited hashes match the packet (ADR-001 `3f1e84dd…`, design manifest `cc466c04…`). `.orqlet/knowledge.yaml` has `sources: []` and the plan has `knowledge_scope: []`. Zero candidates is right, since no public API, dependency or lockfile path changed. One nit: the reason says the phase is ''already written down'' in ADR-001 decision 5 and the manifest, but the number 0.3.1 and the exact wording are fixed only by the plan, which is not in `already_documented_refs`.'
+  suggested_action: 'Optional: add `plan.yaml` to `already_documented_refs`.'
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: standards
+  evidence: []
+  claim: 'The diff has 14 files. 12 are the plan''s P-2 file list. The other two are `docs/design/harness2-fit/knowledge/P-2.yaml` and `docs/design/harness2-fit/tests/P-2.yaml`: the phase''s required knowledge and tester records, outside the plan''s list and the design''s `scope.paths`. This follows P-1, which has the same two records.'
+  suggested_action: None. Recorded so the reviewer of the scope check sees it.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: docs
+  evidence: []
+  claim: 'I cannot establish the design and plan approvals from the packet. Both headers say `status: draft`. The plan''s self-check says approval was a statement in session. The design''s self-check records ''AS-IS accepted by the person'' as `not-run`. I treated both as approved because the task presents them that way.'
+  suggested_action: The person confirms the approvals, including the AS-IS in its front-matter form.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+  checks:
+  - what: change stays inside the P-2 file list
+    how: diff.patch has 14 `diff --git` entries; 12 match plan.yaml P-2 file_operations, 2 are the phase records (F-3)
+    result: pass
+  - what: AC-1 description constraints and meaning
+    how: read src/orqlet/workflow/skills/orqlet-research/skill.md:3 and the three goldens
+    result: pass
+  - what: AC-2 manifest and version
+    how: diff of MANIFEST.json and identity.json, compared with the packet MANIFEST.json hashes
+    result: pass
+  - what: AC-3 golden diff
+    how: all 9 golden hunks in diff.patch read; no other golden path in the diff
+    result: pass
+  - what: AC-4 release gate
+    how: src/orqlet/domain/versions.py check_release_history against releases.json
+    result: pass
+  - what: knowledge-impact record
+    how: hashes and sources compared with the packet; F-2
+    result: pass
+  - what: full test suite
+    how: ''
+    result: not-run
+  unverified:
+  - 'No command was run by me: ruff, mypy, import-linter, pytest and the manifest check are the tester''s claims.'
+  - Integration, e2e and fault tests were not run (F-1).
+  - Design section 20.8 (patch level for this change) is in docs/design/orqlet-architecture-proposal.md, which the packet omitted over its limits. I could not check it.
+  - How the goldens were regenerated, and the standards and review_input digests.
+  - Security review, which is outside my field.
+  questions:
+  - Do the person's approvals of the AS-IS, the design and the plan exist outside this repository (F-4)?

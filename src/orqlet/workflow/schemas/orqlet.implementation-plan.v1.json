@@ -1,0 +1,576 @@
+{
+  "$defs": {
+    "AcceptanceCriterion": {
+      "additionalProperties": false,
+      "properties": {
+        "check_ref": {
+          "minLength": 1,
+          "title": "Check Ref",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^AC-\\d+$",
+          "title": "Id",
+          "type": "string"
+        },
+        "source": {
+          "minLength": 1,
+          "title": "Source",
+          "type": "string"
+        },
+        "text": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "text",
+        "source",
+        "check_ref"
+      ],
+      "title": "AcceptanceCriterion",
+      "type": "object"
+    },
+    "ArtifactHeader": {
+      "additionalProperties": false,
+      "properties": {
+        "bound": {
+          "$ref": "#/$defs/Bound"
+        },
+        "protected_set_digest": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Protected Set Digest",
+          "type": "string"
+        },
+        "schema": {
+          "const": "orqlet.artifact-header/v1",
+          "title": "Schema",
+          "type": "string"
+        },
+        "specialists": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Specialist"
+          },
+          "title": "Specialists",
+          "type": "array"
+        },
+        "status": {
+          "enum": [
+            "draft",
+            "approved",
+            "superseded"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "task": {
+          "maxLength": 64,
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+          "title": "Task",
+          "type": "string"
+        },
+        "workflow_version": {
+          "minLength": 1,
+          "title": "Workflow Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema",
+        "task",
+        "status",
+        "workflow_version",
+        "protected_set_digest",
+        "bound"
+      ],
+      "title": "ArtifactHeader",
+      "type": "object"
+    },
+    "Bound": {
+      "additionalProperties": false,
+      "properties": {
+        "applicable_rules_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Applicable Rules Hash",
+          "type": "string"
+        },
+        "base_revision": {
+          "pattern": "^([0-9a-f]{40}|[0-9a-f]{64})$",
+          "title": "Base Revision",
+          "type": "string"
+        },
+        "profile_version": {
+          "minimum": 0,
+          "title": "Profile Version",
+          "type": "integer"
+        },
+        "standards_lock_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Standards Lock Hash",
+          "type": "string"
+        },
+        "upstream": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Upstream"
+          },
+          "title": "Upstream",
+          "type": "array"
+        }
+      },
+      "required": [
+        "base_revision",
+        "standards_lock_hash",
+        "applicable_rules_hash",
+        "profile_version"
+      ],
+      "title": "Bound",
+      "type": "object"
+    },
+    "Check": {
+      "additionalProperties": false,
+      "properties": {
+        "how": {
+          "title": "How",
+          "type": "string"
+        },
+        "result": {
+          "enum": [
+            "pass",
+            "fail",
+            "not-run"
+          ],
+          "title": "Result",
+          "type": "string"
+        },
+        "what": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "What",
+          "type": "string"
+        }
+      },
+      "required": [
+        "what",
+        "how",
+        "result"
+      ],
+      "title": "Check",
+      "type": "object"
+    },
+    "CheckedAgainst": {
+      "additionalProperties": false,
+      "properties": {
+        "acceptance_criteria": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Acceptance Criteria",
+          "type": "array"
+        },
+        "applicable_standards": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Applicable Standards",
+          "type": "array"
+        },
+        "confirmed_requirements": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Confirmed Requirements",
+          "type": "array"
+        },
+        "evidence": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "phase": {
+          "minLength": 1,
+          "title": "Phase",
+          "type": "string"
+        },
+        "role": {
+          "minLength": 1,
+          "title": "Role",
+          "type": "string"
+        }
+      },
+      "required": [
+        "role",
+        "phase"
+      ],
+      "title": "CheckedAgainst",
+      "type": "object"
+    },
+    "Phase": {
+      "additionalProperties": false,
+      "properties": {
+        "acceptance_criteria": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/AcceptanceCriterion"
+          },
+          "title": "Acceptance Criteria",
+          "type": "array"
+        },
+        "checks": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Checks",
+          "type": "array"
+        },
+        "completion": {
+          "default": [],
+          "items": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": "Completion",
+          "type": "array"
+        },
+        "depends_on": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Depends On",
+          "type": "array"
+        },
+        "expected_lock_packages": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Expected Lock Packages",
+          "type": "array"
+        },
+        "expected_outputs": {
+          "default": [],
+          "items": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": "Expected Outputs",
+          "type": "array"
+        },
+        "file_operations": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/PlanFileOperation"
+          },
+          "title": "File Operations",
+          "type": "array"
+        },
+        "id": {
+          "pattern": "^P-\\d+$",
+          "title": "Id",
+          "type": "string"
+        },
+        "implements": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Implements",
+          "type": "array"
+        },
+        "knowledge_step": {
+          "const": "required",
+          "title": "Knowledge Step",
+          "type": "string"
+        },
+        "objective": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Objective",
+          "type": "string"
+        },
+        "review_evidence": {
+          "items": {
+            "enum": [
+              "architecture-reviewer",
+              "security-reviewer",
+              "tester"
+            ],
+            "type": "string"
+          },
+          "title": "Review Evidence",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "objective",
+        "review_evidence",
+        "knowledge_step"
+      ],
+      "title": "Phase",
+      "type": "object"
+    },
+    "PlanFileOperation": {
+      "additionalProperties": false,
+      "properties": {
+        "moved_from": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Moved From"
+        },
+        "op": {
+          "enum": [
+            "create",
+            "modify",
+            "delete"
+          ],
+          "title": "Op",
+          "type": "string"
+        },
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "why": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Why",
+          "type": "string"
+        }
+      },
+      "required": [
+        "op",
+        "path",
+        "why"
+      ],
+      "title": "PlanFileOperation",
+      "type": "object"
+    },
+    "ReuseDecision": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate": {
+          "minLength": 1,
+          "title": "Candidate",
+          "type": "string"
+        },
+        "decision": {
+          "enum": [
+            "use",
+            "not-applicable"
+          ],
+          "title": "Decision",
+          "type": "string"
+        },
+        "reason": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "candidate",
+        "decision",
+        "reason"
+      ],
+      "title": "ReuseDecision",
+      "type": "object"
+    },
+    "SelfCheck": {
+      "additionalProperties": false,
+      "properties": {
+        "checked_against": {
+          "$ref": "#/$defs/CheckedAgainst"
+        },
+        "checks": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Check"
+          },
+          "title": "Checks",
+          "type": "array"
+        },
+        "failures": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Failures",
+          "type": "array"
+        },
+        "questions": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Questions",
+          "type": "array"
+        },
+        "schema": {
+          "const": "orqlet.self-check/v1",
+          "title": "Schema",
+          "type": "string"
+        },
+        "unverified": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Unverified",
+          "type": "array"
+        }
+      },
+      "required": [
+        "schema",
+        "checked_against"
+      ],
+      "title": "SelfCheck",
+      "type": "object"
+    },
+    "Specialist": {
+      "additionalProperties": false,
+      "description": "Recorded and validated for shape, not for truth.",
+      "properties": {
+        "binding": {
+          "minLength": 1,
+          "title": "Binding",
+          "type": "string"
+        },
+        "client": {
+          "minLength": 1,
+          "title": "Client",
+          "type": "string"
+        },
+        "parallel": {
+          "title": "Parallel",
+          "type": "boolean"
+        },
+        "role": {
+          "minLength": 1,
+          "title": "Role",
+          "type": "string"
+        }
+      },
+      "required": [
+        "role",
+        "client",
+        "binding",
+        "parallel"
+      ],
+      "title": "Specialist",
+      "type": "object"
+    },
+    "Upstream": {
+      "additionalProperties": false,
+      "properties": {
+        "ref": {
+          "title": "Ref",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "ref",
+        "sha256"
+      ],
+      "title": "Upstream",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "amends": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Amends"
+    },
+    "base_revision": {
+      "pattern": "^([0-9a-f]{40}|[0-9a-f]{64})$",
+      "title": "Base Revision",
+      "type": "string"
+    },
+    "design_ref": {
+      "minLength": 1,
+      "title": "Design Ref",
+      "type": "string"
+    },
+    "header": {
+      "$ref": "#/$defs/ArtifactHeader"
+    },
+    "knowledge_scope": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Knowledge Scope",
+      "type": "array"
+    },
+    "phases": {
+      "items": {
+        "$ref": "#/$defs/Phase"
+      },
+      "minItems": 1,
+      "title": "Phases",
+      "type": "array"
+    },
+    "reuse_decisions": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/ReuseDecision"
+      },
+      "title": "Reuse Decisions",
+      "type": "array"
+    },
+    "schema": {
+      "const": "orqlet.implementation-plan/v1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "self_check": {
+      "$ref": "#/$defs/SelfCheck"
+    }
+  },
+  "required": [
+    "schema",
+    "header",
+    "design_ref",
+    "base_revision",
+    "phases",
+    "self_check"
+  ],
+  "title": "ImplementationPlan",
+  "type": "object"
+}

@@ -1,0 +1,57 @@
+{
+  "$defs": {
+    "ReleasedFile": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        },
+        "released_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Released By"
+        }
+      },
+      "required": [
+        "path",
+        "reason"
+      ],
+      "title": "ReleasedFile",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "`.orqlet/released.yaml`: files that left the manifest and now belong to the team.",
+  "properties": {
+    "files": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/ReleasedFile"
+      },
+      "title": "Files",
+      "type": "array"
+    },
+    "schema": {
+      "const": "orqlet.released/v1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema"
+  ],
+  "title": "Released",
+  "type": "object"
+}

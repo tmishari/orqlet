@@ -1,0 +1,10 @@
+{
+  "releases": [
+    {
+      "controls_level": 1,
+      "digest": "b52f299b3dd1a0236dc054b6d34b33f0a6a1aac978ff490b8c70ed62be1f980b",
+      "version": "0.1.0"
+    }
+  ],
+  "schema": "orqlet.workflow-releases/v1"
+}

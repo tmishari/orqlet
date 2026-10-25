@@ -1,0 +1,190 @@
+schema: orqlet.review-result/v1
+task: harness2-fit
+phase: P-4
+role: security-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  schema: orqlet.review-input/v1
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  components:
+    code_tests: 3ea61e2ab60e5c5f852d8dbc65d7b352886d9bdebfa5b88de2e9cc0b3f48e549
+    design: af2ae4a8d23cdc477ccb7e76627628491cdd71baf8c6e3e5fa486b2fa65819ac
+    evidence_inputs: c4c7e061a8dbd83849f72755b46b669b81f2c204ae182231090aba7a3cdc1856
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 2f4d690be243ae8b9b20b573c59499cac9ff42ef2348fa880b5e7330d3c9ead2
+    reviewer_definition: ce7367088aa582a08161a844d3693d3df22bfedca60ffab5a82bd453966f12d4
+    standards: a890bfe048dcd9f6d02a07460914ce1da9eaa59ffb0b1a89eed8a012cdca071e
+  digest: 33838679db47e1159c76a9f8b4d3f6705159e5021d8be943461c0de1149b2aa2
+  merge_base: b9144df865f0ed14ecedcc4c25f70445c07c96d5
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: 1a386dd0b99cc497a008a60a4f2640ab27278781dc3ff1b551af3117ae8548d9
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; its shell was unavailable, so it ran no check and recomputed no digest.
+- Quote digests were not computed, so each finding rests on an absence record or is an observation.
+- Cursor used the repository's current agent definition, which is the post-change file, while this record binds the definition in the reviewed tree.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the earlier design-phase review notes (the known gap that ADR-002 closes), and the reviewer read the design-phase security note, so it was not fully context-clean.
+applicability:
+  examined:
+  - tests/unit/render/test_front_matter_views.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: info
+  category: tests
+  rule_ref: ORQLET-TEST-001
+  evidence: []
+  claim: 'Plan P-4 AC-1 says "With the packaged workflow this is 32 files", and ADR-001 counts 32 files. The test only asserts that each (client, path class) yields at least one file (`test_a_client_yields_files_of_every_path_class_it_produces`, `assert texts`). It never pins the number 32. A skill, agent or command file that silently stops being rendered, or whose path stops matching `PATH_CLASSES`, would leave this check green. Those files carry the read-only controls (`tools: Read, Grep, Glob`, `readonly: true`, `disable-model-invocation: true`). Mitigation: I confirmed statically that `tests/unit/render/test_skills.py` (lines 279-319, 365-481) pins those controls separately, so the exposure is low.'
+  suggested_action: Optionally assert the per-client counts (or the total of 32) in the release test.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: tests
+  evidence: []
+  claim: '`test_the_whole_check_goes_red_when_the_quoting_defect_returns` asserts only `any("name" in problem ...)` for each rendered file. The substring match is weak. The check that names `tools` and `model` (AC-2, `QUOTED_BLOCK`) runs on a fixture block, not on rendered files. With the defect injected, the rendered-file test therefore proves only that the `name` key is flagged. The `tools` and `readonly` controls of rendered roles are covered by the all-keys comparison in AC-1, not by this test.'
+  suggested_action: Optionally assert that the messages name `model` (and `tools` for Claude Code) for rendered agents.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: docs
+  evidence: []
+  claim: '`docs/design/harness2-fit/tests/P-4.yaml` has `verdict: NOT_RUN` and `evidence_kind: claimed`. AC-4 (the Python 3.12-3.15 matrix, sockets disabled) is recorded as `not-run`. The packet holds no command output, only `result_digest` values. I could not verify the exit codes, the "1797 passed" count or the digests. The record is consistent with ORQLET baseline ("not run, never passed"). AC-4''s security-relevant half (no network) is enforced by `--disable-socket` in `pyproject.toml` `addopts`, which I read but did not run.'
+  suggested_action: Run the matrix before the phase is closed, and keep AC-4 `not-run` until then.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: security
+  evidence:
+  - kind: absence
+    searched:
+    - diff.patch
+    method: 'Case-insensitive regex for `api key|secret|token|password|credential|AKIA|sk_live|sk_test|ghp_|BEGIN ... KEY/CERT|/Users/|e-mail shape`. The only hits were `pytest.mark.parametrize` lines, caught by the e-mail shape. These are false positives. The records contain only repo-relative paths, SHA-256 digests and commit ids. `knowledge/P-4.yaml` has `entries: []`, `candidate_count: 0`. `.orqlet/knowledge.yaml` has `sources: []`.'
+    revision: 7922ac6e75d98e3afdf3d0cb0f379eb71eb0ce74
+  claim: No secrets, tokens, credentials or private data were found in code, tests, fixtures or knowledge text.
+  suggested_action: None.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: security
+  evidence:
+  - kind: absence
+    searched:
+    - tests/unit/render/test_front_matter_views.py
+    method: Searched for `os`, `sys`, `subprocess`, `socket`, `shutil`, `tempfile`, `pathlib`, `importlib`, `pickle`, `open(`, `eval(` and `exec(`. No matches. It renders in memory via `packaged_request()` (the packaged workflow, read-only). It uses no files and no network.
+    revision: 7922ac6e75d98e3afdf3d0cb0f379eb71eb0ce74
+  claim: No process, file system or network access in the new test file.
+  suggested_action: None.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: info
+  category: security
+  evidence:
+  - kind: absence
+    searched:
+    - tests/unit/render/test_front_matter_views.py
+    - snapshot/src/orqlet/adapters/fs/yaml_loader.py
+    method: There is no `yaml.load`, `unsafe_load` or `full_load`. The strict loader (`StrictYamlLoader`) is used for the main oracle. `adapters/fs/yaml_loader.py` uses a core-tag allow-list and rejects anchors, aliases, merge keys and duplicate keys. It has byte, depth and node caps.
+    revision: 7922ac6e75d98e3afdf3d0cb0f379eb71eb0ce74
+  claim: 'No unsafe parsing: the only direct PyYAML call is `yaml.safe_load`, and all inputs are generated by Orqlet''s renderers or by the test''s own strategies.'
+  suggested_action: None.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: info
+  category: security
+  evidence:
+  - kind: absence
+    searched:
+    - diff.patch
+    - snapshot/pyproject.toml
+    - snapshot/uv.lock
+    method: None in the diff. The test imports `yaml` (PyYAML 6.0.3, a pinned runtime dependency) and `hypothesis` (6.170.5, a pinned dev dependency). Both are already declared. The import-linter forbids on `yaml` only apply to `orqlet.domain` and `orqlet.application`, not to tests.
+    revision: 7922ac6e75d98e3afdf3d0cb0f379eb71eb0ce74
+  claim: No dependency change.
+  suggested_action: None.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-8
+  kind: observation
+  severity: info
+  category: security
+  evidence:
+  - kind: absence
+    searched:
+    - tests/unit/render/test_front_matter_views.py
+    method: The test prints nothing. `front_matter_differences` messages name keys only, never values (the design's SR-5/SR-6 resolution). The test checks message count and key names, not values.
+    revision: 7922ac6e75d98e3afdf3d0cb0f379eb71eb0ce74
+  claim: 'No data exposure through logging: the test prints nothing, and `front_matter_differences` messages name keys only, never values.'
+  suggested_action: None.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-9
+  kind: observation
+  severity: info
+  category: security
+  evidence:
+  - kind: absence
+    searched:
+    - snapshot/.gitignore
+    method: '`.hypothesis/` is in `.gitignore`, so generated examples are not committed.'
+    revision: 7922ac6e75d98e3afdf3d0cb0f379eb71eb0ce74
+  claim: Hypothesis state stays out of the repository.
+  suggested_action: None.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet read, static
+    how: diff.patch, plan, test record, knowledge-impact record, the new test file and the standards in the packet; no command was run
+    result: pass
+  - what: secrets, process, parsing, dependency and exposure scans
+    how: see F-4 to F-9
+    result: pass
+  - what: tests, checks and the injected defect run
+    how: the shell was refused in this read-only session
+    result: not-run
+  - what: digests recomputed
+    how: no hashing tool
+    result: not-run
+  - what: client behaviour (Cursor, Claude Code, Codex)
+    how: not observable from the packet
+    result: not-run
+  unverified:
+  - I did not confirm that the test passes, or that it fails when the defect is injected.
+  - I did not recompute any digest or manifest hash.
+  - I did not review production code. The packet has none for this phase; P-1 and P-3 code sits in the snapshot and I read it only as context.
+  - The design's security conditions SR-2, SR-12, SR-15 and SR-11 were checked by reading; rule files and Codex TOML roles are out of scope by ADR-001 decision 6.

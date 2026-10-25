@@ -1,0 +1,188 @@
+schema: orqlet.project-profile/v1
+project:
+  uuid: "81f312d4-f15b-4782-bab7-b64db877114c"
+  name: orqlet
+  kind: python-cli
+  origin: existing
+stack:
+  support: supported
+  capability_limits: []
+profile:
+  version: 1
+  status: draft
+facts:
+  python:
+    value: ">=3.12"
+    evidence:
+      - path: pyproject.toml
+        lines: "9-9"
+        sha256: "9269166afe8e8458b22d293d85bef14655a2ebab927033773593124d1aa4b72a"
+  package_manager:
+    value: uv
+    evidence:
+      - path: uv.lock
+        lines: "1-1"
+        sha256: "4eab33c0b9ba9ded10e2a046539031d60df90438efad3533d7ad16b6f61da112"
+  frameworks:
+    - value: "typer==0.27.3"
+      evidence:
+        - path: pyproject.toml
+          lines: "11-11"
+          sha256: b96c5cb0e60ca1f67512da6c4346405cdbf109ba6724b507170cb2cfde247eeb
+      name: Typer
+repository:
+  target_branch:
+    value: main
+    evidence: []
+    answered_by: maintainer
+    remote: origin
+  branch_naming:
+    evidence: []
+    question: "Is there a branch naming rule?"
+  commit_convention:
+    evidence: []
+    question: "Is there a commit message convention?"
+  pull_requests:
+    template:
+      targets:
+        - ".github/pull_request_template.md"
+      status: team-template-unknown
+    reviewers: unknown
+    merge_strategy: unknown
+structure: {}
+dependencies:
+  declared:
+    - name: filelock
+      specifier: "==4.2.4"
+      evidence:
+        - path: pyproject.toml
+          lines: "14-14"
+          sha256: "12499e50bb308a5a89a08426fb9b3fb54636741d5058af6fd16d8571cbf6d218"
+    - name: hypothesis
+      specifier: "==6.170.5"
+      evidence:
+        - path: pyproject.toml
+          lines: "25-25"
+          sha256: f8c811aba08bb19902bf914cad556e87b4ab3bd82903cc4e8f15aba7bc6857c7
+    - name: import-linter
+      specifier: "==2.15"
+      evidence:
+        - path: pyproject.toml
+          lines: "26-26"
+          sha256: "6299d4da3629d9036b19a70981174f4ebd8cb29c93b01427ecb10a21e44e553e"
+    - name: mypy
+      specifier: "==2.4.0"
+      evidence:
+        - path: pyproject.toml
+          lines: "28-28"
+          sha256: "9922a6b69e780afda5d377bd4500668049754edfad8b4186adbcf2139688dccb"
+    - name: platformdirs
+      specifier: "==4.13.5"
+      evidence:
+        - path: pyproject.toml
+          lines: "15-15"
+          sha256: "3d702c9c8ddac354ebb15079037ba42695198baa35e2176c92903349637126d9"
+    - name: pydantic
+      specifier: "==2.14.1"
+      evidence:
+        - path: pyproject.toml
+          lines: "12-12"
+          sha256: "5462392e9a2a604ededd9d07767c6e7d1140b4a5a71b5362aa55a07e383404c3"
+    - name: pytest
+      specifier: "==9.1.1"
+      evidence:
+        - path: pyproject.toml
+          lines: "23-23"
+          sha256: "55c5ea9465dd9801b87dd4263e519a1a7c9c2b4bc68009bb0e777a964a475d7f"
+    - name: pytest-socket
+      specifier: "==0.8.1"
+      evidence:
+        - path: pyproject.toml
+          lines: "24-24"
+          sha256: aa1099b32eb9800e2d772c6654a60b7636ee7cbc631a82421627a8e9b810a426
+    - name: PyYAML
+      specifier: "==6.0.3"
+      evidence:
+        - path: pyproject.toml
+          lines: "13-13"
+          sha256: "75c3c1016d60e02a110d21d650bbdcf63180dd37ad1ae23573f6ea9068831cf4"
+    - name: ruff
+      specifier: "==0.17.1"
+      evidence:
+        - path: pyproject.toml
+          lines: "27-27"
+          sha256: "4ccfb855864e0c06bb2c6de4fed3cedfcf6faa6c7787f8125d675294c14ea9f2"
+    - name: typer
+      specifier: "==0.27.3"
+      evidence:
+        - path: pyproject.toml
+          lines: "11-11"
+          sha256: b96c5cb0e60ca1f67512da6c4346405cdbf109ba6724b507170cb2cfde247eeb
+    - name: types-PyYAML
+      specifier: "==6.0.12.20260906"
+      evidence:
+        - path: pyproject.toml
+          lines: "29-29"
+          sha256: acf1a0ef9ef45f07dd39d6c682f677f5fb38f3f8f8a9bdb335d800136407777b
+  locked:
+    file: uv.lock
+    evidence:
+      - path: uv.lock
+        lines: "1-1"
+        sha256: "4eab33c0b9ba9ded10e2a046539031d60df90438efad3533d7ad16b6f61da112"
+auth_procedures: []
+standards_sources:
+  - kind: prompts-dir
+    path: ".prompts"
+    scaffold: seeded
+clients:
+  enabled:
+    - claude-code
+    - codex
+    - cursor
+  min_versions:
+    claude-code: null
+    codex: null
+    cursor: null
+orqlet:
+  version: "0.1.0"
+optional_components:
+  exclude: []
+commands: {}
+technologies:
+  - kind: framework
+    name: Typer
+    version: "==0.27.3"
+    scope: "."
+    evidence:
+      - path: pyproject.toml
+        lines: "11-11"
+        sha256: b96c5cb0e60ca1f67512da6c4346405cdbf109ba6724b507170cb2cfde247eeb
+    source: scanner
+  - kind: language
+    name: Python
+    version: ">=3.12"
+    scope: "."
+    evidence:
+      - path: pyproject.toml
+        lines: "9-9"
+        sha256: "9269166afe8e8458b22d293d85bef14655a2ebab927033773593124d1aa4b72a"
+    source: scanner
+  - kind: library
+    name: Pydantic
+    version: "==2.14.1"
+    scope: "."
+    evidence:
+      - path: pyproject.toml
+        lines: "12-12"
+        sha256: "5462392e9a2a604ededd9d07767c6e7d1140b4a5a71b5362aa55a07e383404c3"
+    source: scanner
+  - kind: tool
+    name: uv
+    scope: "."
+    evidence:
+      - path: uv.lock
+        lines: "1-1"
+        sha256: "4eab33c0b9ba9ded10e2a046539031d60df90438efad3533d7ad16b6f61da112"
+    source: scanner
+capabilities: {}

@@ -1,0 +1,27 @@
+schema: orqlet.role-bindings/v1
+policy_role: enforcement-baseline
+bindings:
+  - role: architecture-reviewer
+    id: orqlet-arch-reviewer
+    clients:
+      - claude-code
+      - codex
+      - cursor
+    minimum_capability:
+      context: fresh
+      input: review-packet
+      write_access: none-or-recorded-limit
+    independence_capability: I1
+  - role: security-reviewer
+    id: orqlet-security-reviewer
+    clients:
+      - claude-code
+      - codex
+      - cursor
+    minimum_capability:
+      context: fresh
+      input: review-packet
+      write_access: none-or-recorded-limit
+    independence_capability: I1
+model_families: []
+not_accepted_for_review_roles: []

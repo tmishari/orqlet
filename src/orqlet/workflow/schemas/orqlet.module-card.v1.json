@@ -1,0 +1,358 @@
+{
+  "$defs": {
+    "CardInterface": {
+      "additionalProperties": false,
+      "properties": {
+        "python": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PythonInterface"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "service": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ServiceInterface"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "CardInterface",
+      "type": "object"
+    },
+    "CardVersion": {
+      "additionalProperties": false,
+      "properties": {
+        "constraint_hint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Constraint Hint"
+        },
+        "index_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Index Ref"
+        },
+        "package": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Package"
+        },
+        "since": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Since"
+        }
+      },
+      "title": "CardVersion",
+      "type": "object"
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "properties": {
+        "added_in": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Added In"
+        },
+        "reviewed_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reviewed By"
+        }
+      },
+      "title": "Provenance",
+      "type": "object"
+    },
+    "PythonInterface": {
+      "additionalProperties": false,
+      "properties": {
+        "import_path": {
+          "minLength": 1,
+          "title": "Import Path",
+          "type": "string"
+        },
+        "public_symbols": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Public Symbols",
+          "type": "array"
+        }
+      },
+      "required": [
+        "import_path"
+      ],
+      "title": "PythonInterface",
+      "type": "object"
+    },
+    "ServiceInterface": {
+      "additionalProperties": false,
+      "properties": {
+        "contract_ref": {
+          "minLength": 1,
+          "title": "Contract Ref",
+          "type": "string"
+        },
+        "environments": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Environments",
+          "type": "array"
+        }
+      },
+      "required": [
+        "contract_ref"
+      ],
+      "title": "ServiceInterface",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "avoid_when": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Avoid When",
+      "type": "array"
+    },
+    "deprecated_in": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Deprecated In"
+    },
+    "examples": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Examples",
+      "type": "array"
+    },
+    "id": {
+      "pattern": "^[a-z0-9][a-z0-9._-]*$",
+      "title": "Id",
+      "type": "string"
+    },
+    "interface": {
+      "$ref": "#/$defs/CardInterface",
+      "default": {
+        "python": null,
+        "service": null
+      }
+    },
+    "interface_digest": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Interface Digest"
+    },
+    "kind": {
+      "enum": [
+        "same-repo-module",
+        "released-package",
+        "deployed-service"
+      ],
+      "title": "Kind",
+      "type": "string"
+    },
+    "must_consider": {
+      "default": false,
+      "title": "Must Consider",
+      "type": "boolean"
+    },
+    "owner": {
+      "minLength": 1,
+      "title": "Owner",
+      "type": "string"
+    },
+    "paths": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Paths",
+      "type": "array"
+    },
+    "provenance": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Provenance"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "refs": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Refs",
+      "type": "array"
+    },
+    "remove_after": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Remove After"
+    },
+    "replaced_by": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Replaced By"
+    },
+    "requirement_level": {
+      "default": "informational",
+      "enum": [
+        "informational",
+        "should",
+        "must"
+      ],
+      "title": "Requirement Level",
+      "type": "string"
+    },
+    "schema": {
+      "const": "orqlet.module-card/v1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "status": {
+      "default": "active",
+      "enum": [
+        "active",
+        "deprecated",
+        "superseded"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "summary": {
+      "maxLength": 2000,
+      "minLength": 1,
+      "title": "Summary",
+      "type": "string"
+    },
+    "symbols": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Symbols",
+      "type": "array"
+    },
+    "use_when": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Use When",
+      "type": "array"
+    },
+    "version": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/CardVersion"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "schema",
+    "id",
+    "kind",
+    "summary",
+    "owner"
+  ],
+  "title": "ModuleCard",
+  "type": "object"
+}

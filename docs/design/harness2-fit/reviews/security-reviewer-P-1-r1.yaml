@@ -1,0 +1,128 @@
+schema: orqlet.review-result/v1
+task: harness2-fit
+phase: P-1
+role: security-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  schema: orqlet.review-input/v1
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  components:
+    code_tests: 2ca0aefa06cb9b542bf55282587b2e0814f122b6e8a7c64edee2a26430476a32
+    design: af2ae4a8d23cdc477ccb7e76627628491cdd71baf8c6e3e5fa486b2fa65819ac
+    evidence_inputs: c3b7a67fd40676214e283b5ee76e53f1340e20b08248d6305674cd1985d02b7e
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 2f4d690be243ae8b9b20b573c59499cac9ff42ef2348fa880b5e7330d3c9ead2
+    reviewer_definition: ce7367088aa582a08161a844d3693d3df22bfedca60ffab5a82bd453966f12d4
+    standards: a890bfe048dcd9f6d02a07460914ce1da9eaa59ffb0b1a89eed8a012cdca071e
+  digest: 889108686b0db3175b6276d3c0b940fc59c32402a87329c572d7cb7af6448c50
+  merge_base: 3b1d1cc61d61934e86e9fdbf6e6808286084f454
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: 1a386dd0b99cc497a008a60a4f2640ab27278781dc3ff1b551af3117ae8548d9
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; its shell was unavailable, so it ran no check and recomputed no digest.
+- Quote digests were not computed, so each finding rests on an absence record or is an observation.
+- Cursor used the repository's current agent definition, which is the post-change file, while this record binds the definition in the reviewed tree.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the earlier design-phase review notes (the known gap that ADR-002 closes), and the reviewer opened the security note, so it was not fully context-clean.
+applicability:
+  examined:
+  - src/orqlet/domain/front_matter.py
+  - tests/unit/domain/test_front_matter.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: failure-handling
+  evidence: []
+  claim: front_matter_differences raises TypeError when `parsed` is not a mapping, for example None (a block that parses to nothing) or a list with an unhashable member, because `{*line_view, *parsed}` (src/orqlet/domain/front_matter.py:53) needs an iterable of hashable items. The module docstring (lines 8-9, "Both functions are pure and never raise") and ADR-001 decision 2 ("Neither function raises for any input") say more than AC-4 ("any text or any mapping") and more than the tests cover, which use dict inputs only. Read, not executed.
+  suggested_action: 'Narrow the docstring and ADR wording to "any text and any mapping", or have the P-4 caller check that the strict loader returned a mapping and report anything else as a failure. Keep the domain function loud: a test that fails is the safe direction here.'
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: Messages embed `repr(key)` (front_matter.py:62-70). Line-view keys are limited by the regex to `[A-Za-z0-9_][A-Za-z0-9_.-]*`, but keys of the parsed view are not, and the text has no length bound. A key pasted from the wrong place would be echoed whole. This meets ADR-001 ("names keys, never prints values"). `repr` escapes control characters, U+2028/U+2029 and format characters, so a key cannot forge extra finding lines (the SR-6 concern). It matters only if a later caller feeds project files; P-4 feeds renderer output only.
+  suggested_action: No change now. If a caller ever passes untrusted front matter, cap the key length in the message.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: tests
+  evidence: []
+  claim: tests/unit/domain/test_front_matter.py:428-429 asserts `_names_key(key, messages)` by substring for keys drawn from `[a-z]+(-[a-z]+)*`. A one-letter key such as "a" is a substring of every message ("parsed", "line"), so the "each key is named" half of test_no_message_shows_a_marked_value_of_either_view cannot detect a missing message for such keys. The disclosure half (`not _shows_any(messages, "SECRET-MARKER-", "OTHER-MARKER-")`) uses long distinctive markers and is sound, so the AC-3 control, no value in any message, is not weakened. The count-based tests (`len(messages) == 1`) cover the missing-message case.
+  suggested_action: 'Optional: compare against the exact `repr(key)` token, or require keys of at least 4 characters.'
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: 'The packet snapshot holds the earlier design-phase review notes (snapshot/docs/design/harness2-fit/reviews/security-reviewer-design.md and architecture-reviewer-design.md). This is the known gap of ADR-002: the built `review prepare` exports every tree entry. I opened the security note to learn the design-time concerns (SR-2, SR-5, SR-6, SR-11). I did not open the architecture note. The conclusions above come from the code and tests in this packet, but this reviewer was not fully context-clean.'
+  suggested_action: Treat this review's independence as reduced by that exposure until the packet rule of ADR-002 lands.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read
+    how: MANIFEST, diff.patch, plan, test record, knowledge-impact record, snapshot of both code files
+    result: pass
+  - what: secrets in code, tests, fixtures, knowledge text
+    how: regex scan listed in the absence records, plus reading the test constants
+    result: pass
+  - what: file, process, network, dynamic execution in new code
+    how: scan and read of imports
+    result: pass
+  - what: dependency change
+    how: diff file list and pyproject.toml
+    result: pass
+  - what: unsafe parsing and ReDoS in the regex
+    how: read of the pattern; not fuzzed
+    result: pass
+  - what: data exposure in messages
+    how: read of the message construction and the marker tests
+    result: pass
+  - what: knowledge record discloses nothing private
+    how: read plus scan
+    result: pass
+  - what: re-run of ruff, mypy, import-linter and pytest
+    how: shell refused in this mode
+    result: not-run
+  - what: packet and record digests recomputed
+    how: no shell; hashes not computed
+    result: not-run
+  - what: orqlet standards for
+    how: CLI not run; I read context/standards/rules.yaml (16 rules) instead
+    result: not-run
+  unverified:
+  - 'The test record states evidence_kind ''claimed'': 1405 tests passed, but pytest ran tests/unit and tests/contract only. Integration, e2e and fault tests were not run. I could not confirm any result.'
+  - quote_sha256 values were not computed, so no finding is a hash-bound quote.
+  - F-1 comes from reading Python semantics, not from running the function.
+  - emit.py and the renderers belong to P-3 and were not in this change. The SR-11 predicate concern was not examined here.
+  - How Cursor, Claude Code and Codex read front matter was not observed.

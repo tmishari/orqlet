@@ -1,0 +1,7 @@
+schema: orqlet.rules/v1
+rules:
+  - id: GO-001
+    level: MUST
+    text: Errors are wrapped with context before they are returned.
+    scope: {paths: ["**/*.go"]}
+    enforcement: review

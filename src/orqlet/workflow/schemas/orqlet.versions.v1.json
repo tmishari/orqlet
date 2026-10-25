@@ -1,0 +1,122 @@
+{
+  "$defs": {
+    "ChangeControl": {
+      "additionalProperties": false,
+      "properties": {
+        "lowering_pin_or_floor_requires_approvals": {
+          "default": 2,
+          "title": "Lowering Pin Or Floor Requires Approvals",
+          "type": "integer"
+        }
+      },
+      "title": "ChangeControl",
+      "type": "object"
+    },
+    "CliVersions": {
+      "additionalProperties": false,
+      "properties": {
+        "accepted": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Accepted",
+          "type": "array"
+        },
+        "denied": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Denied",
+          "type": "array"
+        },
+        "pinned": {
+          "title": "Pinned",
+          "type": "string"
+        },
+        "sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sha256"
+        }
+      },
+      "required": [
+        "pinned"
+      ],
+      "title": "CliVersions",
+      "type": "object"
+    },
+    "WorkflowVersions": {
+      "additionalProperties": false,
+      "properties": {
+        "controls_level_min": {
+          "title": "Controls Level Min",
+          "type": "integer"
+        },
+        "digest": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Digest",
+          "type": "string"
+        },
+        "floor": {
+          "title": "Floor",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "version",
+        "digest",
+        "floor",
+        "controls_level_min"
+      ],
+      "title": "WorkflowVersions",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "change_control": {
+      "$ref": "#/$defs/ChangeControl",
+      "default": {
+        "lowering_pin_or_floor_requires_approvals": 2
+      }
+    },
+    "cli": {
+      "$ref": "#/$defs/CliVersions"
+    },
+    "policy_role": {
+      "const": "enforcement-baseline",
+      "title": "Policy Role",
+      "type": "string"
+    },
+    "schema": {
+      "const": "orqlet.versions/v1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "workflow": {
+      "$ref": "#/$defs/WorkflowVersions"
+    }
+  },
+  "required": [
+    "schema",
+    "policy_role",
+    "cli",
+    "workflow"
+  ],
+  "title": "Versions",
+  "type": "object"
+}

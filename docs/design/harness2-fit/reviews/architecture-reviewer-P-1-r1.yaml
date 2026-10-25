@@ -1,0 +1,141 @@
+schema: orqlet.review-result/v1
+task: harness2-fit
+phase: P-1
+role: architecture-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  schema: orqlet.review-input/v1
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  components:
+    code_tests: 2ca0aefa06cb9b542bf55282587b2e0814f122b6e8a7c64edee2a26430476a32
+    design: af2ae4a8d23cdc477ccb7e76627628491cdd71baf8c6e3e5fa486b2fa65819ac
+    evidence_inputs: c3b7a67fd40676214e283b5ee76e53f1340e20b08248d6305674cd1985d02b7e
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 2f4d690be243ae8b9b20b573c59499cac9ff42ef2348fa880b5e7330d3c9ead2
+    reviewer_definition: 7f2385218cce1961990c83f320b38a7dd3147e62b766bd1747d2eea810f24eb0
+    standards: a890bfe048dcd9f6d02a07460914ce1da9eaa59ffb0b1a89eed8a012cdca071e
+  digest: dee1e8d64724e15d1f62f85db79091de615c2440998f2b1aa75ce6ff0d7662b0
+  merge_base: 3b1d1cc61d61934e86e9fdbf6e6808286084f454
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: 4800b985d56f60c4fcda08bf688d64b94afc0bcf7cfec49be6a6272a867af56d
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; its shell was unavailable, so it ran no check and recomputed no digest.
+- Quote digests were not computed, so each finding rests on an absence record or is an observation.
+- Cursor used the repository's current agent definition, which is the post-change file, while this record binds the definition in the reviewed tree.
+- The model that ran the reviewer is not observed.
+applicability:
+  examined:
+  - src/orqlet/domain/front_matter.py
+  - tests/unit/domain/test_front_matter.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: tests
+  rule_ref: ORQLET-TEST-001
+  evidence:
+  - kind: absence
+    searched:
+    - tests/unit/domain/test_front_matter.py
+    method: Searched for `>-`, `|-`, `folded` and `missing space`, and for any call of simple_front_matter on `key:` with no value or on `key:value` with no blank. Only the module docstring (line 7) mentions an empty value, to say it is not pinned. The tokens of the no-raise property include `:` and `key` but assert only the result type.
+    revision: 8fefb0d09defa0a69a3f5fe4f7144fbd253e9583
+  claim: 'docs/design/harness2-fit/design/considerations.md (Validation and rollback, line 46) lists `folded, empty value, missing space` among the unit-test cases of simple_front_matter. The test file has none of the three. The code does implement all three: `key:` reads as `""`, `key:value` is ignored, and `description: >-` reads as `">-"`. None has a test, so a later edit to `_KEY_VALUE` (front_matter.py:26) would change them unnoticed. P-4''s release oracle will depend on this reader. This is not a failure of a plan AC, because AC-1 to AC-4 do not name these cases. considerations.md is a design note that the manifest cites, not one of the hashed artifacts D-1 to D-9.'
+  suggested_action: The person decides what `key:`, `key:value` and a folded `>-` line must give, and the tests then pin it. Otherwise amend the validation list to say these cases are deliberately not pinned.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: finding
+  severity: non-blocking
+  category: docs
+  evidence:
+  - kind: absence
+    searched:
+    - docs/design/harness2-fit/design/adr-001-client-visible-front-matter.md
+    - docs/design/harness2-fit/design/manifest.yaml
+    - docs/design/harness2-fit/questions.yaml
+    method: Case-insensitive search of docs/design/harness2-fit/** for `duplicate|last line|last wins|empty value|missing space|no space|key:value|charset|characters allowed`. Hits are only in the two design-review notes (about the strict loader's duplicate-key rule and AR-6/AR-8) and in considerations.md:46, which lists `empty value, missing space` as test cases without an expected result. There are no hits in the three files searched.
+    revision: 8fefb0d09defa0a69a3f5fe4f7144fbd253e9583
+  claim: 'Five behaviours that the design leaves open were chosen by the implementer and recorded only in the module docstring (front_matter.py:11-18). They are the key character class, an empty value as `""`, `key:value` not being a line, the last duplicate winning, and only `\n` ending a line. ADR-001 decision 2, the manifest and the question ledger do not state them. The knowledge-impact record''s no_impact reason says "The behaviour of this phase is already written down in decision 2 of ADR-001". That is true of the signatures and the acceptance-criteria behaviour but not of these five. The record''s outcome still stands: `.orqlet/knowledge.yaml` has `sources: []` and the plan''s `knowledge_scope` is `[]`, so no knowledge document could change. The implement skill (step 3) says a behaviour with no source is a question, not a rule you invent.'
+  suggested_action: 'The person decides whether to record the five choices as a ledger question or as an amendment to ADR-001 decision 2. Then word the no-impact reason as: the specified behaviour is in ADR-001 decision 2 and the open edge cases are in the module docstring.'
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: tests
+  evidence: []
+  claim: '`_names_key` (test_front_matter.py:60-61) tests `key in message`, a substring match. The property test `test_no_message_shows_a_marked_value_of_either_view` uses it for every key (lines 428-429). The keys come from `[a-z]+(-[a-z]+)*` (line 45), which often produces single letters. The fixed message text (front_matter.py:62, 64, 67, 69) contains `a`, `e`, `i`, `in`, `is`, `line`, `view`, `only` and similar strings. For such keys the assertion cannot fail even if a message left the key out. It still fails for longer keys, and the deterministic tests use distinctive keys (`zeta-field`, `only-in-line`, `alpha-key`). The effect is weaker assurance, not none. The property test also does not count messages, so one-message-per-key rests on the deterministic tests.'
+  suggested_action: 'Optional: match the key as `repr(key)` and assert the message count.'
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: standards
+  rule_ref: ORQLET-QA-001
+  evidence: []
+  claim: 'The test record is `evidence_kind: claimed`. Its pytest command covers `tests/unit` and `tests/contract` only (1405 passed). The plan''s completion line asks for all checks on Python 3.12, and the record states no Python version. No command in the record covers the completion line "The public API differs from the base only by EC-1 and EC-2". I read the rules in domain/python_api.py against front_matter.py. The public names are exactly the two functions, because `re` and `Mapping` are not public outside an `__init__` and `_KEY_VALUE` is private. The knowledge record''s four candidates are consistent with that. I did not re-run any command, so the record''s results are as claimed.'
+  suggested_action: Record the Python version, and run the full pytest and the API extractor in CI before the phase is accepted.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: docs
+  evidence: []
+  claim: Three small imprecisions that change no behaviour. (a) The docstring says none of the edge-case choices is pinned by a test (front_matter.py:11-12), but SKILL_LIKE_BLOCK (test_front_matter.py:30-34) pins hyphens in keys (`disable-model-invocation`). (b) The comment at front_matter.py:24-25 says no backtracking can occur. The engine backtracks over the key class when no colon follows, but the work is linear and the 100k-character tests cover it. (c) `_string_form` says `None` means no one-line form (lines 73-89) yet returns a multi-line string as is. With `simple_front_matter` output that is always a difference, because the line view never holds `\n`, so AC-2 holds. Floats and dates get the message `not a one-line scalar`, whose wording is not pinned.
+  suggested_action: Optional wording fixes.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+  checks:
+  - what: packet read
+    how: read MANIFEST.json, diff.patch, plan, design manifest, ADR-001, considerations, standards rules, test record and knowledge-impact record in the packet
+    result: pass
+  - what: change stays inside the phase file list
+    how: 'diff.patch lists four files: two from plan P-1 and the two records required by the implement skill'
+    result: pass
+  - what: acceptance criteria AC-1 to AC-5 against code and tests
+    how: read snapshot/src/orqlet/domain/front_matter.py and snapshot/tests/unit/domain/test_front_matter.py in full
+    result: pass
+  - what: layers and public API
+    how: searched imports of front_matter.py (lines 21-22) and applied the rules of domain/python_api.py
+    result: pass
+  - what: knowledge record accuracy
+    how: compared its hashes with the packet MANIFEST, .orqlet/knowledge.yaml and the plan's knowledge_scope; the reason wording is F-2
+    result: pass
+  - what: checks of the test record re-run
+    how: ''
+    result: not-run
+  - what: packet and manifest digests recomputed
+    how: ''
+    result: not-run
+  - what: quote digests for findings
+    how: ''
+    result: not-run
+  unverified:
+  - 'Results of ruff, mypy, import-linter and pytest as stated in the test record (evidence_kind: claimed).'
+  - Behaviour of any client on the front matter.

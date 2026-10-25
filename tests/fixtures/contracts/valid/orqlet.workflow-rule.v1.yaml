@@ -1,0 +1,4 @@
+schema: orqlet.workflow-rule/v1
+name: workflow
+description: Files that Orqlet writes are generated.
+paths: [".orqlet/**"]

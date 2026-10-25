@@ -1,0 +1,16 @@
+# Change classes that need no task claim (proposal section 17.1, W-6).
+# This list is fixed by the Orqlet release. A project cannot change it.
+schema: orqlet.exempt/v1
+precedence: [maintenance, workflow-artifact, documentation-only]
+classes:
+  documentation-only:
+    extensions: [".md", ".rst", ".txt", ".adoc"]
+    code_name_patterns: ["requirements*", "constraints*"]
+    under: ["docs/"]
+    except_under: ["docs/design/"]
+    excludes_agent_configuration_surface: true
+  workflow-artifact:
+    under: ["docs/design/"]
+    recognised_by: validators
+  maintenance:
+    paths: ownership-manifest-and-orqlet-directory

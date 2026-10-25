@@ -1,0 +1,13 @@
+schema: orqlet.as-is-fragment/v1
+fragment_id: cli-area
+base_revision: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+scope: {paths: ["src/orqlet/interface/**"], request_ref: sample-task}
+facts:
+  - id: A-1
+    kind: interface
+    statement: The CLI exposes a doctor command.
+    evidence:
+      - {path: src/orqlet/interface/cli/app.py, lines: "7", revision: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb, sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}
+unknowns:
+  - {id: U-1, what: Whether exit codes are stable, material: false}
+contradictions: []

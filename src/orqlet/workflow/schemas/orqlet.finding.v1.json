@@ -1,0 +1,191 @@
+{
+  "$defs": {
+    "AbsenceEvidence": {
+      "additionalProperties": false,
+      "description": "What was searched, where and how, for something that is not there.",
+      "properties": {
+        "kind": {
+          "const": "absence",
+          "title": "Kind",
+          "type": "string"
+        },
+        "method": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Method",
+          "type": "string"
+        },
+        "revision": {
+          "pattern": "^([0-9a-f]{40}|[0-9a-f]{64})$",
+          "title": "Revision",
+          "type": "string"
+        },
+        "searched": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Searched",
+          "type": "array"
+        }
+      },
+      "required": [
+        "kind",
+        "searched",
+        "method",
+        "revision"
+      ],
+      "title": "AbsenceEvidence",
+      "type": "object"
+    },
+    "QuoteEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "quote",
+          "title": "Kind",
+          "type": "string"
+        },
+        "lines": {
+          "pattern": "^[1-9]\\d*(-[1-9]\\d*)?$",
+          "title": "Lines",
+          "type": "string"
+        },
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "quote_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Quote Sha256",
+          "type": "string"
+        },
+        "revision": {
+          "pattern": "^([0-9a-f]{40}|[0-9a-f]{64})$",
+          "title": "Revision",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "path",
+        "lines",
+        "revision",
+        "quote_sha256"
+      ],
+      "title": "QuoteEvidence",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "category": {
+      "enum": [
+        "correctness",
+        "failure-handling",
+        "compatibility",
+        "standards",
+        "security",
+        "tests",
+        "docs",
+        "architecture"
+      ],
+      "title": "Category",
+      "type": "string"
+    },
+    "claim": {
+      "maxLength": 2000,
+      "minLength": 1,
+      "title": "Claim",
+      "type": "string"
+    },
+    "confidence": {
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "title": "Confidence",
+      "type": "string"
+    },
+    "evidence": {
+      "default": [],
+      "items": {
+        "discriminator": {
+          "mapping": {
+            "absence": "#/$defs/AbsenceEvidence",
+            "quote": "#/$defs/QuoteEvidence"
+          },
+          "propertyName": "kind"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/$defs/QuoteEvidence"
+          },
+          {
+            "$ref": "#/$defs/AbsenceEvidence"
+          }
+        ]
+      },
+      "title": "Evidence",
+      "type": "array"
+    },
+    "id": {
+      "pattern": "^F-\\d+$",
+      "title": "Id",
+      "type": "string"
+    },
+    "kind": {
+      "enum": [
+        "finding",
+        "observation"
+      ],
+      "title": "Kind",
+      "type": "string"
+    },
+    "rule_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Rule Ref"
+    },
+    "schema": {
+      "const": "orqlet.finding/v1",
+      "default": "orqlet.finding/v1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "severity": {
+      "enum": [
+        "blocking",
+        "non-blocking",
+        "info"
+      ],
+      "title": "Severity",
+      "type": "string"
+    },
+    "suggested_action": {
+      "maxLength": 2000,
+      "minLength": 1,
+      "title": "Suggested Action",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "kind",
+    "severity",
+    "category",
+    "claim",
+    "suggested_action",
+    "confidence"
+  ],
+  "title": "Finding",
+  "type": "object"
+}

@@ -1,0 +1,247 @@
+{
+  "$defs": {
+    "AsIsScope": {
+      "additionalProperties": false,
+      "properties": {
+        "paths": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Paths",
+          "type": "array"
+        },
+        "request_ref": {
+          "maxLength": 64,
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+          "title": "Request Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "paths",
+        "request_ref"
+      ],
+      "title": "AsIsScope",
+      "type": "object"
+    },
+    "Contradiction": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^C-\\d+$",
+          "title": "Id",
+          "type": "string"
+        },
+        "merged_from": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Merged From",
+          "type": "array"
+        },
+        "note": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Note",
+          "type": "string"
+        },
+        "sources": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 2,
+          "title": "Sources",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "sources",
+        "note"
+      ],
+      "title": "Contradiction",
+      "type": "object"
+    },
+    "Fact": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/FactEvidence"
+          },
+          "minItems": 1,
+          "title": "Evidence",
+          "type": "array"
+        },
+        "id": {
+          "pattern": "^A-\\d+$",
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "structure",
+            "interface",
+            "dependency",
+            "flow",
+            "test",
+            "operation"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "statement": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Statement",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "statement",
+        "evidence"
+      ],
+      "title": "Fact",
+      "type": "object"
+    },
+    "FactEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "lines": {
+          "pattern": "^[1-9]\\d*(-[1-9]\\d*)?$",
+          "title": "Lines",
+          "type": "string"
+        },
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "revision": {
+          "pattern": "^([0-9a-f]{40}|[0-9a-f]{64})$",
+          "title": "Revision",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "lines",
+        "revision",
+        "sha256"
+      ],
+      "title": "FactEvidence",
+      "type": "object"
+    },
+    "Unknown": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^U-\\d+$",
+          "title": "Id",
+          "type": "string"
+        },
+        "material": {
+          "title": "Material",
+          "type": "boolean"
+        },
+        "merged_from": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Merged From",
+          "type": "array"
+        },
+        "question_ref": {
+          "anyOf": [
+            {
+              "pattern": "^Q-\\d+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Question Ref"
+        },
+        "what": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "What",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "what",
+        "material"
+      ],
+      "title": "Unknown",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "What one researcher returns for one repository area. Fragments are merged, never dropped.",
+  "properties": {
+    "base_revision": {
+      "pattern": "^([0-9a-f]{40}|[0-9a-f]{64})$",
+      "title": "Base Revision",
+      "type": "string"
+    },
+    "contradictions": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Contradiction"
+      },
+      "title": "Contradictions",
+      "type": "array"
+    },
+    "facts": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Fact"
+      },
+      "title": "Facts",
+      "type": "array"
+    },
+    "fragment_id": {
+      "maxLength": 64,
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "title": "Fragment Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "orqlet.as-is-fragment/v1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "scope": {
+      "$ref": "#/$defs/AsIsScope"
+    },
+    "unknowns": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Unknown"
+      },
+      "title": "Unknowns",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "fragment_id",
+    "base_revision",
+    "scope"
+  ],
+  "title": "AsIsFragment",
+  "type": "object"
+}

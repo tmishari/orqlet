@@ -1,0 +1,801 @@
+{
+  "$defs": {
+    "ArtifactHeader": {
+      "additionalProperties": false,
+      "properties": {
+        "bound": {
+          "$ref": "#/$defs/Bound"
+        },
+        "protected_set_digest": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Protected Set Digest",
+          "type": "string"
+        },
+        "schema": {
+          "const": "orqlet.artifact-header/v1",
+          "title": "Schema",
+          "type": "string"
+        },
+        "specialists": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Specialist"
+          },
+          "title": "Specialists",
+          "type": "array"
+        },
+        "status": {
+          "enum": [
+            "draft",
+            "approved",
+            "superseded"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "task": {
+          "maxLength": 64,
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+          "title": "Task",
+          "type": "string"
+        },
+        "workflow_version": {
+          "minLength": 1,
+          "title": "Workflow Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema",
+        "task",
+        "status",
+        "workflow_version",
+        "protected_set_digest",
+        "bound"
+      ],
+      "title": "ArtifactHeader",
+      "type": "object"
+    },
+    "Bound": {
+      "additionalProperties": false,
+      "properties": {
+        "applicable_rules_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Applicable Rules Hash",
+          "type": "string"
+        },
+        "base_revision": {
+          "pattern": "^([0-9a-f]{40}|[0-9a-f]{64})$",
+          "title": "Base Revision",
+          "type": "string"
+        },
+        "profile_version": {
+          "minimum": 0,
+          "title": "Profile Version",
+          "type": "integer"
+        },
+        "standards_lock_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Standards Lock Hash",
+          "type": "string"
+        },
+        "upstream": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Upstream"
+          },
+          "title": "Upstream",
+          "type": "array"
+        }
+      },
+      "required": [
+        "base_revision",
+        "standards_lock_hash",
+        "applicable_rules_hash",
+        "profile_version"
+      ],
+      "title": "Bound",
+      "type": "object"
+    },
+    "Check": {
+      "additionalProperties": false,
+      "properties": {
+        "how": {
+          "title": "How",
+          "type": "string"
+        },
+        "result": {
+          "enum": [
+            "pass",
+            "fail",
+            "not-run"
+          ],
+          "title": "Result",
+          "type": "string"
+        },
+        "what": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "What",
+          "type": "string"
+        }
+      },
+      "required": [
+        "what",
+        "how",
+        "result"
+      ],
+      "title": "Check",
+      "type": "object"
+    },
+    "CheckedAgainst": {
+      "additionalProperties": false,
+      "properties": {
+        "acceptance_criteria": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Acceptance Criteria",
+          "type": "array"
+        },
+        "applicable_standards": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Applicable Standards",
+          "type": "array"
+        },
+        "confirmed_requirements": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Confirmed Requirements",
+          "type": "array"
+        },
+        "evidence": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "phase": {
+          "minLength": 1,
+          "title": "Phase",
+          "type": "string"
+        },
+        "role": {
+          "minLength": 1,
+          "title": "Role",
+          "type": "string"
+        }
+      },
+      "required": [
+        "role",
+        "phase"
+      ],
+      "title": "CheckedAgainst",
+      "type": "object"
+    },
+    "Consideration": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_refs": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "notes": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Notes",
+          "type": "string"
+        },
+        "state": {
+          "enum": [
+            "affected",
+            "not-affected"
+          ],
+          "title": "State",
+          "type": "string"
+        }
+      },
+      "required": [
+        "state",
+        "notes"
+      ],
+      "title": "Consideration",
+      "type": "object"
+    },
+    "Considerations": {
+      "additionalProperties": false,
+      "properties": {
+        "compatibility": {
+          "$ref": "#/$defs/Consideration"
+        },
+        "operations": {
+          "$ref": "#/$defs/Consideration"
+        },
+        "security": {
+          "$ref": "#/$defs/Consideration"
+        }
+      },
+      "required": [
+        "security",
+        "compatibility",
+        "operations"
+      ],
+      "title": "Considerations",
+      "type": "object"
+    },
+    "DesignArtifact": {
+      "additionalProperties": false,
+      "properties": {
+        "covers": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Covers",
+          "type": "string"
+        },
+        "evidence_refs": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "c4-context",
+            "c4-container",
+            "c4-component",
+            "data-flow",
+            "sequence",
+            "adr",
+            "adr-not-required"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Path"
+        },
+        "sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sha256"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "covers"
+      ],
+      "title": "DesignArtifact",
+      "type": "object"
+    },
+    "DesignChangeClass": {
+      "additionalProperties": false,
+      "properties": {
+        "declared": {
+          "enum": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "title": "Declared",
+          "type": "string"
+        },
+        "effective": {
+          "enum": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "title": "Effective",
+          "type": "string"
+        },
+        "trigger": {
+          "enum": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "title": "Trigger",
+          "type": "string"
+        }
+      },
+      "required": [
+        "trigger",
+        "declared",
+        "effective"
+      ],
+      "title": "DesignChangeClass",
+      "type": "object"
+    },
+    "DesignReview": {
+      "additionalProperties": false,
+      "properties": {
+        "note": {
+          "title": "Note",
+          "type": "string"
+        },
+        "role": {
+          "enum": [
+            "architecture-reviewer",
+            "security-reviewer"
+          ],
+          "title": "Role",
+          "type": "string"
+        }
+      },
+      "required": [
+        "role",
+        "note"
+      ],
+      "title": "DesignReview",
+      "type": "object"
+    },
+    "DesignScope": {
+      "additionalProperties": false,
+      "properties": {
+        "paths": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Paths",
+          "type": "array"
+        },
+        "trust_boundaries": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Trust Boundaries",
+          "type": "array"
+        }
+      },
+      "required": [
+        "paths"
+      ],
+      "title": "DesignScope",
+      "type": "object"
+    },
+    "ExpectedAfter": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "signature",
+            "contract-delta",
+            "schema-fragment",
+            "specifier",
+            "paths",
+            "declaration"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "value": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "value"
+      ],
+      "title": "ExpectedAfter",
+      "type": "object"
+    },
+    "ExpectedChange": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "enum": [
+            "add",
+            "change",
+            "remove"
+          ],
+          "title": "Action",
+          "type": "string"
+        },
+        "expected_after": {
+          "$ref": "#/$defs/ExpectedAfter"
+        },
+        "id": {
+          "pattern": "^EC-\\d+$",
+          "title": "Id",
+          "type": "string"
+        },
+        "identity": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Identity",
+          "type": "string"
+        },
+        "stages": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Stage"
+          },
+          "title": "Stages",
+          "type": "array"
+        },
+        "surface": {
+          "enum": [
+            "public-api",
+            "http-contract",
+            "persisted-schema",
+            "dependency",
+            "security",
+            "trust-boundary"
+          ],
+          "title": "Surface",
+          "type": "string"
+        },
+        "verification": {
+          "enum": [
+            "extractor",
+            "manual"
+          ],
+          "title": "Verification",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "surface",
+        "action",
+        "identity",
+        "expected_after",
+        "verification"
+      ],
+      "title": "ExpectedChange",
+      "type": "object"
+    },
+    "ExtractorConfig": {
+      "additionalProperties": false,
+      "description": "Where the deterministic extractors look. Part of the approved design.",
+      "properties": {
+        "contract_files": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Contract Files",
+          "type": "array"
+        },
+        "dependency_manifests": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Dependency Manifests",
+          "type": "array"
+        },
+        "lockfiles": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Lockfiles",
+          "type": "array"
+        },
+        "migration_paths": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Migration Paths",
+          "type": "array"
+        },
+        "public_api": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PublicApiConfig"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "schema_files": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Schema Files",
+          "type": "array"
+        },
+        "schema_language": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Schema Language"
+        },
+        "security_globs": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Security Globs",
+          "type": "array"
+        }
+      },
+      "title": "ExtractorConfig",
+      "type": "object"
+    },
+    "PublicApiConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "const": "ast",
+          "title": "Mode",
+          "type": "string"
+        },
+        "packages": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Packages",
+          "type": "array"
+        }
+      },
+      "required": [
+        "packages",
+        "mode"
+      ],
+      "title": "PublicApiConfig",
+      "type": "object"
+    },
+    "SelfCheck": {
+      "additionalProperties": false,
+      "properties": {
+        "checked_against": {
+          "$ref": "#/$defs/CheckedAgainst"
+        },
+        "checks": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Check"
+          },
+          "title": "Checks",
+          "type": "array"
+        },
+        "failures": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Failures",
+          "type": "array"
+        },
+        "questions": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Questions",
+          "type": "array"
+        },
+        "schema": {
+          "const": "orqlet.self-check/v1",
+          "title": "Schema",
+          "type": "string"
+        },
+        "unverified": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Unverified",
+          "type": "array"
+        }
+      },
+      "required": [
+        "schema",
+        "checked_against"
+      ],
+      "title": "SelfCheck",
+      "type": "object"
+    },
+    "Specialist": {
+      "additionalProperties": false,
+      "description": "Recorded and validated for shape, not for truth.",
+      "properties": {
+        "binding": {
+          "minLength": 1,
+          "title": "Binding",
+          "type": "string"
+        },
+        "client": {
+          "minLength": 1,
+          "title": "Client",
+          "type": "string"
+        },
+        "parallel": {
+          "title": "Parallel",
+          "type": "boolean"
+        },
+        "role": {
+          "minLength": 1,
+          "title": "Role",
+          "type": "string"
+        }
+      },
+      "required": [
+        "role",
+        "client",
+        "binding",
+        "parallel"
+      ],
+      "title": "Specialist",
+      "type": "object"
+    },
+    "Stage": {
+      "additionalProperties": false,
+      "properties": {
+        "expected_after": {
+          "$ref": "#/$defs/ExpectedAfter"
+        },
+        "id": {
+          "pattern": "^S-\\d+$",
+          "title": "Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "expected_after"
+      ],
+      "title": "Stage",
+      "type": "object"
+    },
+    "Upstream": {
+      "additionalProperties": false,
+      "properties": {
+        "ref": {
+          "title": "Ref",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "ref",
+        "sha256"
+      ],
+      "title": "Upstream",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "artifacts": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/DesignArtifact"
+      },
+      "title": "Artifacts",
+      "type": "array"
+    },
+    "as_is_ref": {
+      "minLength": 1,
+      "title": "As Is Ref",
+      "type": "string"
+    },
+    "change_class": {
+      "$ref": "#/$defs/DesignChangeClass"
+    },
+    "considerations": {
+      "$ref": "#/$defs/Considerations"
+    },
+    "expected_changes": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/ExpectedChange"
+      },
+      "title": "Expected Changes",
+      "type": "array"
+    },
+    "extractor_config": {
+      "$ref": "#/$defs/ExtractorConfig",
+      "default": {
+        "contract_files": [],
+        "dependency_manifests": [],
+        "lockfiles": [],
+        "migration_paths": [],
+        "public_api": null,
+        "schema_files": [],
+        "schema_language": null,
+        "security_globs": []
+      }
+    },
+    "header": {
+      "$ref": "#/$defs/ArtifactHeader"
+    },
+    "reviews": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/DesignReview"
+      },
+      "title": "Reviews",
+      "type": "array"
+    },
+    "schema": {
+      "const": "orqlet.design-set/v1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "scope": {
+      "$ref": "#/$defs/DesignScope"
+    },
+    "self_check": {
+      "$ref": "#/$defs/SelfCheck"
+    },
+    "standards_applied": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Standards Applied",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "header",
+    "as_is_ref",
+    "change_class",
+    "scope",
+    "considerations",
+    "self_check"
+  ],
+  "title": "DesignSet",
+  "type": "object"
+}

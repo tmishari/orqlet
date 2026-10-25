@@ -1,0 +1,137 @@
+schema: orqlet.review-result/v1
+task: harness2-fit
+phase: P-4
+role: architecture-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  schema: orqlet.review-input/v1
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  components:
+    code_tests: 3ea61e2ab60e5c5f852d8dbc65d7b352886d9bdebfa5b88de2e9cc0b3f48e549
+    design: af2ae4a8d23cdc477ccb7e76627628491cdd71baf8c6e3e5fa486b2fa65819ac
+    evidence_inputs: c4c7e061a8dbd83849f72755b46b669b81f2c204ae182231090aba7a3cdc1856
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 2f4d690be243ae8b9b20b573c59499cac9ff42ef2348fa880b5e7330d3c9ead2
+    reviewer_definition: 7f2385218cce1961990c83f320b38a7dd3147e62b766bd1747d2eea810f24eb0
+    standards: a890bfe048dcd9f6d02a07460914ce1da9eaa59ffb0b1a89eed8a012cdca071e
+  digest: bc36659168660f645d2efafccf0d4b81be7285988309791adec96163dcf2e4cf
+  merge_base: b9144df865f0ed14ecedcc4c25f70445c07c96d5
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: 4800b985d56f60c4fcda08bf688d64b94afc0bcf7cfec49be6a6272a867af56d
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; its shell was unavailable, so it ran no check and recomputed no digest.
+- Quote digests were not computed, so each finding rests on an absence record or is an observation.
+- Cursor used the repository's current agent definition, which is the post-change file, while this record binds the definition in the reviewed tree.
+- The model that ran the reviewer is not observed.
+applicability:
+  examined:
+  - tests/unit/render/test_front_matter_views.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: tests
+  rule_ref: ORQLET-QA-001
+  evidence:
+  - kind: absence
+    searched:
+    - docs/design/harness2-fit/tests/P-4.yaml
+    - docs/design/harness2-fit/plan.yaml
+    method: Read the whole test record. No command entry has the id pytest-matrix. AC-4 (check_ref pytest-matrix) is recorded as not-run, verdict is NOT_RUN and evidence_kind is claimed. The one pytest entry says 'tests/unit and tests/contract only' and does not state the Python version. The plan's completion line requires Python 3.12, 3.13, 3.14 and 3.15.
+    revision: 7922ac6e75d98e3afdf3d0cb0f379eb71eb0ce74
+  claim: AC-4 (passes on every supported Python) and the phase completion line are not established. The only pytest run was a partial one (unit and contract) on an unstated Python. This review certifies AC-1 to AC-3 by reading only, and the sockets half of AC-4 by construction.
+  suggested_action: Run `uv sync --locked --all-groups --python <v>` then `uv run pytest` for 3.12 to 3.15, or let the CI `tests` matrix do it. Record the result before calling P-4 complete. Do not report AC-4 as passed until then.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: standards
+  evidence:
+  - kind: absence
+    searched:
+    - docs/design/harness2-fit/plan.yaml
+    method: The plan lists one file for P-4. The diff also adds docs/design/harness2-fit/knowledge/P-4.yaml and docs/design/harness2-fit/tests/P-4.yaml. Neither path is in file_operations or in design scope.paths. P-1 to P-3 have the same kind of records in the snapshot, and P-3's file list leaves them out too.
+    revision: 7922ac6e75d98e3afdf3d0cb0f379eb71eb0ce74
+  claim: Two files outside the phase's literal file list are staged. They are the phase's own evidence records, which the plan requires through knowledge_step and the tester's review evidence, and earlier phases did the same. Taken literally, 'stays inside its file list' is not met.
+  suggested_action: No change to this phase. The planner may want phase file lists to name the two record paths, or the validator may want to exempt them, so this stops needing a note.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: tests
+  evidence:
+  - kind: absence
+    searched:
+    - tests/unit/render/test_front_matter_views.py
+    method: Read the whole file. Selection is by path, and each client and class is only asserted non-empty. No assertion compares the file set with the packaged skills, roles or commands, and none asserts the 32 that the plan mentions. SKILL_NAMES, ROLE_NAMES and COMMAND_NAMES exist in tests/support/render.py.
+    revision: 7922ac6e75d98e3afdf3d0cb0f379eb71eb0ce74
+  claim: If one skill or agent disappeared from a client's output, this test would still pass. `test_skills.py`, `test_commands.py` and `test_clients_golden.py` use the name tuples, and the goldens pin each file's content, so the gap is covered elsewhere. The plan's '32 files' is descriptive and not an acceptance criterion.
+  suggested_action: Optional. Assert the selected paths equal the names from tests/support/render.py, or assert a total of 32.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+  checks:
+  - what: change stays inside the phase
+    how: read diff.patch against plan P-4 file_operations; see F-2 for the two evidence records
+    result: pass
+  - what: AC-1 implemented by the test
+    how: read the file against ADR-001 decision 3 and the plan text
+    result: pass
+  - what: AC-2 implemented by the test
+    how: read the fixture block test and the defect-return test; checked the patched names exist in skills.py and roles.py
+    result: pass
+  - what: AC-3 implemented by the test
+    how: read the helper functions, the tables in test_emit.py and the three strategies; checked the allow-list against the PyYAML implicit resolvers by reading
+    result: pass
+  - what: AC-4 sockets disabled and no network
+    how: pyproject addopts has --disable-socket; no network import in the file
+    result: pass
+  - what: AC-4 passes on every supported Python
+    how: no run in this review; the record says not-run
+    result: not-run
+  - what: layers and contracts
+    how: no src change; the file imports only public names; import-linter covers the orqlet package only and the tester reports 5 contracts kept (claimed, not re-run)
+    result: pass
+  - what: standards
+    how: 'read rules.yaml: ARCH-001 to 003, TEST-001, DET-001 (no golden change), SEC-003 (no secrets), STYLE-001; QA-001 depends on F-1'
+    result: pass
+  - what: knowledge-impact record accurate
+    how: checked .orqlet/knowledge.yaml, the plan's knowledge_scope, the diff and the cross-record digests
+    result: pass
+  - what: tester's commands and counts re-run
+    how: no shell in this session
+    result: not-run
+  unverified:
+  - All command results in the test record (ruff, mypy, import-linter, pytest) are claimed; I did not run them.
+  - The proposal document is omitted from the packet (over the limits); I did not read it. P-4 does not touch it.
+  - The review-input digests and the `standards` component (a890bfe0...) were compared only for consistency across records, not recomputed.
+  - I read P-1 to P-3 code only where P-4 depends on it, and did not review those phases.
+  - I did not compute quote hashes, so each finding uses an absence record.
+  - I did not examine security. That is the security reviewer's field.
+  questions:
+  - 'Are the design and the plan approved? Both headers say `status: draft`, ADR-001 says ''proposed'', and gate status cannot show approval offline. The plan''s self-check says the person confirmed it in a session, but I could not verify that from the packet.'

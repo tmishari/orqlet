@@ -1,0 +1,136 @@
+schema: orqlet.review-result/v1
+task: harness2-fit
+phase: P-6
+role: security-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  schema: orqlet.review-input/v1
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  components:
+    code_tests: 7cb003a422c9b497e7a28e8b6a03c5085d707bcba84366da2ec76b26534ec165
+    design: af2ae4a8d23cdc477ccb7e76627628491cdd71baf8c6e3e5fa486b2fa65819ac
+    evidence_inputs: 02202fb903152558ba7cd9404020a5c4ff238c3c60e06c4dbee9d2d4d54f14f3
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 2f4d690be243ae8b9b20b573c59499cac9ff42ef2348fa880b5e7330d3c9ead2
+    reviewer_definition: f969d0c8c6d65779f619b5254b1c1583aa3a4d6f0ecb56b0fd3d4647104bcb69
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  digest: 6edf8a0805091f19714c89099c55c79e34deee27236fdb2d45c7fce949105210
+  merge_base: ec7de9f090a005354d6111672736e1f81e1d350a
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: 03556c914cc53a8d2d8bacb1ecc1d703d0e50d31ad2376f983d6098a398692df
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; its shell was unavailable, so it ran no check and recomputed no digest.
+- Quote digests were not computed, so each finding rests on an absence record or is an observation.
+- Cursor used the repository's current agent definition, which is the post-change file, while this record binds the definition in the reviewed tree.
+- The model that ran the reviewer is not observed.
+applicability:
+  examined:
+  - .claude/skills/orqlet-research/SKILL.md
+  - AGENTS.md
+  - .orqlet/generated.lock.yaml
+  - .orqlet/workflow.lock
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: standards
+  rule_ref: ORQLET-SAFE-001
+  evidence:
+  - kind: absence
+    searched:
+    - docs/design/harness2-fit/tests/P-6.yaml
+    - docs/design/harness2-fit/knowledge/P-6.yaml
+    - diff.patch
+    method: Read the whole test record and searched all four files for dry-run, journal, backup and preview. Only the two not-run lines for AC-1 (orqlet-upgrade-dry-run) and AC-2 (review:upgrade-backups) exist. No preview output, approval or journal/backup comparison is in the packet.
+    revision: 1ed2087d017f1901c2a727480ccbaf75d447ecc2
+  claim: 'The packet has no evidence that the protected generated files (read-only agent definitions, skills, locks) were written through the journalled `orqlet upgrade` with an approved preview and a backup. The test record marks AC-1 and AC-2 as not-run. What the packet does show is consistent with an upgrade: the lock''s rendered_sha256 values equal the packet manifest''s hashes for the snapshot files and the goldens, and an `orqlet-upgrade-check` of ''Already up to date'' is claimed. That shows what is on disk, not how it got there.'
+  suggested_action: Before the commit, attach the output of `orqlet upgrade --dry-run`, record the person's approval, and compare the upgrade's backups with the unchanged paths. Otherwise leave AC-1 and AC-2 as not-run in the completion note, as the record already does.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: standards
+  evidence: []
+  claim: '`orqlet doctor` exited 1 with 2 warnings, and the record does not name them. AC-3 is recorded as pass because there are 0 errors. The `.orqlet/versions.yaml` baseline still pins workflow 0.3.0 with digest afeefefe…, while `.orqlet/workflow.lock` now holds 0.3.1 with digest 5d6807e8…. This is by design, since the plan leaves the baseline to a person. The proposal raises the pin and floor, and the digest it carries equals the lock''s. I cannot tell from the packet whether the warnings are this mismatch or something else.'
+  suggested_action: List the two warnings in the completion note, and have the person apply or decline the proposal.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: 'After the change `model: inherit` is written unquoted in all agent definitions. ADR-001 and the design review note say the quoted form was rejected and subagents ran on a different model (O-12). Reviewers may now run on the session model, which can lower model diversity between Coder and reviewer. AC-5 (observation in Cursor) is not-run.'
+  suggested_action: State in the review records which model each reviewer actually ran on, and do not claim independence above what the recorded identifiers support.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: tests
+  evidence: []
+  claim: The pytest claim covers `tests/unit` and `tests/contract` only (1797 passed). The record shows no run of integration, e2e or fault tests, no 3.12-3.15 matrix, no `orqlet upgrade --dry-run` and no `gate status`. This phase changes no code, so these exercise nothing new, but they are not run, not passed. The checks are recorded as claimed, with verdict NOT_RUN.
+  suggested_action: Report them as not run until they run.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: security
+  evidence:
+  - kind: absence
+    searched:
+    - diff.patch
+    - snapshot/**
+    method: Read all 33 diff headers and the changed hunks; searched the diff and the snapshot for credential shapes and personal paths; compared the lock's input hashes (which cover only each source's body) and the proposal diff against the snapshot's versions.yaml (hunk -6,9; it raises the pin and floor and carries the lock's digest).
+    revision: 1ed2087d017f1901c2a727480ccbaf75d447ecc2
+  claim: 'The change is security-relevant, and no blocking risk was found. The read-only and no-auto-invoke controls are unchanged: `tools: Read, Grep, Glob` is still on the arch-reviewer, inventory, security-reviewer and tracer Claude Code agents (the tester has none); `readonly: true` is still on the Cursor arch-reviewer, inventory, security-reviewer and tracer agents; `disable-model-invocation: true` is still on all six skills in `.claude/skills` and `.agents/skills`; `sandbox_mode = "read-only"` is unchanged in the Codex TOML roles, which are not in the diff. Every value that lost its quotes is ASCII, starts with a letter, and has no `: ` or ` #`; none is a reserved word and none has a trailing apostrophe. The reworded `orqlet-research` description still says "Use only when the person runs it". No rule file is in the diff. No secrets, credential patterns or personal paths were found in the diff and the snapshot (searched for AWS, GitHub, Stripe, Google, JWT and PEM shapes, `/Users/` and the user name). No source, `pyproject.toml` or `uv.lock` change, so no dependency or process change. The knowledge-impact record is empty and discloses nothing private.'
+  suggested_action: None.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read, static
+    how: 33 diff headers, the changed hunks, the plan, both records and the standards in the packet; no command was run
+    result: pass
+  - what: read-only and no-auto-invoke controls unchanged
+    how: compared the front-matter hunks of all changed agents and skills; see F-5
+    result: pass
+  - what: secrets, dependency and process changes
+    how: searches listed in F-5
+    result: pass
+  - what: hashes recomputed, `orqlet standards for`, doctor, tests
+    how: no shell in this read-only session
+    result: not-run
+  - what: client behaviour (Cursor, Claude Code, Codex)
+    how: not observable from the packet
+    result: not-run
+  unverified:
+  - The workflow digest `5d6807e8…` was not recomputed; hex values in the packet were compared only.
+  - The reviewer ran no command, so `orqlet standards for`, `orqlet doctor` and every test are not run by it.
+  - '`.orqlet/proposals/.orqlet__role-bindings.yaml.diff` read back as `(omitted)`; it is not part of this diff.'
+  - Client behaviour in Cursor, Claude Code and Codex was not observed.

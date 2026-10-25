@@ -1,0 +1,12 @@
+schema: orqlet.finding/v1
+id: F-1
+kind: finding
+severity: blocking
+category: failure-handling
+rule_ref: ORQLET-SAFE-001
+evidence:
+  - {kind: quote, path: src/pkg/service.py, lines: 10-12, revision: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb, quote_sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}
+  - {kind: absence, searched: ["tests/**"], method: "searched test names for the error path", revision: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb}
+claim: The error path of the service has no test.
+suggested_action: Add a test for the failing call.
+confidence: high

@@ -1,0 +1,52 @@
+{
+  "$defs": {
+    "ReleaseRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "controls_level": {
+          "minimum": 0,
+          "title": "Controls Level",
+          "type": "integer"
+        },
+        "digest": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Digest",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "version",
+        "digest",
+        "controls_level"
+      ],
+      "title": "ReleaseRecord",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "`releases.json`: what earlier releases were, so a silent change can be caught.",
+  "properties": {
+    "releases": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/ReleaseRecord"
+      },
+      "title": "Releases",
+      "type": "array"
+    },
+    "schema": {
+      "const": "orqlet.workflow-releases/v1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema"
+  ],
+  "title": "ReleaseHistory",
+  "type": "object"
+}

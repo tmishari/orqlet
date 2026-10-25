@@ -1,0 +1,7 @@
+schema: orqlet.review-input/v1
+covers: [code_tests, plan]
+components:
+  code_tests: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  plan: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+merge_base: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb

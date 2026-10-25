@@ -1,0 +1,26 @@
+schema: orqlet.test-record/v1
+task: harness2-fit
+phase: P-3
+review_input:
+  schema: orqlet.review-input/v1
+  covers: [code_tests, plan]
+  components:
+    code_tests: 449150ab4b6ec6ba8d6a136043e9c985031b23099d1dbeaf3f1b2831bced5408
+    plan: 2f4d690be243ae8b9b20b573c59499cac9ff42ef2348fa880b5e7330d3c9ead2
+  digest: d31d57996153a8830bdfaf171ba143f3cf95e11d3ab4303b5031c0a6fd3046ae
+  merge_base: 3ac5b96d17df803ce133c261688ec7fb164bcf78
+verdict: NOT_RUN
+evidence_kind: claimed
+commands:
+  - {id: ruff-check, exit_code: 0, summary: "All checks passed!", result_digest: 5b196eb3a6acb50d3fa398d04ca284985cc1ffec870e940264b00780bfd2c971}
+  - {id: ruff-format, exit_code: 0, summary: "392 files already formatted", result_digest: 42e2108a7d6e53f0eb6381d12fc3e0d0d527542dca876883cf30520803f999dc}
+  - {id: mypy, exit_code: 0, summary: "Success: no issues found in 289 source files", result_digest: 8d63c9e3962fcce46c810f29ed3856dd4a087899a0ac549d035f9f3e8c193ce3}
+  - {id: import-linter, exit_code: 0, summary: "Contracts: 5 kept, 0 broken.", result_digest: 853badd12da98fea9b58fb5206d66550c4318d6b2dfd774c84a1a89fa8252a82}
+  - {id: pytest, exit_code: 0, summary: "tests/unit and tests/contract only, 1701 passed in 40.18s", result_digest: 8f7184819f566bdee5ca310a2573f839529d6945e9600442d57c9b2c77cdafa7}
+acceptance_coverage:
+  - {ac: AC-1, check_ref: pytest, result: pass}
+  - {ac: AC-2, check_ref: pytest, result: pass}
+  - {ac: AC-3, check_ref: pytest, result: pass}
+  - {ac: AC-4, check_ref: pytest, result: pass}
+  - {ac: AC-5, check_ref: review:golden-diff, result: not-run}
+  - {ac: AC-6, check_ref: import-linter, result: pass}

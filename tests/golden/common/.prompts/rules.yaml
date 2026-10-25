@@ -1,0 +1,4 @@
+# Rules of this team. Add MUST, SHOULD and MAY rules below.
+# Each rule has: id, level, text, and optionally scope, enforcement and waiver.
+schema: orqlet.rules/v1
+rules: []

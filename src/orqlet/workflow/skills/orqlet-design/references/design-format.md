@@ -1,0 +1,69 @@
+# The design set
+
+`docs/design/<task>/design/manifest.yaml` is the design manifest. Its artifacts sit beside it.
+
+## Change classes
+
+- D1 (Delta): everything stays inside one module, there is no new or changed public interface, dependency, persisted format or configuration schema, no path on a security-sensitive glob, and at most 10 files.
+- D2 (Standard): anything that is neither D1 nor D3.
+- D3 (Full): a new trust boundary or integration; authentication, authorization, cryptography, secrets or IAM; a data model or migration; infrastructure, deployment or CI; a cross-service contract; a path on a D3 or security glob.
+
+The effective class is the maximum of what the scope triggers and what you declare. `orqlet validate design` recomputes the trigger and rejects a lower one.
+
+## What each class requires
+
+- D1: a component view, a data-flow diagram, a sequence diagram, and an ADR or an `adr-not-required` entry with a reason.
+- D2: a container view as well, and the notes of the two reviewers.
+- D3: a context view as well, a real ADR, and the notes of the two reviewers.
+
+Diagrams are Mermaid blocks. An ADR has the sections Context, Decision, Consequences and Rejected alternatives.
+
+## The manifest
+
+```yaml
+schema: orqlet.design-set/v1
+header:
+  schema: orqlet.artifact-header/v1
+  task: sample-task
+  status: draft
+  workflow_version: 0.2.0
+  protected_set_digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  bound:
+    base_revision: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    standards_lock_hash: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    applicable_rules_hash: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    profile_version: 1
+as_is_ref: docs/design/sample-task/as-is.md#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+change_class: {trigger: D2, declared: D2, effective: D2}
+scope:
+  paths: ["src/pkg/**"]
+  trust_boundaries: []
+extractor_config:
+  public_api: {packages: [pkg], mode: ast}
+  dependency_manifests: [pyproject.toml]
+  lockfiles: [uv.lock]
+  security_globs: ["src/pkg/auth/**"]
+expected_changes:
+  - id: EC-1
+    surface: public-api
+    action: add
+    identity: pkg.service.create_order
+    expected_after: {kind: signature, value: "def create_order(customer_id: str) -> Order"}
+    verification: extractor
+artifacts:
+  - {id: D-1, kind: c4-component, path: docs/design/sample-task/design/component.md, covers: The service and its neighbours, sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}
+  - {id: D-2, kind: adr-not-required, covers: No durable decision in this change}
+considerations:
+  security: {state: not-affected, evidence_refs: ["src/pkg/service.py:1-9"], notes: No new input reaches the service}
+  compatibility: {state: affected, notes: One new public function}
+  operations: {state: not-affected, evidence_refs: ["pyproject.toml:1-3"], notes: No deployment change}
+standards_applied: [ORQLET-ARCH-001]
+reviews: []
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against: {role: architect, phase: design}
+  checks:
+    - {what: class recomputed, how: "orqlet validate design", result: pass}
+```
+
+`extractor_config` says where the deterministic extractors look. A surface for which this release has no extractor (anything except `public-api`, `dependency` and `security`) must say `verification: manual`.

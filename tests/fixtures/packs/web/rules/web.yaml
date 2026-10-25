@@ -1,0 +1,9 @@
+schema: orqlet.rules/v1
+rules:
+  - id: WEB-001
+    level: MUST
+    text: Every endpoint validates its input with a typed model.
+    scope: {paths: ["src/**"]}
+  - id: SAMPLE-002
+    level: MUST
+    text: Prefer small functions with one reason to change.

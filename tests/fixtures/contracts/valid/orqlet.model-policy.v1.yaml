@@ -1,0 +1,13 @@
+schema: orqlet.model-policy/v1
+policy_version: 2026.10.1
+status: draft
+owner: platform-standards
+compatibility: {orqlet: ">=0.1.0", min_client_versions: {claude-code: null}}
+data_classes: [{id: internal, cloud_routes_allowed: true}]
+models:
+  - logical_id: model-a
+    status: proposed
+    routes:
+      - {route_id: a-cc, executor: claude-code, alias: opus, rank: 1, price_rank: 3, observability: {model_identity: init-and-usage}}
+profiles: [{id: strongest, prefer: rank, candidates: [model-a]}]
+roles: {architecture-reviewer: strongest}

@@ -1,0 +1,101 @@
+{
+  "$defs": {
+    "ExemptClass": {
+      "additionalProperties": false,
+      "properties": {
+        "code_name_patterns": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Code Name Patterns",
+          "type": "array"
+        },
+        "except_under": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Except Under",
+          "type": "array"
+        },
+        "excludes_agent_configuration_surface": {
+          "default": false,
+          "title": "Excludes Agent Configuration Surface",
+          "type": "boolean"
+        },
+        "extensions": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Extensions",
+          "type": "array"
+        },
+        "paths": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Paths"
+        },
+        "recognised_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Recognised By"
+        },
+        "under": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Under",
+          "type": "array"
+        }
+      },
+      "title": "ExemptClass",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "classes": {
+      "additionalProperties": {
+        "$ref": "#/$defs/ExemptClass"
+      },
+      "title": "Classes",
+      "type": "object"
+    },
+    "precedence": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Precedence",
+      "type": "array"
+    },
+    "schema": {
+      "const": "orqlet.exempt/v1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "precedence",
+    "classes"
+  ],
+  "title": "ExemptClasses",
+  "type": "object"
+}

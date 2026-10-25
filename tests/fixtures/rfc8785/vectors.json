@@ -1,0 +1,31 @@
+{
+  "note": "Ordering follows RFC 8785 section 3.2.3 (UTF-16 code unit order). String and integer vectors are written for the subset that Orqlet hashes.",
+  "sorting": {
+    "keys_as_code_points": [8364, 13, 64307, 49, 128512, 128, 246],
+    "expected_order_as_code_points": [13, 49, 128, 246, 8364, 128512, 64307]
+  },
+  "strings": [
+    {"input": "plain", "expected": "\"plain\""},
+    {"input": "say \"hi\"", "expected": "\"say \\\"hi\\\"\""},
+    {"input": "back\\slash", "expected": "\"back\\\\slash\""},
+    {"input": "\b\t\n\f\r", "expected": "\"\\b\\t\\n\\f\\r\""},
+    {"input": "\u0000\u000e\u001b\u001f", "expected": "\"\\u0000\\u000e\\u001b\\u001f\""},
+    {"input": "a/b", "expected": "\"a/b\""},
+    {"input": "\u007f", "expected": "\"\u007f\""},
+    {"input": "\u20ac", "expected": "\"\u20ac\""},
+    {"input": "\ud83d\ude00", "expected": "\"\ud83d\ude00\""},
+    {"input": "\u2028", "expected": "\"\u2028\""}
+  ],
+  "integers": [
+    {"input": 0, "expected": "0"},
+    {"input": -1, "expected": "-1"},
+    {"input": 9007199254740991, "expected": "9007199254740991"},
+    {"input": -9007199254740991, "expected": "-9007199254740991"}
+  ],
+  "rejected": [
+    {"label": "float", "json": "1.5"},
+    {"label": "integer above the safe range", "json": "9007199254740992"},
+    {"label": "lone high surrogate", "json": "\"\\ud800\""},
+    {"label": "lone low surrogate", "json": "\"\\udc00\""}
+  ]
+}

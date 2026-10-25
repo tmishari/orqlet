@@ -1,0 +1,6 @@
+schema: orqlet.docs-map/v1
+targets:
+  - code: ["src/billing/**"]
+    docs:
+      - {path: docs/billing.md, anchors: ["## Pricing"], kind: hand-written}
+    owner: billing-team

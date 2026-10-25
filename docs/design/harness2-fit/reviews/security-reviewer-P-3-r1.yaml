@@ -1,0 +1,228 @@
+schema: orqlet.review-result/v1
+task: harness2-fit
+phase: P-3
+role: security-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  schema: orqlet.review-input/v1
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  components:
+    code_tests: 449150ab4b6ec6ba8d6a136043e9c985031b23099d1dbeaf3f1b2831bced5408
+    design: af2ae4a8d23cdc477ccb7e76627628491cdd71baf8c6e3e5fa486b2fa65819ac
+    evidence_inputs: df77332db497771915f97bbb75b59438889c1411c30569431dcd6b97b39a7e15
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 2f4d690be243ae8b9b20b573c59499cac9ff42ef2348fa880b5e7330d3c9ead2
+    reviewer_definition: ce7367088aa582a08161a844d3693d3df22bfedca60ffab5a82bd453966f12d4
+    standards: a890bfe048dcd9f6d02a07460914ce1da9eaa59ffb0b1a89eed8a012cdca071e
+  digest: 8456f21e5bea80f1ed2392acdf68811ded66d7d56bf1b0f7a4b22f67a3cdad98
+  merge_base: 3ac5b96d17df803ce133c261688ec7fb164bcf78
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: 1a386dd0b99cc497a008a60a4f2640ab27278781dc3ff1b551af3117ae8548d9
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; its shell was unavailable, so it ran no check and recomputed no digest.
+- Quote digests were not computed, so each finding rests on an absence record or is an observation.
+- Cursor used the repository's current agent definition, which is the post-change file, while this record binds the definition in the reviewed tree.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the earlier design-phase review notes (the known gap that ADR-002 closes), and the reviewer read the design-phase security note, so it was not fully context-clean.
+applicability:
+  examined:
+  - src/orqlet/adapters/render/emit.py
+  - src/orqlet/adapters/render/skills.py
+  - src/orqlet/adapters/render/roles.py
+  - src/orqlet/adapters/render/rules.py
+  - tests/unit/render/test_emit.py
+  - tests/unit/render/test_skills.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: tests
+  rule_ref: ORQLET-TEST-001
+  evidence:
+  - kind: absence
+    searched:
+    - snapshot/tests/unit/render/**
+    - snapshot/tests/**/test_front_matter_views.py
+    method: Searched for StrictYamlLoader, LOADER, safe_load, split_front_matter, simple_front_matter and front_matter_differences. The loader appears only in the round trips of `quote` (test_emit.py:76,153,207) and in reference examples (test_skills.py:244). None of the new P-3 tests parses a value written with plain_when_safe=True; they compare bytes with a regex retyped from the ADR (test_emit.py `_ALLOW_LIST`). The glob finds no test_front_matter_views.py.
+    revision: b9144df865f0ed14ecedcc4c25f70445c07c96d5
+  claim: The emit.py docstring says the allow-list 'proves that every YAML reader and a line reader see the same text'. No test in this change shows that. The cross-loader test of ADR-001 decision 4 is P-4 and does not exist yet. My reading of emit.py found no counterexample, but that is not a test result.
+  suggested_action: Reword the docstring so it does not say 'proves' until P-4 lands. Keep P-4 a dependency of P-6 (it already is), so this repository's own files are not unquoted before the cross-loader test exists.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: '`tools: Read, Grep, Glob`, `readonly`, `disable-model-invocation` and `model: inherit` are now written without quotes. How Claude Code, Cursor and Codex read them is not observed (AS-IS U-9, design considerations ''Residual'', spike S-21 not run). The read-only controls are what a misreading would affect. The plan covers one observation only, P-6 AC-5 for Cursor''s `orqlet-inventory`.'
+  suggested_action: Record 'not observed' for the other clients and files, as P-6 AC-5 already requires for Cursor.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: docs
+  evidence: []
+  claim: 'knowledge-impact.yaml `absence_record.method` says the analysis ran ''on the staged tree''. Its own fields say `input: pre-draft-tree`, `views: [committed:HEAD]`, `index_state: not-used`, and the revision is the merge base. The record discloses nothing private; this is a wording mismatch only.'
+  suggested_action: Align the wording with the fields.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: security
+  evidence:
+  - kind: absence
+    searched:
+    - diff.patch
+    - context/**
+    method: Searched case-insensitively for /Users/, tmishari, password, secret, api key, token, BEGIN ... PRIVATE, AKIA, ghp_, sk_live and -----BEGIN. The context files were searched for the paths, names and the password, secret and api-key words only. No matches.
+    revision: b9144df865f0ed14ecedcc4c25f70445c07c96d5
+  claim: No secrets, tokens, keys, certificates, absolute or personal paths were found in the diff, fixtures, tests, goldens, test record or knowledge-impact record.
+  suggested_action: None.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: security
+  evidence:
+  - kind: absence
+    searched:
+    - diff.patch
+    method: Searched added lines for subprocess, os.system, shell=, eval(, exec(, pickle, yaml.load, safe_load, importlib, socket, urllib, requests, http, open(, Path(, environ, hashlib, md5 and sha1. No matches.
+    revision: b9144df865f0ed14ecedcc4c25f70445c07c96d5
+  claim: No process, network, eval, dynamic import, file or environment access, and no non-SHA-256 hashing, in the added lines.
+  suggested_action: None.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: info
+  category: security
+  evidence:
+  - kind: absence
+    searched:
+    - diff.patch
+    method: The 40 paths are 2 records, 4 renderer sources, 2 test files and 32 goldens. pyproject.toml and uv.lock are not among them.
+    revision: b9144df865f0ed14ecedcc4c25f70445c07c96d5
+  claim: No dependency change.
+  suggested_action: None.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: info
+  category: security
+  evidence:
+  - kind: absence
+    searched:
+    - diff.patch
+    - snapshot/src/orqlet/adapters/render/**
+    - snapshot/tests/golden/**
+    method: Searched for the code points above. No matches. The exotic test strings are written as escape sequences.
+    revision: b9144df865f0ed14ecedcc4c25f70445c07c96d5
+  claim: No hidden or bidirectional characters (U+202A-202E, U+2066-2069, U+200B-200F, U+FEFF, U+2028, U+2029, U+0085) were found.
+  suggested_action: None.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-8
+  kind: observation
+  severity: info
+  category: security
+  evidence:
+  - kind: absence
+    searched:
+    - snapshot/src/orqlet/adapters/render/rules.py
+    - snapshot/src/orqlet/adapters/render/roles.py
+    - snapshot/src/orqlet/adapters/render/skills.py
+    - snapshot/src/orqlet/application/usecases/workflow_sources.py
+    - snapshot/src/orqlet/application/usecases/render_request.py
+    method: Skill, role and command text comes from the packaged workflow and its names are validated by regex. The rule renderers (rules.py:34,41-43) do not pass the keyword. The project text of rule files (`description` from rule id and text, `paths` or `globs` from standards packs) stays on the old quoted and escaped path. test_a_cursor_rule_keeps_a_plain_safe_description_and_its_globs_quoted fails if a rule renderer starts passing the keyword.
+    revision: b9144df865f0ed14ecedcc4c25f70445c07c96d5
+  claim: 'Project-controlled text cannot reach the unquoted branch: only workflow-owned text of skills, roles and commands does.'
+  suggested_action: None.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-9
+  kind: observation
+  severity: info
+  category: security
+  evidence:
+  - kind: absence
+    searched:
+    - snapshot/src/orqlet/adapters/render/emit.py
+    method: 'The first character must be an ASCII letter, so only the bool and null resolvers can match for PyYAML or the YAML 1.2 core schema. `value.lower() not in _RESERVED` covers every case variant. There is no colon, `#`, quote, bracket, newline, tab, `<<` or `=` start, and no ASCII-only bypass through `re` flags (no IGNORECASE). The pattern is linear, with no ReDoS risk. Defaults are unchanged: yaml_scalar and yaml_document pass False, and front_matter defaults to False.'
+    revision: b9144df865f0ed14ecedcc4c25f70445c07c96d5
+  claim: No gap was found in the allow-list (reserved words, case variants, non-ASCII, line separators, YAML 1.1 and 1.2 typing). This is by reading and reasoning, not by running code.
+  suggested_action: None.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-10
+  kind: observation
+  severity: info
+  category: security
+  evidence:
+  - kind: absence
+    searched:
+    - diff.patch
+    - snapshot/tests/golden/**
+    method: 'I read all 32 golden hunks. Each changes only front-matter quoting. The `tools`, `readonly`, `disable-model-invocation` and `model` lines are still present: 2 per read-only role file for Claude Code (1 for the tester) and Cursor, and 1 per skill file. No rule golden (.mdc or .claude/rules) is in the diff.'
+    revision: b9144df865f0ed14ecedcc4c25f70445c07c96d5
+  claim: No control key was lost or weakened in the 32 goldens.
+  suggested_action: None.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet read
+    how: MANIFEST.json, diff.patch, plan.yaml, ADR-001, design manifest, considerations.md, the design security note, the test record, the knowledge-impact record and the changed sources in the snapshot
+    result: pass
+  - what: secrets and private data
+    how: pattern search over the diff and the context files (see F-4)
+    result: pass
+  - what: untrusted text kept off the unquoted path
+    how: read the renderers and the sources of their text; read the rule-renderer test
+    result: pass
+  - what: allow-list soundness
+    how: reading and reasoning only; not executed
+    result: pass
+  - what: tests, linters and import-linter executed
+    how: 'not available in this mode; the test record is `evidence_kind: claimed`, verdict NOT_RUN, pytest limited to tests/unit and tests/contract'
+    result: not-run
+  - what: orqlet standards for
+    how: refused in this mode; I read context/standards/rules.yaml (16 rules) instead
+    result: not-run
+  - what: packet and file digests recomputed
+    how: no hashing tool
+    result: not-run
+  - what: client behaviour observed
+    how: not observable from the packet
+    result: not-run
+  unverified:
+  - Whether Claude Code, Cursor and Codex read the unquoted `tools`, `readonly`, `disable-model-invocation` and `model` values as intended.
+  - The results in the test record. I did not reproduce them, and the integration, e2e and fault suites and the golden marker run were not run (P-3 AC-5 is not-run in the record).
+  - P-1 and P-2 (outside this diff) and docs/design/orqlet-architecture-proposal.md (omitted from the packet as over the limits).

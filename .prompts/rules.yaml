@@ -1,0 +1,143 @@
+# Rules of this team. Add MUST, SHOULD and MAY rules below.
+# Each rule has: id, level, text, and optionally scope, enforcement and waiver.
+#
+# These are the rules Orqlet already enforces on itself. Each "deterministic" rule names the
+# check that fails the build when it is broken (see pyproject.toml and CI); "review" rules are
+# checked by a person on the pull request.
+schema: orqlet.rules/v1
+rules:
+  # --- Architecture -------------------------------------------------------------------------
+  - id: ORQLET-ARCH-001
+    level: MUST
+    text: >-
+      Imports point inward only: interface -> adapters -> application -> domain. A lower layer
+      never imports a higher one.
+    scope: {paths: ["src/orqlet/**"]}
+    enforcement: deterministic
+    check_ref: uv run lint-imports
+
+  - id: ORQLET-ARCH-002
+    level: MUST
+    text: >-
+      Domain code is pure: no I/O and no third-party imports. Application code imports no file,
+      process or network module and reaches the outside world only through the ports in
+      application/ports.
+    scope: {paths: ["src/orqlet/domain/**", "src/orqlet/application/**"]}
+    enforcement: deterministic
+    check_ref: uv run lint-imports
+
+  - id: ORQLET-ARCH-003
+    level: MUST
+    text: >-
+      The three client adapters (Claude Code, Codex, Cursor) never import one another, and the
+      workflow package under orqlet/workflow is read-only data used only by adapters and the
+      interface.
+    scope: {paths: ["src/orqlet/adapters/clients/**", "src/orqlet/workflow/**"]}
+    enforcement: deterministic
+    check_ref: uv run lint-imports
+
+  # --- Safety and security ------------------------------------------------------------------
+  - id: ORQLET-SEC-001
+    level: MUST
+    text: >-
+      Every process is started through the ProcessRunner port, and Git only through the hardened
+      GitRunner (allow-listed subcommands, fixed config overrides, scrubbed environment). Do not
+      call subprocess, os.system or shell=True anywhere else. The import checks keep domain and
+      application free of process modules; a reviewer checks the adapters.
+    scope: {paths: ["src/**"]}
+    enforcement: review
+
+  - id: ORQLET-SEC-002
+    level: MUST
+    text: >-
+      Files in the repository being managed are untrusted input. Read them through the FileSystem
+      port, parse YAML only with the strict loader, and never execute, import or evaluate their
+      content.
+    scope: {paths: ["src/orqlet/**"]}
+    enforcement: review
+
+  - id: ORQLET-SEC-003
+    level: MUST
+    text: >-
+      Use SHA-256 for every digest and never MD5 or SHA-1. Never commit secrets, tokens or
+      credentials, including in tests and fixtures; use obvious placeholders.
+    enforcement: review
+
+  - id: ORQLET-SAFE-001
+    level: MUST
+    text: >-
+      Every write goes through a journalled change plan: paths stay inside the project root, a
+      backup is taken first, and the manifest is written last so a re-run converges.
+    scope: {paths: ["src/orqlet/application/**", "src/orqlet/adapters/**"]}
+    enforcement: review
+
+  - id: ORQLET-NOMODEL-001
+    level: MUST
+    text: >-
+      Orqlet never calls a language model, takes a prompt or starts an agent. It prepares context
+      for the IDE agent and validates what that agent proposes. Do not add a model SDK dependency.
+    enforcement: review
+
+  # --- Determinism --------------------------------------------------------------------------
+  - id: ORQLET-DET-001
+    level: MUST
+    text: >-
+      Generated output is deterministic: no timestamps, absolute paths or random values in
+      rendered files, and golden files are changed only on purpose with --update-golden, never in
+      CI.
+    scope: {paths: ["src/orqlet/adapters/clients/**", "tests/golden/**"]}
+    enforcement: deterministic
+    check_ref: uv run pytest -m golden
+
+  - id: ORQLET-DET-002
+    level: MUST
+    text: >-
+      Any change to the workflow package rebuilds its MANIFEST.json and bumps the package version
+      before release.
+    scope: {paths: ["src/orqlet/workflow/**"]}
+    enforcement: deterministic
+    check_ref: uv run python tools/build_manifest.py --check
+
+  - id: ORQLET-DET-003
+    level: MUST
+    text: >-
+      Committed JSON schemas match the Pydantic contracts. Regenerate them with
+      tools/export_schemas.py when a contract changes.
+    scope: {paths: ["src/orqlet/application/contracts/**"]}
+    enforcement: deterministic
+    check_ref: uv run python tools/export_schemas.py --check
+
+  # --- Quality ------------------------------------------------------------------------------
+  - id: ORQLET-TEST-001
+    level: MUST
+    text: >-
+      New or changed behaviour has tests. Unit tests use the fakes in tests/fakes and never touch
+      the network; the suite runs with sockets disabled.
+    scope: {paths: ["src/**", "tests/**"]}
+    enforcement: deterministic
+    check_ref: uv run pytest
+
+  - id: ORQLET-TEST-002
+    level: MUST
+    text: >-
+      Anything that writes files has a fault test that stops it after each step and proves a
+      re-run, or a rollback, converges to the same state.
+    scope: {paths: ["src/orqlet/application/usecases/apply_plan.py", "tests/fault/**"]}
+    enforcement: deterministic
+    check_ref: uv run pytest -m fault
+
+  - id: ORQLET-QA-001
+    level: MUST
+    text: >-
+      Before a pull request is ready, ruff (lint and format), strict mypy, import-linter and the
+      full test suite pass on every supported Python version.
+    enforcement: deterministic
+    check_ref: .github/workflows/ci.yml
+
+  - id: ORQLET-STYLE-001
+    level: SHOULD
+    text: >-
+      Keep functions small with one reason to change, name things for what they mean, and write
+      comments that explain why, not what.
+    scope: {paths: ["src/**", "tests/**"]}
+    enforcement: guidance

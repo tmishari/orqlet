@@ -1,0 +1,35 @@
+schema: orqlet.knowledge-impact/v1
+task: harness2-fit
+phase: P-4
+review_input:
+  schema: orqlet.review-input/v1
+  covers: [code_tests, knowledge, plan, standards, candidates]
+  components:
+    candidates: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    code_tests: 3ea61e2ab60e5c5f852d8dbc65d7b352886d9bdebfa5b88de2e9cc0b3f48e549
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 2f4d690be243ae8b9b20b573c59499cac9ff42ef2348fa880b5e7330d3c9ead2
+    standards: a890bfe048dcd9f6d02a07460914ce1da9eaa59ffb0b1a89eed8a012cdca071e
+  digest: 02664e7ff9f390cce5cbb85e4b8d8c077b58264845e9006b42ddc78f21974bb5
+  merge_base: b9144df865f0ed14ecedcc4c25f70445c07c96d5
+outcome: no-impact
+analysis:
+  command: orqlet knowledge impact
+  orqlet_version: 0.1.0
+  candidates_digest: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+  candidate_count: 0
+  input: pre-draft-tree
+  views: [committed:HEAD]
+  index_state: not-used
+entries:
+  []
+no_impact:
+  category: test-only
+  reason: "The phase adds one test file and changes no behaviour that a knowledge document describes."
+  absence_record:
+    scopes_searched: [".orqlet/knowledge.yaml sources", "the plan's knowledge_scope"]
+    views: [committed:HEAD]
+    revision: b9144df865f0ed14ecedcc4c25f70445c07c96d5
+    method: "orqlet knowledge impact on the staged tree; the project configures no knowledge sources and the plan's knowledge_scope is empty, so no knowledge document exists that the phase could change."
+    index_state: not-used
+    candidates_found: 0

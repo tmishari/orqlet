@@ -1,0 +1,6 @@
+schema: orqlet.role-bindings/v1
+policy_role: enforcement-baseline
+bindings:
+  - {role: architecture-reviewer, id: arch-fresh, clients: [claude-code], independence_capability: I1, minimum_capability: {context: fresh, input: review-packet, write_access: none-or-recorded-limit}}
+model_families: [{match: "claude-*", family: anthropic}]
+not_accepted_for_review_roles: [author]

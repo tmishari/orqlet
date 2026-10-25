@@ -1,0 +1,5 @@
+schema: orqlet.rules/v1
+rules:
+  - id: PYONLY-001
+    level: MUST
+    text: Public functions have type annotations.

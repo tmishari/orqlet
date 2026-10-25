@@ -1,6 +1,6 @@
 # ADR-001: Write skill, agent and command front matter that a line reader and a YAML reader read the same, and test it
 
-Status: proposed. Needs the approval of the design pull request.
+Status: accepted by the person on 2026-10-25, in conversation. No pull request was merged.
 
 ## Context
 
