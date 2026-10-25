@@ -1,0 +1,115 @@
+schema: orqlet.question-ledger/v1
+task: harness2-fit
+questions:
+  - id: Q-1
+    key: fc549e31d6dbb5cc42977b6c9c3d5822ceaca5fe9edac2e9eca59dde47d89898
+    subject: What 'a solution for us' means for harness2
+    raised_by: researcher
+    phase: research
+    category: requirement
+    text: >-
+      What problem should harness2 solve for Orqlet: (a) evaluating or tuning the role and profile
+      bundles of the evaluation plan, (b) a component inside the product, or (c) something else?
+    why: >-
+      The answer decides which of Orqlet's constraints apply (R-01 for a product component, the
+      evaluation plan of design section 21 for tuning) and what any fit would have to be measured against.
+    options:
+      - evaluate or tune role and profile bundles
+      - a component inside the product
+      - something else
+    evidence_refs:
+      - docs/design/harness2-fit/as-is.md#U-1
+    blocks:
+      - design
+    status: answered
+    answer:
+      value: like idea or use it
+      answerer: user
+      time: "2026-10-23T10:15:00+03:00"
+      scope: task
+  - id: Q-2
+    key: 78f7df7d2145ae17a0cbed87684d993b46814fe2c21677afb242e473442d0f02
+    subject: Vertex AI access, approved model routes and budget for model-backed runs
+    raised_by: researcher
+    phase: research
+    category: access
+    text: >-
+      Does the team have Vertex AI access (a project, Gemini or Claude on Vertex) or another approved
+      route for an executor, an improver and a judge, and a budget for chargeable runs?
+    why: >-
+      harness2 is documented against Vertex AI and its runs are model calls that cost money; the
+      organisation-approved routes are pending in the proposal.
+    evidence_refs:
+      - docs/design/harness2-fit/as-is.md#H-09
+      - docs/design/harness2-fit/as-is.md#O-08
+    blocks:
+      - design
+    status: answered
+    answer:
+      value: "no"
+      answerer: user
+      time: "2026-10-23T10:15:00+03:00"
+      scope: task
+  - id: Q-3
+    key: 654d8ba2e7a2d90600b41b586d425c8f6d94fe2aa37a57a5018b51ed80e02ab3
+    subject: A Linux machine or runner for harness2 runs
+    raised_by: researcher
+    phase: research
+    category: requirement
+    text: Is a Linux machine or CI runner available for running harness2, given that the local machine is macOS arm64?
+    why: harness2 documents Linux and declares POSIX only; Orqlet itself must also support Windows.
+    evidence_refs:
+      - docs/design/harness2-fit/as-is.md#H-08
+      - docs/design/harness2-fit/as-is.md#O-09
+    blocks:
+      - design
+    status: answered
+    answer:
+      value: no, we use only macos or windows
+      answerer: user
+      time: "2026-10-23T10:15:00+03:00"
+      scope: task
+  - id: Q-4
+    key: efbfe5c4d3b6125723832c5bcff3ac6e1c35e8d31187131c716ebf69acad2aa4
+    subject: Data handling of task data and trajectories sent to model endpoints
+    raised_by: researcher
+    phase: research
+    category: policy
+    text: >-
+      May task data and full execution trajectories be sent to the model endpoints that harness2
+      uses (executor, improver and judge), under the company's data-handling policy?
+    why: The improver receives the complete trajectories of each run; the company policy is pending input.
+    evidence_refs:
+      - docs/design/harness2-fit/as-is.md#S-26
+    blocks:
+      - design
+    status: superseded
+    route_to: data-handling-owner
+  - id: Q-5
+    key: 2ca34452eca259b6f22864123d7d91b4769969e4c3f7035e02b612969b7c8a4b
+    subject: Which of borrowing the ideas and running harness2 itself is wanted
+    raised_by: researcher
+    phase: research
+    category: requirement
+    text: >-
+      The answer to Q-1 was "like idea or use it". Do you want to borrow its ideas into Orqlet only,
+      to run harness2 itself as an external tool, or both?
+    why: >-
+      Running harness2 itself needs Linux and an approved model route (H-08, H-09); the answers to Q-2 and Q-3
+      are no, so the two readings lead to different designs.
+    options:
+      - borrow the ideas only
+      - run harness2 itself as an external tool
+      - both
+    evidence_refs:
+      - docs/design/harness2-fit/as-is.md#U-1
+    blocks:
+      - design
+    status: answered
+    answer:
+      value: Borrow the ideas into Orqlet only
+      answerer: user
+      time: "2026-10-23T10:30:00+03:00"
+      scope: task
+    supersedes:
+      - Q-4
