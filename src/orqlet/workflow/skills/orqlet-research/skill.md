@@ -1,6 +1,6 @@
 ---
 name: orqlet-research
-description: Produce one concise AS-IS file for a task: verified facts with evidence, and every unknown and contradiction. Use only when the person runs it.
+description: Produce one concise AS-IS file for a task, with verified facts and their evidence, and every unknown and contradiction. Use only when the person runs it.
 ---
 # Research
 

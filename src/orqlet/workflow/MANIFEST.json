@@ -27,7 +27,7 @@
     },
     {
       "path": "identity.json",
-      "sha256": "c832936490eaa5aed23210fd2691311160a46508221c8da50095d5f03669a6c8"
+      "sha256": "0f3bad3653babb46c609f62ee9732e198e118063a1d2ef0bbc827ea20c85273e"
     },
     {
       "path": "pr_template/workflow-section.md",
@@ -235,7 +235,7 @@
     },
     {
       "path": "skills/orqlet-research/skill.md",
-      "sha256": "a495f3238e0ce6771a1b461ad68130a75bc0fb5f7c1073c941039ac4a0e86735"
+      "sha256": "84be5b0a5d933a9fefbe18f06dabc0fd895123519c84675059cf2dd6208c7575"
     },
     {
       "path": "skills/orqlet-review/references/review-format.md",
@@ -247,5 +247,5 @@
     }
   ],
   "schema": "orqlet.workflow-manifest/v1",
-  "workflow_version": "0.3.0"
+  "workflow_version": "0.3.1"
 }
