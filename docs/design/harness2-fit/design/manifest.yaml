@@ -10,7 +10,7 @@ header:
     standards_lock_hash: 89a225016ff9d8b3ed977df39a70dfbe9dbc5f7c6d3762d0f2208b1b7a037a52
     applicable_rules_hash: 56502a0ec5eda3b13b4c9d97c7d4dfa41df82c86a206e36dd5d2d92aab299b97
     profile_version: 1
-as_is_ref: docs/design/harness2-fit/as-is.md#9235906ca6033bb061a1d450c0db5ccb1e4eff989115ff04b98098ba344a3446
+as_is_ref: docs/design/harness2-fit/as-is.md#d2523373eead305a14cef86aa72fb9432559337b7d605e385e54f7496c3c8e1a
 change_class: {trigger: D2, declared: D2, effective: D2}
 scope:
   paths:
@@ -151,7 +151,7 @@ self_check:
   schema: orqlet.self-check/v1
   checked_against: {role: architect, phase: design}
   checks:
-    - {what: AS-IS accepted by the person, how: "the table form was accepted on 2026-10-23 (AS-IS A-5b) with the answers to Q-1 and Q-5 in the ledger; the front-matter form bound to the reconstructed baseline has not been accepted yet", result: not-run}
+    - {what: AS-IS accepted by the person, how: "the table form was accepted on 2026-10-23 (AS-IS A-5b) with the answers to Q-1 and Q-5 in the ledger; the person accepted the front-matter form bound to the reconstructed baseline on 2026-10-25, in conversation", result: pass}
     - {what: standards read, how: "orqlet standards for --phase design --role architect (15 rules)", result: pass}
     - {what: every file the manifest names is hashed, how: "orqlet evidence hash", result: pass}
     - {what: manifest validates, how: "orqlet validate design returns PASS, class D2", result: pass}

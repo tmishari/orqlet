@@ -3,7 +3,7 @@ schema: orqlet.as-is/v1
 header:
   schema: orqlet.artifact-header/v1
   task: harness2-fit
-  status: draft
+  status: approved
   workflow_version: 0.3.0
   protected_set_digest: 49ef4cd53bcb9b38a1f61707c2ab572c29c92cd9d99e6a85e6303db2fba93bc9
   bound:
@@ -161,7 +161,7 @@ self_check:
 | Date and base | 2026-10-23. The validated facts are bound to the reconstructed baseline revision `2f235673610617120ffc0fc46824d7d7b56c6b87`. Facts about Harness² are bound to the commit `1cfe254e8d25b15f37048c3730134686abe60335` (2026-10-13, "Fix arXiv link") that was cloned to `/tmp/harness2-src` for reading only; the SHA-256 of each cited file is in section 7 |
 | Method | Read-only. Round 1: web fetch of the README, `docs/SETUP.md`, `docs/EXPERIMENTS.md`, `third_party/README.md`, `pyproject.toml`, the GitHub REST API, the text of arXiv 2610.14224, Context7 (once to resolve, once to query), a tool-presence probe, reads of the Orqlet proposal. Round 2: a shallow `git clone` of the public repository to `/tmp`, then three `orqlet-inventory` subagents (core and config; executors and environment; benchmarks, CLI and tests) and one `orqlet-tracer` subagent (one refinement run and the demo), all read-only and told not to execute anything. I re-checked 13 of their claims against the clone with `rg` (section 6). Nothing from the repository was run or installed, no model was called, no authentication was run, no external system was changed |
 | Research mode | `parallel-subagents`. Limitations: the subagents ran on `claude-sonnet-5-5-xhigh` and not on the session model (O-12); the same model family read the code and wrote the reports; I verified a sample, not every line number; `third_party/`, `dependencies/` and `assets/` were not read |
-| Status | Accepted by you on 2026-10-23 (A-5b) in its table form. This front-matter form, bound to the reconstructed baseline, was **not yet accepted**. `orqlet validate ledger docs/design/harness2-fit/questions.yaml` returns PASS. Nothing here was independently reviewed |
+| Status | Accepted by you on 2026-10-23 (A-5b) in its table form. This front-matter form, bound to the reconstructed baseline, was accepted by you on 2026-10-25, in conversation. `orqlet validate ledger docs/design/harness2-fit/questions.yaml` returns PASS. Nothing here was independently reviewed |
 
 Evidence forms: `README`, `SETUP`, `EXPERIMENTS`, `TP`, `PYP` are the raw files on branch `main` read in round 1. `API` is the GitHub REST API. `paper` is arXiv 2610.14224. `C7` is Context7. `h2:<path>:<lines>` is a file of the clone at the commit above. `design §n` is a section of `docs/design/orqlet-architecture-proposal.md` (v0.5). `probe` is a local command run on 2026-10-23.
 

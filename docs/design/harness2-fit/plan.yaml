@@ -10,7 +10,7 @@ header:
     standards_lock_hash: 89a225016ff9d8b3ed977df39a70dfbe9dbc5f7c6d3762d0f2208b1b7a037a52
     applicable_rules_hash: 56502a0ec5eda3b13b4c9d97c7d4dfa41df82c86a206e36dd5d2d92aab299b97
     profile_version: 1
-design_ref: docs/design/harness2-fit/design/manifest.yaml#bb2d4fbbf3fad6a200a487d23425e16fe55d428e26674be558476c87b059e92d
+design_ref: docs/design/harness2-fit/design/manifest.yaml#1395ca526a636b68ac84687c57dc57e52c78aed6b2d92883068549d6a85a51bb
 base_revision: 06209cdb13410548a825a6a731a2270ec7fe030f
 knowledge_scope: []
 phases:
