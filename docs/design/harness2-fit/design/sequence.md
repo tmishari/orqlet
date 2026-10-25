@@ -48,7 +48,7 @@ sequenceDiagram
   A->>C: review prepare task phase
   C->>B: build the packet
   B->>E: classify each changed path
-  alt a path at a review-record path is not a valid record, or is deleted, or cannot be parsed
+  alt a path at a review-record path is not a valid record, or is deleted
     E-->>B: invalid review record
     B-->>C: refusal with the path
     C-->>A: NOT_RUN naming the path and writing no packet

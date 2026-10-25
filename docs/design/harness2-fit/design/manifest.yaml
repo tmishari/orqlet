@@ -3,8 +3,8 @@ header:
   schema: orqlet.artifact-header/v1
   task: harness2-fit
   status: approved
-  workflow_version: 0.3.0
-  protected_set_digest: 49ef4cd53bcb9b38a1f61707c2ab572c29c92cd9d99e6a85e6303db2fba93bc9
+  workflow_version: 0.3.1
+  protected_set_digest: be7723282aec5a67e8161540bfba464562fb2a53d9bc3f8245ea22b812134eec
   bound:
     base_revision: a1bad7a644584ef9940ec433a2151d971a1b4e97
     standards_lock_hash: 89a225016ff9d8b3ed977df39a70dfbe9dbc5f7c6d3762d0f2208b1b7a037a52
@@ -81,17 +81,17 @@ artifacts:
     kind: sequence
     path: docs/design/harness2-fit/design/sequence.md
     covers: "Three interactions with their failure paths"
-    sha256: 5ee724e968ebd5abf8b12da2795126585773e4e7ad49483d95d7fae636be2657
+    sha256: 44e02cd993a53356913ce7d1641ab177180da3c35e43887aa94676a3de6e1e81
   - id: D-5
     kind: adr
     path: docs/design/harness2-fit/design/adr-001-client-visible-front-matter.md
     covers: "Plain-safe front matter for skills, agents and commands, the line view and the release test that compares it with the YAML view"
-    sha256: 9540315f829d352a875c6fe80b5e54936e6d729ee9e3c3195e075d223c3ea064
+    sha256: 711e6a750ace75b2bb39c24c117f1770fa943e8c567d58378062da7f4708637d
   - id: D-6
     kind: adr
     path: docs/design/harness2-fit/design/adr-002-packet-member-assertion.md
     covers: "Keeping review records out of review packets by path, not by text scan"
-    sha256: 1c1ddc1ac84290355c0464fb030deeefee06ae45df0b941f7e9bdb2e985a3e69
+    sha256: e1f91711db082f3e7294bd18f7463922c9a752264bbb88e9ba3c04527f654633
   - id: D-7
     kind: adr
     path: docs/design/harness2-fit/design/adr-003-no-review-skill-change.md
@@ -157,3 +157,4 @@ self_check:
     - {what: manifest validates, how: "orqlet validate design returns PASS, class D2", result: pass}
     - {what: bound values, how: "orqlet gate status prints them at base revision a1bad7a64458, the commit that holds the AS-IS", result: pass}
     - {what: design and plan approved by the person, how: "the person wrote \"I approve all designs and plans\" in conversation on 2026-10-25 and chose the harness2-fit design set and plan; recorded at their instruction; this is not a merge on the protected baseline, so a gate run still has no approval evidence", result: pass}
+    - {what: amended after the reviews and refreshed, how: "on 2026-10-25 the person wrote \"I approve all\" about the non-blocking review findings, the refresh of the bound workflow values and the proposal v0.5 approval; ADR-001 decision 2 and ADR-002 decision 3 were amended and their sha256 and the sequence diagram sha256 refreshed; workflow_version and protected_set_digest in this header were refreshed to the values of the upgraded repository at its base commit e8ef7a8832e9 (workflow 0.3.1); base_revision keeps naming the commit that holds the AS-IS, so a gate run still reports it as stale; this is the person's re-approval, not a merge on the protected baseline", result: pass}

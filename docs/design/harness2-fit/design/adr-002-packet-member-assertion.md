@@ -1,6 +1,6 @@
 # ADR-002: Keep review records out of review packets by path, not by text scan
 
-Status: accepted by the person on 2026-10-25, in conversation. No pull request was merged. The rule is recorded here and added to proposal Section 6.14.1 at implementation; the code lands with the v0.5 review-packet plan, not in this task.
+Status: accepted by the person on 2026-10-25, in conversation. No pull request was merged. Decision 3 was amended on 2026-10-25 after the P-5 reviews, to say what happens to a path that cannot be parsed, and the person approved the amendment. The rule is recorded here and added to proposal Section 6.14.1 at implementation; the code lands with the v0.5 review-packet plan, not in this task.
 
 ## Context
 
@@ -14,7 +14,7 @@ Status: accepted by the person on 2026-10-25, in conversation. No pull request w
 
 1. The `design` component of the packet takes the files named by the manifest under `artifacts` and its `as_is_ref`, never the notes named under `reviews`.
 2. The builder reads the list of changed paths from Git. For each path that matches the review-record pattern exactly (`parse_evidence_path(path)` returns the kind `review`), it asks the existing check `evidence_file_ok` (`src/orqlet/application/usecases/binding_inputs.py:192-212`), which applies the rule's three conditions through `is_excluded`. A valid record is left out of every list **and out of the `diff`** (the builder gives Git a literal pathspec that excludes it). The proposal text for the `diff` member is clarified accordingly.
-3. Any other path at a review-record path is not left in: a record that fails a condition, a record that is deleted in the range, or a path that cannot be parsed makes the builder return `NOT_RUN`, name the path, and write no packet. A test record and a knowledge-impact record are not refused: they are the `evidence` members.
+3. Any other path at a review-record path is not left in: a record that fails a condition, or a record that is deleted in the range, makes the builder return `NOT_RUN`, name the path, and write no packet. A changed path that cannot be parsed as a canonical path is not a record path: the builder leaves it out of the packet with an information line, as the built `review prepare` does today, and does not refuse. A test record and a knowledge-impact record are not refused: they are the `evidence` members.
 4. The match is on the parsed canonical path, case-sensitive as Git is. The review-record pattern is the one in the evidence-artifact module; when the v0.5 plan adds `code-reviewer` to it, the builder follows because there is one place.
 5. No member text is scanned for verdict words.
 

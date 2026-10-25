@@ -3,14 +3,14 @@ header:
   schema: orqlet.artifact-header/v1
   task: harness2-fit
   status: approved
-  workflow_version: 0.3.0
-  protected_set_digest: 49ef4cd53bcb9b38a1f61707c2ab572c29c92cd9d99e6a85e6303db2fba93bc9
+  workflow_version: 0.3.1
+  protected_set_digest: be7723282aec5a67e8161540bfba464562fb2a53d9bc3f8245ea22b812134eec
   bound:
     base_revision: 06209cdb13410548a825a6a731a2270ec7fe030f
     standards_lock_hash: 89a225016ff9d8b3ed977df39a70dfbe9dbc5f7c6d3762d0f2208b1b7a037a52
     applicable_rules_hash: 56502a0ec5eda3b13b4c9d97c7d4dfa41df82c86a206e36dd5d2d92aab299b97
     profile_version: 1
-design_ref: docs/design/harness2-fit/design/manifest.yaml#1395ca526a636b68ac84687c57dc57e52c78aed6b2d92883068549d6a85a51bb
+design_ref: docs/design/harness2-fit/design/manifest.yaml#32d050849dc917a8cd1307d61bae4fdc960ef14bd4d8ef794d4d136a7681b6c7
 base_revision: 06209cdb13410548a825a6a731a2270ec7fe030f
 knowledge_scope: []
 phases:
@@ -229,3 +229,4 @@ self_check:
     - {what: module catalogue consulted, how: ".orqlet/knowledge.yaml has no sources and no module cards exist, so there is nothing to reuse and reuse_decisions is empty", result: pass}
     - {what: paths projected, how: "orqlet validate plan against base revision 06209cdb1341, the commit that holds the design", result: pass}
     - {what: design and plan approved by the person, how: "the person wrote \"I approve all designs and plans\" in conversation on 2026-10-25 and chose the harness2-fit design set and plan; recorded at their instruction; this is not a merge on the protected baseline, so a gate run still has no approval evidence", result: pass}
+    - {what: refreshed after the upgrade, how: "phase P-6 completion asks the person to decide about re-approving the stale artifacts; on 2026-10-25 the person wrote \"I approve all\" to the refresh of the bound workflow values; workflow_version and protected_set_digest in this header were refreshed to the values of the upgraded repository at its base commit e8ef7a8832e9 (workflow 0.3.1) and design_ref names the amended design manifest; base_revision keeps naming the commit that holds the design, so a gate run still reports it as stale; this is the person's re-approval, not a merge on the protected baseline", result: pass}

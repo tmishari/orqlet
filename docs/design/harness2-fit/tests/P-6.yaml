@@ -18,7 +18,7 @@ commands:
   - {id: import-linter, exit_code: 0, summary: "Contracts: 5 kept, 0 broken.", result_digest: 853badd12da98fea9b58fb5206d66550c4318d6b2dfd774c84a1a89fa8252a82}
   - {id: pytest, exit_code: 0, summary: "tests/unit and tests/contract only, 1797 passed in 39.82s", result_digest: fd077eeca7a9b5fcc6c4964a70bb6007aa45a8e60366399a5e65a95ebd763b56}
   - {id: orqlet-sync, exit_code: 0, summary: "0 error(s), 0 warning(s), 4 note(s).", result_digest: bef79c25467fd3d0514a63b5cce364bdbea70575c56e8e2b005fb1d7441ba08a}
-  - {id: orqlet-doctor, exit_code: 1, summary: "0 error(s), 2 warning(s), 2 note(s).", result_digest: cefd6feec8f86f5ce0127f883482e66fe74790787aa30b695c30dc1b125973fb}
+  - {id: orqlet-doctor, exit_code: 1, summary: "0 error(s), 2 warning(s), 2 note(s). The two warnings are ORQ-W180 (the project profile is a draft) and ORQ-W181 (two profile facts are unknown: repository.branch_naming and repository.commit_convention); neither concerns this change.", result_digest: cefd6feec8f86f5ce0127f883482e66fe74790787aa30b695c30dc1b125973fb}
   - {id: orqlet-upgrade-check, exit_code: 0, summary: "Already up to date.", result_digest: 985eaf35603a80ed072739938d3f216e9e5e29d4a76c029dddf1af863c890407}
 acceptance_coverage:
   - {ac: AC-1, check_ref: orqlet-upgrade-dry-run, result: not-run}

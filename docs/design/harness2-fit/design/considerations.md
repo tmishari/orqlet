@@ -4,7 +4,7 @@ This note is the text behind the `considerations` block of the manifest. It also
 
 ## Security (state: affected)
 
-- The front-matter functions and the test handle text that Orqlet's own renderers produce inside the test process. No untrusted repository file is newly read at run time, and `doctor` is not changed (ADR-001). The two domain functions never raise on any input, and they start no process, use no network and handle no secret. Messages name keys and never print values, following the convention of `src/orqlet/application/contracts/loading.py:16-17`.
+- The front-matter functions and the test handle text that Orqlet's own renderers produce inside the test process. No untrusted repository file is newly read at run time, and `doctor` is not changed (ADR-001). `simple_front_matter` never raises for any text and `front_matter_differences` never raises for any mapping, and they start no process, use no network and handle no secret. Messages name keys and never print values, following the convention of `src/orqlet/application/contracts/loading.py:16-17`.
 - The unquoted form applies only to workflow-owned text of skills, agents and commands, through an allow-list: ASCII only, a letter first, no YAML-significant character, no reserved word. Rule files, which carry project text from standards packs (`src/orqlet/application/usecases/render_request.py:143-144`), keep the quoting and the escaping of `src/orqlet/adapters/render/emit.py:20-21` exactly as today. That choice came from the security review of round 2: a deny-list predicate over project text could let a line separator or a type-changing string through.
 - The comparison covers every key, including `tools`, `readonly` and `disable-model-invocation`, which carry the read-only and no-auto-invocation controls (`src/orqlet/adapters/render/roles.py:26,36`, `src/orqlet/adapters/render/skills.py:48`). An emitter change cannot leave one of those keys read differently in a skill, agent or command without a test failing. The controls of Codex roles (TOML) and of the Codex sidecar are not front matter and stay pinned by the string assertions in `tests/unit/render/test_skills.py`.
 - The packet rule (ADR-002) strengthens reviewer independence by a deterministic floor for valid review records, in the lists and in the diff, and refuses a malformed record at a record path. It is not a guarantee: the limits are listed in ADR-002 (a verdict inside any other file, a path that is not an exact match, reads outside the packet, and the built `review prepare` until the v0.5 plan).
@@ -38,7 +38,7 @@ This note is the text behind the `considerations` block of the manifest. It also
 
 - A rendered skill, agent or command with no front-matter block, with a block that does not parse, or with a value that is not a one-line scalar fails the test and names the file.
 - A string that is not plain-safe stays quoted, and the test fails when the quote changes what a line reader sees; the fix is to reword the source text.
-- `simple_front_matter` and `front_matter_differences` never raise: arbitrary text gives a view or a difference.
+- `simple_front_matter` never raises for any text and `front_matter_differences` never raises for any mapping: arbitrary text gives a view, and a mapping gives differences. A `parsed` value that is not a mapping is the caller's error.
 - A packet with a malformed record at a record path yields `NOT_RUN` naming the path and writes nothing (ADR-002, later).
 
 ## Validation and rollback
