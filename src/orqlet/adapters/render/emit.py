@@ -7,8 +7,8 @@ every platform and with every PyYAML release.
 
 Front matter is the one place where quotes can be read as part of a value: Cursor took the quotes of
 `name: "orqlet-inventory"` literally. `front_matter(..., plain_when_safe=True)` therefore leaves a
-string bare when a short allow-list proves that every YAML reader and a line reader see the same
-text, and quotes it exactly as before otherwise.
+string bare when a short allow-list says that every YAML reader and a line reader should see the
+same text (the release tests check every generated file), and quotes it exactly as before otherwise.
 """
 
 from __future__ import annotations

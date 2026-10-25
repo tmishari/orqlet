@@ -5,24 +5,27 @@ Cursor read the quotes of `name: "orqlet-inventory"` as part of the name, becaus
 the same file as `orqlet-inventory`. This module models the first reader and compares it with the
 second, so a test can fail when a generated file would be read differently by the two.
 
-Both functions are pure and never raise: the input is generated text in a test today, but it is
-text all the same, and a check that crashes on odd input would hide the defect it exists to find.
+Both functions are pure. `simple_front_matter` never raises for any text and
+`front_matter_differences` never raises for any mapping: a check that crashes on odd input would
+hide the defect it exists to find. A `parsed` value that is not a mapping is the caller's error.
 
 The design (ADR-001 decision 2) leaves some edge cases of the line view open. The choices below are
-the simplest reading of "one `key: value` line at a time" and none of them is pinned by a test:
+the simplest reading of "one `key: value` line at a time". ADR-001 decision 2 states them and the
+tests pin them:
 
 - a key is letters, digits, `_`, `.` and `-`, starting with a letter, digit or `_`, at column 0;
 - a line with a key and a colon but no value (`key:`) reads as the empty value;
 - a colon that is not followed by a blank (`key:value`) is not a `key: value` line;
 - when a key repeats, the last line wins, as in a reader that assigns line by line;
-- only `\\n` ends a line, after `\\r\\n` has been read as `\\n`; blanks are spaces and tabs.
+- only `\\n` ends a line, after `\\r\\n` has been read as `\\n`; blanks are spaces and tabs;
+- a folded or block marker such as `>-` is read as its own text.
 """
 
 import re
 from collections.abc import Mapping
 
-# The key class excludes `:`, so the first colon ends the key and no backtracking can occur on
-# long input. A value may itself contain colons.
+# The key class excludes `:`, so the first colon ends the key and the work stays linear on long
+# input. A value may itself contain colons.
 _KEY_VALUE = re.compile(r"([A-Za-z0-9_][A-Za-z0-9_.-]*):(?:[ \t]+(.*))?")
 
 

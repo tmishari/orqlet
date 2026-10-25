@@ -58,7 +58,7 @@ def _is_message_tuple(result: object) -> bool:
 
 
 def _names_key(key: str, messages: tuple[str, ...]) -> bool:
-    return any(key in message for message in messages)
+    return any(repr(key) in message for message in messages)
 
 
 def _shows_any(messages: tuple[str, ...], *values: str) -> bool:
@@ -173,6 +173,51 @@ _text_without_cr = st.text(
 def test_crlf_and_lf_agree_for_any_text(text: str) -> None:
     """AC-1. expected_behavior_source: ADR-001 decision 2 (CRLF gives the same result as LF)."""
     assert simple_front_matter(text.replace("\n", "\r\n")) == simple_front_matter(text)
+
+
+# --- the choices that ADR-001 decision 2 states for what the design left open --------------------
+# expected_behavior_source: ADR-001 decision 2, as amended on 2026-10-25 after the P-1 review.
+
+
+@pytest.mark.parametrize("block", ["key:", "key:\n", "key:  \n", "key:\t\n"])
+def test_a_key_with_no_value_reads_as_the_empty_value(block: str) -> None:
+    """expected_behavior_source: ADR-001 decision 2 (a key with no value reads as empty)."""
+    assert simple_front_matter(block) == {"key": ""}
+
+
+@pytest.mark.parametrize("block", ["key:value\n", 'name:"x"\n', "k:y: v\n"])
+def test_a_colon_without_a_following_blank_is_not_a_key_value_line(block: str) -> None:
+    """expected_behavior_source: ADR-001 decision 2 (no blank after the colon: not a line)."""
+    assert simple_front_matter(block) == {}
+
+
+@pytest.mark.parametrize("marker", [">", ">-", "|", "|-"])
+def test_a_folded_or_block_marker_is_read_as_its_own_text(marker: str) -> None:
+    """expected_behavior_source: ADR-001 decision 2 (a folded or block marker is its own text)."""
+    assert simple_front_matter(f"description: {marker}\n  folded text\n") == {"description": marker}
+
+
+def test_a_repeated_key_keeps_its_last_value() -> None:
+    """expected_behavior_source: ADR-001 decision 2 (when a key repeats, the last line wins)."""
+    assert simple_front_matter("name: first\nname: second\n") == {"name": "second"}
+
+
+@pytest.mark.parametrize("key", ["name", "disable-model-invocation", "x.y", "_a", "9lives", "A-1"])
+def test_a_key_may_hold_letters_digits_underscore_dot_and_hyphen(key: str) -> None:
+    """expected_behavior_source: ADR-001 decision 2 (the key character class)."""
+    assert simple_front_matter(f"{key}: v\n") == {key: "v"}
+
+
+@pytest.mark.parametrize("line", ["-key: v", ".key: v", " key: v", "\tkey: v", "k y: v", "k$: v"])
+def test_a_line_that_does_not_start_with_a_key_at_column_zero_is_ignored(line: str) -> None:
+    """expected_behavior_source: ADR-001 decision 2 (the key starts at column 0 with its class)."""
+    assert simple_front_matter(line + "\n") == {}
+
+
+def test_only_a_line_feed_ends_a_line() -> None:
+    """expected_behavior_source: ADR-001 decision 2 (only a line feed ends a line)."""
+    assert simple_front_matter("a: b\rc: d\n") == {"a": "b\rc: d"}
+    assert simple_front_matter("a: b\u2028c: d\n") == {"a": "b\u2028c: d"}
 
 
 # --- AC-2: front_matter_differences compares by string form, per key -----------------------------
