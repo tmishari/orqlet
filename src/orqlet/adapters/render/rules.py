@@ -57,7 +57,8 @@ def _file(path: str, text: str, rule: ScopedRule) -> RenderedFile:
 
 def claude_command(command: ClientCommand) -> RenderedFile:
     """`.claude/commands/orqlet-<name>.md`, listed by Claude Code as `/orqlet-<name>`."""
-    text = front_matter([("description", command.description)]) + _command_body(command)
+    text = front_matter([("description", command.description)], plain_when_safe=True)
+    text += _command_body(command)
     return _command_file(f".claude/commands/orqlet-{_command_name(command)}.md", text, command)
 
 

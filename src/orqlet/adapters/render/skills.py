@@ -46,7 +46,8 @@ def _skill_files(base: str, skill: ClientSkill) -> tuple[RenderedFile, ...]:
             ("name", skill.name),
             ("description", skill.description),
             ("disable-model-invocation", True),
-        ]
+        ],
+        plain_when_safe=True,
     )
     text = f"{head}{GENERATED_NOTICE}\n\n{normalise_text(skill.body)}"
     files = [_file(f"{base}/{skill.name}/SKILL.md", text, skill.inputs)]

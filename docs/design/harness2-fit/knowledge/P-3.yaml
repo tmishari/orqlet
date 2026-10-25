@@ -1,0 +1,51 @@
+schema: orqlet.knowledge-impact/v1
+task: harness2-fit
+phase: P-3
+review_input:
+  schema: orqlet.review-input/v1
+  covers: [code_tests, knowledge, plan, standards, candidates]
+  components:
+    candidates: babebbee7c1a0412584eb3806971d758f94e902c3c393c09bac73b0dda6d86f3
+    code_tests: 449150ab4b6ec6ba8d6a136043e9c985031b23099d1dbeaf3f1b2831bced5408
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 2f4d690be243ae8b9b20b573c59499cac9ff42ef2348fa880b5e7330d3c9ead2
+    standards: a890bfe048dcd9f6d02a07460914ce1da9eaa59ffb0b1a89eed8a012cdca071e
+  digest: 77d0bb507af8d95195f3970e04ce4275da4befdaa34743de434d819d66122fed
+  merge_base: 3ac5b96d17df803ce133c261688ec7fb164bcf78
+outcome: no-impact
+analysis:
+  command: orqlet knowledge impact
+  orqlet_version: 0.1.0
+  candidates_digest: babebbee7c1a0412584eb3806971d758f94e902c3c393c09bac73b0dda6d86f3
+  candidate_count: 2
+  input: pre-draft-tree
+  views: [committed:HEAD]
+  index_state: not-used
+entries:
+  - id: K-1
+    candidate_ref: cand-20cc9067515d
+    action: unaffected
+    scope: project
+    reason: "The public symbol orqlet.adapters.render.emit.front_matter was changed; decision 1 of ADR-001 documents it, and no project knowledge document covers this code."
+    evidence:
+      - {kind: adr, ref: docs/design/harness2-fit/design/adr-001-client-visible-front-matter.md, sha256: 3f1e84dd306a1c9baa3c225ea1e6f26396b9dcef7893d6ceadd460f96160e29f}
+  - id: K-2
+    candidate_ref: cand-9fa0814a6cb9
+    action: unaffected
+    scope: project
+    reason: "EC-3 is the expected change that the approved design declares and decision 1 of ADR-001 documents; no project knowledge document covers this code."
+    evidence:
+      - {kind: design, ref: docs/design/harness2-fit/design/manifest.yaml, sha256: cc466c043d4ea4b3dc84ecb6343ef24ab4f90aaf9353caf02ce9d9ca6a6f200f}
+no_impact:
+  category: already-documented
+  reason: "The behaviour of this phase is already written down in decision 1 of ADR-001 and in the approved design manifest."
+  absence_record:
+    scopes_searched: [".orqlet/knowledge.yaml sources", "the plan's knowledge_scope"]
+    views: [committed:HEAD]
+    revision: 3ac5b96d17df803ce133c261688ec7fb164bcf78
+    method: "orqlet knowledge impact on the staged tree; the project configures no knowledge sources and the plan's knowledge_scope is empty, so no knowledge document exists that the phase could change."
+    index_state: not-used
+    candidates_found: 2
+  already_documented_refs:
+    - {path: docs/design/harness2-fit/design/adr-001-client-visible-front-matter.md, sha256: 3f1e84dd306a1c9baa3c225ea1e6f26396b9dcef7893d6ceadd460f96160e29f}
+    - {path: docs/design/harness2-fit/design/manifest.yaml, sha256: cc466c043d4ea4b3dc84ecb6343ef24ab4f90aaf9353caf02ce9d9ca6a6f200f}

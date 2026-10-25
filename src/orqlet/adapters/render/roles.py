@@ -47,7 +47,8 @@ def codex_role(role: ClientRole) -> RenderedFile:
 
 
 def _markdown(fields: list[tuple[str, str | bool]], role: ClientRole) -> str:
-    return f"{front_matter(fields)}{GENERATED_NOTICE}\n\n{normalise_text(role.body)}"
+    head = front_matter(fields, plain_when_safe=True)
+    return f"{head}{GENERATED_NOTICE}\n\n{normalise_text(role.body)}"
 
 
 def _file(path: str, text: str, role: ClientRole) -> RenderedFile:
