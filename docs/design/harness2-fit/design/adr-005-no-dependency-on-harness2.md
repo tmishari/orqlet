@@ -1,6 +1,6 @@
 # ADR-005: Harness² is a source of ideas only: no dependency, no command, no integration
 
-Status: proposed.
+Status: accepted by the person on 2026-10-25, in conversation. No pull request was merged.
 
 ## Context
 

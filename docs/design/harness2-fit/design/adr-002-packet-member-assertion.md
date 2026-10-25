@@ -1,6 +1,6 @@
 # ADR-002: Keep review records out of review packets by path, not by text scan
 
-Status: proposed. The rule is recorded here and added to proposal Section 6.14.1 at implementation; the code lands with the v0.5 review-packet plan, not in this task.
+Status: accepted by the person on 2026-10-25, in conversation. No pull request was merged. The rule is recorded here and added to proposal Section 6.14.1 at implementation; the code lands with the v0.5 review-packet plan, not in this task.
 
 ## Context
 

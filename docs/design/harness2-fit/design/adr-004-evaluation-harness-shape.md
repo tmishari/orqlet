@@ -1,6 +1,6 @@
 # ADR-004: Record the shape of the evaluation harness in the proposal (milestone M7, no code now)
 
-Status: proposed.
+Status: accepted by the person on 2026-10-25, in conversation. No pull request was merged.
 
 ## Context
 
