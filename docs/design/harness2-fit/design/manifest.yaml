@@ -1,0 +1,158 @@
+schema: orqlet.design-set/v1
+header:
+  schema: orqlet.artifact-header/v1
+  task: harness2-fit
+  status: draft
+  workflow_version: 0.3.0
+  protected_set_digest: 49ef4cd53bcb9b38a1f61707c2ab572c29c92cd9d99e6a85e6303db2fba93bc9
+  bound:
+    base_revision: a1bad7a644584ef9940ec433a2151d971a1b4e97
+    standards_lock_hash: 89a225016ff9d8b3ed977df39a70dfbe9dbc5f7c6d3762d0f2208b1b7a037a52
+    applicable_rules_hash: 56502a0ec5eda3b13b4c9d97c7d4dfa41df82c86a206e36dd5d2d92aab299b97
+    profile_version: 1
+as_is_ref: docs/design/harness2-fit/as-is.md#9235906ca6033bb061a1d450c0db5ccb1e4eff989115ff04b98098ba344a3446
+change_class: {trigger: D2, declared: D2, effective: D2}
+scope:
+  paths:
+    - "src/orqlet/domain/front_matter.py"
+    - "src/orqlet/adapters/render/emit.py"
+    - "src/orqlet/adapters/render/skills.py"
+    - "src/orqlet/adapters/render/roles.py"
+    - "src/orqlet/adapters/render/rules.py"
+    - "src/orqlet/workflow/skills/orqlet-research/**"
+    - "src/orqlet/workflow/MANIFEST.json"
+    - "src/orqlet/workflow/identity.json"
+    - "tests/unit/domain/**"
+    - "tests/unit/render/**"
+    - "tests/golden/**"
+    - "docs/design/orqlet-architecture-proposal.md"
+    # Generated in this repository by `orqlet upgrade`, never edited by hand.
+    - ".cursor/**"
+    - ".claude/**"
+    - ".agents/**"
+    - ".codex/**"
+    - "AGENTS.md"
+    - ".github/pull_request_template.md"
+    - ".orqlet/generated.lock.yaml"
+    - ".orqlet/workflow.lock"
+    - ".orqlet/versions.yaml"
+  trust_boundaries: []
+extractor_config:
+  public_api: {packages: [orqlet], mode: ast}
+  dependency_manifests: [pyproject.toml]
+  lockfiles: [uv.lock]
+  security_globs: []
+expected_changes:
+  - id: EC-1
+    surface: public-api
+    action: add
+    identity: orqlet.domain.front_matter.simple_front_matter
+    expected_after: {kind: signature, value: "def simple_front_matter(block: str) -> dict[str, str]"}
+    verification: extractor
+  - id: EC-2
+    surface: public-api
+    action: add
+    identity: orqlet.domain.front_matter.front_matter_differences
+    expected_after: {kind: signature, value: "def front_matter_differences(line_view: Mapping[str, str], parsed: Mapping[str, object]) -> tuple[str, ...]"}
+    verification: extractor
+  - id: EC-3
+    surface: public-api
+    action: change
+    identity: orqlet.adapters.render.emit.front_matter
+    expected_after: {kind: signature, value: "def front_matter(fields: Sequence[tuple[str, Data]], *, plain_when_safe: bool = False) -> str"}
+    verification: extractor
+artifacts:
+  - id: D-1
+    kind: c4-container
+    path: docs/design/harness2-fit/design/container.md
+    covers: "The containers this change touches and what changes in each"
+    sha256: 6759465c9b5bc8216ecfe81d902c92ed0d9246f8e080f5d997066d68223274fc
+  - id: D-2
+    kind: c4-component
+    path: docs/design/harness2-fit/design/component.md
+    covers: "The new domain functions, the changed emitter and the packet rule with their layer check"
+    sha256: 828f4bf7db09d425a055438e106a00d4eead8a7d761bf66c66132fec73ba2edf
+  - id: D-3
+    kind: data-flow
+    path: docs/design/harness2-fit/design/data-flow.md
+    covers: "Three changed flows: front-matter views in the release test, packet paths, a change to generated text reaching a project"
+    sha256: 8f83c814d04a7e8a7c17aeca0919e8bd45ded758e48c9e40254a2effd71e871a
+  - id: D-4
+    kind: sequence
+    path: docs/design/harness2-fit/design/sequence.md
+    covers: "Three interactions with their failure paths"
+    sha256: 5ee724e968ebd5abf8b12da2795126585773e4e7ad49483d95d7fae636be2657
+  - id: D-5
+    kind: adr
+    path: docs/design/harness2-fit/design/adr-001-client-visible-front-matter.md
+    covers: "Plain-safe front matter for skills, agents and commands, the line view and the release test that compares it with the YAML view"
+    sha256: 3f1e84dd306a1c9baa3c225ea1e6f26396b9dcef7893d6ceadd460f96160e29f
+  - id: D-6
+    kind: adr
+    path: docs/design/harness2-fit/design/adr-002-packet-member-assertion.md
+    covers: "Keeping review records out of review packets by path, not by text scan"
+    sha256: 2831e80ef3e87cf7fd7bc1ae45b642d433e7d564ba67a76e00d091c39033f586
+  - id: D-7
+    kind: adr
+    path: docs/design/harness2-fit/design/adr-003-no-review-skill-change.md
+    covers: "No change to the review skill about agreement between reviewers, with the revisit condition"
+    sha256: 635de671a46c5556aff6c3f5366d7a0bf7ecc486cfe68f30baa0ad34737bc9dc
+  - id: D-8
+    kind: adr
+    path: docs/design/harness2-fit/design/adr-004-evaluation-harness-shape.md
+    covers: "The shape of the evaluation harness recorded in the proposal for milestone M7"
+    sha256: 8520c5fef4c1e9e084a3c869d584cc060d847d4f0bebbef510d0abd1e7eca390
+  - id: D-9
+    kind: adr
+    path: docs/design/harness2-fit/design/adr-005-no-dependency-on-harness2.md
+    covers: "No dependency, command or integration, and what is adopted, deferred and rejected"
+    sha256: 757b5f790a714632ed24a7623a1ebaf850999d81d8cf9040c2d50517ed558c6d
+considerations:
+  security:
+    state: affected
+    evidence_refs:
+      - "src/orqlet/adapters/render/emit.py:18-21"
+      - "src/orqlet/adapters/render/emit.py:56-59"
+      - "src/orqlet/adapters/render/roles.py:26-36"
+      - "src/orqlet/application/usecases/render_request.py:143-144"
+      - "src/orqlet/application/usecases/review_prepare.py:110-131"
+    notes: "The front-matter functions handle text that Orqlet's own renderers produce and read no untrusted file at run time; unquoting is limited to workflow-owned text by an allow-list and rule files keep their quoting and escaping; the comparison covers every key including the read-only controls; the packet rule is a floor with stated limits; SHA-256 only. Detail in docs/design/harness2-fit/design/considerations.md"
+  compatibility:
+    state: affected
+    evidence_refs:
+      - "src/orqlet/application/usecases/gate_status.py:70-77"
+      - "src/orqlet/application/usecases/gate_status.py:179-185"
+      - "src/orqlet/application/usecases/gate_status.py:194-202"
+      - "src/orqlet/workflow/releases.json:1-10"
+    notes: "32 rendered Markdown files change bytes, six more goldens change with the version marker, and the goldens regenerate once; one protected description is reworded with a manifest rebuild and a version bump (ORQ-E161 otherwise); approved artifacts written against the old digest are reported stale after an upgrade and the built code has no refresh path; the in-repo upgrade comes last. Detail in docs/design/harness2-fit/design/considerations.md"
+  operations:
+    state: affected
+    evidence_refs:
+      - "tests/unit/render/test_skills.py:381-393"
+      - "src/orqlet/application/usecases/diagnose.py:108-149"
+    notes: "New tests in the suite and no network, no doctor change; rollback by reverting the commit or by orqlet upgrade and its journal. Constraints, failure behaviour and validation and rollback are in docs/design/harness2-fit/design/considerations.md"
+standards_applied:
+  - ORQLET-ARCH-001
+  - ORQLET-ARCH-002
+  - ORQLET-ARCH-003
+  - ORQLET-DET-001
+  - ORQLET-DET-002
+  - ORQLET-NOMODEL-001
+  - ORQLET-QA-001
+  - ORQLET-SEC-003
+  - ORQLET-TEST-001
+  - ORQLET-STYLE-001
+reviews:
+  - role: architecture-reviewer
+    note: docs/design/harness2-fit/reviews/architecture-reviewer-design.md
+  - role: security-reviewer
+    note: docs/design/harness2-fit/reviews/security-reviewer-design.md
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against: {role: architect, phase: design}
+  checks:
+    - {what: AS-IS accepted by the person, how: "the table form was accepted on 2026-10-23 (AS-IS A-5b) with the answers to Q-1 and Q-5 in the ledger; the front-matter form bound to the reconstructed baseline has not been accepted yet", result: not-run}
+    - {what: standards read, how: "orqlet standards for --phase design --role architect (15 rules)", result: pass}
+    - {what: every file the manifest names is hashed, how: "orqlet evidence hash", result: pass}
+    - {what: manifest validates, how: "orqlet validate design returns PASS, class D2", result: pass}
+    - {what: bound values, how: "orqlet gate status prints them at base revision a1bad7a64458, the commit that holds the AS-IS", result: pass}
