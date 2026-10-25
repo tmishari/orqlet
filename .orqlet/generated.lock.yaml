@@ -8,9 +8,9 @@ files:
     class: protected
     inputs:
       - id: skills/orqlet-design
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: "72ccbc1d3cb8d3be06d953033772bf5a9fdf06a808b15954c3dccc5d200a4ba8"
-    rendered_sha256: "7ad143dd517c72513e68db23a32157bec9bfb8d904999646fdea5eab81c05fd4"
+    rendered_sha256: e661a103a7324ccbd76bb19056e56736f575c4e4bd9f39ba80cf62fd8d435b8e
   - path: ".agents/skills/orqlet-design/agents/openai.yaml"
     owner: orqlet
     class: protected
@@ -24,7 +24,7 @@ files:
     class: protected
     inputs:
       - id: skills/orqlet-design/references/design-format.md
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: "43756573a15ad2ef724ebee020ec9414ca4ce4032cbeeb35b933ef2be7feb5e0"
     rendered_sha256: "43756573a15ad2ef724ebee020ec9414ca4ce4032cbeeb35b933ef2be7feb5e0"
   - path: ".agents/skills/orqlet-implement/SKILL.md"
@@ -32,9 +32,9 @@ files:
     class: protected
     inputs:
       - id: skills/orqlet-implement
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: "1402fbd56e78ef6150bfccfb0c7883b2f4b35ef0becf0b419404a98611ca1c8a"
-    rendered_sha256: "848c55e50b41a14646da5a40d73a7a4126f2063377d12eda5666263a82b1b3fc"
+    rendered_sha256: ce83d299cd1d7243e57d0c1bb50518d16d97071772549bb4dd3b66898b501527
   - path: ".agents/skills/orqlet-implement/agents/openai.yaml"
     owner: orqlet
     class: protected
@@ -48,9 +48,9 @@ files:
     class: protected
     inputs:
       - id: skills/orqlet-onboard
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: "8a0854f28066a29580765de57aa71652c05112aabd5f248799b7d1f1d9afbd1c"
-    rendered_sha256: "29e650fa31294fcf1cf9fb1fe39fb3b543cda03956dd7d6bd428e0238a8f9dd4"
+    rendered_sha256: "7dc2b547f447ea99ee782c4ff87a02ca05b317201aedd0b0709b5fe80703ca9a"
   - path: ".agents/skills/orqlet-onboard/agents/openai.yaml"
     owner: orqlet
     class: protected
@@ -64,9 +64,9 @@ files:
     class: protected
     inputs:
       - id: skills/orqlet-plan
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: ad0c6fadae063533f2bd9e0800e24e09c7fc4ab6340119192642de53a3797e8c
-    rendered_sha256: "6267c4e29b5d1d3fd8cc9afc55aedcc9ebb2ee22cb7dc3aa6ab89803757e1850"
+    rendered_sha256: d73b7eb2cccd991f6865b30f2dacf53b2c041822da2eea8a951276c998adff9e
   - path: ".agents/skills/orqlet-plan/agents/openai.yaml"
     owner: orqlet
     class: protected
@@ -80,7 +80,7 @@ files:
     class: protected
     inputs:
       - id: skills/orqlet-plan/references/plan-format.md
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: "3437e4c1b08635b0b086d641801e1e27c4e5630fb303790a35306ecc9d0d2617"
     rendered_sha256: "3437e4c1b08635b0b086d641801e1e27c4e5630fb303790a35306ecc9d0d2617"
   - path: ".agents/skills/orqlet-research/SKILL.md"
@@ -88,9 +88,9 @@ files:
     class: protected
     inputs:
       - id: skills/orqlet-research
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: "004213bc5abf21720ce3e2570d0ae20724f9378beeef3207ed365704e162d8b6"
-    rendered_sha256: "6b98a5eba1be82465ad6b03519a0099f35a5583947828403b520f5eba7e9d274"
+    rendered_sha256: "21df4a17f74c291c968ebc87065f73af23afa0bbfe59eeb76d108c7f07cd542e"
   - path: ".agents/skills/orqlet-research/agents/openai.yaml"
     owner: orqlet
     class: protected
@@ -104,7 +104,7 @@ files:
     class: protected
     inputs:
       - id: skills/orqlet-research/references/as-is-format.md
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: bf10c978a6bf30d2571e3ebc07816eaf34f81b92bbaa2b4a906a40dc541cb471
     rendered_sha256: bf10c978a6bf30d2571e3ebc07816eaf34f81b92bbaa2b4a906a40dc541cb471
   - path: ".agents/skills/orqlet-review/SKILL.md"
@@ -112,9 +112,9 @@ files:
     class: protected
     inputs:
       - id: skills/orqlet-review
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: "3a4de268cd47b65f1330998f7cbc84a3004716851f44fbb8b9c3af5144e38969"
-    rendered_sha256: "7d708d09e6c6178e5531930fa789568bd8b5b10da27e194293a9c009fe14b98f"
+    rendered_sha256: "072e839a72517ac0ecd3ad31e9a65b6c914bc247ef773e066141f4f91b73d7d5"
   - path: ".agents/skills/orqlet-review/agents/openai.yaml"
     owner: orqlet
     class: protected
@@ -128,7 +128,7 @@ files:
     class: protected
     inputs:
       - id: skills/orqlet-review/references/review-format.md
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: "48b7f84413d9815db49f0de71207676ad3c24ff7d7337b6f8364050e87e1b0b5"
     rendered_sha256: "48b7f84413d9815db49f0de71207676ad3c24ff7d7337b6f8364050e87e1b0b5"
   - path: ".claude/CLAUDE.md"
@@ -144,73 +144,73 @@ files:
     class: protected
     inputs:
       - id: roles/orqlet-arch-reviewer
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: "37e9d323ed85742e35022d2fd444b7da3c0062e19eb104ffee483ecb8fe26e1a"
-    rendered_sha256: "8ba4c7e74aa05774e9845651968d68cf4e8c9143f07b29a75808fae05d90c09d"
+    rendered_sha256: "9fe777c54de52cf993a38662cc2566027225691ab90f7b675d2be611115efb6e"
   - path: ".claude/agents/orqlet-inventory.md"
     owner: orqlet
     class: protected
     inputs:
       - id: roles/orqlet-inventory
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: bab8df35c60ffbdb36597ead8de3727dd3d3e7ffac5452f2f85653088a38552a
-    rendered_sha256: fd4f448afd167c7042b09396173728b61cd3519b39f93a76fe76563bc375400f
+    rendered_sha256: "69ee72eb341b5365ca2bce2e8dfb5d3cc83fa5a56015349212baef695eb0c574"
   - path: ".claude/agents/orqlet-security-reviewer.md"
     owner: orqlet
     class: protected
     inputs:
       - id: roles/orqlet-security-reviewer
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: efd29d5ec12f5ad0e5765d2cc4f2e1ff5fa2efda560215f92842d70ef0a9a4e6
-    rendered_sha256: "851d874e8da95d6cc167a2c32ceefb3337b9e2e897ab8f4ac35813dd9901ea98"
+    rendered_sha256: "94e8b94496b7c855fa8f39ce6f8bf1e6447a9f6aea34a2893c9286b168d268cd"
   - path: ".claude/agents/orqlet-tester.md"
     owner: orqlet
     class: protected
     inputs:
       - id: roles/orqlet-tester
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: "249e300c622e2d47210ca9db3e1f6ee1314170ec8b27d6eabd7431ce0e0254d6"
-    rendered_sha256: "1d66cdfcad17f04856d62cb52732c1378ba3ca810370117970f20922ab62641c"
+    rendered_sha256: "4c5ea28b5ca0343c3f588baa87f18a071f571a17fe1fac637f269e4a3f9e1d09"
   - path: ".claude/agents/orqlet-tracer.md"
     owner: orqlet
     class: protected
     inputs:
       - id: roles/orqlet-tracer
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: "6cdb490fa0e93c3e90e32e93bff3ba596ac7192bfd833be23729527b8da76a0b"
-    rendered_sha256: c6ca1cc54ecd35cf4798736c6609576cd636b2231ff9921c052baee959fd8188
+    rendered_sha256: "00559cb2205f743b53e14f44269faef1a284d7849d86d40508cf81c72afa952e"
   - path: ".claude/commands/orqlet-doctor.md"
     owner: orqlet
     class: generated
     inputs:
       - id: commands/doctor
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: "4af18c451089713e112520cae604b263e8e14ce78e8a8c0026c716d63274d466"
-    rendered_sha256: "71d9e87f934e8b45f982f87336331b2ab995d828c57ef5941036210cb8984571"
+    rendered_sha256: "5194fb0425a2ffd47b8bdd52006d2482f01039c38112c6ecb705f02f6c6f1ee2"
   - path: ".claude/commands/orqlet-profile.md"
     owner: orqlet
     class: generated
     inputs:
       - id: commands/profile
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: c5db297d671755c919254ae3066a07527f3d955f8959e6fac8f7aba56b42dab3
-    rendered_sha256: "9a378e24b9d1e65acde62fd6983ea2f645b137497d0ceb644ca02591f304bfb9"
+    rendered_sha256: "6eca446e83617fbcd4a1260da044a371dcaa1a038dbb304545296c3992d614c6"
   - path: ".claude/commands/orqlet-standards.md"
     owner: orqlet
     class: generated
     inputs:
       - id: commands/standards
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: dd61b261c47a693e95004427ea7942bc272717e574b8d25aab43981591963ee3
-    rendered_sha256: f462b54ac9b2b15e84dd7aa6e3c4a74b8d131a4e50fbe5b70afcff3aa139b0d3
+    rendered_sha256: e8a70005bccc9a6a523c56fa8adc6ac8e6f724bd3537a0c4f389715c19f85742
   - path: ".claude/commands/orqlet-upgrade.md"
     owner: orqlet
     class: generated
     inputs:
       - id: commands/upgrade
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: a577a7b94dab6fe57fba1656b9da92a1d2f71c1f34540877bb8d0f7df909e988
-    rendered_sha256: "78893240b18e8cca21f207c6ded903957e25aa7035cd10d5173d23acaeea153c"
+    rendered_sha256: "0d569dbb23e18b763316fe65a48808d4aa94483825d721ffa284f3d3804a0789"
   - path: ".claude/rules/orqlet-orqlet-arch-001.md"
     owner: orqlet
     class: generated
@@ -304,7 +304,7 @@ files:
     class: protected
     inputs:
       - id: rules/orqlet-workflow
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: "4b61b79c2e174ce3e8ff5c52032d43c24bead4796f40b6863a2764887dca879d"
     rendered_sha256: "5b4baf44bd33bd9694f8d4ec97afb25b6ded65df87a1cdcabf273da4b9ad9772"
   - path: ".claude/skills/orqlet-design/SKILL.md"
@@ -312,15 +312,15 @@ files:
     class: protected
     inputs:
       - id: skills/orqlet-design
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: "72ccbc1d3cb8d3be06d953033772bf5a9fdf06a808b15954c3dccc5d200a4ba8"
-    rendered_sha256: "7ad143dd517c72513e68db23a32157bec9bfb8d904999646fdea5eab81c05fd4"
+    rendered_sha256: e661a103a7324ccbd76bb19056e56736f575c4e4bd9f39ba80cf62fd8d435b8e
   - path: ".claude/skills/orqlet-design/references/design-format.md"
     owner: orqlet
     class: protected
     inputs:
       - id: skills/orqlet-design/references/design-format.md
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: "43756573a15ad2ef724ebee020ec9414ca4ce4032cbeeb35b933ef2be7feb5e0"
     rendered_sha256: "43756573a15ad2ef724ebee020ec9414ca4ce4032cbeeb35b933ef2be7feb5e0"
   - path: ".claude/skills/orqlet-implement/SKILL.md"
@@ -328,31 +328,31 @@ files:
     class: protected
     inputs:
       - id: skills/orqlet-implement
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: "1402fbd56e78ef6150bfccfb0c7883b2f4b35ef0becf0b419404a98611ca1c8a"
-    rendered_sha256: "848c55e50b41a14646da5a40d73a7a4126f2063377d12eda5666263a82b1b3fc"
+    rendered_sha256: ce83d299cd1d7243e57d0c1bb50518d16d97071772549bb4dd3b66898b501527
   - path: ".claude/skills/orqlet-onboard/SKILL.md"
     owner: orqlet
     class: protected
     inputs:
       - id: skills/orqlet-onboard
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: "8a0854f28066a29580765de57aa71652c05112aabd5f248799b7d1f1d9afbd1c"
-    rendered_sha256: "29e650fa31294fcf1cf9fb1fe39fb3b543cda03956dd7d6bd428e0238a8f9dd4"
+    rendered_sha256: "7dc2b547f447ea99ee782c4ff87a02ca05b317201aedd0b0709b5fe80703ca9a"
   - path: ".claude/skills/orqlet-plan/SKILL.md"
     owner: orqlet
     class: protected
     inputs:
       - id: skills/orqlet-plan
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: ad0c6fadae063533f2bd9e0800e24e09c7fc4ab6340119192642de53a3797e8c
-    rendered_sha256: "6267c4e29b5d1d3fd8cc9afc55aedcc9ebb2ee22cb7dc3aa6ab89803757e1850"
+    rendered_sha256: d73b7eb2cccd991f6865b30f2dacf53b2c041822da2eea8a951276c998adff9e
   - path: ".claude/skills/orqlet-plan/references/plan-format.md"
     owner: orqlet
     class: protected
     inputs:
       - id: skills/orqlet-plan/references/plan-format.md
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: "3437e4c1b08635b0b086d641801e1e27c4e5630fb303790a35306ecc9d0d2617"
     rendered_sha256: "3437e4c1b08635b0b086d641801e1e27c4e5630fb303790a35306ecc9d0d2617"
   - path: ".claude/skills/orqlet-research/SKILL.md"
@@ -360,15 +360,15 @@ files:
     class: protected
     inputs:
       - id: skills/orqlet-research
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: "004213bc5abf21720ce3e2570d0ae20724f9378beeef3207ed365704e162d8b6"
-    rendered_sha256: "6b98a5eba1be82465ad6b03519a0099f35a5583947828403b520f5eba7e9d274"
+    rendered_sha256: "21df4a17f74c291c968ebc87065f73af23afa0bbfe59eeb76d108c7f07cd542e"
   - path: ".claude/skills/orqlet-research/references/as-is-format.md"
     owner: orqlet
     class: protected
     inputs:
       - id: skills/orqlet-research/references/as-is-format.md
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: bf10c978a6bf30d2571e3ebc07816eaf34f81b92bbaa2b4a906a40dc541cb471
     rendered_sha256: bf10c978a6bf30d2571e3ebc07816eaf34f81b92bbaa2b4a906a40dc541cb471
   - path: ".claude/skills/orqlet-review/SKILL.md"
@@ -376,15 +376,15 @@ files:
     class: protected
     inputs:
       - id: skills/orqlet-review
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: "3a4de268cd47b65f1330998f7cbc84a3004716851f44fbb8b9c3af5144e38969"
-    rendered_sha256: "7d708d09e6c6178e5531930fa789568bd8b5b10da27e194293a9c009fe14b98f"
+    rendered_sha256: "072e839a72517ac0ecd3ad31e9a65b6c914bc247ef773e066141f4f91b73d7d5"
   - path: ".claude/skills/orqlet-review/references/review-format.md"
     owner: orqlet
     class: protected
     inputs:
       - id: skills/orqlet-review/references/review-format.md
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: "48b7f84413d9815db49f0de71207676ad3c24ff7d7337b6f8364050e87e1b0b5"
     rendered_sha256: "48b7f84413d9815db49f0de71207676ad3c24ff7d7337b6f8364050e87e1b0b5"
   - path: ".codex/agents/orqlet-arch-reviewer.toml"
@@ -392,7 +392,7 @@ files:
     class: protected
     inputs:
       - id: roles/orqlet-arch-reviewer
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: "37e9d323ed85742e35022d2fd444b7da3c0062e19eb104ffee483ecb8fe26e1a"
     rendered_sha256: "06f4ed846de3656b9859f5b501219041e571127c94469d37e1ca779972af6cc8"
   - path: ".codex/agents/orqlet-inventory.toml"
@@ -400,7 +400,7 @@ files:
     class: protected
     inputs:
       - id: roles/orqlet-inventory
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: bab8df35c60ffbdb36597ead8de3727dd3d3e7ffac5452f2f85653088a38552a
     rendered_sha256: "492c39284f3e40a7d9fb16b2a3d59d0b3f2996d980942d48a003cba96bc17be6"
   - path: ".codex/agents/orqlet-security-reviewer.toml"
@@ -408,7 +408,7 @@ files:
     class: protected
     inputs:
       - id: roles/orqlet-security-reviewer
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: efd29d5ec12f5ad0e5765d2cc4f2e1ff5fa2efda560215f92842d70ef0a9a4e6
     rendered_sha256: "9272dfddc2b6b8367e70857aef56566f09297ed9b41557858b73aad76f4e492c"
   - path: ".codex/agents/orqlet-tester.toml"
@@ -416,7 +416,7 @@ files:
     class: protected
     inputs:
       - id: roles/orqlet-tester
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: "249e300c622e2d47210ca9db3e1f6ee1314170ec8b27d6eabd7431ce0e0254d6"
     rendered_sha256: ff3f8ff6a373ffa17c5cf51b4cec05e28ff0be06485cb257792401c6631fb9af
   - path: ".codex/agents/orqlet-tracer.toml"
@@ -424,7 +424,7 @@ files:
     class: protected
     inputs:
       - id: roles/orqlet-tracer
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: "6cdb490fa0e93c3e90e32e93bff3ba596ac7192bfd833be23729527b8da76a0b"
     rendered_sha256: a9bf8120e164bb5df600da1dc80df79347fab39fdfb53421d17d5553848317c9
   - path: ".cursor/agents/orqlet-arch-reviewer.md"
@@ -432,47 +432,47 @@ files:
     class: protected
     inputs:
       - id: roles/orqlet-arch-reviewer
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: "37e9d323ed85742e35022d2fd444b7da3c0062e19eb104ffee483ecb8fe26e1a"
-    rendered_sha256: "4800b985d56f60c4fcda08bf688d64b94afc0bcf7cfec49be6a6272a867af56d"
+    rendered_sha256: d07a4aa80f9fdb8e5220c9ec8842a3d694df3ab29747a19229b13cd20b071990
   - path: ".cursor/agents/orqlet-inventory.md"
     owner: orqlet
     class: protected
     inputs:
       - id: roles/orqlet-inventory
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: bab8df35c60ffbdb36597ead8de3727dd3d3e7ffac5452f2f85653088a38552a
-    rendered_sha256: "3b38f713eb02765dc6732d73f844012d71363dc365b8b082e9e67393d3fe757b"
+    rendered_sha256: c98947dbc775c339068fe7c7d56ca7ecd37344d4a8bc42f3487e606eef07b58a
   - path: ".cursor/agents/orqlet-security-reviewer.md"
     owner: orqlet
     class: protected
     inputs:
       - id: roles/orqlet-security-reviewer
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: efd29d5ec12f5ad0e5765d2cc4f2e1ff5fa2efda560215f92842d70ef0a9a4e6
-    rendered_sha256: "1a386dd0b99cc497a008a60a4f2640ab27278781dc3ff1b551af3117ae8548d9"
+    rendered_sha256: "03556c914cc53a8d2d8bacb1ecc1d703d0e50d31ad2376f983d6098a398692df"
   - path: ".cursor/agents/orqlet-tester.md"
     owner: orqlet
     class: protected
     inputs:
       - id: roles/orqlet-tester
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: "249e300c622e2d47210ca9db3e1f6ee1314170ec8b27d6eabd7431ce0e0254d6"
-    rendered_sha256: e2475b6dfebd6bfd213b7af71dcdf160c2f7ddd123738701230764784499a066
+    rendered_sha256: "57a5d469eb38464bceb96c8cde184071b904c35cde39255bf5c7fdf10ed67d2e"
   - path: ".cursor/agents/orqlet-tracer.md"
     owner: orqlet
     class: protected
     inputs:
       - id: roles/orqlet-tracer
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: "6cdb490fa0e93c3e90e32e93bff3ba596ac7192bfd833be23729527b8da76a0b"
-    rendered_sha256: c4aebecae990e78826f547d9fd2165ffeb85b5ca21437f82f072a0541c45b97b
+    rendered_sha256: c8e4c3f502837b375f8ff0f89f4872c4e10076e4c8de27558fd7edc3e967f57b
   - path: ".cursor/commands/orqlet-doctor.md"
     owner: orqlet
     class: generated
     inputs:
       - id: commands/doctor
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: "4af18c451089713e112520cae604b263e8e14ce78e8a8c0026c716d63274d466"
     rendered_sha256: "412b52b561ff740ba265b829f2dda703699f4220fb4e3c6eda34af3d5caa6b63"
   - path: ".cursor/commands/orqlet-profile.md"
@@ -480,7 +480,7 @@ files:
     class: generated
     inputs:
       - id: commands/profile
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: c5db297d671755c919254ae3066a07527f3d955f8959e6fac8f7aba56b42dab3
     rendered_sha256: ad3bf5114a0cbf0f90ade4ce539b13849fac78f74d14a90da320d6076621fd13
   - path: ".cursor/commands/orqlet-standards.md"
@@ -488,7 +488,7 @@ files:
     class: generated
     inputs:
       - id: commands/standards
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: dd61b261c47a693e95004427ea7942bc272717e574b8d25aab43981591963ee3
     rendered_sha256: "2d36d75aa4dea443c98e12284baa75c445dc4e0cff3b874dbff0843eaf7e1b88"
   - path: ".cursor/commands/orqlet-upgrade.md"
@@ -496,7 +496,7 @@ files:
     class: generated
     inputs:
       - id: commands/upgrade
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: a577a7b94dab6fe57fba1656b9da92a1d2f71c1f34540877bb8d0f7df909e988
     rendered_sha256: "2964511dc6984f3160352b538bdc123cb8b3376e082f3dd8f6d6d250bf35e791"
   - path: ".cursor/rules/orqlet-orqlet-arch-001.mdc"
@@ -592,7 +592,7 @@ files:
     class: protected
     inputs:
       - id: rules/orqlet-workflow
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: "4b61b79c2e174ce3e8ff5c52032d43c24bead4796f40b6863a2764887dca879d"
     rendered_sha256: "0d8ef8ec308be22a3ace348ac34ea1646f1c315e1922a0af2093e9b5c2dd9146"
   - path: ".github/pull_request_template.md"
@@ -600,11 +600,11 @@ files:
     class: generated
     inputs:
       - id: orqlet-workflow
-        version: workflow@0.3.0
+        version: workflow@0.3.1
         sha256: e87889ffe3b052a4eeef5b17fa3bbb614b4b423dc8bcee1a21edb106cd47e22a
-    rendered_sha256: f14900946e49799feb63233757b98b9c6f0f361627c3f9c6bfb248010210d556
+    rendered_sha256: "000de9bcb01b93e0f9271b6859288479c7fcf115f44893bfc1ad1382914abb3d"
     block:
-      begin: "<!-- orqlet:begin orqlet-workflow workflow@0.3.0#e87889ffe3b052a4eeef5b17fa3bbb614b4b423dc8bcee1a21edb106cd47e22a -->"
+      begin: "<!-- orqlet:begin orqlet-workflow workflow@0.3.1#e87889ffe3b052a4eeef5b17fa3bbb614b4b423dc8bcee1a21edb106cd47e22a -->"
       end: "<!-- orqlet:end orqlet-workflow -->"
   - path: ".orqlet/knowledge.yaml"
     owner: seeded
@@ -631,7 +631,7 @@ files:
     owner: orqlet
     class: protected
     inputs: []
-    rendered_sha256: "0ded0f0560bae27e4553278bb7bacefcdc6e68b5e7afa491bbfe42cba7debc9a"
+    rendered_sha256: edc0478bcf8b0ae0add2d1d5a0e08e4386ffd4b51b95bf7fa87d9abb20ad33a0
   - path: ".prompts/README.md"
     owner: seeded
     inputs:
@@ -658,9 +658,9 @@ files:
     class: protected
     inputs:
       - id: baseline
-        version: "0.3.0"
+        version: "0.3.1"
         sha256: "25f4cdb30a395a328f06639f60b67715542281ad592ad593bc03f4f0d2d10839"
-    rendered_sha256: "53aae800f6ad98dd57f11660e9611020f61d0c24e4734ff9ec0fb4f8e0eb2661"
+    rendered_sha256: "63a1bc0844cec617e8f0d2730d419d613f1dd5be6ed89a292c8bb26e8a659f54"
     block:
-      begin: "<!-- orqlet:begin baseline workflow@0.3.0#25f4cdb30a395a328f06639f60b67715542281ad592ad593bc03f4f0d2d10839 -->"
+      begin: "<!-- orqlet:begin baseline workflow@0.3.1#25f4cdb30a395a328f06639f60b67715542281ad592ad593bc03f4f0d2d10839 -->"
       end: "<!-- orqlet:end baseline -->"

@@ -1,0 +1,38 @@
+schema: orqlet.knowledge-impact/v1
+task: harness2-fit
+phase: P-6
+review_input:
+  schema: orqlet.review-input/v1
+  covers: [code_tests, knowledge, plan, standards, candidates]
+  components:
+    candidates: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    code_tests: 7cb003a422c9b497e7a28e8b6a03c5085d707bcba84366da2ec76b26534ec165
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 2f4d690be243ae8b9b20b573c59499cac9ff42ef2348fa880b5e7330d3c9ead2
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  digest: 8866439717bce605d427c2b7c051e719f9233401f58438d6a11443a42040336e
+  merge_base: ec7de9f090a005354d6111672736e1f81e1d350a
+outcome: no-impact
+analysis:
+  command: orqlet knowledge impact
+  orqlet_version: 0.1.0
+  candidates_digest: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+  candidate_count: 0
+  input: pre-draft-tree
+  views: [committed:HEAD]
+  index_state: not-used
+entries:
+  []
+no_impact:
+  category: already-documented
+  reason: "The behaviour of this phase is already written down in the consequences of ADR-001 and in the approved design manifest."
+  absence_record:
+    scopes_searched: [".orqlet/knowledge.yaml sources", "the plan's knowledge_scope"]
+    views: [committed:HEAD]
+    revision: ec7de9f090a005354d6111672736e1f81e1d350a
+    method: "orqlet knowledge impact on the staged tree; the project configures no knowledge sources and the plan's knowledge_scope is empty, so no knowledge document exists that the phase could change."
+    index_state: not-used
+    candidates_found: 0
+  already_documented_refs:
+    - {path: docs/design/harness2-fit/design/adr-001-client-visible-front-matter.md, sha256: 3f1e84dd306a1c9baa3c225ea1e6f26396b9dcef7893d6ceadd460f96160e29f}
+    - {path: docs/design/harness2-fit/design/manifest.yaml, sha256: cc466c043d4ea4b3dc84ecb6343ef24ab4f90aaf9353caf02ce9d9ca6a6f200f}

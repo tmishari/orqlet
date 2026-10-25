@@ -1,0 +1,29 @@
+schema: orqlet.test-record/v1
+task: harness2-fit
+phase: P-6
+review_input:
+  schema: orqlet.review-input/v1
+  covers: [code_tests, plan]
+  components:
+    code_tests: 7cb003a422c9b497e7a28e8b6a03c5085d707bcba84366da2ec76b26534ec165
+    plan: 2f4d690be243ae8b9b20b573c59499cac9ff42ef2348fa880b5e7330d3c9ead2
+  digest: 9c7b5396d70fe3037fe2ca42247b0237898f4b0c21728df8598284181ff90145
+  merge_base: ec7de9f090a005354d6111672736e1f81e1d350a
+verdict: NOT_RUN
+evidence_kind: claimed
+commands:
+  - {id: ruff-check, exit_code: 0, summary: "All checks passed!", result_digest: 5b196eb3a6acb50d3fa398d04ca284985cc1ffec870e940264b00780bfd2c971}
+  - {id: ruff-format, exit_code: 0, summary: "393 files already formatted", result_digest: 50788901d9ad4263db83e78378397cfb3019fe6d9a4df27ed53f56ec057b3a19}
+  - {id: mypy, exit_code: 0, summary: "Success: no issues found in 290 source files", result_digest: 38e1bbdfd49431b4904434a5ddc01de96c6324a0ec3f3369e330c024d43b1b21}
+  - {id: import-linter, exit_code: 0, summary: "Contracts: 5 kept, 0 broken.", result_digest: 853badd12da98fea9b58fb5206d66550c4318d6b2dfd774c84a1a89fa8252a82}
+  - {id: pytest, exit_code: 0, summary: "tests/unit and tests/contract only, 1797 passed in 39.82s", result_digest: fd077eeca7a9b5fcc6c4964a70bb6007aa45a8e60366399a5e65a95ebd763b56}
+  - {id: orqlet-sync, exit_code: 0, summary: "0 error(s), 0 warning(s), 4 note(s).", result_digest: bef79c25467fd3d0514a63b5cce364bdbea70575c56e8e2b005fb1d7441ba08a}
+  - {id: orqlet-doctor, exit_code: 1, summary: "0 error(s), 2 warning(s), 2 note(s).", result_digest: cefd6feec8f86f5ce0127f883482e66fe74790787aa30b695c30dc1b125973fb}
+  - {id: orqlet-upgrade-check, exit_code: 0, summary: "Already up to date.", result_digest: 985eaf35603a80ed072739938d3f216e9e5e29d4a76c029dddf1af863c890407}
+acceptance_coverage:
+  - {ac: AC-1, check_ref: orqlet-upgrade-dry-run, result: not-run}
+  - {ac: AC-2, check_ref: review:upgrade-backups, result: not-run}
+  - {ac: AC-3, check_ref: orqlet-doctor, result: pass}
+  - {ac: AC-4, check_ref: orqlet-gate-status, result: not-run}
+  - {ac: AC-5, check_ref: review:cursor-agent-names, result: not-run}
+  - {ac: AC-6, check_ref: pytest-matrix, result: not-run}
