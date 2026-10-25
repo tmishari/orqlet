@@ -1,0 +1,137 @@
+{
+  "$defs": {
+    "Check": {
+      "additionalProperties": false,
+      "properties": {
+        "how": {
+          "title": "How",
+          "type": "string"
+        },
+        "result": {
+          "enum": [
+            "pass",
+            "fail",
+            "not-run"
+          ],
+          "title": "Result",
+          "type": "string"
+        },
+        "what": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "What",
+          "type": "string"
+        }
+      },
+      "required": [
+        "what",
+        "how",
+        "result"
+      ],
+      "title": "Check",
+      "type": "object"
+    },
+    "CheckedAgainst": {
+      "additionalProperties": false,
+      "properties": {
+        "acceptance_criteria": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Acceptance Criteria",
+          "type": "array"
+        },
+        "applicable_standards": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Applicable Standards",
+          "type": "array"
+        },
+        "confirmed_requirements": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Confirmed Requirements",
+          "type": "array"
+        },
+        "evidence": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "phase": {
+          "minLength": 1,
+          "title": "Phase",
+          "type": "string"
+        },
+        "role": {
+          "minLength": 1,
+          "title": "Role",
+          "type": "string"
+        }
+      },
+      "required": [
+        "role",
+        "phase"
+      ],
+      "title": "CheckedAgainst",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "checked_against": {
+      "$ref": "#/$defs/CheckedAgainst"
+    },
+    "checks": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Check"
+      },
+      "title": "Checks",
+      "type": "array"
+    },
+    "failures": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Failures",
+      "type": "array"
+    },
+    "questions": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Questions",
+      "type": "array"
+    },
+    "schema": {
+      "const": "orqlet.self-check/v1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "unverified": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Unverified",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "checked_against"
+  ],
+  "title": "SelfCheck",
+  "type": "object"
+}

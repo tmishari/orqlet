@@ -1,0 +1,9 @@
+schema: orqlet.rules/v1
+rules:
+  - id: DATA-001
+    level: MUST
+    text: Schema changes ship as reviewed migrations.
+    scope: {paths: ["**/migrations/**"]}
+  - id: DATA-002
+    level: SHOULD
+    text: Consumers are idempotent.

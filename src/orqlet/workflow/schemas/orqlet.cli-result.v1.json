@@ -1,0 +1,94 @@
+{
+  "$defs": {
+    "FindingOut": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "title": "Code",
+          "type": "string"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Path"
+        },
+        "severity": {
+          "enum": [
+            "info",
+            "warning",
+            "error"
+          ],
+          "title": "Severity",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "message",
+        "severity"
+      ],
+      "title": "FindingOut",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "command": {
+      "title": "Command",
+      "type": "string"
+    },
+    "data": {
+      "additionalProperties": true,
+      "title": "Data",
+      "type": "object"
+    },
+    "findings": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/FindingOut"
+      },
+      "title": "Findings",
+      "type": "array"
+    },
+    "not_run": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Not Run",
+      "type": "array"
+    },
+    "ok": {
+      "title": "Ok",
+      "type": "boolean"
+    },
+    "orqlet_version": {
+      "title": "Orqlet Version",
+      "type": "string"
+    },
+    "schema": {
+      "const": "orqlet.cli-result/v1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "ok",
+    "command",
+    "orqlet_version"
+  ],
+  "title": "CliResult",
+  "type": "object"
+}

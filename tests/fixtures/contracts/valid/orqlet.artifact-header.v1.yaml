@@ -1,0 +1,14 @@
+schema: orqlet.artifact-header/v1
+task: sample-task
+status: draft
+workflow_version: 0.2.0
+protected_set_digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+bound:
+  base_revision: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+  standards_lock_hash: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  applicable_rules_hash: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  profile_version: 1
+  upstream:
+    - {ref: docs/design/sample-task/as-is.md, sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}
+specialists:
+  - {role: orqlet-inventory, client: cursor, binding: orqlet-inventory, parallel: true}

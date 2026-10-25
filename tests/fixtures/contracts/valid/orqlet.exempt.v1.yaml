@@ -1,0 +1,9 @@
+schema: orqlet.exempt/v1
+precedence: [maintenance, documentation-only]
+classes:
+  documentation-only:
+    extensions: [".md"]
+    under: ["docs/"]
+    excludes_agent_configuration_surface: true
+  maintenance:
+    paths: ownership-manifest-and-orqlet-directory

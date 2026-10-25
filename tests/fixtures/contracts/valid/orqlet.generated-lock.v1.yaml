@@ -1,0 +1,8 @@
+schema: orqlet.generated-lock/v1
+generator: {orqlet: 0.1.0}
+standards_lock: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+files:
+  - {path: AGENTS.md, owner: shared-block, class: generated, rendered_sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, block: {begin: "<!-- orqlet:begin -->", end: "<!-- orqlet:end -->"}}
+  - {path: .claude/settings.json, owner: shared-entry, class: protected, rendered_sha256: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb, entry: hooks}
+  - {path: .orqlet/policy.yaml, owner: orqlet, class: protected, rendered_sha256: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb, inputs: [{id: baseline, version: 0.1.0, sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}]}
+  - {path: .prompts/README.md, owner: seeded, seeded_sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}

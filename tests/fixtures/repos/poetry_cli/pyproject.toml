@@ -1,0 +1,11 @@
+[tool.poetry]
+name = "tool"
+version = "0.1.0"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+typer = "^0.12"
+SQLAlchemy = "^2.0"
+
+[project.scripts]
+tool = "tool.cli:main"

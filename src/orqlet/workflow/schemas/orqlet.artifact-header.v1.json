@@ -1,0 +1,152 @@
+{
+  "$defs": {
+    "Bound": {
+      "additionalProperties": false,
+      "properties": {
+        "applicable_rules_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Applicable Rules Hash",
+          "type": "string"
+        },
+        "base_revision": {
+          "pattern": "^([0-9a-f]{40}|[0-9a-f]{64})$",
+          "title": "Base Revision",
+          "type": "string"
+        },
+        "profile_version": {
+          "minimum": 0,
+          "title": "Profile Version",
+          "type": "integer"
+        },
+        "standards_lock_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Standards Lock Hash",
+          "type": "string"
+        },
+        "upstream": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Upstream"
+          },
+          "title": "Upstream",
+          "type": "array"
+        }
+      },
+      "required": [
+        "base_revision",
+        "standards_lock_hash",
+        "applicable_rules_hash",
+        "profile_version"
+      ],
+      "title": "Bound",
+      "type": "object"
+    },
+    "Specialist": {
+      "additionalProperties": false,
+      "description": "Recorded and validated for shape, not for truth.",
+      "properties": {
+        "binding": {
+          "minLength": 1,
+          "title": "Binding",
+          "type": "string"
+        },
+        "client": {
+          "minLength": 1,
+          "title": "Client",
+          "type": "string"
+        },
+        "parallel": {
+          "title": "Parallel",
+          "type": "boolean"
+        },
+        "role": {
+          "minLength": 1,
+          "title": "Role",
+          "type": "string"
+        }
+      },
+      "required": [
+        "role",
+        "client",
+        "binding",
+        "parallel"
+      ],
+      "title": "Specialist",
+      "type": "object"
+    },
+    "Upstream": {
+      "additionalProperties": false,
+      "properties": {
+        "ref": {
+          "title": "Ref",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "ref",
+        "sha256"
+      ],
+      "title": "Upstream",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "bound": {
+      "$ref": "#/$defs/Bound"
+    },
+    "protected_set_digest": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Protected Set Digest",
+      "type": "string"
+    },
+    "schema": {
+      "const": "orqlet.artifact-header/v1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "specialists": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Specialist"
+      },
+      "title": "Specialists",
+      "type": "array"
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "approved",
+        "superseded"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "task": {
+      "maxLength": 64,
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "title": "Task",
+      "type": "string"
+    },
+    "workflow_version": {
+      "minLength": 1,
+      "title": "Workflow Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "task",
+    "status",
+    "workflow_version",
+    "protected_set_digest",
+    "bound"
+  ],
+  "title": "ArtifactHeader",
+  "type": "object"
+}

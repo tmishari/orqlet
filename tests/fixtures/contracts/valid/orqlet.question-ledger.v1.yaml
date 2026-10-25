@@ -1,0 +1,32 @@
+schema: orqlet.question-ledger/v1
+task: sample-task
+questions:
+  - id: Q-1
+    key: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    subject: Supported Git versions
+    raised_by: researcher
+    phase: research
+    category: requirement
+    text: Which Git versions must be supported?
+    why: The design depends on the plumbing commands that exist.
+    options: ["2.40 and later", "latest only"]
+    blocks: [design]
+    status: answered
+    answer: {value: 2.40 and later, answerer: maintainer, time: "2026-10-22T10:00:00Z", scope: project}
+  - id: Q-2
+    key: cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+    subject: Release channel
+    raised_by: planner
+    phase: plan
+    category: policy
+    text: Where is the package published?
+    why: The wheel name and index are needed in the plan.
+    status: open
+    route_to: standards-owner
+conflicts:
+  - id: C-1
+    sources:
+      - {ref: docs/a.md, claim: Python 3.11 is supported}
+      - {ref: pyproject.toml, claim: Python 3.12 is the floor}
+    scope: project
+    ruling_required_from: maintainer

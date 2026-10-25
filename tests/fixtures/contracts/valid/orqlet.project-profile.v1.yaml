@@ -1,0 +1,32 @@
+schema: orqlet.project-profile/v1
+project: {uuid: 00000000-0000-4000-8000-000000000001, name: demo, kind: python-cli, origin: existing}
+stack: {support: supported, capability_limits: []}
+profile: {version: 1, status: draft, reviewed_by: null, reviewed_at: null}
+facts:
+  python:
+    value: ">=3.12"
+    evidence: [{path: pyproject.toml, lines: "3-3", sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}]
+  package_manager:
+    value: null
+    question: "Which package manager does this project use?"
+  frameworks:
+    - name: typer
+      value: "0.27.3"
+      evidence: [{path: pyproject.toml, lines: "7-7", sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}]
+repository:
+  target_branch: {value: main, remote: origin, answered_by: maintainer}
+  branch_naming: {value: null, question: "Is there a branch naming rule?"}
+  commit_convention: {value: null, question: "Is there a commit convention?"}
+  pull_requests: {template: {targets: [.github/pull_request_template.md], source_id: null, status: team-template-unknown}}
+structure: {}
+dependencies:
+  declared: [{name: typer, specifier: "==0.27.3"}]
+  locked: {file: uv.lock}
+standards_sources: [{kind: prompts-dir, path: .prompts, scaffold: seeded}]
+clients: {enabled: [claude-code, codex, cursor], min_versions: {claude-code: null, codex: null, cursor: null}}
+orqlet: {version: 0.1.0}
+optional_components: {exclude: []}
+commands: {test: {argv: [uv, run, pytest], cwd: ., source: pyproject.toml}}
+technologies:
+  - {kind: language, name: Go, version: "1.25", scope: apiserver, evidence: [{path: apiserver/go.mod, lines: "3-3", sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}]}
+  - {kind: database, name: PostgreSQL, scope: ".", source: maintainer}

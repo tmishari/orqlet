@@ -1,0 +1,9 @@
+schema: orqlet.workflow-policy/v2
+policy_role: enforcement-baseline
+approvals:
+  design: {source: baseline-with-merge-evidence, minimum_approvers: 1}
+  plan: {source: baseline-with-merge-evidence, minimum_approvers: 1}
+triggers: {d1_max_files: 5, security_sensitive_globs: ["auth/**"], d3_globs: [], independence_raise: [{glob: "auth/**", min_class: I2}]}
+limits: {rework_rounds_per_phase: 2}
+required_checks: [orqlet-gate]
+events: {sweep_cadence_minutes: 15}

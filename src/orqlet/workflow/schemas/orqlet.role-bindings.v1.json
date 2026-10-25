@@ -1,0 +1,175 @@
+{
+  "$defs": {
+    "Binding": {
+      "additionalProperties": false,
+      "properties": {
+        "approved_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Approved By"
+        },
+        "clients": {
+          "items": {
+            "enum": [
+              "claude-code",
+              "codex",
+              "cursor"
+            ],
+            "type": "string"
+          },
+          "title": "Clients",
+          "type": "array"
+        },
+        "definition_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Definition Sha256"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "independence_capability": {
+          "enum": [
+            "I1",
+            "I2",
+            "I3"
+          ],
+          "title": "Independence Capability",
+          "type": "string"
+        },
+        "minimum_capability": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/MinimumCapability"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "role": {
+          "enum": [
+            "architecture-reviewer",
+            "security-reviewer"
+          ],
+          "title": "Role",
+          "type": "string"
+        }
+      },
+      "required": [
+        "role",
+        "id",
+        "clients",
+        "independence_capability"
+      ],
+      "title": "Binding",
+      "type": "object"
+    },
+    "MinimumCapability": {
+      "additionalProperties": false,
+      "properties": {
+        "context": {
+          "const": "fresh",
+          "title": "Context",
+          "type": "string"
+        },
+        "input": {
+          "const": "review-packet",
+          "title": "Input",
+          "type": "string"
+        },
+        "write_access": {
+          "const": "none-or-recorded-limit",
+          "title": "Write Access",
+          "type": "string"
+        }
+      },
+      "required": [
+        "context",
+        "input",
+        "write_access"
+      ],
+      "title": "MinimumCapability",
+      "type": "object"
+    },
+    "ModelFamily": {
+      "additionalProperties": false,
+      "properties": {
+        "family": {
+          "title": "Family",
+          "type": "string"
+        },
+        "match": {
+          "title": "Match",
+          "type": "string"
+        }
+      },
+      "required": [
+        "match",
+        "family"
+      ],
+      "title": "ModelFamily",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "bindings": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Binding"
+      },
+      "title": "Bindings",
+      "type": "array"
+    },
+    "model_families": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/ModelFamily"
+      },
+      "title": "Model Families",
+      "type": "array"
+    },
+    "not_accepted_for_review_roles": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Not Accepted For Review Roles",
+      "type": "array"
+    },
+    "policy_role": {
+      "const": "enforcement-baseline",
+      "title": "Policy Role",
+      "type": "string"
+    },
+    "schema": {
+      "const": "orqlet.role-bindings/v1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "policy_role"
+  ],
+  "title": "RoleBindings",
+  "type": "object"
+}

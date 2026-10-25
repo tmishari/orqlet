@@ -1,0 +1,8 @@
+schema: orqlet.standards-pack/v1
+id: sample
+version: 1.0.0
+owner: example-standards-team
+reviewers: [reviewer-one]
+applies_to:
+  languages: [python]
+rules: [rules/python.yaml]

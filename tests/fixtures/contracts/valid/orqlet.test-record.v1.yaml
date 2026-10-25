@@ -1,0 +1,17 @@
+schema: orqlet.test-record/v1
+task: sample-task
+phase: P-1
+review_input:
+  schema: orqlet.review-input/v1
+  covers: [code_tests, plan]
+  components:
+    code_tests: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    plan: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  merge_base: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+verdict: PASS
+evidence_kind: claimed
+commands:
+  - {id: unit-tests, exit_code: 0, summary: 12 passed, result_digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}
+acceptance_coverage:
+  - {ac: AC-1, check_ref: unit-tests, result: pass}

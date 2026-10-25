@@ -1,0 +1,8 @@
+schema: orqlet.standards-pack/v1
+id: python-core
+version: 1.0.0
+owner: platform-standards
+reviewers: [alice]
+applies_to: {languages: [python], python: ">=3.12"}
+rules: [rules/python.yaml]
+provenance: [{source_url: "https://docs.python.org/3/", applicable_version: "3.12", retrieved: "2026-10-01", authored_by: alice}]

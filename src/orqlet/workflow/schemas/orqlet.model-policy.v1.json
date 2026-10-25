@@ -1,0 +1,467 @@
+{
+  "$defs": {
+    "Compatibility": {
+      "additionalProperties": false,
+      "properties": {
+        "min_client_versions": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Min Client Versions",
+          "type": "object"
+        },
+        "orqlet": {
+          "title": "Orqlet",
+          "type": "string"
+        }
+      },
+      "required": [
+        "orqlet"
+      ],
+      "title": "Compatibility",
+      "type": "object"
+    },
+    "DataClass": {
+      "additionalProperties": false,
+      "properties": {
+        "cloud_routes_allowed": {
+          "title": "Cloud Routes Allowed",
+          "type": "boolean"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "cloud_routes_allowed"
+      ],
+      "title": "DataClass",
+      "type": "object"
+    },
+    "DataHandling": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_data_classes": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Allowed Data Classes",
+          "type": "array"
+        }
+      },
+      "title": "DataHandling",
+      "type": "object"
+    },
+    "ModelEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "approved_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Approved By"
+        },
+        "logical_id": {
+          "title": "Logical Id",
+          "type": "string"
+        },
+        "routes": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Route"
+          },
+          "title": "Routes",
+          "type": "array"
+        },
+        "status": {
+          "enum": [
+            "proposed",
+            "approved",
+            "disabled",
+            "retired"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "supports": {
+          "$ref": "#/$defs/Supports",
+          "default": {
+            "context_window": null,
+            "reasoning_levels": null
+          }
+        }
+      },
+      "required": [
+        "logical_id",
+        "status"
+      ],
+      "title": "ModelEntry",
+      "type": "object"
+    },
+    "ModelProfile": {
+      "additionalProperties": false,
+      "properties": {
+        "candidates": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Candidates",
+          "type": "array"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "prefer": {
+          "anyOf": [
+            {
+              "enum": [
+                "rank",
+                "price_rank"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Prefer"
+        },
+        "requires": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProfileRequires"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "title": "ModelProfile",
+      "type": "object"
+    },
+    "Observability": {
+      "additionalProperties": false,
+      "properties": {
+        "model_identity": {
+          "enum": [
+            "init-and-usage",
+            "init-only",
+            "none",
+            "unknown"
+          ],
+          "title": "Model Identity",
+          "type": "string"
+        }
+      },
+      "required": [
+        "model_identity"
+      ],
+      "title": "Observability",
+      "type": "object"
+    },
+    "ProfileRequires": {
+      "additionalProperties": false,
+      "properties": {
+        "independence_from_roles": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Independence From Roles",
+          "type": "array"
+        }
+      },
+      "title": "ProfileRequires",
+      "type": "object"
+    },
+    "Route": {
+      "additionalProperties": false,
+      "properties": {
+        "alias": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alias"
+        },
+        "data_handling": {
+          "$ref": "#/$defs/DataHandling",
+          "default": {
+            "allowed_data_classes": []
+          }
+        },
+        "enabled": {
+          "default": false,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "executor": {
+          "enum": [
+            "claude-code",
+            "codex",
+            "cursor"
+          ],
+          "title": "Executor",
+          "type": "string"
+        },
+        "locality": {
+          "default": "unknown",
+          "enum": [
+            "inference-local",
+            "inference-remote",
+            "unknown"
+          ],
+          "title": "Locality",
+          "type": "string"
+        },
+        "observability": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Observability"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "options": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Options",
+          "type": "object"
+        },
+        "price_rank": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Price Rank"
+        },
+        "provider": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Provider"
+        },
+        "rank": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rank"
+        },
+        "retires_on": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retires On"
+        },
+        "route_id": {
+          "title": "Route Id",
+          "type": "string"
+        },
+        "runtime_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Runtime Id"
+        }
+      },
+      "required": [
+        "route_id",
+        "executor"
+      ],
+      "title": "Route",
+      "type": "object"
+    },
+    "Supports": {
+      "additionalProperties": false,
+      "properties": {
+        "context_window": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Context Window"
+        },
+        "reasoning_levels": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reasoning Levels"
+        }
+      },
+      "title": "Supports",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "compatibility": {
+      "$ref": "#/$defs/Compatibility"
+    },
+    "data_classes": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/DataClass"
+      },
+      "title": "Data Classes",
+      "type": "array"
+    },
+    "excluded": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Excluded",
+      "type": "array"
+    },
+    "max_age_days": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Max Age Days"
+    },
+    "models": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/ModelEntry"
+      },
+      "title": "Models",
+      "type": "array"
+    },
+    "owner": {
+      "title": "Owner",
+      "type": "string"
+    },
+    "policy_version": {
+      "title": "Policy Version",
+      "type": "string"
+    },
+    "profiles": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/ModelProfile"
+      },
+      "title": "Profiles",
+      "type": "array"
+    },
+    "reviewed_at": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Reviewed At"
+    },
+    "roles": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Roles",
+      "type": "object"
+    },
+    "schema": {
+      "const": "orqlet.model-policy/v1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "approved"
+      ],
+      "title": "Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "policy_version",
+    "status",
+    "owner",
+    "compatibility"
+  ],
+  "title": "ModelPolicy",
+  "type": "object"
+}

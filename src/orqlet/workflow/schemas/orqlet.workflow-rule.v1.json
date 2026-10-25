@@ -1,0 +1,35 @@
+{
+  "additionalProperties": false,
+  "description": "Where a workflow rule text applies, kept beside the text (`rules/<name>.meta.yaml`).",
+  "properties": {
+    "description": {
+      "title": "Description",
+      "type": "string"
+    },
+    "name": {
+      "title": "Name",
+      "type": "string"
+    },
+    "paths": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Paths",
+      "type": "array"
+    },
+    "schema": {
+      "const": "orqlet.workflow-rule/v1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "name",
+    "description",
+    "paths"
+  ],
+  "title": "WorkflowRuleMeta",
+  "type": "object"
+}

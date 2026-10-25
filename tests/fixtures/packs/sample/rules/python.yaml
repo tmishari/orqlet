@@ -1,0 +1,16 @@
+schema: orqlet.rules/v1
+rules:
+  - id: SAMPLE-001
+    level: MUST
+    text: Public functions have type annotations.
+    scope: {paths: ["src/**"]}
+    enforcement: deterministic
+    check_ref: ruff:ANN
+  - id: SAMPLE-002
+    level: SHOULD
+    text: Prefer small functions with one reason to change.
+  - id: SAMPLE-003
+    level: MUST
+    text: Design documents are reviewed before implementation starts.
+    scope: {phases: [design]}
+    enforcement: review

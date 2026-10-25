@@ -1,0 +1,17 @@
+schema: orqlet.module-card/v1
+id: billing-core
+kind: same-repo-module
+summary: Pricing and invoicing helpers.
+use_when: [You need to price an order]
+avoid_when: [You need tax rules]
+interface:
+  python: {import_path: billing.core, public_symbols: [net_price]}
+interface_digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+examples: ["docs/examples/billing.md#price"]
+status: active
+owner: billing-team
+requirement_level: informational
+must_consider: false
+refs: [docs/guide.md]
+paths: [src/billing/core.py]
+symbols: [billing.core.net_price]

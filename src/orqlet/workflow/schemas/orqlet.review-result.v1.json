@@ -1,0 +1,629 @@
+{
+  "$defs": {
+    "AbsenceEvidence": {
+      "additionalProperties": false,
+      "description": "What was searched, where and how, for something that is not there.",
+      "properties": {
+        "kind": {
+          "const": "absence",
+          "title": "Kind",
+          "type": "string"
+        },
+        "method": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Method",
+          "type": "string"
+        },
+        "revision": {
+          "pattern": "^([0-9a-f]{40}|[0-9a-f]{64})$",
+          "title": "Revision",
+          "type": "string"
+        },
+        "searched": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Searched",
+          "type": "array"
+        }
+      },
+      "required": [
+        "kind",
+        "searched",
+        "method",
+        "revision"
+      ],
+      "title": "AbsenceEvidence",
+      "type": "object"
+    },
+    "AgentBinding": {
+      "additionalProperties": false,
+      "properties": {
+        "binding_ref": {
+          "minLength": 1,
+          "title": "Binding Ref",
+          "type": "string"
+        },
+        "client": {
+          "minLength": 1,
+          "title": "Client",
+          "type": "string"
+        },
+        "definition_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Definition Sha256",
+          "type": "string"
+        },
+        "model_observed": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Model Observed"
+        },
+        "model_requested": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Model Requested"
+        }
+      },
+      "required": [
+        "binding_ref",
+        "definition_sha256",
+        "client"
+      ],
+      "title": "AgentBinding",
+      "type": "object"
+    },
+    "Applicability": {
+      "additionalProperties": false,
+      "description": "A reviewer, never the developer, concludes that nothing in its field changed.",
+      "properties": {
+        "absence_record": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AbsenceEvidence"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "conclusion": {
+          "enum": [
+            "findings",
+            "no-impact"
+          ],
+          "title": "Conclusion",
+          "type": "string"
+        },
+        "examined": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Examined",
+          "type": "array"
+        }
+      },
+      "required": [
+        "conclusion"
+      ],
+      "title": "Applicability",
+      "type": "object"
+    },
+    "Check": {
+      "additionalProperties": false,
+      "properties": {
+        "how": {
+          "title": "How",
+          "type": "string"
+        },
+        "result": {
+          "enum": [
+            "pass",
+            "fail",
+            "not-run"
+          ],
+          "title": "Result",
+          "type": "string"
+        },
+        "what": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "What",
+          "type": "string"
+        }
+      },
+      "required": [
+        "what",
+        "how",
+        "result"
+      ],
+      "title": "Check",
+      "type": "object"
+    },
+    "CheckedAgainst": {
+      "additionalProperties": false,
+      "properties": {
+        "acceptance_criteria": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Acceptance Criteria",
+          "type": "array"
+        },
+        "applicable_standards": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Applicable Standards",
+          "type": "array"
+        },
+        "confirmed_requirements": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Confirmed Requirements",
+          "type": "array"
+        },
+        "evidence": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "phase": {
+          "minLength": 1,
+          "title": "Phase",
+          "type": "string"
+        },
+        "role": {
+          "minLength": 1,
+          "title": "Role",
+          "type": "string"
+        }
+      },
+      "required": [
+        "role",
+        "phase"
+      ],
+      "title": "CheckedAgainst",
+      "type": "object"
+    },
+    "CoderBinding": {
+      "additionalProperties": false,
+      "properties": {
+        "client": {
+          "minLength": 1,
+          "title": "Client",
+          "type": "string"
+        },
+        "model_observed": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Model Observed"
+        },
+        "model_requested": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Model Requested"
+        }
+      },
+      "required": [
+        "client"
+      ],
+      "title": "CoderBinding",
+      "type": "object"
+    },
+    "Finding": {
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "enum": [
+            "correctness",
+            "failure-handling",
+            "compatibility",
+            "standards",
+            "security",
+            "tests",
+            "docs",
+            "architecture"
+          ],
+          "title": "Category",
+          "type": "string"
+        },
+        "claim": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Claim",
+          "type": "string"
+        },
+        "confidence": {
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "title": "Confidence",
+          "type": "string"
+        },
+        "evidence": {
+          "default": [],
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "absence": "#/$defs/AbsenceEvidence",
+                "quote": "#/$defs/QuoteEvidence"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/QuoteEvidence"
+              },
+              {
+                "$ref": "#/$defs/AbsenceEvidence"
+              }
+            ]
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "id": {
+          "pattern": "^F-\\d+$",
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "finding",
+            "observation"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "rule_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rule Ref"
+        },
+        "schema": {
+          "const": "orqlet.finding/v1",
+          "default": "orqlet.finding/v1",
+          "title": "Schema",
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "blocking",
+            "non-blocking",
+            "info"
+          ],
+          "title": "Severity",
+          "type": "string"
+        },
+        "suggested_action": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Suggested Action",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "severity",
+        "category",
+        "claim",
+        "suggested_action",
+        "confidence"
+      ],
+      "title": "Finding",
+      "type": "object"
+    },
+    "QuoteEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "quote",
+          "title": "Kind",
+          "type": "string"
+        },
+        "lines": {
+          "pattern": "^[1-9]\\d*(-[1-9]\\d*)?$",
+          "title": "Lines",
+          "type": "string"
+        },
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "quote_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Quote Sha256",
+          "type": "string"
+        },
+        "revision": {
+          "pattern": "^([0-9a-f]{40}|[0-9a-f]{64})$",
+          "title": "Revision",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "path",
+        "lines",
+        "revision",
+        "quote_sha256"
+      ],
+      "title": "QuoteEvidence",
+      "type": "object"
+    },
+    "ReviewInput": {
+      "additionalProperties": false,
+      "properties": {
+        "components": {
+          "additionalProperties": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "propertyNames": {
+            "enum": [
+              "code_tests",
+              "knowledge",
+              "design",
+              "plan",
+              "standards",
+              "reviewer_definition",
+              "evidence_inputs",
+              "candidates"
+            ]
+          },
+          "title": "Components",
+          "type": "object"
+        },
+        "covers": {
+          "items": {
+            "enum": [
+              "code_tests",
+              "knowledge",
+              "design",
+              "plan",
+              "standards",
+              "reviewer_definition",
+              "evidence_inputs",
+              "candidates"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Covers",
+          "type": "array"
+        },
+        "digest": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Digest",
+          "type": "string"
+        },
+        "merge_base": {
+          "pattern": "^([0-9a-f]{40}|[0-9a-f]{64})$",
+          "title": "Merge Base",
+          "type": "string"
+        },
+        "schema": {
+          "const": "orqlet.review-input/v1",
+          "default": "orqlet.review-input/v1",
+          "title": "Schema",
+          "type": "string"
+        }
+      },
+      "required": [
+        "covers",
+        "components",
+        "digest",
+        "merge_base"
+      ],
+      "title": "ReviewInput",
+      "type": "object"
+    },
+    "SelfCheck": {
+      "additionalProperties": false,
+      "properties": {
+        "checked_against": {
+          "$ref": "#/$defs/CheckedAgainst"
+        },
+        "checks": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Check"
+          },
+          "title": "Checks",
+          "type": "array"
+        },
+        "failures": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Failures",
+          "type": "array"
+        },
+        "questions": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Questions",
+          "type": "array"
+        },
+        "schema": {
+          "const": "orqlet.self-check/v1",
+          "title": "Schema",
+          "type": "string"
+        },
+        "unverified": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Unverified",
+          "type": "array"
+        }
+      },
+      "required": [
+        "schema",
+        "checked_against"
+      ],
+      "title": "SelfCheck",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "agent": {
+      "$ref": "#/$defs/AgentBinding"
+    },
+    "applicability": {
+      "$ref": "#/$defs/Applicability"
+    },
+    "assurance": {
+      "const": "advisory",
+      "title": "Assurance",
+      "type": "string"
+    },
+    "capability_limits": {
+      "default": [],
+      "items": {
+        "maxLength": 2000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "title": "Capability Limits",
+      "type": "array"
+    },
+    "coder_binding": {
+      "$ref": "#/$defs/CoderBinding"
+    },
+    "findings": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Finding"
+      },
+      "title": "Findings",
+      "type": "array"
+    },
+    "independence": {
+      "enum": [
+        "I0",
+        "I1",
+        "I2",
+        "I3"
+      ],
+      "title": "Independence",
+      "type": "string"
+    },
+    "phase": {
+      "pattern": "^P-[1-9]\\d*$",
+      "title": "Phase",
+      "type": "string"
+    },
+    "review_input": {
+      "$ref": "#/$defs/ReviewInput"
+    },
+    "role": {
+      "enum": [
+        "architecture-reviewer",
+        "security-reviewer"
+      ],
+      "title": "Role",
+      "type": "string"
+    },
+    "round": {
+      "minimum": 1,
+      "title": "Round",
+      "type": "integer"
+    },
+    "schema": {
+      "const": "orqlet.review-result/v1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "self_check": {
+      "$ref": "#/$defs/SelfCheck"
+    },
+    "task": {
+      "maxLength": 64,
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "title": "Task",
+      "type": "string"
+    },
+    "verdict": {
+      "enum": [
+        "PASS",
+        "FAIL",
+        "NOT_RUN"
+      ],
+      "title": "Verdict",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "task",
+    "phase",
+    "role",
+    "round",
+    "verdict",
+    "assurance",
+    "review_input",
+    "agent",
+    "coder_binding",
+    "independence",
+    "applicability",
+    "self_check"
+  ],
+  "title": "ReviewResult",
+  "type": "object"
+}

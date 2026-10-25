@@ -1,0 +1,11 @@
+schema: orqlet.workflow-rule/v1
+name: workflow
+description: Files that Orqlet writes are generated; change their source, not the file.
+paths:
+  - ".orqlet/**"
+  - ".claude/**"
+  - ".cursor/**"
+  - ".agents/**"
+  - ".codex/**"
+  - ".mcp.json"
+  - "AGENTS.md"

@@ -1,0 +1,3 @@
+schema: orqlet.standards-lock/v1
+packs: [{id: python-core, version: 1.0.0, sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, source: local}]
+applicable_rules_hash: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb

@@ -1,0 +1,14 @@
+schema: orqlet.versions/v1
+policy_role: enforcement-baseline
+cli:
+  pinned: "0.1.0"
+  accepted:
+    - "0.1.0"
+  denied: []
+workflow:
+  version: "0.3.0"
+  digest: afeefefe114234f4ffc026e3e227e2357045294df6d84004576464b7864e55be
+  floor: "0.3.0"
+  controls_level_min: 3
+change_control:
+  lowering_pin_or_floor_requires_approvals: 2

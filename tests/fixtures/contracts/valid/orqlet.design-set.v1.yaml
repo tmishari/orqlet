@@ -1,0 +1,43 @@
+schema: orqlet.design-set/v1
+header:
+  schema: orqlet.artifact-header/v1
+  task: sample-task
+  status: draft
+  workflow_version: 0.2.0
+  protected_set_digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  bound:
+    base_revision: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    standards_lock_hash: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    applicable_rules_hash: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    profile_version: 1
+as_is_ref: docs/design/sample-task/as-is.md#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+change_class: {trigger: D2, declared: D2, effective: D2}
+scope:
+  paths: ["src/pkg/**"]
+  trust_boundaries: []
+extractor_config:
+  public_api: {packages: [pkg], mode: ast}
+  dependency_manifests: [pyproject.toml]
+  lockfiles: [uv.lock]
+  security_globs: ["src/pkg/auth/**"]
+expected_changes:
+  - id: EC-1
+    surface: public-api
+    action: add
+    identity: pkg.service.create_order
+    expected_after: {kind: signature, value: "def create_order(customer_id: str) -> Order"}
+    verification: extractor
+artifacts:
+  - {id: D-1, kind: c4-component, path: docs/design/sample-task/design/component.md, covers: The service and its neighbours, sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}
+  - {id: D-2, kind: adr-not-required, covers: No durable decision in this change}
+considerations:
+  security: {state: not-affected, evidence_refs: ["src/pkg/service.py:1-9"], notes: No new input reaches the service}
+  compatibility: {state: affected, notes: One new public function}
+  operations: {state: not-affected, evidence_refs: ["pyproject.toml:1-3"], notes: No deployment change}
+standards_applied: [ORQLET-ARCH-001]
+reviews: []
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against: {role: architect, phase: design}
+  checks:
+    - {what: class recomputed, how: "orqlet validate design", result: pass}

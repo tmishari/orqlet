@@ -1,0 +1,234 @@
+{
+  "$defs": {
+    "AppliesTo": {
+      "additionalProperties": false,
+      "properties": {
+        "frameworks": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Frameworks",
+          "type": "array"
+        },
+        "languages": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Languages",
+          "type": "array"
+        },
+        "project_types": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Project Types",
+          "type": "array"
+        },
+        "python": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Python"
+        },
+        "technologies": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Technologies",
+          "type": "array"
+        }
+      },
+      "title": "AppliesTo",
+      "type": "object"
+    },
+    "PackAsset": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "pr-template",
+            "prompts-scaffold"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "owner": {
+          "title": "Owner",
+          "type": "string"
+        },
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "sha256": {
+          "title": "Sha256",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "path",
+        "owner",
+        "version",
+        "sha256"
+      ],
+      "title": "PackAsset",
+      "type": "object"
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "properties": {
+        "applicable_version": {
+          "title": "Applicable Version",
+          "type": "string"
+        },
+        "authored_by": {
+          "title": "Authored By",
+          "type": "string"
+        },
+        "retrieved": {
+          "title": "Retrieved",
+          "type": "string"
+        },
+        "review_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Review Ref"
+        },
+        "source_url": {
+          "title": "Source Url",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_url",
+        "applicable_version",
+        "retrieved",
+        "authored_by"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "applies_to": {
+      "$ref": "#/$defs/AppliesTo",
+      "default": {
+        "frameworks": [],
+        "languages": [],
+        "project_types": [],
+        "python": null,
+        "technologies": []
+      }
+    },
+    "assets": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/PackAsset"
+      },
+      "title": "Assets",
+      "type": "array"
+    },
+    "baseline": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Baseline"
+    },
+    "compatibility": {
+      "additionalProperties": true,
+      "title": "Compatibility",
+      "type": "object"
+    },
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "owner": {
+      "title": "Owner",
+      "type": "string"
+    },
+    "provenance": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Provenance"
+      },
+      "title": "Provenance",
+      "type": "array"
+    },
+    "references": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "References",
+      "type": "array"
+    },
+    "reviewers": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Reviewers",
+      "type": "array"
+    },
+    "rules": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Rules",
+      "type": "array"
+    },
+    "schema": {
+      "const": "orqlet.standards-pack/v1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "version": {
+      "title": "Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "id",
+    "version",
+    "owner"
+  ],
+  "title": "PackManifest",
+  "type": "object"
+}

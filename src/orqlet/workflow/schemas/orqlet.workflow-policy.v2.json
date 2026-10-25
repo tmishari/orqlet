@@ -1,0 +1,340 @@
+{
+  "$defs": {
+    "ApprovalRule": {
+      "additionalProperties": false,
+      "properties": {
+        "code_owners": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Code Owners"
+        },
+        "minimum_approvers": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Minimum Approvers"
+        },
+        "source": {
+          "const": "baseline-with-merge-evidence",
+          "title": "Source",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source"
+      ],
+      "title": "ApprovalRule",
+      "type": "object"
+    },
+    "Approvals": {
+      "additionalProperties": false,
+      "properties": {
+        "design": {
+          "$ref": "#/$defs/ApprovalRule"
+        },
+        "plan": {
+          "$ref": "#/$defs/ApprovalRule"
+        }
+      },
+      "required": [
+        "design",
+        "plan"
+      ],
+      "title": "Approvals",
+      "type": "object"
+    },
+    "Events": {
+      "additionalProperties": false,
+      "properties": {
+        "reevaluate_interval_minutes": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reevaluate Interval Minutes"
+        },
+        "sweep_cadence_minutes": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sweep Cadence Minutes"
+        },
+        "sweep_max_pull_requests": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sweep Max Pull Requests"
+        }
+      },
+      "title": "Events",
+      "type": "object"
+    },
+    "IndependenceRaise": {
+      "additionalProperties": false,
+      "properties": {
+        "glob": {
+          "title": "Glob",
+          "type": "string"
+        },
+        "min_class": {
+          "enum": [
+            "I1",
+            "I2",
+            "I3"
+          ],
+          "title": "Min Class",
+          "type": "string"
+        }
+      },
+      "required": [
+        "glob",
+        "min_class"
+      ],
+      "title": "IndependenceRaise",
+      "type": "object"
+    },
+    "KnowledgeLints": {
+      "additionalProperties": false,
+      "properties": {
+        "copy_max_lines": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Copy Max Lines"
+        },
+        "near_duplicate_threshold": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Near Duplicate Threshold"
+        }
+      },
+      "title": "KnowledgeLints",
+      "type": "object"
+    },
+    "Limits": {
+      "additionalProperties": false,
+      "properties": {
+        "max_chars_per_excerpt": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Chars Per Excerpt"
+        },
+        "max_excerpts": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Excerpts"
+        },
+        "rework_rounds_per_phase": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rework Rounds Per Phase"
+        }
+      },
+      "title": "Limits",
+      "type": "object"
+    },
+    "PhaseClaims": {
+      "additionalProperties": false,
+      "properties": {
+        "extras": {
+          "const": "block",
+          "default": "block",
+          "title": "Extras",
+          "type": "string"
+        }
+      },
+      "title": "PhaseClaims",
+      "type": "object"
+    },
+    "Triggers": {
+      "additionalProperties": false,
+      "properties": {
+        "d1_max_files": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "D1 Max Files"
+        },
+        "d3_globs": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "D3 Globs",
+          "type": "array"
+        },
+        "independence_raise": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/IndependenceRaise"
+          },
+          "title": "Independence Raise",
+          "type": "array"
+        },
+        "security_sensitive_globs": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Security Sensitive Globs",
+          "type": "array"
+        }
+      },
+      "title": "Triggers",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "approvals": {
+      "$ref": "#/$defs/Approvals"
+    },
+    "events": {
+      "$ref": "#/$defs/Events",
+      "default": {
+        "reevaluate_interval_minutes": null,
+        "sweep_cadence_minutes": null,
+        "sweep_max_pull_requests": null
+      }
+    },
+    "hooks": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Hooks",
+      "type": "object"
+    },
+    "knowledge": {
+      "$ref": "#/$defs/KnowledgeLints",
+      "default": {
+        "copy_max_lines": null,
+        "near_duplicate_threshold": null
+      }
+    },
+    "limits": {
+      "$ref": "#/$defs/Limits",
+      "default": {
+        "max_chars_per_excerpt": null,
+        "max_excerpts": null,
+        "rework_rounds_per_phase": null
+      }
+    },
+    "phase_claims": {
+      "$ref": "#/$defs/PhaseClaims",
+      "default": {
+        "extras": "block"
+      }
+    },
+    "policy_role": {
+      "const": "enforcement-baseline",
+      "title": "Policy Role",
+      "type": "string"
+    },
+    "required_checks": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Required Checks",
+      "type": "array"
+    },
+    "retrieval": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Retrieval",
+      "type": "object"
+    },
+    "schema": {
+      "const": "orqlet.workflow-policy/v2",
+      "title": "Schema",
+      "type": "string"
+    },
+    "triggers": {
+      "$ref": "#/$defs/Triggers",
+      "default": {
+        "d1_max_files": null,
+        "d3_globs": [],
+        "independence_raise": [],
+        "security_sensitive_globs": []
+      }
+    }
+  },
+  "required": [
+    "schema",
+    "policy_role",
+    "approvals"
+  ],
+  "title": "WorkflowPolicy",
+  "type": "object"
+}

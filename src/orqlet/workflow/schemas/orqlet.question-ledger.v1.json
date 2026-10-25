@@ -1,0 +1,346 @@
+{
+  "$defs": {
+    "Answer": {
+      "additionalProperties": false,
+      "properties": {
+        "answerer": {
+          "minLength": 1,
+          "title": "Answerer",
+          "type": "string"
+        },
+        "scope": {
+          "enum": [
+            "task",
+            "project",
+            "company"
+          ],
+          "title": "Scope",
+          "type": "string"
+        },
+        "time": {
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}(T[0-9:.]+(Z|[+-]\\d{2}:\\d{2})?)?$",
+          "title": "Time",
+          "type": "string"
+        },
+        "value": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "value",
+        "answerer",
+        "time",
+        "scope"
+      ],
+      "title": "Answer",
+      "type": "object"
+    },
+    "Conflict": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^C-\\d+$",
+          "title": "Id",
+          "type": "string"
+        },
+        "ruling": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Ruling"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "ruling_required_from": {
+          "minLength": 1,
+          "title": "Ruling Required From",
+          "type": "string"
+        },
+        "scope": {
+          "enum": [
+            "task",
+            "project",
+            "company"
+          ],
+          "title": "Scope",
+          "type": "string"
+        },
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/ConflictSource"
+          },
+          "minItems": 2,
+          "title": "Sources",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "sources",
+        "scope",
+        "ruling_required_from"
+      ],
+      "title": "Conflict",
+      "type": "object"
+    },
+    "ConflictSource": {
+      "additionalProperties": false,
+      "properties": {
+        "claim": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Claim",
+          "type": "string"
+        },
+        "ref": {
+          "minLength": 1,
+          "title": "Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "ref",
+        "claim"
+      ],
+      "title": "ConflictSource",
+      "type": "object"
+    },
+    "Question": {
+      "additionalProperties": false,
+      "properties": {
+        "answer": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Answer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "blocks": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Blocks",
+          "type": "array"
+        },
+        "category": {
+          "enum": [
+            "requirement",
+            "access",
+            "policy",
+            "evidence-conflict",
+            "missing-configuration",
+            "test-expectation"
+          ],
+          "title": "Category",
+          "type": "string"
+        },
+        "evidence_refs": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "id": {
+          "pattern": "^Q-\\d+$",
+          "title": "Id",
+          "type": "string"
+        },
+        "invalidates": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Invalidates",
+          "type": "array"
+        },
+        "key": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Key",
+          "type": "string"
+        },
+        "options": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Options",
+          "type": "array"
+        },
+        "phase": {
+          "enum": [
+            "onboard",
+            "research",
+            "design",
+            "plan",
+            "implement",
+            "review"
+          ],
+          "title": "Phase",
+          "type": "string"
+        },
+        "raised_by": {
+          "minLength": 1,
+          "title": "Raised By",
+          "type": "string"
+        },
+        "route_to": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Route To"
+        },
+        "status": {
+          "enum": [
+            "open",
+            "answered",
+            "withdrawn",
+            "superseded"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "subject": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Subject",
+          "type": "string"
+        },
+        "supersedes": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Supersedes",
+          "type": "array"
+        },
+        "text": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        },
+        "why": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Why",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "key",
+        "subject",
+        "raised_by",
+        "phase",
+        "category",
+        "text",
+        "why",
+        "status"
+      ],
+      "title": "Question",
+      "type": "object"
+    },
+    "Ruling": {
+      "additionalProperties": false,
+      "properties": {
+        "expires": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}(T[0-9:.]+(Z|[+-]\\d{2}:\\d{2})?)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expires"
+        },
+        "governing_source": {
+          "minLength": 1,
+          "title": "Governing Source",
+          "type": "string"
+        },
+        "rationale": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        },
+        "when": {
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}(T[0-9:.]+(Z|[+-]\\d{2}:\\d{2})?)?$",
+          "title": "When",
+          "type": "string"
+        },
+        "who": {
+          "minLength": 1,
+          "title": "Who",
+          "type": "string"
+        }
+      },
+      "required": [
+        "governing_source",
+        "rationale",
+        "who",
+        "when"
+      ],
+      "title": "Ruling",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "conflicts": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Conflict"
+      },
+      "title": "Conflicts",
+      "type": "array"
+    },
+    "questions": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Question"
+      },
+      "title": "Questions",
+      "type": "array"
+    },
+    "schema": {
+      "const": "orqlet.question-ledger/v1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "task": {
+      "maxLength": 64,
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "title": "Task",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "task"
+  ],
+  "title": "QuestionLedger",
+  "type": "object"
+}

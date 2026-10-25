@@ -1,0 +1,420 @@
+{
+  "$defs": {
+    "AuthSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "env_refs": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Env Refs",
+          "type": "array"
+        },
+        "mode": {
+          "enum": [
+            "client-native-oauth",
+            "env-ref",
+            "none"
+          ],
+          "title": "Mode",
+          "type": "string"
+        }
+      },
+      "required": [
+        "mode"
+      ],
+      "title": "AuthSpec",
+      "type": "object"
+    },
+    "DataFlow": {
+      "additionalProperties": false,
+      "properties": {
+        "backend_identity": {
+          "title": "Backend Identity",
+          "type": "string"
+        },
+        "data_classes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Data Classes",
+          "type": "array"
+        },
+        "egress": {
+          "title": "Egress",
+          "type": "string"
+        },
+        "owner_review": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ]
+          },
+          "title": "Owner Review",
+          "type": "object"
+        },
+        "scope": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Scope",
+          "type": "array"
+        }
+      },
+      "required": [
+        "backend_identity",
+        "scope",
+        "data_classes",
+        "egress",
+        "owner_review"
+      ],
+      "title": "DataFlow",
+      "type": "object"
+    },
+    "IntegrationPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "live_inspection": {
+          "const": "opt-in",
+          "title": "Live Inspection",
+          "type": "string"
+        },
+        "modify_global_config": {
+          "const": "never",
+          "title": "Modify Global Config",
+          "type": "string"
+        }
+      },
+      "required": [
+        "modify_global_config",
+        "live_inspection"
+      ],
+      "title": "IntegrationPolicy",
+      "type": "object"
+    },
+    "McpServer": {
+      "additionalProperties": false,
+      "properties": {
+        "auth": {
+          "$ref": "#/$defs/AuthSpec"
+        },
+        "capability_tier": {
+          "enum": [
+            "read",
+            "write",
+            "destructive"
+          ],
+          "title": "Capability Tier",
+          "type": "string"
+        },
+        "clients": {
+          "default": [],
+          "items": {
+            "enum": [
+              "claude-code",
+              "codex",
+              "cursor"
+            ],
+            "type": "string"
+          },
+          "title": "Clients",
+          "type": "array"
+        },
+        "data_flow": {
+          "$ref": "#/$defs/DataFlow"
+        },
+        "expected_publisher": {
+          "title": "Expected Publisher",
+          "type": "string"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "identity": {
+          "$ref": "#/$defs/ServerIdentity"
+        },
+        "per_client": {
+          "additionalProperties": {
+            "$ref": "#/$defs/PerClient"
+          },
+          "title": "Per Client",
+          "type": "object"
+        },
+        "purpose": {
+          "title": "Purpose",
+          "type": "string"
+        },
+        "registration": {
+          "$ref": "#/$defs/Registration"
+        },
+        "tools_digest": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tools Digest"
+        },
+        "write_tools": {
+          "$ref": "#/$defs/WriteTools"
+        }
+      },
+      "required": [
+        "id",
+        "purpose",
+        "identity",
+        "expected_publisher",
+        "capability_tier",
+        "registration",
+        "write_tools",
+        "auth",
+        "data_flow"
+      ],
+      "title": "McpServer",
+      "type": "object"
+    },
+    "PerClient": {
+      "additionalProperties": false,
+      "properties": {
+        "control": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Control"
+        },
+        "decision": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Decision"
+        },
+        "enforced_by": {
+          "enum": [
+            "server",
+            "client-enforced-editable",
+            "client-managed",
+            "none"
+          ],
+          "title": "Enforced By",
+          "type": "string"
+        },
+        "pending": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Pending",
+          "type": "array"
+        },
+        "register": {
+          "title": "Register",
+          "type": "boolean"
+        },
+        "verification": {
+          "default": "not-tested",
+          "enum": [
+            "not-tested",
+            "verified"
+          ],
+          "title": "Verification",
+          "type": "string"
+        }
+      },
+      "required": [
+        "register",
+        "enforced_by"
+      ],
+      "title": "PerClient",
+      "type": "object"
+    },
+    "Registration": {
+      "additionalProperties": false,
+      "properties": {
+        "enforced_by": {
+          "enum": [
+            "server",
+            "client-enforced-editable",
+            "client-managed",
+            "none"
+          ],
+          "title": "Enforced By",
+          "type": "string"
+        },
+        "mode": {
+          "const": "read-only",
+          "title": "Mode",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "mode",
+        "enforced_by"
+      ],
+      "title": "Registration",
+      "type": "object"
+    },
+    "RoleTools": {
+      "additionalProperties": false,
+      "properties": {
+        "servers": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Servers",
+          "type": "array"
+        },
+        "tools": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Tools",
+          "type": "array"
+        }
+      },
+      "title": "RoleTools",
+      "type": "object"
+    },
+    "ServerIdentity": {
+      "additionalProperties": false,
+      "properties": {
+        "command": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Command"
+        },
+        "kind": {
+          "enum": [
+            "remote",
+            "stdio"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "package": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Package"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Url"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "title": "ServerIdentity",
+      "type": "object"
+    },
+    "WriteTools": {
+      "additionalProperties": false,
+      "properties": {
+        "names_verified": {
+          "default": false,
+          "title": "Names Verified",
+          "type": "boolean"
+        },
+        "policy": {
+          "const": "deny",
+          "title": "Policy",
+          "type": "string"
+        }
+      },
+      "required": [
+        "policy"
+      ],
+      "title": "WriteTools",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "policy": {
+      "$ref": "#/$defs/IntegrationPolicy"
+    },
+    "project": {
+      "title": "Project",
+      "type": "string"
+    },
+    "roles": {
+      "additionalProperties": {
+        "$ref": "#/$defs/RoleTools"
+      },
+      "title": "Roles",
+      "type": "object"
+    },
+    "schema": {
+      "const": "orqlet.integrations/v1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "servers": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/McpServer"
+      },
+      "title": "Servers",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "project",
+    "policy"
+  ],
+  "title": "Integrations",
+  "type": "object"
+}

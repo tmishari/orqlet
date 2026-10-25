@@ -1,0 +1,67 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "components": {
+      "additionalProperties": {
+        "pattern": "^[0-9a-f]{64}$",
+        "type": "string"
+      },
+      "propertyNames": {
+        "enum": [
+          "code_tests",
+          "knowledge",
+          "design",
+          "plan",
+          "standards",
+          "reviewer_definition",
+          "evidence_inputs",
+          "candidates"
+        ]
+      },
+      "title": "Components",
+      "type": "object"
+    },
+    "covers": {
+      "items": {
+        "enum": [
+          "code_tests",
+          "knowledge",
+          "design",
+          "plan",
+          "standards",
+          "reviewer_definition",
+          "evidence_inputs",
+          "candidates"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Covers",
+      "type": "array"
+    },
+    "digest": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Digest",
+      "type": "string"
+    },
+    "merge_base": {
+      "pattern": "^([0-9a-f]{40}|[0-9a-f]{64})$",
+      "title": "Merge Base",
+      "type": "string"
+    },
+    "schema": {
+      "const": "orqlet.review-input/v1",
+      "default": "orqlet.review-input/v1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "covers",
+    "components",
+    "digest",
+    "merge_base"
+  ],
+  "title": "ReviewInput",
+  "type": "object"
+}

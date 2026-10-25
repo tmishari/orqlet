@@ -1,0 +1,841 @@
+{
+  "$defs": {
+    "Clients": {
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "items": {
+            "enum": [
+              "claude-code",
+              "codex",
+              "cursor"
+            ],
+            "type": "string"
+          },
+          "title": "Enabled",
+          "type": "array"
+        },
+        "min_versions": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Min Versions",
+          "type": "object"
+        }
+      },
+      "required": [
+        "enabled"
+      ],
+      "title": "Clients",
+      "type": "object"
+    },
+    "CommandSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "argv": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Argv",
+          "type": "array"
+        },
+        "cwd": {
+          "default": ".",
+          "title": "Cwd",
+          "type": "string"
+        },
+        "source": {
+          "title": "Source",
+          "type": "string"
+        }
+      },
+      "required": [
+        "argv",
+        "source"
+      ],
+      "title": "CommandSpec",
+      "type": "object"
+    },
+    "Dependencies": {
+      "additionalProperties": false,
+      "properties": {
+        "declared": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Dependency"
+          },
+          "title": "Declared",
+          "type": "array"
+        },
+        "locked": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LockedFile"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "Dependencies",
+      "type": "object"
+    },
+    "Dependency": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Evidence"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "specifier": {
+          "default": "",
+          "title": "Specifier",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Dependency",
+      "type": "object"
+    },
+    "Evidence": {
+      "additionalProperties": false,
+      "properties": {
+        "lines": {
+          "pattern": "^\\d+-\\d+$",
+          "title": "Lines",
+          "type": "string"
+        },
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "lines",
+        "sha256"
+      ],
+      "title": "Evidence",
+      "type": "object"
+    },
+    "FactValue": {
+      "additionalProperties": false,
+      "description": "A value with evidence, or an unknown with a question. Nothing in between.",
+      "properties": {
+        "answered_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Answered By"
+        },
+        "evidence": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Evidence"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "question": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Question"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        }
+      },
+      "title": "FactValue",
+      "type": "object"
+    },
+    "Facts": {
+      "additionalProperties": false,
+      "properties": {
+        "frameworks": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/NamedFact"
+          },
+          "title": "Frameworks",
+          "type": "array"
+        },
+        "package_manager": {
+          "$ref": "#/$defs/FactValue"
+        },
+        "python": {
+          "$ref": "#/$defs/FactValue"
+        }
+      },
+      "required": [
+        "python",
+        "package_manager"
+      ],
+      "title": "Facts",
+      "type": "object"
+    },
+    "LockedFile": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Evidence"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "file": {
+          "title": "File",
+          "type": "string"
+        }
+      },
+      "required": [
+        "file"
+      ],
+      "title": "LockedFile",
+      "type": "object"
+    },
+    "NamedFact": {
+      "additionalProperties": false,
+      "properties": {
+        "answered_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Answered By"
+        },
+        "evidence": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Evidence"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "question": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Question"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "NamedFact",
+      "type": "object"
+    },
+    "OptionalComponents": {
+      "additionalProperties": false,
+      "properties": {
+        "exclude": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Exclude",
+          "type": "array"
+        }
+      },
+      "title": "OptionalComponents",
+      "type": "object"
+    },
+    "OrqletPin": {
+      "additionalProperties": false,
+      "properties": {
+        "sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sha256"
+        },
+        "version": {
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "version"
+      ],
+      "title": "OrqletPin",
+      "type": "object"
+    },
+    "ProfileMeta": {
+      "additionalProperties": false,
+      "properties": {
+        "reviewed_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reviewed At"
+        },
+        "reviewed_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reviewed By"
+        },
+        "status": {
+          "enum": [
+            "draft",
+            "approved"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "version",
+        "status"
+      ],
+      "title": "ProfileMeta",
+      "type": "object"
+    },
+    "ProjectInfo": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "python-cli",
+            "python-service",
+            "unknown"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "origin": {
+          "enum": [
+            "existing",
+            "existing-no-code",
+            "unborn",
+            "empty"
+          ],
+          "title": "Origin",
+          "type": "string"
+        },
+        "uuid": {
+          "title": "Uuid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "uuid",
+        "name",
+        "kind",
+        "origin"
+      ],
+      "title": "ProjectInfo",
+      "type": "object"
+    },
+    "PullRequestTemplate": {
+      "additionalProperties": false,
+      "properties": {
+        "source_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Id"
+        },
+        "status": {
+          "default": "none",
+          "enum": [
+            "provisioned",
+            "team-template-unknown",
+            "none"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "targets": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Targets",
+          "type": "array"
+        }
+      },
+      "title": "PullRequestTemplate",
+      "type": "object"
+    },
+    "PullRequests": {
+      "additionalProperties": false,
+      "properties": {
+        "merge_strategy": {
+          "default": "unknown",
+          "title": "Merge Strategy",
+          "type": "string"
+        },
+        "reviewers": {
+          "default": "unknown",
+          "title": "Reviewers",
+          "type": "string"
+        },
+        "template": {
+          "$ref": "#/$defs/PullRequestTemplate",
+          "default": {
+            "source_id": null,
+            "status": "none",
+            "targets": []
+          }
+        }
+      },
+      "title": "PullRequests",
+      "type": "object"
+    },
+    "Repository": {
+      "additionalProperties": false,
+      "properties": {
+        "branch_naming": {
+          "$ref": "#/$defs/FactValue"
+        },
+        "commit_convention": {
+          "$ref": "#/$defs/FactValue"
+        },
+        "pull_requests": {
+          "$ref": "#/$defs/PullRequests",
+          "default": {
+            "merge_strategy": "unknown",
+            "reviewers": "unknown",
+            "template": {
+              "source_id": null,
+              "status": "none",
+              "targets": []
+            }
+          }
+        },
+        "target_branch": {
+          "$ref": "#/$defs/TargetBranch"
+        }
+      },
+      "required": [
+        "target_branch",
+        "branch_naming",
+        "commit_convention"
+      ],
+      "title": "Repository",
+      "type": "object"
+    },
+    "StackInfo": {
+      "additionalProperties": false,
+      "properties": {
+        "capability_limits": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Capability Limits",
+          "type": "array"
+        },
+        "support": {
+          "enum": [
+            "supported",
+            "partly-covered",
+            "unsupported",
+            "unknown"
+          ],
+          "title": "Support",
+          "type": "string"
+        }
+      },
+      "required": [
+        "support"
+      ],
+      "title": "StackInfo",
+      "type": "object"
+    },
+    "StandardsSourceRef": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "prompts-dir",
+            "standards-pack"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Path"
+        },
+        "ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ref"
+        },
+        "scaffold": {
+          "anyOf": [
+            {
+              "const": "seeded",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scaffold"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "title": "StandardsSourceRef",
+      "type": "object"
+    },
+    "TargetBranch": {
+      "additionalProperties": false,
+      "properties": {
+        "answered_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Answered By"
+        },
+        "evidence": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Evidence"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "question": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Question"
+        },
+        "remote": {
+          "default": "origin",
+          "title": "Remote",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        }
+      },
+      "title": "TargetBranch",
+      "type": "object"
+    },
+    "Technology": {
+      "additionalProperties": false,
+      "description": "Something the project uses, with the evidence for it.\n\n`scope` is the directory the technology belongs to: `.` for the whole repository, a service\nfolder in a monorepo. `version` is exactly as the source writes it (a range stays a range),\nor `None` when the source names no version. A scanner or an agent must cite evidence; only the\nmaintainer may state a technology without it.",
+      "properties": {
+        "evidence": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Evidence"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "kind": {
+          "enum": [
+            "language",
+            "runtime",
+            "framework",
+            "library",
+            "database",
+            "queue",
+            "infrastructure",
+            "tool",
+            "other"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "scope": {
+          "default": ".",
+          "title": "Scope",
+          "type": "string"
+        },
+        "source": {
+          "default": "scanner",
+          "enum": [
+            "scanner",
+            "maintainer",
+            "agent"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Version"
+        }
+      },
+      "required": [
+        "kind",
+        "name"
+      ],
+      "title": "Technology",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "auth_procedures": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Auth Procedures",
+      "type": "array"
+    },
+    "capabilities": {
+      "additionalProperties": true,
+      "title": "Capabilities",
+      "type": "object"
+    },
+    "clients": {
+      "$ref": "#/$defs/Clients"
+    },
+    "commands": {
+      "additionalProperties": {
+        "$ref": "#/$defs/CommandSpec"
+      },
+      "title": "Commands",
+      "type": "object"
+    },
+    "data_class": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Data Class"
+    },
+    "dependencies": {
+      "$ref": "#/$defs/Dependencies",
+      "default": {
+        "declared": [],
+        "locked": null
+      }
+    },
+    "facts": {
+      "$ref": "#/$defs/Facts"
+    },
+    "optional_components": {
+      "$ref": "#/$defs/OptionalComponents",
+      "default": {
+        "exclude": []
+      }
+    },
+    "orqlet": {
+      "$ref": "#/$defs/OrqletPin"
+    },
+    "profile": {
+      "$ref": "#/$defs/ProfileMeta"
+    },
+    "project": {
+      "$ref": "#/$defs/ProjectInfo"
+    },
+    "repository": {
+      "$ref": "#/$defs/Repository"
+    },
+    "schema": {
+      "const": "orqlet.project-profile/v1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "stack": {
+      "$ref": "#/$defs/StackInfo"
+    },
+    "standards_sources": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/StandardsSourceRef"
+      },
+      "title": "Standards Sources",
+      "type": "array"
+    },
+    "structure": {
+      "additionalProperties": {
+        "$ref": "#/$defs/FactValue"
+      },
+      "title": "Structure",
+      "type": "object"
+    },
+    "technologies": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Technology"
+      },
+      "title": "Technologies",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "project",
+    "stack",
+    "profile",
+    "facts",
+    "repository",
+    "clients",
+    "orqlet"
+  ],
+  "title": "ProjectProfile",
+  "type": "object"
+}

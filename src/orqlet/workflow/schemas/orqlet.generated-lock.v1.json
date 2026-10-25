@@ -1,0 +1,206 @@
+{
+  "$defs": {
+    "BlockMarkers": {
+      "additionalProperties": false,
+      "properties": {
+        "begin": {
+          "title": "Begin",
+          "type": "string"
+        },
+        "end": {
+          "title": "End",
+          "type": "string"
+        }
+      },
+      "required": [
+        "begin",
+        "end"
+      ],
+      "title": "BlockMarkers",
+      "type": "object"
+    },
+    "FileClass": {
+      "enum": [
+        "protected",
+        "generated",
+        "optional"
+      ],
+      "title": "FileClass",
+      "type": "string"
+    },
+    "GeneratorInfo": {
+      "additionalProperties": false,
+      "properties": {
+        "orqlet": {
+          "title": "Orqlet",
+          "type": "string"
+        }
+      },
+      "required": [
+        "orqlet"
+      ],
+      "title": "GeneratorInfo",
+      "type": "object"
+    },
+    "LockInput": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "version",
+        "sha256"
+      ],
+      "title": "LockInput",
+      "type": "object"
+    },
+    "LockedFile": {
+      "additionalProperties": false,
+      "properties": {
+        "block": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BlockMarkers"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "class": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FileClass"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "entry": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Entry"
+        },
+        "inputs": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/LockInput"
+          },
+          "title": "Inputs",
+          "type": "array"
+        },
+        "owner": {
+          "$ref": "#/$defs/OwnerMode"
+        },
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "rendered_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rendered Sha256"
+        },
+        "seeded_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Seeded Sha256"
+        }
+      },
+      "required": [
+        "path",
+        "owner"
+      ],
+      "title": "LockedFile",
+      "type": "object"
+    },
+    "OwnerMode": {
+      "enum": [
+        "orqlet",
+        "shared-block",
+        "shared-entry",
+        "seeded",
+        "user"
+      ],
+      "title": "OwnerMode",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "files": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/LockedFile"
+      },
+      "title": "Files",
+      "type": "array"
+    },
+    "generator": {
+      "$ref": "#/$defs/GeneratorInfo"
+    },
+    "schema": {
+      "const": "orqlet.generated-lock/v1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "standards_lock": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Standards Lock"
+    }
+  },
+  "required": [
+    "schema",
+    "generator"
+  ],
+  "title": "GeneratedLock",
+  "type": "object"
+}

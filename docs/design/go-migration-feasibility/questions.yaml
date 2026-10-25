@@ -1,0 +1,182 @@
+schema: orqlet.question-ledger/v1
+task: go-migration-feasibility
+questions:
+  - id: Q-1
+    key: f71e3a23d2143f29938eefd25734142867874e9727cb7c407bebe42ac67570e9
+    subject: Go migration task name
+    raised_by: researcher
+    phase: research
+    category: requirement
+    text: What is the task name for docs/design/<task>/ (lowercase words joined by hyphens)?
+    why: The task name is the folder of every artifact of this request.
+    options:
+      - go-migration-feasibility
+      - orqlet-go-port
+    blocks:
+      - research
+    status: answered
+    answer:
+      value: go-migration-feasibility
+      answerer: user
+      time: "2026-10-24T09:41:04+03:00"
+      scope: task
+  - id: Q-2
+    key: 7593ccfc767a686889bbde35c99ff14788657e927e8dbbdb82237446cfbc27fc
+    subject: Scope of the migration to Go
+    raised_by: researcher
+    phase: research
+    category: requirement
+    text: What does 'migrate to Go' cover?
+    why: The scope decides which parts of src/orqlet, tests and tooling the AS-IS file has to describe.
+    options:
+      - Full rewrite of the whole CLI (src/orqlet) in Go; Python is retired
+      - "Incremental: Go binary replaces the CLI in steps, Python stays until parity"
+      - Real goal is only a compiled single-file binary; other ways should be researched too
+      - Not sure yet; research should cover all three
+    blocks:
+      - research
+      - design
+    status: answered
+    answer:
+      value: Full rewrite of the whole CLI (src/orqlet) in Go; Python is retired
+      answerer: user
+      time: "2026-10-24T09:41:04+03:00"
+      scope: task
+  - id: Q-3
+    key: f4c35f496f6c8a301bddd58406cea0a61f152977f6b4c63ec00d7540d224fb47
+    subject: Platforms the compiled binary must run on
+    raised_by: researcher
+    phase: research
+    category: requirement
+    text: Which platforms must the compiled binary run on?
+    why: The target platforms decide which platform-specific behaviour of the current code has to be described.
+    options:
+      - macOS arm64
+      - macOS amd64
+      - Windows amd64
+      - Linux (CI runners, containers)
+    blocks:
+      - design
+    status: answered
+    answer:
+      value: macOS arm64
+      answerer: user
+      time: "2026-10-24T09:41:04+03:00"
+      scope: task
+  - id: Q-4
+    key: 04ee1a939f96fcc2d6b112eaa2258fef76c52a682c02769ed408142b6a462b21
+    subject: Output compatibility between the Python release and a Go version
+    raised_by: researcher
+    phase: research
+    category: requirement
+    text: >-
+      Must the Go version produce byte-identical output to the Python release (generated files,
+      hashes in .orqlet/generated.lock.yaml, JSON and YAML envelopes, golden tests)?
+    why: Byte-identical output makes every serializer, hash input and golden file a fact that the AS-IS file has to cover.
+    options:
+      - Yes, byte-identical; existing projects must not see any diff after switching
+      - Same meaning, but a one-time diff is acceptable (new workflow version)
+      - No compatibility requirement; a clean break is fine
+      - I do not know; record it as an unknown
+    blocks:
+      - design
+    status: answered
+    answer:
+      value: Yes, byte-identical; existing projects must not see any diff after switching
+      answerer: user
+      time: "2026-10-24T09:41:04+03:00"
+      scope: task
+  - id: Q-5
+    key: bed8aaa7415ad856ad66e1f31a12dab1ab0475c2b1a96529898716c3e187feca
+    subject: What 'best version' means for the Go migration
+    raised_by: researcher
+    phase: research
+    category: requirement
+    text: By 'best version to do it', what should the design phase decide?
+    why: The answer decides whether the design chooses a Go toolchain version, a source release of Orqlet, or both.
+    options:
+      - Which Go toolchain or language version to target (for example the go directive in go.mod)
+      - Which Orqlet release or commit to port from
+      - Both
+    blocks:
+      - design
+    status: answered
+    answer:
+      value: Which Go toolchain or language version to target (for example the go directive in go.mod)
+      answerer: user
+      time: "2026-10-24T09:41:04+03:00"
+      scope: task
+  - id: Q-6
+    key: 26446cea635e4ea0de53c1dbe73059f1971c36a2f3d509e126066bab256b4189
+    subject: Git baseline for evidence of uncommitted source files
+    raised_by: researcher
+    phase: research
+    category: requirement
+    text: >-
+      At revision 0bfc2faf5f8950330643176423389ca667afe90a git tracks 8 of the 170 Python source
+      files under src/. Evidence resolves against a git blob at the base revision, so how should the
+      AS-IS file be anchored?
+    why: >-
+      Facts about the untracked source files cannot pass `orqlet validate as-is` until they exist at
+      a revision. Committing is a change to the repository and belongs to the person.
+    options:
+      - I commit the working tree myself, then tell the researcher to continue
+      - The researcher may commit the whole working tree on main as a baseline
+      - Do not commit; narrow the AS-IS to the tracked source files and record the rest as unknowns
+    evidence_refs:
+      - git ls-tree -r HEAD --name-only
+    blocks:
+      - research
+    status: answered
+    answer:
+      value: I commit the working tree myself, then tell the researcher to continue
+      answerer: user
+      time: "2026-10-24T09:58:57+03:00"
+      scope: task
+  - id: Q-7
+    key: dcf9a9806760d9623a86d74a4ab6511c96ae9feae671c134b49735541487200f
+    subject: Target platforms versus the CI matrix
+    raised_by: researcher
+    phase: research
+    category: evidence-conflict
+    text: >-
+      The answer to Q-3 names macOS arm64 only. .github/workflows/ci.yml runs the tests on
+      ubuntu-latest, macos-latest and windows-latest, and the ledger of the harness2-fit task records
+      the answer "no, we use only macos or windows". Which platforms must the compiled binary support?
+    why: >-
+      The Windows and Linux code paths (local_fs.py replace-retry, junction handling, fsync, the
+      Windows tests) are in the scope of the rewrite only if those platforms are required.
+    options:
+      - macOS arm64 only
+      - macOS arm64 and Windows amd64
+      - macOS, Windows and Linux
+    evidence_refs:
+      - .github/workflows/ci.yml
+      - docs/design/harness2-fit/questions.yaml#Q-3
+    blocks:
+      - design
+    status: open
+  - id: Q-8
+    key: 2af8e945d36cc270820246776b37763aeaa8d74551e1b355ecc263ed6d4f81d9
+    subject: Reach of byte-identical output to help, usage and error message text
+    raised_by: researcher
+    phase: research
+    category: requirement
+    text: >-
+      Does "byte-identical" (Q-4) also cover the text of --help and usage errors, the human
+      (non --json) output, and the validation messages whose wording comes from Pydantic and PyYAML
+      (for example "questions.1.options.1: Input should be a valid string")?
+    why: >-
+      The JSON envelope, the generated files and the hashes are produced by repository code. Help text
+      comes from the CLI framework and the validation messages come from two libraries, and no test or
+      stored file pins them.
+    options:
+      - Only generated files, hashes and the JSON envelope
+      - Also the human output
+      - Also help, usage errors and the library-worded validation messages
+    evidence_refs:
+      - src/orqlet/application/contracts/loading.py
+      - src/orqlet/adapters/fs/yaml_loader.py
+    blocks:
+      - design
+    status: open

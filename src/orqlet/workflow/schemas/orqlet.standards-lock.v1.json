@@ -1,0 +1,68 @@
+{
+  "$defs": {
+    "LockedPack": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "source": {
+          "title": "Source",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "version",
+        "sha256",
+        "source"
+      ],
+      "title": "LockedPack",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "applicable_rules_hash": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Applicable Rules Hash"
+    },
+    "packs": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/LockedPack"
+      },
+      "title": "Packs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "orqlet.standards-lock/v1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema"
+  ],
+  "title": "StandardsLock",
+  "type": "object"
+}

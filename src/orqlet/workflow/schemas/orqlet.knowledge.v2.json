@@ -1,0 +1,203 @@
+{
+  "$defs": {
+    "IndexConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "generations_kept": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Generations Kept"
+        },
+        "refresh_policy": {
+          "anyOf": [
+            {
+              "enum": [
+                "manual",
+                "warn",
+                "refresh-local-only"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Refresh Policy"
+        },
+        "target_branch_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Target Branch Ref"
+        },
+        "tokenizer": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tokenizer"
+        },
+        "views": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Views",
+          "type": "array"
+        }
+      },
+      "title": "IndexConfig",
+      "type": "object"
+    },
+    "KnowledgeSource": {
+      "additionalProperties": false,
+      "properties": {
+        "globs": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Globs",
+          "type": "array"
+        },
+        "kind": {
+          "enum": [
+            "adr",
+            "module-card",
+            "docs",
+            "standards-reference"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "pack": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pack"
+        },
+        "scope": {
+          "enum": [
+            "project",
+            "team",
+            "company"
+          ],
+          "title": "Scope",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "scope"
+      ],
+      "title": "KnowledgeSource",
+      "type": "object"
+    },
+    "WriteScope": {
+      "additionalProperties": false,
+      "properties": {
+        "globs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Globs",
+          "type": "array"
+        },
+        "kinds": {
+          "items": {
+            "enum": [
+              "adr",
+              "module-card",
+              "docs"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Kinds",
+          "type": "array"
+        }
+      },
+      "required": [
+        "globs",
+        "kinds"
+      ],
+      "title": "WriteScope",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "exclude": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Exclude",
+      "type": "array"
+    },
+    "index": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/IndexConfig"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "schema": {
+      "const": "orqlet.knowledge/v2",
+      "title": "Schema",
+      "type": "string"
+    },
+    "sources": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/KnowledgeSource"
+      },
+      "title": "Sources",
+      "type": "array"
+    },
+    "write_scope": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/WriteScope"
+      },
+      "title": "Write Scope",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema"
+  ],
+  "title": "KnowledgeConfig",
+  "type": "object"
+}

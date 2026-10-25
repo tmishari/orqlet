@@ -1,0 +1,27 @@
+{
+  "additionalProperties": false,
+  "description": "`identity.json`: the one place a release sets its workflow version and controls level.",
+  "properties": {
+    "controls_level": {
+      "minimum": 0,
+      "title": "Controls Level",
+      "type": "integer"
+    },
+    "schema": {
+      "const": "orqlet.workflow-identity/v1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "workflow_version": {
+      "title": "Workflow Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "workflow_version",
+    "controls_level"
+  ],
+  "title": "WorkflowIdentity",
+  "type": "object"
+}

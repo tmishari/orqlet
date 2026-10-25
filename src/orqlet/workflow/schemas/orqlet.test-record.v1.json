@@ -1,0 +1,197 @@
+{
+  "$defs": {
+    "CommandRun": {
+      "additionalProperties": false,
+      "properties": {
+        "exit_code": {
+          "title": "Exit Code",
+          "type": "integer"
+        },
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "result_digest": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Result Digest",
+          "type": "string"
+        },
+        "summary": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Summary",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "exit_code",
+        "summary",
+        "result_digest"
+      ],
+      "title": "CommandRun",
+      "type": "object"
+    },
+    "CriterionResult": {
+      "additionalProperties": false,
+      "properties": {
+        "ac": {
+          "pattern": "^AC-\\d+$",
+          "title": "Ac",
+          "type": "string"
+        },
+        "check_ref": {
+          "minLength": 1,
+          "title": "Check Ref",
+          "type": "string"
+        },
+        "result": {
+          "enum": [
+            "pass",
+            "fail",
+            "not-run"
+          ],
+          "title": "Result",
+          "type": "string"
+        }
+      },
+      "required": [
+        "ac",
+        "check_ref",
+        "result"
+      ],
+      "title": "CriterionResult",
+      "type": "object"
+    },
+    "ReviewInput": {
+      "additionalProperties": false,
+      "properties": {
+        "components": {
+          "additionalProperties": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "propertyNames": {
+            "enum": [
+              "code_tests",
+              "knowledge",
+              "design",
+              "plan",
+              "standards",
+              "reviewer_definition",
+              "evidence_inputs",
+              "candidates"
+            ]
+          },
+          "title": "Components",
+          "type": "object"
+        },
+        "covers": {
+          "items": {
+            "enum": [
+              "code_tests",
+              "knowledge",
+              "design",
+              "plan",
+              "standards",
+              "reviewer_definition",
+              "evidence_inputs",
+              "candidates"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Covers",
+          "type": "array"
+        },
+        "digest": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Digest",
+          "type": "string"
+        },
+        "merge_base": {
+          "pattern": "^([0-9a-f]{40}|[0-9a-f]{64})$",
+          "title": "Merge Base",
+          "type": "string"
+        },
+        "schema": {
+          "const": "orqlet.review-input/v1",
+          "default": "orqlet.review-input/v1",
+          "title": "Schema",
+          "type": "string"
+        }
+      },
+      "required": [
+        "covers",
+        "components",
+        "digest",
+        "merge_base"
+      ],
+      "title": "ReviewInput",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "acceptance_coverage": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/CriterionResult"
+      },
+      "title": "Acceptance Coverage",
+      "type": "array"
+    },
+    "commands": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/CommandRun"
+      },
+      "title": "Commands",
+      "type": "array"
+    },
+    "evidence_kind": {
+      "const": "claimed",
+      "title": "Evidence Kind",
+      "type": "string"
+    },
+    "phase": {
+      "pattern": "^P-[1-9]\\d*$",
+      "title": "Phase",
+      "type": "string"
+    },
+    "review_input": {
+      "$ref": "#/$defs/ReviewInput"
+    },
+    "schema": {
+      "const": "orqlet.test-record/v1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "task": {
+      "maxLength": 64,
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "title": "Task",
+      "type": "string"
+    },
+    "verdict": {
+      "enum": [
+        "PASS",
+        "FAIL",
+        "NOT_RUN"
+      ],
+      "title": "Verdict",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "task",
+    "phase",
+    "review_input",
+    "verdict",
+    "evidence_kind"
+  ],
+  "title": "TesterRecord",
+  "type": "object"
+}

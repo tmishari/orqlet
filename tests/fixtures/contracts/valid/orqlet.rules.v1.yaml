@@ -1,0 +1,8 @@
+schema: orqlet.rules/v1
+rules:
+  - id: PY-001
+    level: MUST
+    text: Public functions have type annotations.
+    scope: {paths: ["src/**"]}
+    enforcement: deterministic
+    check_ref: ruff:ANN

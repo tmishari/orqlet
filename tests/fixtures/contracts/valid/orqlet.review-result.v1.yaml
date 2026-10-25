@@ -1,0 +1,48 @@
+schema: orqlet.review-result/v1
+task: sample-task
+phase: P-1
+role: architecture-reviewer
+round: 1
+verdict: FAIL
+assurance: advisory
+review_input:
+  schema: orqlet.review-input/v1
+  covers: [code_tests, knowledge, design, plan, standards, reviewer_definition, evidence_inputs]
+  components:
+    code_tests: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    knowledge: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    design: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    plan: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    standards: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    reviewer_definition: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    evidence_inputs: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  merge_base: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding: {client: cursor, model_requested: null, model_observed: null}
+independence: I1
+capability_limits: ["read-only is advisory"]
+applicability:
+  examined: [src/pkg/service.py]
+  conclusion: findings
+findings:
+  - schema: orqlet.finding/v1
+    id: F-1
+    kind: finding
+    severity: blocking
+    category: tests
+    evidence:
+      - {kind: absence, searched: ["tests/**"], method: "searched test names", revision: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb}
+    claim: The error path has no test.
+    suggested_action: Add one.
+    confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against: {role: architecture-reviewer, phase: implement}
+  checks:
+    - {what: packet read, how: "orqlet review prepare", result: pass}
