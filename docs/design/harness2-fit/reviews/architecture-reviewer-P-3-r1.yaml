@@ -1,0 +1,127 @@
+schema: orqlet.review-result/v1
+task: harness2-fit
+phase: P-3
+role: architecture-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  schema: orqlet.review-input/v1
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  components:
+    code_tests: 449150ab4b6ec6ba8d6a136043e9c985031b23099d1dbeaf3f1b2831bced5408
+    design: af2ae4a8d23cdc477ccb7e76627628491cdd71baf8c6e3e5fa486b2fa65819ac
+    evidence_inputs: df77332db497771915f97bbb75b59438889c1411c30569431dcd6b97b39a7e15
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 2f4d690be243ae8b9b20b573c59499cac9ff42ef2348fa880b5e7330d3c9ead2
+    reviewer_definition: 7f2385218cce1961990c83f320b38a7dd3147e62b766bd1747d2eea810f24eb0
+    standards: a890bfe048dcd9f6d02a07460914ce1da9eaa59ffb0b1a89eed8a012cdca071e
+  digest: 9d2549858ac51bdb5b58a5c7c46c6c9588475f47dddc5837b71def2fb92d131a
+  merge_base: 3ac5b96d17df803ce133c261688ec7fb164bcf78
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: 4800b985d56f60c4fcda08bf688d64b94afc0bcf7cfec49be6a6272a867af56d
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; its shell was unavailable, so it ran no check and recomputed no digest.
+- Quote digests were not computed, so each finding rests on an absence record or is an observation.
+- Cursor used the repository's current agent definition, which is the post-change file, while this record binds the definition in the reviewed tree.
+- The model that ran the reviewer is not observed.
+applicability:
+  examined:
+  - src/orqlet/adapters/render/emit.py
+  - src/orqlet/adapters/render/skills.py
+  - src/orqlet/adapters/render/roles.py
+  - src/orqlet/adapters/render/rules.py
+  - tests/unit/render/test_emit.py
+  - tests/unit/render/test_skills.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: tests
+  rule_ref: ORQLET-QA-001
+  evidence: []
+  claim: 'The tester''s record ran pytest on tests/unit and tests/contract only (1701 passed) and its verdict is NOT_RUN. tests/integration, tests/e2e and tests/fault are not evidenced for this phase. I searched them statically (the packet''s tests/ tree, excluding tests/unit and tests/golden) for pinned quoted front matter of skills, agents or commands (`name|description|tools|model: "`) and found none. tests/e2e/test_s8_acceptance.py:258-267 and test_s9_acceptance.py:253 only read the generated files. I therefore see no reason to expect a failure, but nothing was run.'
+  suggested_action: Treat the project's CI run on the head commit as the gating evidence, and run the full suite before the phase is accepted.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: tests
+  evidence: []
+  claim: AC-3's rule side is carried by test_a_cursor_rule_keeps_a_plain_safe_description_and_its_globs_quoted and test_a_claude_rule_keeps_plain_safe_paths_quoted. test_rule_files_with_project_text_are_written_as_today (test_emit.py, end of file) does not discriminate. Every string it uses is outside the allow-list, so it stays quoted even if a rule renderer passed the keyword. The rule goldens do not discriminate either (golden `.claude/rules/orqlet-sample-001.md` has `"src/**"`, whose `*` is off-list).
+  suggested_action: No change needed. Optionally add a comment in the test that the discriminating checks are the two tests above it.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: architecture
+  rule_ref: ORQLET-STYLE-001
+  evidence: []
+  claim: With the keyword true, `_scalar` is also applied to strings inside lists and mappings (emit.py `_emit_container`, the two `_scalar(item, ...)` calls). ADR-001 says "a string value", and the test comment in test_emit.py says this case is deliberately unpinned. No caller passes a container with the keyword, so there is no effect today. `_emit_container` also takes two positional booleans (`quote_all`, `plain_when_safe`) that could be swapped without mypy noticing.
+  suggested_action: Leave as is. If a container with the keyword is ever needed, decide and pin it in the ADR. Consider keyword-only booleans on the private helper.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: docs
+  evidence: []
+  claim: The new emit.py module docstring says the allow-list "proves that every YAML reader and a line reader see the same text". The cross-reader test (ADR-001 decision 4, plan P-4 AC-3) is not in this phase. In P-3 the claim rests on the allow-list tables. I checked the strict loader's resolvers (yaml_loader.py:31-50), and a letter-first string can only hit bool or null there, both excluded by the reserved-word check. For PyYAML's default loader I relied on my own knowledge of its YAML 1.1 resolver table (not in the packet), and the line view is front_matter.py:29-40.
+  suggested_action: Acceptable because P-4 depends on P-3 and adds the test. Soften "proves" if P-3 is released alone.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+  checks:
+  - what: packet read
+    how: MANIFEST, plan P-3, ADR-001, design manifest, diff.patch in full, snapshot emit/rules/roles/skills, tests, goldens, both records
+    result: pass
+  - what: file list and scope
+    how: matched the 40 diff paths to the plan's P-3 file_operations
+    result: pass
+  - what: golden-diff (AC-5)
+    how: read all 32 golden hunks; compared descriptions to src/orqlet/workflow/skills/*/skill.md
+    result: pass
+  - what: checks run by me
+    how: none; read-only session, no shell
+    result: not-run
+  - what: ruff, mypy, import-linter, pytest
+    how: only as claimed in tests/P-3.yaml
+    result: not-run
+  - what: full pytest incl. integration/e2e/fault
+    how: not in the record; static search only (F-1)
+    result: not-run
+  - what: quote digests for evidence
+    how: orqlet evidence cite not available here
+    result: not-run
+  - what: review_input component digests
+    how: not recomputed
+    result: not-run
+  - what: goldens regenerated locally with --update-golden and never in CI
+    how: the packet cannot show this; I checked the bytes only
+    result: not-run
+  - what: docs/design/orqlet-architecture-proposal.md
+    how: omitted from the packet as over the limits, so any statement there that front-matter strings are always quoted was not examined
+    result: not-run

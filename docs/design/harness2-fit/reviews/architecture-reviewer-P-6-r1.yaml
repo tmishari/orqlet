@@ -1,0 +1,153 @@
+schema: orqlet.review-result/v1
+task: harness2-fit
+phase: P-6
+role: architecture-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  schema: orqlet.review-input/v1
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  components:
+    code_tests: 7cb003a422c9b497e7a28e8b6a03c5085d707bcba84366da2ec76b26534ec165
+    design: af2ae4a8d23cdc477ccb7e76627628491cdd71baf8c6e3e5fa486b2fa65819ac
+    evidence_inputs: 02202fb903152558ba7cd9404020a5c4ff238c3c60e06c4dbee9d2d4d54f14f3
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 2f4d690be243ae8b9b20b573c59499cac9ff42ef2348fa880b5e7330d3c9ead2
+    reviewer_definition: 340c9ce62dce3ba2907f9e6e42d6f028f0e2617c1ef5e2fb0b52e170f54c6bb1
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  digest: 6603b40c9a03624125b01a4ef946b7bb2de46238de7dd6f94ce0f5b8497cbc59
+  merge_base: ec7de9f090a005354d6111672736e1f81e1d350a
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: d07a4aa80f9fdb8e5220c9ec8842a3d694df3ab29747a19229b13cd20b071990
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; its shell was unavailable, so it ran no check and recomputed no digest.
+- Quote digests were not computed, so each finding rests on an absence record or is an observation.
+- Cursor used the repository's current agent definition, which is the post-change file, while this record binds the definition in the reviewed tree.
+- The model that ran the reviewer is not observed.
+- The reviewer could not tell which version of its own agent definition (the quoted one at HEAD or the staged one) its session loaded; only the front matter differs, not the body.
+applicability:
+  examined:
+  - .claude/skills/orqlet-research/SKILL.md
+  - AGENTS.md
+  - .orqlet/generated.lock.yaml
+  - .orqlet/workflow.lock
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: tests
+  rule_ref: ORQLET-QA-001
+  evidence:
+  - kind: absence
+    searched:
+    - docs/design/harness2-fit/tests/P-6.yaml
+    method: read both lists (commands and acceptance_coverage) for the ids schemas, manifest, pytest-matrix, orqlet-upgrade-dry-run and orqlet-gate-status, and for any pytest run beyond tests/unit and tests/contract
+    revision: 1ed2087d017f1901c2a727480ccbaf75d447ecc2
+  claim: The record holds one pytest run, tests/unit and tests/contract only (1797 passed). The plan's P-6 checks also name schemas, manifest, pytest-matrix, orqlet-upgrade-dry-run and orqlet-gate-status. The record has no command entry for any of them. The dry-run, gate-status and matrix ACs are listed as not-run, but the schemas and manifest checks that AC-6 names are neither run nor listed as not-run. AC-6 (full suite, schema check and manifest check on every supported Python) is therefore not shown, and ORQLET-QA-001 is not yet met. The NOT_RUN verdict states this correctly and nothing is claimed as passed.
+  suggested_action: Before the PR is ready, run the full suite on Python 3.12 to 3.15, `tools/export_schemas.py --check` and `tools/build_manifest.py --check`. Add them to the record, or list schemas and manifest as not-run.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: finding
+  severity: non-blocking
+  category: tests
+  evidence:
+  - kind: absence
+    searched:
+    - docs/design/harness2-fit/tests/P-6.yaml
+    method: looked for the codes or text of the two orqlet-doctor warnings
+    revision: 1ed2087d017f1901c2a727480ccbaf75d447ecc2
+  claim: 'AC-3 is recorded as `pass` on `orqlet-doctor`, which exited 1 with 0 errors and 2 warnings that the record does not name. From the packet they are most likely ORQ-W180 and ORQ-W181. The profile has `status: draft` (.orqlet/project-profile.yaml:12) and `reviewers` and `merge_strategy` are `unknown` (lines 50-51), and those two checks run only in doctor (diagnose.py:109-124). `orqlet sync` runs the drift, version, journal and standards-lock checks and reports 0 warnings and 0 errors. Its 4 notes match one ORQ-I201 and three ORQ-I202 for the three enabled clients. Doctor''s 2 notes match ORQ-I200 and ORQ-I030, and the packet holds no CODEOWNERS file. So ''no drift and no new error'' is supported, but only by this inference.'
+  suggested_action: Name the two doctor warnings in the record or in the completion note, so the pass does not rest on inference.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: finding
+  severity: non-blocking
+  category: compatibility
+  evidence:
+  - kind: absence
+    searched:
+    - src/orqlet/application/usecases/diagnose.py
+    method: read `_version_findings` for any finding raised when .orqlet/versions.yaml names a lower workflow version than .orqlet/workflow.lock
+    revision: 1ed2087d017f1901c2a727480ccbaf75d447ecc2
+  claim: '`.orqlet/versions.yaml` still says workflow 0.3.0, digest afeefefe114234f4…, floor 0.3.0. `.orqlet/workflow.lock` now says 0.3.1 and 5d6807e85ea2a256…. This is as planned: the plan never edits versions.yaml, and the change adds the proposal `.orqlet/proposals/.orqlet__versions.yaml.diff`. The proposal''s new digest equals the one in workflow.lock and its hunk header counts are correct. But neither `doctor` nor `sync` will report the gap. ORQ-W166 fires only when both files name the same version (diagnose.py:266-278), and ORQ-E163 only when the installed version is below the floor. The plan''s AC-3 expects ''any finding about versions.yaml'' to be listed, and there is none to list. The proposal file and the plan''s completion line are the only reminders. Applying the proposal also raises the floor to 0.3.1.'
+  suggested_action: Have the person apply or decline the proposal with this change and record which in the completion note. Do not rely on doctor to remind them.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: finding
+  severity: info
+  category: docs
+  evidence:
+  - kind: absence
+    searched:
+    - diff.patch
+    method: looked for docs/design/harness2-fit/as-is.md, design/** and plan.yaml among the changed paths
+    revision: 1ed2087d017f1901c2a727480ccbaf75d447ecc2
+  claim: After this change the task's own AS-IS, design and plan are stale for `workflow_version` (their headers say 0.3.0) and for `protected_set_digest` (49ef4cd5…), because the rendered hashes of the protected skills, agents and AGENTS.md block changed in generated.lock.yaml. None of those artifacts is in the diff, so the staleness is not hidden (AC-4). considerations.md (Compatibility) says the plan must state how a person refreshes a stale artifact. The P-6 plan says only that the person decides about re-approving them. The 'completion note' that AC-4 requires is not in the staged tree, and the built code has no refresh step.
+  suggested_action: Record ORQ-W390 and its reasons in the completion note. State for the person how the three artifacts are to be re-approved.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: standards
+  rule_ref: ORQLET-DET-001
+  evidence: []
+  claim: Scope and content hold against the merge base. The 31 files of the P-6 file list changed. The only two additions are docs/design/harness2-fit/tests/P-6.yaml and knowledge/P-6.yaml, which implement skill steps 6 and 7 require. No rule file, Codex role, Codex sidecar, Cursor command, golden, source file or test file changed. Every changed hunk touches only front-matter lines, apart from the one workflow-marker line in AGENTS.md and in the PR template. The research description in the generated files equals the source skill.md. All 28 changed generated files have the same SHA-256 as the goldens regenerated in P-3 and as `rendered_sha256` in the lock. Unchanged files such as the rule files, Codex TOML roles, sidecars and Cursor commands also equal their goldens. Every changed unquoted value fits the ADR-001 allow-list. No `0.3.0` remains in .orqlet/ except versions.yaml and the proposal's removed lines.
+  suggested_action: None.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+  checks:
+  - what: change stays inside the P-6 file list
+    how: compared the 33 `diff --git` headers with the 31 file operations of P-6 plus the two phase records
+    result: pass
+  - what: AC-2 byte-identity outside the list
+    how: the diff against the merge base has no rule, Codex, sidecar, Cursor command, golden, source or test path; this stands in for the backups comparison, which is not in the packet
+    result: pass
+  - what: generated files equal the renderer output
+    how: compared packet MANIFEST SHA-256 of the 28 changed files with the goldens and with rendered_sha256 in .orqlet/generated.lock.yaml
+    result: pass
+  - what: workflow 0.3.1 consistent across .orqlet
+    how: read workflow.lock, identity.json, workflow MANIFEST.json, the lock inputs and the AGENTS.md and PR template markers
+    result: pass
+  - what: knowledge-impact record is accurate
+    how: checked sources [], write_scope [] and knowledge_scope []; ADR-001 consequences and the manifest compatibility note support the no-impact claim
+    result: pass
+  - what: tests meaningful and cover the criteria
+    how: AC-3 is covered by sync and doctor results with an inference gap (F-2); AC-1, AC-2, AC-4, AC-5 and AC-6 are not run; schemas and manifest have no entry (F-1)
+    result: not-run
+  - what: ACs run by the person (AC-1 preview approval, AC-5 Cursor behaviour)
+    how: no evidence in the packet
+    result: not-run
+  unverified:
+  - 'ORQLET-SAFE-001 and AC-1: whether `orqlet upgrade` wrote the files after an approved preview, journalled. The journal and preview are not in the packet. The lock hashes and goldens agree, which is consistent with generated output but does not prove it.'
+  - Workflow digest 5d6807e8… was not recomputed. The reviewer relied on the recorded `orqlet sync` and `orqlet upgrade --check` results (claimed evidence) and on the absence of ORQ-E161.
+  - AC-5 and the Cursor reading of unquoted names.
+  - SHA-256 of the packet's context files was not recomputed; hash strings in MANIFEST.json were compared only.
+  - docs/design/orqlet-architecture-proposal.md is omitted from the packet (P-5's file) and was not examined.
+  - Security risk was not assessed. That is the security reviewer's field.

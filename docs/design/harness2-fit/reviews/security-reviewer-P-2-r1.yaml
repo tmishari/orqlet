@@ -1,0 +1,185 @@
+schema: orqlet.review-result/v1
+task: harness2-fit
+phase: P-2
+role: security-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  schema: orqlet.review-input/v1
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  components:
+    code_tests: 1cde72e851aea3bb6f9f0458ff1d8a1ba4a5a63ada87bb6207434be18dc3617e
+    design: af2ae4a8d23cdc477ccb7e76627628491cdd71baf8c6e3e5fa486b2fa65819ac
+    evidence_inputs: 57de83289dda97372a43a73a4a4a5dddd11e8fdfd8dd39c7b70db333e52e6a64
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 2f4d690be243ae8b9b20b573c59499cac9ff42ef2348fa880b5e7330d3c9ead2
+    reviewer_definition: ce7367088aa582a08161a844d3693d3df22bfedca60ffab5a82bd453966f12d4
+    standards: a890bfe048dcd9f6d02a07460914ce1da9eaa59ffb0b1a89eed8a012cdca071e
+  digest: 8218dee10b99140a2e27ec8733d37e6a98fc6882fd3537648a0c84deaac61972
+  merge_base: 8fefb0d09defa0a69a3f5fe4f7144fbd253e9583
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: 1a386dd0b99cc497a008a60a4f2640ab27278781dc3ff1b551af3117ae8548d9
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; its shell was unavailable, so it ran no check and recomputed no digest.
+- Quote digests were not computed, so each finding rests on an absence record or is an observation.
+- Cursor used the repository's current agent definition, which is the post-change file, while this record binds the definition in the reviewed tree.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the earlier design-phase review notes (the known gap that ADR-002 closes), and the reviewer read the design-phase security note, so it was not fully context-clean.
+applicability:
+  examined:
+  - src/orqlet/workflow/skills/orqlet-research/skill.md
+  - src/orqlet/workflow/identity.json
+  - src/orqlet/workflow/MANIFEST.json
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: 'Approval of this change is not evidenced in the packet. The plan header says `status: draft`, and so does the design manifest header. The plan''s self_check says the design was approved because "the person confirmed in this session ... this repository has no commit or remote to show it". The packet has no plan approval record. P-2 changes the protected workflow set, which moves `protected_set_digest`. The design and plan both bind 49ef4cd5...; they become stale after P-2, as ADR-001 and plan P-6 AC-4 already say.'
+  suggested_action: The person confirms that design and plan approval exist, and where, before P-3 starts. Until then this is unknown, not passed.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: tests
+  evidence: []
+  claim: 'test-record.yaml says `verdict: NOT_RUN` and `evidence_kind: claimed`. Its pytest entry covers only "tests/unit and tests/contract". Integration, e2e, fault and the Python version matrix were not run. That includes tests/integration/test_golden_policy.py, which checks that `--update-golden` is refused in CI. AC-1 and AC-3 are `not-run`. I treated none of the claimed passes as evidence. I checked the golden changes by reading the diff.'
+  suggested_action: Run the full suite and the check named for AC-3 (`review:golden-diff`) before this phase is called passed.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: security
+  rule_ref: ORQLET-DET-002
+  evidence: []
+  claim: The release gate cannot detect an edit of workflow text at 0.3.x. releases.json holds only 0.1.0 (lines 1-10). In check_release_history (domain/versions.py:56-83), `seen.get("0.3.1")` is None, so no digest comparison happens. `tools/build_manifest.py --check` proves that the manifest matches the files, not that the files are the approved ones. For this phase the real control is review. design/considerations.md:18 acknowledges the gap. It is not introduced by this diff.
+  suggested_action: No action in P-2. Record the 0.3.x release in releases.json when the person releases it, as the design says.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: security
+  evidence:
+  - kind: absence
+    searched:
+    - diff.patch
+    method: Case-insensitive search for AKIA, ghp_/gho_, sk_live/sk_test, AIza, eyJ..., BEGIN ... PRIVATE KEY/CERTIFICATE, password, secret, api key, bearer, /Users/, /home/, e-mail shapes. A second search for non-ASCII characters. No match in either.
+    revision: 3ac5b96d17df803ce133c261688ec7fb164bcf78
+  claim: No secrets, tokens, keys, certificates, absolute paths, user names or e-mail addresses were found in the diff, including both new records.
+  suggested_action: None.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: security
+  evidence:
+  - kind: absence
+    searched:
+    - diff.patch
+    - snapshot/src/orqlet/workflow/skills/orqlet-research/skill.md
+    method: 'Compared old and new line. Same content: one concise AS-IS file, verified facts and their evidence, every unknown and contradiction, ''Use only when the person runs it''. `: ` replaced by `, with ... and their evidence,`. No new URL, command, path or imperative. The body is unchanged. `disable-model-invocation: true` is still in all three goldens (line 4). The new string has no `: ` and no ` #`, and is about 150 characters.'
+    revision: 3ac5b96d17df803ce133c261688ec7fb164bcf78
+  claim: The reworded `orqlet-research` description changes no behaviour or instruction. The design security note's rounds 2 and 3 had said they did not check this text.
+  suggested_action: None.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: info
+  category: security
+  rule_ref: ORQLET-SEC-003
+  evidence:
+  - kind: absence
+    searched:
+    - diff.patch
+    - snapshot/src/orqlet/workflow/MANIFEST.json
+    method: MANIFEST.json changes only the `identity.json` hash, the `skills/orqlet-research/skill.md` hash and `workflow_version` (0.3.0 to 0.3.1). identity.json changes only `workflow_version`. Both new hashes equal the digests the packet MANIFEST records for those snapshot files (0f3bad36..., 84be5b0a...). All other listed digests visibly match the packet digests. `controls_level` stays 3 and the floor in versions.yaml stays 0.3.0, so no downgrade or weakening. Digests are SHA-256 only.
+    revision: 3ac5b96d17df803ce133c261688ec7fb164bcf78
+  claim: 'The manifest and identity change only by the two planned hashes and the version: nothing is weakened.'
+  suggested_action: None.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: info
+  category: security
+  evidence:
+  - kind: absence
+    searched:
+    - diff.patch
+    - context/plan.yaml
+    method: '12 modified files equal the 12 planned operations; the two extra files are the P-2 test and knowledge-impact records. No `src/**/*.py`, pyproject.toml, uv.lock, CI workflow, .orqlet state or rule file is in the diff. The 9 golden changes are single-line: 3 research descriptions and 6 `workflow@0.3.1` markers. The marker digests `#25f4cdb3...` and `#e87889ff...` are unchanged.'
+    revision: 3ac5b96d17df803ce133c261688ec7fb164bcf78
+  claim: 'No file, code or dependency outside the plan changed: no new process, file system, parsing or network code.'
+  suggested_action: None.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-8
+  kind: observation
+  severity: info
+  category: security
+  evidence:
+  - kind: absence
+    searched:
+    - context/knowledge-impact.yaml
+    - docs/design/harness2-fit/knowledge/P-2.yaml
+    method: '`entries: []` and `outcome: no-impact`. The only free text is a generic reason, and two repo-relative references whose sha256 values match the packet digests for ADR-001 and manifest.yaml. No knowledge draft exists to disclose anything.'
+    revision: 3ac5b96d17df803ce133c261688ec7fb164bcf78
+  claim: The knowledge-impact record and the knowledge file disclose nothing private.
+  suggested_action: None.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet read
+    how: MANIFEST.json, diff, plan, test record, knowledge-impact, standards rules, design security note
+    result: pass
+  - what: diff scope against plan file_operations
+    how: file list and header comparison
+    result: pass
+  - what: secrets and private data scan of the diff
+    how: pattern search, see F-4
+    result: pass
+  - what: SHA-256 recomputation of changed files
+    how: shell is refused in this read-only mode; compared against packet and manifest values only
+    result: not-run
+  - what: '`orqlet standards for --phase implement --role security-reviewer`'
+    how: refused in this mode; read context/standards/rules.yaml instead
+    result: not-run
+  - what: tests, linters and `tools/build_manifest.py --check`
+    how: not run by this review; the test record is claimed
+    result: not-run
+  - what: client behaviour (Cursor, Claude Code, Codex reading the reworded description or the unquoted form)
+    how: not observable here
+    result: not-run
+  unverified:
+  - Whether the person approved the design and the plan (F-1).
+  - The contents of `.orqlet/proposals/*.diff` in the snapshot (the packet shows `(omitted)`) and docs/design/orqlet-architecture-proposal.md (omitted for size). P-2 does not touch either.
+  - 'P-3 onward: the emitter predicate (the earlier SR-11 and SR-15 concerns) and the P-6 upgrade are not in this diff.'

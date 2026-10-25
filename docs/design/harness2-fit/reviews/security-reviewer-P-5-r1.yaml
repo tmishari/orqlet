@@ -1,0 +1,182 @@
+schema: orqlet.review-result/v1
+task: harness2-fit
+phase: P-5
+role: security-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  schema: orqlet.review-input/v1
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  components:
+    code_tests: 99ef2dcbcf5fca7632a796085bea878f1d8ebb5a1628955d1ea427ac8b356d09
+    design: af2ae4a8d23cdc477ccb7e76627628491cdd71baf8c6e3e5fa486b2fa65819ac
+    evidence_inputs: a8b64f7e65b10448b1108e8e8b6dbb6a4acf219cbbe0efa527af98203cc18145
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 2f4d690be243ae8b9b20b573c59499cac9ff42ef2348fa880b5e7330d3c9ead2
+    reviewer_definition: ce7367088aa582a08161a844d3693d3df22bfedca60ffab5a82bd453966f12d4
+    standards: a890bfe048dcd9f6d02a07460914ce1da9eaa59ffb0b1a89eed8a012cdca071e
+  digest: 76a69cab760a58217bcc5fca37d6565b52072130efa4d0def88d1d2e7e947f63
+  merge_base: 7922ac6e75d98e3afdf3d0cb0f379eb71eb0ce74
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: 1a386dd0b99cc497a008a60a4f2640ab27278781dc3ff1b551af3117ae8548d9
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; its shell was unavailable, so it ran no check and recomputed no digest.
+- Quote digests were not computed, so each finding rests on an absence record or is an observation.
+- Cursor used the repository's current agent definition, which is the post-change file, while this record binds the definition in the reviewed tree.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the earlier design-phase review notes (the known gap that ADR-002 closes), and the reviewer read the design-phase security note, so it was not fully context-clean.
+- The packet omitted the proposal, so the reviewer ran the whole-document search of AC-3 on the unbound workspace copy.
+applicability:
+  examined:
+  - docs/design/orqlet-architecture-proposal.md
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: security
+  evidence:
+  - kind: absence
+    searched:
+    - diff.patch
+    method: Read the added packet-rule text (diff.patch:117-133) for `full-tree`, `context_mode` and `review_context`. None is in the new text. The only `review_context` hit is an unchanged table row at diff.patch:101.
+    revision: ec7de9f090a005354d6111672736e1f81e1d350a
+  claim: 'The text says its aim is that no design-review note reaches another reviewer through the tool (diff.patch:117). The limits list names `--context` (:131) but not `packet.context_mode: full-tree` or a `review_context` path that names a note. In the proposal''s context rule (workspace copy, line 1317, unbound) full-tree makes every file except evidence artifacts a `context` member. A design-review note matches none of the three evidence patterns, so it would be handed over. Design review SR-3 (security-reviewer-design.md:22) named both routes.'
+  suggested_action: 'Add `context_mode: full-tree` and `review_context` paths that name a note to ''What the rule does not catch'', or narrow the aim sentence to the `design` member and the `diff`.'
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: finding
+  severity: non-blocking
+  category: failure-handling
+  evidence:
+  - kind: absence
+    searched:
+    - diff.patch
+    - snapshot/docs/design/harness2-fit/design/adr-002-packet-member-assertion.md
+    method: Read rule 3 (diff.patch:121) and ADR-002 decision 3. Neither says what makes a path that cannot be parsed count as 'at a review-record path'.
+    revision: ec7de9f090a005354d6111672736e1f81e1d350a
+  claim: Rule 3 lists 'a path that cannot be parsed' as a refusal case. There are two readings. (a) Any changed path that fails `CanonicalPath.parse` stops the packet, so one odd file name anywhere blocks every review of the branch. Today `review_prepare.py:114-118` skips such names with an info line. (b) Only names that look like a record path stop it. Rule 5 makes case variants ordinary inputs, so the text must then say how 'looks like' is decided.
+  suggested_action: State the test in the rule, and say whether the broader refusal is intended.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: finding
+  severity: non-blocking
+  category: security
+  evidence:
+  - kind: absence
+    searched:
+    - snapshot/src/orqlet/application/usecases/**
+    method: 'Case-insensitive search for secret|disclos|credential|token. No disclosure lint exists. The only hits are unrelated: knowledge_impact.py:3 and expected_change.py:112,125.'
+    revision: ec7de9f090a005354d6111672736e1f81e1d350a
+  claim: Rule 2 leaves a valid review record out of the `diff`, so no AI reviewer reads its free text. The proposal says the secret and disclosure lints cover evidence free text 'because it is not otherwise reviewed as code' (diff.patch:135, unchanged). The built validators have no such lint. ADR-002's consequences say so, but the new proposal text does not.
+  suggested_action: 'Add this consequence to the limits list: valid record text is read only by the human approver and by a lint that does not exist yet.'
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: finding
+  severity: non-blocking
+  category: failure-handling
+  evidence:
+  - kind: absence
+    searched:
+    - MANIFEST.json
+    method: 'The `files` list has no snapshot/docs/design/orqlet-architecture-proposal.md. `omitted` names it as over the packet limits. Cause: review_prepare.py:42 (MAX_FILE_BYTES = 1 MiB) and :125-126. The omission is reported only as ORQ-I440 info (:89-90).'
+    revision: ec7de9f090a005354d6111672736e1f81e1d350a
+  claim: The packet omitted the one file this phase edits. Reviewers see only the diff hunks (25 lines of context), and AC-3's whole-document search cannot be done from the packet. `review prepare` still succeeded. The rule is fail-closed for records, yet an over-limit changed file is dropped with an info message.
+  suggested_action: Outside P-5's scope. Raise it in the v0.5 packet plan (an omitted changed path should be NOT_RUN or a warning). For this phase the person or the parent should supply the document by another route.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: The packet handed to the reviewer holds design-review notes (MANIFEST.json lists snapshot/docs/design/harness2-fit/reviews/architecture-reviewer-design.md and security-reviewer-design.md). The reviewer opened the security note before forming findings. This is the leak the new packet rule describes, and the new text says the built tool has no assertion yet. Independence is I1 at best. No *-P-n-rk.yaml review result was in the packet.
+  suggested_action: Record the exposure in the review record.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: ADR-004 says Harness²'s unrestricted executor network is a weakness Orqlet must not inherit (as-is.md:181 and :202, H-10 and S-12). Section 21.7 rule 7 covers only where scorer artifacts are placed (diff.patch:161). It has no rule or 'does not cover' line for an executor reading outside its workspace or using the network, and 'holds by construction' can be read as isolation. It binds nothing until M7, so this is wording only.
+  suggested_action: Add a 'what these rules do not cover' line, as ADR-002 got.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: info
+  category: docs
+  evidence: []
+  claim: 'The proposal calls ADR-002 a ''decision'' (diff.patch:117) while the ADR file says `Status: proposed` and the design manifest header says `status: draft`. The plan records approval only as the person''s statement in session. AC-4 holds: nothing is presented as built.'
+  suggested_action: None needed. Mention it to the approver.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-8
+  kind: observation
+  severity: info
+  category: docs
+  evidence: []
+  claim: The knowledge-impact reason cites ADR-002 and ADR-004, but `already_documented_refs` lists only ADR-002 and the design manifest. ADR-004 (sha256 8520c5fe…, in MANIFEST.json) is the source of Section 21.7. The test record's verdict is NOT_RUN, and its 49-PASS script (the 'stand-in Tester') is not in the packet.
+  suggested_action: Add the ADR-004 ref. Do not rely on the proposal-read-through result.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-9
+  kind: observation
+  severity: info
+  category: docs
+  evidence: []
+  claim: AC-3's whole-document search ran on the workspace copy of the proposal, not on the packet. That copy contains the P-5 text at lines 1307, 1352 and 4453, matching the diff. No passage contradicting the new text was found; the other statements of the packet contents (lines 2109, 3154, 3418 and 3708) are consistent with it. The one tension is F-1. The copy could not be proved byte-identical to the staged blob. Treat AC-3 as answered on an unbound copy, not on the packet.
+  suggested_action: If packet-only evidence is required, record AC-3 as not-run.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: secrets in the change or the packet
+    how: pattern search over the whole packet, none found; manual read of the three changed files
+    result: pass
+  - what: knowledge and evidence text discloses nothing private
+    how: read the test record and knowledge-impact record; searched the diff for home paths, emails and URLs
+    result: pass
+  - what: digests other than SHA-256
+    how: searched diff.patch for sha-1 and md5; only the rejection at line 159
+    result: pass
+  - what: code, dependency or process change
+    how: diff headers list three docs and record paths only
+    result: pass
+  - what: AC-3 whole-document search of the proposal
+    how: Grep on the workspace copy, not on the packet; the proposal is omitted from the packet
+    result: not-run
+  - what: orqlet standards for
+    how: not run; shell refused in this mode. Read context/standards/rules.yaml (15 rules) instead
+    result: not-run
+  unverified:
+  - Whether the workspace copy of the proposal equals the staged blob (no hash computed).
+  - Any SHA-256 in MANIFEST.json, the records or the plan (none recomputed; two refs compared by eye).
+  - The tester's acceptance script and the claimed command results (not in the packet).
+  - The behaviour of any client, and the built `review prepare` beyond reading its source.
+  - The architecture-reviewer design note (I did not open it).
