@@ -1,0 +1,373 @@
+schema: orqlet.as-is-fragment/v1
+fragment_id: trace-rules-skills
+base_revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+scope:
+  paths:
+  - docs/design/orqlet-architecture-proposal.md
+  - src/orqlet/**
+  - tests/**
+  - tools/**
+  - .orqlet/**
+  - .claude/**
+  - .cursor/**
+  - .codex/**
+  - .agents/**
+  - .github/**
+  - docs/design/team-conventions-resources/evidence/**
+  request_ref: team-conventions-resources
+facts:
+- id: A-1
+  kind: flow
+  statement: '`read_text` raises `KeyError` for a path that is not an entry of the workflow manifest,
+    and `paths` returns only the manifest entries.'
+  evidence:
+  - path: src/orqlet/adapters/workflow_package.py
+    lines: 42-48
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 58e3c67ddd7bfea1bd576b4896e9d06a6846c21b1ceaa2b571436124521a1a6b
+- id: A-2
+  kind: flow
+  statement: 'The workflow rule is scoped by a meta file with `schema`, `name`, `description` and a `paths`
+    list of seven globs: `.orqlet/**`, `.claude/**`, `.cursor/**`, `.agents/**`, `.codex/**`, `.mcp.json`
+    and `AGENTS.md`.'
+  evidence:
+  - path: src/orqlet/workflow/rules/orqlet-workflow.meta.yaml
+    lines: 1-11
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 4daa1516e41e7d9af633994f91b45e5f1d5984fcd5a4ff3cde1832cc9d37ef65
+- id: A-3
+  kind: flow
+  statement: The render request builder reads the workflow rule meta and text through `read_text` and
+    puts a first `ScopedRule` with `FileClass.PROTECTED` into the list; its `paths` and `description`
+    come from the meta.
+  evidence:
+  - path: src/orqlet/application/usecases/render_request.py
+    lines: 54-71
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 2715451ed61e2c5917937b55f8f5ffe412530ac6492c5f28ffa1a29b53ff756c
+- id: A-4
+  kind: flow
+  statement: A rule of the resolved set becomes a scoped rule only when its level is `MUST` and `scope.paths`
+    is not empty; any other rule meets `continue`. The file name is the `rule_slug` of the id, a name
+    used twice raises `RenderRequestError`, and the docstring says an agent reads the other rules with
+    `orqlet standards for`.
+  evidence:
+  - path: src/orqlet/application/usecases/render_request.py
+    lines: 49-80
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 2e0018e6f432c4f0077aa8b4c54a78538dafc9c6112179cb9d49332c9b828cc0
+- id: A-5
+  kind: flow
+  statement: '`_pack_rule` builds the body from a heading with the rule id, a line with the level and
+    the text, optional `Roles:` and `Phases:` lines and a `Source:` line. The `description` is the id
+    and the text, the `paths` are the sorted scope paths and the class is `FileClass.GENERATED`.'
+  evidence:
+  - path: src/orqlet/application/usecases/render_request.py
+    lines: 133-148
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 378cbf1c2dc7c0ab14f4fbc57a4c579709a8c80c00ebe6aec2b607a7839b958d
+- id: A-6
+  kind: flow
+  statement: '`own_layers` loads the team''s rules from `rules.yaml` in the prompts folder (source name
+    `prompts`) and then from the file named by `PROJECT_RULES_PATH` (source name `project`); each file
+    is optional and a present one must be valid.'
+  evidence:
+  - path: src/orqlet/application/usecases/standards_for.py
+    lines: 183-197
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 2362b54474e5f0b4aa0d2bece075c457c9c430823235bf424f465d119655573a
+- id: A-7
+  kind: flow
+  statement: A rule has `id`, `level`, `waiver`, `scope`, `enforcement`, `check_ref`, `text` and `override`;
+    its `scope` holds `paths`, `roles` and `phases`, and `text` is a string.
+  evidence:
+  - path: src/orqlet/application/contracts/standards_pack.py
+    lines: 59-73
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 21e825559bbd00f0f6e7d41c5c120138d73b61d2d39b1b2d60d511acaa29c018
+- id: A-8
+  kind: flow
+  statement: '`build_render_request` is called once with the workflow, the loader and the resolved rules.
+    The result goes to the adapter of each client in `clients`, the files are merged with `merge_rendered`,
+    `seed_files` and the data files are appended, and paths listed in `released` are dropped.'
+  evidence:
+  - path: src/orqlet/application/usecases/render_all.py
+    lines: 113-126
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: c7e2a05b2e183641e572d58c7c77f0736845aabb650b33da22442d3e90325af0
+- id: A-9
+  kind: flow
+  statement: The Claude Code adapter returns the `agents_block`, `claude_bridge`, one `claude_rule` per
+    scoped rule, `claude_command` per command, `claude_skill_files` per skill and `claude_role` per role,
+    with the limit `ORQ-L001` (documentation based, not observed).
+  evidence:
+  - path: src/orqlet/adapters/clients/claude_code.py
+    lines: 15-34
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 09391a883f97b8f215dec4101132db1c09b4daa2b7612486dd9cf2e8c5998e0a
+- id: A-10
+  kind: flow
+  statement: The Codex adapter returns `agents_block`, `agents_skill_files`, `codex_sidecar` and `codex_role`
+    files; when scoped rules exist it adds `NO_PATH_RULES_LIMIT` (`ORQ-L002`), whose text says scoped
+    rules are not delivered as files and an agent reads them with `orqlet standards for`.
+  evidence:
+  - path: src/orqlet/adapters/clients/codex.py
+    lines: 19-53
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: e3ef4d29f8794357e523c7834c8e6a9d55a00d26cc480026f6fb8c463431882c
+- id: A-11
+  kind: flow
+  statement: The Cursor adapter returns `agents_block`, one `cursor_rule` per scoped rule, `cursor_command`,
+    `agents_skill_files` and `cursor_role` files; its limit `ORQ-L001` says the `globs` format of rule
+    files is unverified, and `ORQ-L004` says a skill may be listed twice when `.claude/skills` is also
+    read.
+  evidence:
+  - path: src/orqlet/adapters/clients/cursor.py
+    lines: 15-41
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: af9e70cbba771f1915827b7eb93b262b835f56ca196772e6a74aca78cd13e15e
+- id: A-12
+  kind: flow
+  statement: '`claude_rule` writes `.claude/rules/orqlet-<name>.md` whose only front-matter field is a
+    `paths` list of the rule''s paths, followed by the generated notice and the body.'
+  evidence:
+  - path: src/orqlet/adapters/render/rules.py
+    lines: 27-35
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: b36c20f37259fb980090daed0be756eb22c47d867b3085e7131c2fdea9569162
+- id: A-13
+  kind: flow
+  statement: '`cursor_rule` writes `.cursor/rules/orqlet-<name>.mdc` with the front-matter fields `description`,
+    `globs` (the rule''s paths) and `alwaysApply` set to false.'
+  evidence:
+  - path: src/orqlet/adapters/render/rules.py
+    lines: 38-44
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: c06d456b58fd1371212fe10d49a54cbfc803e8684c15ae942b4bc2bf229feced
+- id: A-14
+  kind: flow
+  statement: For each asset of a loaded pack, `team_template` hits `continue` when the `kind` is not `pr-template`;
+    a `pr-template` asset becomes the team pull-request template.
+  evidence:
+  - path: src/orqlet/application/usecases/render_all.py
+    lines: 134-144
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 18fe3ca21c85168971a57b6cb972f123ddfd90b0ddfd8ee4a618ea8a0ffbd09d
+- id: A-15
+  kind: flow
+  statement: 'The generated Claude Code file of a rule from the team''s prompts rules file has front matter
+    with only `paths` (here `src/orqlet/application/**` then `src/orqlet/domain/**`, sorted), the notice,
+    the heading `# ORQLET-ARCH-002`, the rule text and `Source: prompts`.'
+  evidence:
+  - path: .claude/rules/orqlet-orqlet-arch-002.md
+    lines: 1-12
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 59df725750da3a4299145aed1c4f87ec6f89585a89eae0f59162e6947772bd9c
+- id: A-16
+  kind: flow
+  statement: A knowledge source in the contract has a `kind` (`adr`, `module-card`, `docs` or `standards-reference`),
+    a `scope`, `globs` and a `pack` field for a `standards-reference` read from a hash-verified pack.
+  evidence:
+  - path: src/orqlet/application/contracts/knowledge_config.py
+    lines: 15-23
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 57f8f1501b7d34d6a2bb20e9355c9826650a61a4a163d978708958f53af610a5
+- id: A-17
+  kind: flow
+  statement: '`load_skills` builds one skill per `skills/<name>/skill.md` of the workflow package; it
+    requires the front-matter fields `name` and `description`, demands that `name` equals the directory,
+    renders the body through `render_steps` and takes the `.md` files of the skill''s `references/` folder
+    as references.'
+  evidence:
+  - path: src/orqlet/application/usecases/workflow_sources.py
+    lines: 104-137
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 226f4c3774d9a87505f236679a5afda0be17d1cc49e7e8254580c25e8711afef
+- id: A-18
+  kind: flow
+  statement: '`parse_source` reads one-line `key: value` front-matter fields and raises `SourceError`
+    for a missing block, a repeated field, a field outside the required and optional lists (`is not known
+    here`) and a missing required field.'
+  evidence:
+  - path: src/orqlet/application/usecases/workflow_sources.py
+    lines: 29-53
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 894cca8b35c0d3338e6c1d544b350ef4830166afa8723de7fa4dd3e58310241c
+- id: A-19
+  kind: flow
+  statement: '`render_steps` sets `dropping` for a line that ends in a marker comment according to whether
+    the marker''s command is in `available` (`requires` keeps the step when the command is present), cuts
+    the marker text from the line, stops dropping at a blank line or a line that does not start with a
+    space, then renumbers the list and collapses blank lines.'
+  evidence:
+  - path: src/orqlet/application/usecases/workflow_sources.py
+    lines: 24-75
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 1e9655818045eddf0cf9b5b1b9a8e5a0427475df95b4427370c923e12541aefa
+- id: A-20
+  kind: flow
+  statement: Each client skill is a `SKILL.md` with the front-matter fields `name`, `description` and
+    `disable-model-invocation`, then the generated notice and the body; strings are written bare when
+    they pass the `plain_when_safe` allow-list. Each reference is copied below the skill's `references/`
+    folder with the notice, and every skill file has `FileClass.PROTECTED`.
+  evidence:
+  - path: src/orqlet/adapters/render/skills.py
+    lines: 43-74
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: bfc3659f10f9078a99035ec7c2b88c2d4cff0df002d1003603b1a16ad05b085a
+- id: A-21
+  kind: flow
+  statement: Claude Code skills go to `.claude/skills/<name>/SKILL.md`; Cursor and Codex both read `.agents/skills/<name>/SKILL.md`,
+    which is one file for both clients; Codex also gets `agents/openai.yaml` with `allow_implicit_invocation`
+    set to false.
+  evidence:
+  - path: src/orqlet/adapters/render/skills.py
+    lines: 1-40
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 194f653dffb7324eb9894d858cea715b3eb4a50d3790207e048cdfcc094f6cea
+- id: A-22
+  kind: flow
+  statement: The baseline body becomes a managed block named `baseline` inside `AGENTS.md`; the block
+    records the workflow version and a digest of its body, and the file has owner `SHARED_BLOCK` and class
+    `PROTECTED`.
+  evidence:
+  - path: src/orqlet/adapters/render/instructions.py
+    lines: 12-34
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: efdd408560558e6d34d575b59e0e5b56594b5f7228c2787bc4146afd8a48f839
+- id: A-23
+  kind: flow
+  statement: '`seed_files` turns each workflow path that starts with `SEED_PREFIX` into a file under `.prompts`
+    (or the given base), read through `workflow.read_text`, with owner `OwnerMode.SEEDED` and `file_class`
+    `None`.'
+  evidence:
+  - path: src/orqlet/adapters/render/prompts_seed.py
+    lines: 12-32
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 372b2798738a6c08db03ed92552d9e8cd076defd4f1810188c09b5797cedba27
+- id: A-24
+  kind: flow
+  statement: '`_seeded` returns `NEW` for an absent file with no record; with a record, a file the team
+    deleted is `SEEDED_KEEP` (the comment says Orqlet never brings it back), and otherwise the result
+    is `SEEDED_PROPOSAL` when the new seed differs from the recorded seed and `SEEDED_KEEP` when it does
+    not, whatever the team edited in the file.'
+  evidence:
+  - path: src/orqlet/domain/classify.py
+    lines: 65-74
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 9db25331910b3e56ea8f15a8a4c3f34cca48a2cc35686cd1a8fba8ca9787f6b7
+- id: A-25
+  kind: flow
+  statement: An integration test adds rule `TEAM-001` with scope paths to the seeded `rules.yaml`; the
+    standards command then serves it, and after an `upgrade` a Claude Code rule file and a Cursor rule
+    file for `TEAM-001` exist while the rules file keeps the team's text.
+  evidence:
+  - path: tests/integration/test_prompts_seed.py
+    lines: 94-120
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 5b06e4bc3251541ab309327f3b99608eccfd531b6117bde108f32c644be141f8
+- id: A-26
+  kind: flow
+  statement: '`_extra_reserved_files` reports error `ORQ-E153` for every entry in the managed client folders
+    whose name starts with the reserved prefix (`RESERVED_PREFIX`) and that is neither recorded in the
+    manifest nor in the released set.'
+  evidence:
+  - path: src/orqlet/application/usecases/diagnose.py
+    lines: 187-212
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 3d4223ce5cfe344e718583d900dbfda99db1b3863a0d45b8afcd8db2564efd78
+- id: A-27
+  kind: flow
+  statement: '`release_file` refuses with `ORQ-E141` a file whose recorded class is `FileClass.PROTECTED`
+    and with `ORQ-E142` a file that was seeded.'
+  evidence:
+  - path: src/orqlet/application/usecases/release.py
+    lines: 46-65
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 66cf39ac4040b57f47eed3584c7c21e51a862a5d530597c523a8e9d8b21e3502
+- id: A-28
+  kind: flow
+  statement: When the standards lock records packs and no packs source is given, the upgrade stops with
+    `ORQ-E121` and tells the user to pass `--packs-dir` so the pack rules are rendered again.
+  evidence:
+  - path: src/orqlet/application/usecases/upgrade.py
+    lines: 81-92
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 2f604e249ff64a133794cc2543c5e8b91aaf69a0fbe36656e6d1ab183448b51e
+unknowns:
+- id: U-1
+  what: Whether Claude Code loads a file of `.claude/rules` only for the files that its `paths` front
+    matter matches. The adapter limit ORQ-L001 says the behaviour follows the published documentation
+    of 2026-10 and was not observed with a real client version (src/orqlet/adapters/clients/claude_code.py:15-19).
+  material: true
+- id: U-2
+  what: Whether Cursor accepts `globs` as a YAML list in `.cursor/rules/*.mdc` and attaches the rule by
+    it. src/orqlet/adapters/clients/cursor.py:15-19 says the `globs` format of rule files is unverified.
+  material: true
+- id: U-3
+  what: Whether Cursor and Codex both load skills from `.agents/skills`, whether Cursor lists a skill
+    twice when `.claude/skills` is also present, and whether Codex honours `agents/openai.yaml`. cursor.py:20-24
+    and codex.py:28-33 say these are documented but not observed.
+  material: true
+- id: U-4
+  what: 'Whether anything renders a pack''s `baseline` text, its `references` list or a `prompts-scaffold`
+    asset into a client file or into the prompts folder. Searched the words baseline_text, manifest.baseline,
+    references, scaffold, asset_files and `.assets` in src/**/*.py. Hits: the pack loader (src/orqlet/adapters/standards/pack_source.py:61-69),
+    the contracts (standards_pack.py:21, 52-54), `team_template` (render_all.py:134-144) and init_project.py:322,
+    which read `pr-template` assets only. No code reading `prompts-scaffold` was found.'
+  material: true
+- id: U-5
+  what: Whether a skill, command or role can be added from the repository's own files so that Orqlet renders
+    it for the clients. Searched skills, load_skills, load_roles, _commands and .claude/skills in src/**/*.py.
+    All three are read from the workflow package through `WorkflowSource`. `.prompts/rules.yaml` and `.orqlet/rules.yaml`
+    are parsed as `RuleFile`, which holds `rules` only (standards_pack.py:37-41).
+  material: true
+- id: U-6
+  what: How upgrade, doctor and review treat a team-written file under `.claude/`, `.cursor/` or `.agents/`
+    whose name does not start with the reserved prefix `orqlet-`. Searched RESERVED_PREFIX, _MANAGED_DIRECTORIES
+    and the string .claude/ in src/**/*.py and *.yaml. The reserved-prefix check (diagnose.py:187-212)
+    is the only name-based check found. The workflow rule text says these folders are generated by Orqlet
+    (src/orqlet/workflow/rules/orqlet-workflow.md:3-7).
+  material: true
+- id: U-7
+  what: 'How a rule names a longer Markdown document and whether anything reads it. src/orqlet/workflow/seeds/prompts/README.md:7
+    says to put longer explanations in Markdown files and name them from the rule. The `Rule` contract
+    has no field for a file or link (standards_pack.py:65-73). Searched foundations and .prompts in src/**/*.py:
+    only src/orqlet/application/usecases/review_prepare.py:48-53 lists `.prompts/foundations.md` (with
+    `.prompts/rules.yaml` and `.orqlet/rules.yaml`) among the standards files of the review packet. No
+    code that reads a Markdown file named by a rule was found.'
+  material: true
+- id: U-8
+  what: 'Whether `.orqlet/rules.yaml` (second own layer, source `project`) exists in this repository.
+    Searched the glob **/* under .orqlet/: no `rules.yaml`. The files found are versions.yaml, project-profile.yaml,
+    role-bindings.yaml, knowledge.yaml, standards.lock.yaml, generated.lock.yaml, workflow.lock and proposals/.'
+  material: false
+- id: U-9
+  what: 'Whether any adapter delivers the files named by the `.orqlet/knowledge.yaml` sources (kind `standards-reference`
+    with `pack`) to a client as a rule or skill. Searched the word knowledge in src/orqlet/adapters/**:
+    no file matches. The contract is at knowledge_config.py:15-23.'
+  material: true
+- id: U-10
+  what: 'What limits the three clients put on the number or size of rule files, skill descriptions and
+    the `AGENTS.md` chain. Searched tests for budgets: only test_clients_golden.py:130-133 (baseline block
+    under 32 KiB for Codex) and test_skills.py:133-137 (skill name up to 64 and description up to 1024
+    characters for the packaged skills) were found. The client limits themselves are not stated in the
+    code.'
+  material: true
+contradictions:
+- id: C-1
+  sources:
+  - src/orqlet/adapters/render/prompts_seed.py:15-16
+  - src/orqlet/application/usecases/render_all.py:185-198
+  - docs/design/orqlet-architecture-proposal.md:2328
+  note: The docstring of `seed_files` and the proposal text say a pack may supply its own seed (asset
+    kind `prompts-scaffold`). `render_all.seed_files` passes only `services.workflow` to `services.renderers.seed_files`,
+    and the pack asset code reads `pr-template` only. Not resolved.
+- id: C-2
+  sources:
+  - src/orqlet/workflow/baseline/baseline.md:25-27
+  - .orqlet/generated.lock.yaml:635-655
+  - src/orqlet/workflow/rules/orqlet-workflow.md:7
+  note: The baseline says files listed in `.orqlet/generated.lock.yaml` are generated and must not be
+    edited by hand. The lock lists the seeded `.prompts/` files (owner seeded), and the workflow rule
+    says a seeded file belongs to the team and may be edited freely. Not resolved.

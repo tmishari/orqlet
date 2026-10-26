@@ -1,0 +1,415 @@
+schema: orqlet.as-is-fragment/v1
+fragment_id: commands-cli
+base_revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+scope:
+  paths:
+  - docs/design/orqlet-architecture-proposal.md
+  - src/orqlet/**
+  - tests/**
+  - tools/**
+  - .orqlet/**
+  - .claude/**
+  - .cursor/**
+  - .codex/**
+  - .agents/**
+  - .github/**
+  - docs/design/team-conventions-resources/evidence/**
+  request_ref: team-conventions-resources
+facts:
+- id: A-1
+  kind: structure
+  statement: The Typer application `app` is created with `no_args_is_help=True`. The commands init, upgrade,
+    rollback, sync, doctor, explain and release are attached with `app.command`. The groups profile, standards,
+    validate, gate, evidence, knowledge and review are attached with `app.add_typer`.
+  evidence:
+  - path: src/orqlet/interface/cli/app.py
+    lines: 27-47
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 414be91c6a0570692f540ffb6cc9b7eb563307372f306f8a18018fcab9721b16
+- id: A-2
+  kind: interface
+  statement: '`IMPLEMENTED_COMMANDS` holds 22 names: init, upgrade, rollback, sync, doctor, explain, release,
+    profile answer, profile approve, standards for, validate as-is, validate design, validate plan, validate
+    ledger, gate status, evidence cite, evidence hash, knowledge impact, review prepare, validate review,
+    validate test and validate knowledge. `PLANNED_COMMANDS` is an empty frozenset whose comment says
+    nothing is planned at the moment. The set exists so that a skill step marked `requires:` is dropped
+    when its command is not listed.'
+  evidence:
+  - path: src/orqlet/application/usecases/capabilities.py
+    lines: 1-39
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: c2471b19295e485b5b00e41b536f28003a410460e5c3a7578474d56a1e50fbad
+- id: A-3
+  kind: test
+  statement: '`registered_commands` walks the Typer app, including nested groups, and strips a `_command`
+    suffix from function names. The test `test_the_list_of_implemented_commands_matches_the_application`
+    asserts that the result equals `IMPLEMENTED_COMMANDS`, so a command added to the app but not to the
+    set, or the reverse, fails.'
+  evidence:
+  - path: tests/integration/test_validate_cli.py
+    lines: 196-209
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: ae49115384fc2b4ca8cb8776176bad372e859e9832240186f2062769d8f01658
+- id: A-4
+  kind: interface
+  statement: A command group is a `typer.Typer` such as `profile_app` with `no_args_is_help=True`, and
+    its commands are functions decorated like `@profile_app.command("answer")`. `answer_command` takes
+    KEY=VALUE arguments plus the shared `RootOption`, `YesOption`, `DryRunOption` and `JsonOption`. It
+    defines an inner `action` that calls `answer_profile` with `build_init_services(root, None)` and passes
+    it to `execute("profile answer", action, as_json=json_output)`.
+  evidence:
+  - path: src/orqlet/interface/cli/commands/profile.py
+    lines: 27-55
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: d90804f7915f4e3d1286e003c43b8356dc8fff56ccc1204b51eb9bbe3dd8bd90
+- id: A-5
+  kind: flow
+  statement: '`_commands` makes one `ClientCommand` for each `commands/<name>.md` path of the packaged
+    workflow, in name order. It rejects a name that does not match `[a-z0-9][a-z0-9-]*` and takes the
+    description and body from `parse_command`.'
+  evidence:
+  - path: src/orqlet/application/usecases/render_request.py
+    lines: 99-117
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 2f4ab26a8073fd3cc8e60b75f2e08e5d5ec9a1b020f6724ea633bf548de65ad9
+- id: A-6
+  kind: flow
+  statement: '`claude_command` renders `.claude/commands/orqlet-<name>.md` with a description in the front
+    matter. `cursor_command` renders `.cursor/commands/orqlet-<name>.md` as plain Markdown. Both give
+    a `RenderedFile` with `OwnerMode.ORQLET` and `FileClass.GENERATED`. `_command_name` refuses a name
+    outside lower case letters, digits and hyphens.'
+  evidence:
+  - path: src/orqlet/adapters/render/rules.py
+    lines: 58-92
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: b74d020c90d4c981ab4ae6cd675ca7d9117ce916b794721bd910df5914235299
+- id: A-7
+  kind: interface
+  statement: '`CodexAdapter` adds the limit `NO_COMMANDS_LIMIT` (`ORQ-L003`, ''Orqlet does not write commands
+    for Codex in this release'') when `request.commands` is not empty.'
+  evidence:
+  - path: src/orqlet/adapters/clients/codex.py
+    lines: 24-44
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 5e6552c99e9bdce8af39596c3cf4b1c4203cd65afc69eb9228757268e7e46ae0
+- id: A-8
+  kind: flow
+  statement: A command builds a `CommandOutput` (data, human text, findings, not_run, exit_code) inside
+    an inner action and calls `execute`. `execute` maps an `OrqletError` to `ExitCode.REFUSED` with a
+    stable code and any other exception to `ExitCode.INTERNAL`. It then builds a `CliResult` with schema
+    `orqlet.cli-result/v1` and prints `render_json(result)` when `as_json` is set. Otherwise it prints
+    the human text and the findings on stderr, and finally raises `typer.Exit` with the code.
+  evidence:
+  - path: src/orqlet/interface/cli/runner.py
+    lines: 18-51
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: b18f99e4b44d340cd042965f24a8c9def0a8bb05f503d230710d506c6082330f
+- id: A-9
+  kind: interface
+  statement: '`ExitCode` is 0 OK, 1 PROBLEMS, 2 USAGE, 3 REFUSED, 4 NEEDS_INPUT (''a question is open
+    and there is no terminal to ask it''), 5 CHECK_FAILED and 70 INTERNAL.'
+  evidence:
+  - path: src/orqlet/interface/cli/exit_codes.py
+    lines: 6-13
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 97f98f5b0f5262ac86f053a80e9878de0a660c34aafaf9f51f7d6655e736491f
+- id: A-10
+  kind: structure
+  statement: The composition root has three builders. `build_services` gives project files, loader and
+    scanners. `build_validate_services` gives project, `GitVcs`, loader and the packaged workflow. `build_init_services`
+    fills the lifecycle services with a `YamlWriter`, the three client adapters (claude-code, codex, cursor),
+    journal, backup and lock stores in the user data directory, and `TtyPrompter(sys.stdin, sys.stdout)`.
+    `build_packet_store` gives review packets a folder in the data directory.
+  evidence:
+  - path: src/orqlet/interface/cli/wiring.py
+    lines: 54-135
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 9e5e12fdc87de376f972b7c9196b311ebcbefccd12154b1c8cfa0dfc4c55e40d
+- id: A-11
+  kind: flow
+  statement: '`apply_plan` holds `lock.hold()` and orders the writes with the `last` ones at the end.
+    It calls `_verify_unchanged`, which raises `PlanStale` when a file differs from what the plan was
+    made from. It backs up every file that existed and marks earlier open changes `superseded`. It records
+    the change with `journal.start`, writes with `write_atomic` or deletes each file, calls `journal.mark_done`
+    per file and `journal.finish` at the end.'
+  evidence:
+  - path: src/orqlet/application/usecases/apply_plan.py
+    lines: 25-77
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 76aef1363f9abc4547ee48a5e93e762154ac0d2b86676560a7e5b302fb36163a
+- id: A-12
+  kind: structure
+  statement: A `ChangePlan` holds items, `PlannedWrite` entries (path, kind, before and after hashes,
+    content, `is_proposal` and `last`) and `recorded_after`. Its `digest` identifies the writes, and `with_manifest`
+    appends the ownership manifest as the final write with `last=True` only if its content would change.
+  evidence:
+  - path: src/orqlet/domain/changeplan.py
+    lines: 91-140
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 41419c9f30ea87a1fd7e242e0a1282875b0910a9900fa2d4f2b658fc19cca116
+- id: A-13
+  kind: structure
+  statement: '`OwnerMode` has the values orqlet, shared-block, shared-entry, seeded and user. `FileClass`
+    has the values protected, generated and optional.'
+  evidence:
+  - path: src/orqlet/domain/ownership.py
+    lines: 6-17
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 326642e1474dca6f66703a27a714be18bebe058e3d0dc4fceeb87dc3fbc6486b
+- id: A-14
+  kind: structure
+  statement: The project's own rules say that imports point interface -> adapters -> application -> domain
+    (`ORQLET-ARCH-001`) and that application code reaches the outside only through ports (`ORQLET-ARCH-002`).
+    They also say that every write goes through a journalled change plan with a backup first and the manifest
+    last (`ORQLET-SAFE-001`). A change to the workflow package rebuilds `MANIFEST.json` and bumps the
+    version (`ORQLET-DET-002`). Anything that writes files has a fault test (`ORQLET-TEST-002`, checked
+    by `uv run pytest -m fault`).
+  evidence:
+  - path: .prompts/rules.yaml
+    lines: 10-127
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 50d90ec532d233f176667324ca6a35cd50a29232021c37270247ba1a93a8b94b
+- id: A-15
+  kind: operation
+  statement: '`compose` returns the `Desired` files of an installation. These are the files rendered by
+    each enabled client adapter, the pull-request template blocks, the seed files and the data files,
+    minus the released paths. The module defines the data paths `.orqlet/project-profile.yaml`, `.orqlet/generated.lock.yaml`,
+    `.orqlet/versions.yaml`, `.orqlet/role-bindings.yaml`, `.orqlet/standards.lock.yaml`, `.orqlet/workflow.lock`,
+    `.orqlet/released.yaml` and `.orqlet/knowledge.yaml`.'
+  evidence:
+  - path: src/orqlet/application/usecases/render_all.py
+    lines: 55-132
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: ddd2cc15c8138d6da8c6c03d8ac17a6ff1dd5bed573fa112935c4dc2b22b79d2
+- id: A-16
+  kind: operation
+  statement: '`init` returns `previewed` for a dry run. When the plan is not approved it returns `previewed`
+    if the prompter is interactive and otherwise `needs-input` with finding `ORQ-E115`. After approval
+    it calls `services.vcs.init_repository(branch)` when a repository is needed, then `apply_plan` with
+    `command="init"`. The result carries `open_now`, computed by `open_questions(profile)`, in every status.'
+  evidence:
+  - path: src/orqlet/application/usecases/init_project.py
+    lines: 177-214
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: d290213c0ec12a366cf92d39d645056a257d981a092e49dad3a3483f6e4d3128
+- id: A-17
+  kind: interface
+  statement: '`_exit_code` of `init` returns `ExitCode.NEEDS_INPUT` for status `needs-input` and `ExitCode.REFUSED`
+    for `refused` or an error finding. It returns `ExitCode.PROBLEMS` when a finding `ORQ-W080` exists
+    and `ExitCode.OK` otherwise.'
+  evidence:
+  - path: src/orqlet/interface/cli/commands/init.py
+    lines: 116-124
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 07cb9f7b7c68a2ed742e48fede07ec70c517bea8cf034adf5c8af2b25e23fcbd
+- id: A-18
+  kind: flow
+  statement: '`_draft_and_ask` drafts the profile, calls `questions_for`, then `collect_answers` with
+    `options.answers` and the prompter, and applies the answers. `_reviewer` returns the supplied `reviewer`
+    answer. Otherwise, when the prompter is interactive, it asks `Question` id `reviewer` through `prompter.ask`.
+    Without a reviewer the profile stays a draft because `approve` is not called.'
+  evidence:
+  - path: src/orqlet/application/usecases/init_project.py
+    lines: 230-273
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 730dfa7614c0051642f99dad33babda0116a2f43597927116454f4c289c42a81
+- id: A-19
+  kind: operation
+  statement: '`upgrade` renders again with `compose` and plans with `plan_changes` against `inst.recorded`.
+    It warns with `ORQ-W090` when changes are staged and returns `up-to-date` for an empty plan or `available`
+    when only checking. For a dry run or without approval it returns `previewed` on a terminal, otherwise
+    `needs-input` with `ORQ-E115` (''run again with --yes''). Otherwise it calls `apply_plan` with `command="upgrade"`
+    and reports the `resumed` change ids.'
+  evidence:
+  - path: src/orqlet/application/usecases/upgrade.py
+    lines: 97-181
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: bfc1d372204759c833477b5142b76d5b1a7dea5e8c13a7e0a9d4f111e72852e1
+- id: A-20
+  kind: operation
+  statement: '`rollback` reads the change journal (`ORQ-E132` when absent) and builds the reversal writes
+    with `_reversals`. It refuses with `ORQ-E133` when a file changed after the change and with `ORQ-E134`
+    when a backup is missing. It applies the reversals through `apply_plan` with `command="rollback"`
+    and marks the old change `rolled-back`. Without `--yes` and without a terminal it returns `needs-input`
+    with `ORQ-E115`.'
+  evidence:
+  - path: src/orqlet/application/usecases/rollback.py
+    lines: 48-104
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 7bbc6c040956111823ed02b801756ac985cfd819e5b8e605f54e8d7c2c35c5a1
+- id: A-21
+  kind: operation
+  statement: '`release_file` refuses without a reason (`ORQ-E143`), for a path outside the manifest (`ORQ-E140`),
+    for a protected file (`ORQ-E141`) and for a seeded file (`ORQ-E142`, ''it already belongs to the team'').
+    Otherwise it plans two writes, `RELEASED_PATH` and `LOCK_PATH` with `last=True`, and applies them
+    through `apply_plan` with `command="release"` after approval.'
+  evidence:
+  - path: src/orqlet/application/usecases/release.py
+    lines: 46-100
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 5645badb736fe7adcb6caa734554bfc73fd87c86a0459fda07b0918d49494bdd
+- id: A-22
+  kind: operation
+  statement: '`_commit` builds a `ChangePlan` directly, with two writes. One is `PROFILE_PATH` and the
+    other is `LOCK_PATH` with `last=True`, and the profile is recorded with `OwnerMode.SEEDED`. A dry
+    run returns `previewed`. Without approval an interactive prompter gives `previewed`, otherwise `needs-input`
+    with `ORQ-E115`. Otherwise it calls `apply_plan` with the given command. `_confirmed` asks `prompter.confirm`
+    ''Change the project profile?'' with a default of False and treats `NoAnswerAvailable` as no.'
+  evidence:
+  - path: src/orqlet/application/usecases/profile_edit.py
+    lines: 138-199
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: c0afa76a26465307c2d5aa2c4c4b509774e21a35afc250d1f384c0f5bd227db4
+- id: A-23
+  kind: interface
+  statement: The `Prompter` port has a property `interactive` ('False when there is no terminal to ask,
+    so a caller reports a question instead'), `ask` for a `Question` (id, text, options, default) and
+    `confirm` for a yes or no question. Both `ask` and `confirm` raise `NoAnswerAvailable` when not interactive.
+  evidence:
+  - path: src/orqlet/application/ports/prompter.py
+    lines: 10-33
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 0b22661a68b73ff247eb5ed870b2572044a9f9e91a1c376daf133c7f3a3f6ec7
+- id: A-24
+  kind: interface
+  statement: '`TtyPrompter` is interactive only when stdin and stdout are both terminals (`isatty`). `ask`
+    and `confirm` raise `NoAnswerAvailable` when it is not. `ask` asks again up to `_MAX_TRIES` (3) times
+    while the answer is outside `question.options` and then returns an empty string. End of input raises
+    `NoAnswerAvailable` with ''end of input''.'
+  evidence:
+  - path: src/orqlet/adapters/prompt/tty_prompter.py
+    lines: 9-52
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 39ebd119477acbef96fc642b3d7cce88602aea9f629df9f35e6bc472d04aa3a8
+- id: A-25
+  kind: flow
+  statement: '`ANSWER_KEYS` has nine keys: facts.python, facts.package_manager, facts.frameworks, project.kind,
+    structure.test_runner, repository.target_branch, repository.branch_naming, repository.commit_convention
+    and technologies. `questions_for` asks ''Which branch do pull requests target?'', a branch naming
+    rule and a commit message convention when their value is `None`. `collect_answers` takes a value given
+    with `--answer` first, asks only when `prompter.interactive` is true, and stops asking when `NoAnswerAvailable`
+    is raised.'
+  evidence:
+  - path: src/orqlet/application/usecases/init_questions.py
+    lines: 26-122
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 030f8391596bb8b90db6ec0b87eb889867b74c38e0f6493c6833ab666f29e398
+- id: A-26
+  kind: structure
+  statement: The profile contract keeps branch rules as `Repository` fields `target_branch`, `branch_naming`
+    and `commit_convention`. It keeps pull-request facts in `PullRequests`, whose `reviewers` and `merge_strategy`
+    both default to the string 'unknown'.
+  evidence:
+  - path: src/orqlet/application/contracts/profile.py
+    lines: 86-96
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: eec8e96706d46d088708f308448542bfaf919363c739929e121d56fcbc426ad5
+- id: A-27
+  kind: interface
+  statement: Section 23 of the architecture document calls itself a proposed surface and lists as built
+    the commands of the implemented set, including `profile answer|approve` and evidence cite and hash.
+    Its table lists unbuilt standards status, update, import and diff as 'later', knowledge refresh, search,
+    show, private add and promote as MVP-2, and source read and write as 1.0. It says that `profile answer|approve`
+    change tracked files (the profile) and that sync, doctor, explain, standards for, gate status and
+    review prepare write nothing in the repository.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 4544-4565
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 773faeabb11561f155b4b58c5eff8f4afc338c1b17e7b09d39e75062978e2b66
+- id: A-28
+  kind: interface
+  statement: Section 13.3 plans `orqlet standards import <link-or-file>`. It uses an Orqlet-owned allowlisted
+    fetcher (approved domains only) and stores a documentation pack with `SOURCE.yaml` (URL, applicable
+    version, retrieval date, owner, licence note, freshness TTL, content hash) plus extracted Markdown.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 2361-2363
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 48121e38141ee0187c92da112c422310f13f90a39e524d93606aac401d05109a
+unknowns:
+- id: U-1
+  what: 'Whether any implemented or planned command touches resources, links, documentation or conventions.
+    I searched src/orqlet/**/*.py for resource, bookmark, gitflow, git-flow, knowledge add, link, conventions,
+    hotfix, docs_url and documentation. I searched src/orqlet/workflow (not JSON) for resource, bookmark,
+    gitflow, knowledge add, hotfix, conventions and release flow. I searched tests, README.md, AGENTS.md,
+    pyproject.toml, .prompts and docs/design (outside mcp-or-plugins and team-conventions-resources) for
+    gitflow, git-flow, knowledge add, hotfix, bookmark, resource link and branch model. Hits were unrelated:
+    importlib.resources imports, the commit_convention fact in contracts/profile.py, symlink and documentation-extension
+    code, ''conventions'' in baseline.md line 9 and ''knowledge additions'' in the architecture document
+    line 3011. IMPLEMENTED_COMMANDS and PLANNED_COMMANDS (capabilities.py lines 12-39) list no such command.
+    The only planned command that takes a link is `standards import <link-or-file>` (F-28).'
+  material: true
+- id: U-2
+  what: Whether any command can set the pull-request merge strategy, reviewers, a branch model, gitflow,
+    or a release or hotfix flow. I searched merge_strategy in src/orqlet/**/*.py. It occurs only in contracts/profile.py
+    line 89 (default 'unknown') and in init_project.py line 331 (copied unchanged). ANSWER_KEYS (init_questions.py
+    lines 26-38) has no key for them. I searched the architecture document for gitflow, git-flow, hotfix
+    and branch model and found no hit. Line 2878 names 'Git branching and naming', 'commit conventions'
+    and 'PR templates, reviewers and merge strategy' as profile contents.
+  material: true
+- id: U-3
+  what: Which OwnerMode and FileClass a file written by a new command should take. No document or code
+    I read states it for a new file. The existing writers use OwnerMode.SEEDED for the profile (profile_edit.py
+    lines 150-155) and OwnerMode.ORQLET with FileClass.GENERATED for the released record (release.py lines
+    120-127). The SEEDED behaviour is in classify.py lines 65-74, which I read but did not cite as a fact.
+  material: true
+- id: U-4
+  what: 'Whether the write paths of profile answer, profile approve, release and rollback have a fault
+    test. ORQLET-TEST-002 (.prompts/rules.yaml lines 120-127) requires one for anything that writes files.
+    I listed tests/fault/*.py: only test_apply_kill_after_k.py (calls init_project) and test_upgrade_resume.py
+    (calls upgrade). Searching tests for answer_profile, approve_profile, release_file and rollback( found
+    hits only in tests/unit/application/test_profile_edit.py, test_lifecycle.py and tests/e2e/test_m1_acceptance.py.
+    I did not check whether those tests stop the write after each step.'
+  material: true
+- id: U-5
+  what: Where `standards import` is scheduled. Line 2350 says it is built later in Section 22, but my
+    search for 'standards import' found no text in Section 22 (lines 4474-4541). Hits were lines 2336,
+    2350, 2363, 2388, 4550 ('later (the rest)'), 4563, 5103 and 5381 (listed as 'unscheduled' among review
+    findings).
+  material: false
+- id: U-6
+  what: Whether the folder docs/design/team-conventions-resources/ (evidence/web/*.md, questions.yaml)
+    is committed. It exists in the working tree. I did not read it because it is outside my area and the
+    brief limited me to code and the architecture document.
+  material: false
+- id: U-7
+  what: Whether any code writes inside the repository outside apply_plan. I searched write_atomic|write_bytes|write_text|delete(|mkdir(
+    in src/orqlet/**/*.py. The only write into the project is apply_plan.py lines 69 and 73. The other
+    hits write to the user data directory (journal.py lines 89 and 98, review_prepare.py line 175 through
+    the packets store, wiring.py lines 78 and 85, apply_lock.py line 21). I did not search what the Git
+    subprocess calls (for example init_repository) create.
+  material: false
+- id: U-8
+  what: Whether `init` asks questions beyond those in F-18, F-25 and F-16. The code of `choose_pr_targets`
+    (init_files.py lines 151-181) asks which pull-request template files receive the Orqlet blocks when
+    several exist, and the confirmation 'Apply N file change(s)?' is asked in `_approved` (init_project.py
+    lines 338-345). Both were read but left out of the 28-fact cap.
+  material: false
+contradictions:
+- id: C-1
+  sources:
+  - docs/design/orqlet-architecture-proposal.md:2350-2350
+  - docs/design/orqlet-architecture-proposal.md:4563-4563
+  - src/orqlet/interface/cli/commands/init.py:21-60
+  note: The architecture document says that at first run `init` takes files, packs and links that the
+    maintainer names and stores them with SOURCE.yaml (line 2350). It also says `init` fetches a standards
+    repository or URL when given one (line 4563). The options of `init_command` are root, client, answer,
+    target-branch, git-init, new-project, name, prompts-dir, packs-dir (a folder), yes, dry-run and json.
+    I found no option that takes a link or URL, and SOURCE.yaml does not occur in src.
+- id: C-2
+  sources:
+  - src/orqlet/interface/cli/exit_codes.py:12-12
+  - src/orqlet/interface/cli/commands/validate.py:37-44
+  note: The comment of CHECK_FAILED says 'a read-only check (doctor, sync) found an error'. `output_of`
+    also returns CHECK_FAILED for validators when the verdict is FAIL or NOT_RUN, and the gate, evidence,
+    knowledge impact and review prepare commands use `output_of`.
+- id: C-3
+  sources:
+  - src/orqlet/workflow/schemas/orqlet.as-is-fragment.v1.json:79-79
+  - src/orqlet/workflow/skills/orqlet-research/references/as-is-format.md:26-26
+  note: The committed fragment schema requires fact ids matching A-<n>, an `evidence` list per fact, and
+    `base_revision` and `scope` on the fragment. The request for this fragment asks for ids F-<n> and
+    `path` and `lines` on each fact, and the role text (orqlet-inventory.md line 10) says the main agent
+    adds revision and sha256. I followed the request; the main agent has to map them when it saves the
+    fragment.

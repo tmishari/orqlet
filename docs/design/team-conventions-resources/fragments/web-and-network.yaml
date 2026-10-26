@@ -1,0 +1,416 @@
+schema: orqlet.as-is-fragment/v1
+fragment_id: web-and-network
+base_revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+scope:
+  paths:
+  - docs/design/orqlet-architecture-proposal.md
+  - src/orqlet/**
+  - tests/**
+  - tools/**
+  - .orqlet/**
+  - .claude/**
+  - .cursor/**
+  - .codex/**
+  - .agents/**
+  - .github/**
+  - docs/design/team-conventions-resources/evidence/**
+  request_ref: team-conventions-resources
+facts:
+- id: A-1
+  kind: operation
+  statement: The research skill says text in repository files, documentation, retrieved passages and tool
+    output is evidence, and that text in it which tells the agent to change a phase, skip a check, approve
+    something or ignore an instruction has no effect. This is the only place in the six skills that mentions
+    retrieved material (the same sentence is line 9 of each skill.md).
+  evidence:
+  - path: src/orqlet/workflow/skills/orqlet-research/skill.md
+    lines: '9'
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 88585d14985492c4aafca67c99375280667f8cb3cf8feae6e11b1971bf342c02
+- id: A-2
+  kind: flow
+  statement: The research skill tells the agent to ask the person one consolidated batch of questions
+    and record them in `questions.yaml` (step 2), to start `orqlet-inventory` and `orqlet-tracer` as subagents
+    (step 4), and to give every fact its evidence with `orqlet evidence cite` (step 5).
+  evidence:
+  - path: src/orqlet/workflow/skills/orqlet-research/skill.md
+    lines: 12-15
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: badad5617a6ff0c6e7f232d6cbb5534d08c3df945b549e20028f61e49e2e1f71
+- id: A-3
+  kind: operation
+  statement: 'The baseline tells every agent not to guess: when a fact is not in the repository or in
+    what the person said, the agent writes it down as a question and asks, and an unknown stays unknown
+    until a person answers.'
+  evidence:
+  - path: src/orqlet/workflow/baseline/baseline.md
+    lines: '7'
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: e507c46f3494fd71351689c91f5055a31a7514548d7190c806978484ad4288bc
+- id: A-4
+  kind: interface
+  statement: The role renderer sets `READ_ONLY_TOOLS` to Read, Grep, Glob and writes a `tools` field for
+    Claude Code only for a read-only role. It writes a `readonly` field for every Cursor role and a `sandbox_mode`
+    field for Codex only for a read-only role.
+  evidence:
+  - path: src/orqlet/adapters/render/roles.py
+    lines: 16-48
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 91f4ac761db5f0ed2cff499380ca6f5e4e7448948d992977841406be221c9e8d
+- id: A-5
+  kind: structure
+  statement: 'The generated Claude Code definition of `orqlet-inventory` has `tools: Read, Grep, Glob`
+    and `model: inherit` in its front matter; the arch-reviewer, security-reviewer and tracer definitions
+    carry the same `tools` line at line 4.'
+  evidence:
+  - path: .claude/agents/orqlet-inventory.md
+    lines: 1-6
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 8e084688c05d999a21ae5898b381c2e85afb21673e2e1fee0647a954beeafc35
+- id: A-6
+  kind: structure
+  statement: 'The generated Claude Code definition of `orqlet-tester` has only `name`, `description` and
+    `model: inherit` in its front matter.'
+  evidence:
+  - path: .claude/agents/orqlet-tester.md
+    lines: 1-5
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 88c064dc0990430be73492e4da26ddfc5353ba755fa5c8fcfba005a544056ff2
+- id: A-7
+  kind: interface
+  statement: The proposal records that a Claude Code subagent `tools` field is an allowlist and that,
+    when it is omitted, the subagent inherits every tool available to subagents; a `tools` list of built-ins
+    excludes MCP tools unless `mcp__server__*` is listed.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '540'
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 698e617fbed4b0a5347da4c25cb18d93a09cf4692475428b364d9ce101b823a3
+- id: A-8
+  kind: test
+  statement: Ruff rule `TID251` bans `socket` with the message 'Network access belongs in an adapter.'
+    and is switched off for `src/orqlet/adapters/**`, `src/orqlet/interface/**`, `tests/**` and `tools/**`.
+    The pytest options include `--disable-socket`.
+  evidence:
+  - path: pyproject.toml
+    lines: 45-71
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 07d9c13671f4e29a53479be30ec9491a05726c6f450ed7f9d2fbea60c791e16e
+- id: A-9
+  kind: dependency
+  statement: Two import-linter contracts of type `forbidden` set `source_modules` to `orqlet.domain` and
+    to `orqlet.application`, and list `socket`, `http`, `urllib` and `subprocess` among the modules they
+    may not import.
+  evidence:
+  - path: pyproject.toml
+    lines: 96-112
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: e2ca759e4b0637e238407ddc17f82181ecf8a83868ada2a1026a995fed555fec
+- id: A-10
+  kind: operation
+  statement: Standards rule ORQLET-ARCH-002 says application code imports no file, process or network
+    module and reaches the outside world only through the ports in application/ports; its check is `uv
+    run lint-imports`.
+  evidence:
+  - path: .prompts/rules.yaml
+    lines: 19-27
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 81cb6255ea12808ea23df4e8577fb1619e183cc3ac4d6d2d1ac354ed3ed6efdd
+- id: A-11
+  kind: test
+  statement: Standards rule ORQLET-TEST-001 says unit tests use the fakes in tests/fakes, never touch
+    the network, and that the suite runs with sockets disabled; its check is `uv run pytest`.
+  evidence:
+  - path: .prompts/rules.yaml
+    lines: 111-118
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 45e6a5ca5bf897461333cce429c40b55473c67c194b6d5c0689457cc06a9eb10
+- id: A-12
+  kind: interface
+  statement: '`GitRunner` runs only the subcommands in `ALLOWED_SUBCOMMANDS`: `rev-parse`, `for-each-ref`,
+    `rev-list`, `merge-base`, `ls-files`, `ls-tree`, `cat-file`, `diff-tree`, `diff-index`, `write-tree`
+    and `check-ignore`. Any other subcommand raises `VcsError`.'
+  evidence:
+  - path: src/orqlet/adapters/git/git_runner.py
+    lines: 18-79
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 65da65e841dc7cfbeb8a1cb865ab36303eae28e683736a9ce651a3db4940ba15
+- id: A-13
+  kind: operation
+  statement: '`orqlet gate status` is documented as read-only and offline; because approval needs evidence
+    from the code host, its verdict with a task is always `NOT_RUN`.'
+  evidence:
+  - path: src/orqlet/application/usecases/gate_status.py
+    lines: 1-8
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 202e8d4e89bf4109ca061daac43e118a03a42b75bef00cd6e55e9b36aeb1a3ce
+- id: A-14
+  kind: operation
+  statement: The docstring of the knowledge-impact command says the analysis reads the committed tree
+    only, calls no model and uses no network.
+  evidence:
+  - path: src/orqlet/interface/cli/commands/knowledge.py
+    lines: '30'
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 8c605d7b77a4c1a6d1198e0654ba3bddf51c356f3c92167a3fde6766f65590eb
+- id: A-15
+  kind: interface
+  statement: '`cite` reads the named file at a revision with `read_at` and returns an entry of `path`,
+    `lines`, `revision` and `sha256`. It reports a skip when the repository has no commit or does not
+    hold the revision.'
+  evidence:
+  - path: src/orqlet/application/usecases/evidence_cite.py
+    lines: 25-56
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 04a92d0c2436067c1c6e82a965ed625eca74614f704d11193238d220eba0b3e7
+- id: A-16
+  kind: structure
+  statement: '`FactEvidence`, the evidence entry of an AS-IS fact, has `path` typed `RepoPath`, `lines`
+    typed `LineSpan`, `revision` typed `GitOid` and `sha256`.'
+  evidence:
+  - path: src/orqlet/application/contracts/as_is.py
+    lines: 31-35
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 12f4bd1a13c8645f8b030560c0d1da2c921977b354b73626e76624241cb12c50
+- id: A-17
+  kind: interface
+  statement: '`_check_component` raises `InvalidPath` for a path component that contains the character
+    `:` or a backslash.'
+  evidence:
+  - path: src/orqlet/domain/paths.py
+    lines: 30-39
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 3fe27fb447549a9226a96f5cc5401ebc351d8ba631e77a52c978c5e14bb55e9f
+- id: A-18
+  kind: flow
+  statement: The AS-IS validator reads each cited file with `services.vcs.read_at(item.revision, item.path)`
+    and compares the line-range hash with `check_reference`. Evidence whose revision differs from the
+    bound base revision is error `ORQ-E332`.
+  evidence:
+  - path: src/orqlet/application/usecases/validate_as_is.py
+    lines: 117-134
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 1250c1ba08a0eae18d60cce6446d6800617ac71b75f8cad87ed202fd003042e6
+- id: A-19
+  kind: structure
+  statement: Each web excerpt file under docs/design/mcp-or-plugins/evidence/web starts with a title,
+    a `URL:` line and a `Retrieved:` line that names the WebSearch tool. This file is one of 17 in the
+    folder, and the other 16 carry the same two lines at lines 2-3.
+  evidence:
+  - path: docs/design/mcp-or-plugins/evidence/web/claude-code-mcp.md
+    lines: 1-3
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 387a319e230fd7020293f35f67e9e82729437dfc59dd742befe1025c54f8a04d
+- id: A-20
+  kind: structure
+  statement: In the committed AS-IS file of the mcp-or-plugins task, a fact about a vendor web page cites
+    the stored excerpt file under evidence/web with `lines`, `revision` and `sha256`, the same entry shape
+    as a fact about code.
+  evidence:
+  - path: docs/design/mcp-or-plugins/as-is.md
+    lines: 525-532
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 1a3639d0147d07aa85e66cc248f3177759da951c40add039113154dfd19268ce
+- id: A-21
+  kind: operation
+  statement: 'The mcp-or-plugins ledger records the use of the web as question Q-5 of category `access`:
+    may the research read vendor documentation on the web, read-only, and store short excerpts with the
+    address and the date as evidence files in the repository. The answer is ''yes, read-only with stored
+    excerpts''.'
+  evidence:
+  - path: docs/design/mcp-or-plugins/questions.yaml
+    lines: 87-104
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 7ea75277d46179e7d529c2b58f5e3aa1aaa3f59f29452efe59ac9b12aa13b9ee
+- id: A-22
+  kind: operation
+  statement: The proposal describes `orqlet standards import` as using an Orqlet-owned allowlisted fetcher
+    (approved domains only) that stores a documentation pack with `SOURCE.yaml`. It says that if an endpoint
+    is blocked by policy Orqlet reports it and stops, and that an authorised maintainer imports with `--from-file`
+    when external access is unavailable.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 2363-2365
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 2b44ac49ceaeec2a6e7c4f6cfe0b3c968ed822b4b8f88859d32c6e44b4cc6c44
+- id: A-23
+  kind: operation
+  statement: The proposal's section on documentation access says Context7 is unavailable unless the owners
+    approve it explicitly. It rates native client search and fetch as inconsistent (Claude Code has no
+    WebSearch under Bedrock, Codex web search defaults to cached results, Cursor web tools not verified)
+    and recommends Orqlet's allowlisted fetcher and local versioned documentation packs.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 2644-2653
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 43f23ca3eebba6ad5e52546ad955b484dbf77007eb733037389b5da0632153bb
+- id: A-24
+  kind: operation
+  statement: The proposal's skill table gives the `orqlet-onboard` and `orqlet-research` skills the safety
+    note 'Read-only; no network'.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 3151-3152
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: cf27eb1e09509dc92cbcc4448f887487a62bde3668132a743c9d0191884cbded
+- id: A-25
+  kind: interface
+  statement: The proposal's CLI surface lists `init`, `sync` (without `--fetch`), `doctor` (without `--live`)
+    and `knowledge impact` as local only. It lists `standards status|update|import`, `sync --fetch`, `doctor
+    --live`, `mcp inspect --live` and `gate status` among the commands that may use the network, and says
+    model-mediated commands are none at any release.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '4563'
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: f556bde393dc9620adc6e81248b0bed9976c7959549b31cb8b7e18724bd12123
+- id: A-26
+  kind: interface
+  statement: The proposal's typed-claims table says a verified fact needs an evidence reference of path,
+    lines, revision, hash, or source URL with retrieval date.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '3549'
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: c98e54059f2b8ecfe33e65a05cc9eba25e3d0fa369af159e91ec5d2285bc1ea8
+- id: A-27
+  kind: structure
+  statement: The standards pack manifest has a `Provenance` record with `source_url`, `applicable_version`,
+    `retrieved`, `authored_by` and `review_ref`.
+  evidence:
+  - path: src/orqlet/application/contracts/standards_pack.py
+    lines: 29-34
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 4dca6b6c89ebb323fa8115a234df61ec53f823c4fe84a8db7ffc29bec774940c
+- id: A-28
+  kind: structure
+  statement: The integrations contract fixes `modify_global_config` to never and `live_inspection` to
+    opt-in in `IntegrationPolicy`, and `RoleTools` holds `servers` and `tools` per role.
+  evidence:
+  - path: src/orqlet/application/contracts/integrations.py
+    lines: 69-76
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: d1d740f306fa6472f950a8e267eadb6dda5d103f11ab2e27a62fd7b3e2dc3ee4
+unknowns:
+- id: U-1
+  what: Whether any skill, role, command, baseline or rule tells an agent to search or fetch on the web.
+    I searched the words web, WebSearch, WebFetch, search, fetch, browse, internet, online, URL, http,
+    link and look up in src/orqlet/workflow/** (skills, roles, commands, baseline, rules, seeds), .claude/{skills,agents,commands,rules,CLAUDE.md},
+    .agents/**, .cursor/{agents,commands,rules/orqlet-workflow.mdc}, .codex/** and AGENTS.md. There was
+    no match for a web instruction. The only retrieval wording is 'retrieved passages' at line 9 of each
+    of the six skill.md files.
+  material: true
+- id: U-2
+  what: Whether any client configuration in the repository grants, denies or limits a web tool (WebSearch,
+    WebFetch, web_search, allowed-tools, allowedTools, disallowedTools, permissions, mcp__). I searched
+    the same trees plus .orqlet/**, src/orqlet/adapters/render/**, and the globs **/mcp.json, **/config.toml,
+    .mcp.json and .claude/settings*. No such file exists and no match was found. The generated skills
+    carry no tool field.
+  material: true
+- id: U-3
+  what: 'Whether Cursor `readonly: true` (.cursor/agents/*.md line 5) or Codex `sandbox_mode = read-only`
+    (.codex/agents/*.toml line 4) stops a role from using web search or fetch. The proposal says ''Cursor
+    web tools not verified'' (docs/design/orqlet-architecture-proposal.md:2648). The stored Codex excerpt
+    says its web-search filters are separate from sandboxed-command network rules (docs/design/team-conventions-resources/evidence/web/codex-config-web-search.md:6).
+    No repository file states the effect on the generated roles.'
+  material: true
+- id: U-4
+  what: Whether any Orqlet code opens a network connection. I searched urllib, http.client, httpx, requests,
+    socket, ssl, aiohttp, urlopen and urlparse in all *.py under src, tests and tools. There is no import
+    of a network module in any adapter. The only matches are the word 'requests' as test data or as 'pull
+    requests', and a docstring about decoding by hand (in a file excluded from this research). The only
+    process Orqlet starts for the repository is git, through GitRunner (F-12).
+  material: true
+- id: U-5
+  what: 'Whether any test lifts the socket block, and whether `--disable-socket` reaches child processes.
+    I searched enable_socket, socket_allow_hosts, allow_hosts and --force-enable-socket in tests/**, pyproject.toml
+    and the conftest files: no match. tests/e2e/test_install_smoke.py:31-41 starts `uv venv` and `uv pip
+    install` of the built wheel through subprocess.run; no repository file says whether that install contacts
+    a package index. The CI test job runs `uv sync --locked` before `uv run pytest` (.github/workflows/ci.yml:83-84).'
+  material: false
+- id: U-6
+  what: 'Which of the network commands in the proposal exist in code. The proposal lists `standards status|update|import`,
+    `sync --fetch`, `doctor --live`, `mcp inspect --live` and `init` fetching a URL (docs/design/orqlet-architecture-proposal.md:4563).
+    Searched --live, --fetch and --offline in src, tests and tools *.py: no match. src/orqlet/interface/cli/app.py:34-47
+    registers init, upgrade, rollback, sync, doctor, explain, release, profile, standards, validate, gate,
+    evidence, knowledge and review. The `standards` group has one command, `for` (src/orqlet/interface/cli/commands/standards.py:26).
+    `init` takes only the local folder options --prompts-dir and --packs-dir (src/orqlet/interface/cli/commands/init.py:48-53).
+    docs/design/orqlet-implementation/design.md:32 says no local command calls a model or the network
+    except those the proposal lists, and docs/design/orqlet-m2-workflow/design.md:161 says S11 introduces
+    the first network access, to GitHub. No repository file says whether S11 has been built.'
+  material: true
+- id: U-7
+  what: Whether the profile, the standards sources or any other contract can record a resource link today.
+    I searched link, resource and url in src/orqlet/application/contracts/profile.py (no match) and in
+    .orqlet/*.yaml. The only URL-valued fields in code are `Provenance.source_url` (F-27) and `ServerIdentity.url`
+    (src/orqlet/application/contracts/integrations.py:14-18). A standards source is a local `prompts-dir`
+    or `standards-pack` with a `path` (src/orqlet/application/contracts/profile.py:115-119). `ServiceInterface.contract_ref`
+    is a free string (src/orqlet/application/contracts/module_card.py:21-23). No use case that fetches
+    any of these values was found.
+  material: true
+- id: U-8
+  what: 'Whether any use case, renderer or validator reads the `orqlet.integrations/v1` contract (Integrations,
+    RoleTools, live_inspection). I searched integrations, Integrations, live_inspection and RoleTools
+    in src: matches only in src/orqlet/application/contracts/__init__.py, src/orqlet/application/contracts/integrations.py,
+    src/orqlet/workflow/schemas/orqlet.integrations.v1.json and src/orqlet/workflow/MANIFEST.json. No
+    .mcp.json, .cursor/mcp.json or .codex/config.toml exists in the repository.'
+  material: true
+- id: U-9
+  what: Whether Context7 is approved for this project. The proposal says it is unavailable unless the
+    owners approve it (docs/design/orqlet-architecture-proposal.md:2644). docs/design/harness2-fit/as-is.md:223
+    says it was explicitly approved for that request. docs/design/orqlet-m2-workflow/plan.md:10 and docs/design/orqlet-implementation/as-is.md:8
+    record Context7 lookups with no approval statement. I searched Context7 in docs/design/** (excluding
+    the unrelated task's folders), src, tests, .claude, .cursor, .codex, .agents, .orqlet and AGENTS.md.
+    No file states a project-wide approval or refusal.
+  material: true
+- id: U-10
+  what: Whether the web excerpts and the ledger of the current task (docs/design/team-conventions-resources/evidence/web/*.md
+    and questions.yaml) are in the last commit. The start-of-session git status snapshot lists no entry
+    for them, but I could not run git. `orqlet evidence cite` reads the file from a committed revision
+    (src/orqlet/application/usecases/evidence_cite.py:45), so a citation of these files depends on the
+    answer.
+  material: true
+- id: U-11
+  what: How an agent could read a page that is behind a login. I searched login, sign in, cookie, credential,
+    Authorization, bearer, SSO and authenticat in the workflow skills, roles, commands, baseline, the
+    generated client folders, AGENTS.md and .prompts. The only matches are the onboarding rule 'do not
+    infer deployment permission from a login or a connection' (src/orqlet/workflow/skills/orqlet-onboard/skill.md:16),
+    the security reviewer's checklist, and the rule against committing credentials (.prompts/rules.yaml:63).
+    The proposal says credentials stay out of Git, prompts, Markdown and indexes (docs/design/orqlet-architecture-proposal.md:2753)
+    and that Orqlet asks the human to run a login (docs/design/orqlet-architecture-proposal.md:2767).
+    No code or skill handles an authenticated fetch.
+  material: true
+contradictions:
+- id: C-1
+  sources:
+  - docs/design/orqlet-architecture-proposal.md:3549
+  - docs/design/orqlet-architecture-proposal.md:2890
+  - src/orqlet/application/contracts/as_is.py:31-35
+  note: Line 3549 allows evidence as 'source URL with retrieval date'. Line 2890 says every fact carries
+    path, lines, revision and content hash, and the contract has only path (a repository path), lines,
+    revision and sha256. The code accepts only a repository file at a revision. Not resolved here.
+- id: C-2
+  sources:
+  - docs/design/orqlet-architecture-proposal.md:3151-3152
+  - docs/design/mcp-or-plugins/questions.yaml:87-104
+  - docs/design/mcp-or-plugins/evidence/web/claude-code-mcp.md:3
+  note: The proposal gives the onboarding and research skills 'Read-only; no network'. The committed mcp-or-plugins
+    research read vendor pages on the web through the WebSearch tool after a ledger answer allowed it.
+    No source says whether the skill rule or the per-task permission governs a web lookup inside a skill
+    step.
+- id: C-3
+  sources:
+  - docs/design/orqlet-architecture-proposal.md:4563
+  - src/orqlet/interface/cli/commands/gate.py:34
+  - src/orqlet/application/usecases/gate_status.py:3-7
+  note: The proposal lists `gate status --offline` as local only and `gate status` as reading the code
+    host. The code has one `gate status` that is read-only and offline, with no `--offline` option, and
+    the implement skill says an offline run reports NOT_RUN.
+- id: C-4
+  sources:
+  - docs/design/harness2-fit/as-is.md:127
+  - docs/design/harness2-fit/as-is.md:154
+  - docs/design/mcp-or-plugins/as-is.md:525-532
+  note: The harness2-fit AS-IS says the artifact format has no evidence form for an external repository,
+    a paper or Context7, so those facts stay unvalidated below the front matter. The later mcp-or-plugins
+    AS-IS cites stored web excerpts as repository files with path, lines, revision and sha256.

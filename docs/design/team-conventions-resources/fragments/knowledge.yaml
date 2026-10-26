@@ -1,0 +1,401 @@
+schema: orqlet.as-is-fragment/v1
+fragment_id: knowledge
+base_revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+scope:
+  paths:
+  - docs/design/orqlet-architecture-proposal.md
+  - src/orqlet/**
+  - tests/**
+  - tools/**
+  - .orqlet/**
+  - .claude/**
+  - .cursor/**
+  - .codex/**
+  - .agents/**
+  - .github/**
+  - docs/design/team-conventions-resources/evidence/**
+  request_ref: team-conventions-resources
+facts:
+- id: A-1
+  kind: structure
+  statement: The repository's own knowledge configuration has schema `orqlet.knowledge/v2` and an empty
+    list for each of `sources`, `exclude` and `write_scope`.
+  evidence:
+  - path: .orqlet/knowledge.yaml
+    lines: 1-4
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 4af3bc53e7dbca20b4c498628022c7825c40b22b69621e36567b080c3eaf4e38
+- id: A-2
+  kind: structure
+  statement: A `KnowledgeSource` has `kind` (`adr`, `module-card`, `docs` or `standards-reference`), `scope`
+    (`project`, `team` or `company`), `globs` and an optional `pack`. A `WriteScope` has `globs` and `kinds`
+    (`adr`, `module-card` or `docs`), each with at least one entry.
+  evidence:
+  - path: src/orqlet/application/contracts/knowledge_config.py
+    lines: 15-28
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: ecf8841a39ca70b051f8689a8e2fcf7937d3d5e0d53045756ee29494a9b94223
+- id: A-3
+  kind: structure
+  statement: '`KnowledgeConfig` has `sources`, `exclude`, `write_scope` and an optional `index` block
+    whose `IndexConfig` has `views`, `target_branch_ref`, `tokenizer`, `refresh_policy` and `generations_kept`.
+    The module docstring says the `index` block belongs to M3 and is accepted and ignored.'
+  evidence:
+  - path: src/orqlet/application/contracts/knowledge_config.py
+    lines: 3-44
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: cba40f8b14dde278e8f293a011a521b473b85511f8d9560c40dbd8dc320ee178
+- id: A-4
+  kind: structure
+  statement: A `Glob` must be non-empty, repository-relative, free of backslashes and must not contain
+    a `..` segment. `Contract` is a frozen model with `extra` set to forbid, so a field that a contract
+    does not declare is an error.
+  evidence:
+  - path: src/orqlet/application/contracts/common.py
+    lines: 38-53
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 9b9d69580e394d1f72523b33f5f6c422b410e1abcbccb8cecd9633835276e73c
+- id: A-5
+  kind: operation
+  statement: 'The renderer builds an empty `KnowledgeConfig`. Its comment says this is on purpose: a team
+    opts in by naming where its knowledge lives and where drafts may go.'
+  evidence:
+  - path: src/orqlet/application/usecases/render_all.py
+    lines: 231-232
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 8f7152709b4c35e36c653acd15c02617a4aedc8db6bb109fb9c6a16058773140
+- id: A-6
+  kind: flow
+  statement: '`_knowledge_globs` returns as include globs the `globs` of every source whose `scope` is
+    `project` plus every `write_scope` glob, and returns `exclude` as the exclude globs. With no configuration
+    both are empty.'
+  evidence:
+  - path: src/orqlet/application/usecases/knowledge_impact.py
+    lines: 191-197
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: b64373fff74a131770c4a7b831861a11dfb3abaa06b99bcab3a40affbe55dfcd
+- id: A-7
+  kind: flow
+  statement: '`_pre_draft_documents` reads from the merge-base tree the files that end with `TEXT_EXTENSIONS`,
+    match an include glob or a glob the plan requests, and match no exclude glob. When the include list
+    is empty it adds a note that no knowledge sources are configured and that only the plan''s knowledge
+    scope names documents.'
+  evidence:
+  - path: src/orqlet/application/usecases/knowledge_impact.py
+    lines: 200-222
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 5998c020acb254ec096ab2ee271971357768d3072560a32bd2ec089c57432463
+- id: A-8
+  kind: structure
+  statement: A `ModuleCard` (`orqlet.module-card/v1`) has `id`, `kind` (`same-repo-module`, `released-package`
+    or `deployed-service`), `summary`, `use_when`, `avoid_when`, `interface` (`python` with `import_path`
+    and `public_symbols`, or `service`), `interface_digest`, `examples`, `status`, `owner`, `requirement_level`,
+    `must_consider`, `refs`, `paths` and `symbols`.
+  evidence:
+  - path: src/orqlet/application/contracts/module_card.py
+    lines: 16-65
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: e6e001e80913fafb561ca960fbb85ad669ab148b10bfb6ea4dc5e030fe72a863
+- id: A-9
+  kind: flow
+  statement: The analysis adds a `reference` candidate for each pre-draft document that names a changed
+    path or a public-API name. It then adds card-digest candidates, a `public-symbol` candidate for each
+    added, removed or changed public symbol, candidates for implemented expected changes and docs-map
+    candidates, keyed by id and sorted.
+  evidence:
+  - path: src/orqlet/application/usecases/knowledge_impact.py
+    lines: 104-123
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 5fe39455d8dadeee775fcac92eeea69c3680e9b5cfe3d5999d2f6ac149da48f5
+- id: A-10
+  kind: flow
+  statement: 'References are found by exact match only: repository-relative paths in Markdown link targets
+    and inline-code spans, entries of fenced `orqlet-ref` blocks and qualified Python names in inline-code
+    spans. The docstring says the analysis calls no model and that a prose mention in any other form is
+    not found.'
+  evidence:
+  - path: src/orqlet/domain/knowledge.py
+    lines: 1-8
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 35f9b54d845fb74fc8fcbdbd9b7f0c93c015bf187affb194bdde87fba252b7f3
+- id: A-11
+  kind: flow
+  statement: A module card is read from a YAML file or from the front matter of a Markdown file (`split_front_matter`),
+    and a file that fails to load is no card. The card's `refs`, `paths` and `symbols` count as references
+    of its document, and a card with `interface.python` and `interface_digest` whose module file exists
+    gets an `interface-digest` candidate when the digest of the extracted public API differs.
+  evidence:
+  - path: src/orqlet/application/usecases/knowledge_impact.py
+    lines: 225-304
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 2170d51cc23b1b313b87e84cf8d863ab593d02bd0c2e2bfecfbc22a119ec251b
+- id: A-12
+  kind: flow
+  statement: The docs-map detector reads `DOCS_MAP_PATH` from the tree under review and loads it as `DocsMap`.
+    For each entry whose `code` globs match a changed path, or whose symbol matches a changed public name,
+    it adds a `docs-map` candidate for each of its `docs` targets, naming the `owner`.
+  evidence:
+  - path: src/orqlet/application/usecases/knowledge_impact.py
+    lines: 325-353
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 3af781cd331d4e3bc8302778818ab3ed85f33b3f4457b6aa466ecd265ddf71ed
+- id: A-13
+  kind: flow
+  statement: '`KnowledgeScope` `contains` a path only if it is not in `FORBIDDEN_KNOWLEDGE_FILES`, not
+    under `FORBIDDEN_KNOWLEDGE_PREFIXES`, ends with one of `DOCUMENTATION_EXTENSIONS` and matches both
+    a glob of the plan (`requested`) and a glob of `allowed`. `knowledge_scope` fills `allowed` from the
+    `write_scope` globs, so with no `write_scope` nothing is in scope, and `read_knowledge_config` returns
+    `None` when the file is missing or cannot be loaded.'
+  evidence:
+  - path: src/orqlet/application/usecases/binding_inputs.py
+    lines: 150-189
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 34bfdb20d5abd6ea609337ed6ca533265995f151f4775e5f05f07290a733740c
+- id: A-14
+  kind: flow
+  statement: '`_check_knowledge_scope` reports `ORQ-E386` when a `knowledge_scope` pattern starts under
+    a forbidden prefix, is a forbidden file, or matches a tree path that is forbidden or is not a documentation
+    file.'
+  evidence:
+  - path: src/orqlet/application/usecases/validate_plan.py
+    lines: 151-183
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: c71da775e7877d7683735b46a50ee90331abe8a02fbaaa4514c3a2bcad7ee974
+- id: A-15
+  kind: interface
+  statement: '`knowledge_app` has one command, `impact`, which takes a task and a phase and calls `knowledge_impact`.
+    Its help says the analysis reads the committed tree only, calls no model and uses no network.'
+  evidence:
+  - path: src/orqlet/interface/cli/commands/knowledge.py
+    lines: 16-39
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: e7df728f3130c4fa872442e75001a1b661435f327aa679a87f7bb82ec6d79c5c
+- id: A-16
+  kind: interface
+  statement: The command `validate knowledge` takes one record file and calls `validate_knowledge`. Its
+    help text describes the check as every candidate resolved and evidence that resolves.
+  evidence:
+  - path: src/orqlet/interface/cli/commands/validate.py
+    lines: 165-181
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: ca8d2f816be88726a7191997d9fdeb20c252779f68fb4a8b0361248d9efcdf54
+- id: A-17
+  kind: flow
+  statement: '`validate_knowledge` reads the record as `KnowledgeImpact`, checks that its path matches
+    its task and phase, recomputes the candidates with `analyse`, runs the candidate, entry and lint checks,
+    and verifies the `review_input` binding.'
+  evidence:
+  - path: src/orqlet/application/usecases/validate_records.py
+    lines: 442-476
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: c26f06ea193b4338cab89734569a225d48c440cc19b69e655eaa80c49f406155
+- id: A-18
+  kind: flow
+  statement: A candidate list that differs from the record's `candidates_digest` or count gives `ORQ-W420`
+    and a not-run result. An entry that resolves an unknown candidate is `ORQ-E421`, a candidate resolved
+    twice is `ORQ-E422` and an unresolved candidate is `ORQ-E423`. A no-impact record with `internal-refactor`
+    or `behaviour-unchanged` is refused (`ORQ-E424`) while a `public-symbol` or `expected-change` candidate
+    exists, and its absence record must count the candidates found (`ORQ-E425`).
+  evidence:
+  - path: src/orqlet/application/usecases/validate_records.py
+    lines: 481-544
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 180de3b4941607f4416be66cacbafde4f9f85f6acae09fe620de4723713e2984
+- id: A-19
+  kind: flow
+  statement: An `add`, `correct`, `supersede` or `remove` entry of scope `project` whose path is outside
+    the knowledge scope is `ORQ-E426`, and a changed file inside the scope that no entry names is `ORQ-E429`.
+    A draft that is not in the tree is `ORQ-E427` and a claim whose anchor is not in the draft is `ORQ-E428`.
+  evidence:
+  - path: src/orqlet/application/usecases/validate_records.py
+    lines: 547-609
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: aec98526fa9539ea55a766eb7aeee6b092d93f35bc8a2683b633e3a2d6935316
+- id: A-20
+  kind: flow
+  statement: Evidence of kind `developer-statement` gives `ORQ-W432`, and evidence of kind `test` or `source`
+    is skipped because an offline run cannot confirm it against a CI result or a documentation source.
+    An evidence record cannot be evidence (`ORQ-E435`), and any other evidence must be a committed file
+    whose cited lines and hash resolve (`ORQ-E431`).
+  evidence:
+  - path: src/orqlet/application/usecases/validate_records.py
+    lines: 612-652
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: c5466ae62239c2309ada21078ac3b5a74dca0d503102ee210a6110501b5a0943
+- id: A-21
+  kind: flow
+  statement: '`_check_lints` warns `ORQ-W433` when more than `COPY_MAX_LINES` consecutive lines of a drafted
+    document also appear in a changed code or test file, and `ORQ-W434` when a draft nearly repeats another
+    knowledge document. Both are warnings.'
+  evidence:
+  - path: src/orqlet/application/usecases/validate_records.py
+    lines: 677-713
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 626fec3090a4dd6aecab54eebd978eff2f84b29eec24a4c43295729ac5af1729
+- id: A-22
+  kind: structure
+  statement: A `KnowledgeImpact` record has an `outcome` of `updated` or `no-impact`. `updated` needs
+    at least one add, correct, supersede or remove entry and no `no_impact` block, and `no-impact` needs
+    the `no_impact` block and lists every candidate as unaffected.
+  evidence:
+  - path: src/orqlet/application/contracts/knowledge_impact.py
+    lines: 119-146
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: f7d4e103e25d1e1914d9564f7132ac6d1b28bf28de542f626e992265ce2bac99
+- id: A-23
+  kind: operation
+  statement: Step 6 of the implement skill tells the agent to run `orqlet knowledge impact <task> <phase>`,
+    resolve every candidate with evidence that resolves, write the knowledge drafts inside the knowledge
+    scope, save the record and run `orqlet validate knowledge <record>`. It allows a justified no-impact
+    outcome and says not to write a document to satisfy the rule.
+  evidence:
+  - path: src/orqlet/workflow/skills/orqlet-implement/skill.md
+    lines: '16'
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: ac60b679142feec8c85a486d44653183afd6aa7e9db69a861e7babd1967f189c
+- id: A-24
+  kind: operation
+  statement: The plan format says `knowledge_step` is always `required` and that `knowledge_scope` may
+    only cover documentation files outside agent configuration and workflow files.
+  evidence:
+  - path: src/orqlet/workflow/skills/orqlet-plan/references/plan-format.md
+    lines: 54-56
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: de27ada005136e8e353ec69038d6d406941522d137926700804c1f0467bdfc89
+- id: A-25
+  kind: test
+  statement: Unit tests assert that a document naming a changed file and a new public symbol gives `reference`
+    and `public-symbol` candidates, that an unreferenced change gives none, that the list comes from the
+    pre-draft tree, that a card is a candidate only while its `interface-digest` differs from the code,
+    that a card's front-matter paths and symbols are references, that a `docs-map` entry adds candidates,
+    and that without a configuration the result says no knowledge sources exist.
+  evidence:
+  - path: tests/unit/application/test_knowledge_impact.py
+    lines: 87-192
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: c8cca1b55d95ec7da2839b6b820e5313a473e3139714fcf198dd33b2e02e1ac1
+- id: A-26
+  kind: test
+  statement: Unit tests assert that a record resolving every candidate with holding evidence has no errors,
+    that an unresolved candidate, a foreign reference and a double resolution are errors, that a stale
+    candidate list is not run, and that a justified no-impact record is accepted. They also assert that
+    `ORQ-E431` marks evidence that does not resolve, that `ORQ-W433` flags a copied run without failing,
+    and that `ORQ-E429` marks an unexplained edit inside the knowledge scope.
+  evidence:
+  - path: tests/unit/application/test_knowledge_impact.py
+    lines: 272-461
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 0a713914251189e326484ee34df62919d2b49cf951fb3dc4d8987b18b324c3ca
+- id: A-27
+  kind: test
+  statement: Domain tests assert that links resolve against the folder of the document, that URLs, anchors,
+    absolute paths, links that climb out and `mailto` links are not references, that inline code and `orqlet-ref`
+    blocks name paths and symbols exactly, and that a prose mention is not found.
+  evidence:
+  - path: tests/unit/domain/test_knowledge.py
+    lines: 35-73
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 2fd77ce37047f7a2cd874ffba88db9b0553938b48c37b90bfe70de38afa635d5
+- id: A-28
+  kind: structure
+  statement: The README status section lists `knowledge impact` among what is built and says the knowledge
+    index and module catalogue are not built yet.
+  evidence:
+  - path: README.md
+    lines: 31-36
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 4d78bddd9252c6316447da6928d15a74a024fcd0e314c2fd98bb114a25860237
+unknowns:
+- id: U-1
+  what: Whether a knowledge source, a module card or a knowledge-impact entry can carry a URL, an external
+    document, a copied web page or a link with a note. Searched src/orqlet/application/contracts for url,
+    http, href, fetch, download, webpage and remote (case-insensitive). The only field named url is in
+    integrations.py:16, on an entry of kind remote or stdio, and knowledge_config.py, module_card.py and
+    knowledge_impact.py hold no such field. KnowledgeEvidence.kind has a value source whose ref is described
+    as a source id (knowledge_impact.py:36-37), and the validator skips it offline (validate_records.py:627-632).
+    What a source id points to is not defined in the code I read.
+  material: true
+- id: U-2
+  what: How the content of knowledge documents reaches an agent. Searched src for readers of KnowledgeConfig
+    and read_knowledge_config (only binding_inputs.py, knowledge_impact.py and render_all.py) and for
+    the word knowledge under src/orqlet (the file list shows no client renderer in it). Also searched
+    src/orqlet/workflow skills, roles, rules and pr_template. Found no generated rule, skill, index or
+    search that loads a source's content. The skills and roles mention knowledge only as a step that writes
+    drafts (orqlet-implement/skill.md:16) and as input to the reviewers (roles/orqlet-arch-reviewer.md:6,14;
+    orqlet-security-reviewer.md:6,8). Whether an agent reads the knowledge documents on its own is not
+    shown by the code I read.
+  material: true
+- id: U-3
+  what: Whether the knowledge index is built. Searched src for IndexConfig, refresh_policy, tokenizer,
+    generations_kept, target_branch_ref, index_state, index_ref, views, knowledge index and knowledge
+    search. Matches are only record or config fields in contracts/knowledge_config.py, contracts/knowledge_impact.py:53-54,94-97
+    and module_card.py:35, plus the JSON schemas. I found no code that builds or reads an index. The commands
+    folder has 10 files and the knowledge group has only the command impact. The validator compares only
+    candidates_digest and candidate_count of the record's analysis block (validate_records.py:484-487),
+    and my search for views and index_state in usecases found no reader. docs/design/orqlet-architecture-proposal.md
+    names orqlet knowledge search as planned (lines 345 and 1547), and I did not read the proposal beyond
+    those matches.
+  material: true
+- id: U-4
+  what: Whether the source field kind, the field pack, the write-scope field kinds and the scopes team
+    and company have any effect. Searched src for .kind, .kinds, .pack, standards-reference, the literals
+    team and company, and .write_scope. Only knowledge_impact.py:194 (scope project, globs) and binding_inputs.py:188
+    (globs of write_scope) read the configuration. I found no reader of kind, pack or kinds, and no code
+    that reads the hash-verified pack named in knowledge_config.py:23.
+  material: true
+- id: U-5
+  what: Who creates module cards, ADRs and knowledge documents, and who writes the knowledge-impact record.
+    Searched src/orqlet/interface/cli/commands (10 files) and src for ModuleCard construction, a card
+    or ADR writer, and a command such as knowledge add, link or import. Found none. The implement skill
+    (skill.md:16) has the agent write the drafts and save the record from the review_input it prints.
+    Whether a person writes cards or ADRs outside a phase is not shown by the code.
+  material: true
+- id: U-6
+  what: 'Whether the policy fields knowledge.copy_max_lines and knowledge.near_duplicate_threshold (contracts/policy.py:47-49,66)
+    change the copy lints. Searched src for copy_max_lines and near_duplicate_threshold: only policy.py
+    and the policy JSON schema. validate_records.py:72-73 uses the constants COPY_MAX_LINES and NEAR_DUPLICATE_THRESHOLD.'
+  material: false
+- id: U-7
+  what: 'Whether reuse_decisions[].candidate, described as a module card id (contracts/plan.py:61-64),
+    is checked against any card. Searched src for reuse and ReuseDecision: only plan.py. No validator
+    reads it.'
+  material: false
+- id: U-8
+  what: 'Knowledge documents, module cards and ADRs in this repository. Searched docs/adr, docs/modules
+    and docs/knowledge with a glob, and .orqlet/docs-map.yaml: 0 files. The committed records docs/design/harness2-fit/knowledge/P-1.yaml
+    to P-6.yaml show outcome no-impact at line 15 of each.'
+  material: false
+- id: U-9
+  what: 'Whether any command other than knowledge impact, validate knowledge and review prepare reads
+    or validates .orqlet/knowledge.yaml. Searched for the word knowledge in the usecases files diagnose.py,
+    init*.py, upgrade*.py, release.py, validate_as_is.py and validate_design.py: no matches. A file that
+    fails to load is read as absent by read_knowledge_config (binding_inputs.py:178-181), with no error
+    of its own.'
+  material: false
+contradictions:
+- id: C-1
+  sources:
+  - src/orqlet/workflow/rules/orqlet-workflow.md:3
+  - .orqlet/generated.lock.yaml:609-612
+  - tests/unit/application/test_lifecycle.py:149-158
+  note: The workflow rule text says the files under .orqlet/ are generated by Orqlet and must not be edited
+    by hand. The lock lists .orqlet/knowledge.yaml with owner seeded, and a unit test asserts that a team
+    edit of that file survives an upgrade. Not resolved here.
+- id: C-2
+  sources:
+  - src/orqlet/application/usecases/knowledge_impact.py:57
+  - src/orqlet/application/usecases/knowledge_impact.py:233-244
+  - src/orqlet/application/usecases/binding_inputs.py:56
+  - src/orqlet/application/usecases/binding_inputs.py:161-162
+  - src/orqlet/application/contracts/knowledge_config.py:16
+  note: The analysis reads .yaml and .yml files as knowledge documents and can load a module card from
+    a YAML file. The write scope allows the kind module-card. KnowledgeScope contains only paths that
+    end in .md, .rst, .txt or .adoc, so a YAML card path is never inside the knowledge scope. Not resolved
+    here.
+- id: C-3
+  sources:
+  - src/orqlet/application/usecases/knowledge_impact.py:3-7
+  - src/orqlet/application/usecases/knowledge_impact.py:191-197
+  note: The module docstring says paths named by knowledge.yaml as a source or a write scope are reset
+    to their merge-base content. The implementation takes the globs of sources whose scope is project
+    only, and ignores sources of scope team or company. Not resolved here.

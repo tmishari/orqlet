@@ -1,0 +1,434 @@
+schema: orqlet.as-is-fragment/v1
+fragment_id: onboarding-profile
+base_revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+scope:
+  paths:
+  - docs/design/orqlet-architecture-proposal.md
+  - src/orqlet/**
+  - tests/**
+  - tools/**
+  - .orqlet/**
+  - .claude/**
+  - .cursor/**
+  - .codex/**
+  - .agents/**
+  - .github/**
+  - docs/design/team-conventions-resources/evidence/**
+  request_ref: team-conventions-resources
+facts:
+- id: A-1
+  kind: interface
+  statement: '`init_command` takes repeatable `answer` pairs, a `target_branch` option that becomes the
+    answer to `repository.target_branch` when `answer` does not already give one, and the flags `--git-init`,
+    `--new-project`, `--yes` and `--dry-run`.'
+  evidence:
+  - path: src/orqlet/interface/cli/commands/init.py
+    lines: 21-67
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: b2581f17f698cc114ef3274e6996610510d30d3e5d47687c9f785f48aa8a2ca0
+- id: A-2
+  kind: interface
+  statement: '`profile` is a sub-app with two commands: `answer` takes one or more KEY=VALUE pairs and
+    calls `answer_profile`, and `approve` takes a required `reviewer` option and calls `approve_profile`.
+    Both take `yes` and `dry_run`.'
+  evidence:
+  - path: src/orqlet/interface/cli/commands/profile.py
+    lines: 27-74
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 953038fb135c16ff0d18c674667a630acae24bb35628254891b2a92c1a2ae7b4
+- id: A-3
+  kind: interface
+  statement: The prompter port is a `Question` with `id`, `text`, `options` and `default`, and a `Prompter`
+    with `interactive`, `ask` and `confirm`. `interactive` is False when there is no terminal, and `ask`
+    then raises `NoAnswerAvailable`.
+  evidence:
+  - path: src/orqlet/application/ports/prompter.py
+    lines: 9-33
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 28f6b3565310ef8b4e3a34dc6c2a710b844302bfa3abc1db689a0a7659df6f68
+- id: A-4
+  kind: flow
+  statement: '`init_project` returns `already-initialised` (ORQ-I010, "Use sync, doctor or upgrade") when
+    `LOCK_PATH` is a file. Otherwise `_run` loads a profile with `_load_existing_profile` and calls `_draft_and_ask`
+    only when there is none. When `git_init` is set and the `target_branch` value is None, init stops
+    with ORQ-E113 and `needs-input`.'
+  evidence:
+  - path: src/orqlet/application/usecases/init_project.py
+    lines: 94-131
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 8c15154c584c7db6f0ea3b714b376e94133c57259a03c92c270fad874c3c5fd7
+- id: A-5
+  kind: flow
+  statement: After `draft_profile`, init computes `asks_stack` (the root has code, or the origin is a
+    new-project origin), then runs `questions_for`, `collect_answers` and `apply_answers`. Rejected answers
+    become ORQ-W060, and `approve` runs only when `reviewer` is non-empty. A `reviewer` question is asked
+    only on a terminal and only when no `reviewer` answer was supplied.
+  evidence:
+  - path: src/orqlet/application/usecases/init_project.py
+    lines: 237-273
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: e503084faedb956faef2dbee8bfcabba40f03e014cb7c5d86cf7c0b032a11e66
+- id: A-6
+  kind: flow
+  statement: '`questions_for` asks the stack questions only when `asks_stack` is true. `facts.python`
+    and `facts.package_manager` are asked when `wants_python_questions` holds and the value is None. `project.kind`,
+    `facts.frameworks` and `structure.test_runner` are asked additionally for a new project. `technologies`
+    is asked for a new project that has none.'
+  evidence:
+  - path: src/orqlet/application/usecases/init_questions.py
+    lines: 50-89
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: ebaf5643813481eb453d4cc5c925fb84a6f37fb3a1f96f32b0009889d72f4d59
+- id: A-7
+  kind: flow
+  statement: Independently of the stack questions, three repository questions are asked while the value
+    is None. They are `repository.target_branch` ("Which branch do pull requests target?"), `repository.branch_naming`
+    and `repository.commit_convention`. The last two say "leave empty if not".
+  evidence:
+  - path: src/orqlet/application/usecases/init_questions.py
+    lines: 90-106
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 1e8dfee7dab39ca474e2b63b6bd42f38ae4368411241c7ec950e5438c75e552c
+- id: A-8
+  kind: flow
+  statement: '`collect_answers` uses an answer supplied with `--answer` first and asks the remaining questions
+    only when `interactive` is true. It stops asking on `NoAnswerAvailable` and drops every empty answer.'
+  evidence:
+  - path: src/orqlet/application/usecases/init_questions.py
+    lines: 109-122
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: c0c336589ab390d0f24392841a6b2423f86b5e35cea3d3851979a30158c3b5d6
+- id: A-9
+  kind: flow
+  statement: '`_repository` stores `repository.target_branch` as a `TargetBranch` and the other two repository
+    answers as plain facts, each with `answered_by` set to maintainer. `_acceptable` rejects an answer
+    longer than `_MAX_ANSWER` (200, defined at line 47) or with a line break. It adds format checks only
+    for `facts.package_manager`, `project.kind` and `repository.target_branch`.'
+  evidence:
+  - path: src/orqlet/application/usecases/init_questions.py
+    lines: 229-281
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 754ba2bcc7f145875f9c867620441502e19380affbb61a52b586c852206d85b1
+- id: A-10
+  kind: structure
+  statement: '`draft_profile` creates `target_branch`, `branch_naming` and `commit_convention` with a
+    `question` and no value. `open_questions` lists those three, plus `facts.python` and `facts.package_manager`
+    when the Python question applies, each `structure` entry with no value, and `project.kind` for a new
+    project of unknown kind.'
+  evidence:
+  - path: src/orqlet/application/usecases/draft_profile.py
+    lines: 57-137
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: c50002a47e835d01834a78d528426edbef744159b1222c4c5e70af98d1e9a2ec
+- id: A-11
+  kind: structure
+  statement: '`TargetBranch` adds `remote` to a fact. `PullRequestTemplate` holds `targets`, `source_id`
+    and a `status` of provisioned, team-template-unknown or none. `PullRequests` holds `reviewers` and
+    `merge_strategy` as plain strings that default to unknown. `Repository` holds `target_branch`, `branch_naming`,
+    `commit_convention` and `pull_requests`.'
+  evidence:
+  - path: src/orqlet/application/contracts/profile.py
+    lines: 76-96
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 6cb046424e3aa0002154ca437794c57049ff44af28ba04f75810dd37f7ce5d83
+- id: A-12
+  kind: structure
+  statement: A `FactValue` is either a value with `evidence` or `answered_by`, or an unknown that carries
+    a `question`. The validator rejects a known value with neither, and an unknown without a question.
+  evidence:
+  - path: src/orqlet/application/contracts/common.py
+    lines: 62-76
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 354681205ce0b2755c4a2cf03813339776553211c9a5a6064910742395b0f6fd
+- id: A-13
+  kind: flow
+  statement: '`discover_pr_templates` looks in `.github`, `docs` and the root for template files and for
+    a `PULL_REQUEST_TEMPLATE/` folder. `choose_pr_targets` returns `DEFAULT_PR_TEMPLATE` when none exists
+    and the single file when exactly one exists. Otherwise it takes the answer to `PR_TARGETS_KEY` or
+    asks a question with the candidates as options, and an empty or unlisted answer leaves the choice
+    open.'
+  evidence:
+  - path: src/orqlet/application/usecases/init_files.py
+    lines: 125-182
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 5d6fc746334bcd2ea8d12d43e235d1b99e92971c21646fdaff029aac76eb9dee
+- id: A-14
+  kind: flow
+  statement: '`_with_pr_template` leaves the profile unchanged and raises ORQ-W050 while the template
+    choice is open. Otherwise it records the `targets`, sets `source_id` to None, and sets `status` to
+    `provisioned` when a loaded pack has a `pr-template` asset and to `team-template-unknown` when not.
+    It copies `reviewers` and `merge_strategy` from the current profile unchanged.'
+  evidence:
+  - path: src/orqlet/application/usecases/init_project.py
+    lines: 305-333
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 3c445ba8be23c72045e36113e442c6ce9d7c5b865287959947ca65796a94ae53
+- id: A-15
+  kind: flow
+  statement: '`team_template` returns the single `pr-template` asset of the loaded packs (several give
+    ORQ-W051 and no template). `pr_template_files` writes, for each target, the team block (`team_block`,
+    only when a pack supplied one) and the Orqlet block (`workflow_block`, built from `services.workflow`)
+    as `SHARED_BLOCK` parts of the template file.'
+  evidence:
+  - path: src/orqlet/application/usecases/render_all.py
+    lines: 134-182
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 9f174ce1e15ac06b73429827fa4bf75c866c924c3c093bb088847b60f3fef316
+- id: A-16
+  kind: structure
+  statement: The Orqlet-owned pull-request block is fixed text with `Orqlet-Task`, `Orqlet-Phase`, `Knowledge
+    impact`, `Knowledge record`, an evidence list (design, plan, review, test and `Required checks`, all
+    left blank) and three checkboxes.
+  evidence:
+  - path: src/orqlet/workflow/pr_template/workflow-section.md
+    lines: 1-21
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: e87889ffe3b052a4eeef5b17fa3bbb614b4b423dc8bcee1a21edb106cd47e22a
+- id: A-17
+  kind: flow
+  statement: '`stack_of_profile` turns the profile''s technologies, framework names, project kind and
+    support level into the stack that `resolve_for` uses to pick standards packs. `compose` executes `del
+    profile`, with the comment that the profile''s effect is already in `resolution` and `profile_bytes`.'
+  evidence:
+  - path: src/orqlet/application/usecases/render_all.py
+    lines: 77-131
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 68c840bb488442cb5d3e41ecace574783fede2f47e843d6a6f3f5037ff614e70
+- id: A-18
+  kind: flow
+  statement: '`build_render_request` returns a `RenderRequest` of `baseline_body`, `scoped_rules`, `commands`,
+    `skills` and `roles`. `scoped_rules` hold the workflow rule and one file per `MUST` rule that names
+    `paths`. Rules without paths are not written as files and are read with `orqlet standards for`.'
+  evidence:
+  - path: src/orqlet/application/usecases/render_request.py
+    lines: 41-89
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: c448629abe34a484bb2473f5c2aa1aeef1740036f3713d340dc24d26e254c049
+- id: A-19
+  kind: flow
+  statement: Codex gets the `AGENTS.md` block through `agents_block`, skills (`request.skills`) and roles
+    (`codex_role`). It gets no per-path rule files (`ORQ-L002`) and no commands (`ORQ-L003`).
+  evidence:
+  - path: src/orqlet/adapters/clients/codex.py
+    lines: 1-49
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: ed663a68ea713343b34bdf62b1c93927d6ab61db1db219d08efa535f6b564312
+- id: A-20
+  kind: structure
+  statement: '`data_files` writes the profile (`PROFILE_PATH`) and the knowledge configuration (`KNOWLEDGE_PATH`)
+    as `seeded` files. The knowledge configuration is built with `KnowledgeConfig` and no sources, under
+    the comment "Empty on purpose: a team opts in by naming where its knowledge lives and where drafts
+    may go".'
+  evidence:
+  - path: src/orqlet/application/usecases/render_all.py
+    lines: 201-261
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: f472a7a7d36d38cebc24221ac7cfcb66cc0b612dfda35da3a4a620219ef2b5a5
+- id: A-21
+  kind: flow
+  statement: '`answer_profile` accepts only keys in `ANSWER_KEYS` (ORQ-E160). It refuses `facts.python`
+    and `facts.package_manager` when they were read with evidence (ORQ-E161) and refuses answers that
+    change nothing (ORQ-E162). A change to an approved profile withdraws the approval (ORQ-I070). `approve_profile`
+    needs a one-line reviewer name (ORQ-E163) and refuses a second approval (ORQ-E164). It records `reviewed_by`
+    and `reviewed_at`. Both write the profile and the lock through `_commit` and `apply_plan`.'
+  evidence:
+  - path: src/orqlet/application/usecases/profile_edit.py
+    lines: 40-189
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: be738f399dfd0fada63cc6bfc97be61e9495d5ed80c81f0479854cbec5e6102e
+- id: A-22
+  kind: operation
+  statement: '`_profile_findings` raises ORQ-W180 when the profile is not approved. It raises ORQ-W181
+    when `open_questions` is not empty, listing the ids and telling the person to answer with `orqlet
+    profile answer KEY=VALUE`.'
+  evidence:
+  - path: src/orqlet/application/usecases/diagnose.py
+    lines: 313-335
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 45ea4ba362adc0ca6acb68c5d512b43693a6e166e2685ff4efadd6214a6bddf4
+- id: A-23
+  kind: operation
+  statement: The `orqlet-onboard` skill tells an agent to read the ORQ-W180 and ORQ-W181 findings of `orqlet
+    doctor` and to write each unknown as a question without inventing "a branch naming rule or a commit
+    convention". It then asks one batch, previews with `orqlet profile answer KEY=VALUE --dry-run` and
+    applies with `--yes`. It leaves `orqlet profile approve` to the person.
+  evidence:
+  - path: src/orqlet/workflow/skills/orqlet-onboard/skill.md
+    lines: 2-17
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: e1d943288b38b5b1c95929574c5358d37ced7345701299f7effa405003b15a48
+- id: A-24
+  kind: structure
+  statement: 'The profile of this repository has `status: draft`. Its repository section holds `target_branch`
+    with `answered_by` maintainer, and `branch_naming` and `commit_convention` as questions with no value.
+    It also holds the template status `team-template-unknown`, and `reviewers` and `merge_strategy` as
+    the text unknown.'
+  evidence:
+  - path: .orqlet/project-profile.yaml
+    lines: 10-51
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 46726e5f82d2cbe3ffc924b487549abd27ce18a3c11ffc4cec56f31f12b89d6d
+- id: A-25
+  kind: test
+  statement: After init, the tests assert that the `repository.target_branch` value is None and that the
+    open questions are exactly `repository.target_branch`, `repository.branch_naming` and `repository.commit_convention`.
+    They also assert that the answers `trunk` and `reviewer` give an approved profile, and that a bad
+    answer (`../etc`) is ignored with ORQ-W060.
+  evidence:
+  - path: tests/unit/application/test_init_project.py
+    lines: 81-125
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: fc2320eeafa8fc7232bda2cc865f9493edbd279770a2a902588cdaffc20a199c
+- id: A-26
+  kind: test
+  statement: The tests assert that with several templates the choice is never made for the maintainer
+    (ORQ-W050, both files untouched). They assert that `repository.pull_requests.template.targets` picks
+    the file that receives the blocks. They also assert that a pack's `pr-template` asset is distributed
+    unchanged with `status` provisioned.
+  evidence:
+  - path: tests/unit/application/test_init_project.py
+    lines: 499-555
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: 87db61457ae14fe333a9d8984237b1606735f525f819bc7b3e03e0f9504f5241
+- id: A-27
+  kind: test
+  statement: The tests assert that `answer_profile` refuses unknown keys (ORQ-E160), evidenced Python
+    facts (ORQ-E161) and a rejected `repository.target_branch` (ORQ-E162), and writes nothing. They assert
+    that a rejected value is reported (ORQ-W060) while good answers apply, that approval cannot be repeated
+    (ORQ-E164) and needs a name (ORQ-E163), and that changing a fact withdraws an approval (ORQ-I070).
+  evidence:
+  - path: tests/unit/application/test_profile_edit.py
+    lines: 100-171
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: c770faecb2cdcbb561ede5dcf1e2829aba9f60865a6670c84e9c99dd773dc304
+- id: A-28
+  kind: test
+  statement: The integration tests assert that without a template `init` creates `.github/pull_request_template.md`
+    holding only the `orqlet-workflow` block and records `team-template-unknown`. With several templates
+    they assert a warning ORQ-W050 and byte-identical files, and that `repository.pull_requests.template.targets`
+    is honoured and recorded in the profile.
+  evidence:
+  - path: tests/integration/test_pr_template.py
+    lines: 53-164
+    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    sha256: b1ee9c5cbad245d81c52ac14a591e58389eed9a1960b4900cdfa4bff7bb29f6d
+unknowns:
+- id: U-1
+  what: Whether any field, question or code records or asks about gitflow or a branch model, a merge strategy
+    value, a release or hotfix flow, pull-request size, title or description rules, required checks, or
+    the PR reviewers (as an answer). Searched src (all file types, excluding the ignored file) for gitflow,
+    git-flow, git flow, hotfix, squash, merge strategy, branching model, branch model, trunk-based, release
+    flow, release branch, conventional commit, commit convention, branch naming and naming rule. The only
+    hits are the `merge_strategy` default "unknown" (contracts/profile.py:89, copied at init_project.py:331,
+    in the JSON schema), the branch-naming and commit-convention questions, and the onboard skill and
+    command text. `reviewers` and `merge_strategy` are not in ANSWER_KEYS (init_questions.py:26-38), not
+    in open_questions (draft_profile.py:113-137), and nothing asks for them.
+  material: true
+- id: U-2
+  what: Whether the profile, `init` or `profile` mention a link, URL, resource or documentation source.
+    Searched `https?://`, `url`, `link` and `resource` (case-insensitive) in init_*.py, draft_profile.py,
+    profile_edit.py, contracts/profile.py, commands/init.py, commands/profile.py and ports/prompter.py,
+    with no hit. The nearest fields are elsewhere and not mapped here. `StandardsSourceRef` (profile.py,
+    kind prompts-dir or standards-pack, with `path` and `ref`) is the profile's only "source" concept.
+    `Provenance.source_url` (contracts/standards_pack.py:29-34) is pack provenance. `KnowledgeSource.globs`
+    (contracts/knowledge_config.py:19-24) holds repository-relative globs. `ServerIdentity.url` (contracts/integrations.py:14-19)
+    is an MCP server address. Whether any of these can hold a team's resource link (API guidelines, tool
+    documentation, a page behind a login) with a note is not established.
+  material: true
+- id: U-3
+  what: Whether any generated file other than `.orqlet/project-profile.yaml` carries `target_branch`,
+    `branch_naming`, `commit_convention`, `reviewers` or `merge_strategy`. Searched src for these names.
+    Consumers are init_questions.py, draft_profile.py, init_project.py (git setup and the template copy),
+    binding_inputs.py:132-146 (target branch used to find the merge base), upgrade.py:97-112 (template
+    targets only) and the JSON schema. No adapter, renderer, workflow text or baseline file reads them,
+    and `compose` discards the profile (render_all.py:111). The AGENTS.md block comes from baseline/baseline.md,
+    in which `branch` does not occur. I did not read a freshly rendered target repository.
+  material: true
+- id: U-4
+  what: 'Whether any code turns profile answers or links into scoped rules, skills or knowledge entries.
+    Searched for writers of `.prompts/rules.yaml` and `.orqlet/knowledge.yaml`. The seed has `rules: []`
+    (workflow/seeds/prompts/rules.yaml:1-4) and is written once. KNOWLEDGE_PATH is written only in render_all.py:261
+    and read in binding_inputs.py:172-179 and knowledge_impact.py. The profile answers have no consumer
+    in rule rendering (F-17, F-18).'
+  material: true
+- id: U-5
+  what: Whether a repository-derived value for target branch, commit convention or reviewers is ever read
+    at init. Searched `refs/remotes`, `symbolic-ref`, `current_branch(` and `CODEOWNERS` in src. The Vcs
+    port declares `current_branch()` (ports/vcs.py:74) and the git adapter implements it (adapters/git/vcs_git.py:62),
+    but no src code calls it. `refs/remotes` appears only in vcs_git.py:190 (a for-each-ref call). CODEOWNERS
+    is read only to check that the standards folder is mentioned (render_all.py:324-388, finding ORQ-I030).
+  material: true
+- id: U-6
+  what: 'Whether anything reads `auth_procedures`, `capabilities` or `data_class` of the profile (declared
+    at contracts/profile.py:151, 156 and 159). Searched `auth_procedures`, `auth-procedures`, `data_class`
+    and `.capabilities` in src. Only the contract and the JSON schema mention them (and `.orqlet/project-profile.yaml:133`
+    holds `auth_procedures: []`). No question or reader was found. Whether "internal pages behind a login"
+    has any representation is therefore unknown.'
+  material: true
+- id: U-7
+  what: The exact files the Claude Code and Cursor adapters write for scoped rules, commands, skills and
+    roles (adapters/clients/claude_code.py:23-33 and cursor.py:30-41 render `request.scoped_rules`, `request.commands`,
+    `request.skills` and `request.roles`). The `orqlet-onboard` skill is present in .claude/skills and
+    .agents/skills of this repository. Paths and contents were not mapped here (another area).
+  material: false
+- id: U-8
+  what: Whether the `WorkflowPolicy` contract (contracts/policy.py:55-68, with `required_checks`, `approvals.code_owners`
+    and `approvals.minimum_approvers`) is a place where a team records required checks or reviewers. Init
+    does not write it (render_all.py:257-274 lists the files init writes). Its readers and its file location
+    were not traced (another area).
+  material: true
+- id: U-9
+  what: Whether a hand edit of the seeded `.orqlet/project-profile.yaml` (for example setting `reviewers`)
+    is accepted or reported as drift by doctor or sync. The file is recorded as owner seeded in .orqlet/generated.lock.yaml:613-616,
+    and `profile answer` records a new hash (test_profile_edit.py:58-70). Drift handling of seeded files
+    was not traced.
+  material: true
+- id: U-10
+  what: Whether `doctor` is the only command that lists unknown facts. `_profile_findings` runs under
+    `full=True` (diagnose.py:60-61, 123-124), which `doctor` uses and `sync` does not. `init` prints open
+    questions through render_human.py:54-56 and `open_questions` in the JSON (commands/init.py:154). `tests/unit/adapters/test_tty_prompter.py`
+    and `tests/fakes/prompter.py` exist but were not read.
+  material: false
+contradictions:
+- id: C-1
+  sources:
+  - docs/design/orqlet-architecture-proposal.md:4720-4722
+  - docs/design/orqlet-architecture-proposal.md:2878
+  - src/orqlet/application/usecases/draft_profile.py:81-85
+  - src/orqlet/application/usecases/init_questions.py:90-105
+  note: The proposal (section 24.2) says `target_branch` is "named by the maintainer or read from refs/remotes/<remote>/HEAD"
+    and `commit_convention` is "<detected or unknown>". The code only creates them as unknown with a question,
+    and sets them from an answer. Not resolved here.
+- id: C-2
+  sources:
+  - docs/design/orqlet-architecture-proposal.md:4725-4726
+  - src/orqlet/application/contracts/profile.py:88-89
+  - src/orqlet/application/usecases/init_project.py:330-331
+  - src/orqlet/application/usecases/render_all.py:324-388
+  note: The proposal says `reviewers` is "<from CODEOWNERS or unknown>". The contract defaults it to the
+    text "unknown" and init copies it unchanged. CODEOWNERS is read only to check that the standards folder
+    is mentioned. Not resolved here.
+- id: C-3
+  sources:
+  - docs/design/orqlet-architecture-proposal.md:4724
+  - src/orqlet/application/usecases/init_project.py:323-327
+  - src/orqlet/application/usecases/render_all.py:141-143
+  note: The proposal says `source_id` is "<pack asset id or unknown>". `_with_pr_template` always sets
+    `source_id=None`, while `team_template` holds the asset id of the pack's template. Not resolved here.
+- id: C-4
+  sources:
+  - src/orqlet/application/usecases/init_questions.py:93-105
+  - src/orqlet/application/usecases/init_questions.py:122
+  - src/orqlet/application/usecases/draft_profile.py:113-137
+  - src/orqlet/application/usecases/diagnose.py:324-334
+  note: The branch-naming and commit-convention questions say "leave empty if not". An empty answer is
+    dropped, the fact stays a value-less question, and doctor keeps listing it as unknown (ORQ-W181).
+    The sources do not say how "there is no rule" is recorded apart from "not answered". Not resolved
+    here.
+- id: C-5
+  sources:
+  - src/orqlet/application/contracts/common.py:62-63
+  - src/orqlet/application/contracts/profile.py:86-89
+  note: '`FactValue` is documented as "a value with evidence, or an unknown with a question. Nothing in
+    between." `PullRequests.reviewers` and `merge_strategy` are plain strings defaulting to the text "unknown",
+    with no question and no evidence. Not resolved here.'
