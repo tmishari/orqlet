@@ -1,0 +1,1428 @@
+schema: orqlet.as-is-fragment/v1
+fragment_id: open-items-approval-merge-protection
+base_revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+scope:
+  paths:
+  - docs/design/orqlet-implementation/**
+  - docs/design/orqlet-m2-workflow/**
+  - docs/design/harness2-fit/**
+  - docs/design/go-migration-feasibility/questions.yaml
+  - docs/design/open-items/**
+  - .orqlet/**
+  - .github/**
+  request_ref: open-items
+facts:
+- id: A-1
+  kind: operation
+  statement: GET /repos/tmishari/orqlet returned 200 with a private repository, default branch main, merge
+    commits, squash merges and rebase merges all allowed, auto-merge off, delete-branch-on-merge off,
+    and the calling account holding admin, maintain, push, triage and pull.
+  evidence:
+  - path: docs/design/open-items/evidence/github-state.yaml
+    lines: 4-19
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 8c4558dfebc22982743b91c9111b27f15f24d57773a42cfd3619300be2238744
+- id: A-2
+  kind: operation
+  statement: GET branches/main returned protected false, protection_enabled false and head_sha 2c4308ecdbed19b360fe0aee22cf7ca69a15a9be.
+  evidence:
+  - path: docs/design/open-items/evidence/github-state.yaml
+    lines: 20-25
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: a93e0736e497879551d6eb8cff89a743bf2532c07d06bd1b4d97c37558b4b495
+- id: A-3
+  kind: operation
+  statement: GET branches/main/protection and GET rulesets each returned HTTP 403 with the message 'Upgrade
+    to GitHub Pro or make this repository public to enable this feature.'
+  evidence:
+  - path: docs/design/open-items/evidence/github-state.yaml
+    lines: 26-31
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 6054f8cb82802866f133ddb9eef3a7c4b1d87b4d3e486e949c489e19e8d1a1c6
+- id: A-4
+  kind: operation
+  statement: GET actions/permissions returned enabled true, allowed_actions all and sha_pinning_required
+    false.
+  evidence:
+  - path: docs/design/open-items/evidence/github-state.yaml
+    lines: 32-34
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 9b6e37e19bca2c0f26fc1e3b963356942e18a455098ab3ae5dba00818d428cb1
+- id: A-5
+  kind: operation
+  statement: GET pulls?state=all&per_page=100 returned HTTP 200 with pull_requests_found 0.
+  evidence:
+  - path: docs/design/open-items/evidence/github-state.yaml
+    lines: 35-37
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 4de72e35cab3d309adc0c765c4e1aae430b155e783257a7b301b25eae2cd68d7
+- id: A-6
+  kind: operation
+  statement: 'GET collaborators returned a count of 1: login tmishari with role admin.'
+  evidence:
+  - path: docs/design/open-items/evidence/github-state.yaml
+    lines: 38-42
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: ae46a3714ef0da0ca86a86a0be0bdf26dfde9524f8478fed6211f790eaa9ee5c
+- id: A-7
+  kind: operation
+  statement: 'GET actions/runs lists two runs of the workflow ci, both event push on branch main: head
+    2c4308ecdbed conclusion failure and head e8ef7a8832e9 conclusion cancelled.'
+  evidence:
+  - path: docs/design/open-items/evidence/github-state.yaml
+    lines: 43-48
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: d5a67d3d1a322f710c7a8e0c7dad20b3ad130675abc4c3c8c35fb4f80f8ccf54
+- id: A-8
+  kind: operation
+  statement: 'The capture lists as not read: whether the account is on a free or paid plan, organisation-level
+    settings, required reviewers and CODEOWNERS enforcement.'
+  evidence:
+  - path: docs/design/open-items/evidence/github-state.yaml
+    lines: 49-51
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: b574bf65038a4bf135816bce3187bba383dfbf475f7f10065be408ae4822856a
+- id: A-9
+  kind: operation
+  statement: 'The log of main lists 22 commits (lines 5-26), all with the author name Timur Misharin,
+    and no commit subject names a pull request; the only commit with two parents is e8ef7a8832e9 ''Merge
+    harness2-rebuild: the rebuilt history of harness2-fit''.'
+  evidence:
+  - path: docs/design/open-items/evidence/git-history.txt
+    lines: 5-26
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 503b25cb98d71e74f6b0b1cff5c46ba6487cebd5adf2d3be4815208873dfb00a
+- id: A-10
+  kind: structure
+  statement: 'The log has two root commits: a18faca4ee53 (2026-10-24T09:06:42+03:00, ''Add front-matter
+    checks, plain-safe emitter and workflow 0.3.1 (harness2-fit P-1 to P-6)'') and 2f2356736106 (2026-10-25T10:13:57+02:00,
+    ''Baseline: Orqlet before harness2-fit (RECONSTRUCTED, not the original)'').'
+  evidence:
+  - path: docs/design/open-items/evidence/git-history.txt
+    lines: 23-26
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 85b0288f702b3615e4116a83399de29a8448c57299a6d1651a77f59684c088b2
+- id: A-11
+  kind: structure
+  statement: The merge commit e8ef7a8832e9 (2026-10-25T14:28:56+02:00) has first parent 0bfc2faf5f89,
+    the tip of the original line (a18faca, 62dd723, 0bfc2fa), and second parent 034007cb6726, the tip
+    of the rebuilt line (2f23567 ... 034007c).
+  evidence:
+  - path: docs/design/open-items/evidence/git-history.txt
+    lines: 8-9
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 83941f891e83cdf3501884f38947f53044c891bb6f56d2cfcd9617c89a56b142
+- id: A-12
+  kind: flow
+  statement: 'Three commit subjects record approval by the person: cf6391507b8a ''Record the person''s
+    approval of the harness2-fit design set and plan'' (2026-10-25T14:14:24+02:00), 034007cb6726 ''Record
+    the person''s acceptance of the rebuilt harness2-fit AS-IS'' (14:15:26) and 2c4308ecdbed ''Fix proposal
+    wording from the P-5 reviews and record the approval of v0.5'' (15:03:03).'
+  evidence:
+  - path: docs/design/open-items/evidence/git-history.txt
+    lines: '5'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 0fe176337c8129238e32d861cd6ae030139a672dd13bf6edae137c3acb23a8f5
+  - path: docs/design/open-items/evidence/git-history.txt
+    lines: 9-10
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 58539e22166242f8b0f091410c68335454679c72c4e8e1f328559dd681cd34ad
+- id: A-13
+  kind: flow
+  statement: In the rebuilt line the commits for harness2-fit P-1 to P-6 are dated 2026-10-25T10:20:51
+    to 10:30:26+02:00 and the design set and the plan are dated 10:16:14 and 10:16:31, all before the
+    commit recording the approval of the design set and plan (14:14:24).
+  evidence:
+  - path: docs/design/open-items/evidence/git-history.txt
+    lines: 10-21
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 60fb94e1e43cbea09a1983e7af1f26c92e5f8a8d5fc9227e83a9e74974f92d22
+- id: A-14
+  kind: flow
+  statement: In the original line the commit for harness2-fit P-1 to P-6 is dated 2026-10-24T09:06:42+03:00
+    and the commit adding the harness2-fit AS-IS, design, plan and reviews and applying the 0.3.1 versions
+    proposal is dated 2026-10-24T09:23:54+03:00, one day before the approval date 2026-10-25 that the
+    artifacts record.
+  evidence:
+  - path: docs/design/open-items/evidence/git-history.txt
+    lines: 24-26
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 6b0e8241d3f77515b80688406066bd9851555cd892e8020433a9570e2c89e213
+- id: A-15
+  kind: operation
+  statement: Commits 79bafd01951f, a7a672857131 and 2c4308ecdbed all carry the author date 2026-10-25T15:03:03+02:00,
+    and their reflog entries share one epoch second (1792933383).
+  evidence:
+  - path: docs/design/open-items/evidence/git-history.txt
+    lines: 5-7
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 21ae9a0ac24e4cc1e9da2e5ad322d7ee5966998aee7946156e753efd79bda3e1
+- id: A-16
+  kind: structure
+  statement: Local branches are harness2-rebuild, main and the current open-items-research; remote-tracking
+    refs are origin/HEAD -> origin/main, origin/harness2-rebuild and origin/main; no origin/open-items-research
+    and no tag exists.
+  evidence:
+  - path: docs/design/open-items/evidence/git-history.txt
+    lines: 27-37
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: be7f3c8166fa6d0fb6a31475b4fd73fbd0fb71caac8a412266dce8724dc15cf6
+- id: A-17
+  kind: structure
+  statement: git remote -v prints the origin URL as ssh://github.com/tmishari/orqlet.git while git config
+    prints remote.origin.url as https://github.com/tmishari/orqlet.git; branches main and harness2-rebuild
+    track origin.
+  evidence:
+  - path: docs/design/open-items/evidence/git-history.txt
+    lines: 35-45
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 1ae25da783096923b54ccf813ac10cb60e5b17c699b77fa1c49962446872eb5c
+- id: A-18
+  kind: operation
+  statement: ci.yml triggers on push with branches [main] and on pull_request with no branch filter.
+  evidence:
+  - path: .github/workflows/ci.yml
+    lines: 3-6
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: bfa611c996966af9dd6af40c231156f7f6af00d3b2e5b77144bbfdc1ccf528b7
+- id: A-19
+  kind: operation
+  statement: 'ci.yml sets top-level permissions to {} and each job to contents: read, and sets concurrency
+    group ''ci-${{ github.ref }}'' with cancel-in-progress true.'
+  evidence:
+  - path: .github/workflows/ci.yml
+    lines: 8-12
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 2ea7e7d3326c9f642b02ca756b9b3a48df6bef1675e4d025d9e1efa3df876720
+- id: A-20
+  kind: operation
+  statement: 'ci.yml defines five jobs: lint (ruff check, ruff format --check), types (mypy), architecture
+    (lint-imports, export_schemas --check, build_manifest --check), tests (pytest) and build (two wheel
+    builds with equal SHA-256).'
+  evidence:
+  - path: .github/workflows/ci.yml
+    lines: 17-107
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 7ebc3f340aa0b30896abed7fa493e654ec1fab09b19aeb62e587e59bed23df4c
+- id: A-21
+  kind: operation
+  statement: The tests job is a matrix of ubuntu-latest, macos-latest and windows-latest by Python 3.12,
+    3.13, 3.14 and 3.15 with fail-fast false; the lint, types and architecture jobs run on Python 3.12.
+  evidence:
+  - path: .github/workflows/ci.yml
+    lines: 66-84
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 3d558398c45338125066e308cc8243cfc6102065672d6bfe7c70017da0acaeff
+- id: A-22
+  kind: operation
+  statement: No job in ci.yml runs an orqlet command or reads a pull request, review, approval, code owner
+    or gate status; the file contains none of the strings 'orqlet', 'approv', 'review' or 'gate'.
+  evidence:
+  - path: .github/workflows/ci.yml
+    lines: 1-107
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 58eb8448a25fdf2ee85e8ae0aed70dd8035623386cdb161c415e8e811786e1e6
+- id: A-23
+  kind: dependency
+  statement: ci.yml pins UV_VERSION to 0.7.19, actions/checkout to commit 3d3c42e5aac5ba805825da76410c181273ba90b1
+    (comment v7.0.1) and astral-sh/setup-uv to commit 1c37ad07a6a961277cf70c0d37d6f313000f5884 (comment
+    v10.3.0), with persist-credentials false and enable-cache false.
+  evidence:
+  - path: .github/workflows/ci.yml
+    lines: 14-29
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: fd9dda7e12a500b7bd815228bfa169d2f2cba1f0c26588d8cde2fbf93fffe2d6
+- id: A-24
+  kind: dependency
+  statement: The runner labels (ubuntu-latest, macos-latest, windows-latest) and the Python minor versions
+    are not pinned to a patch version, and GitHub reports sha_pinning_required false.
+  evidence:
+  - path: .github/workflows/ci.yml
+    lines: '19'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 60f5fed467f29e503f9adfee203ba98deb3bddee1851db827f4b1e08c0380598
+  - path: .github/workflows/ci.yml
+    lines: '35'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 60f5fed467f29e503f9adfee203ba98deb3bddee1851db827f4b1e08c0380598
+  - path: .github/workflows/ci.yml
+    lines: '50'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 60f5fed467f29e503f9adfee203ba98deb3bddee1851db827f4b1e08c0380598
+  - path: .github/workflows/ci.yml
+    lines: '67'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 37d70179d6ba997cdeaf699011738cfc8eb57511873ccbbef308281d496c5359
+  - path: .github/workflows/ci.yml
+    lines: 73-74
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 36c2a69d726c6a4f5db5378e0d28d71c111199d39c49ed76af09ffea44665fc5
+- id: A-25
+  kind: structure
+  statement: The .github folder holds two files, workflows/ci.yml and pull_request_template.md, and a
+    search of the whole repository found no file named CODEOWNERS, while Orqlet looks for one at .github/CODEOWNERS,
+    CODEOWNERS and docs/CODEOWNERS.
+  evidence:
+  - path: src/orqlet/application/usecases/render_all.py
+    lines: '324'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 226e87c547428c73b0e5f94dcd9ac22be31e9b57c3023461dcde7ffe9a09c67d
+- id: A-26
+  kind: structure
+  statement: The pull request template is a managed block of workflow 0.3.1 whose fields 'Design pull
+    request:', 'Plan pull request:', 'Review record:', 'Test record:' and 'Required checks:' are empty
+    and whose text says a ticked box is not evidence because the checks read the committed records.
+  evidence:
+  - path: .github/pull_request_template.md
+    lines: 1-23
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 9b40c4dab32fa3d40d6b15621885df0ec2f4dc1173d0d9389af9158630e7b8e9
+- id: A-27
+  kind: structure
+  statement: 'versions.yaml has policy_role enforcement-baseline, cli pinned and accepted 0.1.0 with nothing
+    denied, workflow version 0.3.1 with digest 5d6807e85ea2... and floor 0.3.1, controls_level_min 3,
+    and change_control with the single key lowering_pin_or_floor_requires_approvals: 2.'
+  evidence:
+  - &id001
+    path: .orqlet/versions.yaml
+    lines: 1-14
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 3d94a46d7b629bf39eeb3a7e8226087ddee53c540397d8a627c183b2f98dfb28
+- id: A-28
+  kind: structure
+  statement: versions.yaml holds no key for reviewers, merge strategy, code owners, branch protection
+    or approvals for raising a pin or floor.
+  evidence:
+  - *id001
+- id: A-29
+  kind: interface
+  statement: Orqlet's messages say a downgrade of the workflow needs two approvals when merged (upgrade)
+    and that a rollback allowed with --allow-weaker needs two approvals.
+  evidence:
+  - path: src/orqlet/application/usecases/upgrade.py
+    lines: 204-213
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 92435a8b826a70e329ed231887856caf24adaa6525cd75abf7742ee261c3911b
+- id: A-30
+  kind: structure
+  statement: The proposal file .orqlet/proposals/.orqlet__versions.yaml.diff changes workflow version,
+    digest and floor from 0.3.0 (afeefefe114234f4...) to 0.3.1 (5d6807e85ea2...), the values that versions.yaml
+    now holds; the commit subject 'Apply the 0.3.1 versions proposal to the enforcement baseline' is e65734a9150c.
+  evidence:
+  - path: .orqlet/proposals/.orqlet__versions.yaml.diff
+    lines: 1-15
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: e65b21ef368fc7fcb0ccf90ec27aa92abc2102c79b3942542865eab0b8ed76e5
+  - path: docs/design/open-items/evidence/git-history.txt
+    lines: '13'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 672c5cdbd54b13acaf788b695332c16f38008e7fbc75560c9be8bf893aee6353
+- id: A-31
+  kind: structure
+  statement: The file .orqlet/proposals/.orqlet__role-bindings.yaml.diff holds one line and that line
+    is empty.
+  evidence:
+  - path: .orqlet/proposals/.orqlet__role-bindings.yaml.diff
+    lines: '1'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+- id: A-32
+  kind: structure
+  statement: workflow.lock records workflow_version 0.3.1, workflow_digest 5d6807e85ea2... (equal to versions.yaml)
+    and controls_level 3.
+  evidence:
+  - path: .orqlet/workflow.lock
+    lines: 1-4
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 6df2877c1cb35523ffa71997811f4a2284e4c52efc6b6bc7ac1606544df3e2f7
+- id: A-33
+  kind: structure
+  statement: knowledge.yaml (schema orqlet.knowledge/v2) has empty sources, exclude and write_scope.
+  evidence:
+  - path: .orqlet/knowledge.yaml
+    lines: 1-4
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 4af3bc53e7dbca20b4c498628022c7825c40b22b69621e36567b080c3eaf4e38
+- id: A-34
+  kind: structure
+  statement: The project profile has profile.version 1 and status draft, and no field for code owners,
+    branch protection or an approving person.
+  evidence:
+  - path: .orqlet/project-profile.yaml
+    lines: 11-12
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 6ae7ee9b1c7947972ea69833a4d0e5a6f82dd1125f322f7ccd1a9eb181cbe335
+- id: A-35
+  kind: structure
+  statement: In the profile, repository.target_branch is main with empty evidence, answered_by maintainer
+    and remote origin.
+  evidence:
+  - path: .orqlet/project-profile.yaml
+    lines: 34-38
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 81ba81802078db4db78da5d10bb8a727b85982eda9716a13233a5038b952b9d0
+- id: A-36
+  kind: structure
+  statement: In the profile, branch_naming and commit_convention each hold empty evidence and only a question.
+  evidence:
+  - path: .orqlet/project-profile.yaml
+    lines: 39-44
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: ca9a3bfd2ad2bec61bdc8b98a38404187b775b7db0df2b706993b9435ce5b142
+- id: A-37
+  kind: structure
+  statement: In the profile, pull_requests.template targets .github/pull_request_template.md with status
+    team-template-unknown, reviewers is unknown and merge_strategy is unknown.
+  evidence:
+  - path: .orqlet/project-profile.yaml
+    lines: 45-51
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 47a8c845e881a7dd939e5b28166e3b7b7f0dc67515edeb493329ed2235fdc12e
+- id: A-38
+  kind: structure
+  statement: role-bindings.yaml binds the roles architecture-reviewer and security-reviewer to the generated
+    agents orqlet-arch-reviewer and orqlet-security-reviewer for claude-code, codex and cursor with independence_capability
+    I1, and holds no human reviewer or code owner.
+  evidence:
+  - path: .orqlet/role-bindings.yaml
+    lines: 1-27
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 6f8356c02488c77e5db488921a457ea147d78af81ab181772d20e14aec5ce8b6
+- id: A-39
+  kind: structure
+  statement: generated.lock.yaml lists .orqlet/knowledge.yaml, project-profile.yaml, role-bindings.yaml
+    and versions.yaml as owner seeded (team-owned), .orqlet/workflow.lock as owner orqlet class protected,
+    and the pull request template as a shared-block of workflow@0.3.1#e87889ff...; it lists neither ci.yml
+    nor a CODEOWNERS file.
+  evidence:
+  - path: .orqlet/generated.lock.yaml
+    lines: 598-634
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 034da726f11761947a8f078a82ecdc43287697f5e6353d6534ef31a2503b73aa
+- id: A-40
+  kind: structure
+  statement: generated.lock.yaml records the AGENTS.md baseline block as workflow@0.3.1 with input sha256
+    25f4cdb30a39...
+  evidence:
+  - path: .orqlet/generated.lock.yaml
+    lines: 656-665
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: bf550fbf509f3379bb0ceb86a2c3ee678b9dc65d721adc3cc348bc0df3bcc1f2
+- id: A-41
+  kind: interface
+  statement: The contract orqlet.workflow-policy/v2 has an approvals block with design and plan rules
+    of source 'baseline-with-merge-evidence' and optional code_owners and minimum_approvers, and the .orqlet
+    folder holds nine files, none of them a workflow policy file.
+  evidence:
+  - path: src/orqlet/application/contracts/policy.py
+    lines: 12-20
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: a34d3e3ff5347caf0c8180c711f84f7e7825ec5cee6f14dd5a4beb70021bdacc
+- id: A-42
+  kind: interface
+  statement: gate status is offline and read-only, compares workflow_version, protected_set_digest, standards
+    lock, rules hash and profile version of an artifact header with the current values, and with a task
+    always ends NOT_RUN because approval needs host evidence that an offline run does not have.
+  evidence:
+  - path: src/orqlet/application/usecases/gate_status.py
+    lines: 1-7
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: e43f4e86babe6648925498bf32bc79b93d8661c92c97a6ee23f60ddd086c66a7
+- id: A-43
+  kind: interface
+  statement: gate_status reports info ORQ-I393 that approval of the design and the plan is evidence on
+    the protected baseline and is not checked offline, then skips with 'approval needs host evidence,
+    which an offline run does not have'.
+  evidence:
+  - path: src/orqlet/application/usecases/gate_status.py
+    lines: 117-122
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 2608df146887747f73ecd4339beaab358415521602cddad75d18dc2b04191ea3
+- id: A-44
+  kind: interface
+  statement: The artifact header contract states that approval is decided by presence on the protected
+    baseline, never by the status field.
+  evidence:
+  - path: src/orqlet/application/contracts/artifact_header.py
+    lines: 1-6
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 92b2809945755425c7834bbbbf7ea27ac9cf9161853f00e4f9cb9db4513a085a
+- id: A-45
+  kind: flow
+  statement: The orqlet-plan skill tells the agent to ask the person to confirm that the design pull request
+    merged on the protected branch and to stop otherwise (a D1 change may be drafted from the validated
+    draft and approved in the same pull request), and its last step tells the person to open a plan pull
+    request and says the agent cannot approve it.
+  evidence:
+  - path: src/orqlet/workflow/skills/orqlet-plan/skill.md
+    lines: '11'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 57948ba02d7542790a3f05ebbf8c59c53fcbca4149835f7692d49ebb92bbd4fb
+  - path: src/orqlet/workflow/skills/orqlet-plan/skill.md
+    lines: '19'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: ab6756d7b953d6faa7784911eac1f4488ce2ba754480cf90052f4c98d773b194
+- id: A-46
+  kind: flow
+  statement: The orqlet-implement skill tells the agent to run gate status, note that an offline run reports
+    NOT_RUN for approval, ask the person to confirm that the design and the plan pull requests merged
+    on the protected branch, and stop if they did not or if anything is stale.
+  evidence:
+  - path: src/orqlet/workflow/skills/orqlet-implement/skill.md
+    lines: '11'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 6e8e4f86946d29567a48ad49b44d5abd13bcef3d81d9f0e6018098d9478551cf
+- id: A-47
+  kind: flow
+  statement: The orqlet-design skill ends with a step telling the person to commit the design and open
+    a design pull request and says approval is the merge of that pull request by an authorised person.
+  evidence:
+  - path: src/orqlet/workflow/skills/orqlet-design/skill.md
+    lines: '19'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 2cf78d941ffd66aa4db68426589a67d16664d277c4e9337007403102f5c95b6e
+- id: A-48
+  kind: flow
+  statement: The AGENTS.md baseline says a person approves the design and the plan before implementation
+    starts and that an agent who cannot tell whether an approval exists asks.
+  evidence:
+  - path: AGENTS.md
+    lines: 18-20
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 0ba1e06ff5d533ac0ea65e9d608eb8600ee89e03d710a500c76be2a8817fbb07
+- id: A-49
+  kind: structure
+  statement: as-is.md has no artifact header or status field; its table says Status 'Draft, awaiting your
+    acceptance', date 2026-10-21, and no base revision because the directory was not a Git repository.
+  evidence:
+  - path: docs/design/orqlet-implementation/as-is.md
+    lines: 1-9
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 9f997d2c0dd6bfa79d10d650d2c94109356b8e57504ae99b30b9fba2f8164916
+- id: A-50
+  kind: dependency
+  statement: as-is.md fact A-01 anchors the proposal by its path, 5,960 lines and SHA-256 d9d5e675b3d18c2c95ee38aa4d1634d2a6107c4b635135957ec0d51e29b324d4,
+    and A-04 says the proposal is v0.4 'awaiting human approval'.
+  evidence:
+  - path: docs/design/orqlet-implementation/as-is.md
+    lines: 17-20
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 89f2f0716d26f7ff42e601b3dfbbf5fb21ae6e85c14dc2df8c39178360a3f1d4
+- id: A-51
+  kind: flow
+  statement: 'as-is.md records the unknown U-1 ''The design''s approval status: v0.4 is not approved''
+    (material), U-2 code host and CI (Q-01), and U-3 ''Who counts as an authorised approver for designs
+    and plans (Q-03)'' (material); A-24 and A-25 say M0 begins when Q-01, Q-03, Q-04 and Q-05 are answered
+    and that Q-01, Q-03 to Q-06 are open.'
+  evidence:
+  - path: docs/design/orqlet-implementation/as-is.md
+    lines: 78-87
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: f9fd93234152e17bdd66b27eee53e6c7784901390f088d7dd5fed19110bdd251
+- id: A-52
+  kind: structure
+  statement: design.md has no artifact header; its Phase row says 'Nothing in this folder is approved,
+    and no code may be written from it until it is', its Inputs row cites the architecture proposal v0.4
+    with SHA-256 d9d5e675…b324d4, and its Status row says 'Decisions D-1 to D-8 of section 11 approved
+    as recommended (2026-10-21)'.
+  evidence:
+  - path: docs/design/orqlet-implementation/design.md
+    lines: 6-10
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 0cfe70ae80e5335caf97ebd623bb32f5e90f2775f46ced6faa2505ccd3f3190f
+- id: A-53
+  kind: flow
+  statement: design.md section 11 is titled 'Decisions that need your approval' and lists D-1 to D-8 with
+    a recommendation each; D-5 and D-8 are external writes (a published check, a Git repository and GitHub
+    remote) that need the person's approval or action, and the person's words of approval are not quoted.
+  evidence:
+  - path: docs/design/orqlet-implementation/design.md
+    lines: 333-344
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 941552151be2517325cfc61b6b1c254b4b96087060675a1058c35d1b882fd710
+- id: A-54
+  kind: flow
+  statement: design.md assumes AS-1 GitHub and Actions as host (Q-01 open), AS-2 'Approval is a pull-request
+    merge with a non-author code owner' (Q-03 open), AS-3 both local guards (Q-04, Q-05 open), AS-6 that
+    Orqlet's own pull requests are reviewed by humans only until M2 ships, and AS-7 that a Git repository
+    and a GitHub remote exist before the first code slice.
+  evidence:
+  - path: docs/design/orqlet-implementation/design.md
+    lines: 57-63
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 26e08831c697a8482df6b1e635650b40459d5a329fc7e44f7555e53dd4c7bce0
+- id: A-55
+  kind: flow
+  statement: design.md lists as prerequisites the M0 spikes and the answers to Q-01, Q-03, Q-04 and Q-05,
+    and says withdrawing a bad release is a policy pull request that lowers the pin and needs two approvals
+    (proposal §20.8).
+  evidence:
+  - path: docs/design/orqlet-implementation/design.md
+    lines: '21'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: ba8914db92310ca5331f5cdae41baa00a4fc342ff95b260ef708c9d9ed72356c
+  - path: docs/design/orqlet-implementation/design.md
+    lines: '303'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: f7b316f4b6fd20f729c73a46a53d2393a438ae2a2ad80f66899d40eb1bb798e7
+- id: A-56
+  kind: structure
+  statement: Each of adr-001 to adr-005 has the status line 'proposed (needs approval with `design.md`)'
+    (adr-002 adds 'decision D-2'), and none records an approver, a date or a pull request.
+  evidence:
+  - path: docs/design/orqlet-implementation/adr-002-deterministic-data-and-hashing.md
+    lines: '3'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 8d5b1b2fdcf1aa326cad69daf9879c1887bc0baa8e5bd6cd4116eea411afb6d8
+- id: A-57
+  kind: structure
+  statement: 'plan.md says ''Status: executed. The plan below is the approved Phase 3 text, copied unchanged
+    except for link paths'', cites the proposal v0.4 (section 22 for M1), and records the scope ''M1 only''
+    and the decisions D-1 to D-8 ''as recommended'' without approver wording or date.'
+  evidence:
+  - path: docs/design/orqlet-implementation/plan.md
+    lines: 3-11
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: c6e5dc7eb983fa142eb16bf63d89a109a15bb639a5411409a5ba5ffbaf892575
+- id: A-58
+  kind: flow
+  statement: plan.md says D-8 (create the Git repository, choose the target branch, create the GitHub
+    remote) 'needs your explicit OK when the plan runs' and that 'Each phase is one pull request'.
+  evidence:
+  - path: docs/design/orqlet-implementation/plan.md
+    lines: '23'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 0a3ace7b86f2cc8c57280c347c69b4bd00ed7e1035eb75be44aee3c25c559690
+  - path: docs/design/orqlet-implementation/plan.md
+    lines: '43'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: fffc0fd763d94b2952f06029caeabf73472b6dcafd53d4aa2788cd5d7a7660ef
+- id: A-59
+  kind: operation
+  statement: plan.md's execution record says CI has not run because there is no remote 'as you decided
+    in P-1', and that no commit was made, no remote was created and everything is untracked.
+  evidence:
+  - path: docs/design/orqlet-implementation/plan.md
+    lines: 137-148
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: cc8dd3c5abcfae667fd199a9067c26dc5420cd895d515519586435a65258fdf7
+- id: A-60
+  kind: flow
+  statement: 'plan.md ends with ''Needs your review or decision'': new Orqlet text needs a person''s review,
+    releases.json is empty (record 0.1.0 when the person decides), ADR and design text are not edited,
+    the packaging source is open, and the remote and first commit are to be made when the person wants
+    CI to run; section ''After M1'' says the M2 plan waits for Q-01, Q-03, Q-04, Q-05 and the spikes S-14
+    and S-28.'
+  evidence:
+  - path: docs/design/orqlet-implementation/plan.md
+    lines: 113-115
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: f56d54e7bab4ce5c4bd82c6bcf657d8cd46bb34f41e7b2d519df942106199c86
+  - path: docs/design/orqlet-implementation/plan.md
+    lines: 221-232
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 28f698f77356183af559f168d91046d1acd1b9fc5153330ac3efa10ecf3799fd
+- id: A-61
+  kind: structure
+  statement: plan.md, as-is.md and the ADRs of orqlet-implementation record no pull request number, merge
+    commit or protected-baseline evidence.
+  evidence:
+  - path: docs/design/orqlet-implementation/plan.md
+    lines: 1-232
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: ebddff4920234fdf941eb891a7b293787b7aabb6a42dacc987d94d713ac8b981
+- id: A-62
+  kind: structure
+  statement: The folder holds only design.md and plan.md; design.md lists no AS-IS among its inputs, has
+    no artifact header, and its Format note says it follows the flat design.md of the previous task and
+    cannot be validated by the artifact contracts.
+  evidence:
+  - path: docs/design/orqlet-m2-workflow/design.md
+    lines: 1-10
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 564365469b19df099da112d246a043ef9c884f1360ccaaa5846f91b01b302124
+- id: A-63
+  kind: flow
+  statement: design.md says 'Approved by the user on 2026-10-22' (Phase) and 'Approved as written, decisions
+    D-M2-1 to D-M2-6 as recommended (2026-10-22)' (Status), without the person's wording and without a
+    pull request.
+  evidence:
+  - path: docs/design/orqlet-m2-workflow/design.md
+    lines: 6-9
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: e19dc376c3fbde4a55125ff13a1737c95d3bd74dbcaf152f72d814c96f4fabdb
+- id: A-64
+  kind: dependency
+  statement: design.md's inputs are the architecture proposal v0.4 ('section numbers and line numbers
+    below refer to it'), 'the approved docs/design/orqlet-implementation/design.md' and the M1 code.
+  evidence:
+  - path: docs/design/orqlet-m2-workflow/design.md
+    lines: '7'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: f1672929a902d3d66f49080b002a5e0559c529d148aab5a30361ec97adf091e6
+- id: A-65
+  kind: operation
+  statement: design.md fact F-6 says the Orqlet repository has no commit and no remote and that decision
+    D-8 of the approved design is still open; F-7 is the person's observation that /orqlet-doctor appeared
+    in Cursor's menu.
+  evidence:
+  - path: docs/design/orqlet-m2-workflow/design.md
+    lines: 26-27
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 6844d218c0fda0319c89654157b9f45860cc092b17c4bf18ad8146049da781cd
+- id: A-66
+  kind: flow
+  statement: design.md states the proposal's rule that approval is evidence on the protected baseline
+    (a merged pull request approved by a code owner who is not the author) and that gate status reports
+    it NOT_RUN offline; its stage table says the person approves a design by merging the design pull request
+    and a plan by merging the plan pull request.
+  evidence:
+  - path: docs/design/orqlet-m2-workflow/design.md
+    lines: '40'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: b266083381c19047e4fd74bb89d15448fb8856049010aaf10d61469050f1d046
+  - path: docs/design/orqlet-m2-workflow/design.md
+    lines: 72-73
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 547b80e2727d2d2bb13ceba15a0fc71bf63de61ea904745a6ac56d7839bb1a6a
+- id: A-67
+  kind: flow
+  statement: design.md says each skill stops at the person's decision, that an agent saying 'approved'
+    is not approval, and that approval stays NOT_RUN without host evidence.
+  evidence:
+  - path: docs/design/orqlet-m2-workflow/design.md
+    lines: '77'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 4fe49efc5c4d40003b9ef083fd409ff5cae1b4c1465ca3655e5c788194fe2e99
+  - path: docs/design/orqlet-m2-workflow/design.md
+    lines: '163'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 730f54699d2c239c02ab202df3e3161db61ddef08c1bda9ae260d8571cf43a61
+- id: A-68
+  kind: flow
+  statement: design.md says Plan A (S8, S9) needs no external write, Plan B (S10 to S12) starts only after
+    Q-01, Q-03, Q-04 and Q-05 are answered, U-3 says nobody has answered those questions in this repository,
+    and section 10 asks the person Q-01, Q-03 ('where do design and plan approvals live, and who is an
+    authorised human'), Q-04 and Q-05, and U-4 (10 files as the D1 ceiling).
+  evidence:
+  - path: docs/design/orqlet-m2-workflow/design.md
+    lines: '47'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 7256cb58d537c42c88a917d364734e274579550ee2a95132ddbee04d81cb70a9
+  - path: docs/design/orqlet-m2-workflow/design.md
+    lines: 130-131
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 089c05463b72e72b933be51a88f8334e56d861dbedafac39c5fe0066fd84c533
+  - path: docs/design/orqlet-m2-workflow/design.md
+    lines: 199-203
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 2567f6b2ca7ae7c02d91b0b11eb81f0ee998aa1166da4904441c6e045ab4f847
+- id: A-69
+  kind: flow
+  statement: design.md section 9 lists D-M2-1 to D-M2-6 as decisions that need the person's approval,
+    including D-M2-4 (make the first commit and set a remote) and D-M2-6 (do not migrate docs/design/orqlet-implementation/
+    to the new contracts).
+  evidence:
+  - path: docs/design/orqlet-m2-workflow/design.md
+    lines: 186-195
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 58f9618f906613a9375357e025fac0ee49d9da6452d13663a0a7b4372c0ae445
+- id: A-70
+  kind: structure
+  statement: plan.md has no Status line; its first paragraph says it is based on 'the design you approved
+    as written' and on the proposal v0.4 sections it cites, and step A-0 says to set the design's Status
+    line to approved and save the plan as plan.md.
+  evidence:
+  - path: docs/design/orqlet-m2-workflow/plan.md
+    lines: 1-3
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 7f71b353e6b456a1848582fcaad30fc68701ce490f8359a043ab64a4ad394255
+  - path: docs/design/orqlet-m2-workflow/plan.md
+    lines: '44'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 4af18571e19b7f314a3c71f2d8a146fec51ceab4d4e36aaf3847f96eb077a2cb
+  - path: docs/design/orqlet-m2-workflow/plan.md
+    lines: '3'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 24a0abbb6ea73987f5f2ed4a317b92a8e6bf575a545e07b19039b80b3b87f3b5
+- id: A-71
+  kind: flow
+  statement: plan.md ground rules say no commits or pushes unless the person asks, and 'Your actions'
+    lists the Cursor check of D-M2-1 before A-5 and the first commit and a remote (D-M2-4) before A-6
+    acceptance.
+  evidence:
+  - path: docs/design/orqlet-m2-workflow/plan.md
+    lines: '7'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 81f44a44254e61e219f02b8e35aff6272718adf4de2758ff76be233491c97ef6
+  - path: docs/design/orqlet-m2-workflow/plan.md
+    lines: 20-23
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: a29e0a705d18010147df8acd37581aa89202f64ef526dc3fe1fe67219738579c
+- id: A-72
+  kind: operation
+  statement: plan.md's execution record says CI has not run and there is no commit and no remote, that
+    gate status and every revision-bound check cannot bind anything on Orqlet's own repository, that approval,
+    published check results and reviewer identity are host evidence (S11) reported NOT_RUN, and that the
+    D-M2-1 check was not made.
+  evidence:
+  - path: docs/design/orqlet-m2-workflow/plan.md
+    lines: 169-174
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: a88e786608c40098cf0954be7ddc35e3085b925f61e6b5e384ccdafcbd2087c8
+- id: A-73
+  kind: operation
+  statement: plan.md departure 3 says .orqlet/versions.yaml and .orqlet/role-bindings.yaml of this repository
+    were changed by hand from the proposals that orqlet upgrade writes, because both are team-owned files,
+    and the pin was updated by hand each time the workflow digest changed.
+  evidence:
+  - path: docs/design/orqlet-m2-workflow/plan.md
+    lines: '184'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: cf92b376a5d51efd44e7eed03b8eec49a00437c8842349aaddd038ec4b4f3bac
+- id: A-74
+  kind: flow
+  statement: 'plan.md ends with ''Needs your review or decision'': review of new Orqlet text, recording
+    release 0.3.0, the first commit and remote (D-M2-4), trying the skills in Cursor, approving the profile
+    with ''orqlet profile approve --reviewer NAME'' and answering branch_naming and commit_convention,
+    adding /.prompts/ owners to CODEOWNERS (ORQ-I030), and Plan B not started.'
+  evidence:
+  - path: docs/design/orqlet-m2-workflow/plan.md
+    lines: 203-211
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 97cfbae74ac911d3f63f8e4a3c948fe0d896faf67a290c6b83bf413bf086e92d
+- id: A-75
+  kind: dependency
+  statement: plan.md cites proposal sections 6.14.1 (staleness table) and 17.13.3, and the orqlet-implementation
+    documents cite §6.14 and §6.14.1 (adr-002 line 7), §14.9 and §14.9.2 (adr-005 line 16, design.md line
+    153) and §17.13 (design.md line 141), sections that proposal line 74 lists as revised or rewritten
+    by v0.5.
+  evidence:
+  - path: docs/design/orqlet-m2-workflow/plan.md
+    lines: '96'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 8fe03f987486c53d4669ce79ebf99b8084d8e71398d9fd12d3525ff25f93e5bd
+  - path: docs/design/orqlet-m2-workflow/plan.md
+    lines: '109'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: b759c0c079dd00d95b5698e34d4e30832352eba6098fadc5e3a30f8d08b4cd19
+- id: A-76
+  kind: structure
+  statement: as-is.md has an artifact header with status approved, workflow_version 0.3.0, protected_set_digest
+    49ef4cd53bcb..., bound base_revision 2f235673610617120ffc0fc46824d7d7b56c6b87 (the reconstructed baseline)
+    and a scope that lists docs/design/orqlet-architecture-proposal.md and .orqlet/versions.yaml.
+  evidence:
+  - path: docs/design/harness2-fit/as-is.md
+    lines: 1-16
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: a7c2534e1ee1afdde30b5b4c01803e9b95848b642a1b203386e09fd7f7b01351
+- id: A-77
+  kind: flow
+  statement: as-is.md's Status row says 'Accepted by you on 2026-10-23 (A-5b) in its table form' and that
+    the front-matter form 'was accepted by you on 2026-10-25, in conversation', and A-5b records the acceptance
+    'in the conversation on 2026-10-23'.
+  evidence:
+  - path: docs/design/harness2-fit/as-is.md
+    lines: '164'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 74790da67afe63ab687d15ba80d5263aeaf7893e8937b3e406ea00da80a44751
+  - path: docs/design/harness2-fit/as-is.md
+    lines: '252'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: a41493d59d6e5576d9863b6cca7dbe244b1b9f8d63b66b82d3c39f156242c67d
+- id: A-78
+  kind: dependency
+  statement: as-is.md (dated 2026-10-23) says 'design §n' refers to docs/design/orqlet-architecture-proposal.md
+    (v0.5), a version the proposal's status line says the person approved on 2026-10-25.
+  evidence:
+  - path: docs/design/harness2-fit/as-is.md
+    lines: '166'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: bd504d759505a5d9010fc87f8f3d096072c3cc9e7f0f1cc519523ead293110fe
+- id: A-79
+  kind: structure
+  statement: as-is.md's self_check has two entries (evidence resolves; facts about Harness2 have no evidence
+    form) and none about approval; its U-1 means 'what a solution for us means' and is answered.
+  evidence:
+  - path: docs/design/harness2-fit/as-is.md
+    lines: 145-150
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: c346651d2de2ebdad9f29573f360c104be09806b8d222f64a5fcb898128d6a80
+  - path: docs/design/harness2-fit/as-is.md
+    lines: '259'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: cbd806c374dda276373cab68987b9850c95673c627bbd52f78c4dff82c19de11
+- id: A-80
+  kind: structure
+  statement: design/manifest.yaml has header status approved, workflow_version 0.3.1, protected_set_digest
+    be7723282aec..., base_revision a1bad7a644584ef9940ec433a2151d971a1b4e97 (the commit that holds the
+    AS-IS), an as_is_ref with a SHA-256, and change class D2; its scope lists docs/design/orqlet-architecture-proposal.md
+    and .orqlet/versions.yaml.
+  evidence:
+  - path: docs/design/harness2-fit/design/manifest.yaml
+    lines: 1-14
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: ee09499bab89e9e39caa56031a6d290e21fcedc24e45d33b12f475a9fa4cb4a7
+  - path: docs/design/harness2-fit/design/manifest.yaml
+    lines: '28'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 43844b25ef553c6023e2c267364e9a0c5bbeab7f7b78aa6746a32aec0e9775b6
+  - path: docs/design/harness2-fit/design/manifest.yaml
+    lines: '38'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 2f27ab7caea857673a9a523be9d09db751fde795683e94754ad58c9a036baa8c
+- id: A-81
+  kind: flow
+  statement: manifest.yaml self_check records the AS-IS acceptance (2026-10-23 table form, 2026-10-25
+    front-matter form, in conversation) and, with result pass, that 'the person wrote "I approve all designs
+    and plans" in conversation on 2026-10-25 ... this is not a merge on the protected baseline, so a gate
+    run still has no approval evidence'.
+  evidence:
+  - path: docs/design/harness2-fit/design/manifest.yaml
+    lines: 154-159
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: c13bc07688e9ff21619e3bdb12288dbfb663ffcf490645bafebd4acddaabba7b
+- id: A-82
+  kind: flow
+  statement: manifest.yaml self_check records that on 2026-10-25 the person wrote 'I approve all' about
+    the non-blocking review findings, the refresh of the bound workflow values and the proposal v0.5 approval,
+    that workflow_version and protected_set_digest in the header were refreshed to the upgraded repository
+    at commit e8ef7a8832e9 (workflow 0.3.1), and that base_revision still names the AS-IS commit so a
+    gate run still reports it stale.
+  evidence:
+  - path: docs/design/harness2-fit/design/manifest.yaml
+    lines: '160'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 715fe64cd6fcbb2c8203069715395cf908996892aa01c73f1bbaafdd102c1877
+- id: A-83
+  kind: structure
+  statement: manifest.yaml lists two design-review notes (architecture-reviewer-design.md, security-reviewer-design.md)
+    as its reviews.
+  evidence:
+  - path: docs/design/harness2-fit/design/manifest.yaml
+    lines: 145-149
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 9f4a26d39fe38e884b27bfd1bf18163e6139824b62d401761bd56deaccf41a98
+- id: A-84
+  kind: flow
+  statement: The architecture and security design-review notes each end by saying that a human reviewer
+    of the design pull request should read the final wording of the last edits.
+  evidence:
+  - path: docs/design/harness2-fit/reviews/architecture-reviewer-design.md
+    lines: '140'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 980313f6e9a5130ace17a0b4f53fb2e7450a6f559094e5b09616f0585a6679b8
+- id: A-85
+  kind: flow
+  statement: The security design-review note ends with the same request that a human reviewer of the design
+    pull request read the final wording of the last edits.
+  evidence:
+  - path: docs/design/harness2-fit/reviews/security-reviewer-design.md
+    lines: '109'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 362cf9e40edd2d9d11bc882c06fc173109fe4fd1deac62c2c747cb4ce48011b9
+- id: A-86
+  kind: structure
+  statement: plan.yaml has header status approved, workflow_version 0.3.1, protected_set_digest be7723282aec...,
+    bound base_revision 06209cdb13410548a825a6a731a2270ec7fe030f (the commit that holds the design), and
+    a design_ref to manifest.yaml with a SHA-256.
+  evidence:
+  - path: docs/design/harness2-fit/plan.yaml
+    lines: 1-14
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 011800df1c858c473f27c6267af99ef65ab728e676a798c94e152043fbee8127
+- id: A-87
+  kind: flow
+  statement: plan.yaml self_check records, with result pass, 'the person confirmed in this session that
+    the design pull request merged elsewhere; this repository has no commit or remote to show it'.
+  evidence:
+  - path: docs/design/harness2-fit/plan.yaml
+    lines: '226'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 70fcbb511f7633f0604cebcdcbd26758b276a9d2d6b5bee3106dab4303b3c959
+- id: A-88
+  kind: flow
+  statement: plan.yaml self_check records, with result pass, the person's words 'I approve all designs
+    and plans' in conversation on 2026-10-25, 'recorded at their instruction; this is not a merge on the
+    protected baseline, so a gate run still has no approval evidence', and the later 'I approve all' to
+    the refresh of the bound values at base commit e8ef7a8832e9 with the statement that a gate run still
+    reports base_revision stale.
+  evidence:
+  - path: docs/design/harness2-fit/plan.yaml
+    lines: 231-232
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: f1d9ecab8cbecb72e6194148b06057ade746e79d83548462fda311adf4c0d373
+- id: A-89
+  kind: flow
+  statement: plan.yaml phase P-5 writes the packet rule and a new section 21.7 into the proposal and says
+    the proposal's version and status line are not changed by that phase; phase P-6 completion says 'The
+    person decides about the proposal for .orqlet/versions.yaml and about re-approving this task's stale
+    artifacts'.
+  evidence:
+  - path: docs/design/harness2-fit/plan.yaml
+    lines: 149-165
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: a8b378a0fe2679c32fd294d15401632c832aa578da67d008b13b9c232e46193d
+  - path: docs/design/harness2-fit/plan.yaml
+    lines: 213-217
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: ce38a3d864da9cd969c31e83f88de6a8cd54f5100b744fa4c69dfaf40ea451bb
+  - path: docs/design/harness2-fit/plan.yaml
+    lines: '168'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: fa498dd364f2fd61beae08b2d24ec27dfd70948f8ac88ab7abcb99af761e44b2
+- id: A-90
+  kind: flow
+  statement: plan.yaml P-6 acceptance criteria say orqlet gate status reports this task's own artifacts
+    as stale (ORQ-W390) and that the .orqlet/versions.yaml proposal is applied or declined by the person,
+    who is shown any finding about it.
+  evidence:
+  - path: docs/design/harness2-fit/plan.yaml
+    lines: 203-208
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 06ff63ac8eebe71fe9937f228a4153ab24a6b5e7003d7824863a917857e9bc90
+  - path: docs/design/harness2-fit/plan.yaml
+    lines: '168'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: fa498dd364f2fd61beae08b2d24ec27dfd70948f8ac88ab7abcb99af761e44b2
+- id: A-91
+  kind: structure
+  statement: Each of ADR-001 to ADR-005 under design/ has the status line 'accepted by the person on 2026-10-25,
+    in conversation. No pull request was merged.'; ADR-001 decision 2 and ADR-002 decision 3 add that
+    they were amended after the reviews and the person approved the amendment.
+  evidence:
+  - path: docs/design/harness2-fit/design/adr-002-packet-member-assertion.md
+    lines: '3'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 59da754980cdc9515ce912f9ea398602d45f7a3547c3562c0d9c16e6d3fa99cd
+  - path: docs/design/harness2-fit/design/adr-001-client-visible-front-matter.md
+    lines: '3'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: f6027dba47227cd3a45412bfbebedb921cf1df2dd90f1df439b006ca5b1b9b64
+  - path: docs/design/harness2-fit/design/adr-003-no-review-skill-change.md
+    lines: '3'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 3be1d2b293d9e92252774ba7bdeb6bb59a55c32efff75eab76f44359498ff8e8
+  - path: docs/design/harness2-fit/design/adr-004-evaluation-harness-shape.md
+    lines: '3'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 3be1d2b293d9e92252774ba7bdeb6bb59a55c32efff75eab76f44359498ff8e8
+  - path: docs/design/harness2-fit/design/adr-005-no-dependency-on-harness2.md
+    lines: '3'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 3be1d2b293d9e92252774ba7bdeb6bb59a55c32efff75eab76f44359498ff8e8
+- id: A-92
+  kind: dependency
+  statement: ADR-002 (line 3), plan.yaml AC-4 (line 159), sequence.md (line 39), component.md (lines 16
+    and 40), container.md (line 35) and considerations.md (line 13) refer to the v0.5 packet plan as the
+    place where the packet code lands; no file under docs/design is named for it.
+  evidence:
+  - path: docs/design/harness2-fit/design/adr-002-packet-member-assertion.md
+    lines: '3'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 59da754980cdc9515ce912f9ea398602d45f7a3547c3562c0d9c16e6d3fa99cd
+  - path: docs/design/harness2-fit/plan.yaml
+    lines: '159'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: dc6c9095d236b879ed9a35ca28fa7e7c98c88acc1b1e52e0f49319c17e51b561
+  - path: docs/design/harness2-fit/design/sequence.md
+    lines: '39'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 425892f32085f9169d345e4fd14e5c92889a504adf7b76851c540fcd3ac7bf74
+  - path: docs/design/harness2-fit/design/component.md
+    lines: '16'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: e97c66456b2fb9b880f39126a69ec0dd159c9f547baff7441dd59186adf0db6e
+  - path: docs/design/harness2-fit/design/component.md
+    lines: '40'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 8c5e92c142c8caf9d9b324a69a54a7e667d29b34a3091f8e97cc0231a5631401
+  - path: docs/design/harness2-fit/design/container.md
+    lines: '35'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 271f3b6166c4d43ad6a95b4916350b6155fbe74c965c4cfaf9a5b9425623b3b4
+  - path: docs/design/harness2-fit/design/considerations.md
+    lines: '13'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 0b1a35941b749cb9ada7541283b40d794428d24138054dd40c7fd4222e7608a6
+- id: A-93
+  kind: flow
+  statement: considerations.md says that after orqlet upgrade approved artifacts written against the old
+    digest are reported stale, that a search of src found no refresh or re-bind step, and that the plan
+    must state how a person refreshes a stale artifact; its rollback note says approvals refer to files
+    in Git but their headers' bound values go stale after an upgrade.
+  evidence:
+  - path: docs/design/harness2-fit/design/considerations.md
+    lines: 19-20
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 78bf4ea14fda487924dcbe8cda52d9ae0cce9a1d592bbf60837e5fd2d4067172
+  - path: docs/design/harness2-fit/design/considerations.md
+    lines: '28'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: f93fbc4cfa0dab74305308722611c83302563f1cffae7466e92bbf00991be3c4
+- id: A-94
+  kind: flow
+  statement: The P-6 architecture review records that versions.yaml still said workflow 0.3.0 while workflow.lock
+    said 0.3.1, that neither doctor nor sync reports the gap, and that the three task artifacts are stale
+    for workflow_version and protected_set_digest with no refresh step in the built code.
+  evidence:
+  - path: docs/design/harness2-fit/reviews/architecture-reviewer-P-6-r1.yaml
+    lines: '93'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: bed17ab46c2f82042c45717ad2745ac266f21680f1fdb3555581b1696d7beb5d
+  - path: docs/design/harness2-fit/reviews/architecture-reviewer-P-6-r1.yaml
+    lines: 107-108
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: bc55f8ba14bd4eac3ffc150d91e495e718ee8daa21e3c89168b63372d7f94344
+- id: A-95
+  kind: structure
+  statement: questions.yaml holds Q-1 to Q-5, all answered by the user on 2026-10-23 (Q-4 superseded),
+    and none concerns approval, the proposal version, a pull request or branch protection.
+  evidence:
+  - path: docs/design/harness2-fit/questions.yaml
+    lines: 1-115
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 11da90a610b7951a59192b9697f03f00f277b5917e768870c5f6199304a151e6
+- id: A-96
+  kind: structure
+  statement: The go-migration-feasibility folder holds only questions.yaml (Q-1 to Q-8); Q-7 (target platforms
+    versus the CI matrix, line 158) and Q-8 (reach of byte-identical output, line 182) have status open;
+    none concerns approval, the proposal or branch protection.
+  evidence:
+  - path: docs/design/go-migration-feasibility/questions.yaml
+    lines: 136-182
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 4883c34a0ef76fac3eaa29ce96f9ce45902362e3976255c12328ece3c6f5cefe
+- id: A-97
+  kind: flow
+  statement: go-migration-feasibility Q-6 asked how to anchor evidence at revision 0bfc2faf5f89 where
+    git tracked 8 of 170 Python files under src/ and was answered by the user on 2026-10-24T09:58:57+03:00
+    with 'I commit the working tree myself, then tell the researcher to continue'.
+  evidence:
+  - path: docs/design/go-migration-feasibility/questions.yaml
+    lines: 109-135
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: a6fc959def1649a712a22076325f3443e0c556bb4a5e708cfe76ca42ad7a08a7
+- id: A-98
+  kind: flow
+  statement: open-items/questions.yaml Q-1 records the person's answer on 2026-10-25T17:35:00+02:00 that
+    this research covers 'approval and merge evidence, branch protection, v0.4 and v0.5 plan re-basing'
+    only; Q-2 to Q-4 are answered the same day (task name open-items, research first, read-only gh allowed).
+  evidence:
+  - path: docs/design/open-items/questions.yaml
+    lines: 3-82
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 405217fe1c1770507fc06b6539cbfb59b6f545f5d91d96e3b458c5f285d64e09
+- id: A-99
+  kind: flow
+  statement: The proposal's status line says v0.5 was 'approved by the person on 2026-10-25, in conversation',
+    that the approval state of v0.4 'is not recorded in the repository (docs/design/orqlet-implementation/as-is.md,
+    U-1), and the person did not state it', that the approval is 'a statement in conversation, not a merged
+    pull request, so no gate has evidence of it', that it 'does not re-base the plans that cite v0.4',
+    and that v0.5 has no independent review.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '5'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 00fb4e5c23bd0f48549cd4ed1327755a48be4ee07df55a6869e1b6a54c7c6b73
+- id: A-100
+  kind: flow
+  statement: The proposal says v0.4 'was awaiting human approval; the repository holds no record that
+    v0.4 was approved (Q-08), and Section 0.6 supersedes this status', and section 0.6.5 says 'Whether
+    the plans under docs/design/orqlet-implementation/ and docs/design/orqlet-m2-workflow/ are re-based
+    on v0.5 is not decided.'
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '121'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 52dbd7969c3eee397cd3de9bfa2da8e7dd9e234b824b21eafe3e8078102c8bc6
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '130'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: b201aaa314ed6c7692cf8adc62eb554f1d9dd1791c493ac626f4443570729a8c
+- id: A-101
+  kind: flow
+  statement: Section 25 records Q-08 'Which version of this proposal is the approved basis' as answered
+    2026-10-25 (v0.5, by 'I approve all' in conversation) with the note that the person did not say whether
+    v0.4 was approved nor whether the plans that cite v0.4 are re-based, 'so both stay unrecorded'; Q-03
+    (who is an authorised human) is listed unanswered; conflict B-81 records the unrecorded approval of
+    v0.4.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 5080-5095
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 4c87e3dbb41eee7d98d3e1d539ad1e097aba4681a914c2095a9740988c658cf4
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '6052'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: c996551cf385e4491ed75e78d0660f3bf003ddda890d9952e238d53ec78666bc
+- id: A-102
+  kind: flow
+  statement: The proposal defines a design or plan as approved when it is present on the protected baseline
+    branch (branch protection requiring pull-request review and code-owner approval) and the host shows
+    it arrived through a pull request merged with an approving review from the required code owners, and
+    otherwise the result is NOT_RUN; the approver is a code owner who is not the pull request's author.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2926'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 758c5846bdfb4a6cc20397afd94430f8b5564bc17794b4fb58089480ddb067fd
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '3037'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 2f3e12f296bbb028cea6cf8b0e4a03ce732263f2eb6165e8f5dc8fd49ca0a083
+- id: A-103
+  kind: flow
+  statement: 'The proposal lists the repository administrator''s one-time host configuration: a ruleset
+    that requires the Orqlet check from its expected source, code-owner review for policy and agent-configuration
+    paths, and strict required checks.'
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '287'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: e040a8b3542d6b7c63b07242d9959977ae84bb0a986de8a7b441f4b781a4503d
+- id: A-104
+  kind: flow
+  statement: Section 22.0 says M1 and two slices of M2 were built from plans 'planned and approved separately'
+    before the M0 spikes and before Q-01, Q-03, Q-04 and Q-05 were answered, and its table lists built
+    components (review-input binding, plan contract, knowledge impact, model-policy contract, skills and
+    roles) that conflict with v0.5 and need rework.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 4480-4490
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: c8bf140cb33f473805fa0a968bd7127c1c8d51b3e38aae046658a22f27505c49
+- id: A-105
+  kind: dependency
+  statement: The proposal says v0.5 is an in-place revision of v0.4 with section numbers 4-26 unchanged
+    and lists as new or revised 0.6, 6.14.1 revised, 10.6, 17.13.1 and 17.13.6 rewritten, 14.9 rewritten,
+    19.6 options renamed, 21.6.15, 22.0, 26.12 and Appendix A.9; the file now has 6,444 lines.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '74'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: e71725705c48a8da180e8e64748b15cc98b6b4dc0b375f2281f923d2b3105a78
+unknowns:
+- id: U-1
+  what: 'Whether proposal v0.4 was approved: the repository records no approval of v0.4, and the person
+    did not state it when answering Q-08.'
+  material: true
+- id: U-2
+  what: Whether the plans and designs under docs/design/orqlet-implementation/ and docs/design/orqlet-m2-workflow/
+    are re-based on v0.5 or kept on v0.4; the proposal says this is not decided.
+  material: true
+- id: U-3
+  what: 'Whether the v0.4 file bytes (SHA-256 d9d5e675…b324d4, 5,960 lines) exist in any commit: the oldest
+    commit is dated 2026-10-24, the file at the path is now v0.5 (6,444 lines), and no git or sha256 command
+    could be run in this read.'
+  material: true
+- id: U-4
+  what: Whether each section citation of the v0.4-based documents (for example §6.14.1, §14.9.2, §17.13,
+    §17.13.3) still points to the same text in the v0.5 file; no citation was compared, and design.md
+    of m2 says line numbers refer to v0.4 although this read found no proposal line number cited in it.
+  material: true
+- id: U-5
+  what: 'Who counts as an authorised approver and who is a code owner of docs/design/** (Q-03): no answer
+    is recorded in any artifact of the area, and no CODEOWNERS file exists.'
+  material: true
+- id: U-6
+  what: 'Whether a second person with write access exists or can be added: GitHub lists one collaborator
+    (tmishari, admin) and organisation-level settings, required reviewers and CODEOWNERS enforcement were
+    not requested.'
+  material: true
+- id: U-7
+  what: 'Whether branch protection or rulesets can be enabled on this repository: the only statement is
+    the 403 message about GitHub Pro or a public repository, and the account''s plan was not requested.'
+  material: true
+- id: U-8
+  what: Whether the 'design pull request' that plan.yaml says 'merged elsewhere' exists in another repository
+    or host; the repository has no pull request in any state.
+  material: true
+- id: U-9
+  what: 'Where the person''s conversation approvals (''I approve all designs and plans'', ''I approve
+    all'') are stored: the repository holds only the quotations written into artifacts and commit subjects,
+    not the conversation.'
+  material: true
+- id: U-10
+  what: The time of day of the 2026-10-25 conversation approvals, and so whether they came before the
+    P-1 to P-6 implementation commits (10:20 to 10:30) or after; the artifacts give only the date.
+  material: true
+- id: U-11
+  what: 'Who approved the orqlet-implementation design decisions D-1 to D-8 and the M1 plan, and in what
+    words: only ''approved as recommended (2026-10-21)'' and ''the approved Phase 3 text'' are recorded;
+    the AS-IS status still says ''awaiting your acceptance''.'
+  material: true
+- id: U-12
+  what: 'Who approved M2 Plan A and in what words: the design says ''Approved by the user on 2026-10-22'',
+    the plan has no status line and no approval record.'
+  material: true
+- id: U-13
+  what: Whether 'the v0.5 packet plan' / 'the v0.5 plan' named by harness2-fit ADR-002, plan.yaml, considerations.md
+    and the design diagrams exists; no such file is in docs/design.
+  material: true
+- id: U-14
+  what: Whether orqlet gate status currently reports the harness2-fit AS-IS, design and plan as stale,
+    and whether the as_is_ref, design_ref and artifact hashes still match; no command was run in this
+    read.
+  material: true
+- id: U-15
+  what: Whether a decision to apply the .orqlet/proposals versions proposal is recorded anywhere besides
+    the commit subject e65734a9150c, and whether change_control (which names only lowering a pin or floor)
+    covers a raise.
+  material: true
+- id: U-16
+  what: The values of project-profile.yaml repository.pull_requests.reviewers and merge_strategy, which
+    are unknown, and branch_naming and commit_convention, which are open questions; the profile status
+    is draft.
+  material: true
+- id: U-17
+  what: 'What the three AI-reviewer review records of harness2-fit count as in place of a human reviewer:
+    no artifact states who the ''human reviewer of the design pull request'' is.'
+  material: false
+- id: U-18
+  what: 'Whether the GitHub run list is complete: the capture shows two runs and states no total count.'
+  material: false
+- id: U-19
+  what: Whether a merge queue is used (Q-01 asks); GitHub is the host according to the capture, but no
+    ledger answer records Q-01.
+  material: false
+- id: U-20
+  what: Whether the tree of merge commit e8ef7a8832e9 equals the tree of the rebuilt tip 034007cb6726,
+    and whether the original-line commits (a18faca to 0bfc2fa) were ever pushed.
+  material: false
+- id: U-21
+  what: Why git remote -v prints an ssh:// URL while the repository-local config holds an https:// URL;
+    the global git configuration was not read.
+  material: false
+- id: U-22
+  what: What produced the empty .orqlet/proposals/.orqlet__role-bindings.yaml.diff.
+  material: false
+- id: U-23
+  what: Whether the GitHub login tmishari and the commit author name Timur Misharin are the same person;
+    no artifact states it.
+  material: false
+- id: U-24
+  what: Why the GitHub run for head 2c4308ecdbed concluded failure and the run for e8ef7a8832e9 was cancelled;
+    the causes were not requested (red CI jobs are outside the person's chosen item).
+  material: false
+contradictions:
+- id: C-1
+  sources:
+  - docs/design/orqlet-implementation/design.md:6-6
+  - docs/design/orqlet-implementation/design.md:10-10
+  - docs/design/orqlet-implementation/plan.md:3-5
+  - docs/design/orqlet-m2-workflow/design.md:7-7
+  - docs/design/orqlet-architecture-proposal.md:4480-4480
+  note: design.md says nothing in the folder is approved and no code may be written until it is, and also
+    that decisions D-1 to D-8 were approved on 2026-10-21; plan.md calls itself the approved Phase 3 text;
+    the m2 design calls the implementation design 'approved'; the proposal says the plans were 'planned
+    and approved separately'. design.md line 6 and line 10 are in the same table.
+- id: C-2
+  sources:
+  - docs/design/orqlet-implementation/adr-002-deterministic-data-and-hashing.md:3-3
+  - docs/design/orqlet-implementation/design.md:10-10
+  - docs/design/orqlet-implementation/plan.md:3-3
+  note: ADR-001 to ADR-005 carry 'proposed (needs approval with design.md)' (ADR-002 names decision D-2),
+    while design.md says D-1 to D-8 (D-2 included) are approved and plan.md says the plan built from them
+    is executed and approved.
+- id: C-3
+  sources:
+  - docs/design/orqlet-implementation/as-is.md:85-85
+  - docs/design/orqlet-implementation/design.md:7-10
+  - docs/design/orqlet-m2-workflow/design.md:7-9
+  note: as-is.md records that v0.4 is not approved (U-1, material); design.md and the m2 design take v0.4
+    as input and record their own approvals; the approval of v0.4 itself is recorded nowhere (proposal
+    line 5, line 5095).
+- id: C-4
+  sources:
+  - docs/design/harness2-fit/plan.yaml:226-226
+  - docs/design/harness2-fit/plan.yaml:231-231
+  - docs/design/open-items/evidence/github-state.yaml:35-37
+  note: plan.yaml records with result pass that the design pull request 'merged elsewhere' and, in the
+    next approval entry, that approval 'is not a merge on the protected baseline'; GitHub reports 0 pull
+    requests in any state.
+- id: C-5
+  sources:
+  - docs/design/harness2-fit/design/manifest.yaml:159-159
+  - docs/design/harness2-fit/plan.yaml:231-231
+  - docs/design/orqlet-architecture-proposal.md:3037-3037
+  note: Both self_check entries are marked result pass while stating that a gate run has no approval evidence;
+    the proposal says that without merge evidence on the protected baseline the result is NOT_RUN.
+- id: C-6
+  sources:
+  - docs/design/harness2-fit/plan.yaml:226-226
+  - docs/design/open-items/evidence/git-history.txt:5-26
+  - docs/design/open-items/evidence/git-history.txt:35-36
+  note: plan.yaml says the repository has no commit or remote; the history lists 22 commits (the plan
+    itself is committed at 3b1d1cc) and an origin remote.
+- id: C-7
+  sources:
+  - docs/design/orqlet-implementation/plan.md:137-148
+  - docs/design/orqlet-m2-workflow/design.md:26-26
+  - docs/design/orqlet-m2-workflow/plan.md:169-169
+  - docs/design/orqlet-architecture-proposal.md:4480-4480
+  - docs/design/open-items/evidence/git-history.txt:5-26
+  - docs/design/open-items/evidence/github-state.yaml:43-48
+  note: These documents (dated 2026-10-21 to 2026-10-22) say there is no commit, no remote and no CI run;
+    the captures of 2026-10-26 show 22 commits, an origin remote and two CI runs. None of the documents
+    carries a later correction.
+- id: C-8
+  sources:
+  - docs/design/orqlet-implementation/plan.md:43-43
+  - docs/design/orqlet-implementation/design.md:62-62
+  - docs/design/open-items/evidence/github-state.yaml:35-37
+  - docs/design/open-items/evidence/git-history.txt:5-26
+  note: plan.md says each phase is one pull request and design.md says Orqlet's own pull requests are
+    reviewed by humans; GitHub reports 0 pull requests and the history holds direct commits and one local
+    merge commit.
+- id: C-9
+  sources:
+  - docs/design/orqlet-architecture-proposal.md:3037-3037
+  - docs/design/orqlet-m2-workflow/design.md:40-40
+  - docs/design/open-items/evidence/github-state.yaml:23-31
+  - docs/design/open-items/evidence/github-state.yaml:38-42
+  note: The proposal and the m2 design define approval as a merged pull request on a protected baseline
+    with approval by a non-author code owner; GitHub reports main not protected, protection and rulesets
+    unavailable (403), no CODEOWNERS file in the repository, and one collaborator.
+- id: C-10
+  sources:
+  - .orqlet/versions.yaml:13-14
+  - docs/design/open-items/evidence/github-state.yaml:38-42
+  note: versions.yaml requires 2 approvals to lower a pin or floor; GitHub lists one collaborator, the
+    repository's admin.
+- id: C-11
+  sources:
+  - docs/design/harness2-fit/as-is.md:7-8
+  - docs/design/harness2-fit/design/manifest.yaml:6-7
+  - docs/design/harness2-fit/plan.yaml:6-7
+  - .orqlet/versions.yaml:9-10
+  note: 'The three artifacts of one task carry different bound values: the AS-IS header says workflow
+    0.3.0 and digest 49ef4cd5..., the manifest and plan say 0.3.1 and be772328..., and versions.yaml says
+    0.3.1; manifest and plan record a refresh of ''this header'' and the AS-IS records none, while its
+    header status is approved.'
+- id: C-12
+  sources:
+  - docs/design/harness2-fit/plan.yaml:231-231
+  - docs/design/open-items/evidence/git-history.txt:26-26
+  - docs/design/open-items/evidence/git-history.txt:10-19
+  note: plan.yaml dates the approval to choose the design set and plan 2026-10-25; the original line commits
+    harness2-fit P-1 to P-6 on 2026-10-24, and in the rebuilt line the P-1 to P-6 commits (10:20 to 10:30)
+    precede the commit recording the approval (14:14) on 2026-10-25.
+- id: C-13
+  sources:
+  - docs/design/orqlet-implementation/as-is.md:85-85
+  - docs/design/orqlet-m2-workflow/design.md:45-45
+  - docs/design/harness2-fit/as-is.md:259-259
+  - docs/design/go-migration-feasibility/questions.yaml:159-159
+  - docs/design/orqlet-architecture-proposal.md:5095-5095
+  note: 'The identifiers U-1 and Q-08 are reused with different meanings: U-1 is v0.4 approval status
+    (orqlet-implementation AS-IS, the one the proposal cites), Cursor skill listing (m2 design) and ''what
+    a solution for us means'' (harness2-fit AS-IS); Q-8 is the byte-identical output reach (go-migration)
+    while the proposal''s Q-08 is the approved proposal version.'
+- id: C-14
+  sources:
+  - docs/design/open-items/evidence/git-history.txt:35-36
+  - docs/design/open-items/evidence/git-history.txt:39-39
+  - .git/config:9-9
+  note: git remote -v prints ssh://github.com/tmishari/orqlet.git; the config key remote.origin.url and
+    the repository config file hold https://github.com/tmishari/orqlet.git.

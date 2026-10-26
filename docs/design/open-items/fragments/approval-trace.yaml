@@ -1,0 +1,1628 @@
+schema: orqlet.as-is-fragment/v1
+fragment_id: approval-trace
+base_revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+scope:
+  paths:
+  - src/orqlet/**
+  - tests/**
+  - .orqlet/**
+  - .github/**
+  - pyproject.toml
+  request_ref: open-items
+facts:
+- id: A-1
+  kind: interface
+  statement: '`orqlet gate status [TASK] [--phase] [--base] [--head] [--root] [--json]` is one Typer command;
+    it calls gate_status(build_validate_services(root), task, phase=, base=, head=), wraps the result
+    in output_of, and its docstring says ''Read-only and offline. Approval needs host evidence, so a task
+    is always NOT_RUN here.'''
+  evidence:
+  - path: src/orqlet/interface/cli/commands/gate.py
+    lines: 16-42
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 423aacbebecb475c51b30bc205dae5f3fb72d10b21d5f8e767f222d1e8f6d9e4
+- id: A-2
+  kind: structure
+  statement: The CLI registers the groups and commands init, upgrade, rollback, sync, doctor, explain,
+    release, profile, standards, validate, gate, evidence, knowledge and review; no `approve`, `ci`, `hook`
+    or guard command or group is registered.
+  evidence:
+  - path: src/orqlet/interface/cli/app.py
+    lines: 34-47
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 822b147c030944d99e6f7c6059f01a5830430dfc601693cecc3875c0e76ae131
+- id: A-3
+  kind: dependency
+  statement: build_validate_services wires LocalFileSystem, GitVcs over SubprocessRunner, StrictYamlLoader
+    and PackagedWorkflow; no code-host or network client is part of the services gate status receives.
+  evidence:
+  - path: src/orqlet/interface/cli/wiring.py
+    lines: 89-97
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 58dfbf955e946c28c9aeb7978ff430344e1005faeb3c36473d1efd61a01ea503
+- id: A-4
+  kind: dependency
+  statement: 'ValidateServices holds exactly four members: project (FileSystem), vcs, loader and workflow.'
+  evidence:
+  - path: src/orqlet/application/usecases/validation.py
+    lines: 29-34
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 3fff46e9a1a72afbf112c5aa230db19ee405960028050ffea4b582ca7f98bb0a
+- id: A-5
+  kind: flow
+  statement: gate status reads .orqlet/generated.lock.yaml, .orqlet/standards.lock.yaml (as a contract
+    and as raw bytes), .orqlet/project-profile.yaml and .orqlet/workflow.lock through read_file and load_contract,
+    plus vcs.head_commit(); a missing file is ORQ-E390 and an unreadable one is ORQ-E391.
+  evidence:
+  - path: src/orqlet/application/usecases/gate_status.py
+    lines: 80-93
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 9d2392cd716a86172c78430ca97f313bb86a04c24e6394f24683b608e3d13024
+  - path: src/orqlet/application/usecases/gate_status.py
+    lines: 126-142
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 0a0644d788df5573aad244dd3ff9feec7ded842eaf9b2ed53089ea755e708168
+- id: A-6
+  kind: structure
+  statement: The five file constants gate status uses are PROFILE_PATH .orqlet/project-profile.yaml, LOCK_PATH
+    .orqlet/generated.lock.yaml, STANDARDS_LOCK_PATH .orqlet/standards.lock.yaml and WORKFLOW_LOCK_PATH
+    .orqlet/workflow.lock (VERSIONS_PATH and BINDINGS_PATH are defined beside them and gate status does
+    not import them).
+  evidence:
+  - path: src/orqlet/application/usecases/render_all.py
+    lines: 55-60
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 3eb448ebfca77262ae107b1be92bd7671f4aef999632ac38f376fc4f79dedaf7
+- id: A-7
+  kind: structure
+  statement: BoundValues has six fields (base_revision, standards_lock_hash, applicable_rules_hash, profile_version,
+    workflow_version, protected_set_digest) and as_data() returns them under the key `bound`.
+  evidence:
+  - path: src/orqlet/application/usecases/gate_status.py
+    lines: 48-66
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 4b9af576df50e0339c455ef4bf2e338f6f097747a84302b90f261a1fdf62710c
+- id: A-8
+  kind: flow
+  statement: protected_set_digest is the digest of the sorted [path, rendered_sha256] pairs of every manifest
+    entry whose file_class is FileClass.PROTECTED and whose rendered_sha256 is not None; here 'protected'
+    means Orqlet-owned protected files, not a protected branch.
+  evidence:
+  - path: src/orqlet/application/usecases/gate_status.py
+    lines: 70-77
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 02c727f331b6b5599015b32067b509ec3a82bc6986cbe4ce5a0b176b5b9b703a
+- id: A-9
+  kind: flow
+  statement: .orqlet/workflow.lock is written as FileClass.PROTECTED, while .orqlet/project-profile.yaml,
+    .orqlet/versions.yaml and .orqlet/role-bindings.yaml are written as OwnerMode.SEEDED with file_class
+    None.
+  evidence:
+  - path: src/orqlet/application/usecases/render_all.py
+    lines: 254-273
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 02ff62da2adeae5ccb1c5afb3e809ba7ce240f4e12eba2704c5a8cf183bea42d
+- id: A-10
+  kind: flow
+  statement: Without a task, gate_status returns only data.bound; the verdict is PASS when no error and
+    no skip was recorded, and NOT_RUN when the repository has no commit (skip at line 107).
+  evidence:
+  - path: src/orqlet/application/usecases/gate_status.py
+    lines: 96-112
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: aae5ff968dd3d90a145a7c69c9a6a21ae4895226e61a5a633499b543c4ae5424
+- id: A-11
+  kind: flow
+  statement: With a task, gate_status always ends by adding info ORQ-I393 ('approval of the design and
+    of the plan is evidence on the protected baseline; an offline run has none, so it is not checked')
+    and skip('approval needs host evidence, which an offline run does not have'), so a PASS verdict is
+    not reachable with a task.
+  evidence:
+  - path: src/orqlet/application/usecases/gate_status.py
+    lines: 113-123
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: c15a3947e284e3fd1f180ae440b8acf60e2abf83bcd5e77305afb7b081851eed
+- id: A-12
+  kind: flow
+  statement: '`--phase` is read only after the `if task is None: return` at lines 111-112, so a phase
+    given without a task is ignored.'
+  evidence:
+  - path: src/orqlet/application/usecases/gate_status.py
+    lines: 111-116
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 32835e07d52085b3081324a2e6e1927649cf278c82edb51594e7e7f0908e3b8f
+- id: A-13
+  kind: flow
+  statement: '_check_task reads docs/design/<task>/as-is.md (front matter), docs/design/<task>/design/manifest.yaml
+    and docs/design/<task>/plan.yaml from the working tree with read_artifact; an absent file is info
+    ORQ-I394 and {found: false}; present files are parsed against their contract only, and none of the
+    validate_* checks (for example the header-task checks E331, E350, E370) run.'
+  evidence:
+  - path: src/orqlet/application/usecases/gate_status.py
+    lines: 145-166
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: ffe78005c116eb2ed6c4ee4f74e4ffc715bf48cea4b8987eaa10052a0df8cede
+- id: A-14
+  kind: flow
+  statement: '_stale_components compares the artifact header''s workflow_version, protected_set_digest,
+    bound.standards_lock_hash, bound.applicable_rules_hash and bound.profile_version with the current
+    values; _assess adds ORQ-W390 (''<name> is stale: ...'') as a warning and a skip when any differ.'
+  evidence:
+  - path: src/orqlet/application/usecases/gate_status.py
+    lines: 169-201
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: eda86bb2344a76e2c3f6e62ed2f8a17925f3303d14e75bfc881128435a5a7519
+- id: A-15
+  kind: flow
+  statement: '_base_moved applies when header.bound.base_revision differs from HEAD: it asks changed_in_scope
+    whether a file in the artifact''s scope differs between the two revisions (scope is scope.paths for
+    as-is and design, and the file_operations paths for a plan); a change makes ''base_revision'' stale,
+    no change gives info ORQ-I392, and an unknown revision gives a skip.'
+  evidence:
+  - path: src/orqlet/application/usecases/gate_status.py
+    lines: 188-229
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: bd3ec8105ec13d97f9367de51768edf0b9c5a76b16c54b05eaf8a4c213897527
+- id: A-16
+  kind: flow
+  statement: changed_in_scope compares (mode, oid) per path between two trees and returns None when either
+    revision is missing.
+  evidence:
+  - path: src/orqlet/application/usecases/staleness.py
+    lines: 11-31
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: ffee9cb913cf63fd3cea8d3d2c0793eb07d32f675c882094618fd7a100032c30
+- id: A-17
+  kind: flow
+  statement: With --phase, _check_expected locates a tree (the --head value, else the staged tree when
+    there are staged changes, else HEAD) and a merge base, reads plan.yaml and design/manifest.yaml from
+    that tree, evaluates the expected changes, and reports DEVIATION as error ORQ-E450 and ADDITIONAL
+    as error ORQ-E451 with the suffix 'A renewed design approval is needed.'; other outcomes are info
+    ORQ-I451, notes are ORQ-I450, an unknown phase is ORQ-E453, and a failure to locate a tree is a skip.
+  evidence:
+  - path: src/orqlet/application/usecases/gate_status.py
+    lines: 232-280
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 27d81941491ad06b69c3008adfb571ff6b536470afdd2d6ec78897d634e1388b
+- id: A-18
+  kind: flow
+  statement: locate() takes the merge base from --base or, by default, from the profile's repository.target_branch
+    (remote/value, then value); its docstring states that offline 'the baseline' is the same tree under
+    review and that host evidence taking the design and plan from the protected branch is S11's.
+  evidence:
+  - path: src/orqlet/application/usecases/binding_inputs.py
+    lines: 1-7
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 399d1f43bf8ed066cc12be0a74e5faac69fefc9265069af78dbf6de5f8a4f563
+  - path: src/orqlet/application/usecases/binding_inputs.py
+    lines: 89-147
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 6a26acd1303ed3695f88a674c68cad77dd01b81f8b66385c36ab525e3808b9ee
+- id: A-19
+  kind: dependency
+  statement: gate_status.py imports only the contracts ArtifactHeader, AsIsArtifact, DesignSet, GeneratedLock,
+    ImplementationPlan, ProjectProfile, StandardsLock and WorkflowLock; it does not import Versions, RoleBindings
+    or WorkflowPolicy and does not read the header's `status`.
+  evidence:
+  - path: src/orqlet/application/usecases/gate_status.py
+    lines: 14-22
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 4c5faf31c195d9ceafbc1210a76811777b53f2bcb82c46c31e034a6f5c7197ac
+- id: A-20
+  kind: flow
+  statement: Collector.result returns FAIL when any error finding exists, else NOT_RUN when any skip reason
+    exists, else PASS; Verdict has the three values PASS, FAIL and NOT_RUN and combine() returns NOT_RUN
+    for no evidence.
+  evidence:
+  - path: src/orqlet/application/usecases/validation.py
+    lines: 50-80
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 13f695dbd576418526414ad7a5fbcf515e506fedf65c5353e8c38ee78b5db508
+- id: A-21
+  kind: structure
+  statement: Verdict is a StrEnum of PASS, FAIL and NOT_RUN; combine() ranks FAIL over NOT_RUN over PASS
+    and returns NOT_RUN for an empty set.
+  evidence:
+  - path: src/orqlet/domain/findings.py
+    lines: 11-37
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 6b237f26eeef4b49700b115d8fe7285b996761e1286bc93b038604444c115ef7
+- id: A-22
+  kind: operation
+  statement: output_of puts data.verdict first, then the result data, and exits 0 only for PASS; FAIL
+    and NOT_RUN both exit with ExitCode.CHECK_FAILED, whose value is 5.
+  evidence:
+  - path: src/orqlet/interface/cli/commands/validate.py
+    lines: 37-46
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 9d61d95633dd5d6239fbbba3aaea56b656f0124e0b850dfe3de6c7f98fc9c9cc
+- id: A-23
+  kind: structure
+  statement: ExitCode.OK is 0 and ExitCode.CHECK_FAILED is 5 ('a read-only check found an error').
+  evidence:
+  - path: src/orqlet/interface/cli/exit_codes.py
+    lines: 7-13
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 2de3c7f99bd191e57d4b17fb80f50d273999e7864a9c6babe92bb94855a8f6a5
+- id: A-24
+  kind: interface
+  statement: The JSON output is the orqlet.cli-result/v1 envelope (ok, command, orqlet_version, data,
+    findings, not_run); for gate status data holds verdict, bound, and with a task also task, artifacts
+    ({found, readable, stale} per as-is, design and plan) and, with --phase, expected_changes.
+  evidence:
+  - path: src/orqlet/application/contracts/cli_result.py
+    lines: 14-26
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 273efa8577082bdac23c907fd4d9d7467eb53556866a958189c5acb37be45329
+- id: A-25
+  kind: interface
+  statement: 'The human output is render_validation: a first line ''<VERDICT>: <task or inputs>'', summary
+    lines chosen by data key, one line per finding, and one ''NOT RUN <reason>'' line per skip; _data_summary
+    handles the keys unknowns, effective_class, candidates, expected_changes, snippet, files and phases
+    and has no handling for `bound`, `artifacts` or `stale`.'
+  evidence:
+  - path: src/orqlet/interface/cli/render_human.py
+    lines: 158-203
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 52d3a8f89de3755acf1d0033fa9121e47f153aa7963f504027d99ca9699fbc06
+- id: A-26
+  kind: flow
+  statement: execute() prints either render_json(result) or output.human, sets ok to true only for ExitCode.OK,
+    and exits with the command's exit code.
+  evidence:
+  - path: src/orqlet/interface/cli/runner.py
+    lines: 28-51
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: f9df8dd75fc871ffbfdd5dd4c2aceef06974fd05c66a04adff84de41fc665397
+- id: A-27
+  kind: structure
+  statement: Bound has base_revision, standards_lock_hash, applicable_rules_hash, profile_version and
+    upstream (a tuple of ref plus sha256); ArtifactHeader.specialists records role, client, binding and
+    parallel; no use case reads `upstream` or `specialists`.
+  evidence:
+  - path: src/orqlet/application/contracts/artifact_header.py
+    lines: 23-43
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: ddbed62a6b5926afec2939b2f02638bd8a76267e8cf63b4e7491e6bf17d0cc6b
+- id: A-28
+  kind: structure
+  statement: The committed JSON schema lists the header status enum draft, approved, superseded and requires
+    `status`.
+  evidence:
+  - path: src/orqlet/workflow/schemas/orqlet.artifact-header.v1.json
+    lines: 121-128
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 53a8b6437d188299f0733782139cdf79abf435e3087c9d2ceea97309c23a02b1
+  - path: src/orqlet/workflow/schemas/orqlet.artifact-header.v1.json
+    lines: 141-149
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 672efa98cec71b0d4faeb7a0dfbaa21b07d5a39c18969cdaffe599559543b3a2
+- id: A-29
+  kind: structure
+  statement: 'AsIsArtifact, DesignSet and ImplementationPlan each embed `header: ArtifactHeader`.'
+  evidence:
+  - path: src/orqlet/application/contracts/as_is.py
+    lines: '71'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: dc9ee07db7c96dcad61315eb4ce0c82834d7823a3d71dc742740fa408089c726
+- id: A-30
+  kind: structure
+  statement: 'DesignSet embeds `header: ArtifactHeader`.'
+  evidence:
+  - path: src/orqlet/application/contracts/design_set.py
+    lines: '133'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: dc9ee07db7c96dcad61315eb4ce0c82834d7823a3d71dc742740fa408089c726
+- id: A-31
+  kind: structure
+  statement: 'ImplementationPlan embeds `header: ArtifactHeader`.'
+  evidence:
+  - path: src/orqlet/application/contracts/plan.py
+    lines: '69'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: dc9ee07db7c96dcad61315eb4ce0c82834d7823a3d71dc742740fa408089c726
+- id: A-32
+  kind: flow
+  statement: validate design reads from the header only `header.task` (ORQ-E350 when it differs from the
+    folder); it does not read `status`.
+  evidence:
+  - path: src/orqlet/application/usecases/validate_design.py
+    lines: 86-93
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 731c6ac42b18bda1c0df2a9a1e5b57ee30b4cdeaac6b2ee977f77d95868beaa0
+- id: A-33
+  kind: flow
+  statement: validate plan reads from the header only `header.task` (ORQ-E370 when it differs from the
+    folder); it does not read `status`.
+  evidence:
+  - path: src/orqlet/application/usecases/validate_plan.py
+    lines: 64-72
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: ff717883397ebc83b220457a0e75d7fe94dfb6815186be18511ff0efc87a1a9b
+- id: A-34
+  kind: flow
+  statement: validate as-is reads from the header only `header.bound.base_revision` (ORQ-E330 against
+    the file's base_revision) and `header.task` (ORQ-E331); it does not read `status`.
+  evidence:
+  - path: src/orqlet/application/usecases/validate_as_is.py
+    lines: 73-92
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: fe8d061a310c44680ee40ebe7756089621536712fff57868102819cf909332ad
+- id: A-35
+  kind: flow
+  statement: A search of src/orqlet finds the header read only in the places above and in gate_status.py
+    (workflow_version, protected_set_digest, bound.*); no line reads `.header.status`, so the value is
+    checked for shape when the contract loads (load_contract inside read_artifact) and is otherwise unused.
+  evidence:
+  - path: src/orqlet/application/usecases/validation.py
+    lines: 147-153
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: fe47f8acc9b13109cd23ca85bd18287b66394419d7d7a2df70dbc48dccd03819
+- id: A-36
+  kind: structure
+  statement: validate design's docstring says 'An approval is a merge on the protected baseline and is
+    not checked here.'
+  evidence:
+  - path: src/orqlet/application/usecases/validate_design.py
+    lines: 1-7
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 93d5b7f1ee29d870690776a9be1c270777587c50e0d901bea0d6d220805e9b20
+- id: A-37
+  kind: flow
+  statement: validate plan's ORQ-E378 compares the class the plan's operations trigger with a local variable
+    named `approved` that holds design.change_class.effective of the design file read from the tree, and
+    its message says 'a new design approval is needed'; no approval evidence is consulted.
+  evidence:
+  - path: src/orqlet/application/usecases/validate_plan.py
+    lines: 241-253
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 02f3db8e6b7b31f3897829b4dd0a50c987b8fd6547f852e38d5b9a292b988cd0
+- id: A-38
+  kind: structure
+  statement: 'The skill format references show `status: draft` in the header example of the AS-IS file;
+    no skill text tells the agent to set another value.'
+  evidence:
+  - path: src/orqlet/workflow/skills/orqlet-research/references/as-is-format.md
+    lines: 9-12
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 1ea9206927f255dc413ed86d785eca245a8ceca4e06ab45ec66770d7f9348cfc
+  - path: src/orqlet/workflow/skills/orqlet-research/references/as-is-format.md
+    lines: '44'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 9ff6e63edd3869b11d3ced92daf4e502a89ad1f5ff6dfcbe12f1f49acc8281de
+- id: A-39
+  kind: structure
+  statement: 'The design-format reference shows `status: draft` in the manifest header example.'
+  evidence:
+  - path: src/orqlet/workflow/skills/orqlet-design/references/design-format.md
+    lines: 25-28
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 1ea9206927f255dc413ed86d785eca245a8ceca4e06ab45ec66770d7f9348cfc
+- id: A-40
+  kind: structure
+  statement: 'The plan-format reference shows `status: draft` in the plan header example.'
+  evidence:
+  - path: src/orqlet/workflow/skills/orqlet-plan/references/plan-format.md
+    lines: 7-10
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 1ea9206927f255dc413ed86d785eca245a8ceca4e06ab45ec66770d7f9348cfc
+- id: A-41
+  kind: test
+  statement: 'The test helper that builds every header sets `status: draft`; the valid contract fixture
+    for the header also has `status: draft`, and a search of tests/ finds no header with status approved
+    or superseded.'
+  evidence:
+  - path: tests/support/artifacts.py
+    lines: 100-113
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: f8bb0359a803bb94e5dd88576b743d0333a3542c8a52384de1e88cefb3c52a86
+- id: A-42
+  kind: test
+  statement: 'Header fixture used by the contract round-trip test has `status: draft`.'
+  evidence:
+  - path: tests/fixtures/contracts/valid/orqlet.artifact-header.v1.yaml
+    lines: '3'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 3b39a78cfdcbcecb0f5a95cf4f0c5ea5af8691b36af0faa3be13cb47ceefbce1
+- id: A-43
+  kind: test
+  statement: tests/contract/test_contracts.py round-trips each valid fixture (test_valid_fixture_loads_and_round_trips),
+    rejects extra fields and wrong schema ids, and checks the committed schemas against the models (test_committed_schema_matches_the_models);
+    no test in it targets the meaning of header status.
+  evidence:
+  - path: tests/contract/test_contracts.py
+    lines: 32-70
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 4f72516a1ffab349a8b43caeb03ed2ccb011bf09c6a126cf968a5e843e4933fd
+- id: A-44
+  kind: test
+  statement: test_the_header_and_the_body_agree_on_the_base_revision_and_the_task covers the AS-IS header.
+  evidence:
+  - path: tests/unit/application/test_validate_as_is.py
+    lines: 121-135
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 7a0f9245832bfe7702e863496c23342f5570051d254534eaa4778764d2691947
+- id: A-45
+  kind: structure
+  statement: 'The only code that tests a `status` of ''approved'' belongs to other fields: ProfileMeta.status
+    (profile_edit.py lines 73 and 98, diagnose.py line 315); ModelPolicy and ModelEntry carry their own
+    status and approved_by fields but are only registered in the contract table.'
+  evidence:
+  - &id001
+    path: src/orqlet/application/usecases/diagnose.py
+    lines: 313-322
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 55d73dca3df98870ec6a145bb02d453007c94bdbb1b5d1a915041f6b258aef3b
+- id: A-46
+  kind: structure
+  statement: 'IMPLEMENTED_COMMANDS lists 22 commands: init, upgrade, rollback, sync, doctor, explain,
+    release, profile answer, profile approve, standards for, validate as-is, validate design, validate
+    plan, validate ledger, gate status, evidence cite, evidence hash, knowledge impact, review prepare,
+    validate review, validate test, validate knowledge.'
+  evidence:
+  - path: src/orqlet/application/usecases/capabilities.py
+    lines: 14-38
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 378adaeeb2c106a28e1ed9c2c478272c4aa1dfc134470ebe4a87452b576a8f0f
+- id: A-47
+  kind: structure
+  statement: PLANNED_COMMANDS is an empty frozenset with the comment 'Nothing is planned at the moment';
+    the module has no list of commands that are documented elsewhere but not built.
+  evidence:
+  - path: src/orqlet/application/usecases/capabilities.py
+    lines: 10-12
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 73a67283b56e5aa8c5c14a2ba7bc160a4f75e1d565fa646f4e5e4a408f0edc19
+- id: A-48
+  kind: flow
+  statement: The renderer drops a skill step whose `requires:` command is not in the set it is given (default
+    IMPLEMENTED_COMMANDS).
+  evidence:
+  - path: src/orqlet/application/usecases/render_request.py
+    lines: '13'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 134eb98398e1293d205928b9755613fe95b23e283784261492f00515c10da7c2
+  - path: src/orqlet/application/usecases/render_request.py
+    lines: '47'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 73d2df6e077ba7bb5a25195c44e1b63f7b4f1dc038f8ee01b02c488ac00b812a
+  - path: src/orqlet/application/usecases/render_request.py
+    lines: '86'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: cda2edc0264dc0eb66dd0b075a8e80ea49b8df44fa73a0215f6fedb4e2a8ab5c
+- id: A-49
+  kind: test
+  statement: test_the_list_of_implemented_commands_matches_the_application asserts that the commands registered
+    on the Typer app equal set(IMPLEMENTED_COMMANDS).
+  evidence:
+  - path: tests/integration/test_validate_cli.py
+    lines: 193-209
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: ebffe13c167896325255bde3f04bd772222d44fdd9d3ab46dec55367966e78d9
+- id: A-50
+  kind: test
+  statement: 'tests/unit/render/test_skills.py guards the markers and mentioned commands: test_a_marker_names_a_command_this_release_has_or_a_later_slice_will
+    (line 140), test_skills_only_mention_commands_and_flags_that_exist_or_are_planned (162), test_a_skill_never_names_a_command_that_the_release_it_is_rendered_for_lacks
+    (194).'
+  evidence:
+  - path: tests/unit/render/test_skills.py
+    lines: 140-201
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: fd414e7eecfe3f018453883476d7dec32adee6ce4675bd8b9d5dde00956143ef
+- id: A-51
+  kind: test
+  statement: 'Test files named for the other implemented commands: test_init_project.py and test_init_cli.py
+    (init), test_lifecycle.py and test_lifecycle_cli.py (upgrade, rollback, sync, doctor, explain, release),
+    test_profile_edit.py (profile answer and approve), test_standards_for.py and test_cli_standards_for.py
+    (standards for), test_validate_as_is.py, test_validate_design.py, test_validate_plan.py and test_validate_ledger.py
+    (validate), test_evidence_cite.py (evidence cite), test_knowledge_impact.py, test_review_prepare.py
+    and test_s9_acceptance.py (knowledge impact, review prepare, validate review, test, knowledge).'
+  evidence:
+  - path: tests/unit/application/test_evidence_cite.py
+    lines: 16-100
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: a4e97b4e524285ecb43aa5a8c11fc59a3b66937b772977a388635b212dcb1775
+- id: A-52
+  kind: structure
+  statement: No source line under src/orqlet registers or names an `orqlet approve`, `orqlet ci` or `orqlet
+    hook` command or an edit guard; the strings 'ci check' and 'hook' occur only in comments, messages
+    and contract fields listed in the following facts.
+  evidence:
+  - &id003
+    path: src/orqlet/domain/independence.py
+    lines: 1-11
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 991d24ae567724c39bd4a4901b6e1278bf5fa768a03be3775595473a0bed09b4
+- id: A-53
+  kind: structure
+  statement: 'doctor (full mode) emits info ORQ-I200: ''Local Git hooks are not part of this release.
+    Checks that run in CI are authoritative; none runs locally.'''
+  evidence:
+  - path: src/orqlet/application/usecases/diagnose.py
+    lines: 123-133
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: b9627a875e913d017558b962c2eecae47acf09a693466c7365537c6cc3810f8c
+- id: A-54
+  kind: structure
+  statement: 'WorkflowPolicy has the fields `hooks: dict[str, str]` and `required_checks: tuple[str, ...]`;
+    no use case reads either.'
+  evidence:
+  - &id004
+    path: src/orqlet/application/contracts/policy.py
+    lines: 56-67
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 1d18f211b802edfc45d9179897bfbd8fada81c37d3be0f1f726da1e74c235d9b
+- id: A-55
+  kind: structure
+  statement: Every Git call Orqlet makes starts with `git -c core.fsmonitor=false -c core.hooksPath=`,
+    which disables the repository's hooks for Orqlet's own reads.
+  evidence:
+  - path: src/orqlet/adapters/git/git_runner.py
+    lines: 1-10
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 4d10ca4f95399f32c5a0d93c91f2ee16675cf6f92c0b80cc2968b0e035e031a2
+  - path: src/orqlet/adapters/git/git_runner.py
+    lines: '50'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 66e387c8182a2c798a96a95de09201e96ee1822ad74739fee98d72b9ba61461e
+- id: A-56
+  kind: structure
+  statement: explain lists 'Enterprise hooks and managed settings of any client' among the sources Orqlet
+    cannot inspect.
+  evidence:
+  - path: src/orqlet/application/usecases/explain.py
+    lines: 14-22
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 3a9b1e3f7b667acdfbc57719957b4b20c3f2aa4dbcc1322ae14eca4b8b2180cc
+- id: A-57
+  kind: test
+  statement: A search of tests/ for 'hook' finds only tests/unit/domain/test_paths.py:34 (a path string)
+    and tests/unit/adapters/test_git_runner.py:14 (the hardening arguments); no test names a hooks command,
+    `ci check`, `approve` or an edit guard, and no test asserts ORQ-I200.
+  evidence:
+  - path: tests/unit/adapters/test_git_runner.py
+    lines: '14'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: aaaa2378abac15308ad2bfd76a2ca2fad8e7f235bfde5d7df3d2bebee1d26ecc
+- id: A-58
+  kind: test
+  statement: test_fm_b03_a_design_edit_in_the_tree_is_a_change_of_code_and_of_design_alike documents that
+    offline the design is read from the tree under review, so it cannot be told apart from code, and that
+    'only the host's merge evidence, in S11' separates the approved design from the pull request's own
+    diff.
+  evidence:
+  - path: tests/e2e/test_s9_acceptance.py
+    lines: 421-439
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: e685c1708ab584049682909ba065fa8e1e26d262614ced9874a46d9362751ed3
+- id: A-59
+  kind: operation
+  statement: The repository's own CI workflow runs ruff, mypy, lint-imports, tools/export_schemas.py --check,
+    tools/build_manifest.py --check, pytest and a wheel-reproducibility build; it runs no `orqlet` command.
+  evidence:
+  - path: .github/workflows/ci.yml
+    lines: 30-100
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 5e2583dc66236cca5c54c877852f9fea0a4b2aa72fe4fa78301c84c77c2ba36b
+- id: A-60
+  kind: structure
+  statement: The M2 design table lists S10 'Git hooks and the optional edit guard' and S11 '`ci collect`
+    and `ci check`, the two-stage event model, ... the check publisher' as later slices; the M2 plan lists
+    them as out of scope and calls Plan B (S11, `ci collect`, `ci check`, hooks, edit guard) 'not started'.
+  evidence:
+  - path: docs/design/orqlet-m2-workflow/design.md
+    lines: 58-59
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: c7a4ee52fd129f1bfb59708e004a02679dff2dcccaa399e420de4b783769ce3b
+  - path: docs/design/orqlet-m2-workflow/design.md
+    lines: '124'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 4f8496e7b1f31eedcb8149c3d5da569f0941e5c344d6c0209345acefe3644bb5
+  - path: docs/design/orqlet-m2-workflow/design.md
+    lines: '131'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 193884f64eef88066112fb344a8f749f5f53c85ab63680c30e007f9517b24960
+  - path: docs/design/orqlet-m2-workflow/design.md
+    lines: '163'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 730f54699d2c239c02ab202df3e3161db61ddef08c1bda9ae260d8571cf43a61
+- id: A-61
+  kind: structure
+  statement: The M2 plan states that gate status approval is NOT_RUN, that approval, published check results
+    and the identity of the reviewer are host evidence (S11), and that Plan B is not started.
+  evidence:
+  - path: docs/design/orqlet-m2-workflow/plan.md
+    lines: '72'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: d290eea30715b464b3602a292c5166beda6e0cf841ba6a798f18f2fae2c13f08
+  - path: docs/design/orqlet-m2-workflow/plan.md
+    lines: '128'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 68576b791d773f5745dbc3414b81dcc695c8f795943b57d1d4e7b4c251ad4bfc
+  - path: docs/design/orqlet-m2-workflow/plan.md
+    lines: '173'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 0a7c92073b64d6dd84512d911cf975e10da314e05f6fa1d969953d23a81394cd
+  - path: docs/design/orqlet-m2-workflow/plan.md
+    lines: '211'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 3888694525fc8a3fc05a317948c659a964813900534c6eff3be9bf7679cd999c
+- id: A-62
+  kind: structure
+  statement: The earlier implementation AS-IS lists the MVP-1 commands as including `hook` and `ci check|collect`,
+    and lists the choice of the local guard (Q-05) as open.
+  evidence:
+  - path: docs/design/orqlet-implementation/as-is.md
+    lines: 73-74
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 8c1f110105348b7bba42f6705ee6cf282c1d3e9e86208f1dfd7a833a17e2dc48
+  - path: docs/design/orqlet-implementation/as-is.md
+    lines: '88'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: d1b36e37c74a7c231f8089d123a26ac6efbc4bb91ea7d36982c7e623700f0c4c
+- id: A-63
+  kind: structure
+  statement: The architecture proposal lists `approve` among the commands 'Removed from v0.1', states
+    that a design or plan is approved only when it is on the protected baseline branch with a merged pull
+    request and a code-owner review (merge_evidence), and that the header `status` is informational.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2065'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 4487dcef46518ad1ffd282a71fd2c783739708ad4b24180352e21b9f876af0f8
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '3037'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 2f3e12f296bbb028cea6cf8b0e4a03ce732263f2eb6165e8f5dc8fd49ca0a083
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 3162-3168
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: c71e3f5982165704ad2d1c38dd61e30c05df8260a0e44490ccaf1c65b1616abf
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '4561'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 1e10247b6caba65c4721db9242f89b76277324a93879ba62b939c36b166c67b1
+- id: A-64
+  kind: structure
+  statement: The baseline text that every client reads says a person approves the design and the plan
+    before implementation starts and that when it is unclear whether an approval exists the agent asks.
+  evidence:
+  - path: src/orqlet/workflow/baseline/baseline.md
+    lines: 17-19
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 0ba1e06ff5d533ac0ea65e9d608eb8600ee89e03d710a500c76be2a8817fbb07
+- id: A-65
+  kind: structure
+  statement: 'Skill texts stop at a person: design (''approval is the merge of that pull request by an
+    authorised person''), plan (''You cannot approve it''; for D1 ''approved in the same pull request''
+    is allowed), research, review, implement and onboard each end with a STOP step; the implement skill
+    tells the agent to run gate status and then ask the person whether the design and plan pull requests
+    merged on the protected branch.'
+  evidence:
+  - path: src/orqlet/workflow/skills/orqlet-design/skill.md
+    lines: '19'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 2cf78d941ffd66aa4db68426589a67d16664d277c4e9337007403102f5c95b6e
+- id: A-66
+  kind: structure
+  statement: The plan skill says to read the approved design, ask the person to confirm the design pull
+    request merged on the protected branch, and that a D1 plan may be approved in the same pull request.
+  evidence:
+  - path: src/orqlet/workflow/skills/orqlet-plan/skill.md
+    lines: '11'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 57948ba02d7542790a3f05ebbf8c59c53fcbca4149835f7692d49ebb92bbd4fb
+  - path: src/orqlet/workflow/skills/orqlet-plan/skill.md
+    lines: '19'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: ab6756d7b953d6faa7784911eac1f4488ce2ba754480cf90052f4c98d773b194
+- id: A-67
+  kind: structure
+  statement: The implement skill's first step is `orqlet gate status <task> --phase <phase>`; it says
+    an offline run cannot confirm approval and reports NOT_RUN, so the person must confirm the merges.
+  evidence:
+  - path: src/orqlet/workflow/skills/orqlet-implement/skill.md
+    lines: '11'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 6e8e4f86946d29567a48ad49b44d5abd13bcef3d81d9f0e6018098d9478551cf
+- id: A-68
+  kind: test
+  statement: test_every_skill_says_that_source_material_is_not_authority_and_stops_for_a_person asserts
+    each packaged skill contains the not-authority text and 'STOP.'.
+  evidence:
+  - path: tests/unit/render/test_skills.py
+    lines: 127-130
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 8d0009a7abcd7ee568505adc4c51d11ee541920641ff8cf73db7a0583d3eaea3
+- id: A-69
+  kind: test
+  statement: test_with_a_task_approval_is_never_confirmed_offline asserts verdict NOT_RUN, a not_run reason
+    containing 'host evidence', finding ORQ-I393, no ORQ-W390, and found/readable/stale-empty for as-is,
+    design and plan.
+  evidence:
+  - path: tests/unit/application/test_gate_status.py
+    lines: 138-152
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 021738e11d144784aa3e83c4b86febe85f5d8b0f585d7d50649ebd30c60db007
+- id: A-70
+  kind: test
+  statement: 'Staleness tests: test_an_artifact_written_against_other_inputs_is_stale (155-163, ORQ-W390
+    and the three stale names), test_a_changed_workflow_or_protected_set_makes_an_artifact_stale (166-178),
+    test_a_moved_head_that_changed_the_scope_makes_the_artifact_stale (181-191), test_a_moved_head_that_left_the_scope_alone_is_only_noted
+    (194-203, ORQ-I392), test_artifacts_that_do_not_exist_yet_are_noted_not_failed (206-211, ORQ-I394
+    x3).'
+  evidence:
+  - path: tests/unit/application/test_gate_status.py
+    lines: 155-211
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 2bc0a548e867631bd854d52b92008e15168db23ecac60c214f1c74350f734065
+- id: A-71
+  kind: test
+  statement: 'Input tests: test_without_a_task_it_prints_the_inputs_an_artifact_header_records (103-113),
+    test_the_bound_inputs_are_the_same_on_every_run (116-119), test_a_repository_without_a_commit_cannot_bind_anything
+    (122-126, NOT_RUN), test_a_directory_that_was_never_initialised_is_a_failure (129-135, ORQ-E390 FAIL),
+    test_gate_status_never_writes (214-221).'
+  evidence:
+  - path: tests/unit/application/test_gate_status.py
+    lines: 103-221
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: b4fc0611621232d70c341d031e11080ba94b7724fcb5ee9d3063fde037a3abf4
+- id: A-72
+  kind: test
+  statement: 'CLI tests: test_gate_status_prints_the_inputs_of_an_initialised_repository (PASS without
+    a task, NOT_RUN with exit 5 with a task) and test_gate_status_in_an_uninitialised_repository_fails
+    (exit 5, ORQ-E390); the CLI run helper always passes --json.'
+  evidence:
+  - path: tests/integration/test_validate_cli.py
+    lines: 45-47
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: d2c60d1329216065f53eb663fd4646ea43863cca578c28aff865c0acfb4d224b
+  - path: tests/integration/test_validate_cli.py
+    lines: 163-191
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 3c17d443b2879ab226521208b47585290345048120ba8e59b2a64e687209cde3
+- id: A-73
+  kind: test
+  statement: 'End-to-end: test_a_whole_task_passes_every_validator_and_gate_status_only_lacks_approval
+    (code 5, NOT_RUN, ''host evidence'', all stale lists empty) and test_a_new_commit_in_the_scope_makes_every_artifact_stale
+    (stale == [''base_revision''] for the three artifacts).'
+  evidence:
+  - path: tests/e2e/test_s8_acceptance.py
+    lines: 156-171
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 4fa3e39157b9cd0a07243f769c443bbcec656976815d4d57573ce398cfe78574
+  - path: tests/e2e/test_s8_acceptance.py
+    lines: 221-232
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 510b1d1efafd080dc46ac70b4ecaa5b3c9186e1ae5112cfd959c8f551c4fbed8
+- id: A-74
+  kind: test
+  statement: test_gate_status_for_the_phase_agrees_and_still_cannot_confirm_approval asserts expected_changes
+    EC-1 'implemented as designed', empty stale lists, verdict NOT_RUN, exit 5 and 'host evidence'; the
+    test creates the 'approved' task by committing it to main and then branching to `feature`.
+  evidence:
+  - path: tests/e2e/test_full_task.py
+    lines: 150-157
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 1f1bfa1516f2830cd20a30177de6306bec836ef6c579be37a19828c2939b273b
+  - path: tests/e2e/test_full_task.py
+    lines: 230-240
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 923d9428085f0e2f06a1cd34e90c532f88a98fad3663a2da3ff06287694dcfa7
+- id: A-75
+  kind: test
+  statement: test_fm_a01_the_declared_public_function_is_implemented_as_designed (exit 5 'approval is
+    never confirmed offline', no E450/E451) and test_fm_a02_a_second_public_function_is_additional_and_blocks
+    (ORQ-E451).
+  evidence:
+  - path: tests/e2e/test_s9_acceptance.py
+    lines: 310-332
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 46dd3f3410c348d697e6cfad39c5c9296b9a19ded00be454d1c8b8ba0fc9af9d
+- id: A-76
+  kind: test
+  statement: No test calls `gate status` without --json, so the human rendering of gate status is not
+    asserted; test_install_smoke.py runs it with --json.
+  evidence:
+  - path: tests/e2e/test_install_smoke.py
+    lines: 109-125
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 5560aca34803842c1be1d59c0a55033cbad17c2d19be57bb919620f671909294
+- id: A-77
+  kind: interface
+  statement: '`orqlet profile approve --reviewer NAME [--yes] [--dry-run]` has a required free-text `reviewer`
+    option (''Your name, recorded as the reviewer'') and calls approve_profile.'
+  evidence:
+  - path: src/orqlet/interface/cli/commands/profile.py
+    lines: 55-73
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 98cf0d362a518590bcbdeb87ffda95d2e97b5373e181fcbce8e2e88c043c3f1a
+- id: A-78
+  kind: flow
+  statement: approve_profile trims the name and refuses (ORQ-E163) an empty name, a name over 100 characters
+    or one containing a newline; refuses (ORQ-E164) when the profile is already approved ('already approved
+    by <reviewed_by> on <reviewed_at>'); otherwise writes ProfileMeta(version unchanged, status='approved',
+    reviewed_by=name, reviewed_at=services.clock.now()) through a journalled plan.
+  evidence:
+  - path: src/orqlet/application/usecases/profile_edit.py
+    lines: '28'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 955e94bb5d8e55f6d9b02d3789014b531b3abed880ce587a4fd7704a056ac807
+  - &id005
+    path: src/orqlet/application/usecases/profile_edit.py
+    lines: 86-113
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 0fa75f443bcc704b486538adf2ffcfc9be1844d5deb58d8172ee736260d67991
+- id: A-79
+  kind: flow
+  statement: profile answer on an approved profile resets ProfileMeta to status 'draft' with no reviewer
+    and emits info ORQ-I070; the version number is copied unchanged.
+  evidence:
+  - path: src/orqlet/application/usecases/profile_edit.py
+    lines: 73-83
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 793c07ce9615ff3ab7d8e079c2f6030303d10d3771274d8237ce952687b44922
+  - path: src/orqlet/application/usecases/profile_edit.py
+    lines: 122-125
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: a27423b6999510f3d803b131f30069d4a79bbe9e1d6c38be3eaa812560fe4925
+- id: A-80
+  kind: flow
+  statement: _commit applies the profile change only when assume_yes is set or an interactive prompter
+    confirms 'Change the project profile?'; otherwise it returns previewed (interactive) or needs-input
+    with ORQ-E115.
+  evidence:
+  - path: src/orqlet/application/usecases/profile_edit.py
+    lines: 138-198
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: c24542001da60c2bd86a2e562e6649a3486c51a7b49eb6c03f7bc306c7b132d7
+- id: A-81
+  kind: structure
+  statement: ProfileMeta has version (int), status ('draft' or 'approved'), reviewed_by (str or None)
+    and reviewed_at (str or None); ProjectProfile.profile is a ProfileMeta.
+  evidence:
+  - path: src/orqlet/application/contracts/profile.py
+    lines: 59-63
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 05be7131418177d88e23495b9b0154ca62e310b762315c979aabab33e071adad
+  - path: src/orqlet/application/contracts/profile.py
+    lines: '146'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 360ea87e252784ec62314391fd4719a9c8b02a6d6a0152558230bba98fb8a190
+- id: A-82
+  kind: flow
+  statement: A new draft profile is created with ProfileMeta(version=1, status='draft'); no code in src/orqlet
+    changes `version` (profile_edit.py lines 106 and 123 and init_questions.py line 216 copy the existing
+    value).
+  evidence:
+  - path: src/orqlet/application/usecases/draft_profile.py
+    lines: '79'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 852f0125d7d129b6dcc3cbcdedcb966ed5474df6490834599657e8f6a245fe05
+- id: A-83
+  kind: flow
+  statement: init records an approval when a `reviewer` answer is supplied or typed at the prompt ('Your
+    name, to record that you approved this profile (leave empty to keep it a draft)') by calling approve(profile,
+    reviewer, clock.now()).
+  evidence:
+  - path: src/orqlet/application/usecases/init_project.py
+    lines: 256-272
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 0605c73f0bd70ceda18854fc95df419ce24cc0a9f52e2b63d4748de4dc5e6d24
+- id: A-84
+  kind: flow
+  statement: approve() builds ProfileMeta(status='approved', reviewed_by=reviewer, reviewed_at=now.isoformat()).
+  evidence:
+  - path: src/orqlet/application/usecases/init_questions.py
+    lines: 214-221
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 61f7435a52567b05837e8a38b9a2f944b683c9d4cd7d2676e8d1c98466e6de60
+- id: A-85
+  kind: flow
+  statement: 'The only reader of the profile''s `status` outside profile_edit is doctor''s _profile_findings,
+    which emits warning ORQ-W180 ''The project profile is a draft: nobody has recorded approving it''
+    when status is not ''approved''.'
+  evidence:
+  - *id001
+- id: A-86
+  kind: structure
+  statement: 'In this repository the profile is `version: 1`, `status: draft`.'
+  evidence:
+  - path: .orqlet/project-profile.yaml
+    lines: 11-12
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 6ae7ee9b1c7947972ea69833a4d0e5a6f82dd1125f322f7ccd1a9eb181cbe335
+- id: A-87
+  kind: structure
+  statement: The onboard skill and the profile command text tell the agent never to run `orqlet profile
+    approve` and to tell the user to run it with their own name.
+  evidence:
+  - path: src/orqlet/workflow/commands/profile.md
+    lines: '10'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 8af041bd8a67c98e2c0adc1434c6e6c3678b4345dc32ae313e0d21fcb12e0284
+- id: A-88
+  kind: test
+  statement: test_the_profile_commands_clear_doctor_s_warnings_and_can_be_undone (profile approve --reviewer
+    Ada --yes, doctor clean, rollback reopens ORQ-W180) and test_profile_commands_refuse_clearly (profile
+    approve without a terminal exits 4).
+  evidence:
+  - path: tests/integration/test_lifecycle_cli.py
+    lines: 189-237
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: fd959c2a21799665fc6de34b0a59f249d0e3ef096630aa2561abbcce8b6abf04
+- id: A-89
+  kind: test
+  statement: test_answers_are_recorded_as_the_maintainers_and_the_profile_can_be_approved asserts ('approved',
+    'Ada') after init with a `reviewer` answer; test_dry_run_and_a_missing_approval_write_nothing covers
+    init without approval.
+  evidence:
+  - path: tests/unit/application/test_init_project.py
+    lines: 100-114
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 5c4732e193af98ecd7e23c987f94fbf969f8d07030c9de882e2931bdc343f12c
+  - path: tests/unit/application/test_init_project.py
+    lines: 160-171
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: ec50a0f6464bac52b3e9e202c6f687f90e8b70e8aa58aeb09a6e8caee6d26d7a
+- id: A-90
+  kind: flow
+  statement: upgrade shows a preview plan and applies it only when --yes is given, or an interactive prompter
+    confirms 'Apply N file change(s)?'; with --dry-run it returns previewed; non-interactive without --yes
+    it returns needs-input with ORQ-E115 'run again with --yes to approve the plan'.
+  evidence:
+  - path: src/orqlet/application/usecases/upgrade.py
+    lines: 35-41
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 0edc72208a012036543564f6889a1303fc39782e2b63a7f0a6f79249508a7c0f
+  - path: src/orqlet/application/usecases/upgrade.py
+    lines: 144-160
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: a0d539f94e70d202169e00b2198c379656433b11dd24c906d2f57231079bc4ce
+  - path: src/orqlet/application/usecases/upgrade.py
+    lines: 247-254
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: c21f18af06e74a522da05a19ced2650f01e19f90b876d6d6cc4f82cf1e9d5cf7
+- id: A-91
+  kind: flow
+  statement: The same confirm-or-`--yes` pattern guards rollback (_confirmed), release (release.py lines
+    80 and 148-152), init (init_project.py line 338) and profile edits; none of them records who confirmed
+    except profile approve's free-text name.
+  evidence:
+  - path: src/orqlet/application/usecases/release.py
+    lines: '80'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 8f291dfa5416179a50e0a4562a174f98fcd49f42131012f9c264e52fe30fbbd3
+  - path: src/orqlet/application/usecases/release.py
+    lines: 148-152
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 3212bf49fb2868532c7e6d7e1404c4beb26ba0e6af00707c670fb84e7cd20fb8
+- id: A-92
+  kind: structure
+  statement: The Prompter port has `interactive`, ask and confirm; confirm raises NoAnswerAvailable when
+    not interactive.
+  evidence:
+  - path: src/orqlet/application/ports/prompter.py
+    lines: 21-32
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 6cc843a35548a8b3f027aa82aabd00b533f35b988f148d62c9b4fbe4194d4fc4
+- id: A-93
+  kind: flow
+  statement: ChangePlan.digest is a digest of the planned writes; it is printed by init (plan_digest),
+    stored in the journal record by apply_plan, and not compared with any value supplied by the approver;
+    apply_plan separately verifies that each file still has its recorded before-hash.
+  evidence:
+  - path: src/orqlet/domain/changeplan.py
+    lines: 116-124
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 3e0519530a53ae637e0bfe6f2bb885bfc0d0730c9cf6a1568c4c072dfcba9de0
+- id: A-94
+  kind: flow
+  statement: apply_plan calls _verify_unchanged before writing and journals plan_digest=plan.digest.
+  evidence:
+  - path: src/orqlet/application/usecases/apply_plan.py
+    lines: 50-61
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: fe3798eaee5f490b1b55c049bce4290628739795ec2b32c578b0e142372e68c7
+- id: A-95
+  kind: flow
+  statement: upgrade refuses (ORQ-E120) a candidate workflow that is below the floor in .orqlet/versions.yaml
+    or older/weaker than the installed one, and with --allow-weaker proceeds with warning ORQ-W095 ('Lowering
+    the workflow needs two approvals when it is merged').
+  evidence:
+  - path: src/orqlet/application/usecases/upgrade.py
+    lines: 184-216
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 779f68082a86f3c8806ca2ee70a56282a9902c9494292fc6ed6609a7b6fe168b
+- id: A-96
+  kind: flow
+  statement: 'rollback applies the same rule: ORQ-E120 without --allow-weaker, ORQ-W095 with it (''It
+    needs two approvals when it is merged''), using the installation''s floor and controls_level.'
+  evidence:
+  - path: src/orqlet/application/usecases/rollback.py
+    lines: 67-77
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 252dc90519e0a2791fc6c50f05625c833f5704caf91d67a33239f9eeec6eaf2e
+  - path: src/orqlet/application/usecases/rollback.py
+    lines: 150-170
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 36057701faced73404eafa6497bff8e70bf2e9b890a06c44d1833c4ecf4f2dac
+- id: A-97
+  kind: interface
+  statement: The upgrade flag help reads 'Allow a downgrade. It needs two approvals.' and the rollback
+    flag help reads 'Allow a rollback that lowers the workflow.'
+  evidence:
+  - path: src/orqlet/interface/cli/commands/lifecycle.py
+    lines: '69'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: c354bda336c8b2e591a49ed8989c32c4d05e73a1f511680a0aa1ddda80d73ac1
+  - path: src/orqlet/interface/cli/commands/lifecycle.py
+    lines: '130'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 641b49d90ffb0e8985a7ee425ff72457acd73348ef250928b4297c2df1d8cb24
+- id: A-98
+  kind: structure
+  statement: 'ChangeControl has one field, `lowering_pin_or_floor_requires_approvals: int = 2`, and Versions
+    has `change_control: ChangeControl = ChangeControl()`; the module docstring says ''accepted versions,
+    read from the baseline''.'
+  evidence:
+  - path: src/orqlet/application/contracts/versions_file.py
+    lines: '1'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: ab3b9d29ec7a1363befb08a2a44136f6c2206e2a879ecf20af4c0ec5622cd369
+  - path: src/orqlet/application/contracts/versions_file.py
+    lines: 26-35
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: b24fcc42e4d569f3dbb4c4c2b2cebe7381955fec33af35f50ab9f0734d9de059
+- id: A-99
+  kind: structure
+  statement: In .orqlet/versions.yaml the workflow floor is 0.3.1, controls_level_min is 3 and `change_control.lowering_pin_or_floor_requires_approvals`
+    is 2.
+  evidence:
+  - path: .orqlet/versions.yaml
+    lines: 10-14
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 7d16efe9eb094b34e51507194b803a4f4b81f04f4f22aae11e786930dacc2d2f
+- id: A-100
+  kind: flow
+  statement: render_all.data_files builds Versions(...) without a change_control argument (the default
+    2 applies) and writes it as a SEEDED file.
+  evidence:
+  - path: src/orqlet/application/usecases/render_all.py
+    lines: 204-213
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 8d462fa0f9961a9b24acf6d20cc8cbc0152266ccd0ad4362050e5e9358c4ca2e
+  - path: src/orqlet/application/usecases/render_all.py
+    lines: '259'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 2ebfc77d5955118c552f96258da31d4b007fe7841a80352e21d31d6c90dbf7c8
+- id: A-101
+  kind: flow
+  statement: A search of src/orqlet finds `change_control` and `lowering_pin_or_floor_requires_approvals`
+    only in versions_file.py and the committed JSON schema; no use case reads the value, and the strings
+    'two approvals' in upgrade.py (lines 204, 213), rollback.py (line 74) and lifecycle.py (line 69) are
+    fixed text.
+  evidence:
+  - path: src/orqlet/application/contracts/versions_file.py
+    lines: 26-27
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: f051c9f61e3bdabfc2fa9fe76f7bec15ba44d679ec910b7637ec53352ca4f7f6
+  - path: src/orqlet/application/contracts/versions_file.py
+    lines: '35'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 9d450b3350040f510223e5c491d9746a7a0782bad1cb0fee6478ad4e915b1ce5
+- id: A-102
+  kind: flow
+  statement: Installation.versions is loaded from the working-tree .orqlet/versions.yaml by load_installation;
+    Installation.floor is read from versions.workflow.floor and is used by upgrade._downgrade_refusal,
+    rollback._weaker_workflow and doctor (ORQ-E163 'below the floor').
+  evidence:
+  - path: src/orqlet/application/usecases/installation.py
+    lines: 58-60
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: f0e0dc858d9c2fb0aa98bc1fae84076d974a5adb8207e4b12f0a8676b3cfb6e3
+  - path: src/orqlet/application/usecases/installation.py
+    lines: '80'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 8003f14f7a141c3f90a9da7dfb2f46ca675f7af9c4503d7b9f7ff3729ecd5f18
+- id: A-103
+  kind: flow
+  statement: doctor reports ORQ-E163 when the installed workflow version is below the floor, and ORQ-W160,
+    ORQ-E161, ORQ-W162, ORQ-W165 and ORQ-W166 for pin, digest and version skew.
+  evidence:
+  - path: src/orqlet/application/usecases/diagnose.py
+    lines: 214-280
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: e8d715151650a2e6c057839fc66f8e3229814854c895b64b857de61ee2014e59
+- id: A-104
+  kind: test
+  statement: 'Downgrade and floor tests: test_fm_u09_an_older_or_weaker_release_is_refused (359, ORQ-E120),
+    test_a_downgrade_can_be_forced_only_with_the_flag_and_is_then_reported (370, ORQ-W095), test_fm_u09_a_rollback_that_lowers_the_controls_level_is_refused
+    (529), test_fm_u09_with_the_flag_the_rollback_goes_ahead_and_says_it_needs_two_approvals (543), test_a_rollback_below_the_floor_is_refused
+    (557), test_the_floor_is_enforced_by_doctor (225, ORQ-E163).'
+  evidence:
+  - path: tests/unit/application/test_lifecycle.py
+    lines: 225-232
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 80853e751f9e50c6370f99a33d0bb82dfa3bb3c15c5f27431e81b4077d0f9925
+  - path: tests/unit/application/test_lifecycle.py
+    lines: 359-379
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: bfc3306634bc7aaf45c76bc8e5381c18b1bf1f2bbf892e7b1ff63d3f95863951
+  - path: tests/unit/application/test_lifecycle.py
+    lines: 529-569
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 83baa34c7e0c3797713ec931563630a6fc76dd2ba4eb58204ae4ed20706d534b
+- id: A-105
+  kind: test
+  statement: A search of tests/ for lowering_pin_or_floor_requires_approvals finds only the valid versions
+    fixture (line 5 of tests/fixtures/contracts/valid/orqlet.versions.v1.yaml), which the contract round-trip
+    test loads; no test reads or asserts the value in behaviour.
+  evidence:
+  - path: tests/fixtures/contracts/valid/orqlet.versions.v1.yaml
+    lines: '5'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 2d5d0363ff0d26979366073a43d52de4c643290627dea8089fa077b9981a82dc
+- id: A-106
+  kind: test
+  statement: 'Upgrade approval tests: every upgrade test passes assume_yes (GO) or --yes; test_a_rollback_needs_approval_and_a_dry_run_writes_nothing
+    (502) covers rollback''s needs-input; test_release_needs_approval (642) covers release; test_dry_run_and_a_missing_approval_write_nothing
+    (test_init_project.py:160) covers init; no test asserts upgrade''s own needs-input/ORQ-E115 path.'
+  evidence:
+  - path: tests/unit/application/test_lifecycle.py
+    lines: 502-513
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: d5ba5ac6adb865c702ce3ace2a8c8df9792b775dbba8746d46e5bdc21a4c67db
+  - path: tests/unit/application/test_lifecycle.py
+    lines: 642-650
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: b197c2d3a1878fd6e8fc64741ffebe0cbb6caad4232245f0f99c648dd27918cd
+- id: A-107
+  kind: structure
+  statement: A proposal is a unified-diff file under .orqlet/proposals named by flattening the target
+    path ('/' becomes '__', plus '.diff'); PROPOSALS_DIR is .orqlet/proposals.
+  evidence:
+  - &id002
+    path: src/orqlet/domain/changeplan.py
+    lines: '30'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 05096fe89c7563bd99c6c9326ae59ff4e0dd184005c8f3a1668c90b77c26d76e
+  - path: src/orqlet/domain/changeplan.py
+    lines: 148-154
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 6eaa096b536034bdf006f69caedb6de5e5d6b7edd457cdf1dbd2112624db98c5
+- id: A-108
+  kind: flow
+  statement: _propose writes the proposal when the seeded or conflicting file differs from the new render
+    and the proposal file is not already identical; SEEDED_PROPOSAL maps to Action.PROPOSE and is raised
+    for newer seed text or a name clash.
+  evidence:
+  - path: src/orqlet/domain/changeplan.py
+    lines: 371-382
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: d528313bcc57c4951a239c239d698a734c79b24351f7a8dcb21a6cf674f2028e
+  - path: src/orqlet/domain/changeplan.py
+    lines: '422'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: ec40b5407b90c502b82934b13a21d298dcfe5e98eafa453bc3225772f42e5db7
+- id: A-109
+  kind: structure
+  statement: src/orqlet contains no code that reads, lists or applies the files under .orqlet/proposals;
+    PROPOSALS_DIR is referenced only to compute proposal paths.
+  evidence:
+  - *id002
+  - path: src/orqlet/domain/changeplan.py
+    lines: '154'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 59ad85e923af879461b2e23d6023b56f899d0caf82c9a42679b42185db61b796
+- id: A-110
+  kind: structure
+  statement: 'The repository holds two proposal files: .orqlet/proposals/.orqlet__versions.yaml.diff (a
+    diff that changes workflow version, digest and floor from 0.3.0 to 0.3.1 and shows `change_control`
+    as unchanged context) and .orqlet/proposals/.orqlet__role-bindings.yaml.diff.'
+  evidence:
+  - path: .orqlet/proposals/.orqlet__versions.yaml.diff
+    lines: 1-15
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: e65b21ef368fc7fcb0ccf90ec27aa92abc2102c79b3942542865eab0b8ed76e5
+- id: A-111
+  kind: test
+  statement: 'Proposal tests: test_a_conflict_writes_a_proposal_and_leaves_the_live_file (test_changeplan.py:110),
+    test_seeded_files_are_written_once_and_a_clash_becomes_a_proposal (144), test_newer_seed_text_is_only_ever_a_proposal
+    (156), test_a_proposal_that_is_already_on_disk_is_not_written_again (303), test_long_paths_still_get_a_valid_proposal_name
+    (313); test_seeded_files_change_only_as_proposals (test_lifecycle.py:318) checks that a versions proposal
+    appears and versions.yaml is unchanged.'
+  evidence:
+  - path: tests/unit/domain/test_changeplan.py
+    lines: 110-166
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: f41b7b179674bb3d7b20f2572f7314c17d00ac5cb34dc3b37309f39027c39cc1
+  - path: tests/unit/domain/test_changeplan.py
+    lines: 303-320
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 34a89c6a304a5c6ae3a30510271005861a0614d399aa4d135530f7e6c2727476
+- id: A-112
+  kind: structure
+  statement: 'Reviewer independence classes I0 to I3: I0 never counts, I1 is an approved binding in a
+    fresh context, I2 adds a different client or model family from the Coder, and I3 (''a human code owner
+    who is not the author, or a verified CI-executor job'') is never derived because ''No identifier in
+    a record shows that ... only the host evidence of `ci check` can''; the module says the class comes
+    from identifiers ''which an approver attests and no tool verifies''.'
+  evidence:
+  - *id003
+- id: A-113
+  kind: flow
+  statement: validate review's _independence reads .orqlet/role-bindings.yaml from the tree under review
+    (target.tree), treats a binding as approved when an entry matches the record's binding_ref, role and
+    client, derives the class, reports ORQ-E415 when no entry matches, and reports ORQ-E412 when the record
+    claims a class above the derived one ('no recorded identifier can show a human reviewer (I3)').
+  evidence:
+  - path: src/orqlet/application/usecases/validate_records.py
+    lines: 299-341
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 3bdb18119ea5bcb705a0e9c8f1d976fe3065299cbdfaceb75e47add3a16e82e4
+- id: A-114
+  kind: flow
+  statement: _check_independence_gate reads the design manifest from the tree under review and, when the
+    derived class is below the minimum for the design's effective change class, records a skip (NOT_RUN)
+    rather than an error.
+  evidence:
+  - path: src/orqlet/application/usecases/validate_records.py
+    lines: 344-366
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 8f86f5944c77441e2d7c1fbeb014d53d2a93b345a6ed9404575da93e894e8c7d
+- id: A-115
+  kind: structure
+  statement: 'validate_records documents that validation does not prove a review took place: ''that rests
+    on the human approver, who accepts the record as `attested`''; a stale or unbindable record is NOT_RUN.'
+  evidence:
+  - path: src/orqlet/application/usecases/validate_records.py
+    lines: 1-8
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 62b0c8ada0726246dd5005989b5345e014e57a0572ad2c420ab994685f842d4c
+- id: A-116
+  kind: structure
+  statement: 'ReviewResult has `assurance: Literal[''advisory'']`, `independence: Literal[''I0'',''I1'',''I2'',''I3'']`
+    and `verdict`; a PASS cannot be I0 and cannot hold a blocking finding.'
+  evidence:
+  - path: src/orqlet/application/contracts/review_result.py
+    lines: 62-90
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 9c508e2d3327bae180ccd9078c36820dad31c4a9957f935a7d64e90dc371d05a
+- id: A-117
+  kind: structure
+  statement: Binding in .orqlet/role-bindings.yaml has role, id, clients, minimum_capability, independence_capability
+    (I1, I2 or I3), definition_sha256 and an optional free-text `approved_by`; no use case reads `approved_by`.
+  evidence:
+  - path: src/orqlet/application/contracts/role_bindings.py
+    lines: 17-25
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 3620551e3077bf449444da5cd1f67fa53269ee0cf235a5f7cc5fa8a56441cdcc
+- id: A-118
+  kind: flow
+  statement: init writes the two generated reviewer bindings (orqlet-arch-reviewer, orqlet-security-reviewer)
+    with independence_capability I1 and no approved_by.
+  evidence:
+  - path: src/orqlet/application/usecases/render_all.py
+    lines: 63-67
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 6d09052104bf94653e66fc1820b5a9d5e7c0c03abbf6e53ea7bb773f0c3a499f
+  - path: src/orqlet/application/usecases/render_all.py
+    lines: 213-231
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: a1e9b49abe55573db44c962efceb51c24bab0f6b160d9e8645876d64ca03b9f6
+- id: A-119
+  kind: structure
+  statement: The repository's .orqlet/role-bindings.yaml has two bindings (architecture-reviewer/orqlet-arch-reviewer
+    and security-reviewer/orqlet-security-reviewer, both I1) and no approved_by line.
+  evidence:
+  - path: .orqlet/role-bindings.yaml
+    lines: 4-25
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 92d707d431bc7894d51a148c6798c0a1fd30d3fc3ba58a454eaa08072368f85f
+- id: A-120
+  kind: test
+  statement: 'Independence tests: test_a_binding_that_is_not_approved_is_i0_whatever_else_is_true (33),
+    test_an_approved_binding_in_the_same_client_and_family_is_i1 (37), test_another_client_or_another_model_family_is_i2
+    (41), test_a_family_that_is_unknown_on_either_side_cannot_show_a_difference (46), test_no_recorded_identifier_can_make_a_review_i3
+    (51), test_the_first_matching_pattern_names_the_family_and_none_matches_to_unknown (56), test_d3_requires_i2_and_the_others_i1
+    (71), test_i0_never_satisfies_a_gate_and_i1_does_not_satisfy_d3 (75).'
+  evidence:
+  - path: tests/unit/domain/test_independence.py
+    lines: 33-80
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 271229922f4518bc2ff39240d27cb872b39d91c10170ea3e1448ed3c81fbcf8f
+- id: A-121
+  kind: test
+  statement: test_an_unapproved_review_binding_is_an_error_and_not_a_pass (ORQ-E415, derived I0) and test_a_record_cannot_claim_more_independence_than_its_identifiers_give
+    (ORQ-E412).
+  evidence:
+  - path: tests/e2e/test_s9_acceptance.py
+    lines: 525-551
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: a834b8de2b4979d0e85ddb6af69c07f4b68876f3ae00cc7b3c22f2ab1420cc40
+- id: A-122
+  kind: test
+  statement: test_an_i0_review_is_never_a_pass checks the ReviewResult contract rule; test_init_approves_the_generated_reviewers_as_the_default_review_bindings
+    checks the generated bindings (I1, three clients, fresh context).
+  evidence:
+  - path: tests/contract/test_record_contracts.py
+    lines: 131-140
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: d9d0146d197ab0ddddd1c69a0bf3c22d130b0804f9f05900072d22a761ccc311
+- id: A-123
+  kind: test
+  statement: test_init_approves_the_generated_reviewers_as_the_default_review_bindings asserts the generated
+    bindings are I1 for the three clients with context 'fresh'.
+  evidence:
+  - path: tests/unit/application/test_lifecycle.py
+    lines: 164-182
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 0b848f6d4798d0e1f2928d5e39f17cd42a6967efe1c0636565ad17ea92b721ad
+- id: A-124
+  kind: structure
+  statement: 'WorkflowPolicy (orqlet.workflow-policy/v2) has `approvals.design` and `approvals.plan`,
+    each an ApprovalRule with `source: Literal[''baseline-with-merge-evidence'']`, optional `code_owners:
+    str` and optional `minimum_approvers: int`; the schema is registered in the contract table.'
+  evidence:
+  - path: src/orqlet/application/contracts/policy.py
+    lines: 12-20
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: a34d3e3ff5347caf0c8180c711f84f7e7825ec5cee6f14dd5a4beb70021bdacc
+  - *id004
+- id: A-125
+  kind: structure
+  statement: WorkflowPolicy is referenced only in the contract table; no path constant for a workflow-policy
+    file exists, no use case loads or writes it, and the repository's .orqlet folder contains no workflow-policy
+    file.
+  evidence:
+  - path: src/orqlet/application/contracts/__init__.py
+    lines: '16'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 24b5d541535794aa65c0ff7bb4fdb26bc2f6695ca87138abc59494615d2ddaf2
+  - path: src/orqlet/application/contracts/__init__.py
+    lines: '39'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 81f2911f18fa190bc8c0452773414096daf1fb89e19cd065c3c6e471dd1084b5
+- id: A-126
+  kind: structure
+  statement: 'The valid fixture for the policy sets approvals.design and approvals.plan to {source: baseline-with-merge-evidence,
+    minimum_approvers: 1}, and triggers.independence_raise to {glob: ''auth/**'', min_class: I2}.'
+  evidence:
+  - path: tests/fixtures/contracts/valid/orqlet.workflow-policy.v2.yaml
+    lines: 3-6
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 8efd3eb81016641b90a9fdd87940c35148e66317e78595bd8732bbf7dc489aba
+- id: A-127
+  kind: structure
+  statement: ModelPolicy has status ('draft' or 'approved'), ModelEntry has status ('proposed', 'approved',
+    'disabled', 'retired') and a free-text approved_by; these contracts are registered in the contract
+    table and no use case reads them.
+  evidence:
+  - path: src/orqlet/application/contracts/model_policy.py
+    lines: 50-81
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 2980a89de2fe7e4fb0ede5a7329b49b8144a677868fa4e71d07e82b10c864e50
+- id: A-128
+  kind: structure
+  statement: ReleasedFile has an optional `released_by`; release_file copies options.released_by and the
+    CLI builds ReleaseOptions(path, reason, assume_yes) without it.
+  evidence:
+  - path: src/orqlet/interface/cli/commands/lifecycle.py
+    lines: '283'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 7335e9a3514de32b4cf32fdb51077e13b90233c78dcd5211a9dd7e96464f4b6e
+- id: A-129
+  kind: flow
+  statement: The only approver identity the code records is the free-text profile reviewer name (ORQ-E163
+    checks length and newlines only) with a clock timestamp; it is not compared with any Git identity,
+    CODEOWNERS entry or other list.
+  evidence:
+  - *id005
+- id: A-130
+  kind: structure
+  statement: The Vcs port exposes state, head_commit, current_branch, tracked_files, read_committed, has_revision,
+    read_at, read_many_at, tree_at, merge_bases, diff_tree, diff_patch, resolve, staged_tree, recent_commits,
+    remote_names, has_staged_changes, ignored and init_repository; CommitSummary has commit_id and subject
+    only; there is no author, committer, merge or review accessor.
+  evidence:
+  - path: src/orqlet/application/ports/vcs.py
+    lines: 39-143
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 993b0bff2b4a2b3e3beda251f1f703288f92d9c2af4e83b0bb9f8a35c1c04c93
+- id: A-131
+  kind: dependency
+  statement: The Git runner's allow-list is rev-parse, for-each-ref, rev-list, merge-base, ls-files, ls-tree,
+    cat-file, diff-tree, diff-index, write-tree and check-ignore; `log` and `show` are not on it.
+  evidence:
+  - path: src/orqlet/adapters/git/git_runner.py
+    lines: 18-31
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: bdb9aa37bc504001d1e1ff4fad8178a2bdbe57a9ad42ad18ac2614f38acaef5a
+- id: A-132
+  kind: structure
+  statement: A search of src/orqlet for author, committer, user.name, user.email and 'identity' finds
+    no read of a person's identity; the matches are the standards-pack field `authored_by`, the expected-change
+    field `identity` (a symbol name), and comments.
+  evidence:
+  - path: src/orqlet/application/contracts/standards_pack.py
+    lines: 28-34
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: f70ea602a17050466055ce948aece6e367d7a7425a1d1443c1526d31b5e58729
+- id: A-133
+  kind: flow
+  statement: CODEOWNERS is consulted only by codeowners_mentions, which reads .github/CODEOWNERS, CODEOWNERS
+    or docs/CODEOWNERS and checks that the prompts folder name occurs in the text; the result drives info
+    ORQ-I030; owners are not parsed.
+  evidence:
+  - path: src/orqlet/application/usecases/render_all.py
+    lines: '324'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 226e87c547428c73b0e5f94dcd9ac22be31e9b57c3023461dcde7ffe9a09c67d
+  - path: src/orqlet/application/usecases/render_all.py
+    lines: 366-387
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: d6878d5afda82335ef7f078329b04387d663bd29b68b13f46d06efe8487046b0
+- id: A-134
+  kind: structure
+  statement: 'PullRequests has `reviewers: str = ''unknown''` and `merge_strategy: str = ''unknown''`;
+    init copies both unchanged, and neither is in ANSWER_KEYS or read by another use case.'
+  evidence:
+  - path: src/orqlet/application/contracts/profile.py
+    lines: 85-90
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: ad9125b5bb748022fe3c7e0da555675f115e7b220a8a59c8c88a925f139a8b2d
+- id: A-135
+  kind: structure
+  statement: ANSWER_KEYS (the facts `profile answer` accepts) are facts.python, facts.package_manager,
+    facts.frameworks, repository.target_branch, repository.branch_naming, repository.commit_convention
+    and the PR template targets key.
+  evidence:
+  - path: src/orqlet/application/usecases/init_questions.py
+    lines: 26-36
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: a6118c7db585b0a4bb7dc0136d2e87a0a961cee81bcaebec85cca742aeb275a6
+- id: A-136
+  kind: structure
+  statement: 'StandardsPack manifests have `owner`, `reviewers: tuple[str, ...]` and provenance `review_ref`;
+    no code reads `.reviewers` from a pack manifest.'
+  evidence:
+  - path: src/orqlet/application/contracts/standards_pack.py
+    lines: 33-49
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: a441ce01b4279a14ac93396593fd2137d530f298e6d3f7da18ac7dcd69c402d2
+- id: A-137
+  kind: structure
+  statement: 'The generated pull-request template has free-text lines ''Design pull request:'', ''Plan
+    pull request:'', ''Review record:'', ''Test record:'', ''Required checks:'' and the note ''A ticked
+    box is not evidence: the checks read the committed records''; no Python source reads those fields.'
+  evidence:
+  - path: src/orqlet/workflow/pr_template/workflow-section.md
+    lines: 1-20
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 321d471778637aa18f42e091c63a8433515f3bb993e18ea37de89b3a0ba175b3
+- id: A-138
+  kind: structure
+  statement: The implement skill tells the agent to prepare commit messages with `Orqlet-Task` and `Orqlet-Phase`
+    trailers; no Python source under src/orqlet contains those trailer names.
+  evidence:
+  - path: src/orqlet/workflow/skills/orqlet-implement/skill.md
+    lines: '19'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 00ff876bc73532b7e51ff614713700e5a020622082106d54e623b077aac4f327
+- id: A-139
+  kind: dependency
+  statement: Runtime dependencies are typer, pydantic, PyYAML, filelock and platformdirs; pytest runs
+    with --disable-socket, and import-linter contracts forbid process, socket, http and urllib modules
+    in application code.
+  evidence:
+  - path: pyproject.toml
+    lines: 10-16
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 02656798f17a1e64080e96dc0ce051acd546e63036431344469952855a1ef96d
+  - path: pyproject.toml
+    lines: '71'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 43285e98cda02626079bf88d3b50a28a20ab08106ab752173a9b618128b3d92a
+  - path: pyproject.toml
+    lines: 101-110
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 9f2a00b53065f65db3f6f622961cee66cce3a16ee34e7af0b7da964019f874b1
+unknowns:
+- id: U-1
+  what: 'Who counts as ''an authorised person'' for design and plan approval (orqlet-design skill line
+    19) and how a person or role is to be identified: no code, contract or file defines it.'
+  material: true
+- id: U-2
+  what: 'How host evidence (merge on the protected baseline, code-owner approval, merge_evidence) will
+    be obtained and represented: no code, port or contract for it exists; only the policy literal ''baseline-with-merge-evidence'',
+    the ORQ-I393 text and design documents mention it.'
+  material: true
+- id: U-3
+  what: 'Whether an installation is meant to hold .orqlet/workflow-policy.yaml: the WorkflowPolicy contract
+    and schema exist, but no path constant, writer or reader does, and the repository has no such file.'
+  material: true
+- id: U-4
+  what: 'Who or what enforces change_control.lowering_pin_or_floor_requires_approvals at merge time: no
+    code reads the value, the number of approvals in messages is fixed text, and the check that would
+    count approvals (`ci check`) does not exist.'
+  material: true
+- id: U-5
+  what: 'What sets header `status` to approved or superseded, and when: no code and no skill text does
+    it, and no test exercises those values.'
+  material: true
+- id: U-6
+  what: Whether ProfileMeta.version is meant to change when the profile changes (the bound profile_version
+    in artifact headers is compared with it, but no code increments it).
+  material: true
+- id: U-7
+  what: 'Which checks ORQ-I200 (''Checks that run in CI are authoritative'') refers to: no CI command
+    is implemented and this repository''s own CI workflow runs no orqlet command.'
+  material: true
+- id: U-8
+  what: How a gate decision is meant to read design, plan, role-bindings and versions from the protected
+    baseline instead of the tree under review; offline all of them are read from the working tree, staged
+    tree or a chosen commit.
+  material: true
+- id: U-9
+  what: Whether the empty file .orqlet/proposals/.orqlet__role-bindings.yaml.diff is expected (a Read
+    returned '(omitted)' and a search for any character found none).
+  material: false
+- id: U-10
+  what: Whether `--phase` without a task is meant to be ignored (gate_status returns before reading it).
+  material: false
+- id: U-11
+  what: 'Whether any test covers upgrade''s own approval prompt without --yes (needs-input, ORQ-E115):
+    none was found.'
+  material: false
+- id: U-12
+  what: 'Whether skill steps that tell the agent to run `orqlet gate status` and copy `bound` are meant
+    to use --json: the skill text does not say, and the human output does not print `bound`.'
+  material: false
+- id: U-13
+  what: 'The relation between `assurance: advisory` in ReviewResult, the word ''attested'' in the review_result
+    and validate_records docstrings, and the approval concept: not defined in code.'
+  material: false
+- id: U-14
+  what: 'How the Orqlet-Task and Orqlet-Phase trailers and the pull-request template fields are meant
+    to be read by a future check: no code reads them at this commit.'
+  material: false
+- id: U-15
+  what: 'The intended use of ArtifactHeader.bound.upstream and ArtifactHeader.specialists: both are defined
+    and validated for shape, and no use case reads them.'
+  material: false
+contradictions:
+- id: C-1
+  sources:
+  - src/orqlet/application/usecases/gate_status.py:6-7
+  - src/orqlet/interface/cli/commands/gate.py:34
+  - src/orqlet/application/usecases/validation.py:73-80
+  - src/orqlet/application/usecases/gate_status.py:258-269
+  note: The docstrings say that with a task the verdict is always NOT_RUN; Collector.result returns FAIL
+    when any error finding exists, and gate_status can add errors (ORQ-E390, ORQ-E391, read_artifact errors,
+    ORQ-E450, ORQ-E451, ORQ-E453). Both verdicts exit 5. No test asserts a FAIL verdict with a task.
+- id: C-2
+  sources:
+  - src/orqlet/workflow/skills/orqlet-research/references/as-is-format.md:44
+  - src/orqlet/workflow/skills/orqlet-research/skill.md:13
+  - src/orqlet/interface/cli/render_human.py:170-203
+  note: The skill texts say `orqlet gate status` prints the `bound` values to copy; the human renderer
+    has no handling for the `bound` key and prints only the verdict line (and findings), so the values
+    appear only in the --json envelope; the skill text does not mention --json and no test runs gate status
+    without it.
+- id: C-3
+  sources:
+  - src/orqlet/application/contracts/versions_file.py:1
+  - src/orqlet/application/usecases/installation.py:80
+  - src/orqlet/application/usecases/upgrade.py:187-190
+  note: The contract docstring describes .orqlet/versions.yaml as 'read from the baseline'; load_installation
+    reads it from the working tree, and the floor that upgrade, rollback and doctor enforce comes from
+    that working-tree copy, which is written as a SEEDED (team-owned) file.
+- id: C-4
+  sources:
+  - src/orqlet/application/contracts/versions_file.py:26-27
+  - src/orqlet/application/usecases/upgrade.py:202-213
+  - src/orqlet/application/usecases/rollback.py:72-76
+  note: The number of approvals needed to lower the pin or floor is a configurable field with default
+    2, while the upgrade and rollback messages state 'two approvals' as fixed text and never read the
+    field.

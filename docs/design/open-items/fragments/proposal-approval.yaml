@@ -541,14 +541,21 @@ facts:
     on new changes by default on Premium or Ultimate and Bitbucket Cloud merge checks and approval reset
     are Premium features (Section 19.6 portability), the Q-01 rationale that GitLab status checks are
     non-blocking by default and Bitbucket Cloud approval reset is Premium-only, Q-04''s question ''and
-    on which plans?'' for managed settings, and Cursor marketplaces being one on Teams and many on Enterprise;
-    the document contains no table of GitHub Free, Pro, Team or Enterprise capabilities for rulesets,
-    required reviews, merge queues or required workflows.'
+    on which plans?'' for managed settings; the document contains no table of GitHub Free, Pro, Team or
+    Enterprise capabilities for rulesets, required reviews, merge queues or required workflows.'
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '3736'
     revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
     sha256: 4154e6ce1d1325c62949da7604c68b8449432727b07d56e4d18e53ef770aa8a7
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '5089'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 7e8f3263006da18cdf92e1da563d5dbddfb68d47706254e8a203fe7798134133
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '5091'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 92ef64df84ae4638e8224cb94deb76efe8bc7bed4812581dc1458a913aed4727
 - id: A-50
   kind: structure
   statement: 'Q-01 rationale: the server-side gate is the trust anchor, GitHub has expected-source checks,
@@ -562,9 +569,9 @@ facts:
     sha256: 7e8f3263006da18cdf92e1da563d5dbddfb68d47706254e8a203fe7798134133
 - id: A-51
   kind: structure
-  statement: Appendix A GH-01 cites the GitHub 'available rules for rulesets' page under the enterprise-cloud
-    URL and the required-status-checks troubleshooting page, and GH-05 is labelled 'Bypass and organization
-    required workflows' with a single rulesets URL and no stated plan availability.
+  statement: Appendix A GH-01 cites the GitHub rulesets page under the enterprise-cloud URL and the required-status-checks
+    troubleshooting page, and GH-05 is labelled 'Bypass and organization required workflows' with a single
+    rulesets URL and no stated plan availability.
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: 5840-5844
@@ -630,6 +637,14 @@ facts:
     lines: '4113'
     revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
     sha256: ba03a3576bc9c4ce04c925b715de2f3cbc3c686995201d85a28e5f2d2ed62029
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 4142-4145
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: fb0ecae84873f3b887e0767e7ca244cc9033e3b35e3d48138d90ecf882c031f6
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '4315'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 21f6515ec867a414a9e7dbf9018eab73ed439cd3750a887e799120f8a90408c9
 - id: A-58
   kind: structure
   statement: Section 20.8 states that downgrades and floor changes need two approvals and that a change
@@ -661,6 +676,10 @@ facts:
     lines: '6077'
     revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
     sha256: 08486ee38230c2f804bb7666495e01a6e560b4870f8c823a06a5bdc935b1c937
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '6091'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: e92d5ee9fdd001d85db18caf4bdad6777892da96579a748b03462ef255b8efff
 - id: A-61
   kind: structure
   statement: Section 1.8 states that the CI check against the approved policy baseline is enforced only
@@ -765,6 +784,18 @@ facts:
     lines: '96'
     revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
     sha256: f142a29b7c89965911e90898650ef84a2e48ed60c042beaceb88da1797be830a
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '5117'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: e2a2a82cfee965ca2ba8b68b55f593704763d369fd3982fd81f0020efa6d1d16
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 5079-5083
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 6acf8c712d1b35716216eba05c11b901372660f18065a7e8ff2d9b3eaa09bd78
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 5089-5093
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 0923b30891447936b519b2a0f2423157a758eb3b9ebeb9a3dcead97c4ad4d47e
 - id: A-71
   kind: structure
   statement: 'Decision D-13 (merge-queue review policy) and decision D-28 (trusted CI policy: policy from
@@ -776,6 +807,14 @@ facts:
     lines: '5138'
     revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
     sha256: 0ac5e8bc0c566d7dc42dd2b6847f3ce34fd9348db7d9030aa4c9bd71e14b7a97
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '5153'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 856a350376ead722ad443e88826219d1e2aa8f3f6f34b6638150a058f3f7056d
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '6091'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: e92d5ee9fdd001d85db18caf4bdad6777892da96579a748b03462ef255b8efff
 - id: A-72
   kind: structure
   statement: D-28 records the trusted CI policy as 'Needs input (Q-01)' with policy from the approved
@@ -835,6 +874,10 @@ facts:
     lines: '5122'
     revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
     sha256: ad9a7b187acf64bd0d98efa873c080a8fe568f06d3ec0a18759234355416752c
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '5179'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: c40c6166e7b9872645203926db129285e2ceaa84ccbeb53baed040832c0d69aa
 - id: A-78
   kind: structure
   statement: The M0 milestone row lists answering Q-01, Q-03, Q-04, Q-05, Q-06 and Q-07 among its scope,
@@ -894,6 +937,10 @@ facts:
     lines: '6001'
     revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
     sha256: c1d4bdccd8f434a1378c0f5d8a8bf76997065cc7453dc931ba96170cbcb17b1a
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '6052'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: c996551cf385e4491ed75e78d0660f3bf003ddda890d9952e238d53ec78666bc
 - id: A-84
   kind: structure
   statement: The pending-inputs list names the approved noninteractive CI executor's interface, authentication,
@@ -904,6 +951,10 @@ facts:
     lines: '5116'
     revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
     sha256: 316d20347c8650e6b38cef113d8b3fe1834a27066f7671e0fa133c75a9a38483
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '5112'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 458ca4f9810f67cc9b844057aed81de461a0c7607cf9c4d8884e5bbac25445cd
 - id: A-85
   kind: structure
   statement: The header Status row reads 'Proposal v0.5 — approved by the person on 2026-10-25, in conversation',
@@ -999,6 +1050,10 @@ facts:
     lines: '4544'
     revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
     sha256: 5abc4af8793438b281392956f220a88ed8402bdb10a7c80647c8c9b3102af6f3
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '4478'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 81c4d72733192600793d9c1530c224010653d888beb5e8024b28e1f05682ee8d
 - id: A-94
   kind: structure
   statement: Section 26.12.4 lists the detailed implementation plan as deferred because it 'follows approval
@@ -1018,8 +1073,16 @@ facts:
   evidence:
   - path: docs/design/orqlet-implementation/design.md
     lines: '7'
-    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
     sha256: 429995439e0d1e814f94632234c4f18df968e27609841890c40d16975f9fd12d
+  - path: docs/design/orqlet-implementation/plan.md
+    lines: 3-9
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 49243c55e18a3da1fb6981e411d226e9b2946d20215f32da7a8abea719c429c9
+  - path: docs/design/orqlet-m2-workflow/plan.md
+    lines: '3'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 24a0abbb6ea73987f5f2ed4a317b92a8e6bf575a545e07b19039b80b3b87f3b5
 - id: A-96
   kind: structure
   statement: 'docs/design/orqlet-implementation/plan.md states ''Status: executed. The plan below is the
@@ -1046,8 +1109,12 @@ facts:
   evidence:
   - path: docs/design/orqlet-implementation/as-is.md
     lines: '20'
-    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
     sha256: 5d0c40fc622c48e770e4d7bfb6930c8f039eee866716df28ec195d0274274c62
+  - path: docs/design/orqlet-implementation/as-is.md
+    lines: '85'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: cad2afd904a169e9ec75d928f23281ede5ed34dab1535a429290f5029aeb4fb8
 - id: A-99
   kind: structure
   statement: 'docs/design/orqlet-implementation/as-is.md unknown U-1 reads ''The design''s approval status:
@@ -1068,6 +1135,10 @@ facts:
     lines: '5063'
     revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
     sha256: 8c6e70a6ba65dbdd5af35ac087c01a2788ca82317673276fa628f969ba99e25f
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 448-452
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: fcb700196c3010eb949925732c5e79016cf9748f4a91a72ffe5765a0618c4f48
 - id: A-101
   kind: structure
   statement: Section 2.2 is titled 'Fit for a 10–15 developer team' and its first row is '~10–15 developers,
@@ -1236,6 +1307,10 @@ facts:
     lines: '4288'
     revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
     sha256: f1b1bc9d0e5992fc955656ecca8385bd46a74e5e88d1b6688636c909b32dec5c
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '4422'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: f168b9349b546c445a52a16672d6e17c4728c5b7bad131b6d65b71dc31a0dbc1
 - id: A-117
   kind: test
   statement: FM-E03 expects a red verdict 'approval not at head' when a commit is pushed after an approval
@@ -1246,15 +1321,6 @@ facts:
     lines: 4420-4422
     revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
     sha256: e0506fec5b5fab9bc9891fc16318a57e70b0cd72342c470d8ba7c2ed816c499c
-- id: A-118
-  kind: structure
-  statement: The proposal contains no diagnostic code ORQ-W390; its only ORQ-style identifier in the file
-    is ORQ-L004 (Cursor duplicate skill listing).
-  evidence:
-  - path: docs/design/orqlet-architecture-proposal.md
-    lines: '2865'
-    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
-    sha256: 6564b06fe8f1895d2b702417adf94e9762131c0a0d695972beed4b3cd684ad13
 - id: A-119
   kind: flow
   statement: The built gate status use case is read-only and offline, re-checks base revision, standards
@@ -1277,9 +1343,9 @@ facts:
     sha256: 2608df146887747f73ecd4339beaab358415521602cddad75d18dc2b04191ea3
 - id: A-121
   kind: flow
-  statement: 'gate status emits the warning ORQ-W390 (''<name> is stale: <components>'') and a skip reason
-    when an artifact header differs from the bound values or the base revision moved over the artifact''s
-    scope.'
+  statement: gate status emits the warning ORQ-W390 and a skip reason when an artifact header differs
+    from the bound values or the base revision moved over the artifact's scope; the warning text is the
+    artifact name followed by 'is stale:' and the stale component names.
   evidence:
   - path: src/orqlet/application/usecases/gate_status.py
     lines: 180-185
