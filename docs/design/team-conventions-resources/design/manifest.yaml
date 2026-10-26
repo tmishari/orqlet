@@ -1,0 +1,835 @@
+schema: orqlet.design-set/v1
+header:
+  schema: orqlet.artifact-header/v1
+  task: team-conventions-resources
+  status: draft
+  workflow_version: 0.3.1
+  protected_set_digest: be7723282aec5a67e8161540bfba464562fb2a53d9bc3f8245ea22b812134eec
+  bound:
+    base_revision: 3e6490c52e66def563cf8d7422c1d3df9dee9197
+    standards_lock_hash: 89a225016ff9d8b3ed977df39a70dfbe9dbc5f7c6d3762d0f2208b1b7a037a52
+    applicable_rules_hash: 56502a0ec5eda3b13b4c9d97c7d4dfa41df82c86a206e36dd5d2d92aab299b97
+    profile_version: 1
+as_is_ref: docs/design/team-conventions-resources/as-is.md#e3ebe437d339512b47306128efe29af8f5b96a121215e4919579a60c54e72e5f
+change_class:
+  trigger: D3
+  declared: D3
+  effective: D3
+scope:
+  paths:
+  - src/orqlet/domain/resources.py
+  - src/orqlet/domain/conventions.py
+  - src/orqlet/domain/classify.py
+  - src/orqlet/application/contracts/resources.py
+  - src/orqlet/application/contracts/profile.py
+  - src/orqlet/application/contracts/__init__.py
+  - src/orqlet/application/usecases/resources_source.py
+  - src/orqlet/application/usecases/resources_edit.py
+  - src/orqlet/application/usecases/resources_view.py
+  - src/orqlet/application/usecases/validate_resources.py
+  - src/orqlet/application/usecases/conventions_check.py
+  - src/orqlet/application/usecases/render_request.py
+  - src/orqlet/application/usecases/render_all.py
+  - src/orqlet/application/usecases/init_questions.py
+  - src/orqlet/application/usecases/init_project.py
+  - src/orqlet/application/usecases/draft_profile.py
+  - src/orqlet/application/usecases/profile_edit.py
+  - src/orqlet/application/usecases/upgrade.py
+  - src/orqlet/application/usecases/explain.py
+  - src/orqlet/application/usecases/diagnose.py
+  - src/orqlet/application/usecases/capabilities.py
+  - src/orqlet/application/usecases/evidence_cite.py
+  - src/orqlet/application/ports/instruction_adapter.py
+  - src/orqlet/application/ports/vcs.py
+  - src/orqlet/adapters/render/instructions.py
+  - src/orqlet/adapters/render/skills.py
+  - src/orqlet/adapters/clients/**
+  - src/orqlet/adapters/git/vcs_git.py
+  - src/orqlet/adapters/git/objects.py
+  - src/orqlet/interface/cli/commands/resources.py
+  - src/orqlet/interface/cli/commands/conventions.py
+  - src/orqlet/interface/cli/commands/validate.py
+  - src/orqlet/interface/cli/app.py
+  - src/orqlet/workflow/**
+  - tests/**
+  - docs/design/orqlet-architecture-proposal.md
+  - README.md
+  - docs/design/team-conventions-resources/evidence/**
+  - .orqlet/**
+  - AGENTS.md
+  - .claude/**
+  - .agents/**
+  - .cursor/**
+  - .codex/**
+  - docs/resources/**
+  trust_boundaries:
+  - 'B-1 repository to the agent''s instructions: registry text, profile answers and stored copies reach three clients as
+    guidance'
+  - 'B-2 client to the public web: the client''s own search or fetch tool, outside Orqlet'
+  - B-3 the developer's signed-in session or own MCP sign-in used by the client on the developer's behalf
+  - 'B-4 code host to the check: branch names and commit subjects typed by a contributor'
+extractor_config:
+  public_api:
+    packages:
+    - orqlet
+    mode: ast
+  dependency_manifests:
+  - pyproject.toml
+  lockfiles:
+  - uv.lock
+  security_globs:
+  - src/orqlet/domain/resources.py
+  - src/orqlet/domain/conventions.py
+  - src/orqlet/application/contracts/resources.py
+  - src/orqlet/application/usecases/resources_source.py
+  - src/orqlet/application/usecases/resources_edit.py
+  - src/orqlet/application/usecases/resources_view.py
+  - src/orqlet/application/usecases/validate_resources.py
+  - src/orqlet/application/usecases/conventions_check.py
+  - src/orqlet/application/usecases/evidence_cite.py
+  - src/orqlet/application/usecases/init_questions.py
+  - src/orqlet/application/usecases/render_request.py
+  - src/orqlet/adapters/render/instructions.py
+  - src/orqlet/adapters/render/skills.py
+  - src/orqlet/adapters/clients/codex.py
+  - src/orqlet/adapters/git/vcs_git.py
+  - src/orqlet/adapters/git/objects.py
+expected_changes:
+- id: EC-1
+  surface: public-api
+  action: add
+  identity: orqlet.domain.resources.url_problems
+  expected_after:
+    kind: signature
+    value: 'def url_problems(url: str) -> tuple[str, ...]'
+  verification: extractor
+- id: EC-2
+  surface: public-api
+  action: add
+  identity: orqlet.domain.resources.text_problems
+  expected_after:
+    kind: signature
+    value: 'def text_problems(value: str, limit: int) -> tuple[str, ...]'
+  verification: extractor
+- id: EC-3
+  surface: public-api
+  action: add
+  identity: orqlet.domain.resources.resource_id_problems
+  expected_after:
+    kind: signature
+    value: 'def resource_id_problems(resource_id: str) -> tuple[str, ...]'
+  verification: extractor
+- id: EC-4
+  surface: public-api
+  action: add
+  identity: orqlet.domain.resources.glob_problems
+  expected_after:
+    kind: signature
+    value: 'def glob_problems(pattern: str) -> tuple[str, ...]'
+  verification: extractor
+- id: EC-5
+  surface: public-api
+  action: add
+  identity: orqlet.domain.resources.copy_path
+  expected_after:
+    kind: signature
+    value: 'def copy_path(resource_id: str) -> str'
+  verification: extractor
+- id: EC-6
+  surface: public-api
+  action: add
+  identity: orqlet.domain.resources.copy_problems
+  expected_after:
+    kind: signature
+    value: 'def copy_problems(text: str, address: str) -> tuple[str, ...]'
+  verification: extractor
+- id: EC-7
+  surface: public-api
+  action: add
+  identity: orqlet.domain.resources.hidden_text_problems
+  expected_after:
+    kind: signature
+    value: 'def hidden_text_problems(text: str) -> tuple[str, ...]'
+  verification: extractor
+- id: EC-8
+  surface: public-api
+  action: add
+  identity: orqlet.domain.resources.credential_problems
+  expected_after:
+    kind: signature
+    value: 'def credential_problems(text: str) -> tuple[str, ...]'
+  verification: extractor
+- id: EC-9
+  surface: public-api
+  action: add
+  identity: orqlet.domain.resources.is_stale
+  expected_after:
+    kind: signature
+    value: 'def is_stale(retrieved_at: datetime, ttl_days: int, now: datetime) -> bool'
+  verification: extractor
+- id: EC-10
+  surface: public-api
+  action: add
+  identity: orqlet.domain.resources.uncovered_names
+  expected_after:
+    kind: signature
+    value: 'def uncovered_names(technologies: Sequence[str], covered: Sequence[str]) -> tuple[str, ...]'
+  verification: extractor
+- id: EC-11
+  surface: public-api
+  action: add
+  identity: orqlet.domain.resources.host_of
+  expected_after:
+    kind: signature
+    value: 'def host_of(url: str) -> str'
+  verification: extractor
+- id: EC-12
+  surface: public-api
+  action: add
+  identity: orqlet.domain.conventions.pattern_problems
+  expected_after:
+    kind: signature
+    value: 'def pattern_problems(pattern: str) -> tuple[str, ...]'
+  verification: extractor
+- id: EC-13
+  surface: public-api
+  action: add
+  identity: orqlet.domain.conventions.branch_problems
+  expected_after:
+    kind: signature
+    value: 'def branch_problems(branch: str, patterns: Sequence[str]) -> tuple[str, ...]'
+  verification: extractor
+- id: EC-14
+  surface: public-api
+  action: add
+  identity: orqlet.domain.conventions.commit_subject_problems
+  expected_after:
+    kind: signature
+    value: 'def commit_subject_problems(subject: str) -> tuple[str, ...]'
+  verification: extractor
+- id: EC-15
+  surface: public-api
+  action: add
+  identity: orqlet.domain.conventions.is_checkable_convention
+  expected_after:
+    kind: signature
+    value: 'def is_checkable_convention(text: str) -> bool'
+  verification: extractor
+- id: EC-16
+  surface: public-api
+  action: add
+  identity: orqlet.domain.conventions.printable
+  expected_after:
+    kind: signature
+    value: 'def printable(text: str, limit: int) -> str'
+  verification: extractor
+- id: EC-17
+  surface: public-api
+  action: add
+  identity: orqlet.application.contracts.resources.Resources
+  expected_after:
+    kind: signature
+    value: class Resources(Contract)
+  verification: extractor
+- id: EC-18
+  surface: public-api
+  action: add
+  identity: orqlet.application.contracts.resources.Resources.covered_tools
+  expected_after:
+    kind: signature
+    value: def covered_tools(self) -> tuple[str, ...]
+  verification: extractor
+- id: EC-19
+  surface: public-api
+  action: add
+  identity: orqlet.application.contracts.resources.Resource
+  expected_after:
+    kind: signature
+    value: class Resource(Contract)
+  verification: extractor
+- id: EC-20
+  surface: public-api
+  action: add
+  identity: orqlet.application.contracts.resources.AppliesTo
+  expected_after:
+    kind: signature
+    value: class AppliesTo(Contract)
+  verification: extractor
+- id: EC-21
+  surface: public-api
+  action: add
+  identity: orqlet.application.contracts.resources.StoredCopy
+  expected_after:
+    kind: signature
+    value: class StoredCopy(Contract)
+  verification: extractor
+- id: EC-22
+  surface: public-api
+  action: add
+  identity: orqlet.application.usecases.resources_source.resources_path
+  expected_after:
+    kind: signature
+    value: def resources_path() -> CanonicalPath
+  verification: extractor
+- id: EC-23
+  surface: public-api
+  action: add
+  identity: orqlet.application.usecases.resources_source.parse_resources
+  expected_after:
+    kind: signature
+    value: 'def parse_resources(loader: DocumentLoader, raw: bytes, source: str) -> tuple[Resources | None, tuple[Finding,
+      ...]]'
+  verification: extractor
+- id: EC-24
+  surface: public-api
+  action: add
+  identity: orqlet.application.usecases.resources_source.load_resources
+  expected_after:
+    kind: signature
+    value: 'def load_resources(project: FileSystem, loader: DocumentLoader, path: str) -> tuple[Resources | None, tuple[Finding,
+      ...]]'
+  verification: extractor
+- id: EC-25
+  surface: public-api
+  action: add
+  identity: orqlet.application.usecases.resources_edit.ResourceSpec
+  expected_after:
+    kind: signature
+    value: class ResourceSpec
+  verification: extractor
+- id: EC-26
+  surface: public-api
+  action: add
+  identity: orqlet.application.usecases.resources_edit.CopySpec
+  expected_after:
+    kind: signature
+    value: class CopySpec
+  verification: extractor
+- id: EC-27
+  surface: public-api
+  action: add
+  identity: orqlet.application.usecases.resources_edit.ResourcesEditResult
+  expected_after:
+    kind: signature
+    value: class ResourcesEditResult
+  verification: extractor
+- id: EC-28
+  surface: public-api
+  action: add
+  identity: orqlet.application.usecases.resources_edit.resources_with
+  expected_after:
+    kind: signature
+    value: 'def resources_with(resources: Resources, spec: ResourceSpec, replace: bool) -> tuple[Resources | None, tuple[Finding,
+      ...]]'
+  verification: extractor
+- id: EC-29
+  surface: public-api
+  action: add
+  identity: orqlet.application.usecases.resources_edit.resources_without
+  expected_after:
+    kind: signature
+    value: 'def resources_without(resources: Resources, resource_id: str) -> tuple[Resources | None, tuple[Finding, ...]]'
+  verification: extractor
+- id: EC-30
+  surface: public-api
+  action: add
+  identity: orqlet.application.usecases.resources_edit.add_resource
+  expected_after:
+    kind: signature
+    value: 'def add_resource(services: Services, spec: ResourceSpec, assume_yes: bool, dry_run: bool) -> ResourcesEditResult'
+  verification: extractor
+- id: EC-31
+  surface: public-api
+  action: add
+  identity: orqlet.application.usecases.resources_edit.update_resource
+  expected_after:
+    kind: signature
+    value: 'def update_resource(services: Services, spec: ResourceSpec, assume_yes: bool, dry_run: bool) -> ResourcesEditResult'
+  verification: extractor
+- id: EC-32
+  surface: public-api
+  action: add
+  identity: orqlet.application.usecases.resources_edit.remove_resource
+  expected_after:
+    kind: signature
+    value: 'def remove_resource(services: Services, resource_id: str, assume_yes: bool, dry_run: bool) -> ResourcesEditResult'
+  verification: extractor
+- id: EC-33
+  surface: public-api
+  action: add
+  identity: orqlet.application.usecases.resources_edit.attach_copy
+  expected_after:
+    kind: signature
+    value: 'def attach_copy(services: Services, spec: CopySpec, assume_yes: bool, dry_run: bool) -> ResourcesEditResult'
+  verification: extractor
+- id: EC-34
+  surface: public-api
+  action: add
+  identity: orqlet.application.usecases.resources_view.resource_rules
+  expected_after:
+    kind: signature
+    value: 'def resource_rules(resources: Resources) -> tuple[ScopedRule, ...]'
+  verification: extractor
+- id: EC-35
+  surface: public-api
+  action: add
+  identity: orqlet.application.usecases.resources_view.resource_skills
+  expected_after:
+    kind: signature
+    value: 'def resource_skills(resources: Resources) -> tuple[ClientSkill, ...]'
+  verification: extractor
+- id: EC-36
+  surface: public-api
+  action: add
+  identity: orqlet.application.usecases.resources_view.catalogue_skill
+  expected_after:
+    kind: signature
+    value: 'def catalogue_skill(resources: Resources) -> ClientSkill | None'
+  verification: extractor
+- id: EC-37
+  surface: public-api
+  action: add
+  identity: orqlet.application.usecases.resources_view.conventions_view
+  expected_after:
+    kind: signature
+    value: 'def conventions_view(profile: ProjectProfile, resources: Resources) -> tuple[ConventionsView | None, tuple[Finding,
+      ...]]'
+  verification: extractor
+- id: EC-38
+  surface: public-api
+  action: add
+  identity: orqlet.application.usecases.resources_view.ResourcesListing
+  expected_after:
+    kind: signature
+    value: class ResourcesListing
+  verification: extractor
+- id: EC-39
+  surface: public-api
+  action: add
+  identity: orqlet.application.usecases.resources_view.list_resources
+  expected_after:
+    kind: signature
+    value: 'def list_resources(services: ValidateServices, uncovered: bool) -> ResourcesListing'
+  verification: extractor
+- id: EC-40
+  surface: public-api
+  action: add
+  identity: orqlet.application.usecases.validate_resources.validate_resources
+  expected_after:
+    kind: signature
+    value: 'def validate_resources(services: ValidateServices, raw_path: str) -> ValidationResult'
+  verification: extractor
+- id: EC-41
+  surface: public-api
+  action: add
+  identity: orqlet.application.usecases.conventions_check.ConventionsRequest
+  expected_after:
+    kind: signature
+    value: class ConventionsRequest
+  verification: extractor
+- id: EC-42
+  surface: public-api
+  action: add
+  identity: orqlet.application.usecases.conventions_check.check_conventions
+  expected_after:
+    kind: signature
+    value: 'def check_conventions(services: ValidateServices, request: ConventionsRequest) -> ValidationResult'
+  verification: extractor
+- id: EC-43
+  surface: public-api
+  action: add
+  identity: orqlet.application.ports.instruction_adapter.ConventionsView
+  expected_after:
+    kind: signature
+    value: class ConventionsView
+  verification: extractor
+- id: EC-44
+  surface: public-api
+  action: add
+  identity: orqlet.application.ports.vcs.Vcs.commit_subjects
+  expected_after:
+    kind: signature
+    value: 'def commit_subjects(self, base: str, head: str) -> tuple[CommitSummary, ...]'
+  verification: extractor
+- id: EC-45
+  surface: public-api
+  action: add
+  identity: orqlet.adapters.git.vcs_git.GitVcs.commit_subjects
+  expected_after:
+    kind: signature
+    value: 'def commit_subjects(self, base: str, head: str) -> tuple[CommitSummary, ...]'
+  verification: extractor
+- id: EC-46
+  surface: public-api
+  action: add
+  identity: orqlet.adapters.render.instructions.conventions_block
+  expected_after:
+    kind: signature
+    value: 'def conventions_block(request: RenderRequest) -> RenderedFile | None'
+  verification: extractor
+- id: EC-47
+  surface: public-api
+  action: add
+  identity: orqlet.interface.cli.commands.resources.resources_group
+  expected_after:
+    kind: signature
+    value: def resources_group() -> typer.Typer
+  verification: extractor
+- id: EC-48
+  surface: public-api
+  action: add
+  identity: orqlet.interface.cli.commands.conventions.conventions_group
+  expected_after:
+    kind: signature
+    value: def conventions_group() -> typer.Typer
+  verification: extractor
+- id: EC-49
+  surface: public-api
+  action: add
+  identity: orqlet.interface.cli.commands.validate.resources_command
+  expected_after:
+    kind: signature
+    value: 'def resources_command(file: Annotated[str, typer.Argument(help=''The registry, relative to the root.'')]=''.orqlet/resources.yaml'',
+      root: RootOption=Path(), json_output: JsonOption=False) -> None'
+  verification: extractor
+- id: EC-50
+  surface: public-api
+  action: change
+  identity: orqlet.application.usecases.render_all.compose
+  expected_after:
+    kind: signature
+    value: 'def compose(services: Services, profile: ProjectProfile, resolution: Resolution, resources: Resources, *, clients:
+      Sequence[str], prompts_dir: str, pr_targets: tuple[str, ...], profile_bytes: bytes, resources_bytes: bytes, orqlet_owned:
+      frozenset[str]=frozenset(), released: frozenset[str]=frozenset(), released_record: bytes | None=None) -> Composition'
+  verification: extractor
+- id: EC-51
+  surface: public-api
+  action: change
+  identity: orqlet.application.usecases.render_all.data_files
+  expected_after:
+    kind: signature
+    value: 'def data_files(services: Services, profile_bytes: bytes, resources_bytes: bytes, resolution: Resolution) -> list[Desired]'
+  verification: extractor
+- id: EC-52
+  surface: public-api
+  action: change
+  identity: orqlet.application.usecases.render_request.build_render_request
+  expected_after:
+    kind: signature
+    value: 'def build_render_request(workflow: WorkflowSource, loader: DocumentLoader, rules: Sequence[RuleSpec], resources:
+      Resources, conventions: ConventionsView | None, *, client_version: str | None=None, available_commands: Collection[str]=IMPLEMENTED_COMMANDS)
+      -> RenderRequest'
+  verification: extractor
+- id: EC-53
+  surface: public-api
+  action: change
+  identity: orqlet.application.ports.instruction_adapter.ClientSkill
+  expected_after:
+    kind: declaration
+    value: The frozen dataclass gains one field, agent_may_start, typed bool with the default False. The class line, which
+      is all that the extractor reads, does not change, so the extractor cannot see this edit.
+  verification: manual
+- id: EC-54
+  surface: public-api
+  action: change
+  identity: orqlet.application.ports.instruction_adapter.RenderRequest
+  expected_after:
+    kind: declaration
+    value: The frozen dataclass gains one optional field, conventions, typed ConventionsView | None with the default None.
+      The class line does not change, so the extractor cannot see this edit.
+  verification: manual
+- id: EC-55
+  surface: public-api
+  action: change
+  identity: orqlet.domain.classify.classify
+  expected_after:
+    kind: declaration
+    value: 'One branch is added to _seeded: a seeded file whose current text equals the new text and differs from the record
+      is up to date, and the record advances. The case where current, recorded and new are all equal keeps its result. The
+      signature does not change, so the extractor cannot see this edit; a unit test covers the added case.'
+  verification: manual
+- id: EC-56
+  surface: public-api
+  action: change
+  identity: orqlet.application.usecases.capabilities.IMPLEMENTED_COMMANDS
+  expected_after:
+    kind: declaration
+    value: The set gains resources add, resources update, resources remove, resources attach, resources list, validate resources
+      and conventions check, each in the phase that builds it. The extractor reads an assignment by name only, so it cannot
+      see the new entries.
+  verification: manual
+- id: EC-57
+  surface: public-api
+  action: change
+  identity: orqlet.application.usecases.init_questions.ANSWER_KEYS
+  expected_after:
+    kind: declaration
+    value: The set gains repository.branch_model, repository.branch_patterns, repository.release_flow, repository.pull_requests.shape,
+      repository.pull_requests.merge_strategy, repository.pull_requests.reviewers and repository.pull_requests.required_checks.
+      The extractor reads an assignment by name only, so it cannot see the new entries.
+  verification: manual
+- id: EC-58
+  surface: public-api
+  action: change
+  identity: orqlet.application.usecases.evidence_cite.cite
+  expected_after:
+    kind: declaration
+    value: The signature does not change. For a path under docs/design/*/evidence/web/ (matched on the canonical, case-folded
+      path) the function first reads the exact bytes it hashes, with a cap of 256 KiB, and runs credential_problems and hidden_text_problems
+      over them, and refuses a file that fails a scan or exceeds the cap. No header is required, so the evidence files of
+      earlier tasks stay valid. Any other path behaves as before.
+  verification: manual
+- id: EC-59
+  surface: persisted-schema
+  action: add
+  identity: orqlet.resources/v1
+  expected_after:
+    kind: declaration
+    value: 'A new closed contract, committed as a JSON Schema: schema; resources, at most 100 in order of id, each with id
+      ([a-z][a-z0-9]*(-[a-z0-9]+)*, up to 32, unique, not a device name), title (one line, ASCII, at most 80), kind (api-guidelines,
+      tool-docs, team-docs or other), url (the grammar of url_problems; an access public entry cannot use an internal-looking
+      last label), note (one line, ASCII, at most 200, required), access (public or login), optional applies_to.paths (at
+      most 8 globs that pass glob_problems), optional tool (only for tool-docs, [A-Za-z0-9][A-Za-z0-9._+-]{0,39}), optional
+      version (the same characters, at most 40), and optional stored_copy with form (copy or summary; a login entry only summary),
+      sha256, retrieved_at (with a zone) and ttl_days (1 to 365); the path of a copy is derived from the id. The file is refused
+      above 256 KiB. Text rules are validators that call the domain, not field patterns.'
+  verification: manual
+- id: EC-60
+  surface: persisted-schema
+  action: change
+  identity: orqlet.project-profile/v1
+  expected_after:
+    kind: declaration
+    value: 'The closed contract gains optional fields with defaults, so an existing profile still loads and an older Orqlet
+      refuses a new one: repository.branch_model, repository.release_flow and repository.branch_patterns, and repository.pull_requests.shape
+      and repository.pull_requests.required_checks, all as facts whose default is an unknown with its question; the lists
+      are comma-separated text inside the fact. merge_strategy and reviewers keep their type. The version stays v1 (an additive,
+      minor change under Section 20.2) and the committed schema is regenerated.'
+  verification: manual
+- id: EC-61
+  surface: persisted-schema
+  action: add
+  identity: .orqlet/resources.yaml
+  expected_after:
+    kind: declaration
+    value: A seeded file, owner seeded and no file class, written empty by init and by upgrade when absent, recorded in the
+      lock; composition receives its current bytes and an invalid file stops init (on a re-run), upgrade and explain before
+      any plan.
+  verification: manual
+- id: EC-62
+  surface: persisted-schema
+  action: add
+  identity: generated resource files
+  expected_after:
+    kind: declaration
+    value: 'Per registry entry: .claude/rules/orqlet-resource-<id>.md and .cursor/rules/orqlet-resource-<id>.mdc when applies_to.paths
+      is set; .claude/skills/orqlet-tool-<id>/SKILL.md and .agents/skills/orqlet-tool-<id>/SKILL.md when tool is set; once,
+      .claude/skills/orqlet-resources/SKILL.md and .agents/skills/orqlet-resources/SKILL.md when the registry is not empty;
+      and, when a convention is answered or the registry is not empty, a second shared block named conventions in AGENTS.md.
+      Owner orqlet, class protected, content a fixed template over validated fields, no clock, no page content.'
+  verification: manual
+- id: EC-63
+  surface: persisted-schema
+  action: add
+  identity: workflow templates
+  expected_after:
+    kind: declaration
+    value: New files templates/*.md in the workflow package hold the fixed text of the generated resource rule, the tool skill,
+      the catalogue skill and the conventions block; they are read through the WorkflowSource port, so they are in MANIFEST.json
+      and the workflow digest, and a change of them is a release.
+  verification: manual
+- id: EC-64
+  surface: persisted-schema
+  action: add
+  identity: docs/resources/<id>.md
+  expected_after:
+    kind: declaration
+    value: A stored copy or summary of a page, written by a person or by an agent that the person started, with two fixed
+      header lines, at most 64 KiB, free of the code points of a fixed table and of HTML comments, recorded by resources attach
+      with the sha256 of its LF-normalised text, the retrieval time and the time-to-live; a file in this folder that no entry
+      names fails validate resources; never deleted by Orqlet.
+  verification: manual
+- id: EC-65
+  surface: persisted-schema
+  action: add
+  identity: docs/design/<task>/evidence/web/*.md
+  expected_after:
+    kind: declaration
+    value: 'The layout of an evidence file for an outside page is fixed in references/as-is-format.md as a convention that
+      review checks: a title, then URL, Retrieved with a zone, Tool, Processed and Data class, then numbered excerpts. No
+      validator requires the header; evidence cite refuses a file of this folder that fails the scan or exceeds the size cap.'
+  verification: manual
+- id: EC-66
+  surface: trust-boundary
+  action: add
+  identity: the four boundaries B-1 to B-4 of the context view
+  expected_after:
+    kind: declaration
+    value: B-1 registry text, profile answers and stored copies into the instructions of three clients; B-2 the client's web
+      tool to the public web and what it sends to its vendors; B-3 the developer's signed-in session or own MCP sign-in used
+      by the client; B-4 branch names and commit subjects of a pull request into the check. Orqlet opens no connection and
+      reads no credential, cookie, token or storage-state file; a page is read by the client as the developer; a login is
+      done by the developer; the lookup rules are baseline text, which is advice and not a control.
+  verification: manual
+- id: EC-67
+  surface: security
+  action: add
+  identity: credential-handling and instruction-channel files on the security globs
+  expected_after:
+    kind: paths
+    value: src/orqlet/domain/resources.py, src/orqlet/domain/conventions.py, src/orqlet/application/contracts/resources.py,
+      src/orqlet/application/usecases/resources_source.py, src/orqlet/application/usecases/resources_edit.py, src/orqlet/application/usecases/resources_view.py,
+      src/orqlet/application/usecases/validate_resources.py, src/orqlet/application/usecases/conventions_check.py, src/orqlet/application/usecases/evidence_cite.py,
+      src/orqlet/application/usecases/init_questions.py, src/orqlet/application/usecases/render_request.py, src/orqlet/adapters/render/instructions.py,
+      src/orqlet/adapters/render/skills.py, src/orqlet/adapters/clients/codex.py, src/orqlet/adapters/git/vcs_git.py, src/orqlet/adapters/git/objects.py
+  verification: extractor
+artifacts:
+- id: D-1
+  kind: c4-context
+  path: docs/design/team-conventions-resources/design/context.md
+  covers: Who and what the change touches, with four trust boundaries
+  sha256: f69432dee9cce392c884a1cc851325b167071425e06413e9e7c774a8ce2095d2
+- id: D-2
+  kind: c4-container
+  path: docs/design/team-conventions-resources/design/container.md
+  covers: The containers this change touches and what changes in each
+  sha256: eb1f9e3af6dbb36b9dd280a3fe538931fda42edc2e8c48c81939c4aabbdb002a
+- id: D-3
+  kind: c4-component
+  path: docs/design/team-conventions-resources/design/component.md
+  covers: The new and changed components with their layer rules, every public name added or changed, the single readers of
+    the registry and of reach, and the rule against new public assignments
+  sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: D-4
+  kind: data-flow
+  path: docs/design/team-conventions-resources/design/data-flow.md
+  covers: 'Three flows: an answer or a link to the files, an agent''s lookup with and without a login, and the convention
+    check'
+  sha256: e51c2a62dc71feecb83244f42bd2d8c75d88c1baf9970bddf3bdf156d392e081
+- id: D-5
+  kind: sequence
+  path: docs/design/team-conventions-resources/design/sequence.md
+  covers: 'Four interactions with their failure paths: init, adding a link and a copy, a lookup behind a login, the CI check'
+  sha256: c053806e0c3b85c90070e396445dc76da4004daa88c69fdf82b9848d0d63e72a
+- id: D-6
+  kind: adr
+  path: docs/design/team-conventions-resources/design/adr-001-clients-read-the-web-orqlet-stores-and-renders.md
+  covers: The client reads the web in the developer's own session and Orqlet opens no connection; the lookup rules as advice;
+    why not an Orqlet fetcher yet
+  sha256: 4f853c387573e47d4c56670198c4e911615aa9608428dff89fe5d7ed3c105401
+- id: D-7
+  kind: adr
+  path: docs/design/team-conventions-resources/design/adr-002-a-registry-of-links-and-where-each-one-reaches-an-agent.md
+  covers: One seeded registry, its limits and ASCII-only grammar (no angle brackets), four derived ways to reach an agent,
+    PROTECTED generated files and what that does and does not gate, composition input and refusal, stored copies with header,
+    fixed code point table, scan, hash and time-to-live, the edit commands
+  sha256: 13af30d62c84ae9fb606d49470391a374c16b2e71fc3a0fb911071942e453025
+- id: D-8
+  kind: adr
+  path: docs/design/team-conventions-resources/design/adr-003-conventions-in-the-profile-told-to-agents-and-checked-in-ci.md
+  covers: Conventions as additive profile facts, one managed block in AGENTS.md, a CI check for branch names and commit subjects
+    judged by the base profile, a pinned CI step, local hooks deferred
+  sha256: 605dc373a5fbd76543fee32d41571772b6cd69da699eb37f9e25c329caca8ba7
+- id: D-9
+  kind: adr
+  path: docs/design/team-conventions-resources/design/adr-004-a-bounded-lookup-in-every-phase-written-once-in-the-baseline.md
+  covers: Lookup rules once in the baseline as advice, one step per phase skill, one format and a cite-time scan for web evidence,
+    role text, per-client limits
+  sha256: 001d567ae84407739acfe5d4e29728baba26e0e7d395e49524a96d6e169bcb26
+- id: D-10
+  kind: adr
+  path: docs/design/team-conventions-resources/design/adr-005-build-order-release-steps-and-checks-with-test-sessions.md
+  covers: Phase order, release steps, what is not built, and eleven checks with test sessions
+  sha256: 789c3dd83ac872408651affa4865ad1f97cdfaf91c667d13189b8e35c448788d
+considerations:
+  security:
+    state: affected
+    evidence_refs:
+    - src/orqlet/adapters/render/skills.py:44-73
+    - src/orqlet/application/usecases/render_all.py:111
+    - src/orqlet/adapters/git/git_runner.py:18-31
+    - src/orqlet/domain/globs.py:8-21
+    - docs/design/team-conventions-resources/evidence/web/claude-code-chrome.md:5-7
+    - docs/design/open-items/evidence/github-state.yaml:26-31
+    notes: Registry text, profile answers and stored copies enter the instructions of three clients, an agent reads pages
+      in the developer's own session, and a contributor's branch name and commit subjects enter the check. No network, credential
+      or dependency is added to Orqlet. Controls and advice are kept apart. Detail in docs/design/team-conventions-resources/design/considerations.md
+  compatibility:
+    state: affected
+    evidence_refs:
+    - src/orqlet/application/contracts/profile.py:84-96
+    - src/orqlet/application/contracts/common.py:53
+    - src/orqlet/application/usecases/render_all.py:97-131
+    - src/orqlet/domain/classify.py:65-74
+    notes: The profile contract gains optional fields in place (additive, minor under Section 20.2); a new seeded registry;
+      compose stops discarding the profile and takes the registry; one branch of classify changes; the workflow package changes,
+      so the version, the goldens and the committed schemas change once. Detail in considerations.md
+  operations:
+    state: affected
+    evidence_refs:
+    - .github/workflows/ci.yml:62-64
+    - src/orqlet/application/usecases/capabilities.py:14-38
+    - src/orqlet/application/usecases/diagnose.py:31-40
+    notes: Seven new commands, new doctor findings, a CI step for adopters, copies with a time-to-live that doctor reports,
+      and eleven checks by a person with test sessions. Rollback by orqlet rollback or revert. Detail in considerations.md
+standards_applied:
+- ORQLET-ARCH-001
+- ORQLET-ARCH-002
+- ORQLET-ARCH-003
+- ORQLET-DET-001
+- ORQLET-DET-002
+- ORQLET-DET-003
+- ORQLET-NOMODEL-001
+- ORQLET-QA-001
+- ORQLET-SAFE-001
+- ORQLET-SEC-001
+- ORQLET-SEC-002
+- ORQLET-SEC-003
+- ORQLET-TEST-001
+- ORQLET-TEST-002
+- ORQLET-STYLE-001
+reviews:
+- role: architecture-reviewer
+  note: docs/design/team-conventions-resources/reviews/architecture-reviewer-design.md
+- role: security-reviewer
+  note: docs/design/team-conventions-resources/reviews/security-reviewer-design.md
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architect
+    phase: design
+  checks:
+  - what: AS-IS accepted by the person
+    how: the person wrote 'accepted' in conversation on 2026-10-26 and ran /orqlet-design; recorded in the AS-IS header, its
+      self_check and the commit 3e6490c
+    result: pass
+  - what: standards read
+    how: orqlet standards for --phase design --role architect (15 rules apply)
+    result: pass
+  - what: every file the manifest names is hashed
+    how: sha256 of each file; the same hash that orqlet evidence hash prints
+    result: pass
+  - what: considerations.md is hashed (it has no artifact kind)
+    how: sha256 d1f5584ac3c3346788ac4a29bffc54f8739d560200ed2c6d97d133d1b78588e0; recorded here because the design-set contract
+      has no artifact kind for it
+    result: pass
+  - what: every signature of an extractor entry is in the canonical form of the extractor
+    how: domain.python_api.canonical_signature applied to each value when the manifest was written
+    result: pass
+  - what: design reviewed by both typed reviewers
+    how: 'notes docs/design/team-conventions-resources/reviews/architecture-reviewer-design.md and docs/design/team-conventions-resources/reviews/security-reviewer-design.md;
+      three rounds each; last independent verdicts: architecture PASS (round 3, five major findings, all fixed afterwards),
+      security PASS (round 3, two major findings, all fixed afterwards)'
+    result: pass
+  - what: design re-reviewed after the fixes that followed round 3
+    how: ''
+    result: not-run
+  unverified:
+  - The fixes that followed round 3 (ADR-002 decisions 5 to 9, the template home in the workflow package, the CI step text,
+    the ask-before-first-use rule, the scan of evidence files) were not seen by a fresh reviewer.
+  - 'The reviewers had no shell: they did not run orqlet standards, canonical_signature, lint, mypy or the tests, and they
+    recomputed no hash; the author did the hashes and the validation.'
+  - How the three clients behave with the generated rules, skills, blocks and web tools is unknown until checks V-1 to V-11
+    are done with test sessions.
+  - The design was written from the code and documents at the base revision; no client and no Orqlet command that this design
+    adds was run, because none exists.
