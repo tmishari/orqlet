@@ -10,7 +10,7 @@ header:
     standards_lock_hash: 89a225016ff9d8b3ed977df39a70dfbe9dbc5f7c6d3762d0f2208b1b7a037a52
     applicable_rules_hash: 56502a0ec5eda3b13b4c9d97c7d4dfa41df82c86a206e36dd5d2d92aab299b97
     profile_version: 1
-design_ref: docs/design/mcp-or-plugins/design/manifest.yaml#75530d0ab1d93995ffae4c789ba1a14abbbd7611135627747c8230220ccf0a1b
+design_ref: docs/design/mcp-or-plugins/design/manifest.yaml#0c989fdac58c52daf1c6ae7a118e88a246fa221f46d01d543d62097142eb95d1
 base_revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
 knowledge_scope: []
 phases:
@@ -128,7 +128,7 @@ phases:
     knowledge_step: required
     completion:
       - "All checks pass on Python 3.12"
-      - "The public API of the package differs from the previous phases only by EC-4, EC-5, EC-9 and EC-20; EC-19 is compared by hand"
+      - "The public API of the package differs from the previous phases only by EC-4, EC-5 and EC-9; EC-19 and EC-20 are compared by hand"
       - "The new ORQ codes are unused elsewhere in the repository and are recorded in the phase record"
       - "The committed-assignment check of ADR-002 decision 10 is not built here; it comes with the release that enables env-ref"
     expected_outputs:
@@ -279,6 +279,7 @@ self_check:
     - {what: open questions that block the plan, how: "Q-12 and Q-13 were answered on 2026-10-26 (questions.yaml); Q-14 is answered", result: pass}
     - {what: plan approved by the person, how: "the person wrote \"plan is approved, implement\" and chose to have the approval recorded here (answer record_here) in conversation on 2026-10-26 when /orqlet-implement was started; this is not a merge on the protected baseline, so a gate run still has no approval evidence", result: pass}
     - {what: design reference refreshed, how: "the person chose to re-accept the AS-IS with the two evidence additions; as-is.md was re-pointed to base revision ab7adb0e2862, so as_is_ref in the design manifest and design_ref in this plan name the new hashes; no other line of the design changed", result: pass}
+    - {what: EC-20 corrected, how: "orqlet gate status --phase P-1 reported ORQ-E450 because a signature cannot be read for the constant DECLARATION_PATH; EC-20 in the design manifest is now manual and design_ref names the new hash; the gate says a renewed design approval is needed and the person has not given it", result: fail}
   unverified:
     - "The design does not say how the pure functions rendered_entry and mcp_file_path refuse an input; the plan's criteria say only that the refusal text holds no input value, and the implementer picks the exception type."
     - "The workflow version 0.3.2 is a proposal: ADR-003 decision 8 leaves the number to the person."

@@ -251,9 +251,10 @@ expected_changes:
   action: add
   identity: orqlet.application.usecases.integrations_source.DECLARATION_PATH
   expected_after:
-    kind: signature
-    value: DECLARATION_PATH
-  verification: extractor
+    kind: declaration
+    value: The module integrations_source assigns the text .orqlet/integrations.yaml to the name DECLARATION_PATH. The extractor
+      reads an assignment by name only and cannot read a signature for it, so this is compared by hand.
+  verification: manual
 artifacts:
 - id: D-1
   kind: c4-context
@@ -381,6 +382,10 @@ self_check:
   - what: design re-reviewed after the fixes that followed round 4
     how: ''
     result: not-run
+  - what: EC-20 was declared as an extractor item but the gate cannot read a signature for an assignment
+    how: orqlet gate status mcp-or-plugins --phase P-1 reported ORQ-E450 for EC-20 on 2026-10-26; EC-20 is now manual, like
+      EC-19; the gate asks for a renewed design approval, which the person has not given
+    result: fail
   unverified:
   - The architecture reviewer's last verdict is FAIL; its blocking finding and the other round-4 findings were fixed afterwards
     and no fresh reviewer has seen the result.
