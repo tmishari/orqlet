@@ -10,7 +10,7 @@ header:
     standards_lock_hash: 89a225016ff9d8b3ed977df39a70dfbe9dbc5f7c6d3762d0f2208b1b7a037a52
     applicable_rules_hash: 56502a0ec5eda3b13b4c9d97c7d4dfa41df82c86a206e36dd5d2d92aab299b97
     profile_version: 1
-as_is_ref: docs/design/mcp-or-plugins/as-is.md#ebd71d9e5c1931fe651698c0ba2cb2736a39bf8b1b23895d06892e4f35b575dd
+as_is_ref: docs/design/mcp-or-plugins/as-is.md#ab99bfaba7a1817a53d536fd6083df16cedcd7aa866d09ad62aac71d4b9c615d
 change_class:
   trigger: D3
   declared: D3
