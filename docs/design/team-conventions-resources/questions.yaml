@@ -1,0 +1,171 @@
+schema: orqlet.question-ledger/v1
+task: team-conventions-resources
+questions:
+- id: Q-1
+  key: 3598b3db33666e916607fb505ed7b6ef598c52dfc671c8a7589aebfc90fa134f
+  subject: Task name for the research folder
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: What is the task name for docs/design/<task>/ (lowercase words joined by hyphens)?
+  why: Every artifact of the task lives in the folder that carries this name.
+  options:
+  - team-conventions-resources
+  - onboarding-resources-gitflow
+  - project-knowledge-links
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: team-conventions-resources
+    answerer: user
+    time: '2026-10-26T17:50:00+02:00'
+    scope: task
+- id: Q-2
+  key: 946a15dabdb588c2bb296d7ec0696a014b50fe708d3a774064490090dfb59dee
+  subject: Where the user adds links and answers the team questions
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: Where should the user add resource links and answer the questions about the team's conventions?
+  why: The entry point decides which commands and skills the research must map.
+  options:
+  - orqlet init (the questionnaire)
+  - the /orqlet-onboard skill in the client
+  - a separate command later, for example one that adds or removes a resource link at any time
+  - the existing profile commands (profile answer / profile approve)
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: A separate command (for example one that adds or removes a resource link at any time)
+    answerer: user
+    time: '2026-10-26T17:50:00+02:00'
+    scope: task
+- id: Q-3
+  key: bd4405b9fb4fb774b9243e81c38ae66ca591507bbffac78294554167573260bf
+  subject: Team conventions that Orqlet must ask about
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: Which team conventions must Orqlet ask about and write into the project?
+  why: These are the facts that the generated project files would carry.
+  options:
+  - branch model and gitflow
+  - branch naming and commit message convention
+  - what a pull request looks like
+  - merge strategy and the checks required before merge
+  - release and hotfix flow
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: 'All five: branch model and gitflow; branch naming and commit message convention; what a pull request
+      looks like (size, template, title, description, reviewers); merge strategy and the checks required before
+      merge; release and hotfix flow'
+    answerer: user
+    time: '2026-10-26T17:50:00+02:00'
+    scope: task
+- id: Q-4
+  key: baf95a1dea4ad289a4848e7d3476cdbeb006942d46c3e74c0c1b852f0f7ab81b
+  subject: Kinds of resource that a user can link
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: What kinds of resources does the user want to link?
+  why: The kinds decide how a link is fetched, described and shown to an agent.
+  options:
+  - API guidelines
+  - documentation of a tool or library
+  - internal pages behind a login
+  - any link with a note about when it applies
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: 'All four: API guidelines; documentation of a tool or library the team uses; internal pages behind a
+      login (Confluence, wiki, design docs); any link with a short note from the user about when it applies'
+    answerer: user
+    time: '2026-10-26T17:50:00+02:00'
+    scope: task
+- id: Q-5
+  key: cf3420feefd6c8d835ba28e8da1e2378e7daa0437b3f97032039f8b6ba1720a9
+  subject: How a linked resource reaches the agents
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: How should a linked resource reach the agents?
+  why: This decides which generated files carry it.
+  options:
+  - a rule that loads only for matching files
+  - a skill per tool
+  - a catalogue of links that agents can open
+  - a stored copy or summary of the page in the repository
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: 'All four: a rule that loads only when a developer works on matching files; a skill per tool; a catalogue
+      of links that agents can open when needed; a stored copy or summary of the page in the repository'
+    answerer: user
+    time: '2026-10-26T17:50:00+02:00'
+    scope: task
+- id: Q-6
+  key: ffd45d99cfa60acf4a3ba82363a5dcf4a7528d4622be169d4de60d14c01f5c53
+  subject: Phases that look things up on the web automatically
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: Which phases should look up a library or tool on the web when the agent does not know it?
+  why: The lookup is a step of a skill, run by the agent; the phases decide which skills change.
+  options:
+  - research
+  - design
+  - implement
+  - onboard
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: 'All four: research (each run), design, implementation of a phase, and onboarding when the questionnaire
+      meets an unknown tool'
+    answerer: user
+    time: '2026-10-26T17:50:00+02:00'
+    scope: task
+- id: Q-7
+  key: b2619be764763caa6741cad96b622dc83a8a21a048b58992a67267420592838e
+  subject: Clients that must get the feature
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: Which clients must get this?
+  why: The generated files differ per client.
+  options:
+  - Claude Code
+  - Codex
+  - Cursor
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: 'All three: Claude Code, Codex and Cursor'
+    answerer: user
+    time: '2026-10-26T17:50:00+02:00'
+    scope: task
+- id: Q-8
+  key: 92d429e6e791dd957b2b632663f31dd2bd46479d36a4d720796ef71ae0f944e7
+  subject: 'Entry points: the request and the answer differ'
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: The request says the user can add links 'on on-boarding or on init or other command', and the answer to
+    Q-2 selects only a separate command. Should onboarding and init also collect links and the team conventions?
+  why: Both readings are in the person's words; the design depends on which one holds.
+  options:
+  - orqlet init (the questionnaire)
+  - the /orqlet-onboard skill
+  - a separate command only
+  - all of them
+  blocks:
+  - design
+  status: open
