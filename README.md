@@ -1,16 +1,17 @@
 # Orqlet
 
 Orqlet is a small command-line tool that sets up and maintains the AI-assistant structure of a
-repository, so that every developer's IDE starts from the same reviewed base. It supports
-**Claude Code**, **Codex** and **Cursor**.
+repository, so that every developer's AI coding client starts from the same reviewed base. A client
+is an AI coding tool (an agent harness) that can run in a terminal, in an IDE or both. Orqlet
+supports three: **Claude Code**, **Codex** and **Cursor**.
 
 Orqlet never takes a prompt, never starts an agent and never calls a language model. Developers keep
-writing prompts in their own IDE. Orqlet writes the files that the IDE reads, checks that they have
+writing prompts in their own client. Orqlet writes the files that the client reads, checks that they have
 not drifted, and validates the documents that an agent produces.
 
 ## Problems it fixes
 
-- **Every IDE needs its own setup.** Instructions, skills, rules and specialist agents are written
+- **Every client needs its own setup.** Instructions, skills, rules and specialist agents are written
   once and rendered for each client, so the three clients do not diverge.
 - **The setup is not shared or reviewed.** The structure lives in the repository and arrives through
   an ordinary pull request. Edits the team made by hand are kept when the structure is upgraded.
@@ -34,7 +35,7 @@ What is **not** built yet: `orqlet ci check` and the merge-time gate, local Git 
 knowledge index and module catalogue, and the MCP configuration. Approval cannot be verified by the
 tool today: `orqlet gate status <task>` always ends `NOT_RUN` for approval, because approval is meant
 to be a merge on the protected branch and that evidence comes from the code host. The generated files
-follow each client's published documentation; the tests check the files, not the IDEs.
+follow each client's published documentation; the tests check the files, not the clients.
 
 The full design is in
 [`docs/design/orqlet-architecture-proposal.md`](docs/design/orqlet-architecture-proposal.md); its
@@ -85,11 +86,11 @@ orqlet upgrade     # re-render from a newer release, keeping the team's edits
 orqlet rollback    # restore the files of one change, if nothing has touched them since
 ```
 
-After an upgrade, start a new session in the IDE: a running session keeps the instructions it loaded.
+After an upgrade, start a new session in the client: a running session keeps the instructions it loaded.
 
-## The workflow in the IDE
+## The workflow in the client
 
-After `init`, the IDE offers these skills. Run them in order for a change that needs care:
+After `init`, the client offers these skills. Run them in order for a change that needs care:
 
 | Skill | What it does | Writes |
 |---|---|---|

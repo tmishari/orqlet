@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "orqlet"
 dynamic = ["version"]
-description = "Sets up and maintains the AI context of a repository for IDE-first teams"
+description = "Sets up and maintains the AI context of a repository for teams that use AI coding clients"
 requires-python = ">=3.12"
 dependencies = [
   "typer==0.27.3",
