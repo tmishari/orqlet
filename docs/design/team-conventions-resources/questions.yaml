@@ -380,9 +380,28 @@ questions:
   - docs/design/team-conventions-resources/as-is.md#U-61
   - docs/design/team-conventions-resources/as-is.md#U-64
   - docs/design/team-conventions-resources/as-is.md#U-70
+  - docs/design/team-conventions-resources/as-is.md#A-160
+  - docs/design/team-conventions-resources/as-is.md#A-161
+  - docs/design/team-conventions-resources/as-is.md#A-162
   blocks:
   - design
-  status: open
+  status: answered
+  answer:
+    value: 'Delegated by the user to industry practice ("just look for best practicies of industry in web"). The practice
+      found in the committed web evidence: a client that needs a page behind a login uses the signed-in session of
+      the person who works. Claude Code with Chrome shares the browser''s login state and pauses at a login page or
+      CAPTCHA for the person to handle (evidence/web/claude-code-chrome.md). Playwright MCP offers a persistent profile,
+      an isolated profile that can load a storage-state file, and an extension that attaches to the person''s own
+      tabs (evidence/web/playwright-mcp.md). For an MCP server, the draft authorization specification requires that
+      a token is issued for that server as its audience, forbids a client to send other tokens to it, and forbids
+      a server to pass on any other token (evidence/web/mcp-authorization.md). The evidence found covers Claude Code
+      and Playwright MCP; it does not cover a browser route in Cursor or Codex, and it does not say how a stored copy
+      of a login-protected page is kept current. The design proposes the way for each client from this evidence, and
+      the person approves it in the design review.'
+    answerer: user
+    time: '2026-10-26T18:46:26+02:00'
+    scope: task
+  
 - id: Q-16
   key: 8eeff79da000d4bb9990292d173be354b14c11402b71e2d8cff8d710a90ab618
   subject: Where the conventions are checked
@@ -412,6 +431,30 @@ questions:
   - docs/design/team-conventions-resources/as-is.md#U-65
   - docs/design/team-conventions-resources/as-is.md#U-66
   - docs/design/team-conventions-resources/as-is.md#U-67
+  - docs/design/team-conventions-resources/as-is.md#A-151
+  - docs/design/team-conventions-resources/as-is.md#A-152
+  - docs/design/team-conventions-resources/as-is.md#A-153
+  - docs/design/team-conventions-resources/as-is.md#A-154
+  - docs/design/team-conventions-resources/as-is.md#A-155
+  - docs/design/team-conventions-resources/as-is.md#A-156
+  - docs/design/team-conventions-resources/as-is.md#A-157
+  - docs/design/team-conventions-resources/as-is.md#A-158
+  - docs/design/team-conventions-resources/as-is.md#A-159
   blocks:
   - design
-  status: open
+  status: answered
+  answer:
+    value: 'Delegated by the user to industry practice ("just look for best practicies of industry in web"). The practice
+      found in the committed web evidence: the check that decides is enforced on the server side. Pro Git says client-side
+      hooks are not copied on clone, that `git commit --no-verify` bypasses the pre-commit hook, and that a policy
+      is better enforced on the server (evidence/web/git-hooks.md). The commitlint guide lints the commits of a pull
+      request on the CI server, after a local setup (evidence/web/commitlint-ci.md). GitHub branch protection can
+      require status checks, reviews, code owner approval, linear history and signed commits, and by default does
+      not bind admins (evidence/web/github-protected-branches.md). DORA advises protecting branches so that pull requests
+      merge only when all tests have passed, and warns against an overly heavy review process (evidence/web/dora-trunk-based.md).
+      A local commit-msg or pre-commit hook is described as a check before a commit that a person can bypass. The
+      evidence found does not cover how a tool checks a branch name or the shape of a pull request description, so
+      those two stay open for the design to decide.'
+    answerer: user
+    time: '2026-10-26T18:46:26+02:00'
+    scope: task

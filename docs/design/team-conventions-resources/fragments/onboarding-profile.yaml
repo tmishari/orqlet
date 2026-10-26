@@ -1,6 +1,6 @@
 schema: orqlet.as-is-fragment/v1
 fragment_id: onboarding-profile
-base_revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+base_revision: eef865714e40067b96313cadfa1cd2d551babd3d
 scope:
   paths:
   - docs/design/orqlet-architecture-proposal.md
@@ -24,7 +24,7 @@ facts:
   evidence:
   - path: src/orqlet/interface/cli/commands/init.py
     lines: 21-67
-    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
     sha256: b2581f17f698cc114ef3274e6996610510d30d3e5d47687c9f785f48aa8a2ca0
 - id: A-2
   kind: interface
@@ -34,7 +34,7 @@ facts:
   evidence:
   - path: src/orqlet/interface/cli/commands/profile.py
     lines: 27-74
-    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
     sha256: 953038fb135c16ff0d18c674667a630acae24bb35628254891b2a92c1a2ae7b4
 - id: A-3
   kind: interface
@@ -44,7 +44,7 @@ facts:
   evidence:
   - path: src/orqlet/application/ports/prompter.py
     lines: 9-33
-    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
     sha256: 28f6b3565310ef8b4e3a34dc6c2a710b844302bfa3abc1db689a0a7659df6f68
 - id: A-4
   kind: flow
@@ -55,7 +55,7 @@ facts:
   evidence:
   - path: src/orqlet/application/usecases/init_project.py
     lines: 94-131
-    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
     sha256: 8c15154c584c7db6f0ea3b714b376e94133c57259a03c92c270fad874c3c5fd7
 - id: A-5
   kind: flow
@@ -66,7 +66,7 @@ facts:
   evidence:
   - path: src/orqlet/application/usecases/init_project.py
     lines: 237-273
-    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
     sha256: e503084faedb956faef2dbee8bfcabba40f03e014cb7c5d86cf7c0b032a11e66
 - id: A-6
   kind: flow
@@ -77,7 +77,7 @@ facts:
   evidence:
   - path: src/orqlet/application/usecases/init_questions.py
     lines: 50-89
-    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
     sha256: ebaf5643813481eb453d4cc5c925fb84a6f37fb3a1f96f32b0009889d72f4d59
 - id: A-7
   kind: flow
@@ -87,7 +87,7 @@ facts:
   evidence:
   - path: src/orqlet/application/usecases/init_questions.py
     lines: 90-106
-    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
     sha256: 1e8dfee7dab39ca474e2b63b6bd42f38ae4368411241c7ec950e5438c75e552c
 - id: A-8
   kind: flow
@@ -96,7 +96,7 @@ facts:
   evidence:
   - path: src/orqlet/application/usecases/init_questions.py
     lines: 109-122
-    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
     sha256: c0c336589ab390d0f24392841a6b2423f86b5e35cea3d3851979a30158c3b5d6
 - id: A-9
   kind: flow
@@ -107,7 +107,7 @@ facts:
   evidence:
   - path: src/orqlet/application/usecases/init_questions.py
     lines: 229-281
-    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
     sha256: 754ba2bcc7f145875f9c867620441502e19380affbb61a52b586c852206d85b1
 - id: A-10
   kind: structure
@@ -118,7 +118,7 @@ facts:
   evidence:
   - path: src/orqlet/application/usecases/draft_profile.py
     lines: 57-137
-    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
     sha256: c50002a47e835d01834a78d528426edbef744159b1222c4c5e70af98d1e9a2ec
 - id: A-11
   kind: structure
@@ -129,7 +129,7 @@ facts:
   evidence:
   - path: src/orqlet/application/contracts/profile.py
     lines: 76-96
-    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
     sha256: 6cb046424e3aa0002154ca437794c57049ff44af28ba04f75810dd37f7ce5d83
 - id: A-12
   kind: structure
@@ -138,7 +138,7 @@ facts:
   evidence:
   - path: src/orqlet/application/contracts/common.py
     lines: 62-76
-    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
     sha256: 354681205ce0b2755c4a2cf03813339776553211c9a5a6064910742395b0f6fd
 - id: A-13
   kind: flow
@@ -150,7 +150,7 @@ facts:
   evidence:
   - path: src/orqlet/application/usecases/init_files.py
     lines: 125-182
-    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
     sha256: 5d6fc746334bcd2ea8d12d43e235d1b99e92971c21646fdaff029aac76eb9dee
 - id: A-14
   kind: flow
@@ -161,7 +161,7 @@ facts:
   evidence:
   - path: src/orqlet/application/usecases/init_project.py
     lines: 305-333
-    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
     sha256: 3c445ba8be23c72045e36113e442c6ce9d7c5b865287959947ca65796a94ae53
 - id: A-15
   kind: flow
@@ -172,7 +172,7 @@ facts:
   evidence:
   - path: src/orqlet/application/usecases/render_all.py
     lines: 134-182
-    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
     sha256: 9f174ce1e15ac06b73429827fa4bf75c866c924c3c093bb088847b60f3fef316
 - id: A-16
   kind: structure
@@ -182,7 +182,7 @@ facts:
   evidence:
   - path: src/orqlet/workflow/pr_template/workflow-section.md
     lines: 1-21
-    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
     sha256: e87889ffe3b052a4eeef5b17fa3bbb614b4b423dc8bcee1a21edb106cd47e22a
 - id: A-17
   kind: flow
@@ -192,7 +192,7 @@ facts:
   evidence:
   - path: src/orqlet/application/usecases/render_all.py
     lines: 77-131
-    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
     sha256: 68c840bb488442cb5d3e41ecace574783fede2f47e843d6a6f3f5037ff614e70
 - id: A-18
   kind: flow
@@ -202,7 +202,7 @@ facts:
   evidence:
   - path: src/orqlet/application/usecases/render_request.py
     lines: 41-89
-    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
     sha256: c448629abe34a484bb2473f5c2aa1aeef1740036f3713d340dc24d26e254c049
 - id: A-19
   kind: flow
@@ -211,7 +211,7 @@ facts:
   evidence:
   - path: src/orqlet/adapters/clients/codex.py
     lines: 1-49
-    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
     sha256: ed663a68ea713343b34bdf62b1c93927d6ab61db1db219d08efa535f6b564312
 - id: A-20
   kind: structure
@@ -222,7 +222,7 @@ facts:
   evidence:
   - path: src/orqlet/application/usecases/render_all.py
     lines: 201-261
-    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
     sha256: f472a7a7d36d38cebc24221ac7cfcb66cc0b612dfda35da3a4a620219ef2b5a5
 - id: A-21
   kind: flow
@@ -234,7 +234,7 @@ facts:
   evidence:
   - path: src/orqlet/application/usecases/profile_edit.py
     lines: 40-189
-    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
     sha256: be738f399dfd0fada63cc6bfc97be61e9495d5ed80c81f0479854cbec5e6102e
 - id: A-22
   kind: operation
@@ -244,7 +244,7 @@ facts:
   evidence:
   - path: src/orqlet/application/usecases/diagnose.py
     lines: 313-335
-    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
     sha256: 45ea4ba362adc0ca6acb68c5d512b43693a6e166e2685ff4efadd6214a6bddf4
 - id: A-23
   kind: operation
@@ -255,7 +255,7 @@ facts:
   evidence:
   - path: src/orqlet/workflow/skills/orqlet-onboard/skill.md
     lines: 2-17
-    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
     sha256: e1d943288b38b5b1c95929574c5358d37ced7345701299f7effa405003b15a48
 - id: A-24
   kind: structure
@@ -266,7 +266,7 @@ facts:
   evidence:
   - path: .orqlet/project-profile.yaml
     lines: 10-51
-    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
     sha256: 46726e5f82d2cbe3ffc924b487549abd27ce18a3c11ffc4cec56f31f12b89d6d
 - id: A-25
   kind: test
@@ -277,7 +277,7 @@ facts:
   evidence:
   - path: tests/unit/application/test_init_project.py
     lines: 81-125
-    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
     sha256: fc2320eeafa8fc7232bda2cc865f9493edbd279770a2a902588cdaffc20a199c
 - id: A-26
   kind: test
@@ -288,7 +288,7 @@ facts:
   evidence:
   - path: tests/unit/application/test_init_project.py
     lines: 499-555
-    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
     sha256: 87db61457ae14fe333a9d8984237b1606735f525f819bc7b3e03e0f9504f5241
 - id: A-27
   kind: test
@@ -299,7 +299,7 @@ facts:
   evidence:
   - path: tests/unit/application/test_profile_edit.py
     lines: 100-171
-    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
     sha256: c770faecb2cdcbb561ede5dcf1e2829aba9f60865a6670c84e9c99dd773dc304
 - id: A-28
   kind: test
@@ -310,7 +310,7 @@ facts:
   evidence:
   - path: tests/integration/test_pr_template.py
     lines: 53-164
-    revision: 2d84a44937bfd47682e5d7b59935d5da047542c3
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
     sha256: b1ee9c5cbad245d81c52ac14a591e58389eed9a1960b4900cdfa4bff7bb29f6d
 unknowns:
 - id: U-1
