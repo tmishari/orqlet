@@ -1,82 +1,229 @@
 schema: orqlet.question-ledger/v1
 task: open-items
 questions:
-  - id: Q-1
-    key: 72ad9472f7cee7f2367f66e8385537f9dd7aaf26e3715ae358ecf8613f6d8692
-    subject: "Which unfinished items the research covers"
-    raised_by: researcher
-    phase: research
-    category: requirement
-    text: "The request was \"find a solution for all uncompleted tasks\". Which of the unfinished items should this research cover: the red CI jobs, approval and merge evidence with branch protection and plan re-basing, the open review and test items of harness2-fit, the open items of the architecture proposal, or the go-migration-feasibility task?"
-    why: "Research records facts for the chosen items only; the others stay unexamined and are not claimed to be complete or incomplete."
-    options:
-      - "red CI jobs"
-      - "approval and merge evidence, branch protection, v0.4 and v0.5 plan re-basing"
-      - "harness2-fit open review and test items"
-      - "open items of the architecture proposal"
-      - "go-migration-feasibility"
-    blocks:
-      - research
-    status: answered
-    answer:
-      value: "approval and merge evidence, branch protection, v0.4 and v0.5 plan re-basing (the person chose this one item; the red CI jobs and the others are not covered)"
-      answerer: user
-      time: "2026-10-25T17:35:00+02:00"
-      scope: task
-  - id: Q-2
-    key: 3598b3db33666e916607fb505ed7b6ef598c52dfc671c8a7589aebfc90fa134f
-    subject: "Task name for the research folder"
-    raised_by: researcher
-    phase: research
-    category: requirement
-    text: "What is the task name for docs/design/<task>/ (lowercase words joined by hyphens)?"
-    why: "Every artifact of the task lives in the folder that carries this name."
-    options:
-      - "open-items"
-      - "ci-and-open-items"
-    blocks:
-      - research
-    status: answered
-    answer:
-      value: "open-items"
-      answerer: user
-      time: "2026-10-25T17:35:00+02:00"
-      scope: task
-  - id: Q-3
-    key: 3006337f1c0ef4258212316da0535065ab9b34ee19b64b6ba2e7d377c8dd7513
-    subject: "Order of research, acceptance and design"
-    raised_by: researcher
-    phase: research
-    category: requirement
-    text: "Research only records facts and evidence, and solutions come in the design phase after the AS-IS file is accepted. Is that the order wanted, or should the red CI jobs be fixed directly first?"
-    why: "The skill forbids advice in the AS-IS file; a solution needs the design phase and its approval."
-    options:
-      - "research first, accept, then design the solutions"
-      - "fix the red CI jobs directly now and research the rest"
-    blocks:
-      - research
-    status: answered
-    answer:
-      value: "research first, accept, then design the solutions"
-      answerer: user
-      time: "2026-10-25T17:35:00+02:00"
-      scope: task
-  - id: Q-4
-    key: 28e1e3a864cc8e0bac18e52f2078fdd3e2ec6dd296aa3417760052ff72408c10
-    subject: "Read-only access to GitHub state through gh"
-    raised_by: researcher
-    phase: research
-    category: access
-    text: "May the research read GitHub state (CI logs, repository settings such as branch protection) read-only with the gh command as evidence?"
-    why: "Whether branch protection and merged pull requests exist is not in the repository files."
-    options:
-      - "yes, read-only"
-      - "no, repository files only"
-    blocks:
-      - research
-    status: answered
-    answer:
-      value: "yes, read-only"
-      answerer: user
-      time: "2026-10-25T17:35:00+02:00"
-      scope: task
+- id: Q-1
+  key: 72ad9472f7cee7f2367f66e8385537f9dd7aaf26e3715ae358ecf8613f6d8692
+  subject: Which unfinished items the research covers
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: 'The request was "find a solution for all uncompleted tasks". Which of the unfinished items should
+    this research cover: the red CI jobs, approval and merge evidence with branch protection and plan
+    re-basing, the open review and test items of harness2-fit, the open items of the architecture proposal,
+    or the go-migration-feasibility task?'
+  why: Research records facts for the chosen items only; the others stay unexamined and are not claimed
+    to be complete or incomplete.
+  options:
+  - red CI jobs
+  - approval and merge evidence, branch protection, v0.4 and v0.5 plan re-basing
+  - harness2-fit open review and test items
+  - open items of the architecture proposal
+  - go-migration-feasibility
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: approval and merge evidence, branch protection, v0.4 and v0.5 plan re-basing (the person chose
+      this one item; the red CI jobs and the others are not covered)
+    answerer: user
+    time: '2026-10-25T17:35:00+02:00'
+    scope: task
+- id: Q-2
+  key: 3598b3db33666e916607fb505ed7b6ef598c52dfc671c8a7589aebfc90fa134f
+  subject: Task name for the research folder
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: What is the task name for docs/design/<task>/ (lowercase words joined by hyphens)?
+  why: Every artifact of the task lives in the folder that carries this name.
+  options:
+  - open-items
+  - ci-and-open-items
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: open-items
+    answerer: user
+    time: '2026-10-25T17:35:00+02:00'
+    scope: task
+- id: Q-3
+  key: 3006337f1c0ef4258212316da0535065ab9b34ee19b64b6ba2e7d377c8dd7513
+  subject: Order of research, acceptance and design
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: Research only records facts and evidence, and solutions come in the design phase after the AS-IS
+    file is accepted. Is that the order wanted, or should the red CI jobs be fixed directly first?
+  why: The skill forbids advice in the AS-IS file; a solution needs the design phase and its approval.
+  options:
+  - research first, accept, then design the solutions
+  - fix the red CI jobs directly now and research the rest
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: research first, accept, then design the solutions
+    answerer: user
+    time: '2026-10-25T17:35:00+02:00'
+    scope: task
+- id: Q-4
+  key: 28e1e3a864cc8e0bac18e52f2078fdd3e2ec6dd296aa3417760052ff72408c10
+  subject: Read-only access to GitHub state through gh
+  raised_by: researcher
+  phase: research
+  category: access
+  text: May the research read GitHub state (CI logs, repository settings such as branch protection) read-only
+    with the gh command as evidence?
+  why: Whether branch protection and merged pull requests exist is not in the repository files.
+  options:
+  - yes, read-only
+  - no, repository files only
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: yes, read-only
+    answerer: user
+    time: '2026-10-25T17:35:00+02:00'
+    scope: task
+- id: Q-5
+  key: 4a18b986e19f02c8dc89d53e42a99ccd546714fb4c28aa9306f6723f8224c47a
+  subject: Who counts as an authorised approver and whether a second reviewer exists
+  raised_by: researcher
+  phase: research
+  category: policy
+  text: Who counts as an authorised approver for designs and plans (the proposal's Q-03), how many approvers
+    are required, and is a second person with write access available to review? The repository has one
+    collaborator, who is also its administrator.
+  why: The proposal defines approval as a merged pull request with an approving review from a code owner
+    who is not the author; the repository lists one collaborator, no CODEOWNERS file and no pull request.
+  options:
+  - a second reviewer exists or can be added
+  - a single maintainer approves
+  - something else
+  evidence_refs:
+  - docs/design/open-items/as-is.md#U-6
+  - docs/design/open-items/as-is.md#U-7
+  - docs/design/open-items/as-is.md#U-8
+  - docs/design/open-items/as-is.md#U-9
+  - docs/design/open-items/as-is.md#U-10
+  - docs/design/open-items/as-is.md#U-11
+  - docs/design/open-items/as-is.md#U-12
+  blocks:
+  - design
+  status: open
+- id: Q-6
+  key: 4eff5c4cdaff784705476badd81b1a9b82012aea20449e5516fcee458e0fb2c3
+  subject: GitHub plan, repository visibility and whether either may change
+  raised_by: researcher
+  phase: research
+  category: access
+  text: Which GitHub plan is the account on, is the repository meant to stay private, and may the plan
+    or the visibility change? GitHub answered the branch-protection and ruleset requests with HTTP 403
+    'Upgrade to GitHub Pro or make this repository public to enable this feature'.
+  why: Branch protection, required reviews and rulesets are what the proposal relies on for merge evidence;
+    the capture states no plan.
+  options:
+  - keep the plan and visibility
+  - change the plan
+  - change the visibility
+  - something else
+  evidence_refs:
+  - docs/design/open-items/as-is.md#U-13
+  - docs/design/open-items/as-is.md#U-14
+  - docs/design/open-items/as-is.md#U-15
+  - docs/design/open-items/as-is.md#U-16
+  - docs/design/open-items/as-is.md#U-17
+  blocks:
+  - design
+  status: open
+- id: Q-7
+  key: 8b55e0eea0bf440655b86d52dd98216527edc18c1d38a7eb68f23e5bd2fd3bd7
+  subject: Answers to the proposal's host and CI questions
+  raised_by: researcher
+  phase: research
+  category: missing-configuration
+  text: What are the answers to the proposal's open questions Q-01 (code host, CI platform, merge queue),
+    Q-04 (managed settings and plans) and Q-05 (the local guard), and what are the CI executor's interface,
+    authentication and permissions?
+  why: The proposal records them as open; the built gate status cannot read host evidence and `ci check`
+    is not built.
+  evidence_refs:
+  - docs/design/open-items/as-is.md#U-18
+  - docs/design/open-items/as-is.md#U-19
+  - docs/design/open-items/as-is.md#U-20
+  - docs/design/open-items/as-is.md#U-21
+  - docs/design/open-items/as-is.md#U-22
+  - docs/design/open-items/as-is.md#U-23
+  - docs/design/open-items/as-is.md#U-24
+  - docs/design/open-items/as-is.md#U-25
+  blocks:
+  - design
+  status: open
+- id: Q-8
+  key: 9a3d3043283205cb440778698da5379c10d6ccf567f4eb96416d0606391c0d7b
+  subject: Approval of v0.4 and the plans that cite it
+  raised_by: researcher
+  phase: research
+  category: policy
+  text: Is proposal v0.4 treated as approved, and are the plans under docs/design/orqlet-implementation/
+    and docs/design/orqlet-m2-workflow/ re-based on v0.5 or kept on v0.4 explicitly? How were the approvals
+    of those plans and of their decisions recorded?
+  why: The proposal says the approval of v0.4 is not recorded and the person did not state it; both plans
+    cite v0.4 and call themselves approved.
+  options:
+  - treat v0.4 as approved and keep the plans on v0.4
+  - re-base the plans on v0.5
+  - something else
+  evidence_refs:
+  - docs/design/open-items/as-is.md#U-26
+  - docs/design/open-items/as-is.md#U-27
+  - docs/design/open-items/as-is.md#U-28
+  - docs/design/open-items/as-is.md#U-29
+  - docs/design/open-items/as-is.md#U-30
+  - docs/design/open-items/as-is.md#U-31
+  - docs/design/open-items/as-is.md#U-32
+  blocks:
+  - design
+  status: open
+- id: Q-9
+  key: aee2744567b2c3f268a0046fbff3ed29189e16d3ec7da72b3d4e385e8c3c3600
+  subject: What recorded form counts as approval for what was approved in conversation
+  raised_by: researcher
+  phase: research
+  category: policy
+  text: What recorded form counts as approval of the artifacts that were approved by a statement in conversation
+    (the proposal file v0.5, the harness2-fit design set and plan, the earlier plans), and where is that
+    conversation record kept?
+  why: The artifacts record the person's words and the date; the proposal says such a statement is not
+    merge evidence.
+  evidence_refs:
+  - docs/design/open-items/as-is.md#U-33
+  - docs/design/open-items/as-is.md#U-34
+  - docs/design/open-items/as-is.md#U-35
+  - docs/design/open-items/as-is.md#U-36
+  - docs/design/open-items/as-is.md#U-37
+  - docs/design/open-items/as-is.md#U-38
+  blocks:
+  - design
+  status: open
+- id: Q-10
+  key: e4e9776c814f9ef18713890bb10c8415713ee8d35d77cf5eadbc49a6e7d91525
+  subject: Intent of unused fields and unresolved references
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: 'Which unresolved references and unused fields are intended: the ''v0.5 packet plan'' named by
+    the harness2-fit design, the header `status` value, the `change_control` approvals count, the workflow-policy
+    contract and the profile `version`?'
+  why: No code reads them and no file named for the packet plan exists.
+  evidence_refs:
+  - docs/design/open-items/as-is.md#U-1
+  - docs/design/open-items/as-is.md#U-2
+  - docs/design/open-items/as-is.md#U-3
+  - docs/design/open-items/as-is.md#U-4
+  - docs/design/open-items/as-is.md#U-5
+  blocks:
+  - design
+  status: open

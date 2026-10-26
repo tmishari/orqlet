@@ -283,8 +283,7 @@ facts:
     denied, workflow version 0.3.1 with digest 5d6807e85ea2... and floor 0.3.1, controls_level_min 3,
     and change_control with the single key lowering_pin_or_floor_requires_approvals: 2.'
   evidence:
-  - &id001
-    path: .orqlet/versions.yaml
+  - path: .orqlet/versions.yaml
     lines: 1-14
     revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
     sha256: 3d94a46d7b629bf39eeb3a7e8226087ddee53c540397d8a627c183b2f98dfb28
@@ -293,7 +292,10 @@ facts:
   statement: versions.yaml holds no key for reviewers, merge strategy, code owners, branch protection
     or approvals for raising a pin or floor.
   evidence:
-  - *id001
+  - path: .orqlet/versions.yaml
+    lines: 1-14
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 3d94a46d7b629bf39eeb3a7e8226087ddee53c540397d8a627c183b2f98dfb28
 - id: A-29
   kind: interface
   statement: Orqlet's messages say a downgrade of the workflow needs two approvals when merged (upgrade)

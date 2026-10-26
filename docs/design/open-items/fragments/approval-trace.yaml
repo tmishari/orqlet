@@ -448,8 +448,7 @@ facts:
     (profile_edit.py lines 73 and 98, diagnose.py line 315); ModelPolicy and ModelEntry carry their own
     status and approved_by fields but are only registered in the contract table.'
   evidence:
-  - &id001
-    path: src/orqlet/application/usecases/diagnose.py
+  - path: src/orqlet/application/usecases/diagnose.py
     lines: 313-322
     revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
     sha256: 55d73dca3df98870ec6a145bb02d453007c94bdbb1b5d1a915041f6b258aef3b
@@ -528,8 +527,7 @@ facts:
     hook` command or an edit guard; the strings 'ci check' and 'hook' occur only in comments, messages
     and contract fields listed in the following facts.
   evidence:
-  - &id003
-    path: src/orqlet/domain/independence.py
+  - path: src/orqlet/domain/independence.py
     lines: 1-11
     revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
     sha256: 991d24ae567724c39bd4a4901b6e1278bf5fa768a03be3775595473a0bed09b4
@@ -547,8 +545,7 @@ facts:
   statement: 'WorkflowPolicy has the fields `hooks: dict[str, str]` and `required_checks: tuple[str, ...]`;
     no use case reads either.'
   evidence:
-  - &id004
-    path: src/orqlet/application/contracts/policy.py
+  - path: src/orqlet/application/contracts/policy.py
     lines: 56-67
     revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
     sha256: 1d18f211b802edfc45d9179897bfbd8fada81c37d3be0f1f726da1e74c235d9b
@@ -848,8 +845,7 @@ facts:
     lines: '28'
     revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
     sha256: 955e94bb5d8e55f6d9b02d3789014b531b3abed880ce587a4fd7704a056ac807
-  - &id005
-    path: src/orqlet/application/usecases/profile_edit.py
+  - path: src/orqlet/application/usecases/profile_edit.py
     lines: 86-113
     revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
     sha256: 0fa75f443bcc704b486538adf2ffcfc9be1844d5deb58d8172ee736260d67991
@@ -923,7 +919,10 @@ facts:
     which emits warning ORQ-W180 ''The project profile is a draft: nobody has recorded approving it''
     when status is not ''approved''.'
   evidence:
-  - *id001
+  - path: src/orqlet/application/usecases/diagnose.py
+    lines: 313-322
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 55d73dca3df98870ec6a145bb02d453007c94bdbb1b5d1a915041f6b258aef3b
 - id: A-86
   kind: structure
   statement: 'In this repository the profile is `version: 1`, `status: draft`.'
@@ -1182,8 +1181,7 @@ facts:
   statement: A proposal is a unified-diff file under .orqlet/proposals named by flattening the target
     path ('/' becomes '__', plus '.diff'); PROPOSALS_DIR is .orqlet/proposals.
   evidence:
-  - &id002
-    path: src/orqlet/domain/changeplan.py
+  - path: src/orqlet/domain/changeplan.py
     lines: '30'
     revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
     sha256: 05096fe89c7563bd99c6c9326ae59ff4e0dd184005c8f3a1668c90b77c26d76e
@@ -1210,7 +1208,10 @@ facts:
   statement: src/orqlet contains no code that reads, lists or applies the files under .orqlet/proposals;
     PROPOSALS_DIR is referenced only to compute proposal paths.
   evidence:
-  - *id002
+  - path: src/orqlet/domain/changeplan.py
+    lines: '30'
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 05096fe89c7563bd99c6c9326ae59ff4e0dd184005c8f3a1668c90b77c26d76e
   - path: src/orqlet/domain/changeplan.py
     lines: '154'
     revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
@@ -1249,7 +1250,10 @@ facts:
     a record shows that ... only the host evidence of `ci check` can''; the module says the class comes
     from identifiers ''which an approver attests and no tool verifies''.'
   evidence:
-  - *id003
+  - path: src/orqlet/domain/independence.py
+    lines: 1-11
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 991d24ae567724c39bd4a4901b6e1278bf5fa768a03be3775595473a0bed09b4
 - id: A-113
   kind: flow
   statement: validate review's _independence reads .orqlet/role-bindings.yaml from the tree under review
@@ -1369,7 +1373,10 @@ facts:
     lines: 12-20
     revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
     sha256: a34d3e3ff5347caf0c8180c711f84f7e7825ec5cee6f14dd5a4beb70021bdacc
-  - *id004
+  - path: src/orqlet/application/contracts/policy.py
+    lines: 56-67
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 1d18f211b802edfc45d9179897bfbd8fada81c37d3be0f1f726da1e74c235d9b
 - id: A-125
   kind: structure
   statement: WorkflowPolicy is referenced only in the contract table; no path constant for a workflow-policy
@@ -1418,7 +1425,10 @@ facts:
     checks length and newlines only) with a clock timestamp; it is not compared with any Git identity,
     CODEOWNERS entry or other list.
   evidence:
-  - *id005
+  - path: src/orqlet/application/usecases/profile_edit.py
+    lines: 86-113
+    revision: e2d6a5c8d25deb2d822d79f8ea7f8512240c62ac
+    sha256: 0fa75f443bcc704b486538adf2ffcfc9be1844d5deb58d8172ee736260d67991
 - id: A-130
   kind: structure
   statement: The Vcs port exposes state, head_commit, current_branch, tracked_files, read_committed, has_revision,
