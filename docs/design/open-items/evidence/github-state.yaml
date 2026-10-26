@@ -1,0 +1,51 @@
+# Read-only capture of GitHub state for the task open-items (ledger Q-4: the person allowed read-only gh).
+# Each entry is the answer of one GET request made with the gh command by the account that owns the
+# repository. No token or secret is recorded. The captured_at value is the workstation clock in UTC.
+captured_at: "2026-10-26T07:49:08Z"
+repository: tmishari/orqlet
+requests:
+  - endpoint: GET /repos/tmishari/orqlet
+    http_status: 200
+    fields:
+      private: true
+      visibility: private
+      default_branch: main
+      archived: false
+      allow_merge_commit: true
+      allow_squash_merge: true
+      allow_rebase_merge: true
+      allow_auto_merge: false
+      delete_branch_on_merge: false
+      permissions_of_the_calling_account: {admin: true, maintain: true, pull: true, push: true, triage: true}
+  - endpoint: GET /repos/tmishari/orqlet/branches/main
+    http_status: 200
+    fields:
+      protected: false
+      protection_enabled: false
+      head_sha: 2c4308ecdbed19b360fe0aee22cf7ca69a15a9be
+  - endpoint: GET /repos/tmishari/orqlet/branches/main/protection
+    http_status: 403
+    message: "Upgrade to GitHub Pro or make this repository public to enable this feature."
+  - endpoint: GET /repos/tmishari/orqlet/rulesets
+    http_status: 403
+    message: "Upgrade to GitHub Pro or make this repository public to enable this feature."
+  - endpoint: GET /repos/tmishari/orqlet/actions/permissions
+    http_status: 200
+    fields: {enabled: true, allowed_actions: all, sha_pinning_required: false}
+  - endpoint: GET /repos/tmishari/orqlet/pulls?state=all&per_page=100
+    http_status: 200
+    fields: {pull_requests_found: 0}
+  - endpoint: GET /repos/tmishari/orqlet/collaborators?per_page=100
+    http_status: 200
+    fields:
+      count: 1
+      entries: [{login: tmishari, role_name: admin}]
+  - endpoint: GET /repos/tmishari/orqlet/actions/runs
+    http_status: 200
+    fields:
+      runs:
+        - {name: ci, event: push, head_branch: main, head_sha: 2c4308ecdbed19b360fe0aee22cf7ca69a15a9be, conclusion: failure}
+        - {name: ci, event: push, head_branch: main, head_sha: e8ef7a8832e9c0c3909b7b8640669d6f7ef2473c, conclusion: cancelled}
+not_read:
+  - "Whether the account is on a free or a paid plan: no request that states it was made; the 403 message above is the only statement."
+  - "Organisation-level settings, required reviewers and CODEOWNERS enforcement: not requested."

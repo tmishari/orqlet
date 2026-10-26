@@ -1,0 +1,82 @@
+schema: orqlet.question-ledger/v1
+task: open-items
+questions:
+  - id: Q-1
+    key: 72ad9472f7cee7f2367f66e8385537f9dd7aaf26e3715ae358ecf8613f6d8692
+    subject: "Which unfinished items the research covers"
+    raised_by: researcher
+    phase: research
+    category: requirement
+    text: "The request was \"find a solution for all uncompleted tasks\". Which of the unfinished items should this research cover: the red CI jobs, approval and merge evidence with branch protection and plan re-basing, the open review and test items of harness2-fit, the open items of the architecture proposal, or the go-migration-feasibility task?"
+    why: "Research records facts for the chosen items only; the others stay unexamined and are not claimed to be complete or incomplete."
+    options:
+      - "red CI jobs"
+      - "approval and merge evidence, branch protection, v0.4 and v0.5 plan re-basing"
+      - "harness2-fit open review and test items"
+      - "open items of the architecture proposal"
+      - "go-migration-feasibility"
+    blocks:
+      - research
+    status: answered
+    answer:
+      value: "approval and merge evidence, branch protection, v0.4 and v0.5 plan re-basing (the person chose this one item; the red CI jobs and the others are not covered)"
+      answerer: user
+      time: "2026-10-25T17:35:00+02:00"
+      scope: task
+  - id: Q-2
+    key: 3598b3db33666e916607fb505ed7b6ef598c52dfc671c8a7589aebfc90fa134f
+    subject: "Task name for the research folder"
+    raised_by: researcher
+    phase: research
+    category: requirement
+    text: "What is the task name for docs/design/<task>/ (lowercase words joined by hyphens)?"
+    why: "Every artifact of the task lives in the folder that carries this name."
+    options:
+      - "open-items"
+      - "ci-and-open-items"
+    blocks:
+      - research
+    status: answered
+    answer:
+      value: "open-items"
+      answerer: user
+      time: "2026-10-25T17:35:00+02:00"
+      scope: task
+  - id: Q-3
+    key: 3006337f1c0ef4258212316da0535065ab9b34ee19b64b6ba2e7d377c8dd7513
+    subject: "Order of research, acceptance and design"
+    raised_by: researcher
+    phase: research
+    category: requirement
+    text: "Research only records facts and evidence, and solutions come in the design phase after the AS-IS file is accepted. Is that the order wanted, or should the red CI jobs be fixed directly first?"
+    why: "The skill forbids advice in the AS-IS file; a solution needs the design phase and its approval."
+    options:
+      - "research first, accept, then design the solutions"
+      - "fix the red CI jobs directly now and research the rest"
+    blocks:
+      - research
+    status: answered
+    answer:
+      value: "research first, accept, then design the solutions"
+      answerer: user
+      time: "2026-10-25T17:35:00+02:00"
+      scope: task
+  - id: Q-4
+    key: 28e1e3a864cc8e0bac18e52f2078fdd3e2ec6dd296aa3417760052ff72408c10
+    subject: "Read-only access to GitHub state through gh"
+    raised_by: researcher
+    phase: research
+    category: access
+    text: "May the research read GitHub state (CI logs, repository settings such as branch protection) read-only with the gh command as evidence?"
+    why: "Whether branch protection and merged pull requests exist is not in the repository files."
+    options:
+      - "yes, read-only"
+      - "no, repository files only"
+    blocks:
+      - research
+    status: answered
+    answer:
+      value: "yes, read-only"
+      answerer: user
+      time: "2026-10-25T17:35:00+02:00"
+      scope: task

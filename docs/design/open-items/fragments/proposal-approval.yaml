@@ -1,0 +1,1563 @@
+schema: orqlet.as-is-fragment/v1
+fragment_id: proposal-approval
+base_revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+scope:
+  paths:
+  - docs/design/orqlet-architecture-proposal.md
+  request_ref: open-items
+facts:
+- id: A-1
+  kind: structure
+  statement: Section 17.7 defines a design or plan as approved when it is present on the protected baseline
+    branch (the branch for which branch protection requires pull-request review and code-owner approval)
+    and the code host shows it arrived through a pull request merged with an approving review from the
+    required code owners (merge_evidence); without that evidence the result is NOT_RUN, the artifact header
+    status field is informational, and CI evaluates approval against the baseline and never against the
+    head of the pull request being judged.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '3037'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 2f3e12f296bbb028cea6cf8b0e4a03ce732263f2eb6165e8f5dc8fd49ca0a083
+- id: A-2
+  kind: flow
+  statement: Phase 2 step 4 defines approval as the review and merge of the design pull request by an
+    authorised human, meaning an identity the code host lists as a code owner of docs/design/** (plus
+    any further owner the standards require for the class) who is neither the pull request's author nor
+    the agent, states that an agent saying 'approved' is not approval, and says CI derives the approval
+    record from host evidence, not from pull-request text, and that the channel and approvers are open
+    question Q-03.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2926'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 758c5846bdfb4a6cc20397afd94430f8b5564bc17794b4fb58089480ddb067fd
+- id: A-3
+  kind: structure
+  statement: The approval record that CI derives lists the approved files with SHA-256, the design-set
+    manifest hash, the AS-IS hash, standards_lock_hash, applicable_rules_hash, workflow_version, change
+    class, scope including the approved expected changes, the approving identities, the pull request and
+    the merge commit.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2926'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 758c5846bdfb4a6cc20397afd94430f8b5564bc17794b4fb58089480ddb067fd
+- id: A-4
+  kind: flow
+  statement: 'The workflow table makes the design approval a design pull request approved by the code
+    owners and merged (channel and approvers: Q-03), and the plan approval a merged plan pull request,
+    with a D1 plan approved together with the design in one pull request that must merge before any implementation
+    pull request.'
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 2854-2855
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 4e61c281b1f463ce44a2238f6e35b4b4ce4cf904f2e9482733e370ccd10f79ac
+- id: A-5
+  kind: flow
+  statement: Section 19.8.4 says presence on the baseline is not review (a direct push, a bypass or a
+    path CODEOWNERS does not cover also puts a file there, and the Orqlet-Task and Orqlet-Phase trailers
+    are written by the author), and requires stage 2 to find the last commit that touched each design
+    and plan file on the baseline, the pull request that merged it and that pull request's approving reviews
+    at its head commit, to check them against CODEOWNERS at the merge base (a path no owner matches counts
+    as unapproved), and to report NOT_RUN if the evidence cannot be obtained.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 3815-3817
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: b992f4650081e33e3eaa6207b1e7fcb73f8d7a7ade0056e2b789dc768585d639
+- id: A-6
+  kind: flow
+  statement: Section 19.8.4 states approval evidence is required and is not a project option, and that
+    a change to the base branch between review and merge needs strict required checks or a merge queue.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '3817'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 32568603c2eef9918367bd4405a781892d4067cc1d39e32fec909a8f51c2f19e
+- id: A-7
+  kind: flow
+  statement: Section 19.8.4 items 2 to 5 require phase claims to match the approved plan, derive phase
+    completion from a merged pull request that claimed it with every required check concluded success
+    at its head, read the claim from the pull request description as well as trailers because squash and
+    merge queues drop trailers, and compare the final tree with the expected changes recorded in the approval
+    record on the baseline.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 3818-3821
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: ab257e0cdd34e4dcc52b2fdfc49b66da77aab4195e63502cd8448d686b6f3277
+- id: A-8
+  kind: structure
+  statement: Decision D-22 (status Default) records that approval is presence on the protected baseline
+    with merge evidence from the code host, recorded as an approval record, with 'Looser, local-only gating'
+    as the main alternative.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '5147'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 51ff392aa3cd0e555c8497cf5535998e6f674f64957e43debeaaf780fa7fd0eb
+- id: A-9
+  kind: structure
+  statement: Question Q-03 asks where design and plan approvals live and who is an authorised human, records
+    the recommendation of the merged design and plan pull request on the protected baseline approved by
+    the code owners that CODEOWNERS names for docs/design/** plus a security owner for change class D3,
+    asks 'which people or roles, and how many approvers?', and says a ticket workflow or local sign-off
+    could only be attested, not verified.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '5090'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 6e3ce4f91818afce56b583bcbf6d9c6e44fb4518aacc7bd234f301a0a2ab74af
+- id: A-10
+  kind: flow
+  statement: 'Section 10.2 says the coordinator has no authority over approvals by design, that an agent''s
+    edit of a status: approved line in its own branch is not an approval ''as long as the host rules hold'',
+    that a direct push or a bypass would defeat the host rules, and that only a human approves, in pull-request
+    review.'
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2065'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 4487dcef46518ad1ffd282a71fd2c783739708ad4b24180352e21b9f876af0f8
+- id: A-11
+  kind: flow
+  statement: The coordinator duties table states 'Only a human approves, in pull-request review'.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2079'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 13e2f31ae37ff2f7f5e3628bfbfcd015c2b446fb09cf95fac646df8a02d4add6
+- id: A-12
+  kind: structure
+  statement: Invariant W-5 (non-waivable) states that the coordinator cannot approve, that a missing,
+    unavailable, interrupted, timed-out, stale or unknown required check or review is NOT_RUN and a failed
+    one is FAIL (neither is success), and that a stale approval is invalid.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '3369'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 399c925e635d0d362bbaf1d1d02a45ffa5a06e6df45e36b127c81f397e08df96
+- id: A-13
+  kind: flow
+  statement: ci check item 13 requires every governed pull request to have at least one approving review
+    at its head from someone who is not its author (a code owner for owned paths), and says attested evidence
+    such as review notes counts only together with it.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '3760'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 8832fc6e2a44329bd86258c58b1da0400adb309f79b612e558d04ab48b2b1ccd
+- id: A-14
+  kind: flow
+  statement: ci check item 4 requires every governed pull request to claim Orqlet-Task and checks the
+    approval evidence of Section 19.8.4, and item 12 requires every check named in the baseline required_checks
+    to have concluded success at the head SHA, with skipped and neutral not accepted.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 3751-3759
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 656604bebf5d92652494f59940cf85adfe9b7fb10a8e2af34c115b795a40b049
+- id: A-15
+  kind: flow
+  statement: ci check item 7 requires a ReviewResult for the Architecture Reviewer and one for the Security
+    Reviewer on every governed pull request, says such a note is attested evidence whose presence, shape,
+    binding and independence fields are checked, and says the human approver of the pull request is accountable
+    for accepting it.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '3754'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 77c1980615e7937b4400ef223e2b2dfebae77b30de8e1969db03feaa844e4e95
+- id: A-16
+  kind: flow
+  statement: 'Approval counting in the evaluator: an approving review counts only if its author is not
+    the pull request''s author, is a code owner for the owned paths, was submitted on the current head
+    commit and has not been dismissed; a CHANGES_REQUESTED review from a code owner blocks until dismissed
+    or superseded by a later approval on the current head; a new commit cannot reuse approval evidence
+    from an earlier commit whether or not the host''s dismiss-stale-approvals setting is on.'
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '3884'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: c14cb8004d46fc4ea1d079b24be87c610f4b749802c1ea146fbaae22d7a0272b
+- id: A-17
+  kind: structure
+  statement: Enforcement matrix row E-08 (class S) makes 'an authorised human approves the identified
+    artifact versions and scope before implementation' enforced by code-host merge evidence and CODEOWNERS,
+    with NOT_RUN if evidence is absent and the stated bypasses 'Bypass actors and admins, rubber-stamping,
+    a compromised account, CODEOWNERS gaps (audited by doctor)'.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '3981'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: a5213f8a8130bf21b4ae32312db25946f6b4608d085c62c8481b5168fd356521
+- id: A-18
+  kind: structure
+  statement: Enforcement matrix row E-01 (classes S, L, I) states that no merge without an approved design
+    and plan is enforced by ci check stage 2 and by the gate status precondition of /orqlet-implement,
+    and that 'Local implementation before approval is not prevented'.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '3974'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 2f511933376c2945270993d7d9cc588deba9ba9d00a596361181fb85b12ad4bb
+- id: A-19
+  kind: structure
+  statement: Control class S (trusted CI and repository protection) is described as strong only if the
+    code host is configured for it and nobody holds a bypass, class L (hooks, doctor, gate status, validators)
+    as advisory and bypassable, and class C (client controls) as editable by whoever can write the settings.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 3960-3964
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 11d2cb40d626f7388bf176b142b9a20664fe01126f32169290fbad8f8c034805
+- id: A-20
+  kind: structure
+  statement: Attested evidence (a review record, an independence or binding field, a no-impact outcome)
+    satisfies a gate only together with the human approval of that pull request, and claimed evidence
+    from pull-request-controlled code can add findings and can never relax a verdict.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '3966'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: c222f7c963ac1d5c895392da4d4cae2c1e73db3d22b09f90cc9a754c09dc5213
+- id: A-21
+  kind: flow
+  statement: The Phase 4 precondition runs orqlet gate status (the same logic as CI, including approval
+    evidence, which an offline run reports as NOT_RUN) and stops unless the design and plan are approved
+    on the baseline and their bound inputs are current.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '3007'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 91843bb1b2b30e26572b6f9e1dad05d03449392e42f118a329b480e375956430
+- id: A-22
+  kind: interface
+  statement: Section 23 says gate status reads the code host for approval evidence, gate status --offline
+    reports NOT_RUN for approval evidence, and ci check reads the baseline and the code host and publishes
+    the check run through the Checks API as the one sanctioned write to the code host, by the CI publisher
+    identity only.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '4563'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: f556bde393dc9620adc6e81248b0bed9976c7959549b31cb8b7e18724bd12123
+- id: A-23
+  kind: interface
+  statement: The ChangeRequestPlatform port is listed with get_change(), merge_evidence(commit), required_checks(),
+    approvals() and publish_check(sha, result), reads are read-only, publish_check is used only by CI
+    stage 2 with the dedicated App's credentials, the first adapter is GitHub (pending Q-01), and the
+    read subset is MVP-1.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '1076'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: ae371cace2e0dd4c10055fbf0584afb069847bc3afb79e7684c0a9275ff7f8ab
+- id: A-24
+  kind: structure
+  statement: The glossary defines 'Protected baseline (branch, policy)' as the tip of the protected target
+    branch whose files CI trusts as policy, not the same thing as the baseline instructions.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '426'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 31a647a4a760135435acfe58c28f1a3492de8663e2eb2cf147215c06a6ef0791
+- id: A-25
+  kind: structure
+  statement: Section 19.8.2 item 1 defines the baseline as the tip of the target branch or a pinned ref
+    in a separate repository the organisation controls, defines the enforcement policy as every file under
+    .orqlet/, CODEOWNERS, the workflow files that run the check and the required-check list, and says
+    the first baseline is the merge commit of the approved init pull request (path A) while the baseline
+    of a local bootstrap commit (path B) is NOT_RUN until a non-author code owner has merged a confirmation
+    pull request.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '3771'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: ed98568c1d1a71b1b5362afd56737b65270ad92b77a30b4d8e4f9ad18d69d61d
+- id: A-26
+  kind: flow
+  statement: Bootstrap path A takes a host-created initial commit and an init pull request whose merge
+    commit becomes the baseline, and path B takes a local first commit that no trusted CI judged, so the
+    baseline is NOT_RUN until a confirmation pull request adding .orqlet/bootstrap-confirmation.yaml is
+    merged with the approval of a non-author code owner.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 1927-1928
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 7dee45854326da5a21492ac1dc87c1367a7c97c6c82cf61d53db15969463d2c9
+- id: A-27
+  kind: flow
+  statement: Section 1.3 says merging the init pull request is the team's approval of the base and also
+    becomes the policy baseline that CI trusts, reviewed by the policy owners through CODEOWNERS for .orqlet/**
+    and the agent-configuration paths.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '309'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 3c0e44dc78c0900ea51b414be920b652a580e2d8f43f6664000d370cdffd855a
+- id: A-28
+  kind: structure
+  statement: 'Trusted CI is the two-stage design: stage 1 runs on pull_request, runs the project''s checks,
+    is pull-request-controlled for same-repository pull requests and publishes nothing; stage 2 is a default-branch
+    workflow triggered by workflow_run, pushes to the default branch and a schedule, runs orqlet ci check
+    at the baseline version with the credentials of a dedicated GitHub App held in an environment restricted
+    to the default branch, and is the only publisher of the required check, which a ruleset requires with
+    that App as expected source.'
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 3774-3779
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: ae142dfeb9202d58aff57eb59fa40e05372eeebf4e6ac825fd25c5783f82dc07
+- id: A-29
+  kind: flow
+  statement: Stage 2 publishes NOT_RUN and FAIL with conclusion failure because GitHub counts success,
+    skipped and neutral as passing for a required check, and adoption is two steps because a workflow_run
+    workflow must already exist on the default branch and a required check must have completed successfully
+    within the past seven days to be selectable.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 3791-3792
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: ad515abdbfc85a85483f8c0669cdb85175d9457b90adc2b6ae58a8063f34f03e
+- id: A-30
+  kind: flow
+  statement: Policy changes in a pull request are proposals evaluated against the baseline, taking effect
+    after merge, and approval of such a change is the code owners' review through CODEOWNERS entries for
+    .orqlet/**, CODEOWNERS itself, the generated files, the workflow files and the rest of the agent-configuration
+    surface with 'require review from code owners' on the protected branch (GH-02).
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '3772'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: f43b5ee16f88e210d5153a456c865bf0e9186a963ba18cc354ed5f88dfdf2651
+- id: A-31
+  kind: interface
+  statement: The CI executor is stated to exist ([DC]) but its interface, authentication, permissions,
+    budget and compatibility are pending and not assumed, Orqlet does not invoke or wrap it, verification
+    is configured then access_verified then execution_passed, and until then its descriptor is unverified,
+    merge gating does not depend on it, and the review gate falls back to the change class's own minimum
+    independence.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 3799-3811
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 39b5cbd809b962f076cbc55c9373da71313c91bc3ac28164f2b43a8749ee026a
+- id: A-32
+  kind: operation
+  statement: Section 19.8.5 rule 1 requires CODEOWNERS (or the host's ruleset) to require code-owner review
+    for every path on the agent-configuration surface with an owner for CODEOWNERS itself, and rule 5
+    says GitHub reads CODEOWNERS from .github/ before the repository root, that ownerless or invalid lines
+    and oversized files silently void a review requirement, and that checking the effective file through
+    GitHub's CODEOWNERS errors endpoint is [U] not verified.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 3838-3842
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: f00640cbd8b5089707fe181ddb79cc219545fd0392cb7b4fad589987fa6069e4
+- id: A-33
+  kind: structure
+  statement: orqlet init proposes a managed block in CODEOWNERS for the policy and agent-configuration
+    paths, and generates three GitHub workflow files (orqlet-collect.yml, orqlet-signal.yml, orqlet-check.yml)
+    owned by Orqlet and protected by code-owner review.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 320-322
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 6041fe62fd0813cb569a50c6922ec723cc287c419224d90c784c73ea478d5c04
+- id: A-34
+  kind: structure
+  statement: The approval binding is the artifact's merged state in Git (path, merge commit and content
+    hash) together with the merge evidence of Section 19.8.4 and the approval record, and a later commit
+    that changes the artifact, the standards lock, the profile or a bound upstream artifact on the target
+    branch makes the approval stale.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '1295'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 6edc9715b67c363067431908021bdb018d58ebfc05dc1138ed18361bea1f6f5d
+- id: A-35
+  kind: flow
+  statement: Section 17.1 says a pull request is governed unless every changed path is in an exempt class
+    fixed by the release, a governed pull request must claim Orqlet-Task and Orqlet-Phase, and ci check
+    passes it only if that task's design and plan are approved on the protected baseline, the bound inputs
+    are current, the phase's operations match the diff and the required evidence exists.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2870'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 5f32d4ae88811bb56df1af63a1b6b6cbe9764788189d71f6d638d48188a662f3
+- id: A-36
+  kind: structure
+  statement: W-1 fixes that implementation starts only after the design and the plan are approved.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '3365'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 48be5b7a3068de5c06172ffc9622cab37ae635e4d2dcb6c3886f37197bd1a48a
+- id: A-37
+  kind: flow
+  statement: 'The local-before-approval conflict is stated as unsolved in the repository: with the repository
+    alone, ''no implementation before approval'' is enforced at merge (S), detected locally (L) and instructed
+    in the IDE (I), and Guard-A (merge-time only, always part of the design), Guard-B (generated project
+    hooks, client-enforced and editable, fail open by default in Claude Code and Cursor) and Guard-C (administrator-managed
+    hooks) are the named options, with Guard-B recommended by default and Guard-C if available, the choice
+    being Q-05.'
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 4015-4023
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: a2fd555b92a939c992fd7ffcb18d565997be612a543889faab1d219d777a9234
+- id: A-38
+  kind: operation
+  statement: 'The GitHub administrator checklist asks for a dedicated GitHub App (write checks, read pull
+    requests, read contents, possibly actions: read and statuses: write [U]), its credentials in an environment
+    limited to the default branch, a CODEOWNERS block with an owner for CODEOWNERS itself, a ruleset that
+    requires the Orqlet check with the App as expected source, requires branches to be up to date, does
+    not enable a merge queue, dismisses stale approvals, requires approval of the most recent reviewable
+    push by someone other than the pusher and removes bypass actors or keeps them to a named few, the
+    two-step bootstrap, re-running doctor after each ruleset change, and keeping the signal workflow enabled
+    and not required.'
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 3848-3856
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 55a4ff8b5b98ae5738e5730a2e5d6d03536eddac1a20c5f3444879631c287795
+- id: A-39
+  kind: operation
+  statement: The checklist says that if CODEOWNERS names teams the App may also need to read organisation
+    members [U].
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '3850'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: a9c8fb39b5e654416294ebab65a152a43a577e8bdc3df2511c35061f8d00a588
+- id: A-40
+  kind: structure
+  statement: Section 19.7 lists trustworthy merge enforcement as required checks published by the CI identity
+    from an expected source and bound to the commit, required human approvals and code-owner reviews,
+    stale-approval dismissal, minimal bypass, and 'the organization-level required workflow where available',
+    and says Orqlet can audit read-only and opt-in whether the repository's protection settings match
+    the recommended ruleset.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '3740'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 06d938cab657fe927ed68c3e381f9b5eb74ec2705786ae6620410fc96bf928b4
+- id: A-41
+  kind: structure
+  statement: Section 19.6 records the GitHub facts [D] that required checks must pass on the latest commit
+    SHA, that a required check can be restricted to an expected source (a GitHub App), that stale approvals
+    can be dismissed when the diff changes, that 'require approval of the most recent reviewable push'
+    requires someone other than the pusher, that code owners are read from the base branch, and that admins
+    and bypass actors can merge without approval unless bypass is removed (GH-01, GH-02, GH-05).
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '3724'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 507b6087ba4676e08cc65daa40781a481115bfda3a12f53dc913f1caa616d452
+- id: A-42
+  kind: structure
+  statement: Section 19.6 records the merge-queue facts [D] that workflows must trigger on merge_group
+    or the required check is never reported, that third-party CI runs on gh-readonly-queue branches whose
+    SHA differs from the pull-request head, that the merge-group commit can have a tree different from
+    every pull-request head, and that without a queue 'require branches to be up to date' forces re-checking
+    after the base moves.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 3725-3726
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 8201ccf00c87ef5bcfb90ce09e590da35f5ca12cff12dcf1381bfef5c21d13fd
+- id: A-43
+  kind: structure
+  statement: 'The merge-queue options are M-C (no merge queue, release default, the only fully specified
+    option: required checks plus up-to-date branches, ci check publishes ''failure: merge queue not supported''
+    on a merge_group event), M-A (combined-revision evaluation with a fresh CI-executor review, ''Not
+    available'' until the executor interface and spike S-28 are settled) and M-B (reuse under an overlap
+    rule, ''Not designed and not offered'', a policy key asking for it is a validation error).'
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 3730-3732
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: df8183a0505dfcc68aadfbc260970ff579c8bca6b61dbf138fcc292db8fb98eb
+- id: A-44
+  kind: flow
+  statement: No default-branch workflow can listen to a review event directly because pull_request and
+    pull_request_review run the workflow file from the pull request's merge commit and pull_request_target
+    lists no review-submitted or review-dismissed type, so the design uses a credential-less signal workflow
+    (stage 1b) that only wakes the default-branch evaluator (stage 2), a sweeper on a schedule, and a
+    state-based re-evaluation.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 3864-3872
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: ac66071bb99b770cc239781a320074c83ab7d2df25b9d2f8c12bb392a34a65ce
+- id: A-45
+  kind: structure
+  statement: 'Section 19.8.7 is marked ''designed, not verified'': spike S-28 has not been run and the
+    documentation does not say which of several same-name check runs a required check uses, whether a
+    completed run''s conclusion can be reversed, or what head_sha a review-triggered workflow_run carries,
+    so the requirement that the gate follow an approval stays open.'
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '3860'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: b0790af9e1d2a2d0eb6cde1b0cb6f8c1334d95742d54a174657941347e0b5406
+- id: A-46
+  kind: structure
+  statement: The residual-risk paragraph of Section 19.8.2 says that Orqlet can audit but not apply host
+    configuration, that a repository administrator can edit rulesets and secrets, that a bypass actor
+    can merge without review (GH-05), and that 'nothing requires a second approver or an alert on a policy
+    pull request unless the host is configured for it'.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '3795'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 6153f242d8ce738384afe323e889f7f57730c32b4497f3d353851ffa1ac62424
+- id: A-47
+  kind: structure
+  statement: Fork pull requests are not supported for repositories whose contributors have write access
+    and get NOT_RUN, and the document says public repositories with fork contributions need a separate
+    review that this research did not perform.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '3788'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 64833aa36a56d8b691dec7c16428fdcbd4b3bb1795fad3883a295202dd79c0df
+- id: A-48
+  kind: operation
+  statement: In a public repository a scheduled workflow is disabled after 60 days without repository
+    activity (GH-09), which affects the sweeper that the re-evaluation design relies on.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '3856'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 5fe19bbef68f6556d36bd37855a8c8d8cfc9519b08dad370ddd18c43762ac51f
+- id: A-49
+  kind: structure
+  statement: 'The only plan-dependent statements about hosts and plans are: GitLab approvals are removed
+    on new changes by default on Premium or Ultimate and Bitbucket Cloud merge checks and approval reset
+    are Premium features (Section 19.6 portability), the Q-01 rationale that GitLab status checks are
+    non-blocking by default and Bitbucket Cloud approval reset is Premium-only, Q-04''s question ''and
+    on which plans?'' for managed settings, and Cursor marketplaces being one on Teams and many on Enterprise;
+    the document contains no table of GitHub Free, Pro, Team or Enterprise capabilities for rulesets,
+    required reviews, merge queues or required workflows.'
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '3736'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 4154e6ce1d1325c62949da7604c68b8449432727b07d56e4d18e53ef770aa8a7
+- id: A-50
+  kind: structure
+  statement: 'Q-01 rationale: the server-side gate is the trust anchor, GitHub has expected-source checks,
+    stale-approval dismissal and merge_group, GitLab status checks are non-blocking by default, Bitbucket
+    Cloud approval reset is Premium-only, and the first ChangeRequestPlatform adapter, the two-stage workflow
+    and decisions D-13 and D-28 depend on the answer.'
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '5089'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 7e8f3263006da18cdf92e1da563d5dbddfb68d47706254e8a203fe7798134133
+- id: A-51
+  kind: structure
+  statement: Appendix A GH-01 cites the GitHub 'available rules for rulesets' page under the enterprise-cloud
+    URL and the required-status-checks troubleshooting page, and GH-05 is labelled 'Bypass and organization
+    required workflows' with a single rulesets URL and no stated plan availability.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 5840-5844
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 757a4c27220aaeea8594ea228ec3aac8abb42fd6db580b7f43ddb3a47decc18d
+- id: A-52
+  kind: structure
+  statement: The first-hand GH-01 re-read records that successful check statuses are success, skipped
+    and neutral, that checks created by workflow jobs count only for certain events while external GitHub
+    Apps are exempt, the expected-GitHub-App rule and the seven-day rule.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '5903'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 959db74d3e78c31de26ab872856588bb05e77c84a344f6a2f1d83758e9c1f600
+- id: A-53
+  kind: structure
+  statement: The GH-10 record lists as not found which same-name check run a required check uses, whether
+    a completed run's conclusion can be reversed, and whether a ruleset's expected source applies to a
+    commit status.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '5943'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: f316804c7f7073e79412704f8b52dca2b5650cdfdb71002ed8b00bca81650d4c
+- id: A-54
+  kind: structure
+  statement: Conflict B-19 records that GitHub's ruleset table calls strict status checks default while
+    the branch-protection page calls them optional, with the handling 'Audit the actual repository settings
+    (S-14)'.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '5990'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 8451b8015c4effa333297e3724516156f4b36c5b1dc84351b060e35b0e91624d
+- id: A-55
+  kind: structure
+  statement: 'The platform audit that reads host ruleset settings is described as doctor --live or orqlet
+    audit platform (read-only), scheduled for M5 and listed under 1.0, while M2 includes a CODEOWNERS
+    audit, and FM-C07 says the audit reports ''strict checks: off'' as reduced capability and a merge
+    queue on a governed branch as unsupported configuration.'
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '4249'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 910845f4c75cd3a737732c0df42dc3b906485fba661717e9e96b24912681d337
+- id: A-56
+  kind: structure
+  statement: The roadmap schedules the read-only repository-protection audit (FM-C07) in M5 and the audit
+    platform command under Administration at 1.0.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '4508'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: ba273f7d532c7323a2cb932c485d3f4615f280aeff901370e006701dce8a50dc
+- id: A-57
+  kind: structure
+  statement: Lowering the floor or the pin needs two approvals 'host configuration'; a loosening of a
+    policy file parameter needs the same two approvals; FM-U02 says the host's ruleset requires two approvals
+    for that path and doctor audits it.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '4113'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: ba03a3576bc9c4ce04c925b715de2f3cbc3c686995201d85a28e5f2d2ed62029
+- id: A-58
+  kind: structure
+  statement: Section 20.8 states that downgrades and floor changes need two approvals and that a change
+    which removes a trigger or moves a parameter in its weaker direction is reported as loosening and
+    needs the same two approvals as lowering the floor.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 4142-4145
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: fb0ecae84873f3b887e0767e7ca244cc9033e3b35e3d48138d90ecf882c031f6
+- id: A-59
+  kind: structure
+  statement: FM-U02 says a pull request that lowers the pin or the floor is a policy change that needs
+    two approvals, with prevention 'the host's ruleset requires two approvals for that path and doctor
+    audits it'.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '4315'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 21f6515ec867a414a9e7dbf9018eab73ed439cd3750a887e799120f8a90408c9
+- id: A-60
+  kind: structure
+  statement: Spike S-14 (repository-protection audit, whether a Checks API check from a dedicated GitHub
+    App satisfies a ruleset, merge_group and bootstrap rules) and spike S-28 (publication of a changing
+    verdict) both need a test repository, S-28 also a test GitHub App, both after Q-01, and Appendix C
+    states none has been performed.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '6077'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 08486ee38230c2f804bb7666495e01a6e560b4870f8c823a06a5bdc935b1c937
+- id: A-61
+  kind: structure
+  statement: Section 1.8 states that the CI check against the approved policy baseline is enforced only
+    when an administrator has configured the code host (a ruleset requiring the check from its expected
+    source, code-owner review, protected workflow files) and does not bypass it, and that managed policy
+    is the only candidate for controls a developer cannot change locally.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 398-402
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: f9d374b85b0b5bd3950273031386de637d57038432f43cdf7ebb5b9993ae6d53
+- id: A-62
+  kind: flow
+  statement: Where no supported code host or CI exists, the server-side gates are 'unavailable' and doctor
+    reports reduced capability, onboarding does not fail, and no provider is imposed; the product requires
+    no CI provider.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2884'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 2ec6a330069a15442dd04b2de666461b41928a85d22377d012253fa5e321e4b3
+- id: A-63
+  kind: flow
+  statement: 'Section 19.8 says the design is written for GitHub, the only platform researched, other
+    hosts depend on Q-01, and ''No CI provider is required by the product: where none is supported the
+    gates below are unavailable and reported as reduced capability''.'
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '3744'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: d0dc9aabfa2b41bbf77f5b44d59a0d0b25d130780e97b3cfd22c0636c4c7b457
+- id: A-64
+  kind: structure
+  statement: Section 1.2 names the repository administrator as needed for server-side enforcement, configuring
+    a ruleset that requires the Orqlet check from its expected source, code-owner review for policy and
+    agent-configuration paths, strict required checks and the CI workflow files, with merge queues unsupported
+    until option M-A is available.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '287'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: e040a8b3542d6b7c63b07242d9959977ae84bb0a986de8a7b441f4b781a4503d
+- id: A-65
+  kind: structure
+  statement: The question summary table gives, for Q-01 'Affects' the CI matrix in M0 and spike S-14,
+    the M2 CI workflow fragment, D-13 and D-28 and 'Does not block' M1, M3, M4; for Q-03 'Affects' how
+    approvals are verified in M2 and who counts as an authorised human and 'Does not block' everything
+    else; for Q-04 'Affects' Guard-C, the managed-policy proposals (M7) and a managed Cursor hook for
+    Q-06 and 'Does not block' M1 to M4; for Q-05 'Affects' which local guard accompanies the merge-time
+    gate and 'Does not block' M1, M3, M4.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 5079-5082
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 29e8294f4469ab78f9af227437bfca0d19a0d00ee0df96f5248a7c35f021ee10
+- id: A-66
+  kind: structure
+  statement: Q-04 asks whether an administrator can deploy managed settings for Claude Code, Codex requirements.toml
+    and Cursor Enterprise or Team hooks, and on which plans, and says without them 'strict' means a fixed
+    workflow, visible drift and server-side gates.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '5091'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 92ef64df84ae4638e8224cb94deb76efe8bc7bed4812581dc1458a913aed4727
+- id: A-67
+  kind: structure
+  statement: Q-05 asks which local guard should accompany the merge-time gate (Guard-A, Guard-B or Guard-C),
+    recommends Guard-B by default and Guard-C if available, and says this is the one place where a native
+    IDE limitation forces a human choice.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '5092'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 0b5b57f2cdea9f062d5003646289cda5a7cd555ee4a2fb861fe03cd12647d4e7
+- id: A-68
+  kind: structure
+  statement: 'Q-07 is recorded ''Answered on 2026-10-25: option (1)'', by the person''s ''I approve all''
+    in conversation, meaning the Code Reviewer is a provided capability and not a required gate.'
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '5094'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 310cb10e53c16144ead341ff3e5850160728402d98f9a6058d9630b7257889bb
+- id: A-69
+  kind: structure
+  statement: Q-08 is recorded as answered on 2026-10-25 with the person approving v0.5 as the basis by
+    'I approve all' in conversation, and states the person did not say whether v0.4 was approved and did
+    not decide whether the plans that cite v0.4 are re-based, so both stay unrecorded.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '5095'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 53e6b6c6628f12097c9c67486691ed8d5fb2276e9bf6cb28dfb0c27c38f47815
+- id: A-70
+  kind: structure
+  statement: The Q-01 to Q-06 rows carry no answer marker in Section 25.1, and Section 0.6.3 lists the
+    open questions as 'Q-01, Q-03 to Q-06 (Q-07 and Q-08 answered on 2026-10-25)', while Q-02 no longer
+    exists as a question and is now a pending input (Atlassian deployment type and approval-required spaces).
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '96'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: f142a29b7c89965911e90898650ef84a2e48ed60c042beaceb88da1797be830a
+- id: A-71
+  kind: structure
+  statement: 'Decision D-13 (merge-queue review policy) and decision D-28 (trusted CI policy: policy from
+    the approved baseline, a two-stage workflow, a dedicated GitHub App, written for GitHub until Q-01
+    is answered, re-evaluation designed and unverified until S-28) both carry the status ''Needs input
+    (Q-01)''.'
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '5138'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 0ac5e8bc0c566d7dc42dd2b6847f3ce34fd9348db7d9030aa4c9bd71e14b7a97
+- id: A-72
+  kind: structure
+  statement: D-28 records the trusted CI policy as 'Needs input (Q-01)' with policy from the approved
+    baseline, pull-request policy changes as proposals under code-owner review, and the required check
+    published by a dedicated GitHub App, with the alternative 'Recompute from the pull-request revision;
+    publish with GITHUB_TOKEN'.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '5153'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 856a350376ead722ad443e88826219d1e2aa8f3f6f34b6638150a058f3f7056d
+- id: A-73
+  kind: structure
+  statement: D-23 (status Default) fixes the CI executor as the team's own CI job that Orqlet never invokes
+    or wraps and whose ReviewResult it verifies, with the descriptor unverified and no gate depending
+    on it until the interface is supplied.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '5148'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: b45e546695c6dbf34a5116e1dbd5c01cc1bb2a482f76c28f0ca60f0abe11aa7f
+- id: A-74
+  kind: structure
+  statement: D-34 (status Default) states that every pull request outside the exempt classes must claim
+    an approved task and that bot-authored pull requests are governed too, and D-36 states the four required
+    roles with independence classes plus a provided Code Reviewer capability.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 5159-5161
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: aeb975df8b437121922d584f58e966c118efca40c74c0c6185c8cdb1d638330e
+- id: A-75
+  kind: structure
+  statement: D-39 (status Default) states that lowering the floor or the pin needs two approvals, upgrades
+    are journalled and rollbacks below the floor are refused.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '5164'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: bd40263d3e34dee2db36f8f4cf06896ea6df6f52e1d8d696b3bfcfedafe2ff20
+- id: A-76
+  kind: structure
+  statement: D-49, D-50, D-51 are recorded as 'Default (new, v0.5)' and D-52 as 'Default (new, v0.5);
+    answered 2026-10-25 (Q-07)'.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 5174-5177
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 2e25591b77c4c12b7cb796a438ac07a1f2ec7197aaf4911104c0ecc4c92e3646
+- id: A-77
+  kind: structure
+  statement: Section 25.3 says the recorded defaults are not asked to be approved and that M0 is meant
+    to begin when Q-01, Q-03, Q-04 and Q-05 are answered, adding that 'in practice milestone M1 and part
+    of M2 were built before those answers; Section 22.0 records that order'.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '5122'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: ad9a7b187acf64bd0d98efa873c080a8fe568f06d3ec0a18759234355416752c
+- id: A-78
+  kind: structure
+  statement: The M0 milestone row lists answering Q-01, Q-03, Q-04, Q-05, Q-06 and Q-07 among its scope,
+    and the release path is MVP-1 (M0 to M2), MVP-2 (M3 to M4) and 1.0 (M5 to M7).
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 4499-4503
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 796032feab876dd0467eeed862f87ed116b5e3ce2469cc815276be4dc6ecf5d4
+- id: A-79
+  kind: structure
+  statement: Section 26.12.4 lists under 'Unresolved' the CI executor, approval channel, authorised identities,
+    host and managed controls (Q-01, Q-03, Q-04, Q-05 and the executor's interface), Q-07 and Q-08, and
+    names publication of a changing verdict (S-28).
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '5721'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 0b51bfc35a5ff149874392b9a6de7edc70e741929c7caf0c7fefd940a9a9e4d4
+- id: A-80
+  kind: structure
+  statement: 'The requirement traceability rows mark 18.5 (re-evaluation on approval, dismissal, changes,
+    retries, order; verified publication) ''Unresolved: designed, unverified'', 18.4 (CI executor) partially
+    covered, and 18.7 (approval channel, identities, host, CI platform, managed controls remain explicit)
+    ''Unresolved (inputs)'' for Q-01, Q-03, Q-04, Q-05.'
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 5673-5676
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 8112287a8ec22d87f4be76b30b13230b6e0323352c432902ce335182e3b97c5f
+- id: A-81
+  kind: structure
+  statement: The traceability row for requirement 7.7 says the Code Reviewer is provided and 'whether
+    it is a required gate is Q-07'.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '5645'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 255802cb1e5847eb2c2751f3cabe8af447f5326a99e9fcd09c52394c50f2d612
+- id: A-82
+  kind: structure
+  statement: Section 26.3 lists the open questions as Q-01, Q-03, Q-04, Q-05 and Q-06 and says the current
+    list is Section 26.12.4.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '5247'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 8ea504f7b61487319a587ad81d60d400859d6160e07797eb07421f80741fe8c8
+- id: A-83
+  kind: structure
+  statement: Conflict B-30 lists the unknown environment facts (code host and CI, Atlassian deployment
+    type, internal package index, organisation-approved Claude route, presence of managed settings, CI
+    executor) as handled by Q-01, Q-03, Q-04, Q-05 and the pending inputs, and conflict B-81 records that
+    the repository records no approval of v0.4 although plans cite it, handled by Q-08.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '6001'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: c1d4bdccd8f434a1378c0f5d8a8bf76997065cc7453dc931ba96170cbcb17b1a
+- id: A-84
+  kind: structure
+  statement: The pending-inputs list names the approved noninteractive CI executor's interface, authentication,
+    permissions, compatibility and spending policy, and 'the approved executors per class', as supplied-later
+    information.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '5116'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 316d20347c8650e6b38cef113d8b3fe1834a27066f7671e0fa133c75a9a38483
+- id: A-85
+  kind: structure
+  statement: The header Status row reads 'Proposal v0.5 — approved by the person on 2026-10-25, in conversation',
+    says the approval state of v0.4 is not recorded in the repository (as-is.md U-1) and the person did
+    not state it, says the person wrote 'I approve all' to a list that included approval of this version
+    as the basis (Q-08), the recorded defaults D-49 to D-52 and the answer to Q-07, says 'That is a statement
+    in conversation, not a merged pull request, so no gate has evidence of it', says it does not re-base
+    the plans that cite v0.4, and says no part of this version has been independently reviewed.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '5'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 00fb4e5c23bd0f48549cd4ed1327755a48be4ee07df55a6869e1b6a54c7c6b73
+- id: A-86
+  kind: structure
+  statement: Section 0.6 repeats that the person approved this revision on 2026-10-25 in conversation
+    (Q-07, Q-08) and that no part of it has been independently reviewed, and Section 0.6.5 says it is
+    not decided whether the plans under docs/design/orqlet-implementation/ and docs/design/orqlet-m2-workflow/
+    are re-based on v0.5.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '74'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: e71725705c48a8da180e8e64748b15cc98b6b4dc0b375f2281f923d2b3105a78
+- id: A-87
+  kind: structure
+  statement: Section 0.6.5 lists the CI executor as pending, the plans that cite v0.4 as not decided,
+    and the publication of a changing verdict (S-28) as unverified.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 119-121
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 1c17c971c1aed10cd8a21245aadde5e17a9c5d9379b5205a613284d24144d58d
+- id: A-88
+  kind: structure
+  statement: Section 0.3 says of v0.4 'This revision was awaiting human approval; the repository holds
+    no record that v0.4 was approved (Q-08), and Section 0.6 supersedes this status'.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '130'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: b201aaa314ed6c7692cf8adc62eb554f1d9dd1791c493ac626f4443570729a8c
+- id: A-89
+  kind: structure
+  statement: The label [R] is defined as a recommendation by this design and 'Not approved', and the content
+    of Sections 6 to 25 is stated to be a recommendation or proposal unless a statement carries an evidence
+    tag.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 29-33
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 39b561734e5543dea5687bc952a25d1664e8a8beae5044d4a9f549bf1fd5902b
+- id: A-90
+  kind: structure
+  statement: Section 26.12.3 says eight review rounds are recorded across Sections 26.4 to 26.11 and 'v0.5
+    has none', produced by one author with read-only research aids, and Section 26.12.4 says none of the
+    v0.5 design is built, executed or independently reviewed.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '5699'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 9d061a214746974b9d742cd0065fac3bae708dd5b66fc580d4047865bfa6bbbe
+- id: A-91
+  kind: structure
+  statement: Section 26.12.3 says no independent reviewer has read v0.5 and that a contradiction none
+    of the passes looked for can remain, in particular in the historical tables of Sections 26.4 to 26.9
+    and in Appendix D.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '5713'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: eb67a3a0f28fe046e2cc344593e3a9942495afef64b6a67a3b92830a2e20559b
+- id: A-92
+  kind: structure
+  statement: Section 22.0 says the repository holds an implementation 'planned and approved separately'
+    (docs/design/orqlet-implementation/ and docs/design/orqlet-m2-workflow/) that built M1 and two slices
+    of M2 before the M0 spikes ran and before Q-01, Q-03, Q-04 and Q-05 were answered, verified only by
+    the repository's own tests (1,504 passed and 1 skipped on Python 3.12 to 3.15 on macOS), with 'no
+    client was opened, there is no commit, no remote and no CI run', and with ci check, the hooks, the
+    edit guard, the host evidence and the MCP generators not built.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '4480'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 3cf80ef14babbd47c7ea60425ec63c8b277504092b4c30034fb63b6b63ba626d
+- id: A-93
+  kind: structure
+  statement: Section 22.0 is headed 'facts from the repository, 2026-10-22' and Section 23 lists the commands
+    implemented at v0.5 as init, upgrade, rollback, sync, doctor, explain, release, standards for, validate,
+    gate status, knowledge impact and review prepare, plus profile answer|approve and evidence cite|hash.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '4544'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 5abc4af8793438b281392956f220a88ed8402bdb10a7c80647c8c9b3102af6f3
+- id: A-94
+  kind: structure
+  statement: Section 26.12.4 lists the detailed implementation plan as deferred because it 'follows approval
+    of this proposal, as the specification states', with the rework of the built code listed in Section
+    22.0.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '5734'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 0061abca36cb440ef13f492769688aa2666f52250b8f17798f9d7356dab5b427
+- id: A-95
+  kind: structure
+  statement: docs/design/orqlet-implementation/design.md records the proposal v0.4 with SHA-256 d9d5e675…b324d4
+    as its input, plan.md names the proposal (v0.4, section 22 for M1) in its Basis and calls itself 'the
+    approved Phase 3 text', and docs/design/orqlet-m2-workflow/plan.md says it is based on the design
+    'you approved as written' and the proposal v0.4 sections it cites.
+  evidence:
+  - path: docs/design/orqlet-implementation/design.md
+    lines: '7'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 429995439e0d1e814f94632234c4f18df968e27609841890c40d16975f9fd12d
+- id: A-96
+  kind: structure
+  statement: 'docs/design/orqlet-implementation/plan.md states ''Status: executed. The plan below is the
+    approved Phase 3 text'' and cites the proposal as v0.4 in its inputs.'
+  evidence:
+  - path: docs/design/orqlet-implementation/plan.md
+    lines: 3-9
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 49243c55e18a3da1fb6981e411d226e9b2946d20215f32da7a8abea719c429c9
+- id: A-97
+  kind: structure
+  statement: docs/design/orqlet-m2-workflow/plan.md says it is based on the design approved as written
+    and on 'the proposal v0.4 sections it cites'.
+  evidence:
+  - path: docs/design/orqlet-m2-workflow/plan.md
+    lines: '3'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 24a0abbb6ea73987f5f2ed4a317b92a8e6bf575a545e07b19039b80b3b87f3b5
+- id: A-98
+  kind: structure
+  statement: 'docs/design/orqlet-implementation/as-is.md fact A-04 records the proposal as v0.4 ''awaiting
+    human approval'' and unknown U-1 reads ''The design''s approval status: v0.4 is not approved'', material,
+    affecting ''Whether the Phase 2 design approval can be taken from it''.'
+  evidence:
+  - path: docs/design/orqlet-implementation/as-is.md
+    lines: '20'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 5d0c40fc622c48e770e4d7bfb6930c8f039eee866716df28ec195d0274274c62
+- id: A-99
+  kind: structure
+  statement: 'docs/design/orqlet-implementation/as-is.md unknown U-1 reads ''The design''s approval status:
+    v0.4 is not approved'' (material: Yes) and fact A-25 records Q-01, Q-03, Q-04, Q-05 and Q-06 as open
+    in the design.'
+  evidence:
+  - path: docs/design/orqlet-implementation/as-is.md
+    lines: 79-85
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 964d67d1380276ef7645195c08e28f03b654006a5707ef438ddf9dea55a710ee
+- id: A-100
+  kind: structure
+  statement: Requirement R-05 is 'Appropriate for a small team; no distributed platform for local helper
+    needs' ([DC] 2026-10-20), and Section 2.2 is titled 'Fit for a 10–15 developer team' with a row '~10–15
+    developers, modest shared knowledge'.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '5063'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 8c6e70a6ba65dbdd5af35ac087c01a2788ca82317673276fa628f969ba99e25f
+- id: A-101
+  kind: structure
+  statement: Section 2.2 is titled 'Fit for a 10–15 developer team' and its first row is '~10–15 developers,
+    modest shared knowledge' with 'Standards and knowledge travel through Git and pull-request review'.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 448-452
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: fcb700196c3010eb949925732c5e79016cf9748f4a91a72ffe5765a0618c4f48
+- id: A-102
+  kind: flow
+  statement: 'Staleness events reported by gate status, doctor and CI are: a newer version of the approved
+    artifact reached the baseline; an applicable rule changed; a profile change marked as affecting; a
+    base-revision change that overlaps the scope or a declared surface; an exception expiring; an answered
+    question that supersedes an earlier answer; a workflow_version below the floor in an artifact header;
+    and a review, test or knowledge-impact record whose input binding no longer matches.'
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '3082'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 622fe73e91b8a83efbfd9893e010e862ae28c2a46f25ee9a8631385c0257b604
+- id: A-103
+  kind: flow
+  statement: Table 1 of Section 17.7 says implementing the approved change on a watched surface never
+    invalidates the approval, while a deviation or an addition on a design-level surface blocks the pull
+    request until a renewed design approval merges.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 3053-3059
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: a94697cbea8b6ae99d87f119c4d3a82b6881ff3b06911fcba79ec337431440cd
+- id: A-104
+  kind: flow
+  statement: Table 2 of Section 17.7 makes any byte edit of an approved design or plan invalid and in
+    need of a new approval pull request, makes changed requirements or a higher change class invalidate
+    design and plan approval, makes a file operation outside the plan need a plan amendment, makes a knowledge
+    file outside the plan need a knowledge-path amendment before it is written, makes a new or changed
+    MUST rule need an impact review approved by the code owners, and makes a relaxed or removed rule,
+    a change in the base revision that touches nothing in scope, and edits inside planned files need no
+    approval.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 3067-3078
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 4de05d09ba184b295e51c6a7f937ff1e9bbb99fc2c82d3ee580621a44dddcdcf
+- id: A-105
+  kind: flow
+  statement: 'Section 17.7 says whether a flagged item warns or blocks is not a project setting, a row
+    that names a review, an amendment or an approval blocks merge until it exists, and v0.2''s stale_approval
+    and standards_drift: warn switches are removed.'
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '3080'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: f0406b39495b43ac8f323eb5c817acf7891ad81e5e77b24607846eaf49ea77d8
+- id: A-106
+  kind: flow
+  statement: gate status revalidates on resume the base revision, standards lock, profile version, workflow_version,
+    protected_set_digest, 'approval presence on the baseline' and exception validity, and reports a mismatch
+    as stale or NOT_RUN.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '3090'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 5b0b5f46ec67a0cb3e321eac7d0378a616c319703c2ec6c0b2e869e4e55af489
+- id: A-107
+  kind: structure
+  statement: Threat T7 'Stale approvals' lists the mitigation 'An approval is the merged artifact at a
+    commit; later commits to it make it stale; stale-approval dismissal and code-owner review on the code
+    host' with the residual risk 'Needs the code host to enforce reviews'.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '1266'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 1b2087e94893b6453612666f17b85b6c8a6156bf75bcb2913f633fe43d3b2372
+- id: A-108
+  kind: flow
+  statement: Section 13.5 and Section 17.7 say a new or changed MUST rule applicable to the scope of approved
+    work needs an impact review approved by the code owners, with re-approval if the review finds the
+    design no longer conforms, while a pack release or knowledge change never changes workflow_digest
+    or alters a gate.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 2379-2380
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 285ef0d51080344b4b52306a6f69ab2b6d0bbe92753e83602a06f13eca1f442b
+- id: A-109
+  kind: flow
+  statement: 'The event table says an approval submitted turns a missing approval into success without
+    a code push, an approval dismissed turns success into ''failure: approval missing'', changes requested
+    gives ''failure: changes requested'' until dismissed or superseded at the head commit, and new commits
+    are a new evaluation because earlier approvals refer to other commits.'
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 3890-3893
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 3afedcee2dccea5009459eb198aa1823ef820883622526aa8b47e15830a6ee54
+- id: A-110
+  kind: structure
+  statement: The events table notes that whether the host's stale-approval dismissal emits a review event
+    is not stated, so the synchronize run covers it.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '3893'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 41133630e509bdb80e7ffb1acbe63502ee174c495cb218e6d28992162e4cbabc
+- id: A-111
+  kind: operation
+  statement: Checklist item 7 says to keep 'dismiss stale approvals' on 'which the design does not depend
+    on but which removes surprises', while checklist item 4 lists 'dismiss stale approvals' among the
+    ruleset requirements.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 3853-3856
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 6dd99d146010e3b6c626622c24110178a5833f1a237e09c68a9a6e9018fcf294
+- id: A-112
+  kind: flow
+  statement: The suppressed-signal paragraph says a suppressed signal can leave a stale verdict (a green
+    after a dismissal or a red after an approval) for roughly one sweep cadence plus the schedule delay
+    and the evaluation-group wait, that neither bound is guaranteed, and that for the green case the backstops
+    are the host's own rules (dismiss stale approvals, approval of the most recent reviewable push) and
+    the required review itself.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '3874'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: e700233231e8e1d095e60c934477d9b5cfbd3158c8ebd07a46f54691b0deb25a
+- id: A-113
+  kind: structure
+  statement: Release defaults for the re-evaluation parameters are sweep_cadence_minutes 15, reevaluate_interval_minutes
+    60 and sweep_max_pull_requests 50, marked initial values [R].
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '3901'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 8e6d8c0a09370bd1e57b00b77087789338b6f42376953b2715daa8bb0cad09ec
+- id: A-114
+  kind: flow
+  statement: A plan amendment goes through the same pull-request approval as the plan, and an amendment
+    that makes the implementation a deviation from or an addition to the approved expected change on a
+    design-level surface also needs renewed design approval, while an amendment that only adds files or
+    knowledge paths does not.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '3001'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 060a306865827f5a3296d558b1c8e4ba547c4c8c8b702055fe1ef16f26a6bc3e
+- id: A-115
+  kind: flow
+  statement: Phase completion is derived from host evidence (a merged pull request that claimed the phase
+    with every required check concluded success at its head), nothing an author writes in a file can mark
+    a phase complete, and supersession is a plan amendment.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '3047'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 522a76e77ba16761c3cc6aef80f2cd39058114a328d641f592c2b831d2128185
+- id: A-116
+  kind: test
+  statement: FM-W06 (approved design or plan content changes afterwards) and FM-E03 (new commits after
+    an approval, host stale-approval dismissal off) are the fixtures for staleness, with FM-E03 expecting
+    the verdict 'red approval not at head', and none is executed.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '4288'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: f1b1bc9d0e5992fc955656ecca8385bd46a74e5e88d1b6688636c909b32dec5c
+- id: A-117
+  kind: test
+  statement: FM-E03 expects a red verdict 'approval not at head' when a commit is pushed after an approval
+    with the host's stale-approval dismissal off, and FM-E01 and FM-E02 cannot be written as passing tests
+    until S-28 selects a publication mechanism.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 4420-4422
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: e0506fec5b5fab9bc9891fc16318a57e70b0cd72342c470d8ba7c2ed816c499c
+- id: A-118
+  kind: structure
+  statement: The proposal contains no diagnostic code ORQ-W390; its only ORQ-style identifier in the file
+    is ORQ-L004 (Cursor duplicate skill listing).
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2865'
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 6564b06fe8f1895d2b702417adf94e9762131c0a0d695972beed4b3cd684ad13
+- id: A-119
+  kind: flow
+  statement: The built gate status use case is read-only and offline, re-checks base revision, standards
+    lock, profile version, workflow version and protected set, reports an artifact written against other
+    inputs as stale with verdict NOT_RUN, and states that with a task the verdict is always NOT_RUN because
+    an offline run has no approval evidence from the code host (proposal 17.6 and 17.7).
+  evidence:
+  - path: src/orqlet/application/usecases/gate_status.py
+    lines: 1-7
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: e43f4e86babe6648925498bf32bc79b93d8661c92c97a6ee23f60ddd086c66a7
+- id: A-120
+  kind: flow
+  statement: gate status emits info ORQ-I393 saying approval of the design and of the plan is evidence
+    on the protected baseline that an offline run does not have, and skips the approval check.
+  evidence:
+  - path: src/orqlet/application/usecases/gate_status.py
+    lines: 117-122
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 2608df146887747f73ecd4339beaab358415521602cddad75d18dc2b04191ea3
+- id: A-121
+  kind: flow
+  statement: 'gate status emits the warning ORQ-W390 (''<name> is stale: <components>'') and a skip reason
+    when an artifact header differs from the bound values or the base revision moved over the artifact''s
+    scope.'
+  evidence:
+  - path: src/orqlet/application/usecases/gate_status.py
+    lines: 180-185
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 425c84d3c3ba8d92a34312a8ed9de9e7e188e6f572ba30fc2d218670e4400799
+- id: A-122
+  kind: structure
+  statement: The built staleness comparison covers workflow_version, protected_set_digest, standards_lock_hash,
+    applicable_rules_hash and profile_version, plus base-revision movement.
+  evidence:
+  - path: src/orqlet/application/usecases/gate_status.py
+    lines: 194-202
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: 054c97f2e3aebda915b2a33841acaa2ccd93af1b739c71867ed0b86c0c5edff0
+- id: A-123
+  kind: structure
+  statement: 'A GitHub Actions workflow .github/workflows/ci.yml exists in the working tree (triggers
+    push to main and pull_request, top-level permissions: {}, jobs lint, types, architecture, tests, build)
+    and none of its steps runs orqlet ci check.'
+  evidence:
+  - path: .github/workflows/ci.yml
+    lines: 3-9
+    revision: 4aefcce3fce1ab379377addc961d7cb8c1b84b7f
+    sha256: a203be281edeba4209f123b6aebf9b9baa8106f855351373b8e8cd1ac4a28f7f
+unknowns:
+- id: U-1
+  what: Which GitHub plan (Free, Pro, Team, Enterprise Cloud or Enterprise Server) the repository or organisation
+    is on, and which of the controls the design requires (rulesets with an App as expected source, required
+    code-owner review, dismiss stale approvals, approval of the most recent reviewable push, strict checks,
+    bypass-actor removal, organisation required workflows, merge queue, environment restriction) each
+    plan offers; the proposal states no GitHub plan matrix and its Q-01 does not name GitHub plans.
+  material: true
+- id: U-2
+  what: Whether the repository is public or private and what that changes for the design (the proposal
+    says scheduled workflows are disabled after 60 days in a public repository, that fork pull requests
+    are NOT_RUN, and that public repositories with fork contributions were not reviewed).
+  material: true
+- id: U-3
+  what: Answers to Q-01 (code host, CI platform, merge queue in use), Q-03 (where approvals live, who
+    is an authorised human, how many approvers), Q-04 (managed settings and plans) and Q-05 (local guard);
+    the proposal records all four as open and records no answer.
+  material: true
+- id: U-4
+  what: How many approving reviews the design requires for a design or plan pull request; the proposal
+    states at least one non-author approving review (item 13), a security owner for D3 (Q-03 recommendation)
+    and two approvals only for floor, pin and loosening changes as 'host configuration', and does not
+    say which host feature expresses a per-path approval count.
+  material: true
+- id: U-5
+  what: Whether a one-developer repository can satisfy the rules that require an approving reviewer who
+    is not the pull request author and 'approval of the most recent reviewable push by someone other than
+    the pusher'; the proposal states a small-team scope (R-05) and a 10 to 15 developer fit and contains
+    no statement about a one-developer repository or a single maintainer.
+  material: true
+- id: U-6
+  what: Whether the person's conversational 'I approve all' (header, Q-07, Q-08) is accepted by the design
+    as approval of the proposal file itself; the proposal says no gate has evidence of it and defines
+    approval only for design and plan artifacts under docs/design/<task>/, so what recorded form would
+    count as approval of docs/design/orqlet-architecture-proposal.md is not stated.
+  material: true
+- id: U-7
+  what: Whether v0.4 was approved; the proposal says its state is not recorded and the person did not
+    state it, while docs/design/orqlet-implementation/as-is.md U-1 says v0.4 is not approved.
+  material: true
+- id: U-8
+  what: Whether the plans under docs/design/orqlet-implementation/ and docs/design/orqlet-m2-workflow/
+    are re-based on v0.5; the proposal says this is not decided, and both plans cite v0.4.
+  material: true
+- id: U-9
+  what: How the approval of the two implementation plans ('planned and approved separately', 'the approved
+    Phase 3 text', 'the design you approved as written') was recorded and by what evidence; the proposal
+    does not say, and its own W-1 requires an approved design and plan before implementation.
+  material: true
+- id: U-10
+  what: Whether any design or plan in this repository is approved under the proposal's own definition
+    (merged through a pull request with an approving review from the required code owners); the local
+    reflog shows commits made on main by one author identity with no pull-request or merge records, and
+    whether those commits reached the remote main by pull request or direct push cannot be observed from
+    the working tree.
+  material: true
+- id: U-11
+  what: Whether branch protection or rulesets exist on the remote main and whether CODEOWNERS exists on
+    the remote; no CODEOWNERS file was found in the working tree (searched **/CODEOWNERS and .github/**),
+    while the proposal's approval definition depends on CODEOWNERS and the proposal says orqlet init proposes
+    a CODEOWNERS block. The host's actual state is outside the proposal; docs/design/open-items/evidence/github-state.yaml
+    exists and was not read by this area.
+  material: true
+- id: U-12
+  what: Whether a dedicated GitHub App can be created and installed in the organisation; the proposal
+    makes it an administrator step and docs/design/orqlet-implementation/as-is.md U-2 lists the question
+    as unknown.
+  material: true
+- id: U-13
+  what: How a changing verdict is published and which of the three publication mechanisms a required check
+    honours (spike S-28), whether an App-created check satisfies a ruleset and merge group (S-14), and
+    what head_sha a review-triggered workflow_run carries; none was run.
+  material: true
+- id: U-14
+  what: The CI executor's interface, authentication, data handling, permissions, compatibility and budget;
+    the proposal records them as pending and option M-A of the merge queue depends on them.
+  material: true
+- id: U-15
+  what: What the built gate status reports for approval when online (the proposal says it reads the code
+    host) given that the proposal says host evidence is not built and the built use case is offline only;
+    and which of the staleness events listed in Section 17.7 are implemented beyond the five header comparisons
+    and base-revision movement.
+  material: true
+- id: U-16
+  what: Which GitHub feature expresses 'two approvals for that path' (FM-U02, D-39, Section 20.8 'host
+    configuration'), and whether CODEOWNERS teams need an App permission to read organisation members
+    ([U] in the proposal).
+  material: true
+- id: U-17
+  what: Whether the document's statement 'no commit, no remote and no CI run' (dated 2026-10-22) still
+    holds at the target commit; the working tree at 4aefcce contains .github/workflows/ci.yml and .git/config
+    (local, not committed content) contains a remote origin at github.com/tmishari/orqlet.git, and the
+    local reflog shows its first commit on 2026-10-24 (epoch 1792822002), the commit message 'Fix proposal
+    wording from the P-5 reviews and record the approval of v0.5' (2c4308e) on 2026-10-25 and 4aefcce
+    on 2026-10-26; whether any CI run has occurred on the remote is not observable here.
+  material: true
+- id: U-18
+  what: Whether the host's stale-approval dismissal emits a review event (the proposal says not stated)
+    and whether a base-branch change raises pull_request edited (the proposal says not verified).
+  material: false
+- id: U-19
+  what: Whether a ruleset's expected source applies to a commit status (the proposal says reported by
+    a reviewer, to be confirmed in S-28) and the effect of GitHub's one-month or seven-day rules on the
+    first required check (bootstrap, documented but not run).
+  material: false
+- id: U-20
+  what: Whether the working-tree file docs/design/orqlet-architecture-proposal.md equals the blob at commit
+    4aefcce3fce1ab379377addc961d7cb8c1b84b7f; HEAD and the branch ref were read from .git files, and git
+    status and git diff were not run because the session is read-only.
+  material: false
+- id: U-21
+  what: Whether any line numbers in the proposal were affected by long table rows wrapped in tool output;
+    line numbers in this fragment were counted from the tool's 10-line markers and verified against grep
+    line numbers where available.
+  material: false
+- id: U-22
+  what: What the proposal intends by the diagnostic style of ORQ-W390; the proposal does not define or
+    mention it (only the built code does, gate_status.py:183), so no proposal statement maps its staleness
+    events to codes.
+  material: false
+- id: U-23
+  what: Whether 'approval-required spaces' for Jira and Confluence (formerly Q-02, now a pending input)
+    affect any approval of Orqlet artifacts; the proposal says it affects only milestone M6 and decision
+    D-12.
+  material: false
+- id: U-24
+  what: Whether the required status checks beyond Orqlet's own (the project's build, test and lint jobs
+    named in the baseline required_checks) exist on the remote; the proposal says branch protection requires
+    them as separate checks and the baseline names them, and the working tree's ci.yml defines jobs lint,
+    types, architecture, tests and build.
+  material: false
+- id: U-25
+  what: Whether commit 2c4308e (the commit that recorded the approval of v0.5) or any earlier commit on
+    main was reviewed by a second person; the proposal's definition of approval needs an approving review
+    by a code owner who is not the author, and the working tree shows no review record for it.
+  material: true
+contradictions:
+- id: C-1
+  sources:
+  - docs/design/orqlet-architecture-proposal.md:5
+  - docs/design/orqlet-architecture-proposal.md:3037
+  - docs/design/orqlet-architecture-proposal.md:5147
+  note: The header Status row says 'approved by the person on 2026-10-25, in conversation', while Section
+    17.7 and D-22 define approval as presence on the protected baseline with a merged pull request and
+    an approving review from the required code owners; the same Status row says the conversational approval
+    is 'not a merged pull request, so no gate has evidence of it'. The document acknowledges the gap in
+    the same row.
+- id: C-2
+  sources:
+  - docs/design/orqlet-architecture-proposal.md:5095
+  - docs/design/orqlet-architecture-proposal.md:5
+  - docs/design/orqlet-architecture-proposal.md:130
+  note: The Q-08 'Why it is material' cell says 'The status line says awaiting approval', while the header
+    Status row now says v0.5 is approved and Section 0.3 says its 'awaiting human approval' status is
+    superseded by Section 0.6.
+- id: C-3
+  sources:
+  - docs/design/orqlet-architecture-proposal.md:5721
+  - docs/design/orqlet-architecture-proposal.md:5645
+  - docs/design/orqlet-architecture-proposal.md:4503
+  - docs/design/orqlet-architecture-proposal.md:5084
+  - docs/design/orqlet-architecture-proposal.md:5085
+  note: Section 26.12.4 lists Q-07 and Q-08 under 'Unresolved', traceability row 7.7 says whether the
+    Code Reviewer is a gate 'is Q-07', and the M0 row lists answering Q-07, while Section 25.1 and Section
+    0.6.3 record both as answered on 2026-10-25.
+- id: C-4
+  sources:
+  - docs/design/orqlet-architecture-proposal.md:4503
+  - docs/design/orqlet-architecture-proposal.md:5179
+  note: The M0 row lists Q-01, Q-03, Q-04, Q-05, Q-06 and Q-07 among the questions to answer, while Section
+    25.3 says M0 is meant to begin when Q-01, Q-03, Q-04 and Q-05 are answered and that Q-06 gates only
+    the Miro work.
+- id: C-5
+  sources:
+  - docs/design/orqlet-architecture-proposal.md:5147
+  - docs/design/orqlet-architecture-proposal.md:5090
+  - docs/design/orqlet-architecture-proposal.md:5721
+  note: The approval channel is recorded as a default in D-22 (approval is presence on the protected baseline
+    with merge evidence, 'You are not asked to approve them') and as an unanswered question in Q-03, Section
+    17.4 step 4 ('This is open question Q-03') and Section 26.12.4 ('Unresolved').
+- id: C-6
+  sources:
+  - docs/design/orqlet-architecture-proposal.md:3037
+  - docs/design/orqlet-architecture-proposal.md:3090
+  - docs/design/orqlet-architecture-proposal.md:3162
+  note: Section 17.7 says presence on the baseline alone is not approval and merge evidence is required,
+    while Section 17.7 (revalidation on resume) says 'approval presence on the baseline' and Section 17.11
+    says 'Approval is decided by presence on the baseline, not by status'; Section 26 (line 5382) claims
+    'merge evidence' wording throughout.
+- id: C-7
+  sources:
+  - docs/design/orqlet-architecture-proposal.md:426
+  - docs/design/orqlet-architecture-proposal.md:3037
+  - docs/design/orqlet-architecture-proposal.md:3771
+  note: The protected baseline is defined as the tip of the protected target branch (glossary), as the
+    branch for which branch protection requires pull-request review and code-owner approval (Section 17.7),
+    and as the tip of the target branch or a pinned ref in a separate repository the organisation controls
+    (Section 19.8.2 item 1); the three definitions differ in whether branch protection is part of the
+    definition and whether a separate repository can be the baseline.
+- id: C-8
+  sources:
+  - docs/design/orqlet-architecture-proposal.md:3853
+  - docs/design/orqlet-architecture-proposal.md:3856
+  - docs/design/orqlet-architecture-proposal.md:3884
+  - docs/design/orqlet-architecture-proposal.md:3740
+  - docs/design/orqlet-architecture-proposal.md:1266
+  note: '''Dismiss stale approvals'' is listed as a required ruleset setting (checklist item 4), as part
+    of trustworthy merge enforcement (Section 19.7) and as the T7 mitigation, while checklist item 7 says
+    the design does not depend on it and the approval-counting rule and FM-E03 operate with it off.'
+- id: C-9
+  sources:
+  - docs/design/orqlet-architecture-proposal.md:3744
+  - docs/design/orqlet-architecture-proposal.md:2884
+  - docs/design/orqlet-architecture-proposal.md:3817
+  - docs/design/orqlet-architecture-proposal.md:3007
+  - docs/design/orqlet-architecture-proposal.md:4563
+  note: Sections 19.8 and 17.2 say that where no host is supported the merge gates are 'unavailable',
+    reported as reduced capability, and onboarding does not fail, while Section 19.8.4 says approval evidence
+    is required and not a project option and yields NOT_RUN if it cannot be obtained, and the Phase 4
+    precondition stops unless the design and plan are approved on the baseline; the document does not
+    state what gate status and the /orqlet-implement precondition do on an unsupported host.
+- id: C-10
+  sources:
+  - docs/design/orqlet-architecture-proposal.md:3848
+  - docs/design/orqlet-architecture-proposal.md:3772
+  - docs/design/orqlet-architecture-proposal.md:4563
+  - docs/design/orqlet-architecture-proposal.md:4508
+  note: The administrator checklist and Section 19.8.2 say orqlet doctor audits what it can read (CODEOWNERS
+    coverage and ruleset settings), while Section 23 says the host-ruleset audit is doctor --live or audit
+    platform and Section 22 schedules the repository-protection audit in M5 and audit platform at 1.0.
+- id: C-11
+  sources:
+  - docs/design/orqlet-architecture-proposal.md:4480
+  - .github/workflows/ci.yml:3-6
+  - docs/design/orqlet-implementation/plan.md:11
+  note: Section 22.0 (dated 2026-10-22) says 'there is no commit, no remote and no CI run', while the
+    working tree at 4aefcce contains a GitHub Actions workflow triggered on push to main and pull_request,
+    and the implementation plan's decision D-8 mentions a 'Git repository plus remote for Orqlet'; the
+    local reflog and .git/config (not committed content) show commits dated 2026-10-24 to 2026-10-26 and
+    a remote origin.
+- id: C-12
+  sources:
+  - docs/design/orqlet-implementation/as-is.md:85
+  - docs/design/orqlet-architecture-proposal.md:5
+  - docs/design/orqlet-architecture-proposal.md:5095
+  - docs/design/orqlet-architecture-proposal.md:6052
+  note: as-is.md U-1 states 'v0.4 is not approved', while the proposal states that the approval state
+    of v0.4 is not recorded in the repository and that the person did not state it.
+- id: C-13
+  sources:
+  - docs/design/orqlet-architecture-proposal.md:4480
+  - docs/design/orqlet-architecture-proposal.md:3365
+  - docs/design/orqlet-architecture-proposal.md:5095
+  note: Section 22.0 says the implementation was 'planned and approved separately' from plans that cite
+    v0.4 and was built before Q-01, Q-03, Q-04 and Q-05 were answered, W-1 says implementation starts
+    only after the design and plan are approved, and Q-08 says the repository holds no record of approving
+    v0.4.
