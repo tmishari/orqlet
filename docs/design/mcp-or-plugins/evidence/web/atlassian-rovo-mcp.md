@@ -31,3 +31,16 @@ Additionally, you can also allow tools to connect using an API token, which is u
 - Backend systems or automations that call Atlassian MCP on behalf of a shared account
 
 Tools that authenticate via API token do not use domain allowlists and are instead governed by your IP allowlist configuration and the scopes granted to their tokens or API keys.
+
+## Excerpt 3: Getting started, address and client set-up (retrieved through WebFetch)
+URL: https://developer.atlassian.com/cloud/rovo-mcp/guides/getting-started/
+Retrieved: 2026-10-26T10:00Z (workstation clock, UTC). The page states "Last updated Sep 2, 2026". The lines below are verbatim.
+
+Connect your MCP client to:
+https://mcp.atlassian.com/v2/mcp
+
+- Cursor: Go to the Atlassian plugin for Cursor with MCP on the Cursor Marketplace and select Add to Cursor.
+- Claude Code: Run `/mcp` once you've opened a Claude Code session to authenticate.
+- Codex Desktop: Go to Plugins or Connectors, find Atlassian Rovo, and install the app.
+
+OAuth 2.1 is the recommended method and ensures all actions respect your existing access controls and permissions. If your organization admin has enabled it, authentication via API token is available as an alternative for non-interactive scenarios.

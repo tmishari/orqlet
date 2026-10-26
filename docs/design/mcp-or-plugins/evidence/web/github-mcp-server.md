@@ -25,3 +25,39 @@ To keep your GitHub PAT secure and reusable across different MCP hosts:
 - **Classic PATs** (`ghp_` prefix): Tools are filtered at startup based on token scopes—you only see tools you have permission to use
 - **OAuth** (remote server): Uses scope challenges—when a tool needs a scope you haven't granted, you're prompted to authorize it
 - **Other tokens**: No filtering—all tools shown, API enforces permissions
+
+## Excerpt 4: Remote server configuration (README.md, "Remote GitHub MCP Server")
+The remote GitHub MCP Server is hosted by GitHub and provides the easiest method for getting up and running.
+
+Using OAuth (VS Code, version 1.101 or greater):
+
+{
+  "servers": {
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/"
+    }
+  }
+}
+
+Using a GitHub PAT:
+
+{
+  "servers": {
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "headers": {
+        "Authorization": "Bearer ${input:github_mcp_pat}"
+      }
+    }
+  },
+  "inputs": [
+    {
+      "type": "promptString",
+      "id": "github_mcp_pat",
+      "description": "GitHub Personal Access Token",
+      "password": true
+    }
+  ]
+}

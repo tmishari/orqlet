@@ -1,0 +1,389 @@
+schema: orqlet.design-set/v1
+header:
+  schema: orqlet.artifact-header/v1
+  task: mcp-or-plugins
+  status: draft
+  workflow_version: 0.3.1
+  protected_set_digest: be7723282aec5a67e8161540bfba464562fb2a53d9bc3f8245ea22b812134eec
+  bound:
+    base_revision: 86e7d18f9aa2efe9ba02686b853c35399c607b60
+    standards_lock_hash: 89a225016ff9d8b3ed977df39a70dfbe9dbc5f7c6d3762d0f2208b1b7a037a52
+    applicable_rules_hash: 56502a0ec5eda3b13b4c9d97c7d4dfa41df82c86a206e36dd5d2d92aab299b97
+    profile_version: 1
+as_is_ref: docs/design/mcp-or-plugins/as-is.md#ebd71d9e5c1931fe651698c0ba2cb2736a39bf8b1b23895d06892e4f35b575dd
+change_class:
+  trigger: D3
+  declared: D3
+  effective: D3
+scope:
+  paths:
+  - src/orqlet/domain/mcp_credentials.py
+  - src/orqlet/application/contracts/integrations.py
+  - src/orqlet/application/usecases/validate_integrations.py
+  - src/orqlet/application/usecases/diagnose.py
+  - src/orqlet/application/usecases/integrations_source.py
+  - src/orqlet/application/ports/instruction_adapter.py
+  - src/orqlet/application/usecases/render_all.py
+  - src/orqlet/application/usecases/capabilities.py
+  - src/orqlet/adapters/render/mcp.py
+  - src/orqlet/adapters/clients/**
+  - src/orqlet/interface/cli/commands/validate.py
+  - src/orqlet/workflow/MANIFEST.json
+  - src/orqlet/workflow/identity.json
+  - src/orqlet/workflow/releases.json
+  - tests/**
+  - docs/design/orqlet-architecture-proposal.md
+  - README.md
+  - .github/CODEOWNERS
+  - docs/design/mcp-or-plugins/evidence/checks/**
+  - .cursor/**
+  - .claude/**
+  - .agents/**
+  - .codex/**
+  - AGENTS.md
+  - .github/pull_request_template.md
+  - .orqlet/generated.lock.yaml
+  - .orqlet/workflow.lock
+  - .orqlet/versions.yaml
+  - src/orqlet/workflow/rules/orqlet-workflow.md
+  - src/orqlet/workflow/rules/orqlet-workflow.meta.yaml
+  - tests/fixtures/contracts/valid/orqlet.integrations.v1.yaml
+  - .orqlet/proposals/**
+  trust_boundaries:
+  - 'B-1 repository to client: a server address and variable names in committed MCP files reach every client that reads them'
+  - 'B-2 user environment to client: the user''s own token, read from a variable or obtained by sign-in'
+  - 'B-3 client to remote server: GitHub and Atlassian remote MCP servers reached with the user''s own credential'
+extractor_config:
+  public_api:
+    packages:
+    - orqlet
+    mode: ast
+  dependency_manifests:
+  - pyproject.toml
+  lockfiles:
+  - uv.lock
+  security_globs:
+  - src/orqlet/domain/mcp_credentials.py
+  - src/orqlet/adapters/render/mcp.py
+  - src/orqlet/application/contracts/integrations.py
+  - src/orqlet/application/usecases/integrations_source.py
+  - src/orqlet/application/usecases/validate_integrations.py
+  - src/orqlet/application/usecases/render_all.py
+  - src/orqlet/application/usecases/diagnose.py
+  - src/orqlet/adapters/clients/claude_code.py
+expected_changes:
+- id: EC-1
+  surface: public-api
+  action: add
+  identity: orqlet.domain.mcp_credentials.CredentialFinding
+  expected_after:
+    kind: signature
+    value: class CredentialFinding
+  verification: extractor
+- id: EC-2
+  surface: public-api
+  action: add
+  identity: orqlet.domain.mcp_credentials.find_literal_credentials
+  expected_after:
+    kind: signature
+    value: 'def find_literal_credentials(text: str) -> tuple[CredentialFinding, ...]'
+  verification: extractor
+- id: EC-3
+  surface: public-api
+  action: add
+  identity: orqlet.domain.mcp_credentials.entry_differences
+  expected_after:
+    kind: signature
+    value: 'def entry_differences(pinned: Mapping[str, object], found: Mapping[str, object]) -> tuple[str, ...]'
+  verification: extractor
+- id: EC-4
+  surface: public-api
+  action: add
+  identity: orqlet.application.usecases.validate_integrations.validate_integrations
+  expected_after:
+    kind: signature
+    value: 'def validate_integrations(services: ValidateServices, raw_path: str) -> ValidationResult'
+  verification: extractor
+- id: EC-5
+  surface: public-api
+  action: add
+  identity: orqlet.interface.cli.commands.validate.integrations_command
+  expected_after:
+    kind: signature
+    value: 'def integrations_command(file: FileArgument, root: RootOption=Path(), json_output: JsonOption=False) -> None'
+  verification: extractor
+- id: EC-6
+  surface: public-api
+  action: add
+  identity: orqlet.adapters.render.mcp.render_mcp_file
+  expected_after:
+    kind: signature
+    value: 'def render_mcp_file(servers: Sequence[McpServer], client: str) -> str'
+  verification: extractor
+- id: EC-7
+  surface: public-api
+  action: add
+  identity: orqlet.domain.mcp_credentials.allowed_auth_modes
+  expected_after:
+    kind: signature
+    value: 'def allowed_auth_modes(url: str, client: str) -> tuple[str, ...]'
+  verification: extractor
+- id: EC-8
+  surface: public-api
+  action: add
+  identity: orqlet.domain.mcp_credentials.referenced_variables
+  expected_after:
+    kind: signature
+    value: 'def referenced_variables(entry: Mapping[str, object]) -> tuple[str, ...]'
+  verification: extractor
+- id: EC-9
+  surface: public-api
+  action: add
+  identity: orqlet.application.usecases.integrations_source.load_integrations
+  expected_after:
+    kind: signature
+    value: 'def load_integrations(project: FileSystem, loader: DocumentLoader, path: str) -> tuple[Integrations | None, tuple[Finding,
+      ...]]'
+  verification: extractor
+- id: EC-10
+  surface: public-api
+  action: add
+  identity: orqlet.domain.mcp_credentials.rendered_entry
+  expected_after:
+    kind: signature
+    value: 'def rendered_entry(server_id: str, url: str, variable: str | None, client: str) -> dict[str, object]'
+  verification: extractor
+- id: EC-11
+  surface: public-api
+  action: add
+  identity: orqlet.domain.mcp_credentials.name_problems
+  expected_after:
+    kind: signature
+    value: 'def name_problems(server_id: str, url: str, variable: str | None) -> tuple[str, ...]'
+  verification: extractor
+- id: EC-12
+  surface: public-api
+  action: change
+  identity: orqlet.application.ports.instruction_adapter.RenderRequest
+  expected_after:
+    kind: declaration
+    value: The frozen dataclass gains one optional field, integrations, typed Integrations | None with the default None. The
+      class line, which is all that the extractor reads, does not change, so the extractor cannot see this edit.
+  verification: manual
+- id: EC-13
+  surface: persisted-schema
+  action: change
+  identity: orqlet.integrations/v1
+  expected_after:
+    kind: declaration
+    value: 'The contract is tightened in place and keeps its identifier (the person decided this on 2026-10-26, Q-13). The
+      rules are validators that call name_problems in the domain, not field patterns and not new enumerations, so the committed
+      JSON Schema does not change: a server id matches ^[a-z][a-z0-9-]{0,31}$, is unique, and registration.name equals orqlet-<id>;
+      env_refs holds exactly one name for env-ref and none for client-native-oauth, a name matches ^ORQLET_MCP_[A-Z][A-Z0-9]*(_[A-Z][A-Z0-9]*)*$
+      with at most 48 characters and belongs to one server; identity.url is a literal https address without user information,
+      query, fragment or ${; command and package contain no ${; backend_identity is user-oauth with client-native-oauth and
+      user-token with env-ref; capability_tier other than read cannot have enforced_by none in registration or in any per_client
+      entry; clients includes every client with register true; a stdio server cannot be registered; verification verified
+      is refused in this release. Whether the mode is enabled for the address and client is a separate check against the table
+      in the domain, not a contract rule. The existing valid fixture is updated. The schema file orqlet.integrations.v1.json
+      is unchanged.'
+  verification: manual
+- id: EC-14
+  surface: persisted-schema
+  action: add
+  identity: generated MCP files
+  expected_after:
+    kind: declaration
+    value: .mcp.json, owner seeded, written only when .orqlet/integrations.yaml exists and the profile enables Claude Code,
+      holding one orqlet-<id> entry per declared server with a closed key set; in this change only an Atlassian client-native-oauth
+      entry, with no credential field. Existing MCP files are refused when untracked or flagged by the scan, before any proposal;
+      lock entry; later changes arrive as proposals under .orqlet/proposals. .cursor/mcp.json and .codex/config.toml are specified
+      and built by the release that enables them.
+  verification: manual
+- id: EC-15
+  surface: trust-boundary
+  action: add
+  identity: the three boundaries B-1 to B-3 of the context view
+  expected_after:
+    kind: declaration
+    value: 'B-1 to B-3: addresses and variable names in committed files; the user''s own credential from a variable or sign-in;
+      GitHub and Atlassian remote servers reached with the user''s own credential. No shared identity; the address is a literal
+      on a closed table in the tool; Miro gets no entry from Orqlet; an unattended surface uses the account of the one user
+      who started or owns it (the person''s answer to Q-12), which V-12 verifies.'
+  verification: manual
+- id: EC-16
+  surface: security
+  action: add
+  identity: credential-handling files on the security globs
+  expected_after:
+    kind: paths
+    value: src/orqlet/domain/mcp_credentials.py, src/orqlet/adapters/render/mcp.py, src/orqlet/application/contracts/integrations.py,
+      src/orqlet/application/usecases/integrations_source.py, src/orqlet/application/usecases/validate_integrations.py, src/orqlet/application/usecases/render_all.py,
+      src/orqlet/application/usecases/diagnose.py, src/orqlet/adapters/clients/claude_code.py
+  verification: extractor
+- id: EC-17
+  surface: public-api
+  action: add
+  identity: orqlet.domain.mcp_credentials.mcp_file_path
+  expected_after:
+    kind: signature
+    value: 'def mcp_file_path(client: str) -> str'
+  verification: extractor
+- id: EC-18
+  surface: public-api
+  action: add
+  identity: orqlet.application.contracts.integrations.Integrations.registered_for
+  expected_after:
+    kind: signature
+    value: 'def registered_for(self, client: str) -> tuple[McpServer, ...]'
+  verification: extractor
+- id: EC-19
+  surface: public-api
+  action: change
+  identity: orqlet.application.usecases.capabilities.IMPLEMENTED_COMMANDS
+  expected_after:
+    kind: declaration
+    value: The tuple of implemented commands gains validate integrations. The extractor reads an assignment by name only,
+      so it cannot see the new entry.
+  verification: manual
+- id: EC-20
+  surface: public-api
+  action: add
+  identity: orqlet.application.usecases.integrations_source.DECLARATION_PATH
+  expected_after:
+    kind: signature
+    value: DECLARATION_PATH
+  verification: extractor
+artifacts:
+- id: D-1
+  kind: c4-context
+  path: docs/design/mcp-or-plugins/design/context.md
+  covers: Who and what the change touches, with three trust boundaries
+  sha256: 0dbc739eeab3bbb4793c3696df66f362c9f3437fce8da342a36ae2a4a9012b61
+- id: D-2
+  kind: c4-container
+  path: docs/design/mcp-or-plugins/design/container.md
+  covers: The containers this change touches and what changes in each
+  sha256: 8edc7686faf5a9d46fab2abe4ea970dee198328e1db34e234332755a5fabb322
+- id: D-3
+  kind: c4-component
+  path: docs/design/mcp-or-plugins/design/component.md
+  covers: The new and changed components with their layer rules, the single source of the entry, and the public names added
+  sha256: d40bef58ec7c5f1434749aeb0a369d363f0e0e9aa430b2d056112948e5f3feb1
+- id: D-4
+  kind: data-flow
+  path: docs/design/mcp-or-plugins/design/data-flow.md
+  covers: 'Three flows: declaration to files, checking the files, and the credential outside Orqlet'
+  sha256: 0c7303b6c947f460d2dfcc5fe7c17914cb8b1deceb67712e00a9515b4826beab
+- id: D-5
+  kind: sequence
+  path: docs/design/mcp-or-plugins/design/sequence.md
+  covers: Four interactions with their failure paths, including the unattended surface
+  sha256: 9451d1af50eedd65e0bf29883cdaa647782e67e5b17d39f691b48bd3a4787ca9
+- id: D-6
+  kind: adr
+  path: docs/design/mcp-or-plugins/design/adr-001-committed-files-stay-the-shared-channel.md
+  covers: Committed project files stay the shared channel for MCP entries and no plugin output is produced, with the conditions
+    for a later one
+  sha256: dadd582e438cb9837117f11c061fa715736b70582772fa21624a2893aa6b3e28
+- id: D-7
+  kind: adr
+  path: docs/design/mcp-or-plugins/design/adr-002-one-credential-per-user.md
+  covers: Generated entries carry references only; contract rules, a closed table by address, mode and client, a scan, a pin
+    and closed key sets; what Orqlet can and cannot promise
+  sha256: 20f0776ac6a3af5771559ec1a839053fab83ecff6189e76fc7fd496be7aa3d79
+- id: D-8
+  kind: adr
+  path: docs/design/mcp-or-plugins/design/adr-003-build-order-and-seeded-files.md
+  covers: Phase order with validators before renderers, seeded files that change only by proposal, the seam for the declaration,
+    doctor, and the workflow-package steps
+  sha256: 12098b2b59a151292cab57204a2dffd949ac502651ce646aaed93fabfb8b1f09
+- id: D-9
+  kind: adr
+  path: docs/design/mcp-or-plugins/design/adr-004-verify-client-behaviour-with-test-accounts.md
+  covers: Thirteen checks with test accounts; which checks gate which entries
+  sha256: 4413170a27b4a2f6585cc8a750ae78912ba9ba7b90deeaf29272d877eca73fd9
+considerations:
+  security:
+    state: affected
+    evidence_refs:
+    - src/orqlet/application/contracts/integrations.py:41-51
+    - src/orqlet/application/usecases/binding_inputs.py:66
+    - docs/design/open-items/evidence/github-state.yaml:26-31
+    - src/orqlet/application/usecases/diagnose.py:72-73
+    - docs/design/mcp-or-plugins/evidence/web/atlassian-rovo-mcp.md:39-40
+    notes: Credentials, redirection of a credential, shadowing by personal entries, exposure of the user's own value, untrusted
+      files, unattended surfaces (answered in Q-12, to verify in V-12) and the review that the host cannot enforce on this
+      repository's plan; the limit is stated that Orqlet cannot stop a person from lending a token. Detail in docs/design/mcp-or-plugins/design/considerations.md
+  compatibility:
+    state: affected
+    evidence_refs:
+    - src/orqlet/application/contracts/integrations.py:54-84
+    - src/orqlet/application/usecases/render_all.py:116-125
+    - src/orqlet/workflow/MANIFEST.json:105
+    notes: The integrations contract is tightened in place (no reader exists); MCP files are seeded and written only when
+      a declaration exists; the schema file belongs to the protected workflow package, so a workflow version bump, regenerated
+      goldens and stale artifacts follow. Detail in considerations.md
+  operations:
+    state: affected
+    evidence_refs:
+    - .github/workflows/ci.yml:3-6
+    - src/orqlet/application/usecases/capabilities.py:14-38
+    - src/orqlet/application/usecases/diagnose.py:72-73
+    notes: One new command and a doctor hook; CI unchanged in this repository and adopters add the command to theirs; thirteen
+      checks by a person with test accounts, recorded as files; rollback by revert or orqlet rollback. Detail in considerations.md
+standards_applied:
+- ORQLET-ARCH-001
+- ORQLET-ARCH-002
+- ORQLET-ARCH-003
+- ORQLET-DET-001
+- ORQLET-DET-002
+- ORQLET-DET-003
+- ORQLET-NOMODEL-001
+- ORQLET-QA-001
+- ORQLET-SAFE-001
+- ORQLET-SEC-001
+- ORQLET-SEC-002
+- ORQLET-SEC-003
+- ORQLET-TEST-001
+- ORQLET-TEST-002
+- ORQLET-STYLE-001
+reviews:
+- role: architecture-reviewer
+  note: docs/design/mcp-or-plugins/reviews/architecture-reviewer-design.md
+- role: security-reviewer
+  note: docs/design/mcp-or-plugins/reviews/security-reviewer-design.md
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architect
+    phase: design
+  checks:
+  - what: AS-IS accepted by the person
+    how: the person chose 'Yes, I accept it' in conversation on 2026-10-26 and answered Q-7 to Q-11; recorded in the ledger
+      and in the AS-IS self_check
+    result: pass
+  - what: standards read
+    how: orqlet standards for --phase design --role architect and for each of the six path families of the scope (15 distinct
+      rules)
+    result: pass
+  - what: every file the manifest names is hashed
+    how: sha256 of each file; the same hash that orqlet evidence hash prints
+    result: pass
+  - what: considerations.md is hashed (it has no artifact kind)
+    how: sha256 b273af584d55b87e592691257473e0b92f32f45012bda9d84104c303f2a1320e; recorded here because the design-set contract
+      has no artifact kind for it
+    result: pass
+  - what: design reviewed by both typed reviewers (four rounds)
+    how: 'notes docs/design/mcp-or-plugins/reviews/architecture-reviewer-design.md and docs/design/mcp-or-plugins/reviews/security-reviewer-design.md;
+      last independent verdicts: architecture FAIL (round 4, one blocking), security PASS (round 4)'
+    result: pass
+  - what: design re-reviewed after the fixes that followed round 4
+    how: ''
+    result: not-run
+  unverified:
+  - The architecture reviewer's last verdict is FAIL; its blocking finding and the other round-4 findings were fixed afterwards
+    and no fresh reviewer has seen the result.
+  - 'The reviewers had no shell: they did not run orqlet standards or recompute hashes; the author did.'
+  - Whether the Cursor and Codex clients behave as the design needs is unknown until checks V-1 to V-13 are done with test
+    accounts.

@@ -310,3 +310,89 @@ questions:
     answerer: user
     time: '2026-10-26T11:20:00+02:00'
     scope: task
+- id: Q-12
+  key: be882316b3423f1ad788dea8cd787f9cd2fef74caba17beb70575f894b423918
+  subject: Identity of an unattended surface that uses a committed MCP entry
+  raised_by: architect
+  phase: design
+  category: policy
+  text: >-
+    A cloud agent, a code-review context or CI that uses a committed MCP entry has no developer at a
+    keyboard. Which identity may such a surface use for an entry: the account of the user who started
+    or owns it (each surface bound to one signed-in user), no MCP access at all on that surface, or a
+    separate credential created for that surface and not used by any person? A separate credential
+    shared by several people is a shared identity, which the answer to Q-9 refuses.
+  why: >-
+    The accepted evidence does not say whose credential these surfaces use (unknowns under Q-7 and Q-9),
+    and the design cannot promise 'never another user's credential' on them without an answer.
+  options:
+    - The account of the one user who started or owns the surface
+    - No MCP access on unattended surfaces
+    - A separate credential for the surface that no person uses
+  evidence_refs:
+    - docs/design/mcp-or-plugins/as-is.md#U-23
+    - docs/design/mcp-or-plugins/as-is.md#U-70
+  blocks:
+    - plan
+  status: answered
+  answer:
+    value: The account of the one user who started or owns the surface
+    answerer: user
+    time: '2026-10-26T12:55:00+02:00'
+    scope: task
+- id: Q-13
+  key: 15eb20e8b6765f16ef52bf206ef41567f8ef66915a5f1c9b9d2749012509922c
+  subject: Versioning of the integrations contract when its rules are tightened
+  raised_by: architect
+  phase: design
+  category: policy
+  text: >-
+    The architecture document says that a breaking change of a schema is a major change and ships a
+    migration (Section 20.2). Tightening orqlet.integrations/v1 can make a hand-written declaration
+    invalid. In this repository no module reads the contract and no declaration exists. Do you accept
+    tightening the contract in place and keeping the identifier v1, or must the change add
+    orqlet.integrations/v2 with a migration?
+  why: >-
+    The accepted evidence shows that no module in this repository reads the contract; it does not show
+    whether another project holds a declaration.
+  options:
+    - Tighten v1 in place; no declaration is known to exist
+    - Add orqlet.integrations/v2 with a migration and keep v1
+  evidence_refs:
+    - docs/design/mcp-or-plugins/as-is.md#A-13
+    - docs/design/orqlet-architecture-proposal.md
+  blocks:
+    - plan
+  status: answered
+  answer:
+    value: Tighten v1 in place; no declaration is known to exist
+    answerer: user
+    time: '2026-10-26T12:55:00+02:00'
+    scope: task
+- id: Q-14
+  key: e62bd86ad37eb5a70e6275aa700fe1af04ddb9ebad8f2395b28a8a7908e56d8e
+  subject: Atlassian site that the team uses
+  raised_by: architect
+  phase: design
+  category: requirement
+  text: >-
+    Which Atlassian cloud site do the users of the Atlassian entry connect to? The design pins one
+    server address, https://mcp.atlassian.com/v2/mcp, and the evidence does not say how a site is chosen
+    during sign-in (unknown U-10, U-12).
+  why: >-
+    The checks V-12 and V-13 change administrator settings and use unattended surfaces, and they must
+    not run on the team's own site by accident.
+  evidence_refs:
+    - docs/design/mcp-or-plugins/as-is.md#U-10
+    - docs/design/mcp-or-plugins/as-is.md#U-12
+  blocks:
+    - plan
+  status: answered
+  answer:
+    value: >-
+      The person wrote "this is our confluense" with the link https://cisco-cxe.atlassian.net/wiki/s;
+      the link was cut off after /wiki/s. The site host is cisco-cxe.atlassian.net and Confluence is at
+      /wiki. The space and page are not known, and whether Jira is on the same site was not stated.
+    answerer: user
+    time: '2026-10-26T12:46:00+02:00'
+    scope: task
