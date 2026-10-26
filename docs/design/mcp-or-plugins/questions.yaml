@@ -1,0 +1,124 @@
+schema: orqlet.question-ledger/v1
+task: mcp-or-plugins
+questions:
+- id: Q-1
+  key: 3598b3db33666e916607fb505ed7b6ef598c52dfc671c8a7589aebfc90fa134f
+  subject: Task name for the research folder
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: What is the task name for docs/design/<task>/ (lowercase words joined by hyphens)?
+  why: Every artifact of the task lives in the folder that carries this name.
+  options:
+  - mcp-credentials
+  - mcp-or-plugins
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: mcp-or-plugins
+    answerer: user
+    time: '2026-10-26T10:45:00+02:00'
+    scope: task
+- id: Q-2
+  key: d651b6be547361f343dd643e880ef250bd316cdba91117102baa403bd5aa4cec
+  subject: What 'use it as plugins' means
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: The request says it may be better to use plugins and not MCP servers. Does that mean Orqlet's
+    generated setup (skills, agents, rules, MCP entries) packaged as native client plugins instead of
+    committed files, the integrations (GitHub, Jira, Confluence, Miro) delivered as plugins or connectors
+    instead of MCP servers, or both?
+  why: Research records facts for the chosen reading; the others are not examined.
+  options:
+  - Orqlet's generated setup packaged as native client plugins instead of committed files
+  - the integrations delivered as plugins or connectors instead of MCP servers
+  - both
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: Orqlet's generated setup (skills, agents, rules, MCP entries) packaged as native client plugins
+      instead of committed files
+    answerer: user
+    time: '2026-10-26T10:45:00+02:00'
+    scope: task
+- id: Q-3
+  key: 45c2b1b0438c585ca2e80272f5cf0e418a5f4c370b3cb8614cb7cf7e150798a2
+  subject: Which clients the web research covers
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: Which clients should the web research cover?
+  why: Credential handling and plugin support differ per client.
+  options:
+  - Claude Code, Codex and Cursor
+  - Claude Code and Cursor only
+  - Cursor only
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: Claude Code, Codex and Cursor
+    answerer: user
+    time: '2026-10-26T10:45:00+02:00'
+    scope: task
+- id: Q-4
+  key: dbde2a4edb7cea63376ce46c9c63f5891fae68a9178595cb3abf23fa7e67a7f3
+  subject: Which integrations the credential facts cover
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: Which integrations should the credential facts cover?
+  why: Each integration authenticates differently.
+  options:
+  - GitHub, Jira, Confluence and Miro (the four the design requires)
+  - GitHub, Jira and Confluence only
+  - GitHub only
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: GitHub, Jira, Confluence and Miro (the four the design requires)
+    answerer: user
+    time: '2026-10-26T10:45:00+02:00'
+    scope: task
+- id: Q-5
+  key: 031667715b065b810c07d08959d1eb6e81820a9854a7ce782c04970f3b487cfd
+  subject: Use of the web as evidence
+  raised_by: researcher
+  phase: research
+  category: access
+  text: May the research read vendor documentation on the web, read-only, and store short excerpts of
+    it with the address and the date as evidence files in the repository?
+  why: Facts about vendor behaviour are not in the repository files; an AS-IS fact needs a file, lines
+    and a hash.
+  options:
+  - yes, read-only with stored excerpts
+  - no, repository files only
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: 'yes, read-only with stored excerpts (the request says: look at web)'
+    answerer: user
+    time: '2026-10-26T10:45:00+02:00'
+    scope: task
+- id: Q-6
+  key: 418a90e703a0015e35389f02ad2bee26cfab427fbc3776d6e5be8514c8500882
+  subject: One credential per user, one configuration for everyone
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: Must each user use only their own credential for each integration, never another user's, while
+    the configuration stays the same for everyone?
+  why: The person stated this requirement in the request; it is the standard that the facts are read against.
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: 'Yes: never another user''s credential, and the same configuration for everyone'
+    answerer: user
+    time: '2026-10-26T10:45:00+02:00'
+    scope: task
