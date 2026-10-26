@@ -122,3 +122,164 @@ questions:
     answerer: user
     time: '2026-10-26T10:45:00+02:00'
     scope: task
+- id: Q-7
+  key: 8228344e836dc64def071ab2f06c5a04507eeead501dd063b47b0b53996104e0
+  subject: Surfaces and plans the shared setup must reach
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: Which surfaces must receive the shared setup (terminal, IDE extension, desktop app, cloud agents,
+    code-review contexts), and which plans and administrator rights does the team have in each client
+    (Claude Code managed settings, Codex workspace administration, Cursor Teams or Enterprise)?
+  why: Plugins and committed files reach different surfaces, and several plugin routes need a plan or
+    an administrator.
+  options:
+  - terminal and IDE extension only
+  - also desktop app and cloud agents
+  - something else
+  evidence_refs:
+  - docs/design/mcp-or-plugins/as-is.md#U-23
+  - docs/design/mcp-or-plugins/as-is.md#U-24
+  - docs/design/mcp-or-plugins/as-is.md#U-25
+  - docs/design/mcp-or-plugins/as-is.md#U-26
+  - docs/design/mcp-or-plugins/as-is.md#U-27
+  - docs/design/mcp-or-plugins/as-is.md#U-28
+  - docs/design/mcp-or-plugins/as-is.md#U-29
+  - docs/design/mcp-or-plugins/as-is.md#U-30
+  - docs/design/mcp-or-plugins/as-is.md#U-31
+  blocks:
+  - design
+  status: open
+- id: Q-8
+  key: 006480aa209f74a20f131452aa4d897c96fb596f639e88d5ed791b12efb48529
+  subject: Verification of client behaviour that the vendor documents do not state
+  raised_by: researcher
+  phase: research
+  category: test-expectation
+  text: May the design phase plan checks with test accounts in each client for behaviour that the vendor
+    text does not state (approval prompts, which same-named entry wins, where credentials are stored,
+    whether values can differ per developer)?
+  why: Many facts the comparison needs are unknown after reading the vendor documentation; the design's
+    own matrix says it has not been run.
+  options:
+  - yes, plan checks with test accounts
+  - no, decide from documentation only
+  evidence_refs:
+  - docs/design/mcp-or-plugins/as-is.md#U-32
+  - docs/design/mcp-or-plugins/as-is.md#U-33
+  - docs/design/mcp-or-plugins/as-is.md#U-34
+  - docs/design/mcp-or-plugins/as-is.md#U-35
+  - docs/design/mcp-or-plugins/as-is.md#U-36
+  - docs/design/mcp-or-plugins/as-is.md#U-37
+  - docs/design/mcp-or-plugins/as-is.md#U-38
+  - docs/design/mcp-or-plugins/as-is.md#U-39
+  - docs/design/mcp-or-plugins/as-is.md#U-40
+  - docs/design/mcp-or-plugins/as-is.md#U-41
+  - docs/design/mcp-or-plugins/as-is.md#U-42
+  - docs/design/mcp-or-plugins/as-is.md#U-43
+  - docs/design/mcp-or-plugins/as-is.md#U-44
+  - docs/design/mcp-or-plugins/as-is.md#U-45
+  - docs/design/mcp-or-plugins/as-is.md#U-46
+  - docs/design/mcp-or-plugins/as-is.md#U-47
+  - docs/design/mcp-or-plugins/as-is.md#U-48
+  - docs/design/mcp-or-plugins/as-is.md#U-49
+  - docs/design/mcp-or-plugins/as-is.md#U-50
+  - docs/design/mcp-or-plugins/as-is.md#U-51
+  - docs/design/mcp-or-plugins/as-is.md#U-52
+  - docs/design/mcp-or-plugins/as-is.md#U-53
+  - docs/design/mcp-or-plugins/as-is.md#U-54
+  - docs/design/mcp-or-plugins/as-is.md#U-55
+  - docs/design/mcp-or-plugins/as-is.md#U-56
+  - docs/design/mcp-or-plugins/as-is.md#U-57
+  - docs/design/mcp-or-plugins/as-is.md#U-58
+  - docs/design/mcp-or-plugins/as-is.md#U-59
+  - docs/design/mcp-or-plugins/as-is.md#U-60
+  - docs/design/mcp-or-plugins/as-is.md#U-61
+  - docs/design/mcp-or-plugins/as-is.md#U-62
+  - docs/design/mcp-or-plugins/as-is.md#U-63
+  - docs/design/mcp-or-plugins/as-is.md#U-64
+  - docs/design/mcp-or-plugins/as-is.md#U-65
+  - docs/design/mcp-or-plugins/as-is.md#U-66
+  - docs/design/mcp-or-plugins/as-is.md#U-67
+  - docs/design/mcp-or-plugins/as-is.md#U-68
+  - docs/design/mcp-or-plugins/as-is.md#U-69
+  blocks:
+  - design
+  status: open
+- id: Q-9
+  key: 4e6193f763e7997e2c18f3db47de0e6bc1c3460f77678b429457aff96f140260
+  subject: Shared identities for MCP integrations
+  raised_by: researcher
+  phase: research
+  category: policy
+  text: Is any shared identity allowed for an integration (an Atlassian service-account key, a team plugin
+    variable or a Team MCP credential set by an administrator), or must every credential be one user's
+    own?
+  why: Your requirement is one credential per user, never another user's; vendor features exist that hold
+    one credential for a team.
+  options:
+  - every credential is one user's own
+  - a shared read-only identity is allowed for some integrations
+  - something else
+  evidence_refs:
+  - docs/design/mcp-or-plugins/as-is.md#U-70
+  - docs/design/mcp-or-plugins/as-is.md#U-71
+  - docs/design/mcp-or-plugins/as-is.md#U-72
+  - docs/design/mcp-or-plugins/as-is.md#U-73
+  - docs/design/mcp-or-plugins/as-is.md#U-74
+  - docs/design/mcp-or-plugins/as-is.md#U-75
+  - docs/design/mcp-or-plugins/as-is.md#U-76
+  blocks:
+  - design
+  status: open
+- id: Q-10
+  key: 8ce3814cf5c457193bcd927ad7331b03dbdccc4c52985520a7e418385586bb24
+  subject: Allowed per-user credential type per integration and who creates it
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: For each of GitHub, Jira, Confluence and Miro, which per-user credential type is allowed (OAuth
+    sign-in, personal access token, personal API token), who creates and enables it (the user or an administrator),
+    and which Miro team does each user connect to?
+  why: The vendors document more than one method; some need an administrator to enable them; Miro allows
+    one team at a time per user.
+  evidence_refs:
+  - docs/design/mcp-or-plugins/as-is.md#U-1
+  - docs/design/mcp-or-plugins/as-is.md#U-2
+  - docs/design/mcp-or-plugins/as-is.md#U-3
+  - docs/design/mcp-or-plugins/as-is.md#U-4
+  - docs/design/mcp-or-plugins/as-is.md#U-5
+  - docs/design/mcp-or-plugins/as-is.md#U-6
+  - docs/design/mcp-or-plugins/as-is.md#U-7
+  - docs/design/mcp-or-plugins/as-is.md#U-8
+  - docs/design/mcp-or-plugins/as-is.md#U-9
+  - docs/design/mcp-or-plugins/as-is.md#U-10
+  - docs/design/mcp-or-plugins/as-is.md#U-11
+  - docs/design/mcp-or-plugins/as-is.md#U-12
+  - docs/design/mcp-or-plugins/as-is.md#U-13
+  - docs/design/mcp-or-plugins/as-is.md#U-14
+  - docs/design/mcp-or-plugins/as-is.md#U-15
+  - docs/design/mcp-or-plugins/as-is.md#U-16
+  - docs/design/mcp-or-plugins/as-is.md#U-17
+  blocks:
+  - design
+  status: open
+- id: Q-11
+  key: 70139030c2769c1a1be66414057d3c831e8284f7f5fb6a97bf88359353b70463
+  subject: Ownership and review of the shared files and of a plugin repository
+  raised_by: researcher
+  phase: research
+  category: policy
+  text: Who owns and reviews the committed MCP files and, if native plugins are used, the plugin and marketplace
+    repository, and which plugin output files would the design cover?
+  why: Both routes put one shared definition in front of every user; the vendor files name no review beyond
+    version control.
+  evidence_refs:
+  - docs/design/mcp-or-plugins/as-is.md#U-18
+  - docs/design/mcp-or-plugins/as-is.md#U-19
+  - docs/design/mcp-or-plugins/as-is.md#U-20
+  - docs/design/mcp-or-plugins/as-is.md#U-21
+  - docs/design/mcp-or-plugins/as-is.md#U-22
+  blocks:
+  - design
+  status: open
