@@ -2,11 +2,11 @@ schema: orqlet.design-set/v1
 header:
   schema: orqlet.artifact-header/v1
   task: team-conventions-resources
-  status: draft
+  status: approved
   workflow_version: 0.3.1
   protected_set_digest: be7723282aec5a67e8161540bfba464562fb2a53d9bc3f8245ea22b812134eec
   bound:
-    base_revision: 3e6490c52e66def563cf8d7422c1d3df9dee9197
+    base_revision: 9897de220ecb336020f36159a0a8033c3ed0fba2
     standards_lock_hash: 89a225016ff9d8b3ed977df39a70dfbe9dbc5f7c6d3762d0f2208b1b7a037a52
     applicable_rules_hash: 56502a0ec5eda3b13b4c9d97c7d4dfa41df82c86a206e36dd5d2d92aab299b97
     profile_version: 1
@@ -802,6 +802,11 @@ self_check:
   - what: AS-IS accepted by the person
     how: the person wrote 'accepted' in conversation on 2026-10-26 and ran /orqlet-design; recorded in the AS-IS header, its
       self_check and the commit 3e6490c
+    result: pass
+  - what: design accepted by the person
+    how: the person chose 'I accept the design in conversation, without a merge' on 2026-10-26 when /orqlet-plan was started;
+      this is not a merge on the protected baseline, and the design commit 9897de2 was on the local branch team-conventions-resources-research
+      only
     result: pass
   - what: standards read
     how: orqlet standards for --phase design --role architect (15 rules apply)
