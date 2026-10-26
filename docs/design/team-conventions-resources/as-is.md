@@ -3,7 +3,7 @@ schema: orqlet.as-is/v1
 header:
   schema: orqlet.artifact-header/v1
   task: team-conventions-resources
-  status: draft
+  status: approved
   workflow_version: 0.3.1
   protected_set_digest: be7723282aec5a67e8161540bfba464562fb2a53d9bc3f8245ea22b812134eec
   bound:
@@ -2824,6 +2824,9 @@ self_check:
   - what: references resolve
     how: orqlet validate as-is docs/design/team-conventions-resources/as-is.md --fragments docs/design/team-conventions-resources/fragments
     result: pass
+  - what: the AS-IS file is accepted by the person
+    how: 'the person wrote "accepted" in conversation on 2026-10-26 after the summary of this file; this is not a merge on the protected baseline'
+    result: pass
   unverified:
   - 'The researchers had no shell: they could not run git, so what they report about files is what the
     working tree held. The two uncommitted P-1 files of the mcp-or-plugins task and its records were excluded
@@ -2832,3 +2835,5 @@ self_check:
     places the label names, no client was run, and nothing about client behaviour was observed.
   - 'No unknown was resolved by running the CLI: the researchers read code and tests only.'
 ---
+
+Accepted by the person on 2026-10-26, in conversation (not a merge).
