@@ -149,7 +149,14 @@ questions:
   - docs/design/mcp-or-plugins/as-is.md#U-31
   blocks:
   - design
-  status: open
+  status: answered
+  answer:
+    value: 'Surfaces: terminal, IDE extension or Cursor editor, desktop apps, cloud agents and web sessions,
+      and code-review contexts (all of them). Plans and administrator rights: none of Claude Code managed
+      settings, Codex workspace administration or Cursor Teams or Enterprise, or not known'
+    answerer: user
+    time: '2026-10-26T11:20:00+02:00'
+    scope: task
 - id: Q-8
   key: 006480aa209f74a20f131452aa4d897c96fb596f639e88d5ed791b12efb48529
   subject: Verification of client behaviour that the vendor documents do not state
@@ -205,7 +212,12 @@ questions:
   - docs/design/mcp-or-plugins/as-is.md#U-69
   blocks:
   - design
-  status: open
+  status: answered
+  answer:
+    value: 'Yes: plan checks with test accounts in each client'
+    answerer: user
+    time: '2026-10-26T11:20:00+02:00'
+    scope: task
 - id: Q-9
   key: 4e6193f763e7997e2c18f3db47de0e6bc1c3460f77678b429457aff96f140260
   subject: Shared identities for MCP integrations
@@ -231,7 +243,12 @@ questions:
   - docs/design/mcp-or-plugins/as-is.md#U-76
   blocks:
   - design
-  status: open
+  status: answered
+  answer:
+    value: 'No: no shared identity is allowed for any integration; every credential is one user''s own'
+    answerer: user
+    time: '2026-10-26T11:20:00+02:00'
+    scope: task
 - id: Q-10
   key: 8ce3814cf5c457193bcd927ad7331b03dbdccc4c52985520a7e418385586bb24
   subject: Allowed per-user credential type per integration and who creates it
@@ -263,7 +280,12 @@ questions:
   - docs/design/mcp-or-plugins/as-is.md#U-17
   blocks:
   - design
-  status: open
+  status: answered
+  answer:
+    value: OAuth sign-in or the user's own personal token
+    answerer: user
+    time: '2026-10-26T11:20:00+02:00'
+    scope: task
 - id: Q-11
   key: 70139030c2769c1a1be66414057d3c831e8284f7f5fb6a97bf88359353b70463
   subject: Ownership and review of the shared files and of a plugin repository
@@ -282,4 +304,9 @@ questions:
   - docs/design/mcp-or-plugins/as-is.md#U-22
   blocks:
   - design
-  status: open
+  status: answered
+  answer:
+    value: A pull request in this repository, reviewed by its code owners
+    answerer: user
+    time: '2026-10-26T11:20:00+02:00'
+    scope: task

@@ -3,7 +3,7 @@ schema: orqlet.as-is/v1
 header:
   schema: orqlet.artifact-header/v1
   task: mcp-or-plugins
-  status: draft
+  status: approved
   workflow_version: 0.3.1
   protected_set_digest: be7723282aec5a67e8161540bfba464562fb2a53d9bc3f8245ea22b812134eec
   bound:
@@ -2429,6 +2429,9 @@ self_check:
   - what: references resolve
     how: orqlet validate as-is docs/design/mcp-or-plugins/as-is.md --fragments docs/design/mcp-or-plugins/fragments
     result: pass
+  - what: the AS-IS file is accepted by the person
+    how: 'the person chose "Yes, I accept it" in conversation on 2026-10-26 when /orqlet-design was started; this is not a merge on the protected baseline'
+    result: pass
   unverified:
   - The vendor pages were read through a search tool that returned excerpts; the excerpts are cut at several
     places and each cut is recorded as an unknown. No vendor page was opened in full and no client was
@@ -2439,6 +2442,8 @@ self_check:
   - 'The red CI jobs and the other open items of the project were not examined (this task has its own
     scope: ledger Q-2 to Q-4).'
 ---
+
+Accepted by the person on 2026-10-26, in conversation (not a merge).
 
 # AS-IS: MCP entries versus native plugins, with one credential per user
 
