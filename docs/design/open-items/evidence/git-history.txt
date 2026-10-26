@@ -1,0 +1,45 @@
+# Read-only capture of git history for the task open-items. Produced by: git log --format='%H|%P|%an|%ad|%s' --date=iso-strict main
+# followed by: git branch -a, git remote -v, git config --get-regexp '^(branch|remote)\.'
+# Workstation clock at capture: 2026-10-26T07:49:45Z
+[log main: sha|parents|author|date|subject]
+2c4308ecdbed19b360fe0aee22cf7ca69a15a9be|a7a672857131946e7b5330d4e66c7cb8a94938a0|Timur Misharin|2026-10-25T15:03:03+02:00|Fix proposal wording from the P-5 reviews and record the approval of v0.5
+a7a672857131946e7b5330d4e66c7cb8a94938a0|79bafd01951fd82dc76e8241b3df6d132070d427|Timur Misharin|2026-10-25T15:03:03+02:00|Amend ADR-001 and ADR-002 after the reviews and refresh the design and plan headers
+79bafd01951fd82dc76e8241b3df6d132070d427|e8ef7a8832e9c0c3909b7b8640669d6f7ef2473c|Timur Misharin|2026-10-25T15:03:03+02:00|Pin the front-matter edge cases in tests and soften two claims
+e8ef7a8832e9c0c3909b7b8640669d6f7ef2473c|0bfc2faf5f8950330643176423389ca667afe90a 034007cb6726e643ec57a7acad2ba5197607e522|Timur Misharin|2026-10-25T14:28:56+02:00|Merge harness2-rebuild: the rebuilt history of harness2-fit
+034007cb6726e643ec57a7acad2ba5197607e522|cf6391507b8a12d0948445dbc19320969c4d8caa|Timur Misharin|2026-10-25T14:15:26+02:00|Record the person's acceptance of the rebuilt harness2-fit AS-IS
+cf6391507b8a12d0948445dbc19320969c4d8caa|1352984e2685a18bf72fb73e38eb28d0562833f1|Timur Misharin|2026-10-25T14:14:24+02:00|Record the person's approval of the harness2-fit design set and plan
+1352984e2685a18bf72fb73e38eb28d0562833f1|5469d72648ca0db355a436a7fb876411506ae259|Timur Misharin|2026-10-25T14:05:38+02:00|Add the round 1 review records of harness2-fit P-2 to P-6
+5469d72648ca0db355a436a7fb876411506ae259|e65734a9150cb3cb8d8ee1d402ffc9edca0aa758|Timur Misharin|2026-10-25T13:47:21+02:00|Add the round 1 review records of harness2-fit P-1
+e65734a9150cb3cb8d8ee1d402ffc9edca0aa758|1ed2087d017f1901c2a727480ccbaf75d447ecc2|Timur Misharin|2026-10-25T10:30:26+02:00|Apply the 0.3.1 versions proposal to the enforcement baseline
+1ed2087d017f1901c2a727480ccbaf75d447ecc2|ec7de9f090a005354d6111672736e1f81e1d350a|Timur Misharin|2026-10-25T10:30:19+02:00|Regenerate this repository's skills, agents and commands with workflow 0.3.1 (harness2-fit P-6)
+ec7de9f090a005354d6111672736e1f81e1d350a|7922ac6e75d98e3afdf3d0cb0f379eb71eb0ce74|Timur Misharin|2026-10-25T10:28:41+02:00|Record the packet rule and the evaluation-harness shape in the proposal (harness2-fit P-5)
+7922ac6e75d98e3afdf3d0cb0f379eb71eb0ce74|b9144df865f0ed14ecedcc4c25f70445c07c96d5|Timur Misharin|2026-10-25T10:27:18+02:00|Add the release test over rendered skills, agents and commands (harness2-fit P-4)
+b9144df865f0ed14ecedcc4c25f70445c07c96d5|3ac5b96d17df803ce133c261688ec7fb164bcf78|Timur Misharin|2026-10-25T10:26:03+02:00|Add plain_when_safe to front_matter and use it for skills, roles and commands (harness2-fit P-3)
+3ac5b96d17df803ce133c261688ec7fb164bcf78|8fefb0d09defa0a69a3f5fe4f7144fbd253e9583|Timur Misharin|2026-10-25T10:24:42+02:00|Reword the research skill description and bump the workflow to 0.3.1 (harness2-fit P-2)
+8fefb0d09defa0a69a3f5fe4f7144fbd253e9583|3b1d1cc61d61934e86e9fdbf6e6808286084f454|Timur Misharin|2026-10-25T10:20:51+02:00|Add the front-matter line view and comparison (harness2-fit P-1)
+3b1d1cc61d61934e86e9fdbf6e6808286084f454|06209cdb13410548a825a6a731a2270ec7fe030f|Timur Misharin|2026-10-25T10:16:31+02:00|Add the harness2-fit implementation plan
+06209cdb13410548a825a6a731a2270ec7fe030f|a1bad7a644584ef9940ec433a2151d971a1b4e97|Timur Misharin|2026-10-25T10:16:14+02:00|Add the harness2-fit design set and its review notes
+a1bad7a644584ef9940ec433a2151d971a1b4e97|2f235673610617120ffc0fc46824d7d7b56c6b87|Timur Misharin|2026-10-25T10:15:51+02:00|Add the harness2-fit AS-IS and question ledger
+2f235673610617120ffc0fc46824d7d7b56c6b87||Timur Misharin|2026-10-25T10:13:57+02:00|Baseline: Orqlet before harness2-fit (RECONSTRUCTED, not the original)
+0bfc2faf5f8950330643176423389ca667afe90a|62dd7233a70ea8f0e2df55eaccc355b8f3d6e84f|Timur Misharin|2026-10-24T09:24:49+03:00|Narrow the harness2-fit AS-IS scope to the files its facts cite
+62dd7233a70ea8f0e2df55eaccc355b8f3d6e84f|a18faca4ee53440836895989d6e11fb0063d8088|Timur Misharin|2026-10-24T09:23:54+03:00|Add the harness2-fit AS-IS, design, plan and reviews; apply the 0.3.1 versions proposal
+a18faca4ee53440836895989d6e11fb0063d8088||Timur Misharin|2026-10-24T09:06:42+03:00|Add front-matter checks, plain-safe emitter and workflow 0.3.1 (harness2-fit P-1 to P-6)
+[branches]
+  harness2-rebuild
+  main
+* open-items-research
+  remotes/origin/HEAD -> origin/main
+  remotes/origin/harness2-rebuild
+  remotes/origin/main
+[remotes]
+origin	ssh://github.com/tmishari/orqlet.git (fetch)
+origin	ssh://github.com/tmishari/orqlet.git (push)
+[tags]
+[git config branch and remote keys]
+remote.origin.url https://github.com/tmishari/orqlet.git
+remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
+branch.main.remote origin
+branch.main.merge refs/heads/main
+branch.main.vscode-merge-base origin/main
+branch.harness2-rebuild.remote origin
+branch.harness2-rebuild.merge refs/heads/harness2-rebuild
