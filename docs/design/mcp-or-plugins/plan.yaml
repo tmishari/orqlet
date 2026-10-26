@@ -1,0 +1,289 @@
+schema: orqlet.implementation-plan/v1
+header:
+  schema: orqlet.artifact-header/v1
+  task: mcp-or-plugins
+  status: approved
+  workflow_version: 0.3.1
+  protected_set_digest: be7723282aec5a67e8161540bfba464562fb2a53d9bc3f8245ea22b812134eec
+  bound:
+    base_revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
+    standards_lock_hash: 89a225016ff9d8b3ed977df39a70dfbe9dbc5f7c6d3762d0f2208b1b7a037a52
+    applicable_rules_hash: 56502a0ec5eda3b13b4c9d97c7d4dfa41df82c86a206e36dd5d2d92aab299b97
+    profile_version: 1
+design_ref: docs/design/mcp-or-plugins/design/manifest.yaml#e919a32941a8c6d13d38d2b6c61e7b7487b1cfddb5b6af538d68ca62803ba4b2
+base_revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
+knowledge_scope: []
+phases:
+  - id: P-1
+    objective: "Add the pure domain module mcp_credentials: one class and seven functions of ADR-002, with unit, property and worst-case tests. Nothing else imports it yet."
+    depends_on: []
+    implements: ["EC-1", "EC-2", "EC-3", "EC-7", "EC-8", "EC-10", "EC-11", "EC-16", "EC-17"]
+    file_operations:
+      - {op: create, path: src/orqlet/domain/mcp_credentials.py, why: "CredentialFinding, find_literal_credentials, rendered_entry, entry_differences, allowed_auth_modes, referenced_variables, name_problems and mcp_file_path (ADR-002 decisions 2 to 9). Standard library only (ORQLET-ARCH-002); the closed table, the patterns and the key sets are private names."}
+      - {op: create, path: tests/unit/domain/test_mcp_credentials.py, why: "Unit tests with a failing and a passing case for every rule, credential-shaped text assembled from parts, look-alikes that must pass, the trailing newline, U+212A and the line at offset 4097 (ORQLET-TEST-001, ADR-002 decision 7)."}
+      - {op: create, path: tests/unit/domain/test_mcp_credentials_properties.py, why: "Property tests that no finding and no message contains the matched text, key or value, that no function raises on arbitrary text, and a worst-case-time test (ADR-002 decisions 7 and 9)."}
+    acceptance_criteria:
+      - {id: AC-1, text: "name_problems(server_id, url, variable) returns the names of the rules that the three values break and an empty tuple when none. An id must fullmatch ^[a-z][a-z0-9-]{0,31}$. A variable, when given, must fullmatch ^ORQLET_MCP_[A-Z][A-Z0-9]*(_[A-Z][A-Z0-9]*)*$ and be at most 48 characters. An address must be a literal https address without user information, query, fragment, `${`, backslash or percent-encoding. Every pattern is applied with fullmatch and re.ASCII and without IGNORECASE; tests cover a trailing newline and the character U+212A. No returned text contains an input value.", source: "ADR-002 decisions 3 and 4", check_ref: pytest}
+      - {id: AC-2, text: "allowed_auth_modes(url, client) returns ('client-native-oauth',) for exactly the address https://mcp.atlassian.com/v2/mcp with the client claude-code and () for every other address (a trailing slash, another letter case, a query, the GitHub address, the empty string) and for every other client.", source: "ADR-002 decision 2", check_ref: pytest}
+      - {id: AC-3, text: "rendered_entry returns, for the Atlassian address, no variable and claude-code, the mapping with the keys type and url in that order (type http); it refuses any other combination, a variable and any value for which name_problems reports a rule, and the refusal text holds no input value. mcp_file_path returns .mcp.json for claude-code, .cursor/mcp.json for cursor and .codex/config.toml for codex.", source: "ADR-002 decision 5; ADR-003 decision 6", check_ref: pytest}
+      - {id: AC-4, text: "find_literal_credentials reports, with a line number and a rule name and never a value or a raw key: token-shaped strings with the prefixes of ADR-002 decision 7, a JWT-shaped string, user information in a URL, a credential-named URL query parameter after percent-decoding, an Authorization, Bearer or Basic value that is not the anchored template, and a credential-named key with a literal value. A bearer_token_env_var whose value matches the variable pattern is exempt. A line or a decoded value longer than 4096 characters is itself a finding named oversize, and a credential-shaped string at offset 4097 of one line is found by the oversize finding.", source: "ADR-002 decision 7; Q-6", check_ref: pytest}
+      - {id: AC-5, text: "entry_differences(pinned, found) returns the fields in which the found entry differs from the pinned one, from the closed vocabulary type, url, headers, bearer_token_env_var, entry and unknown-key, and never an unknown key, a value or an undeclared name; two equal entries give (). referenced_variables(entry) returns the variable names of every `${NAME}` or `${env:NAME}` reference and of bearer_token_env_var in an entry and () for an entry without any.", source: "ADR-002 decisions 6 and 9", check_ref: pytest}
+      - {id: AC-6, text: "A property test builds text from distinctive parts and shows that no CredentialFinding field and no message of any function contains a part; another shows that no function raises for arbitrary text; a worst-case test runs repeated eyJ and long runs of one character through the scan within a time limit that the phase record states after a first measurement.", source: "ADR-002 decisions 7 and 9", check_ref: pytest}
+      - {id: AC-7, text: "The module imports only re, collections.abc, typing and dataclasses, uses no clock, random number or environment, and the layers contract of import-linter passes.", source: "ORQLET-ARCH-002", check_ref: import-linter}
+    checks: ["ruff-check", "ruff-format", "mypy", "import-linter", "pytest"]
+    review_evidence: [architecture-reviewer, security-reviewer, tester]
+    knowledge_step: required
+    completion:
+      - "All checks pass on Python 3.12"
+      - "The public API of the package differs from the base only by EC-1, EC-2, EC-3, EC-7, EC-8, EC-10, EC-11 and EC-17"
+      - "The only paths on the security globs that this phase touches are the ones EC-16 lists"
+    expected_outputs:
+      - "src/orqlet/domain/mcp_credentials.py"
+      - "tests/unit/domain/test_mcp_credentials.py"
+      - "tests/unit/domain/test_mcp_credentials_properties.py"
+  - id: P-2
+    objective: "Tighten orqlet.integrations/v1 in place with validators that call the domain module, add Integrations.registered_for and update the existing valid fixture. The committed JSON Schema does not change."
+    depends_on: ["P-1"]
+    implements: ["EC-13", "EC-16", "EC-18"]
+    file_operations:
+      - {op: modify, path: src/orqlet/application/contracts/integrations.py, why: "Underscore-named validators that call name_problems and the other rules of EC-13, and the public method Integrations.registered_for (ADR-002 decisions 1, 3 to 5). No field pattern and no new enumeration, so the schema is unchanged."}
+      - {op: modify, path: tests/fixtures/contracts/valid/orqlet.integrations.v1.yaml, why: "The fixture (https://docs.example.com/mcp, backend_identity Example, registration name docs) fails the new rules and must stay a valid declaration for tests/contract/test_contracts.py (ADR-002 consequences)."}
+      - {op: create, path: tests/unit/application/test_integrations_contract.py, why: "A failing and a passing case for every rule of EC-13, for registered_for and for the message text of each rule (ORQLET-TEST-001)."}
+    acceptance_criteria:
+      - {id: AC-1, text: "A declaration is refused when a server id is repeated, when registration.name is not orqlet- followed by the id, when env_refs holds more than one name or a name that name_problems rejects, when env_refs is not empty for client-native-oauth, when the mode is none, when backend_identity is not user-oauth with client-native-oauth or user-token with env-ref, when a variable name belongs to two servers, when verification is verified, and when identity.url, command or package break the rules of ADR-002 decision 4.", source: "ADR-002 decisions 1, 3 and 4; Q-9", check_ref: pytest}
+      - {id: AC-2, text: "A declaration is refused when a server with capability_tier other than read has enforced_by none in registration or in any per_client entry, when clients omits a client with register true, and when a stdio server has register true for any client.", source: "ADR-002 decision 5", check_ref: pytest}
+      - {id: AC-3, text: "A well-formed declaration for an https address that is not on the closed table is valid for the contract: the table is a separate check, not a contract rule.", source: "ADR-002 decision 2", check_ref: pytest}
+      - {id: AC-4, text: "Integrations.registered_for(client) returns the servers whose per_client entry for that client has register true, in declaration order, and an empty tuple when there is none.", source: "ADR-002 decision 5", check_ref: pytest}
+      - {id: AC-5, text: "The text of every validator error names a rule and holds no input value: a test places a credential-shaped string in an id, an address, a variable name and a registration name and requires that no error text contains it.", source: "ADR-002 decision 9", check_ref: pytest}
+      - {id: AC-6, text: "tools/export_schemas.py --check passes and src/orqlet/workflow/schemas/orqlet.integrations.v1.json is byte-identical to the base. Every new name in the module except Integrations.registered_for starts with an underscore.", source: "ORQLET-DET-003; EC-13; EC-18", check_ref: schemas}
+    checks: ["ruff-check", "ruff-format", "mypy", "import-linter", "schemas", "pytest"]
+    review_evidence: [architecture-reviewer, security-reviewer, tester]
+    knowledge_step: required
+    completion:
+      - "All checks pass on Python 3.12"
+      - "The public API of the package differs from the base, in this phase, only by EC-18"
+      - "The committed schema file is unchanged"
+    expected_outputs:
+      - "src/orqlet/application/contracts/integrations.py"
+      - "tests/fixtures/contracts/valid/orqlet.integrations.v1.yaml"
+      - "tests/unit/application/test_integrations_contract.py"
+  - id: P-3
+    objective: "Reword the workflow rule text so that .mcp.json is no longer described as generated by Orqlet, rebuild the workflow manifest, bump the workflow version to 0.3.2 and regenerate the affected golden files (ADR-003 decision 8, ORQLET-DET-002)."
+    depends_on: []
+    implements: []
+    file_operations:
+      - {op: modify, path: src/orqlet/workflow/rules/orqlet-workflow.md, why: "The text stops calling .mcp.json generated. It says that the MCP files (.mcp.json, .cursor/mcp.json, .codex/config.toml) were seeded by Orqlet and belong to the team afterwards, that changes arrive as proposals under .orqlet/proposals, and that a file may name variables but never hold a credential value (ADR-003 decision 8; AS-IS C-4)."}
+      - {op: modify, path: src/orqlet/workflow/rules/orqlet-workflow.meta.yaml, why: "The description line says that MCP files are seeded and team-owned; the path list keeps .mcp.json so that the rule is shown when an agent edits that file."}
+      - {op: modify, path: src/orqlet/workflow/MANIFEST.json, why: "Rebuilt with tools/build_manifest.py and never by hand (ORQLET-DET-002)."}
+      - {op: modify, path: src/orqlet/workflow/identity.json, why: "workflow_version from 0.3.1 to 0.3.2: patch level under design Section 20.8 (wording that changes no gate or contract). The version number is a proposal for the plan review (ADR-003 decision 8 leaves the choice to the person)."}
+      - {op: modify, path: tests/golden/claude-code/docs-2026-10/.claude/rules/orqlet-workflow.md, why: "Regenerated locally with --update-golden: the rule text changes."}
+      - {op: modify, path: tests/golden/cursor/docs-2026-10/.cursor/rules/orqlet-workflow.mdc, why: "Regenerated locally with --update-golden: the rule text and description change."}
+      - {op: modify, path: tests/golden/claude-code/docs-2026-10/AGENTS.md, why: "Regenerated locally with --update-golden: the workflow marker carries version 0.3.2."}
+      - {op: modify, path: tests/golden/codex/docs-2026-10/AGENTS.md, why: "Regenerated locally with --update-golden: the workflow marker carries version 0.3.2."}
+      - {op: modify, path: tests/golden/cursor/docs-2026-10/AGENTS.md, why: "Regenerated locally with --update-golden: the workflow marker carries version 0.3.2."}
+      - {op: modify, path: tests/golden/common/pr_template/existing-reconciled.md, why: "Regenerated locally with --update-golden: the workflow marker carries version 0.3.2."}
+      - {op: modify, path: tests/golden/common/pr_template/new-with-team.md, why: "Regenerated locally with --update-golden: the workflow marker carries version 0.3.2."}
+      - {op: modify, path: tests/golden/common/pr_template/new-workflow-only.md, why: "Regenerated locally with --update-golden: the workflow marker carries version 0.3.2."}
+    acceptance_criteria:
+      - {id: AC-1, text: "The rule text names the files under .orqlet/, the client configuration folders and the managed block of AGENTS.md as generated and says not to edit them by hand, and no longer names .mcp.json among them. It says that the MCP files are seeded: they belong to the team once written, changes arrive as proposals, and a file may name variables but must never hold a credential value.", source: "ADR-003 decision 8", check_ref: architecture-reviewer}
+      - {id: AC-2, text: "tools/build_manifest.py --check and tools/export_schemas.py --check pass, identity.json says 0.3.2, and the schema file src/orqlet/workflow/schemas/orqlet.integrations.v1.json is unchanged.", source: "ORQLET-DET-002; ORQLET-DET-003", check_ref: manifest}
+      - {id: AC-3, text: "The golden files differ from before only in the two rule files and in the workflow version of the marker (six files); no other golden file changes.", source: "ORQLET-DET-001", check_ref: review:golden-diff}
+      - {id: AC-4, text: "The release-gate test passes: 0.3.2 is not in the release history, so no digest change is reported as a release defect. releases.json is not edited; recording the release is the person's decision at release time.", source: "ORQLET-DET-002; ADR-003 decision 8", check_ref: pytest}
+    checks: ["manifest", "schemas", "pytest"]
+    review_evidence: [architecture-reviewer, security-reviewer, tester]
+    knowledge_step: required
+    completion:
+      - "All checks pass on Python 3.12"
+      - "Golden files were regenerated locally with --update-golden and never in CI"
+      - "The completion note names the version 0.3.2 for the person to confirm or replace"
+    expected_outputs:
+      - "src/orqlet/workflow/rules/orqlet-workflow.md"
+      - "src/orqlet/workflow/MANIFEST.json"
+      - "src/orqlet/workflow/identity.json"
+  - id: P-4
+    objective: "Add load_integrations and validate integrations, wire the command, and make doctor and sync run the same checks (ADR-003 decisions 5 and 7)."
+    depends_on: ["P-1", "P-2"]
+    implements: ["EC-4", "EC-5", "EC-9", "EC-16", "EC-19", "EC-20"]
+    file_operations:
+      - {op: create, path: src/orqlet/application/usecases/integrations_source.py, why: "DECLARATION_PATH and load_integrations(project, loader, path): the one owner of the contract check, the closed-table check and the scan of the declaration, with findings in closed vocabulary (ADR-003 decision 5; ADR-002 decision 9)."}
+      - {op: create, path: src/orqlet/application/usecases/validate_integrations.py, why: "validate_integrations(services, raw_path): the declaration through load_integrations, then each client's MCP file that exists through strict, bounded parsing, the rule table and the scan (ADR-002 decisions 6 to 8)."}
+      - {op: modify, path: src/orqlet/application/usecases/capabilities.py, why: "IMPLEMENTED_COMMANDS gains validate integrations; tests/integration/test_validate_cli.py compares the set with the registered commands."}
+      - {op: modify, path: src/orqlet/interface/cli/commands/validate.py, why: "integrations_command, wired like the other validate commands and returning exit 0 on PASS and 5 otherwise."}
+      - {op: modify, path: src/orqlet/application/usecases/diagnose.py, why: "_diagnose builds a ValidateServices from the project, vcs, loader and workflow of its Services and runs validate_integrations when a declaration exists; reports a check that did not run when the lock records an MCP file but no declaration exists; adds the CODEOWNERS information finding (ADR-003 decision 7)."}
+      - {op: create, path: tests/unit/application/test_integrations_source.py, why: "Absent, invalid and valid declarations; messages without values or raw keys, including a duplicate YAML key and an unknown field (ORQLET-TEST-001)."}
+      - {op: create, path: tests/unit/application/test_validate_integrations.py, why: "The rule table for declared, undeclared orqlet-* and other undeclared entries, the caps, the parse failures, unreadable files and the information finding about the read-only labels."}
+      - {op: create, path: tests/unit/application/test_diagnose_integrations.py, why: "doctor and sync with and without a declaration, with a lock entry and no declaration, with a failing Vcs call, and the CODEOWNERS mention finding."}
+      - {op: create, path: tests/integration/test_validate_integrations_cli.py, why: "The command end to end: exit codes, the JSON envelope, the file argument that must equal the declaration path, and NOT_RUN without a declaration."}
+    acceptance_criteria:
+      - {id: AC-1, text: "load_integrations(project, loader, path) returns (None, ()) for an absent file, (None, findings with at least one error) for an invalid one and the declaration for a valid one. It runs the contract validation, allowed_auth_modes for every registered client and the scan of the declaration. Its findings carry a rule id and a closed field name, print <key> for a key of a free-form map and unknown-key for an unknown field, and never the text of DocumentError.", source: "ADR-002 decision 9; ADR-003 decision 5", check_ref: pytest}
+      - {id: AC-2, text: "No output of load_integrations, validate_integrations or doctor contains a credential-shaped string that a test places in a key, a value, a duplicate key, an unknown field or a tag of the declaration or of an MCP file.", source: "ADR-002 decision 9; Q-6", check_ref: pytest}
+      - {id: AC-3, text: "validate integrations with a file argument other than .orqlet/integrations.yaml fails; with no declaration it returns not run and exits 5; with a valid declaration and no MCP file it passes and prints an information finding that the file is absent.", source: "ADR-002 decision 11; ADR-003 decision 5", check_ref: pytest}
+      - {id: AC-4, text: "For an MCP file that exists, a declared entry that differs from rendered_entry is an error, a declared entry that is missing is an error, an orqlet-* entry in any letter case that is not declared is an error, an undeclared entry with a key of the closed credential list, a `${` or a scan finding is an error, and an undeclared entry that starts a process or reaches a server without a reference is left alone, as the table of ADR-002 decision 6 says.", source: "ADR-002 decision 6", check_ref: pytest}
+      - {id: AC-5, text: "A file above 256 KiB, nesting above 16 levels, more than 64 entries or a string above 2048 characters is refused; a duplicate JSON key is the finding duplicate-key with no key text; a link, a directory or an unreadable file is the finding unreadable and the other checks still run; valid input of the wrong shape is a finding and not an exception.", source: "ADR-002 decision 8", check_ref: pytest}
+      - {id: AC-6, text: "validate integrations and doctor print an information finding for each declared server whose read-only and deny labels the entry does not enforce.", source: "ADR-002 decision 5", check_ref: pytest}
+      - {id: AC-7, text: "doctor and sync run validate_integrations whenever a declaration exists, report a check that did not run when Vcs.tracked_files or Vcs.read_committed fails or when the lock records an MCP file and no declaration exists, exit 5 on an error, and print the CODEOWNERS finding when no CODEOWNERS file mentions the declaration, the MCP files, .github/workflows/**, .orqlet/versions.yaml, .claude/settings.json and CODEOWNERS.", source: "ADR-002 decision 11; ADR-003 decision 7", check_ref: pytest}
+      - {id: AC-8, text: "The list of implemented commands matches the commands that the application registers, and the layers contract of import-linter passes.", source: "ORQLET-ARCH-001", check_ref: import-linter}
+    checks: ["ruff-check", "ruff-format", "mypy", "import-linter", "pytest"]
+    review_evidence: [architecture-reviewer, security-reviewer, tester]
+    knowledge_step: required
+    completion:
+      - "All checks pass on Python 3.12"
+      - "The public API of the package differs from the previous phases only by EC-4, EC-5 and EC-9; EC-19 and EC-20 are compared by hand"
+      - "The new ORQ codes are unused elsewhere in the repository and are recorded in the phase record"
+      - "The committed-assignment check of ADR-002 decision 10 is not built here; it comes with the release that enables env-ref"
+    expected_outputs:
+      - "src/orqlet/application/usecases/integrations_source.py"
+      - "src/orqlet/application/usecases/validate_integrations.py"
+      - "tests/integration/test_validate_integrations_cli.py"
+  - id: P-5
+    objective: "Add the renderer, the optional RenderRequest.integrations field, the Claude Code adapter step, the compose step and the plan_changes check of planned proposals, so that .mcp.json is written once as a seeded file (ADR-003 decisions 2 to 6)."
+    depends_on: ["P-3", "P-4"]
+    implements: ["EC-6", "EC-12", "EC-14", "EC-15", "EC-16"]
+    file_operations:
+      - {op: create, path: src/orqlet/adapters/render/mcp.py, why: "render_mcp_file(servers, client): the text of one client's file, built from rendered_entry, json.dumps with an indent of two, keys in insertion order and a trailing newline (ADR-003 decision 6; ORQLET-DET-001)."}
+      - {op: modify, path: src/orqlet/application/ports/instruction_adapter.py, why: "RenderRequest gains the optional field integrations, typed Integrations | None with the default None; InstructionAdapter is unchanged (EC-12)."}
+      - {op: modify, path: src/orqlet/adapters/clients/claude_code.py, why: "Adds .mcp.json, owner seeded and no file class, to the files of the adapter when the request carries a declaration, using Integrations.registered_for and render_mcp_file."}
+      - {op: modify, path: src/orqlet/application/usecases/render_all.py, why: "compose calls load_integrations and attaches the declaration with dataclasses.replace; an invalid declaration raises InitRefused; plan_changes checks each planned proposal of an MCP path for tracking and scans its text before the plan is returned. plan_changes keeps its signature (ADR-003 decisions 3 and 5)."}
+      - {op: create, path: tests/unit/render/test_mcp_render.py, why: "render_mcp_file against its golden file, determinism, and the refusals of rendered_entry (ORQLET-DET-001, ORQLET-TEST-001)."}
+      - {op: create, path: tests/golden/claude-code/docs-2026-10/with-integrations/.mcp.json, why: "Golden file of the one generated entry, created locally with --update-golden and reviewed."}
+      - {op: create, path: tests/unit/application/test_render_integrations.py, why: "compose with no declaration, a valid one, an invalid one and a profile that does not enable Claude Code; the other two adapters ignore the field."}
+      - {op: create, path: tests/integration/test_upgrade_mcp_files.py, why: "init and upgrade end to end: the file is written once, is never refused when Orqlet wrote it, an untracked or flagged existing file refuses the run with exit 3 and nothing written, a tracked clean file gets a whole-file proposal, a deleted file is not restored."}
+      - {op: create, path: tests/fault/test_mcp_file_apply.py, why: "Stops the run that writes .mcp.json after each step and proves that a re-run converges, including an untracked file that Orqlet wrote (ORQLET-TEST-002, ORQLET-SAFE-001)."}
+    acceptance_criteria:
+      - {id: AC-1, text: "render_mcp_file returns for the Atlassian server the text of the golden file: an object with mcpServers holding orqlet-<id> with the keys type and url, written with json.dumps, an indent of two and a trailing newline, and two calls give identical bytes.", source: "ADR-003 decision 6; ORQLET-DET-001", check_ref: pytest}
+      - {id: AC-2, text: "Without .orqlet/integrations.yaml, init, upgrade and explain produce the same files as before, byte for byte, and the existing golden files and tests pass unchanged; the Codex and Cursor adapters ignore the new field.", source: "ADR-003 decision 4", check_ref: pytest}
+      - {id: AC-3, text: "With a valid declaration and Claude Code enabled in the profile, upgrade writes .mcp.json once as a seeded file with a lock entry; a second upgrade, an upgrade with --check and a resume after an interrupted run all converge without a proposal even when the file is not yet committed.", source: "ADR-003 decisions 2 and 3; ORQLET-SAFE-001", check_ref: pytest}
+      - {id: AC-4, text: "When a planned proposal for an MCP path comes from an untracked file, or its text is flagged by the scan, init and upgrade refuse with exit 3, print only rule names and line numbers, and write and preview nothing; a tracked clean file gets a whole-file proposal; a deleted recorded file is not restored.", source: "ADR-003 decision 3; Q-6", check_ref: pytest}
+      - {id: AC-5, text: "An invalid declaration makes init, upgrade and explain refuse with exit 3 naming the rule; for init and upgrade no file at all is written. A profile that does not enable Claude Code gets no .mcp.json.", source: "ADR-003 decision 5", check_ref: pytest}
+      - {id: AC-6, text: "The fault test stops the apply after each step of the run that writes .mcp.json and a re-run, or a rollback, reaches the same state.", source: "ORQLET-TEST-002", check_ref: pytest}
+      - {id: AC-7, text: "The adapters layer imports no use case, the three client adapters import none of one another, the committed schema is unchanged and the layers contract of import-linter passes.", source: "ORQLET-ARCH-001; ORQLET-ARCH-003", check_ref: import-linter}
+      - {id: AC-8, text: "The trust boundaries B-1 to B-3 of the context view each have the control that the design names and the review record says so (EC-15 is compared by hand).", source: "EC-15; Q-9", check_ref: security-reviewer}
+    checks: ["ruff-check", "ruff-format", "mypy", "import-linter", "schemas", "pytest"]
+    review_evidence: [architecture-reviewer, security-reviewer, tester]
+    knowledge_step: required
+    completion:
+      - "All checks pass on Python 3.12"
+      - "The public API of the package differs from the previous phases only by EC-6; EC-12 and EC-14 are compared by hand"
+      - "The new golden file was created locally with --update-golden and never in CI"
+    expected_outputs:
+      - "src/orqlet/adapters/render/mcp.py"
+      - "src/orqlet/adapters/clients/claude_code.py"
+      - "src/orqlet/application/usecases/render_all.py"
+      - "tests/fault/test_mcp_file_apply.py"
+  - id: P-6
+    objective: "Update the documents that the change makes wrong and add the CODEOWNERS file of this repository (ADR-002 decision 11, ADR-003 decision 7)."
+    depends_on: ["P-5"]
+    implements: []
+    file_operations:
+      - {op: modify, path: README.md, why: "A section for adopters: what release 1 generates, the CI line `orqlet validate integrations .orqlet/integrations.yaml` with the tool pinned at a version from a reviewed source, that only this command checks the rules and the JSON Schema does not, that the read-only labels are not enforced by the entry, the paths to cover with CODEOWNERS, and the user's own sign-in. The README currently lists the MCP configuration as not built (AS-IS A-14)."}
+      - {op: modify, path: docs/design/orqlet-architecture-proposal.md, why: "Sections 15.1 and 24.4 aligned with the built contract and the closed table (AS-IS C-6), the entry name orqlet-<id>, the seeded MCP files, the Miro exception and the plugin decision of ADR-001; the Section 4.8 conclusion stays."}
+      - {op: create, path: .github/CODEOWNERS, why: "Covers the credential-handling sources, the workflow package, the design files of this task and the CODEOWNERS file itself. The owner @tmishari is the account that owns the repository and its only collaborator (open-items evidence github-state.yaml:38-41); the plan review confirms or replaces it."}
+    acceptance_criteria:
+      - {id: AC-1, text: "The README says what release 1 generates (one Atlassian OAuth entry for Claude Code), that the user signs in with their own account, the CI line with its pinned install, that only validate integrations checks the rules, that the read-only labels are not enforced and that GitHub, Codex, Cursor and variable-based entries wait for the checks and a later release. It no longer lists the MCP configuration as simply not built.", source: "ADR-002 decision 11; ADR-003 decision 7; Q-6", check_ref: review:documentation}
+      - {id: AC-2, text: "Sections 15.1 and 24.4 of the architecture document agree with the built contract: no variables in url or env, registration.name equal to orqlet-<id>, one mode per server, the closed table and the seeded files; contradiction C-6 no longer holds.", source: "ADR-002 consequences; AS-IS C-6", check_ref: review:documentation}
+      - {id: AC-3, text: "CODEOWNERS has a line with an owner for each of src/orqlet/domain/mcp_credentials.py, src/orqlet/adapters/render/mcp.py, src/orqlet/application/contracts/integrations.py, src/orqlet/application/usecases/integrations_source.py, src/orqlet/application/usecases/validate_integrations.py, src/orqlet/workflow/**, docs/design/mcp-or-plugins/** and .github/CODEOWNERS.", source: "Q-11; ADR-003 decision 7", check_ref: security-reviewer}
+    checks: ["pytest"]
+    review_evidence: [architecture-reviewer, security-reviewer, tester]
+    knowledge_step: required
+    completion:
+      - "All checks pass on Python 3.12"
+      - "The completion note says that CODEOWNERS is advisory until the host enforces a required review"
+    expected_outputs:
+      - "README.md"
+      - "docs/design/orqlet-architecture-proposal.md"
+      - ".github/CODEOWNERS"
+  - id: P-7
+    objective: "Regenerate this repository's own generated files with orqlet upgrade, last, after the code, tests and text of P-1 to P-6. The person runs it."
+    depends_on: ["P-3", "P-5", "P-6"]
+    implements: []
+    file_operations:
+      - {op: modify, path: .claude/rules/orqlet-workflow.md, why: "Written by `orqlet upgrade` only, never by hand: the rule text of P-3."}
+      - {op: modify, path: .cursor/rules/orqlet-workflow.mdc, why: "Written by `orqlet upgrade` only, never by hand: the rule text of P-3."}
+      - {op: modify, path: AGENTS.md, why: "Written by `orqlet upgrade` only: the managed block marker carries workflow 0.3.2."}
+      - {op: modify, path: .github/pull_request_template.md, why: "Written by `orqlet upgrade` only: the managed block marker carries workflow 0.3.2."}
+      - {op: modify, path: .orqlet/generated.lock.yaml, why: "Written last by `orqlet upgrade`: new rendered hashes of the files above."}
+      - {op: modify, path: .orqlet/workflow.lock, why: "Written by `orqlet upgrade`: installed workflow 0.3.2 and its digest."}
+      - {op: modify, path: .orqlet/proposals/.orqlet__versions.yaml.diff, why: "Written by `orqlet upgrade` as a proposal for the enforcement baseline `.orqlet/versions.yaml`. A person applies or declines it; this plan never edits versions.yaml."}
+    acceptance_criteria:
+      - {id: AC-1, text: "`orqlet upgrade --dry-run` previews no file outside the list of this phase; the person approves the preview; the files are written by `orqlet upgrade` (journalled, ORQLET-SAFE-001), not by hand.", source: "ORQLET-SAFE-001", check_ref: orqlet-upgrade-dry-run}
+      - {id: AC-2, text: "After the upgrade the two generated rule files carry the new rule text, the two markers carry 0.3.2, and every other generated file is byte-identical to before, compared with the upgrade's backups. This repository gets no .mcp.json because it has no declaration.", source: "ADR-003 decisions 4 and 8", check_ref: review:upgrade-backups}
+      - {id: AC-3, text: "`orqlet sync` and `orqlet doctor` report no drift and no new error after the upgrade. Any finding about `.orqlet/versions.yaml` (the proposal is not applied) is listed for the person, who applies or declines the proposal.", source: "ORQLET-QA-001", check_ref: orqlet-doctor}
+      - {id: AC-4, text: "`orqlet gate status mcp-or-plugins` reports this task's own artifacts as stale (warning ORQ-W390) and the completion note records that; no artifact is edited to hide it, and the person decides whether to re-approve the design and the plan.", source: "ADR-003 decision 8", check_ref: orqlet-gate-status}
+    checks: ["orqlet-upgrade-dry-run", "orqlet-doctor", "orqlet-gate-status"]
+    review_evidence: [architecture-reviewer, security-reviewer, tester]
+    knowledge_step: required
+    completion:
+      - "The person ran orqlet upgrade and read the preview first"
+      - "The completion note lists the stale artifacts of this task and the proposal for versions.yaml for the person to decide"
+    expected_outputs:
+      - ".orqlet/generated.lock.yaml"
+      - ".orqlet/workflow.lock"
+  - id: P-8
+    objective: "A person with test accounts runs the thirteen checks of ADR-004 and writes one record per check and client. Orqlet cannot run them. No phase before this one depends on a record."
+    depends_on: ["P-5"]
+    implements: []
+    file_operations:
+      - {op: create, path: docs/design/mcp-or-plugins/evidence/checks/V-1-claude-code.md, why: "V-1: project .mcp.json approval and re-approval after a changed url or header, interactive and in a claude -p run."}
+      - {op: create, path: docs/design/mcp-or-plugins/evidence/checks/V-2-claude-code.md, why: "V-2: ${VAR} expansion in headers for names of the form of ADR-002 decision 3, and an unset variable."}
+      - {op: create, path: docs/design/mcp-or-plugins/evidence/checks/V-3-cursor.md, why: "V-3: ${env:NAME} expansion, approval prompt, replace or merge with a global entry of the same name, an unset variable."}
+      - {op: create, path: docs/design/mcp-or-plugins/evidence/checks/V-4-codex.md, why: "V-4: project .codex/config.toml honoured, bearer_token_env_var, an unset variable, trust, replace or merge with a user entry."}
+      - {op: create, path: docs/design/mcp-or-plugins/evidence/checks/V-5-claude-code.md, why: "V-5: where OAuth sign-ins are stored, with what file mode, keyed by what."}
+      - {op: create, path: docs/design/mcp-or-plugins/evidence/checks/V-5-codex.md, why: "V-5: where OAuth sign-ins are stored, with what file mode, keyed by what."}
+      - {op: create, path: docs/design/mcp-or-plugins/evidence/checks/V-5-cursor.md, why: "V-5: where OAuth sign-ins are stored, with what file mode, keyed by what."}
+      - {op: create, path: docs/design/mcp-or-plugins/evidence/checks/V-6-claude-code.md, why: "V-6: a personal same-name entry against the project entry, and any warning."}
+      - {op: create, path: docs/design/mcp-or-plugins/evidence/checks/V-6-codex.md, why: "V-6: a personal same-name entry against the project entry, and any warning."}
+      - {op: create, path: docs/design/mcp-or-plugins/evidence/checks/V-6-cursor.md, why: "V-6: a personal same-name entry against the project entry, and any warning."}
+      - {op: create, path: docs/design/mcp-or-plugins/evidence/checks/V-7-claude-code.md, why: "V-7: whether the project entry loads on each surface of Q-7, and which files the client reads."}
+      - {op: create, path: docs/design/mcp-or-plugins/evidence/checks/V-7-codex.md, why: "V-7: whether the project entry loads on each surface of Q-7, and which files the client reads."}
+      - {op: create, path: docs/design/mcp-or-plugins/evidence/checks/V-7-cursor.md, why: "V-7: whether the project entry loads on each surface of Q-7, and which files the client reads."}
+      - {op: create, path: docs/design/mcp-or-plugins/evidence/checks/V-8-claude-code.md, why: "V-8: whether a changed url that keeps the header or variable name is connected to and sent the variable without asking."}
+      - {op: create, path: docs/design/mcp-or-plugins/evidence/checks/V-8-codex.md, why: "V-8: whether a changed url that keeps the header or variable name is connected to and sent the variable without asking."}
+      - {op: create, path: docs/design/mcp-or-plugins/evidence/checks/V-8-cursor.md, why: "V-8: whether a changed url that keeps the header or variable name is connected to and sent the variable without asking."}
+      - {op: create, path: docs/design/mcp-or-plugins/evidence/checks/V-9-claude-code.md, why: "V-9: exposure of the variable value to child processes, the agent shell tool, logs, telemetry and debug output."}
+      - {op: create, path: docs/design/mcp-or-plugins/evidence/checks/V-9-codex.md, why: "V-9: exposure of the variable value to child processes, the agent shell tool, logs, telemetry and debug output."}
+      - {op: create, path: docs/design/mcp-or-plugins/evidence/checks/V-9-cursor.md, why: "V-9: exposure of the variable value to child processes, the agent shell tool, logs, telemetry and debug output."}
+      - {op: create, path: docs/design/mcp-or-plugins/evidence/checks/V-10-codex.md, why: "V-10: whether a stored OAuth token is reused for a changed address."}
+      - {op: create, path: docs/design/mcp-or-plugins/evidence/checks/V-10-cursor.md, why: "V-10: whether a stored OAuth token is reused for a changed address."}
+      - {op: create, path: docs/design/mcp-or-plugins/evidence/checks/V-11-claude-code.md, why: "V-11: agreement of the client's JSON reader with the validator on duplicate keys, comments, escapes and key case."}
+      - {op: create, path: docs/design/mcp-or-plugins/evidence/checks/V-11-codex.md, why: "V-11: agreement of the client's TOML reader with the validator on duplicate keys, comments, escapes and key case."}
+      - {op: create, path: docs/design/mcp-or-plugins/evidence/checks/V-11-cursor.md, why: "V-11: agreement of the client's JSON reader with the validator on duplicate keys, comments, escapes and key case."}
+      - {op: create, path: docs/design/mcp-or-plugins/evidence/checks/V-12-claude-code.md, why: "V-12: whose identity a cloud agent, a review context and CI use for an entry, and whether the surface can be bound to one user (Q-12)."}
+      - {op: create, path: docs/design/mcp-or-plugins/evidence/checks/V-12-codex.md, why: "V-12: whose identity a cloud agent, a review context and CI use for an entry, and whether the surface can be bound to one user (Q-12)."}
+      - {op: create, path: docs/design/mcp-or-plugins/evidence/checks/V-12-cursor.md, why: "V-12: whose identity a cloud agent, a review context and CI use for an entry, and whether the surface can be bound to one user (Q-12)."}
+      - {op: create, path: docs/design/mcp-or-plugins/evidence/checks/V-13-github.md, why: "V-13: the read-only address form of the GitHub remote server with a PAT and with OAuth, and whether it blocks write tools."}
+      - {op: create, path: docs/design/mcp-or-plugins/evidence/checks/V-13-atlassian.md, why: "V-13: whether personal API tokens can be enabled without service-account keys, and whether OAuth scope pins hold; run in a test tenant, not on the team's own site (Q-14)."}
+      - {op: create, path: tests/unit/test_check_records_scan.py, why: "Runs find_literal_credentials over every committed check record and fails on a credential-shaped string (ADR-004 decision 1). The records for account names and private addresses are kept by review."}
+    acceptance_criteria:
+      - {id: AC-1, text: "Each record states the date, the client name and version, the kind of test account, the steps, the observed result and a verdict, and holds no credential value, no account name, no raw client log and no address of a private server.", source: "ADR-004 decision 1", check_ref: review:check-records}
+      - {id: AC-2, text: "Checks that send a test token to a changed address (V-8, V-10) used a destination that the tester controls and a dummy value; the test account's session was revoked after V-10; V-12 and V-13 ran in a separate test organisation or tenant; the team's own site cisco-cxe.atlassian.net was not used unless the record says that the person agreed.", source: "ADR-004 decision 1; Q-14", check_ref: security-reviewer}
+      - {id: AC-3, text: "The repository test finds no credential-shaped string in any committed check record, and the plan does not enable any table row on the strength of a record that does not exist.", source: "ADR-004 decisions 1 and 2", check_ref: pytest}
+    checks: ["ruff-check", "ruff-format", "mypy", "pytest"]
+    review_evidence: [architecture-reviewer, security-reviewer, tester]
+    knowledge_step: required
+    completion:
+      - "The person with the test accounts ran each check; an agent did not"
+      - "A record that is missing is listed for the person; enabling a table row for Codex, Cursor, GitHub or env-ref is a later design and release"
+    expected_outputs:
+      - "docs/design/mcp-or-plugins/evidence/checks/V-1-claude-code.md"
+      - "tests/unit/test_check_records_scan.py"
+reuse_decisions: []
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against: {role: planner, phase: plan}
+  checks:
+    - {what: design approved, how: "the person wrote 'merged to main' on 2026-10-26; gh pr view 2 reports state MERGED at 2026-10-26T10:56:46Z with merge commit ab7adb0e2862; the design manifest is on origin/main", result: pass}
+    - {what: standards read, how: "orqlet standards for --phase plan --role planner (15 rules)", result: pass}
+    - {what: design manifest hashed, how: "orqlet evidence hash docs/design/mcp-or-plugins/design/manifest.yaml", result: pass}
+    - {what: module catalogue consulted, how: ".orqlet/knowledge.yaml has no sources and no module cards exist, so there is nothing to reuse and reuse_decisions is empty", result: pass}
+    - {what: paths projected, how: "orqlet validate plan docs/design/mcp-or-plugins/plan.yaml against base revision ab7adb0e2862", result: pass}
+    - {what: open questions that block the plan, how: "Q-12 and Q-13 were answered on 2026-10-26 (questions.yaml); Q-14 is answered", result: pass}
+    - {what: plan approved by the person, how: "the person wrote \"plan is approved, implement\" and chose to have the approval recorded here (answer record_here) in conversation on 2026-10-26 when /orqlet-implement was started; this is not a merge on the protected baseline, so a gate run still has no approval evidence", result: pass}
+    - {what: design reference refreshed, how: "the person chose to re-accept the AS-IS with the two evidence additions; as-is.md was re-pointed to base revision ab7adb0e2862, so as_is_ref in the design manifest and design_ref in this plan name the new hashes; no other line of the design changed", result: pass}
+    - {what: EC-20 corrected, how: "orqlet gate status --phase P-1 reported ORQ-E450 because a signature cannot be read for the constant DECLARATION_PATH; EC-20 in the design manifest is now manual and design_ref names the new hash; the gate says a renewed design approval is needed and the person has not given it", result: fail}
+  unverified:
+    - "The design does not say how the pure functions rendered_entry and mcp_file_path refuse an input; the plan's criteria say only that the refusal text holds no input value, and the implementer picks the exception type."
+    - "The workflow version 0.3.2 is a proposal: ADR-003 decision 8 leaves the number to the person."
+    - "The owner @tmishari in CODEOWNERS is an assumption taken from the only collaborator of the repository; no document names the code owners that Q-11 mentions."
+    - "The time limit of the worst-case scan test is set after a first measurement, as ADR-002 decision 7 says; the plan gives no number."
+    - "The AS-IS binding was refreshed on the person's decision; its scope includes src/orqlet/** and tests/**, so it becomes stale again as soon as an implementation phase is committed."
+    - "Approval of the design and of the plan is evidence on the protected baseline; an offline run has none, and this plan is a draft until its pull request merges."

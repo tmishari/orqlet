@@ -10,7 +10,7 @@ header:
     standards_lock_hash: 89a225016ff9d8b3ed977df39a70dfbe9dbc5f7c6d3762d0f2208b1b7a037a52
     applicable_rules_hash: 56502a0ec5eda3b13b4c9d97c7d4dfa41df82c86a206e36dd5d2d92aab299b97
     profile_version: 1
-as_is_ref: docs/design/mcp-or-plugins/as-is.md#ebd71d9e5c1931fe651698c0ba2cb2736a39bf8b1b23895d06892e4f35b575dd
+as_is_ref: docs/design/mcp-or-plugins/as-is.md#e326eb121d497ec45bcecf399337794f015501b6a484cd3e967aefb177298b3c
 change_class:
   trigger: D3
   declared: D3
@@ -251,9 +251,10 @@ expected_changes:
   action: add
   identity: orqlet.application.usecases.integrations_source.DECLARATION_PATH
   expected_after:
-    kind: signature
-    value: DECLARATION_PATH
-  verification: extractor
+    kind: declaration
+    value: The module integrations_source assigns the text .orqlet/integrations.yaml to the name DECLARATION_PATH. The extractor
+      reads an assignment by name only and cannot read a signature for it, so this is compared by hand.
+  verification: manual
 artifacts:
 - id: D-1
   kind: c4-context
@@ -381,6 +382,10 @@ self_check:
   - what: design re-reviewed after the fixes that followed round 4
     how: ''
     result: not-run
+  - what: EC-20 was declared as an extractor item but the gate cannot read a signature for an assignment
+    how: orqlet gate status mcp-or-plugins --phase P-1 reported ORQ-E450 for EC-20 on 2026-10-26; EC-20 is now manual, like
+      EC-19; the gate asks for a renewed design approval, which the person has not given
+    result: fail
   unverified:
   - The architecture reviewer's last verdict is FAIL; its blocking finding and the other round-4 findings were fixed afterwards
     and no fresh reviewer has seen the result.

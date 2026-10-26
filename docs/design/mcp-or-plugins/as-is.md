@@ -7,11 +7,11 @@ header:
   workflow_version: 0.3.1
   protected_set_digest: be7723282aec5a67e8161540bfba464562fb2a53d9bc3f8245ea22b812134eec
   bound:
-    base_revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    base_revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     standards_lock_hash: 89a225016ff9d8b3ed977df39a70dfbe9dbc5f7c6d3762d0f2208b1b7a037a52
     applicable_rules_hash: 56502a0ec5eda3b13b4c9d97c7d4dfa41df82c86a206e36dd5d2d92aab299b97
     profile_version: 1
-base_revision: a0957b1cb5c06b797991c7d94214efd76927658c
+base_revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
 scope:
   paths:
   - docs/design/orqlet-architecture-proposal.md
@@ -39,7 +39,7 @@ facts:
   evidence:
   - path: .orqlet/generated.lock.yaml
     lines: 6-665
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 7f85839841015d0939c47f2a559f78c4adff111aa9feb1b25fe6e93cbece9545
 - id: A-2
   kind: test
@@ -48,7 +48,7 @@ facts:
   evidence:
   - path: tests/unit/render/test_clients_golden.py
     lines: 64-98
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: e76001436585b14d147a67bb0837b32fa32f0c843a81400533658dceaefdf325
 - id: A-3
   kind: flow
@@ -58,7 +58,7 @@ facts:
   evidence:
   - path: src/orqlet/application/usecases/render_all.py
     lines: 116-125
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 900b5307d51dd825e2d5cf3711081eed47e58855bc5b1bd03ebc9a79a6a07ed0
 - id: A-4
   kind: interface
@@ -67,7 +67,7 @@ facts:
   evidence:
   - path: src/orqlet/domain/ownership.py
     lines: '9'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 4cf41e744c4267cb0188b0c80a0096cf794c5eb75bdfed7fdc2dec23e689e6c6
 - id: A-5
   kind: interface
@@ -76,7 +76,7 @@ facts:
   evidence:
   - path: src/orqlet/application/ports/instruction_adapter.py
     lines: '26'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 8f759e6fde71402724f273121fa3a196d8a34affdcb2d112b05ccb1dca1ce66b
 - id: A-6
   kind: interface
@@ -86,7 +86,7 @@ facts:
   evidence:
   - path: src/orqlet/interface/cli/app.py
     lines: 34-47
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 822b147c030944d99e6f7c6059f01a5830430dfc601693cecc3875c0e76ae131
 - id: A-7
   kind: interface
@@ -96,7 +96,7 @@ facts:
   evidence:
   - path: src/orqlet/application/usecases/binding_inputs.py
     lines: 57-66
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 1f084a593c39e7c95e8110cf3d2e962c798afe3ada49c5fd1f893d67c6064fe3
 - id: A-8
   kind: interface
@@ -105,7 +105,7 @@ facts:
   evidence:
   - path: src/orqlet/application/contracts/integrations.py
     lines: '11'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 0a7c4a2d105dc66891e6d52be03e5e1c0cf2f8ff8dd71ccac9e481c72f1df07a
 - id: A-9
   kind: interface
@@ -114,7 +114,7 @@ facts:
   evidence:
   - path: src/orqlet/application/contracts/integrations.py
     lines: 27-33
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 1a6212c43af5f12eccb1f36f4f0bd827b8b6a5a81885dec16c428dc5958d6fa4
 - id: A-10
   kind: interface
@@ -123,7 +123,7 @@ facts:
   evidence:
   - path: src/orqlet/application/contracts/integrations.py
     lines: 41-43
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: bc5ccd4b3f05af96a8914dfb964ebc7ffb54ef141bbdb834658b89be419a1ef5
 - id: A-11
   kind: interface
@@ -131,7 +131,7 @@ facts:
   evidence:
   - path: src/orqlet/application/contracts/integrations.py
     lines: 46-51
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: f46ef1b675d22f3f97726a4e95a8ceb270f720928b29774e36d889eefc6069c8
 - id: A-12
   kind: test
@@ -141,7 +141,7 @@ facts:
   evidence:
   - path: tests/fixtures/contracts/valid/orqlet.integrations.v1.yaml
     lines: 1-16
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 33a4e5e909b614a16918a3366e3efffa3b3a56543262c1c519c066459735efd0
 - id: A-13
   kind: structure
@@ -150,7 +150,7 @@ facts:
   evidence:
   - path: src/orqlet/application/contracts/integrations.py
     lines: 79-84
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: b5e9d4d88766c8a417a6d9c5765e037165343422283cdf5f6a7fe55ae1a0f416
 - id: A-14
   kind: structure
@@ -159,7 +159,7 @@ facts:
   evidence:
   - path: README.md
     lines: 34-35
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 330054fd5e1312a1c735844d84d985c36b5d9d6ad3cdf48b71755fb036531e9d
 - id: A-15
   kind: structure
@@ -168,7 +168,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '4480'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 3cf80ef14babbd47c7ea60425ec63c8b277504092b4c30034fb63b6b63ba626d
 - id: A-16
   kind: structure
@@ -178,7 +178,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '4507'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 8ab3eb31aa00486740929469c083d269e7563eeefd7bf92784bdfab4194fce73
 - id: A-17
   kind: structure
@@ -187,7 +187,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '4508'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: ba273f7d532c7323a2cb932c485d3f4615f280aeff901370e006701dce8a50dc
 - id: A-18
   kind: interface
@@ -197,7 +197,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '605'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: b42089c0054c77fd1180c823f682ab0bd3ec1135346ec6c1f80eb3a61460536a
 - id: A-19
   kind: interface
@@ -206,7 +206,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '718'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: d6d14cf38578f9d73c77c783a04b8560374236ed494ab98825c4a3b47e2c2a1f
 - id: A-20
   kind: interface
@@ -216,7 +216,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '719'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 65269730197fdc32f0722611dd6053614019e22f1147d5b1a31b12cd58ef7986
 - id: A-21
   kind: interface
@@ -225,7 +225,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '723'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 6ca3814975b0e0a1fb8dba20e5d242847f1182ceb92872cdeeccbd275dc6f52f
 - id: A-22
   kind: interface
@@ -234,7 +234,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '750'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 4607ac0a4847889e4f199a9f184455d7c83f1f2ad064ffe0d1b13f67078ce10f
 - id: A-23
   kind: interface
@@ -243,7 +243,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '753'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: c4b0beb70c9041041bc620a960aabd4c3483f17581d6d72c07f17eb3bbde33c0
 - id: A-24
   kind: interface
@@ -252,7 +252,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '754'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: f26f953633dc856e46b16b18fa9a292f5dda40fbe99b185a7daa8b6e595faa70
 - id: A-25
   kind: interface
@@ -262,7 +262,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '757'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: d4ea2fde55c2f326dc5db6fe5efa45ff22d06e6733e1b63eaf5ae3f4427643fc
 - id: A-26
   kind: interface
@@ -271,7 +271,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '790'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: b2cf30ff741a51843b95752ec37079dafed39bee378a341633b1fb821d23126d
 - id: A-27
   kind: interface
@@ -279,7 +279,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '276'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: e6e0e501c73a85faad5c7d3bb73303918ac5ff3ba19672bd75cfe3293eefa2ac
 - id: A-28
   kind: interface
@@ -288,7 +288,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '5152'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: c6ce66a511ef0fbad67a629f54eb8d8d5cbd706e1fa94c0c5d08f3f4afc4b3d9
 - id: A-29
   kind: interface
@@ -297,7 +297,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '3395'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 04ffba86bf32b391b0808b8e85cfb6f82f77180f024a7ea1a5d5a97686964a9e
 - id: A-30
   kind: interface
@@ -307,7 +307,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '319'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 3a9c433df01d15048f14e6043bc4fd0ca69a31b83af05df0f9a04f156f7e0503
 - id: A-31
   kind: interface
@@ -317,7 +317,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '2279'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 7ae3736979512d6b38bd533a9e1de2efb30567daaf8abd671678e38322d4f096
 - id: A-32
   kind: interface
@@ -327,7 +327,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '2548'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: ed820f532f46459bb238d9958c6facf08bb937c362cfdaad8a5757b31a70956e
 - id: A-33
   kind: interface
@@ -337,7 +337,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '2550'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 54b6b3f4e57458dd8891de0801bfb9381b3fddd49088fea32049a39514bc8f4d
 - id: A-34
   kind: interface
@@ -347,7 +347,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '2552'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: d3861a8ef4b2c20fb83159e9c1f0cf9610dd11e814b78366ad81bd806e11880f
 - id: A-35
   kind: flow
@@ -357,7 +357,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '2570'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 25752be505625f28e77c31dd21c55f16c2572a2bb1bf25c93a4c6da946e11062
 - id: A-36
   kind: interface
@@ -366,7 +366,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: 2610-2612
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 16be073fbe60567d5c9368a3e71769cbfbd8b552c3bf421b741295d12db944fe
 - id: A-37
   kind: interface
@@ -374,7 +374,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '2665'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: ba9aa2e35770ac08fe13731ab605e0650c03d233a087252e8b90564f675815aa
 - id: A-38
   kind: interface
@@ -383,7 +383,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '2681'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: fd17c9bd0d02199f739a4d4f6ffcb9214a84349b1d52937d1edcec095c437146
 - id: A-39
   kind: interface
@@ -392,7 +392,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: 2691-2696
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: a6dcd3b82e51317a968621ca2806597965a0a66b327a70a901d239f784f2c8f3
 - id: A-40
   kind: interface
@@ -402,7 +402,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '2702'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 6f204a15ec13e409b7c9185c59efd0c036dfb4ba94f4bb59e36a1be03a3ce647
 - id: A-41
   kind: interface
@@ -411,7 +411,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '2703'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: a19ec328f5e6ede9350ef2d97ee2a557d4d61e440f5618e74089f6cbfbfc1899
 - id: A-42
   kind: interface
@@ -420,7 +420,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '2704'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 152fe402ef8c347e0eb3c81e239d082929cc0a4b5ec73e2576655b90f6ea4248
 - id: A-43
   kind: interface
@@ -429,7 +429,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: 2708-2710
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 6f0e329520b9e8c0acc4f1a8e60aa83cfbe6839c6f87e89e37b0f187b558eb5a
 - id: A-44
   kind: interface
@@ -438,7 +438,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '2737'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: e1923382a15cc83f80c13ced55ae0d3939008b18f411e2ed0db7e4996db5c3db
 - id: A-45
   kind: interface
@@ -447,7 +447,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '2747'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 30039f8d8401d0e26c5497d4353a89c0c7a8a977b4965f46ef156f6327f3af29
 - id: A-46
   kind: interface
@@ -456,7 +456,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '2748'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 510481b7cec4bcd39e1b24bf4cf5b336469e300405baf8f882a3a92a587701e9
 - id: A-47
   kind: interface
@@ -464,7 +464,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '2753'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: cf3473e3bd8bedc93fe8a8171562045b44ff54ea0e478fe80475ce4dc39e670f
 - id: A-48
   kind: interface
@@ -473,7 +473,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '2830'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: ecfce741e8fbf140e8feb314c191751d6e0e8413071b9df406786e2eac45f5c1
 - id: A-49
   kind: interface
@@ -482,7 +482,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '3829'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 5966c6f34838144d552af615b827a9f541260cb8a8353ef8aae134a56bd69a02
 - id: A-50
   kind: interface
@@ -491,7 +491,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '3840'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: a77529cd1505487a54b428b4b79f89ec28819f720d4aac8d19d19a6841937ea9
 - id: A-51
   kind: test
@@ -500,7 +500,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '4399'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 64aa8ff31ff66e5832d9162e0b6f5cbcc535d37cc0f4c89bba48cb17e70d54db
 - id: A-52
   kind: interface
@@ -509,7 +509,7 @@ facts:
   evidence:
   - path: .prompts/rules.yaml
     lines: 59-64
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 8b860aba906bb2adb5c845fc52dee5d0da989e9ce922d379b6b016fcef3f51cd
 - id: A-53
   kind: interface
@@ -518,7 +518,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '409'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 73af6148634736c8f50c6551824773ea3aba45aaae636882c9c5fbb68b8a6486
 - id: A-54
   kind: structure
@@ -528,7 +528,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/claude-code-mcp.md
     lines: '8'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 6deefc7af8eedbe0ac39db94667fc9d1c6ff44b9f5a7a53f6f62a35d144cb0cf
 - id: A-55
   kind: structure
@@ -537,7 +537,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/claude-code-mcp.md
     lines: 10-13
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: f8b4ab57930bc1c8ab3cbbf9e6a7cb09ddf9de1a6b2ac7475875fe0e763ddc03
 - id: A-56
   kind: structure
@@ -546,7 +546,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/claude-code-mcp.md
     lines: 10-12
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: c736594db5b266f6bdb9689fa189cbc87328d52b75967fdfda1995cd94d7a83b
 - id: A-57
   kind: structure
@@ -555,7 +555,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/claude-code-mcp.md
     lines: 10-14
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: b0b16ac2646010bc6c8ef8ab9a183c9eba92c51aba4e86009aa97a722471b17d
 - id: A-58
   kind: operation
@@ -564,7 +564,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/claude-code-mcp.md
     lines: '28'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 7c5fb337f193a0c45ca259905b3b4e3c2fddfc7347519cd27c4398db6befee62
 - id: A-59
   kind: structure
@@ -574,7 +574,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/claude-code-mcp.md
     lines: '21'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 3faaa9cebd559e91873f185080434e7a62362304ad30059c2fd4276da72e5bad
 - id: A-60
   kind: operation
@@ -583,7 +583,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/claude-code-mcp.md
     lines: '21'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 3faaa9cebd559e91873f185080434e7a62362304ad30059c2fd4276da72e5bad
 - id: A-61
   kind: interface
@@ -593,7 +593,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/claude-code-mcp.md
     lines: '61'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 2fe0d64c7991677c350135528a029ddab73b53adf8d3695220484f8c77113bed
 - id: A-62
   kind: interface
@@ -602,7 +602,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/claude-code-mcp.md
     lines: 63-66
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: e95e39d17c4dccd054688b36cf77e585dc516b03c557613a85f58a14b95bcdac
 - id: A-63
   kind: interface
@@ -611,7 +611,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/claude-code-mcp.md
     lines: '75'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: e7aabfd5ceffe96592f152fb61a15db233e5726e22c8931511fc9669c56de5a3
 - id: A-64
   kind: interface
@@ -621,7 +621,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/claude-code-mcp.md
     lines: '78'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 6c90eab28d9ef147c1ff89d0d24f0946c8354b5f32e647dbd985016bddb895d2
 - id: A-65
   kind: interface
@@ -630,7 +630,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/claude-code-mcp.md
     lines: '80'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 5f2f627fe75c5cff5d66bc1ded0f43299ff9c040b42c1e1abad749587fef5d1c
 - id: A-66
   kind: interface
@@ -640,7 +640,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/claude-code-mcp.md
     lines: '81'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 71687b015b6031b90b76e5007926dda7db2278d4bee3f928dd65b2519873c276
 - id: A-67
   kind: structure
@@ -651,7 +651,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/claude-code-mcp.md
     lines: '86'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 755b9b082a6ef63daa84e92983a15ff5557aabc52a80d4d7f67fdaf14ff62a3e
 - id: A-68
   kind: flow
@@ -660,7 +660,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/claude-code-mcp.md
     lines: '56'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 638eb99c15516ea15f63ba29f4e65eef1163101e8d7b675006e8158f28cedf03
 - id: A-69
   kind: flow
@@ -670,7 +670,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/claude-code-mcp.md
     lines: '56'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 638eb99c15516ea15f63ba29f4e65eef1163101e8d7b675006e8158f28cedf03
 - id: A-70
   kind: interface
@@ -679,7 +679,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/claude-code-mcp.md
     lines: '56'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 638eb99c15516ea15f63ba29f4e65eef1163101e8d7b675006e8158f28cedf03
 - id: A-71
   kind: structure
@@ -688,7 +688,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/claude-code-mcp.md
     lines: 48-50
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 0570f52d8862f9fc4131b9ae13e498c74726156d0928d1a7cb7002f44b919137
 - id: A-72
   kind: flow
@@ -697,7 +697,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/claude-code-mcp.md
     lines: 51-52
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 4b3ad4bfc0adb01ca49dbf91e0cc23e80b3ebdcec725412ff20df1741dd75496
 - id: A-73
   kind: operation
@@ -707,7 +707,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/claude-code-mcp.md
     lines: '53'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 93312489e34beeda72c85bc9b35372c2794ef6b00ce515a0c22658dae0b69c4a
 - id: A-74
   kind: structure
@@ -718,7 +718,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/claude-code-authentication.md
     lines: 8-12
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 2d85d59d8df7e5c36c93f7a05beb7ad68676e1c040f6cfb722f8163364deefab
 - id: A-75
   kind: structure
@@ -728,7 +728,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/claude-code-plugin-components.md
     lines: '6'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: b052de724f4086769d0a938cf9fae01bc437887ac245e37c19a88ae6493097f1
 - id: A-76
   kind: structure
@@ -737,7 +737,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/claude-code-plugin-components.md
     lines: '9'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 24d0631810c9715beb7c4c33dda70b3722a3b5dcdccd8e10ba090e59d98749f1
 - id: A-77
   kind: interface
@@ -746,7 +746,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/claude-code-plugin-manifest.md
     lines: '11'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 04227f1dadf5571ebd0f7c91252f827fe7885326a313033246a47c91cca5317d
 - id: A-78
   kind: interface
@@ -755,7 +755,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/claude-code-plugin-manifest.md
     lines: '19'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: fc0d44aec062c71c9f6193a7542152f4b8cd21b6db9cf5ef96a2f6e2f5e2e0da
 - id: A-79
   kind: structure
@@ -764,7 +764,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/claude-code-plugin-manifest.md
     lines: '24'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 013960b13a1e6310fd7d6f03426caf20e2a5236a33407ffa637ec3af2b247c2d
 - id: A-80
   kind: interface
@@ -774,7 +774,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/claude-code-plugin-manifest.md
     lines: '30'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 0b8dde8b67c3b946aa112388be3f0f86059a1d4dee06d0d3c1b6caaa5ff938b5
 - id: A-81
   kind: flow
@@ -784,7 +784,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/claude-code-plugin-components.md
     lines: 21-25
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 070a84cfedbf68e2bf4ee579ab90ee5a90addef6f1bba6b1de9a86c0737fc8c3
 - id: A-82
   kind: flow
@@ -796,7 +796,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/claude-code-issue-reports.md
     lines: 7-9
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 960d10bcab94dcc713b8e5b21d4fb06708d4b2a3e5fea9f129a72366256e853b
 - id: A-83
   kind: flow
@@ -807,7 +807,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/claude-code-issue-reports.md
     lines: '12'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: fc255b6bb58f7937ec2b233ca87cadfc07a52947c7d46472dfdc1655ec3ffa2e
 - id: A-84
   kind: operation
@@ -816,7 +816,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/claude-code-plugin-distribution.md
     lines: '9'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 9d7131c2c3ada15afd14f51a5c26605f10355474395e53ad6605763a52e7449d
 - id: A-85
   kind: flow
@@ -827,7 +827,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/claude-code-plugin-distribution.md
     lines: 9-11
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: ad8c4fc8b2f600c2bf1980c51211b1696ab94575fd9e435ec7386ce9739a4470
 - id: A-86
   kind: flow
@@ -836,7 +836,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/claude-code-plugin-distribution.md
     lines: '14'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 06bd8e73af0867963145f6c86c0e1025700ad1232b60026fc7b1a67ae90ef046
 - id: A-87
   kind: flow
@@ -847,7 +847,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/claude-code-plugin-distribution.md
     lines: '14'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 06bd8e73af0867963145f6c86c0e1025700ad1232b60026fc7b1a67ae90ef046
 - id: A-88
   kind: structure
@@ -858,7 +858,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/claude-code-plugin-distribution.md
     lines: '9'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 9d7131c2c3ada15afd14f51a5c26605f10355474395e53ad6605763a52e7449d
 - id: A-89
   kind: structure
@@ -868,7 +868,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/claude-code-plugin-distribution.md
     lines: '26'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 33f4fe4f0468d6e1693700782dcb795c4502efe6233c419a79f2d8567e422bb5
 - id: A-90
   kind: interface
@@ -878,7 +878,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/codex-mcp.md
     lines: 9-12
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 199b5674aaaecede592a2269f22957202e24b6411d8e09edf4b3b6fef84aea37
 - id: A-91
   kind: interface
@@ -887,7 +887,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/codex-mcp.md
     lines: '13'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 775e8c07ea6db2458df901aea48b91cadf93247843b7ef783d34ef98644c274c
 - id: A-92
   kind: interface
@@ -896,7 +896,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/codex-mcp.md
     lines: 14-15
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: a425e5b29719ca8195dc621f7f1585c578a23b3f67877cfb547d4ed95f0d158e
 - id: A-93
   kind: interface
@@ -906,7 +906,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/codex-mcp.md
     lines: 16-19
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 2b1e7d41afff8299c17b43bc968de012ae3dc72427f10e41676c5905b31c512f
 - id: A-94
   kind: flow
@@ -915,7 +915,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/codex-mcp.md
     lines: 28-30
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 48d19ebb60abc7c7757db53e2d6cae984b4455b4d646e9334472b5bf99972843
 - id: A-95
   kind: operation
@@ -924,7 +924,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/codex-mcp.md
     lines: 43-49
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 8703363657ab8c12eed82b160b1a480591a97c78da291892d134716d58c5bea1
 - id: A-96
   kind: interface
@@ -933,7 +933,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/codex-source.md
     lines: 21-25
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 4da91c7e6f8ec63882786c487ea3ba5a8dec479c7652de882c4b5fb1aeaec18b
 - id: A-97
   kind: interface
@@ -943,7 +943,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/codex-source.md
     lines: 32-35
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: b893c3922e11fcbf495080683064ae17fbd72e35f78dc32bef2c67c14f8c56a9
 - id: A-98
   kind: structure
@@ -953,7 +953,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/codex-source.md
     lines: 39-43
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: c4471f500beeb095c9a3b492e02335bdbed8c739ab35a9e11ff17646852628f8
 - id: A-99
   kind: structure
@@ -963,7 +963,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/codex-plugins-overview.md
     lines: 7-11
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: cb7409bd7a8daa590d41e4accf2e22d065a1c5e1d38dfe204451eae916e1b265
 - id: A-100
   kind: structure
@@ -974,7 +974,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/codex-plugins-package.md
     lines: 13-17
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: a6fcb0cca611cce4bdafcd492821c5e3ef1fe7ed2ecfb57a0b903cd21c90993b
 - id: A-101
   kind: structure
@@ -984,7 +984,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/codex-plugins-package.md
     lines: 6-8
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 10405d082def01c8ce43a429c499d5d4d4b007857a6120f57c4b6db3016d8748
 - id: A-102
   kind: flow
@@ -995,7 +995,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/codex-plugins-overview.md
     lines: 16-18
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 17596ed1e5601e3aaefd7c66dc6941d3e364cdc46abe62a3d03eb8e10b5b9d2c
 - id: A-103
   kind: structure
@@ -1005,7 +1005,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/codex-plugins-package.md
     lines: 29-41
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: de9c4ec8aeb21752f7bef400083856a9dc7e6d1c6b2a6660503015ef1863f397
 - id: A-104
   kind: flow
@@ -1014,7 +1014,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/codex-plugins-package.md
     lines: 46-48
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 30e569062deb1064d714b6c0125853b936a75543ef13decf833a1852eb01bffc
 - id: A-105
   kind: flow
@@ -1025,7 +1025,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/codex-plugins-package.md
     lines: 65-69
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 8a2edf43bb37f372fc8e385c4415ab4a169dde331d7ded17f3f68cb0a0974ca2
 - id: A-106
   kind: structure
@@ -1035,7 +1035,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/codex-plugins-package.md
     lines: 71-73
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: d8e9f0c38b9727c036d6f74d0ad8f1b25446ad1775816acf65ceaa2ec27dca09
 - id: A-107
   kind: structure
@@ -1044,7 +1044,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/codex-plugins-overview.md
     lines: '21'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 534e5beaee390e0c1bfca4bbe41c4dbe0682e9bdfacafb84b5eb0e9f842438d1
 - id: A-108
   kind: structure
@@ -1054,7 +1054,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/cursor-mcp-help.md
     lines: 6-9
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 87a0941e28002ea81a797e5ee29a3c5eeb3e92b5b0436aac84a2e0c4440931d2
 - id: A-109
   kind: flow
@@ -1063,7 +1063,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/cursor-mcp-help.md
     lines: '11'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: bea4256a7b126bb40f6d24b762b774039cf98f205c5cbd87337dbf16b18a8a24
 - id: A-110
   kind: interface
@@ -1073,7 +1073,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/cursor-mcp.md
     lines: 8-14
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 1c81fcd19b5c7b97d46b7328445fbce5f91580ee4b019f964382a75e2f5aa39e
 - id: A-111
   kind: interface
@@ -1082,7 +1082,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/cursor-mcp.md
     lines: '19'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 41961970ad58fbb26891d58e4e35c6747520f11f17b56f6fd51fd939b69b4d27
 - id: A-112
   kind: interface
@@ -1091,7 +1091,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/cursor-mcp.md
     lines: '21'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 4ef2944166a27982062647aa3a749af916d9f584bd1b212e87ad4363e657007a
 - id: A-113
   kind: interface
@@ -1101,7 +1101,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/cursor-mcp.md
     lines: 24-28
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 85ac913bed0a1cea3033b01f249d8d0dc11d8e4e4de9a77fa6db636d765be082
 - id: A-114
   kind: structure
@@ -1111,7 +1111,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/cursor-mcp.md
     lines: '35'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 9410b0eff9d329b28c713bcc8cdf23591eb8d20eea69db945c7b7bf8802c62de
 - id: A-115
   kind: structure
@@ -1121,7 +1121,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/cursor-mcp.md
     lines: '35'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 9410b0eff9d329b28c713bcc8cdf23591eb8d20eea69db945c7b7bf8802c62de
 - id: A-116
   kind: structure
@@ -1131,7 +1131,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/cursor-mcp.md
     lines: '40'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: d150ba862243afa79a2fd0495f71171813fccc72fbb079a1beed92f8c5b3c0b1
 - id: A-117
   kind: structure
@@ -1141,7 +1141,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/cursor-plugins-reference.md
     lines: 8-13
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 1c827645816e54623ce98ed990f5681377a50dfdf8fcb63c99b0ec7b289160d7
 - id: A-118
   kind: interface
@@ -1151,7 +1151,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/cursor-plugins-reference.md
     lines: '18'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 8d978e7c41d0e78ad9170360c1df77ee6d950fdd331d685456ca89237f923a23
 - id: A-119
   kind: operation
@@ -1160,7 +1160,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/cursor-plugins-reference.md
     lines: '20'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 19ee063bb08adf0a4d32db4d449a02fcca847d735064917ecfac079bc0de3588
 - id: A-120
   kind: interface
@@ -1169,7 +1169,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/cursor-plugins-reference.md
     lines: '22'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 7631010c76a2d6cf658c32c190134d45adc3e89b09edede9e17b730d3f6c1077
 - id: A-121
   kind: flow
@@ -1179,7 +1179,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/cursor-plugins.md
     lines: '24'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 14b8d3d37366c8ad72e49b7395894c3591125bf024d5dcc466f49c696978beed
 - id: A-122
   kind: interface
@@ -1188,7 +1188,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/github-mcp-server.md
     lines: '10'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: c2240cde8208dcfdbc27d0abed88a219797da67794e9ee7986a8eadaf000db77
 - id: A-123
   kind: interface
@@ -1198,7 +1198,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/github-mcp-server.md
     lines: '10'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: c2240cde8208dcfdbc27d0abed88a219797da67794e9ee7986a8eadaf000db77
 - id: A-124
   kind: interface
@@ -1208,7 +1208,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/github-mcp-server.md
     lines: 12-14
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 3a856a311806305ab3575aa611aef28d899450ff9f2dbc23b70fed8743476e6b
 - id: A-125
   kind: operation
@@ -1217,7 +1217,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/github-mcp-server.md
     lines: '22'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 73f624f0ba0b20b29bffd34dd7bd3d9775ab94522cd8ff544e5deae58e5a00ae
 - id: A-126
   kind: interface
@@ -1226,7 +1226,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/atlassian-rovo-mcp.md
     lines: '8'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 079855b01ed76bee7abe87be17861476750edc61db2e26f797d5b8769cf6eda1
 - id: A-127
   kind: dependency
@@ -1237,7 +1237,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/atlassian-rovo-mcp.md
     lines: '10'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 76756f4a0da08905ef5f32a9c0385f5d7a0c7b214193b348e0f2078a729fc215
 - id: A-128
   kind: interface
@@ -1248,7 +1248,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/atlassian-rovo-mcp.md
     lines: '12'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: efe536b2cdb0ff0e7017365bd25395823adf2e3270273572c525c8bdb7c9a3f1
 - id: A-129
   kind: interface
@@ -1258,7 +1258,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/atlassian-rovo-mcp.md
     lines: '18'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 32e4e50713dc75db95363c0ed079635f0c1d0cbf67504fcf5a1ea22cc9651b12
 - id: A-130
   kind: dependency
@@ -1268,7 +1268,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/atlassian-rovo-mcp.md
     lines: '23'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 943120b85634dc2ef17debb4e16c17cf887791edbe8bece8bb68c9fb7856f054
 - id: A-131
   kind: interface
@@ -1276,7 +1276,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/atlassian-rovo-mcp.md
     lines: '26'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: a199275cb588f1f19a991b9738ae0b8dce07a7ae5b9091a58e1490f2f4787dc0
 - id: A-132
   kind: interface
@@ -1285,11 +1285,11 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/atlassian-rovo-mcp.md
     lines: '28'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: b602de854ae429e98a7abace0bb8c058a0b9ec4cadd713dd37ddda626f02b1ae
   - path: docs/design/mcp-or-plugins/evidence/web/atlassian-rovo-mcp.md
     lines: '31'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 7695baf28173d3a83ed3b6b98bc08f7d9b845d43fbdcea6bc2cb67fa57c4a488
 - id: A-133
   kind: interface
@@ -1299,7 +1299,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/atlassian-rovo-mcp.md
     lines: '33'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: df3a1ab5b20458817d48f44948e982b1b196562e21c5f3114a176f57d8dfb00b
 - id: A-134
   kind: interface
@@ -1309,7 +1309,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/miro-mcp.md
     lines: 8-11
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 5eecdfb1e01c4c2cffbceb9be20d40ac4ee57e292f06e3f7448fdb1d09042ab3
 - id: A-135
   kind: interface
@@ -1318,7 +1318,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/miro-mcp.md
     lines: 14-15
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: bbb76d80d3e57f95f7a67a217a0ba29a25e3e4b73112fd7973e3e9aa88568485
 - id: A-136
   kind: interface
@@ -1328,7 +1328,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/miro-mcp.md
     lines: '18'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: bd531272253c9add2395f0c023a840150a5a5cdc12e76b45c5862c4a5e509eb5
 - id: A-137
   kind: interface
@@ -1338,7 +1338,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/miro-mcp.md
     lines: '21'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 6630d604d55d0f40d8ca533552e99d40ed52c2d71b20aff8165829366ef7e8f4
 - id: A-138
   kind: interface
@@ -1347,7 +1347,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/miro-mcp.md
     lines: '23'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 33b72f85cc0abbb7024a105f48d59b89b8727e85e742384e7de0a5350c7ee7e0
 - id: A-139
   kind: interface
@@ -1356,7 +1356,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/miro-mcp.md
     lines: '24'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: fdad208f756fa8e2d475b7229d42234c9f0818505be44754d96bb7dc2e22bc0c
 - id: A-140
   kind: operation
@@ -1366,7 +1366,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/miro-mcp.md
     lines: '26'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: b280c01cb8c2250453a4ea7a8f1d6d14b526873858469dfacd151f6e731e4637
 - id: A-141
   kind: dependency
@@ -1376,7 +1376,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/miro-mcp.md
     lines: 29-30
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: c1d8396851bf4b7aeb4b8e7e6ce305db4752a1690f88b5bd6757ddbfd879f18e
 - id: A-142
   kind: interface
@@ -1385,7 +1385,7 @@ facts:
   evidence:
   - path: docs/design/mcp-or-plugins/evidence/web/miro-mcp.md
     lines: 31-32
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 78b45ee68bfeccb878d62f77ca623c5fb6440d663612f79eb83541e7ee1e7042
 - id: A-143
   kind: interface
@@ -1396,7 +1396,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '2702'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 6f204a15ec13e409b7c9185c59efd0c036dfb4ba94f4bb59e36a1be03a3ce647
 - id: A-144
   kind: interface
@@ -1405,7 +1405,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '2703'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: a19ec328f5e6ede9350ef2d97ee2a557d4d61e440f5618e74089f6cbfbfc1899
 - id: A-145
   kind: interface
@@ -1414,7 +1414,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '2704'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 152fe402ef8c347e0eb3c81e239d082929cc0a4b5ec73e2576655b90f6ea4248
 - id: A-146
   kind: interface
@@ -1424,7 +1424,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '2705'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: b303a5f730ce2ec4e3735363af0e24f71685b63f54e9f7e66400c7ed6c084aae
 - id: A-147
   kind: dependency
@@ -1433,7 +1433,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '2705'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: b303a5f730ce2ec4e3735363af0e24f71685b63f54e9f7e66400c7ed6c084aae
 - id: A-148
   kind: interface
@@ -1443,7 +1443,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '2705'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: b303a5f730ce2ec4e3735363af0e24f71685b63f54e9f7e66400c7ed6c084aae
 - id: A-149
   kind: interface
@@ -1453,7 +1453,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '2705'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: b303a5f730ce2ec4e3735363af0e24f71685b63f54e9f7e66400c7ed6c084aae
 - id: A-150
   kind: interface
@@ -1463,7 +1463,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '2711'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 9bd2fa88f2cc5fd3cdd6b46c2ecb60fe7ff841536e995f025d10668890886f51
 - id: A-151
   kind: interface
@@ -1474,7 +1474,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '2711'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 9bd2fa88f2cc5fd3cdd6b46c2ecb60fe7ff841536e995f025d10668890886f51
 - id: A-152
   kind: interface
@@ -1484,7 +1484,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '5944'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: 46aba3b3775f42e69f8871aa65ea2a8181e8f57ccedbf927df0141184c26431d
 - id: A-153
   kind: dependency
@@ -1494,7 +1494,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '2830'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: ecfce741e8fbf140e8feb314c191751d6e0e8413071b9df406786e2eac45f5c1
 - id: A-154
   kind: dependency
@@ -1503,7 +1503,7 @@ facts:
   evidence:
   - path: docs/design/orqlet-architecture-proposal.md
     lines: '5118'
-    revision: a0957b1cb5c06b797991c7d94214efd76927658c
+    revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
     sha256: d8d92fdd16f5c98e61019d90c55398c0c6cb2b0ff05fa25243425f55df3aab9e
 unknowns:
 - what: How each developer obtains and supplies the per-developer token behind ${env:NAME}, ${VAR} or
@@ -2431,6 +2431,9 @@ self_check:
     result: pass
   - what: the AS-IS file is accepted by the person
     how: 'the person chose "Yes, I accept it" in conversation on 2026-10-26 when /orqlet-design was started; this is not a merge on the protected baseline'
+    result: pass
+  - what: the binding was refreshed to the current revision after two evidence additions
+    how: 'the person chose "I re-accept the AS-IS with the two evidence additions" in conversation on 2026-10-26 when /orqlet-implement was started; base_revision in the header now names ab7adb0e2862, the merge commit that holds the design; every evidence revision of the facts was re-pointed from a0957b1cb5c0 to ab7adb0e2862 (155 citations), the cited line ranges and their sha256 values were not changed, and orqlet validate as-is passes at the new revision; the person did not review the two added excerpts of atlassian-rovo-mcp.md and github-mcp-server.md beyond that answer, and no fact cites them; this is not a merge on the protected baseline'
     result: pass
   unverified:
   - The vendor pages were read through a search tool that returned excerpts; the excerpts are cut at several
