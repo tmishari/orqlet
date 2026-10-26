@@ -2433,7 +2433,7 @@ self_check:
     how: 'the person chose "Yes, I accept it" in conversation on 2026-10-26 when /orqlet-design was started; this is not a merge on the protected baseline'
     result: pass
   - what: the binding was refreshed to the current revision after two evidence additions
-    how: 'the person chose "I re-accept the AS-IS with the two evidence additions" in conversation on 2026-10-26 when /orqlet-implement was started; base_revision in the header now names ab7adb0e2862, the merge commit that holds the design; the cited revisions of the facts are unchanged; the person did not review the two added excerpts of atlassian-rovo-mcp.md and github-mcp-server.md beyond that answer, and no fact cites them; this is not a merge on the protected baseline'
+    how: 'the person chose "I re-accept the AS-IS with the two evidence additions" in conversation on 2026-10-26 when /orqlet-implement was started; base_revision in the header now names ab7adb0e2862, the merge commit that holds the design; every evidence revision of the facts was re-pointed from a0957b1cb5c0 to ab7adb0e2862 (155 citations), the cited line ranges and their sha256 values were not changed, and orqlet validate as-is passes at the new revision; the person did not review the two added excerpts of atlassian-rovo-mcp.md and github-mcp-server.md beyond that answer, and no fact cites them; this is not a merge on the protected baseline'
     result: pass
   unverified:
   - The vendor pages were read through a search tool that returned excerpts; the excerpts are cut at several

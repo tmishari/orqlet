@@ -10,7 +10,7 @@ header:
     standards_lock_hash: 89a225016ff9d8b3ed977df39a70dfbe9dbc5f7c6d3762d0f2208b1b7a037a52
     applicable_rules_hash: 56502a0ec5eda3b13b4c9d97c7d4dfa41df82c86a206e36dd5d2d92aab299b97
     profile_version: 1
-design_ref: docs/design/mcp-or-plugins/design/manifest.yaml#0c989fdac58c52daf1c6ae7a118e88a246fa221f46d01d543d62097142eb95d1
+design_ref: docs/design/mcp-or-plugins/design/manifest.yaml#e919a32941a8c6d13d38d2b6c61e7b7487b1cfddb5b6af538d68ca62803ba4b2
 base_revision: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
 knowledge_scope: []
 phases:
