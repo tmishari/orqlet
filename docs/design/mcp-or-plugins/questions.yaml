@@ -1,0 +1,398 @@
+schema: orqlet.question-ledger/v1
+task: mcp-or-plugins
+questions:
+- id: Q-1
+  key: 3598b3db33666e916607fb505ed7b6ef598c52dfc671c8a7589aebfc90fa134f
+  subject: Task name for the research folder
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: What is the task name for docs/design/<task>/ (lowercase words joined by hyphens)?
+  why: Every artifact of the task lives in the folder that carries this name.
+  options:
+  - mcp-credentials
+  - mcp-or-plugins
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: mcp-or-plugins
+    answerer: user
+    time: '2026-10-26T10:45:00+02:00'
+    scope: task
+- id: Q-2
+  key: d651b6be547361f343dd643e880ef250bd316cdba91117102baa403bd5aa4cec
+  subject: What 'use it as plugins' means
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: The request says it may be better to use plugins and not MCP servers. Does that mean Orqlet's
+    generated setup (skills, agents, rules, MCP entries) packaged as native client plugins instead of
+    committed files, the integrations (GitHub, Jira, Confluence, Miro) delivered as plugins or connectors
+    instead of MCP servers, or both?
+  why: Research records facts for the chosen reading; the others are not examined.
+  options:
+  - Orqlet's generated setup packaged as native client plugins instead of committed files
+  - the integrations delivered as plugins or connectors instead of MCP servers
+  - both
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: Orqlet's generated setup (skills, agents, rules, MCP entries) packaged as native client plugins
+      instead of committed files
+    answerer: user
+    time: '2026-10-26T10:45:00+02:00'
+    scope: task
+- id: Q-3
+  key: 45c2b1b0438c585ca2e80272f5cf0e418a5f4c370b3cb8614cb7cf7e150798a2
+  subject: Which clients the web research covers
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: Which clients should the web research cover?
+  why: Credential handling and plugin support differ per client.
+  options:
+  - Claude Code, Codex and Cursor
+  - Claude Code and Cursor only
+  - Cursor only
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: Claude Code, Codex and Cursor
+    answerer: user
+    time: '2026-10-26T10:45:00+02:00'
+    scope: task
+- id: Q-4
+  key: dbde2a4edb7cea63376ce46c9c63f5891fae68a9178595cb3abf23fa7e67a7f3
+  subject: Which integrations the credential facts cover
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: Which integrations should the credential facts cover?
+  why: Each integration authenticates differently.
+  options:
+  - GitHub, Jira, Confluence and Miro (the four the design requires)
+  - GitHub, Jira and Confluence only
+  - GitHub only
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: GitHub, Jira, Confluence and Miro (the four the design requires)
+    answerer: user
+    time: '2026-10-26T10:45:00+02:00'
+    scope: task
+- id: Q-5
+  key: 031667715b065b810c07d08959d1eb6e81820a9854a7ce782c04970f3b487cfd
+  subject: Use of the web as evidence
+  raised_by: researcher
+  phase: research
+  category: access
+  text: May the research read vendor documentation on the web, read-only, and store short excerpts of
+    it with the address and the date as evidence files in the repository?
+  why: Facts about vendor behaviour are not in the repository files; an AS-IS fact needs a file, lines
+    and a hash.
+  options:
+  - yes, read-only with stored excerpts
+  - no, repository files only
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: 'yes, read-only with stored excerpts (the request says: look at web)'
+    answerer: user
+    time: '2026-10-26T10:45:00+02:00'
+    scope: task
+- id: Q-6
+  key: 418a90e703a0015e35389f02ad2bee26cfab427fbc3776d6e5be8514c8500882
+  subject: One credential per user, one configuration for everyone
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: Must each user use only their own credential for each integration, never another user's, while
+    the configuration stays the same for everyone?
+  why: The person stated this requirement in the request; it is the standard that the facts are read against.
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: 'Yes: never another user''s credential, and the same configuration for everyone'
+    answerer: user
+    time: '2026-10-26T10:45:00+02:00'
+    scope: task
+- id: Q-7
+  key: 8228344e836dc64def071ab2f06c5a04507eeead501dd063b47b0b53996104e0
+  subject: Surfaces and plans the shared setup must reach
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: Which surfaces must receive the shared setup (terminal, IDE extension, desktop app, cloud agents,
+    code-review contexts), and which plans and administrator rights does the team have in each client
+    (Claude Code managed settings, Codex workspace administration, Cursor Teams or Enterprise)?
+  why: Plugins and committed files reach different surfaces, and several plugin routes need a plan or
+    an administrator.
+  options:
+  - terminal and IDE extension only
+  - also desktop app and cloud agents
+  - something else
+  evidence_refs:
+  - docs/design/mcp-or-plugins/as-is.md#U-23
+  - docs/design/mcp-or-plugins/as-is.md#U-24
+  - docs/design/mcp-or-plugins/as-is.md#U-25
+  - docs/design/mcp-or-plugins/as-is.md#U-26
+  - docs/design/mcp-or-plugins/as-is.md#U-27
+  - docs/design/mcp-or-plugins/as-is.md#U-28
+  - docs/design/mcp-or-plugins/as-is.md#U-29
+  - docs/design/mcp-or-plugins/as-is.md#U-30
+  - docs/design/mcp-or-plugins/as-is.md#U-31
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: 'Surfaces: terminal, IDE extension or Cursor editor, desktop apps, cloud agents and web sessions,
+      and code-review contexts (all of them). Plans and administrator rights: none of Claude Code managed
+      settings, Codex workspace administration or Cursor Teams or Enterprise, or not known'
+    answerer: user
+    time: '2026-10-26T11:20:00+02:00'
+    scope: task
+- id: Q-8
+  key: 006480aa209f74a20f131452aa4d897c96fb596f639e88d5ed791b12efb48529
+  subject: Verification of client behaviour that the vendor documents do not state
+  raised_by: researcher
+  phase: research
+  category: test-expectation
+  text: May the design phase plan checks with test accounts in each client for behaviour that the vendor
+    text does not state (approval prompts, which same-named entry wins, where credentials are stored,
+    whether values can differ per developer)?
+  why: Many facts the comparison needs are unknown after reading the vendor documentation; the design's
+    own matrix says it has not been run.
+  options:
+  - yes, plan checks with test accounts
+  - no, decide from documentation only
+  evidence_refs:
+  - docs/design/mcp-or-plugins/as-is.md#U-32
+  - docs/design/mcp-or-plugins/as-is.md#U-33
+  - docs/design/mcp-or-plugins/as-is.md#U-34
+  - docs/design/mcp-or-plugins/as-is.md#U-35
+  - docs/design/mcp-or-plugins/as-is.md#U-36
+  - docs/design/mcp-or-plugins/as-is.md#U-37
+  - docs/design/mcp-or-plugins/as-is.md#U-38
+  - docs/design/mcp-or-plugins/as-is.md#U-39
+  - docs/design/mcp-or-plugins/as-is.md#U-40
+  - docs/design/mcp-or-plugins/as-is.md#U-41
+  - docs/design/mcp-or-plugins/as-is.md#U-42
+  - docs/design/mcp-or-plugins/as-is.md#U-43
+  - docs/design/mcp-or-plugins/as-is.md#U-44
+  - docs/design/mcp-or-plugins/as-is.md#U-45
+  - docs/design/mcp-or-plugins/as-is.md#U-46
+  - docs/design/mcp-or-plugins/as-is.md#U-47
+  - docs/design/mcp-or-plugins/as-is.md#U-48
+  - docs/design/mcp-or-plugins/as-is.md#U-49
+  - docs/design/mcp-or-plugins/as-is.md#U-50
+  - docs/design/mcp-or-plugins/as-is.md#U-51
+  - docs/design/mcp-or-plugins/as-is.md#U-52
+  - docs/design/mcp-or-plugins/as-is.md#U-53
+  - docs/design/mcp-or-plugins/as-is.md#U-54
+  - docs/design/mcp-or-plugins/as-is.md#U-55
+  - docs/design/mcp-or-plugins/as-is.md#U-56
+  - docs/design/mcp-or-plugins/as-is.md#U-57
+  - docs/design/mcp-or-plugins/as-is.md#U-58
+  - docs/design/mcp-or-plugins/as-is.md#U-59
+  - docs/design/mcp-or-plugins/as-is.md#U-60
+  - docs/design/mcp-or-plugins/as-is.md#U-61
+  - docs/design/mcp-or-plugins/as-is.md#U-62
+  - docs/design/mcp-or-plugins/as-is.md#U-63
+  - docs/design/mcp-or-plugins/as-is.md#U-64
+  - docs/design/mcp-or-plugins/as-is.md#U-65
+  - docs/design/mcp-or-plugins/as-is.md#U-66
+  - docs/design/mcp-or-plugins/as-is.md#U-67
+  - docs/design/mcp-or-plugins/as-is.md#U-68
+  - docs/design/mcp-or-plugins/as-is.md#U-69
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: 'Yes: plan checks with test accounts in each client'
+    answerer: user
+    time: '2026-10-26T11:20:00+02:00'
+    scope: task
+- id: Q-9
+  key: 4e6193f763e7997e2c18f3db47de0e6bc1c3460f77678b429457aff96f140260
+  subject: Shared identities for MCP integrations
+  raised_by: researcher
+  phase: research
+  category: policy
+  text: Is any shared identity allowed for an integration (an Atlassian service-account key, a team plugin
+    variable or a Team MCP credential set by an administrator), or must every credential be one user's
+    own?
+  why: Your requirement is one credential per user, never another user's; vendor features exist that hold
+    one credential for a team.
+  options:
+  - every credential is one user's own
+  - a shared read-only identity is allowed for some integrations
+  - something else
+  evidence_refs:
+  - docs/design/mcp-or-plugins/as-is.md#U-70
+  - docs/design/mcp-or-plugins/as-is.md#U-71
+  - docs/design/mcp-or-plugins/as-is.md#U-72
+  - docs/design/mcp-or-plugins/as-is.md#U-73
+  - docs/design/mcp-or-plugins/as-is.md#U-74
+  - docs/design/mcp-or-plugins/as-is.md#U-75
+  - docs/design/mcp-or-plugins/as-is.md#U-76
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: 'No: no shared identity is allowed for any integration; every credential is one user''s own'
+    answerer: user
+    time: '2026-10-26T11:20:00+02:00'
+    scope: task
+- id: Q-10
+  key: 8ce3814cf5c457193bcd927ad7331b03dbdccc4c52985520a7e418385586bb24
+  subject: Allowed per-user credential type per integration and who creates it
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: For each of GitHub, Jira, Confluence and Miro, which per-user credential type is allowed (OAuth
+    sign-in, personal access token, personal API token), who creates and enables it (the user or an administrator),
+    and which Miro team does each user connect to?
+  why: The vendors document more than one method; some need an administrator to enable them; Miro allows
+    one team at a time per user.
+  evidence_refs:
+  - docs/design/mcp-or-plugins/as-is.md#U-1
+  - docs/design/mcp-or-plugins/as-is.md#U-2
+  - docs/design/mcp-or-plugins/as-is.md#U-3
+  - docs/design/mcp-or-plugins/as-is.md#U-4
+  - docs/design/mcp-or-plugins/as-is.md#U-5
+  - docs/design/mcp-or-plugins/as-is.md#U-6
+  - docs/design/mcp-or-plugins/as-is.md#U-7
+  - docs/design/mcp-or-plugins/as-is.md#U-8
+  - docs/design/mcp-or-plugins/as-is.md#U-9
+  - docs/design/mcp-or-plugins/as-is.md#U-10
+  - docs/design/mcp-or-plugins/as-is.md#U-11
+  - docs/design/mcp-or-plugins/as-is.md#U-12
+  - docs/design/mcp-or-plugins/as-is.md#U-13
+  - docs/design/mcp-or-plugins/as-is.md#U-14
+  - docs/design/mcp-or-plugins/as-is.md#U-15
+  - docs/design/mcp-or-plugins/as-is.md#U-16
+  - docs/design/mcp-or-plugins/as-is.md#U-17
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: OAuth sign-in or the user's own personal token
+    answerer: user
+    time: '2026-10-26T11:20:00+02:00'
+    scope: task
+- id: Q-11
+  key: 70139030c2769c1a1be66414057d3c831e8284f7f5fb6a97bf88359353b70463
+  subject: Ownership and review of the shared files and of a plugin repository
+  raised_by: researcher
+  phase: research
+  category: policy
+  text: Who owns and reviews the committed MCP files and, if native plugins are used, the plugin and marketplace
+    repository, and which plugin output files would the design cover?
+  why: Both routes put one shared definition in front of every user; the vendor files name no review beyond
+    version control.
+  evidence_refs:
+  - docs/design/mcp-or-plugins/as-is.md#U-18
+  - docs/design/mcp-or-plugins/as-is.md#U-19
+  - docs/design/mcp-or-plugins/as-is.md#U-20
+  - docs/design/mcp-or-plugins/as-is.md#U-21
+  - docs/design/mcp-or-plugins/as-is.md#U-22
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: A pull request in this repository, reviewed by its code owners
+    answerer: user
+    time: '2026-10-26T11:20:00+02:00'
+    scope: task
+- id: Q-12
+  key: be882316b3423f1ad788dea8cd787f9cd2fef74caba17beb70575f894b423918
+  subject: Identity of an unattended surface that uses a committed MCP entry
+  raised_by: architect
+  phase: design
+  category: policy
+  text: >-
+    A cloud agent, a code-review context or CI that uses a committed MCP entry has no developer at a
+    keyboard. Which identity may such a surface use for an entry: the account of the user who started
+    or owns it (each surface bound to one signed-in user), no MCP access at all on that surface, or a
+    separate credential created for that surface and not used by any person? A separate credential
+    shared by several people is a shared identity, which the answer to Q-9 refuses.
+  why: >-
+    The accepted evidence does not say whose credential these surfaces use (unknowns under Q-7 and Q-9),
+    and the design cannot promise 'never another user's credential' on them without an answer.
+  options:
+    - The account of the one user who started or owns the surface
+    - No MCP access on unattended surfaces
+    - A separate credential for the surface that no person uses
+  evidence_refs:
+    - docs/design/mcp-or-plugins/as-is.md#U-23
+    - docs/design/mcp-or-plugins/as-is.md#U-70
+  blocks:
+    - plan
+  status: answered
+  answer:
+    value: The account of the one user who started or owns the surface
+    answerer: user
+    time: '2026-10-26T12:55:00+02:00'
+    scope: task
+- id: Q-13
+  key: 15eb20e8b6765f16ef52bf206ef41567f8ef66915a5f1c9b9d2749012509922c
+  subject: Versioning of the integrations contract when its rules are tightened
+  raised_by: architect
+  phase: design
+  category: policy
+  text: >-
+    The architecture document says that a breaking change of a schema is a major change and ships a
+    migration (Section 20.2). Tightening orqlet.integrations/v1 can make a hand-written declaration
+    invalid. In this repository no module reads the contract and no declaration exists. Do you accept
+    tightening the contract in place and keeping the identifier v1, or must the change add
+    orqlet.integrations/v2 with a migration?
+  why: >-
+    The accepted evidence shows that no module in this repository reads the contract; it does not show
+    whether another project holds a declaration.
+  options:
+    - Tighten v1 in place; no declaration is known to exist
+    - Add orqlet.integrations/v2 with a migration and keep v1
+  evidence_refs:
+    - docs/design/mcp-or-plugins/as-is.md#A-13
+    - docs/design/orqlet-architecture-proposal.md
+  blocks:
+    - plan
+  status: answered
+  answer:
+    value: Tighten v1 in place; no declaration is known to exist
+    answerer: user
+    time: '2026-10-26T12:55:00+02:00'
+    scope: task
+- id: Q-14
+  key: e62bd86ad37eb5a70e6275aa700fe1af04ddb9ebad8f2395b28a8a7908e56d8e
+  subject: Atlassian site that the team uses
+  raised_by: architect
+  phase: design
+  category: requirement
+  text: >-
+    Which Atlassian cloud site do the users of the Atlassian entry connect to? The design pins one
+    server address, https://mcp.atlassian.com/v2/mcp, and the evidence does not say how a site is chosen
+    during sign-in (unknown U-10, U-12).
+  why: >-
+    The checks V-12 and V-13 change administrator settings and use unattended surfaces, and they must
+    not run on the team's own site by accident.
+  evidence_refs:
+    - docs/design/mcp-or-plugins/as-is.md#U-10
+    - docs/design/mcp-or-plugins/as-is.md#U-12
+  blocks:
+    - plan
+  status: answered
+  answer:
+    value: >-
+      The person wrote "this is our confluense" with the link https://cisco-cxe.atlassian.net/wiki/s;
+      the link was cut off after /wiki/s. The site host is cisco-cxe.atlassian.net and Confluence is at
+      /wiki. The space and page are not known, and whether Jira is on the same site was not stated.
+    answerer: user
+    time: '2026-10-26T12:46:00+02:00'
+    scope: task
