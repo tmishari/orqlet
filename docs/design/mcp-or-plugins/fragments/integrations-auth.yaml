@@ -1,0 +1,879 @@
+schema: orqlet.as-is-fragment/v1
+fragment_id: integrations-auth
+base_revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+scope:
+  paths:
+  - docs/design/mcp-or-plugins/evidence/web/**
+  - docs/design/orqlet-architecture-proposal.md
+  request_ref: open-items
+facts:
+- id: A-1
+  kind: structure
+  statement: 'The GitHub evidence file records one retrieval (2026-10-26T08:44Z, workstation clock, UTC,
+    through the WebSearch tool) and labels its three excerpts with their source pages: host-integration.md,
+    README.md and server-configuration.md.'
+  evidence:
+  - path: docs/design/mcp-or-plugins/evidence/web/github-mcp-server.md
+    lines: 1-5
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: 4a784ab7c69c77f171e0846301a737e9fbdce1ee05602411bd7dce92bd064cbc
+- id: A-2
+  kind: interface
+  statement: The text says "GitHub MCP Servers require a valid access token in the `Authorization` header"
+    and that this is true for both the Local GitHub MCP Server and the Remote GitHub MCP Server.
+  evidence:
+  - path: docs/design/mcp-or-plugins/evidence/web/github-mcp-server.md
+    lines: '8'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: eee869d26532cb46c5bf6b97f749e5cdf0d176a1d1e7d5c2993b593362f96266
+- id: A-3
+  kind: interface
+  statement: For the Remote GitHub MCP Server the text says "the recommended way to obtain a valid access
+    token is to ensure your client application supports OAuth 2.1".
+  evidence:
+  - path: docs/design/mcp-or-plugins/evidence/web/github-mcp-server.md
+    lines: '10'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: c2240cde8208dcfdbc27d0abed88a219797da67794e9ee7986a8eadaf000db77
+- id: A-4
+  kind: interface
+  statement: For the Remote GitHub MCP Server the text says "you may also supply any valid access token.
+    For example, you may supply a pre-generated Personal Access Token (PAT)". It does not list other token
+    types.
+  evidence:
+  - path: docs/design/mcp-or-plugins/evidence/web/github-mcp-server.md
+    lines: '10'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: c2240cde8208dcfdbc27d0abed88a219797da67794e9ee7986a8eadaf000db77
+- id: A-5
+  kind: interface
+  statement: The text says "The Remote GitHub MCP Server itself does not provide Authentication services"
+    and that "Your client application must obtain valid GitHub access tokens through one of the supported
+    methods".
+  evidence:
+  - path: docs/design/mcp-or-plugins/evidence/web/github-mcp-server.md
+    lines: 12-14
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: 3a856a311806305ab3575aa611aef28d899450ff9f2dbc23b70fed8743476e6b
+- id: A-6
+  kind: operation
+  statement: The README excerpt is headed "To keep your GitHub PAT secure and reusable across different
+    MCP hosts" and lists "Store your PAT in environment variables" and "Reference the token in configurations".
+    The numbered list in the excerpt jumps from 1 to 3.
+  evidence:
+  - path: docs/design/mcp-or-plugins/evidence/web/github-mcp-server.md
+    lines: 17-20
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: bc9bd33ca721bd92d7c622ca339de7a7ba25995bee1b188ba67e7a63a69226d8
+- id: A-7
+  kind: operation
+  statement: The text says "Environment variable support varies by host app and IDE. Some applications
+    (like Windsurf) require hardcoded tokens in config files."
+  evidence:
+  - path: docs/design/mcp-or-plugins/evidence/web/github-mcp-server.md
+    lines: '22'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: 73f624f0ba0b20b29bffd34dd7bd3d9775ab94522cd8ff544e5deae58e5a00ae
+- id: A-8
+  kind: interface
+  statement: For classic PATs (`ghp_` prefix) the text says tools "are filtered at startup based on token
+    scopes", so "you only see tools you have permission to use".
+  evidence:
+  - path: docs/design/mcp-or-plugins/evidence/web/github-mcp-server.md
+    lines: '25'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: 6ae3d65c74ba42787000108995550ac09ab44baa0524ef1029abbf2c2a872d12
+- id: A-9
+  kind: interface
+  statement: For OAuth on the remote server the text says it "Uses scope challenges", so when a tool needs
+    a scope not yet granted "you're prompted to authorize it".
+  evidence:
+  - path: docs/design/mcp-or-plugins/evidence/web/github-mcp-server.md
+    lines: '26'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: f97b5448cfe3cfd7b4be4dffc82e8c03ae1b592282e9dfd17e0e9fbe13927bf2
+- id: A-10
+  kind: interface
+  statement: For "Other tokens" the text says there is "No filtering", all tools are shown, and the "API
+    enforces permissions".
+  evidence:
+  - path: docs/design/mcp-or-plugins/evidence/web/github-mcp-server.md
+    lines: '27'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: 11d419147cb0a3d79b8514649ace82ad70cc3189ce076c03d65b88ed35748e6c
+- id: A-11
+  kind: structure
+  statement: 'The Atlassian evidence file records one retrieval (2026-10-26T08:44Z, through the WebSearch
+    tool) and labels its excerpts with three source pages: the authentication-and-authorization guide,
+    the "Configuring authentication via API token" guide and the support.atlassian.com page "Control Atlassian
+    MCP server settings". The file itself does not contain the words Jira or Confluence.'
+  evidence:
+  - path: docs/design/mcp-or-plugins/evidence/web/atlassian-rovo-mcp.md
+    lines: 1-33
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: 6b94ae02b957fd0b13009728c883004fc5475a3b08dc82d35a01685084939e06
+- id: A-12
+  kind: interface
+  statement: The text says the Atlassian Rovo MCP Server "uses OAuth 2.1 as its primary authentication
+    mechanism", authorizing access "via an interactive consent flow".
+  evidence:
+  - path: docs/design/mcp-or-plugins/evidence/web/atlassian-rovo-mcp.md
+    lines: '8'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: 079855b01ed76bee7abe87be17861476750edc61db2e26f797d5b8769cf6eda1
+- id: A-13
+  kind: dependency
+  statement: The text says "if enabled by your organization admin" the server supports API-token authentication
+    "for machine-to-machine and other non-interactive scenarios", with the examples "backend services,
+    CI/CD pipelines, bots, and automated agents", and that it lets MCP clients authenticate "without a
+    browser-based OAuth consent screen".
+  evidence:
+  - path: docs/design/mcp-or-plugins/evidence/web/atlassian-rovo-mcp.md
+    lines: '10'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: 76756f4a0da08905ef5f32a9c0385f5d7a0c7b214193b348e0f2078a729fc215
+- id: A-14
+  kind: interface
+  statement: The text says "Regardless of the method, every action respects the authenticated user's existing
+    access controls and permissions", that "Access is granted only to data the user already has permission
+    to view", and that OAuth and API token authentication "both honor configured scopes and Atlassian
+    permissions".
+  evidence:
+  - path: docs/design/mcp-or-plugins/evidence/web/atlassian-rovo-mcp.md
+    lines: '12'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: efe536b2cdb0ff0e7017365bd25395823adf2e3270273572c525c8bdb7c9a3f1
+- id: A-15
+  kind: interface
+  statement: 'The methods table lists OAuth 2.1 as an "Interactive full OAuth flow, with token validation
+    and user context enrichment" with the header `Authorization: Bearer <access_token>`.'
+  evidence:
+  - path: docs/design/mcp-or-plugins/evidence/web/atlassian-rovo-mcp.md
+    lines: 15-17
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: 966fa9b758acfd4466ec19c3b444b11647f8bdb082af299456a010010916ec0b
+- id: A-16
+  kind: interface
+  statement: 'The methods table lists "API token" as "Non-interactive machine-to-machine authentication
+    using a personal API token or a service account API key. Requires admin enablement." with the headers
+    `Authorization: Basic <base64(email:api_token)>` or `Authorization: Bearer <api_key>`.'
+  evidence:
+  - path: docs/design/mcp-or-plugins/evidence/web/atlassian-rovo-mcp.md
+    lines: '18'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: 32e4e50713dc75db95363c0ed079635f0c1d0cbf67504fcf5a1ea22cc9651b12
+- id: A-17
+  kind: interface
+  statement: 'The API-token guide says "There are two options: a personal API token using Basic auth,
+    or a service account API key using a Bearer token."'
+  evidence:
+  - path: docs/design/mcp-or-plugins/evidence/web/atlassian-rovo-mcp.md
+    lines: '21'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: 4d70c782c6475b08515e9dd7816402ad95f7e01ad1563185844d2f02e36e7c26
+- id: A-18
+  kind: dependency
+  statement: The API-token guide says "An admin creates a service account and generates an API key with
+    the appropriate scopes. Store the key securely in your CI/CD system or secrets manager." It does not
+    say who creates a personal API token.
+  evidence:
+  - path: docs/design/mcp-or-plugins/evidence/web/atlassian-rovo-mcp.md
+    lines: '23'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: 943120b85634dc2ef17debb4e16c17cf887791edbe8bece8bb68c9fb7856f054
+- id: A-19
+  kind: interface
+  statement: The support page says "By default, users connect AI tools to Atlassian MCP using OAuth 2.1."
+  evidence:
+  - path: docs/design/mcp-or-plugins/evidence/web/atlassian-rovo-mcp.md
+    lines: '26'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: a199275cb588f1f19a991b9738ae0b8dce07a7ae5b9091a58e1490f2f4787dc0
+- id: A-20
+  kind: interface
+  statement: The support page says "you can also allow tools to connect using an API token, which is useful
+    for" "Service-style or non-interactive tools that need consistent access without user prompts".
+  evidence:
+  - path: docs/design/mcp-or-plugins/evidence/web/atlassian-rovo-mcp.md
+    lines: 28-30
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: 5d4ac5084248edb691e1c2a3f225de65b56f7899afdbff6b15eef686ce71bf5c
+- id: A-21
+  kind: interface
+  statement: The support page lists as a use of API-token connection "Backend systems or automations that
+    call Atlassian MCP on behalf of a shared account".
+  evidence:
+  - path: docs/design/mcp-or-plugins/evidence/web/atlassian-rovo-mcp.md
+    lines: '28'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: b602de854ae429e98a7abace0bb8c058a0b9ec4cadd713dd37ddda626f02b1ae
+  - path: docs/design/mcp-or-plugins/evidence/web/atlassian-rovo-mcp.md
+    lines: '31'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: 7695baf28173d3a83ed3b6b98bc08f7d9b845d43fbdcea6bc2cb67fa57c4a488
+- id: A-22
+  kind: interface
+  statement: The support page says tools that authenticate via API token "do not use domain allowlists
+    and are instead governed by your IP allowlist configuration and the scopes granted to their tokens
+    or API keys".
+  evidence:
+  - path: docs/design/mcp-or-plugins/evidence/web/atlassian-rovo-mcp.md
+    lines: '33'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: df3a1ab5b20458817d48f44948e982b1b196562e21c5f3114a176f57d8dfb00b
+- id: A-23
+  kind: structure
+  statement: 'The Miro evidence file records one retrieval (2026-10-26T08:44Z, through the WebSearch tool)
+    and labels its excerpts with four source pages: the MCP overview, the FAQ, the troubleshooting page
+    and the Help Center admin guide.'
+  evidence:
+  - path: docs/design/mcp-or-plugins/evidence/web/miro-mcp.md
+    lines: 1-6
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: b72cae79f29110a69ee5f69ddf7917c8358b9ced1ebfe298ffddf5dd8dc85128
+- id: A-24
+  kind: interface
+  statement: Under "Set up your agent" the text names a Codex and ChatGPT route ("Add Miro from the ChatGPT
+    plugin directory, then select Connect"), a Claude Code route (`claude plugin install miro@claude-plugins-official`)
+    and a Cursor route ("Install from the Cursor marketplace").
+  evidence:
+  - path: docs/design/mcp-or-plugins/evidence/web/miro-mcp.md
+    lines: 8-11
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: 5eecdfb1e01c4c2cffbceb9be20d40ac4ee57e292f06e3f7448fdb1d09042ab3
+- id: A-25
+  kind: interface
+  statement: The security excerpt says Miro MCP "Uses OAuth 2.1 for auth" with "dynamic client registration"
+    and "Respects all existing board permissions and access controls".
+  evidence:
+  - path: docs/design/mcp-or-plugins/evidence/web/miro-mcp.md
+    lines: 14-15
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: bbb76d80d3e57f95f7a67a217a0ba29a25e3e4b73112fd7973e3e9aa88568485
+- id: A-26
+  kind: interface
+  statement: The FAQ says "Today the Miro MCP connection is 1:1 — each user is authenticated into one
+    team at a time, even across multiple clients. If you authorize a different team (or a different client),
+    the previous team's connection is superseded."
+  evidence:
+  - path: docs/design/mcp-or-plugins/evidence/web/miro-mcp.md
+    lines: '18'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: bd531272253c9add2395f0c023a840150a5a5cdc12e76b45c5862c4a5e509eb5
+- id: A-27
+  kind: interface
+  statement: The troubleshooting page says there are multiple ways to install the Miro MCP Server, that
+    "each creates an independent connection with its own OAuth session", and that if more than one is
+    active in the same client "you'll see duplicate tools and authentication confusion".
+  evidence:
+  - path: docs/design/mcp-or-plugins/evidence/web/miro-mcp.md
+    lines: '21'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: 6630d604d55d0f40d8ca533552e99d40ed52c2d71b20aff8165829366ef7e8f4
+- id: A-28
+  kind: interface
+  statement: A table row reads "Plugin / extension (from miro-ai) | Everyone using Claude Code, Cursor,
+    Gemini CLI, or Kiro | User (follows you across projects)". The excerpt carries no column headings.
+  evidence:
+  - path: docs/design/mcp-or-plugins/evidence/web/miro-mcp.md
+    lines: '23'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: 33b72f85cc0abbb7024a105f48d59b89b8727e85e742384e7de0a5350c7ee7e0
+- id: A-29
+  kind: interface
+  statement: 'A table row reads "Manual JSON config (`"url": "https://mcp.miro.com/"`) | Clients without
+    a Miro plugin (VSCode + Copilot, Windsurf, Lovable, etc.) | User or project".'
+  evidence:
+  - path: docs/design/mcp-or-plugins/evidence/web/miro-mcp.md
+    lines: '24'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: fdad208f756fa8e2d475b7229d42234c9f0818505be44754d96bb7dc2e22bc0c
+- id: A-30
+  kind: operation
+  statement: 'The text says "The rule: use only one method per client. If your client has a Miro plugin
+    or extension, use that — and do not also add manual MCP config. They both connect to the same server
+    but maintain separate auth sessions."'
+  evidence:
+  - path: docs/design/mcp-or-plugins/evidence/web/miro-mcp.md
+    lines: '26'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: b280c01cb8c2250453a4ea7a8f1d6d14b526873858469dfacd151f6e731e4637
+- id: A-31
+  kind: dependency
+  statement: The admin guide says "Enable MCP for your organization, then use Access control to decide
+    who can use it", and that access can be kept "open to everyone, or limit[ed] to selected teams and
+    optionally user groups", with "Board-level permissions still apply".
+  evidence:
+  - path: docs/design/mcp-or-plugins/evidence/web/miro-mcp.md
+    lines: 29-30
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: c1d8396851bf4b7aeb4b8e7e6ce305db4752a1690f88b5bd6757ddbfd879f18e
+- id: A-32
+  kind: interface
+  statement: The admin guide says "All access is authenticated through OAuth 2.1" and "Users can only
+    grant access to boards they have permission to view."
+  evidence:
+  - path: docs/design/mcp-or-plugins/evidence/web/miro-mcp.md
+    lines: 31-32
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: 78b45ee68bfeccb878d62f77ca623c5fb6440d663612f79eb83541e7ee1e7042
+- id: A-33
+  kind: structure
+  statement: 'Section 15.10 says nothing in it has been run: "every row is documentation read on 2026-10-20"
+    (Appendix A.8: GH-08 to GH-11, MI-01, MI-02, AT-01, CU-19), so "none of it is a runtime-compatibility
+    claim".'
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2687'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: 0bfb032b116b72283883b123cbc7dcfb46607564a8d0cbae047dce531bdde8c5
+- id: A-34
+  kind: interface
+  statement: The GitHub/Cursor row plans a project `.cursor/mcp.json` entry with authentication by "A
+    personal access token through `headers`, as `${env:NAME}`". It cites GitHub's own Cursor install guide
+    (reported by a v0.4 review-round subagent, not re-read by the author) as saying "the GitHub server
+    currently requires a Personal Access Token". It lists "Per-developer PAT" under limitations.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2702'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: 6f204a15ec13e409b7c9185c59efd0c036dfb4ba94f4bb59e36a1be03a3ce647
+- id: A-35
+  kind: interface
+  statement: The GitHub/Claude Code row plans a project `.mcp.json` entry with authentication by "PAT
+    header (documented); OAuth with GitHub remote not found".
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2703'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: a19ec328f5e6ede9350ef2d97ee2a557d4d61e440f5618e74089f6cbfbfc1899
+- id: A-36
+  kind: interface
+  statement: The GitHub/Codex row plans a `.codex/config.toml` entry (trusted projects only) with authentication
+    by "A bearer token through an environment-variable **name** (no secret in the file)" using `bearer_token_env_var`.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2704'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: 152fe402ef8c347e0eb3c81e239d082929cc0a4b5ec73e2576655b90f6ea4248
+- id: A-37
+  kind: interface
+  statement: The GitHub/Cursor row names as the permission boundary "the server's read-only mode" and
+    "the token's own permissions (a fine-grained read-only token is the second layer)".
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2702'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: 6f204a15ec13e409b7c9185c59efd0c036dfb4ba94f4bb59e36a1be03a3ce647
+- id: A-38
+  kind: interface
+  statement: The Jira/Cursor row says OAuth 2.1 is the default and is "interactive; each client authenticates
+    for itself; the consent screen decides the scopes", that Cursor `auth.scopes` and Claude Code `oauth.scopes`
+    can pin what a client requests, and that "Cursor's credential storage and sharing are not stated".
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2705'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: b303a5f730ce2ec4e3735363af0e24f71685b63f54e9f7e66400c7ed6c084aae
+- id: A-39
+  kind: dependency
+  statement: The Jira/Cursor row says an "API token (Basic, or a service-account Bearer token)" applies
+    "only if an organisation administrator enables it".
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2705'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: b303a5f730ce2ec4e3735363af0e24f71685b63f54e9f7e66400c7ed6c084aae
+- id: A-40
+  kind: interface
+  statement: The Jira/Cursor row says the administrator's Permissions tab (Read, Write, Search groups)
+    "takes effect immediately, organisation-wide", that token scopes are per group (`read:jira:agent-interface`),
+    and that "a read-scoped service-account token is a server-enforced read-only identity".
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2705'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: b303a5f730ce2ec4e3735363af0e24f71685b63f54e9f7e66400c7ed6c084aae
+- id: A-41
+  kind: interface
+  statement: 'The Jira/Cursor row lists two registration routes: Marketplace "Add to Cursor", or a project
+    `mcp.json` `url` entry. It says one server, `https://mcp.atlassian.com/v2/mcp`, serves Jira and Confluence,
+    with "per-client registration".'
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2705'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: b303a5f730ce2ec4e3735363af0e24f71685b63f54e9f7e66400c7ed6c084aae
+- id: A-42
+  kind: interface
+  statement: The Jira/Claude Code row plans `claude mcp add --transport http … --scope project` (which
+    writes `.mcp.json`) with "OAuth through `/mcp`; API token as a `headers` entry".
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2706'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: ea0418a1ec4260e5c251d1c2513bd8c010df2db0de3d4a55b3c0f9ec8858a494
+- id: A-43
+  kind: interface
+  statement: The Jira/Codex row plans `codex mcp add … --url …` or `.codex/config.toml`, says "Codex Desktop
+    uses a connector entry", and gives the authentication as "OAuth, or a token through `bearer_token_env_var`".
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2707'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: 466462e4e5f9ba44f553f41ab80c5c2a4f3aeea8735b788ecc9a0cec066e241f
+- id: A-44
+  kind: interface
+  statement: The three Confluence rows state "As Jira" (or "As the Jira ... row") for configuration, authentication
+    and permissions in Cursor, Claude Code and Codex.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 2708-2710
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: 6f0e329520b9e8c0acc4f1a8e60aa83cfbe6839c6f87e89e37b0f187b558eb5a
+- id: A-45
+  kind: interface
+  statement: Section 15.7 says Atlassian's getting-started page "lists Codex Desktop (Plugins or Connectors,
+    "Atlassian Rovo") and `codex mcp add atlassian --url https://mcp.atlassian.com/v2/mcp`" ([FH v0.4]),
+    that the server is Cloud-hosted, and that Data Center is not documented.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2635'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: db7badbd99c29243a97e1b04efa0cfd53305f65e5c985994c42486d3642b19b5
+- id: A-46
+  kind: interface
+  statement: Appendix record AT-01 says "service-account tokens only when an administrator enables token
+    authentication", that "the OAuth consent screen decides the scopes", and lists "Not found" for "whether
+    Atlassian honours a read-only scope request from a client". The Cursor "Add to Cursor" marketplace
+    route of the matrix is not among the pages AT-01 lists.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '5947'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: 2a2dc5250f3fa3ca0311615d1f2772561f992e1721c0cad46c76f7ee9ad69958
+- id: A-47
+  kind: interface
+  statement: The Miro/Cursor row says the Cursor plugin is user scope, a manual `url` entry "can be user
+    or project", and "only one method per client" should be used because the two keep separate authentication
+    sessions. The entry is "Not registered by default".
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2711'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: 9bd2fa88f2cc5fd3cdd6b46c2ecb60fe7ff841536e995f025d10668890886f51
+- id: A-48
+  kind: interface
+  statement: 'The Miro/Cursor row gives the authentication as "OAuth 2.1 with dynamic client registration;
+    the project `auth` block needs a `CLIENT_ID` and Miro documents none; no headless flow found", and
+    says "One connection per user across all clients: authorising another client or team drops the previous
+    connection (Miro''s "Last One Wins" rule)".'
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2711'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: 9bd2fa88f2cc5fd3cdd6b46c2ecb60fe7ff841536e995f025d10668890886f51
+- id: A-49
+  kind: dependency
+  statement: 'The Miro/Cursor row describes the administrative levers as read by a v0.4 review-round subagent
+    and not by the author: "an on/off switch, team and user-group access, a client allowlist".'
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2711'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: 9bd2fa88f2cc5fd3cdd6b46c2ecb60fe7ff841536e995f025d10668890886f51
+- id: A-50
+  kind: interface
+  statement: The Miro/Claude Code row plans, after spike S-26 and the Q-06 sub-answer, a project `.mcp.json`
+    entry for `https://mcp.miro.com/`. It says a project entry "duplicates a plugin that a developer already
+    installed" and that `doctor` reports `duplicate-endpoint` where it can see it.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2712'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: a61c914b16f8a3f5701507c99520593d35a1f431539cc995739326ff668a8b2c
+- id: A-51
+  kind: interface
+  statement: The Miro/Codex row plans, after S-26 and the Q-06 sub-answer, a project `.codex/config.toml`
+    entry (trusted projects only), and says "Miro documents a ChatGPT plugin and not a `config.toml` entry".
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2713'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: d022eda092dfc76f5bb3257850a9386b3296d4bebbdd7b76553bff1b58c1dfa1
+- id: A-52
+  kind: dependency
+  statement: 'Section 15.10.1 says Miro''s own pages disagree on plans: the FAQ says the MCP server is
+    available across plans with Enterprise needing an administrator''s approval, and the "MCP Server vs
+    REST API" page lists "Enterprise plan only" [X]. It says the plan the team has is an input.'
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2719'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: 7d7ff29c60ac9b2ee992b71b3786cdc078381a6fdbc06be3e325da383bc286a2
+- id: A-53
+  kind: interface
+  statement: Section 15.10.1 says Miro MCP returns an OIDC `id_token` with the user's verified email,
+    which lets a host restrict connectors to a verified enterprise domain, and calls this "an identity
+    control, not a read-only grant".
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2719'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: 7d7ff29c60ac9b2ee992b71b3786cdc078381a6fdbc06be3e325da383bc286a2
+- id: A-54
+  kind: dependency
+  statement: The Miro-REST option needs "An administrator to create and approve the app", uses an OAuth
+    app with only `boards:read` installed in one team, and has Orqlet not store the token. A developer-run
+    authentication procedure "handles the refresh token and its storage".
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2727'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: ca9584794e4f2dc6068f74be1b8466c163b3cd46e8e44e603a562163f238c6c4
+- id: A-55
+  kind: interface
+  statement: 'Appendix record MI-01 says Miro "administrators control availability by organisation and
+    team", that "the AI agent can only see and act on boards the authenticated user can already access",
+    that the connection is 1:1 across clients ("Last One Wins"), and lists "Not found: a read-only grant,
+    mode, flag or header for the MCP server".'
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '5945'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: 006193075bdc42967d11aebd834c1d1d86c3fcde60aad031e02206be2828f9ec
+- id: A-56
+  kind: interface
+  statement: 'Appendix record MI-02 says "Not found: a Miro-documented project-level entry for Claude
+    Code, Cursor or Codex; Codex setup beyond a ChatGPT plugin".'
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '5946'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: b4bea9586543796594e2368052c9f33568722c483d677121d91f7b525e0c28c4
+- id: A-57
+  kind: interface
+  statement: Appendix record GH-11 says GitHub's own Cursor install guide says "the GitHub server currently
+    requires a Personal Access Token", and that GitHub Docs' "OAuth by default" "names other IDEs, not
+    Cursor".
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '5944'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: 46aba3b3775f42e69f8871aa65ea2a8181e8f57ccedbf927df0141184c26431d
+- id: A-58
+  kind: interface
+  statement: Open question B-71 says GitHub's own Cursor install guide says a personal access token is
+    currently required and that "whether the marketplace plugin differs was not read". Failure mode FM-X06
+    says whether Cursor uses a PAT or OAuth for the GitHub server "is documented differently by GitHub's
+    own guide and by GitHub Docs for other IDEs".
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '4399'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: 64aa8ff31ff66e5832d9162e0b6f5cbcc535d37cc0f4c89bba48cb17e70d54db
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '6042'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: 94e2637ed4ce5d7c8a54307c87545d9c092396e0f30c3d7a0a0b848ffb1219d9
+- id: A-59
+  kind: operation
+  statement: Section 15.9 says "Credentials are never copied between clients; each client authenticates
+    for itself" and that installation never means registration, registration never authentication, and
+    authentication never permission.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2665'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: ba9aa2e35770ac08fe13731ab605e0650c03d233a087252e8b90564f675815aa
+- id: A-60
+  kind: operation
+  statement: The "Connection reuse" rule allows reuse "Only inside one client for the same endpoint and
+    authentication"; a project entry for an endpoint that a personal entry already uses is reported `duplicate-endpoint`
+    and neither is changed; "Nothing across clients".
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2662'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: 675c2189087d589336b4b971aa2fadd3e53a6a0457083f1703b54ce6d3180066
+- id: A-61
+  kind: operation
+  statement: Lifecycle stage 5 "Authenticated" means "A session exists in that client"; Orqlet "Tells
+    the developer to authenticate in that client; never copies a credential".
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2675'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: 1e023f865069f526ef281571bc7b5fdb4afc79157bab8c9a820b275215f87538
+- id: A-62
+  kind: operation
+  statement: Section 15.10.2 rule 3 says a registration "never copies a credential from another client,
+    never assumes that installation means authentication, and never assumes that another client's session
+    is available".
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2737'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: e1923382a15cc83f80c13ced55ae0d3939008b18f411e2ed0db7e4996db5c3db
+- id: A-63
+  kind: interface
+  statement: Section 15.9 defines the `backend_identity` of an `integrations.yaml` entry as "the backend
+    identity the backend sees (which account, token or service identity)". It says server-side read-only
+    modes "limit actions, not what can be read; the effective permissions of the backend identity decide
+    that".
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2681'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: fd17c9bd0d02199f739a4d4f6ffcb9214a84349b1d52937d1edcec095c437146
+- id: A-64
+  kind: interface
+  statement: 'The `integrations.yaml` template gives `auth: {mode: client-native-oauth}` with the options
+    `client-native-oauth | env-ref | none`, says `env_refs` are "names only; values never in Git", and
+    shows `backend_identity: <account, token or service identity that the backend sees>`.'
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 4838-4842
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: 753080a8d93896b5d5f749c37cdef68f3520c3918fd724d02e76b3a8ae230eeb
+- id: A-65
+  kind: interface
+  statement: The code contract defines `AuthSpec.mode` as one of "client-native-oauth", "env-ref" or "none"
+    with `env_refs`, and `DataFlow.backend_identity` as a plain `str`.
+  evidence:
+  - path: src/orqlet/application/contracts/integrations.py
+    lines: 41-47
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: e92551e8e8dc8714f2930900132d363a809b949c05babb932b4a861ef828b9c9
+- id: A-66
+  kind: interface
+  statement: The `auth-procedures.yaml` template lists `kind` options including `service-account`, and
+    an `identity_class` field of `developer | ci`.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 4943-4944
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: 7577ea3a3b8e19f6dd93996edbb85ef8bbb4fdfd54b6dd0326be597a364db61e
+- id: A-67
+  kind: operation
+  statement: Section 16.1 defines "Developer identity" as "The person's own login (SSO) in a client or
+    tool", used "for interactive work in the IDE and for Orqlet's own approved reads and writes". It defines
+    "CI identity" as "A service identity in the CI executor", "Never inferred from a developer's IDE login;
+    interface pending".
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 2747-2748
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: d9fcfb0c89b15ea091ac9c1eaecd02c8a89b40d9cf018fc83bd5889932f3c8b6
+- id: A-68
+  kind: operation
+  statement: Section 16.1 says "Credentials stay out of Git, prompts, Markdown and indexes. Orqlet stores
+    references only."
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2753'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: cf3473e3bd8bedc93fe8a8171562045b44ff54ea0e478fe80475ce4dc39e670f
+- id: A-69
+  kind: operation
+  statement: Section 16.4.1 says the sanctioned write path applies the approved payload "with the developer's
+    own identity".
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2780'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: 56d47a8d3ac70cb9b94ffaa7fa5ff0d8bd675160e02295c5685c8c239316d43b
+- id: A-70
+  kind: dependency
+  statement: Section 16.4.2 says "Whether administrators allow a non-interactive developer credential
+    (they may allow only OAuth or service accounts) is unknown [U]; service accounts belong to the CI
+    identity class and are not used for local developer writes."
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2830'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: ecfce741e8fbf140e8feb314c191751d6e0e8413071b9df406786e2eac45f5c1
+- id: A-71
+  kind: dependency
+  statement: A pending-input list names, for Jira and Confluence, "whether the organisation enables API-token
+    authentication and read-scoped service accounts".
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '5118'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: d8d92fdd16f5c98e61019d90c55398c0c6cb2b0ff05fa25243425f55df3aab9e
+- id: A-72
+  kind: interface
+  statement: Section 4.7 says a same-name MCP entry in Claude Code resolves as "local > project > user
+    > plugin > connectors" with the whole entry replaced, not merged. For Cursor, "the MCP page documents
+    no same-name rule".
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '719'
+    revision: 7e0adfb3e0d5a4cf8718ec59edb2fe9b3d24fd66
+    sha256: 65269730197fdc32f0722611dd6053614019e22f1147d5b1a31b12cd58ef7986
+unknowns:
+- id: U-1
+  what: Whether the vendor ships a plugin or connector for the GitHub MCP server in Claude Code, Codex
+    or Cursor. The GitHub evidence file is silent. The design mentions "the marketplace plugin" for Cursor
+    only in B-71, with the note "was not read" (design 6042).
+  material: true
+- id: U-2
+  what: Whether the vendor ships a plugin or connector for the Atlassian server in Claude Code, Codex
+    or Cursor. The Atlassian evidence file is silent. The design cites a getting-started page for a Codex
+    Desktop "Plugins or Connectors" entry (2635, 5947) and a Cursor Marketplace route (2705), neither
+    of which is in the evidence file.
+  material: true
+- id: U-3
+  what: What the vendor says about running an Atlassian connector or marketplace entry together with a
+    manual MCP entry (duplicate tools, separate sessions), and the same for GitHub. Neither evidence file
+    says. Only the Miro text has such a rule (miro-mcp.md:21-26).
+  material: true
+- id: U-4
+  what: Whose token the "any valid access token" of the GitHub text may be (github-mcp-server.md:10).
+    The excerpt names only a PAT as an example and does not say whether other token types (an app, a bot
+    or shared account token) are accepted or who may create them.
+  material: true
+- id: U-5
+  what: Which party must enable or allow a GitHub PAT or an OAuth grant (user, organisation owner or administrator).
+    The GitHub evidence file does not say.
+  material: true
+- id: U-6
+  what: Which of Claude Code, Codex and Cursor support OAuth 2.1 with the Remote GitHub MCP Server. The
+    vendor excerpt says OAuth is recommended "if your client application supports" it and names no client.
+    The design records "OAuth with GitHub remote not found" for Claude Code (2703) and that Cursor's PAT-versus-OAuth
+    status is documented differently (4399).
+  material: true
+- id: U-7
+  what: How a fine-grained PAT is treated by the GitHub server. The vendor excerpt gives only three categories
+    (classic PAT, OAuth, "Other tokens") and the "fine-grained read-only token" statement is in the design
+    only (2702).
+  material: false
+- id: U-8
+  what: The content of item 2 of the README list "To keep your GitHub PAT secure and reusable across different
+    MCP hosts". The excerpt skips from item 1 to item 3 (github-mcp-server.md:19-20).
+  material: false
+- id: U-9
+  what: Whether an administrator can enable personal API tokens without enabling service account keys,
+    or the reverse. The vendor lists both under one method that "Requires admin enablement" (atlassian-rovo-mcp.md:18,21).
+    The design assumes administrators "may allow only OAuth or service accounts" (2830).
+  material: true
+- id: U-10
+  what: Who creates a personal Atlassian API token, and which "authenticated user's existing access controls"
+    apply when the credential is a service account API key. The text says an admin creates the service
+    account and key "with the appropriate scopes" (atlassian-rovo-mcp.md:12,23) and does not say what
+    permissions that service account has.
+  material: true
+- id: U-11
+  what: Whether an Atlassian OAuth grant belongs to a client or to a user. The design says "each client
+    authenticates for itself" (2705). The Atlassian evidence file says only that users authorize access
+    through an interactive consent flow (atlassian-rovo-mcp.md:8).
+  material: true
+- id: U-12
+  what: What the Atlassian "domain allowlists" govern and which party sets them. The text says only that
+    API-token tools "do not use domain allowlists" and are governed by an IP allowlist and token scopes
+    (atlassian-rovo-mcp.md:33).
+  material: true
+- id: U-13
+  what: Whether Atlassian limits a user to one site or one product connection at a time (a limit like
+    Miro's "one team at a time"), and the same question for GitHub. Neither evidence file says.
+  material: true
+- id: U-14
+  what: The Atlassian evidence file does not contain the statement that one server serves Jira and Confluence,
+    the administrator Permissions tab, or the "organisation-wide" effect. These appear only in the design
+    (2635, 2705, 5947).
+  material: false
+- id: U-15
+  what: Whether any non-interactive, service-account or shared-identity method exists for the Miro MCP
+    server. The admin guide excerpt says "All access is authenticated through OAuth 2.1" (miro-mcp.md:31)
+    and names no other method. The design records "no headless flow found" (2711).
+  material: true
+- id: U-16
+  what: How Codex is classified by the Miro troubleshooting table. Codex is not named among the plugin
+    clients (miro-mcp.md:23) or among the manual-config clients (miro-mcp.md:24), and the setup text names
+    only the ChatGPT plugin directory (miro-mcp.md:9).
+  material: true
+- id: U-17
+  what: Whether, in the Miro "one team at a time" rule, two active connections made by two methods in
+    the same client (plugin plus manual entry) count as "a different client". The text says each method
+    has its own OAuth session (miro-mcp.md:21,26) and that authorizing a different team or client supersedes
+    the previous connection (miro-mcp.md:18).
+  material: true
+- id: U-18
+  what: How a Miro user's team is chosen (by the user at consent time or by an administrator). The text
+    says only that each user is authenticated into one team at a time (miro-mcp.md:18).
+  material: true
+- id: U-19
+  what: The plan requirement for the Miro MCP server and the administrator approval that Enterprise needs.
+    These are in the design only (2636, 2719) and not in the Miro evidence file.
+  material: true
+- id: U-20
+  what: The "client allowlist" that the design attributes to the Miro admin guide (2711, 5945) is not
+    in the admin-guide excerpt (miro-mcp.md:29-32).
+  material: false
+- id: U-21
+  what: The column headings of the Miro table (miro-mcp.md:23-24) are not in the excerpt. The third cell
+    is read as the scope of the method only because the design record MI-02 reads it so (5946).
+  material: false
+- id: U-22
+  what: Whether one PAT held in one environment variable and referenced from the GitHub entries of all
+    three clients (2702-2704; github-mcp-server.md:17-20) is meant by the rule "each client authenticates
+    for itself" (2665). The design does not say whether the three clients use the same variable.
+  material: true
+- id: U-23
+  what: How Cursor stores and shares credentials of OAuth sessions. The design says "Cursor's credential
+    storage and sharing are not stated" (2705).
+  material: true
+- id: U-24
+  what: Whether the working tree has uncommitted changes relative to commit 7e0adfb3. The branch ref points
+    at that commit, but `git status` was not run.
+  material: false
+contradictions:
+- id: C-1
+  sources:
+  - docs/design/orqlet-architecture-proposal.md:2712
+  - docs/design/orqlet-architecture-proposal.md:2713
+  - docs/design/mcp-or-plugins/evidence/web/miro-mcp.md:10-11
+  - docs/design/mcp-or-plugins/evidence/web/miro-mcp.md:23-26
+  note: The design plans a manual project entry for Miro (a `.mcp.json` entry for Claude Code, a `.codex/config.toml`
+    entry for Codex). The vendor text lists a plugin for Claude Code and Cursor, lists manual JSON config
+    for "Clients without a Miro plugin", and says "If your client has a Miro plugin or extension, use
+    that — and do not also add manual MCP config". The plugin is scoped "User (follows you across projects)",
+    while the design's entry is project-scoped. The design records the one-method rule and a `duplicate-endpoint`
+    report (2711-2712) but still plans the project entry. Codex is not classified by the vendor table
+    (see U-16).
+- id: C-2
+  sources:
+  - docs/design/orqlet-architecture-proposal.md:2705
+  - docs/design/orqlet-architecture-proposal.md:2747-2748
+  - docs/design/orqlet-architecture-proposal.md:2830
+  note: The Jira/Confluence rows for Cursor, Claude Code and Codex name "a read-scoped service-account
+    token" as a server-enforced read-only identity (2705; the Confluence and other client rows say "As
+    Jira"). Section 16.1 defines the developer's IDE identity as the person's own login and a CI identity
+    as a service identity "Never inferred from a developer's IDE login", and 2830 says service accounts
+    "belong to the CI identity class and are not used for local developer writes". The texts place the
+    service-account token in the developer-client rows and in the CI class.
+- id: C-3
+  sources:
+  - docs/design/mcp-or-plugins/evidence/web/atlassian-rovo-mcp.md:10
+  - docs/design/mcp-or-plugins/evidence/web/atlassian-rovo-mcp.md:23
+  - docs/design/mcp-or-plugins/evidence/web/atlassian-rovo-mcp.md:28-31
+  - docs/design/orqlet-architecture-proposal.md:2705
+  note: The vendor text presents the service account API key as a machine-to-machine method for "backend
+    services, CI/CD pipelines, bots, and automated agents", with the key stored "in your CI/CD system
+    or secrets manager" and used "on behalf of a shared account". The design lists the service-account
+    token among the authentication methods of the interactive developer clients (Cursor, Claude Code,
+    Codex).
+- id: C-4
+  sources:
+  - docs/design/orqlet-architecture-proposal.md:2702
+  - docs/design/orqlet-architecture-proposal.md:2703
+  - docs/design/orqlet-architecture-proposal.md:4399
+  - docs/design/mcp-or-plugins/evidence/web/github-mcp-server.md:10
+  - docs/design/mcp-or-plugins/evidence/web/github-mcp-server.md:26
+  note: The vendor text names OAuth 2.1 as the recommended way to authenticate to the Remote GitHub MCP
+    Server "if your client application supports" it, and describes OAuth scope challenges. The design
+    plans a PAT in all three clients, records "OAuth with GitHub remote not found" for Claude Code, and
+    says GitHub's own Cursor guide and GitHub Docs document PAT versus OAuth for Cursor differently. The
+    vendor excerpt names no client, so the texts differ on OAuth availability but do not settle it (see
+    U-6).
