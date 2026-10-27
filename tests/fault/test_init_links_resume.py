@@ -65,6 +65,13 @@ ANSWERS = {
     "repository.target_branch": "main",
     "repository.branch_naming": "",
     "repository.commit_convention": "",
+    # Phase P-5 adds seven convention questions; an empty answer keeps each one unknown.
+    "repository.branch_model": "",
+    "repository.release_flow": "",
+    "repository.pull_requests.shape": "",
+    "repository.pull_requests.merge_strategy": "",
+    "repository.pull_requests.reviewers": "",
+    "repository.pull_requests.required_checks": "",
     "reviewer": "Ada",
 }
 # With a terminal: no `--yes`, so that the link prompt runs; the plan is approved at the terminal.

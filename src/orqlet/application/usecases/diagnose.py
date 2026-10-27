@@ -44,6 +44,8 @@ _MANAGED_DIRECTORIES = (
 )
 RESERVED_PREFIX = "orqlet-"
 _MAX_FOLDERS_VISITED = 1000
+# Left out of ORQ-I503: the patterns are checked by Orqlet, and the branch model is only told.
+_NOT_HOST_ENFORCED = frozenset({"repository.branch_model", "repository.branch_patterns"})
 
 
 @dataclass(frozen=True, slots=True)
@@ -128,6 +130,7 @@ def _diagnose(services: Services, personal: PersonalNames | None, *, full: bool)
     listed: tuple[tuple[str, str], ...] = ()
     if full:
         findings += _profile_findings(inst)
+        findings += _convention_findings(inst)
         findings += _resource_findings(services)
         findings += _released_findings(inst)
         findings.append(
@@ -443,6 +446,62 @@ def _profile_findings(inst: Installation) -> list[Finding]:
             )
         )
     return found
+
+
+def _convention_findings(inst: Installation) -> list[Finding]:
+    """Information only: the conventions that are not recorded, and the ones that a host enforces.
+
+    No warning is added, so the exit code of `doctor` for an existing install does not change
+    when it upgrades (ADR-003 decisions 2 and 6).
+    """
+    repository = inst.profile.repository
+    requests = repository.pull_requests
+    facts = {
+        "repository.branch_model": repository.branch_model.value,
+        "repository.branch_patterns": repository.branch_patterns.value,
+        "repository.release_flow": repository.release_flow.value,
+        "repository.pull_requests.shape": requests.shape.value,
+        "repository.pull_requests.merge_strategy": _answer_of(requests.merge_strategy),
+        "repository.pull_requests.reviewers": _answer_of(requests.reviewers),
+        "repository.pull_requests.required_checks": requests.required_checks.value,
+    }
+    unknown = [key for key, value in facts.items() if value is None]
+    told = [
+        key for key, value in facts.items() if key not in _NOT_HOST_ENFORCED and _is_a_rule(value)
+    ]
+    found = []
+    if unknown:
+        found.append(
+            Finding(
+                "ORQ-I502",
+                "These conventions are not recorded yet: "
+                + ", ".join(unknown)
+                + ". Answer with `orqlet profile answer KEY=VALUE`, or answer none if the team "
+                "has no rule.",
+                Severity.INFO,
+            )
+        )
+    if told:
+        found.append(
+            Finding(
+                "ORQ-I503",
+                "Recorded, and not checked by Orqlet: "
+                + ", ".join(told)
+                + ". Orqlet cannot read your host, so confirm the branch protection settings "
+                "there.",
+                Severity.INFO,
+            )
+        )
+    return found
+
+
+def _answer_of(text: str) -> str | None:
+    """A plain-text answer, or `None` while it is still the unanswered `unknown`."""
+    return None if text == "unknown" else text
+
+
+def _is_a_rule(answer: str | None) -> bool:
+    return answer is not None and answer.strip().lower() != "none"
 
 
 def _released_findings(inst: Installation) -> list[Finding]:

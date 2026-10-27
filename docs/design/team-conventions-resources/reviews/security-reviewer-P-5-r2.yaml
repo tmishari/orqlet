@@ -1,0 +1,94 @@
+schema: orqlet.review-result/v1
+task: team-conventions-resources
+phase: P-5
+role: security-reviewer
+round: 2
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 3d1074cbed84f7ce30f4e2ac528100fe8449b9053931bcc15bafae8f6be29bd0
+    design: bbe26a9596127dc8f6769bc5be680e6b959bf05f54b94d3ba598a6285fae43cb
+    evidence_inputs: d39ec432962e1a9aaf59e49ce6b1558cec83235ecc15ac3eb9d16882491cec67
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: cebd53df7986b17ae02bddb6ae1d32a654f8677fe04cef91c9ed71869782f0f1
+    reviewer_definition: f969d0c8c6d65779f619b5254b1c1583aa3a4d6f0ecb56b0fd3d4647104bcb69
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 0c4c190c40f467e3f482dc9c16111e5ec769986d8de44149fadf415b727ead44
+  merge_base: d03e0d435da186950583dd471e18ad07660cec51
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: 03556c914cc53a8d2d8bacb1ecc1d703d0e50d31ad2376f983d6098a398692df
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; it had no shell, so it ran no check and recomputed
+  no digest.
+- Quote digests were not computed, so each finding rests on reading and is an observation that never blocks.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the design-phase review notes of this task, so the reviewer was not fully context-clean
+  (the known gap of the harness2-fit ADR-002).
+- The reviewer ran in the same client as the Coder, so independence is I1, not I2.
+- Round 2 followed a rework of the messages of two findings; the reviewer found the change by reading the snapshot.
+applicability:
+  examined:
+  - src/orqlet/application/usecases/init_questions.py
+  - src/orqlet/application/usecases/init_project.py
+  - src/orqlet/application/usecases/diagnose.py
+  - tests/unit/application/test_conventions_questions.py
+  - tests/unit/application/test_init_project.py
+  - tests/unit/application/test_draft_profile.py
+  - tests/unit/application/test_profile_edit.py
+  - tests/unit/application/test_init_links.py
+  - tests/fault/test_init_links_resume.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: tests
+  evidence: []
+  claim: '[minor] The hostile hand-edited profile test does not assert that the markers of the value are absent
+    and seeds only five keys.'
+  suggested_action: Seed all seven keys and assert the markers.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: docs
+  evidence: []
+  claim: A comment says the patterns are checked by Orqlet before that is built.
+  suggested_action: Reword it.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read
+    how: MANIFEST, diff.patch, plan, test record, knowledge-impact record and the snapshot of the changed files
+    result: pass
+  - what: re-run of ruff, mypy, import-linter and pytest
+    how: no shell
+    result: not-run
+  - what: packet and record digests recomputed
+    how: no shell; hashes not computed
+    result: not-run

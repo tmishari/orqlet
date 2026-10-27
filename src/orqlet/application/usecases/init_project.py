@@ -14,7 +14,6 @@ from typing import Literal
 from orqlet.application.contracts.loading import load_contract
 from orqlet.application.contracts.profile import (
     ProjectProfile,
-    PullRequests,
     PullRequestTemplate,
     StandardsSourceRef,
     Technology,
@@ -380,6 +379,12 @@ def _draft_and_ask(
     answers = collect_answers(questions, options.answers, services.prompter)
     notes: list[str] = []
     profile = apply_answers(profile, answers, notes)
+    # An answer can open a question: the branch patterns are asked once a naming rule is known.
+    asked = {question.id for question in questions}
+    follow_up = [q for q in questions_for(profile, asks_stack=asks_stack) if q.id not in asked]
+    if follow_up:
+        more = collect_answers(follow_up, options.answers, services.prompter)
+        profile = apply_answers(profile, more, notes)
     findings += [Finding("ORQ-W060", note, Severity.WARNING) for note in notes]
     reviewer = _reviewer(services, options)
     if reviewer:
@@ -453,11 +458,7 @@ def _with_pr_template(
         source_id=None,
         status="provisioned" if has_team else "team-template-unknown",
     )
-    pull_requests = PullRequests(
-        template=template,
-        reviewers=profile.repository.pull_requests.reviewers,
-        merge_strategy=profile.repository.pull_requests.merge_strategy,
-    )
+    pull_requests = profile.repository.pull_requests.model_copy(update={"template": template})
     repository = profile.repository.model_copy(update={"pull_requests": pull_requests})
     return profile.model_copy(update={"repository": repository})
 

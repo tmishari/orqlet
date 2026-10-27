@@ -3,17 +3,20 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
+from dataclasses import dataclass
 
 import pytest
 
 from orqlet.adapters.fs.journal import FsBackupStore, FsChangeJournal
 from orqlet.adapters.fs.yaml_loader import StrictYamlLoader
+from orqlet.application.contracts.common import FactValue
 from orqlet.application.contracts.generated_lock import GeneratedLock
 from orqlet.application.contracts.loading import load_contract
 from orqlet.application.contracts.profile import ProjectProfile
 from orqlet.application.ports.vcs import RepoState
 from orqlet.application.usecases.apply_plan import PlanStale, apply_plan
-from orqlet.application.usecases.init_project import InitOptions, init_project
+from orqlet.application.usecases.init_project import InitOptions, InitResult, init_project
 from orqlet.domain.changeplan import Desired, build_plan
 from orqlet.domain.digest import sha256_hex
 from orqlet.domain.ownership import FileClass, OwnerMode
@@ -32,6 +35,38 @@ pytestmark = pytest.mark.unit
 
 LOADER = StrictYamlLoader()
 YES = InitOptions(assume_yes=True)
+
+# The seven convention keys that `init` asks after the three repository questions (task
+# team-conventions-resources, phase P-5; ADR-003 decision 2). A person who only presses return, at a
+# terminal, gives the empty answer: the question is asked and the fact stays unknown.
+CONVENTION_KEYS = (
+    "repository.branch_model",
+    "repository.branch_patterns",
+    "repository.release_flow",
+    "repository.pull_requests.shape",
+    "repository.pull_requests.merge_strategy",
+    "repository.pull_requests.reviewers",
+    "repository.pull_requests.required_checks",
+)
+PLAIN_CONVENTION_KEYS = frozenset(
+    {"repository.pull_requests.merge_strategy", "repository.pull_requests.reviewers"}
+)
+UNANSWERED_CONVENTIONS = dict.fromkeys(CONVENTION_KEYS, "")
+THREE_OLD_FACTS = [
+    "repository.target_branch",
+    "repository.branch_naming",
+    "repository.commit_convention",
+]
+SEVEN_ANSWERS = {
+    "repository.branch_model": "gitflow",
+    "repository.branch_patterns": "feature/*, fix/*, release/*",
+    "repository.release_flow": "release branches are cut from develop and tagged on main",
+    "repository.pull_requests.shape": "one change per pull request, with a description of the why",
+    "repository.pull_requests.merge_strategy": "squash",
+    "repository.pull_requests.reviewers": "two reviewers, one from the owning team",
+    "repository.pull_requests.required_checks": "lint, tests, security scan",
+}
+HEAD, TAIL = "QX7HEAD", "ZK9TAIL"
 
 
 def existing_env(name: str = "uv_fastapi", **kwargs: object) -> Env:
@@ -176,6 +211,7 @@ def test_an_interactive_maintainer_answers_and_approves() -> None:
         "repository.target_branch": "main",
         "repository.branch_naming": "",
         "repository.commit_convention": "",
+        **UNANSWERED_CONVENTIONS,  # P-5: the seven convention questions, answered with return
         "reviewer": "Ada",
     }
     prompter = ScriptedPrompter(answers, interactive=True, confirm_all=True)
@@ -196,6 +232,7 @@ def test_an_interactive_maintainer_who_declines_changes_nothing() -> None:
                 "repository.target_branch": "",
                 "repository.branch_naming": "",
                 "repository.commit_convention": "",
+                **UNANSWERED_CONVENTIONS,  # P-5: the seven convention questions
                 "reviewer": "",
             },
             interactive=True,
@@ -728,3 +765,282 @@ def test_nothing_is_reported_when_nothing_is_ignored_or_there_is_no_repository_y
 
     assert "ORQ-W097" not in codes(init_project(clean.services(), YES))
     assert "ORQ-W097" not in codes(init_project(fresh.services(), YES))
+
+
+# --- team conventions (task team-conventions-resources, phase P-5) -------------------------------
+# Every test below cites its expected_behavior_source: AC-n are the acceptance criteria of phase P-5
+# in docs/design/team-conventions-resources/plan.yaml, ADR-003 is the file `adr-003-*.md` next to
+# it, and "the interface decision" is the reading of the plan author that the Tester of phase P-5
+# was given (see tests/unit/application/test_conventions_questions.py).
+_PULL_REQUEST_TEMPLATE = ".github/pull_request_template.md"
+_NAMING_RULE = {"repository.branch_naming": "feature/*"}
+
+
+def _with_default_template() -> Env:
+    return existing_env()  # no template exists: the default location is the target
+
+
+def _with_one_template() -> Env:
+    env = existing_env()
+    env.project.write_atomic(
+        CanonicalPath.parse(".github/PULL_REQUEST_TEMPLATE.md"),
+        b"# Pull request\n\nOur checklist.\n",
+    )
+    return env
+
+
+def _with_two_templates_and_no_choice() -> Env:
+    env = existing_env()
+    env.project.write_atomic(CanonicalPath.parse(_PULL_REQUEST_TEMPLATE), b"# A\n")
+    env.project.write_atomic(CanonicalPath.parse("docs/pull_request_template.md"), b"# B\n")
+    return env
+
+
+# scenario -> (how the project is made, the template targets and status that init records)
+TEMPLATE_SCENARIOS: dict[str, tuple[Callable[[], Env], tuple[tuple[str, ...], str]]] = {
+    "the-default-target": (
+        _with_default_template,
+        ((_PULL_REQUEST_TEMPLATE,), "team-template-unknown"),
+    ),
+    "one-existing-template": (
+        _with_one_template,
+        ((".github/PULL_REQUEST_TEMPLATE.md",), "team-template-unknown"),
+    ),
+    "no-target-chosen": (_with_two_templates_and_no_choice, ((), "none")),
+}
+
+
+@dataclass(frozen=True)
+class Finished:
+    """The result of an `init` and the profile that it wrote, read back from the file."""
+
+    scenario: str
+    result: InitResult
+    written: ProjectProfile
+
+
+def written_profile(env: Env) -> ProjectProfile:
+    return load_contract(
+        LOADER, ProjectProfile, tree(env.project)[".orqlet/project-profile.yaml"], source="p"
+    )
+
+
+def convention(profile: ProjectProfile, key: str) -> FactValue | str:
+    """What the profile holds for a convention key: a fact, or plain text for the two plain keys."""
+    repository = profile.repository
+    pull_requests = repository.pull_requests
+    table: dict[str, FactValue | str] = {
+        "repository.branch_model": repository.branch_model,
+        "repository.branch_patterns": repository.branch_patterns,
+        "repository.release_flow": repository.release_flow,
+        "repository.pull_requests.shape": pull_requests.shape,
+        "repository.pull_requests.merge_strategy": pull_requests.merge_strategy,
+        "repository.pull_requests.reviewers": pull_requests.reviewers,
+        "repository.pull_requests.required_checks": pull_requests.required_checks,
+    }
+    return table[key]
+
+
+def maintainers(key: str, text: str) -> FactValue | str:
+    """The form in which a maintainer's answer to `key` is recorded."""
+    return text if key in PLAIN_CONVENTION_KEYS else FactValue(value=text, answered_by="maintainer")
+
+
+def finish(scenario: str, answers: dict[str, str]) -> Finished:
+    env = TEMPLATE_SCENARIOS[scenario][0]()
+    result = init_project(env.services(), InitOptions(assume_yes=True, answers=answers))
+    assert result.status == "applied", result.findings
+    return Finished(scenario, result, written_profile(env))
+
+
+@pytest.fixture(scope="module", params=list(TEMPLATE_SCENARIOS))
+def answered_at_init(request: pytest.FixtureRequest) -> Finished:
+    """An `init` that is given an answer for every convention key (and a naming rule, which the
+    patterns go with), in each way that a pull-request template can be found."""
+    return finish(str(request.param), {**SEVEN_ANSWERS, **_NAMING_RULE})
+
+
+@pytest.fixture(scope="module")
+def none_at_init() -> Finished:
+    """An `init` that is given the answer `none` for every convention key."""
+    return finish("the-default-target", {**dict.fromkeys(CONVENTION_KEYS, "none"), **_NAMING_RULE})
+
+
+@pytest.mark.parametrize("key", CONVENTION_KEYS)
+def test_an_answer_given_at_init_for_each_new_key_is_in_the_written_profile(
+    answered_at_init: Finished, key: str
+) -> None:
+    """AC-3. expected_behavior_source: AC-3 ("An answer given at init for each new key is in the
+    written profile after the whole init, including pull_requests.shape and required_checks"),
+    ADR-003 decision 1 ("a test shows that an answer given at `init` survives the rest of `init`")
+    and the interface decision (a test answers every one of the seven keys through
+    InitOptions.answers and asserts that all seven are in the written profile, in the case with a
+    pull-request template target and without)."""
+    written = convention(answered_at_init.written, key)
+
+    assert written == maintainers(key, SEVEN_ANSWERS[key])
+
+
+def test_the_profile_that_init_returns_is_the_profile_that_it_wrote(
+    answered_at_init: Finished,
+) -> None:
+    """AC-3. expected_behavior_source: AC-3 (the written profile holds the answers) and ADR-003
+    decision 1 (`_with_pr_template` keeps what was set): what init reports is what is on disk."""
+    assert answered_at_init.result.profile == answered_at_init.written
+
+
+def test_the_template_choice_is_kept_next_to_the_answers(answered_at_init: Finished) -> None:
+    """AC-3. expected_behavior_source: ADR-003 decision 1 ("`_with_pr_template` and `_repository`
+    are changed to keep and to set these fields (`model_copy`, nested keys)") and the interface
+    decision (`_with_pr_template` keeps shape and required_checks and keeps reviewers and
+    merge_strategy as today; the template is set as today)."""
+    targets, status = TEMPLATE_SCENARIOS[answered_at_init.scenario][1]
+    template = answered_at_init.written.repository.pull_requests.template
+
+    assert (template.targets, template.status) == (targets, status)
+
+
+def test_several_templates_with_no_choice_still_warn_and_keep_the_answers(
+    answered_at_init: Finished,
+) -> None:
+    """AC-3. expected_behavior_source: the interface decision ("in both the case with a pull-request
+    template target and without": no target is chosen when several templates exist, ORQ-W050 as
+    before, and the answers are still kept)."""
+    warned = "ORQ-W050" in codes(answered_at_init.result)
+
+    assert warned == (answered_at_init.scenario == "no-target-chosen")
+
+
+@pytest.mark.parametrize("key", CONVENTION_KEYS)
+def test_the_answer_none_given_at_init_is_recorded_as_a_value(
+    none_at_init: Finished, key: str
+) -> None:
+    """AC-2, AC-3. expected_behavior_source: AC-2 ("The answer none is recorded as a value and the
+    fact is no longer unknown") and AC-3 (an answer given at init for each new key is in the written
+    profile)."""
+    assert convention(none_at_init.written, key) == maintainers(key, "none")
+
+
+def test_open_questions_still_lists_only_the_three_old_facts_after_the_new_answers() -> None:
+    """AC-3. expected_behavior_source: plan P-5 file operation for test_init_project.py
+    ("open_questions still lists only the three existing facts") and the interface decision
+    (`open_questions(profile)` is unchanged)."""
+    env = existing_env()
+
+    result = init_project(env.services(), InitOptions(assume_yes=True, answers=SEVEN_ANSWERS))
+
+    assert result.profile is not None
+    shape = "repository.pull_requests.shape"  # the answers were taken, and the list is still old
+    assert convention(result.profile, shape) == maintainers(shape, SEVEN_ANSWERS[shape])
+    assert [q.id for q in result.open_questions] == THREE_OLD_FACTS
+
+
+def test_init_without_answers_leaves_the_seven_conventions_unknown_and_unguessed() -> None:
+    """AC-2. expected_behavior_source: AC-2 ("an empty answer keeps the fact unknown") and the rule
+    of the baseline that an unknown stays unknown. This holds before the change as well: it guards
+    against a guess."""
+    env = existing_env()
+
+    init_project(env.services(), YES)
+
+    profile = written_profile(env)
+    for key in CONVENTION_KEYS:
+        item = convention(profile, key)
+        if key in PLAIN_CONVENTION_KEYS:
+            assert item == "unknown", key
+        else:
+            assert isinstance(item, FactValue)
+            assert item.value is None, key
+            assert item.question, key
+
+
+def test_a_refused_convention_answer_at_init_is_a_warning_that_names_the_key() -> None:
+    """AC-1. expected_behavior_source: AC-1 ("refuse a value that fails the vocabulary, the caps or
+    text_problems with a note that names the key"), the interface decision (ORQ-W060 as the existing
+    note of `init` for an answer that was ignored) and ADR-003 decision 4 (nothing from the value in
+    a message). The good answer next to them is kept."""
+    env = existing_env()
+    bad_model = f"{HEAD}-flow"
+    bad_checks = f"lint, {HEAD}`{TAIL}"
+    answers = {
+        "repository.branch_model": bad_model,
+        "repository.pull_requests.required_checks": bad_checks,
+        "repository.pull_requests.shape": SEVEN_ANSWERS["repository.pull_requests.shape"],
+    }
+
+    result = init_project(env.services(), InitOptions(assume_yes=True, answers=answers))
+
+    notes = [f.message for f in result.findings if f.code == "ORQ-W060"]
+    assert any("repository.branch_model" in note for note in notes), notes
+    assert any("repository.pull_requests.required_checks" in note for note in notes), notes
+    assert not any("repository.pull_requests.shape" in note for note in notes), notes
+    for note in notes:
+        assert HEAD not in note
+        assert TAIL not in note
+    profile = written_profile(env)
+    assert profile.repository.branch_model.value is None
+    assert profile.repository.pull_requests.required_checks.value is None
+    assert convention(profile, "repository.pull_requests.shape") == maintainers(
+        "repository.pull_requests.shape", SEVEN_ANSWERS["repository.pull_requests.shape"]
+    )
+
+
+def test_an_interactive_init_asks_the_new_questions_after_the_three_repository_ones() -> None:
+    """AC-1. expected_behavior_source: the interface decision (`questions_for` appends, after the
+    existing three repository questions and in this order, branch_model, [branch_patterns,]
+    release_flow, shape, merge_strategy, reviewers, required_checks) and plan P-5 file operation for
+    test_init_project.py ("The interactive tests script the new questions"). branch_patterns is not
+    among the ids that are compared: it is asked only once the naming rule is answered."""
+    prompter = ScriptedPrompter(
+        {
+            "repository.target_branch": "main",
+            "repository.branch_naming": "",
+            "repository.commit_convention": "",
+            **UNANSWERED_CONVENTIONS,
+            "reviewer": "",
+        },
+        interactive=True,
+        confirm_all=True,
+    )
+    env = existing_env(prompter=prompter)
+
+    result = init_project(env.services(), InitOptions())
+
+    assert result.status == "applied", result.findings
+    compared = [
+        *THREE_OLD_FACTS,
+        *(k for k in CONVENTION_KEYS if k != "repository.branch_patterns"),
+    ]
+    assert [name for name in prompter.asked if name in compared] == compared
+
+
+def test_an_interactive_maintainer_answers_the_new_questions_and_none_is_a_value() -> None:
+    """AC-1, AC-2. expected_behavior_source: the interface decision (a Question for each unknown
+    fact; an accepted answer is recorded as the maintainer's; `none` is a value) and AC-2. The
+    naming rule is left empty, so the patterns are not asked and are not compared."""
+    answers = {
+        "repository.target_branch": "main",
+        "repository.branch_naming": "",
+        "repository.commit_convention": "",
+        **UNANSWERED_CONVENTIONS,
+        "repository.branch_model": "trunk-based",
+        "repository.release_flow": "none",
+        "repository.pull_requests.shape": SEVEN_ANSWERS["repository.pull_requests.shape"],
+        "repository.pull_requests.merge_strategy": "rebase",
+        "repository.pull_requests.reviewers": "none",
+        "repository.pull_requests.required_checks": SEVEN_ANSWERS[
+            "repository.pull_requests.required_checks"
+        ],
+        "reviewer": "Ada",
+    }
+    prompter = ScriptedPrompter(answers, interactive=True, confirm_all=True)
+    env = existing_env(prompter=prompter)
+
+    result = init_project(env.services(), InitOptions())
+
+    assert result.status == "applied", result.findings
+    profile = written_profile(env)
+    for key in CONVENTION_KEYS:
+        if key == "repository.branch_patterns":
+            continue
+        assert convention(profile, key) == maintainers(key, answers[key]), key

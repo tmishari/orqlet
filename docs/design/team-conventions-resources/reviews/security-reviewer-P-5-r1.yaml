@@ -1,0 +1,157 @@
+schema: orqlet.review-result/v1
+task: team-conventions-resources
+phase: P-5
+role: security-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: dce22e408bc8c07e43350eb37217caf69432a5eaffb9a601b578825d968050d1
+    design: bbe26a9596127dc8f6769bc5be680e6b959bf05f54b94d3ba598a6285fae43cb
+    evidence_inputs: faeb3f9365e2e8551b6c21a3bb5d40f684e983029741aa24ae84ee7129ada3df
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: cebd53df7986b17ae02bddb6ae1d32a654f8677fe04cef91c9ed71869782f0f1
+    reviewer_definition: f969d0c8c6d65779f619b5254b1c1583aa3a4d6f0ecb56b0fd3d4647104bcb69
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: cb1a8881e3579b53cc4840191fc786c0eff4fc38ce221a6bf66250b269ad9843
+  merge_base: d03e0d435da186950583dd471e18ad07660cec51
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: 03556c914cc53a8d2d8bacb1ecc1d703d0e50d31ad2376f983d6098a398692df
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; it had no shell, so it ran no check and recomputed
+  no digest.
+- Quote digests were not computed, so each finding rests on reading and is an observation that never blocks.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the design-phase review notes of this task, so the reviewer was not fully context-clean
+  (the known gap of the harness2-fit ADR-002).
+- The reviewer ran in the same client as the Coder, so independence is I1, not I2.
+applicability:
+  examined:
+  - src/orqlet/application/usecases/init_questions.py
+  - src/orqlet/application/usecases/init_project.py
+  - src/orqlet/application/usecases/diagnose.py
+  - tests/unit/application/test_conventions_questions.py
+  - tests/unit/application/test_init_project.py
+  - tests/unit/application/test_draft_profile.py
+  - tests/unit/application/test_profile_edit.py
+  - tests/unit/application/test_init_links.py
+  - tests/fault/test_init_links_resume.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: correctness
+  evidence: []
+  claim: '[minor] The hint of ORQ-I502 gives the wrong key prefix for four keys.'
+  suggested_action: List the full key names.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: '[minor] The question text of a convention is taken from the fact of the profile object, which has no character
+    limit; today only a fresh draft reaches it.'
+  suggested_action: Keep the texts as constants or pass them through printable.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: docs
+  evidence: []
+  claim: '[minor] ORQ-I503 says the answers are told to agents although compose still discards the profile.'
+  suggested_action: Reword.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: Free-text answers pass text_problems but not credential_problems; this matches ADR-003 decision 2.
+  suggested_action: Consider credential_problems when P-6 re-checks the values.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: tests
+  evidence: []
+  claim: Hostile values are tested at apply_answers, profile answer and init --answer, not at the interactive prompt
+    or the follow-up round.
+  suggested_action: One test each.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: info
+  category: correctness
+  evidence: []
+  claim: A supplied answer for a key that was not asked is dropped without a note.
+  suggested_action: Add a note.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: info
+  category: standards
+  evidence: []
+  claim: The full suite ran on 3.14.9 only.
+  suggested_action: The CI matrix gives the rest.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-8
+  kind: observation
+  severity: info
+  category: architecture
+  evidence: []
+  claim: draft_profile.py is listed as modified in the plan and was not touched.
+  suggested_action: Record the amendment.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-9
+  kind: observation
+  severity: info
+  category: docs
+  evidence: []
+  claim: The refusal note does not name the at sign, angle brackets or empty text.
+  suggested_action: Name them.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read
+    how: MANIFEST, diff.patch, plan, test record, knowledge-impact record and the snapshot of the changed files
+    result: pass
+  - what: re-run of ruff, mypy, import-linter and pytest
+    how: no shell
+    result: not-run
+  - what: packet and record digests recomputed
+    how: no shell; hashes not computed
+    result: not-run
