@@ -473,10 +473,28 @@
           "title": "Merge Strategy",
           "type": "string"
         },
+        "required_checks": {
+          "$ref": "#/$defs/FactValue",
+          "default": {
+            "answered_by": null,
+            "evidence": [],
+            "question": "Which checks must pass before a pull request merges (comma-separated names)?",
+            "value": null
+          }
+        },
         "reviewers": {
           "default": "unknown",
           "title": "Reviewers",
           "type": "string"
+        },
+        "shape": {
+          "$ref": "#/$defs/FactValue",
+          "default": {
+            "answered_by": null,
+            "evidence": [],
+            "question": "What should a pull request look like (size, title, description)?",
+            "value": null
+          }
         },
         "template": {
           "$ref": "#/$defs/PullRequestTemplate",
@@ -493,8 +511,26 @@
     "Repository": {
       "additionalProperties": false,
       "properties": {
+        "branch_model": {
+          "$ref": "#/$defs/FactValue",
+          "default": {
+            "answered_by": null,
+            "evidence": [],
+            "question": "Which branch model does the team use (trunk-based, github-flow, gitflow, other)?",
+            "value": null
+          }
+        },
         "branch_naming": {
           "$ref": "#/$defs/FactValue"
+        },
+        "branch_patterns": {
+          "$ref": "#/$defs/FactValue",
+          "default": {
+            "answered_by": null,
+            "evidence": [],
+            "question": "Which branch name patterns are allowed (comma-separated globs)?",
+            "value": null
+          }
         },
         "commit_convention": {
           "$ref": "#/$defs/FactValue"
@@ -503,12 +539,33 @@
           "$ref": "#/$defs/PullRequests",
           "default": {
             "merge_strategy": "unknown",
+            "required_checks": {
+              "answered_by": null,
+              "evidence": [],
+              "question": "Which checks must pass before a pull request merges (comma-separated names)?",
+              "value": null
+            },
             "reviewers": "unknown",
+            "shape": {
+              "answered_by": null,
+              "evidence": [],
+              "question": "What should a pull request look like (size, title, description)?",
+              "value": null
+            },
             "template": {
               "source_id": null,
               "status": "none",
               "targets": []
             }
+          }
+        },
+        "release_flow": {
+          "$ref": "#/$defs/FactValue",
+          "default": {
+            "answered_by": null,
+            "evidence": [],
+            "question": "How are releases and hotfixes made?",
+            "value": null
           }
         },
         "target_branch": {

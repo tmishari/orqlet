@@ -1,0 +1,173 @@
+schema: orqlet.review-result/v1
+task: team-conventions-resources
+phase: P-2
+role: security-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 17b96132c7ed061d3ce83dba9cc2efbff2458e35b07ca5b1a83ee67292b480fb
+    design: bbe26a9596127dc8f6769bc5be680e6b959bf05f54b94d3ba598a6285fae43cb
+    evidence_inputs: a57cf66f6cda961380c29a3e007989ba6f80658aecd1e05bc449dee487ef52fd
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: cebd53df7986b17ae02bddb6ae1d32a654f8677fe04cef91c9ed71869782f0f1
+    reviewer_definition: f969d0c8c6d65779f619b5254b1c1583aa3a4d6f0ecb56b0fd3d4647104bcb69
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 7514a42ab6b07963f7d97a4afcfb19e2479197b85c16e07a46ecf8a9bbe66f80
+  merge_base: d03e0d435da186950583dd471e18ad07660cec51
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: 03556c914cc53a8d2d8bacb1ecc1d703d0e50d31ad2376f983d6098a398692df
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; it had no shell, so it ran no check and recomputed
+  no digest.
+- Quote digests were not computed, so each finding rests on reading and is an observation that never blocks.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the design-phase review notes of this task, so the reviewer was not fully context-clean
+  (the known gap of the harness2-fit ADR-002).
+- The reviewer ran in the same client as the Coder, so independence is I1, not I2.
+applicability:
+  examined:
+  - src/orqlet/application/contracts/resources.py
+  - src/orqlet/application/contracts/profile.py
+  - src/orqlet/application/contracts/__init__.py
+  - src/orqlet/application/usecases/resources_source.py
+  - src/orqlet/workflow/schemas/orqlet.resources.v1.json
+  - src/orqlet/workflow/schemas/orqlet.project-profile.v1.json
+  - src/orqlet/workflow/MANIFEST.json
+  - tests/fixtures/contracts/valid/orqlet.resources.v1.yaml
+  - tests/unit/application/test_resources_contract.py
+  - tests/unit/application/test_resources_source.py
+  - tests/unit/application/test_profile_conventions_contract.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: '[minor] retrieved_at accepts any single Unicode character as the date and time separator, so one hidden
+    character (U+202E, a tag character, a zero-width one) can be stored in a registry value that passes the contract.'
+  suggested_action: Pin the shape with an ASCII pattern and add vectors with U+202E, U+E0041 and a space.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: '[minor] Only the address gets a credential scan; id, title, note, tool, version and globs get shape rules
+    only, and a note such as a pasted token has no character that text_problems refuses.'
+  suggested_action: Scan the other fields too or state in the README that review is the only control for them.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: tests
+  evidence: []
+  claim: '[minor] The redaction of an unknown key in _problem is not pinned by a test that uses a token-shaped key.'
+  suggested_action: Add parse_resources tests with a token-shaped unknown key and route validate resources only
+    through load_resources in P-3.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: failure-handling
+  evidence: []
+  claim: load_resources catches only FileSystemError; an OSError that is not wrapped by the local adapter ends as
+    an internal error with no stable code.
+  suggested_action: Catch OSError next to FileSystemError, or wrap it in the adapter.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: The file is read whole before the 256 KiB test; ADR-002 decision 10 accepts this.
+  suggested_action: None in P-2.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: The internal-host rule examines only the last label against a closed list; review of the registry is the
+    control for other names.
+  suggested_action: State it in the P-8 README.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: The five new profile facts have no length or text limits in the contract; the limits are applied at answer
+    time, render time and check time.
+  suggested_action: Test a hand-edited profile with hidden code points in P-6 and P-7.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-8
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: In the InvalidPath branch the raw path argument becomes Finding.path.
+  suggested_action: Print it through printable in P-3.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-9
+  kind: observation
+  severity: info
+  category: failure-handling
+  evidence: []
+  claim: For a missing file the loader returns the empty registry from its constant; if the constant ever stopped
+    validating the result would be no registry and no finding.
+  suggested_action: Return the findings of that call when the result is none.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-10
+  kind: observation
+  severity: info
+  category: docs
+  evidence: []
+  claim: The JSON Schema is closed but carries no text rules; the contract is authoritative.
+  suggested_action: Say so in the README.
+  confidence: low
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read
+    how: MANIFEST, diff.patch, plan, test record, knowledge-impact record and the snapshot of the changed files
+    result: pass
+  - what: re-run of ruff, mypy, import-linter and pytest
+    how: no shell
+    result: not-run
+  - what: packet and record digests recomputed
+    how: no shell; hashes not computed
+    result: not-run

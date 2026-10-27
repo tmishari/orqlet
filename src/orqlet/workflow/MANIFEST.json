@@ -123,7 +123,7 @@
     },
     {
       "path": "schemas/orqlet.project-profile.v1.json",
-      "sha256": "fd9525f4c79b28c066139af2383fce509eecd6e01a49929c4a4fec0242b761f8"
+      "sha256": "b14f38fbc9f6ebe45a03b84af3783447ea152a4af87ff3e6a1a67225c7b00bd3"
     },
     {
       "path": "schemas/orqlet.question-ledger.v1.json",
@@ -132,6 +132,10 @@
     {
       "path": "schemas/orqlet.released.v1.json",
       "sha256": "a88480f2d311478fb95377e4c26b31ad985180aac06c854b5c31fa6c2c165dd7"
+    },
+    {
+      "path": "schemas/orqlet.resources.v1.json",
+      "sha256": "e7fbeb5ee66bca8ec18cbc0ef3ad0b432b9ba853f28a472319417c8256c70711"
     },
     {
       "path": "schemas/orqlet.review-input.v1.json",

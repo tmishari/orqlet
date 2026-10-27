@@ -1,0 +1,66 @@
+schema: orqlet.test-record/v1
+task: team-conventions-resources
+phase: P-2
+review_input:
+  components:
+    code_tests: 66318ba7584c05aca011ebefcda79c9f683131a01e7df8b6066f84c26876387b
+    plan: cebd53df7986b17ae02bddb6ae1d32a654f8677fe04cef91c9ed71869782f0f1
+  covers:
+  - code_tests
+  - plan
+  digest: a706471617e66e627adea312128a08f9129ed1cf05b6cba0471f0c92a4aeafdd
+  merge_base: d03e0d435da186950583dd471e18ad07660cec51
+  schema: orqlet.review-input/v1
+verdict: PASS
+evidence_kind: claimed
+commands:
+- id: ruff-check
+  exit_code: 0
+  summary: All checks passed!
+  result_digest: 5b196eb3a6acb50d3fa398d04ca284985cc1ffec870e940264b00780bfd2c971
+- id: ruff-format
+  exit_code: 0
+  summary: 473 files already formatted
+  result_digest: f2f602004337086eb9fffedbefe016b75d2d976117efd74bd345e85838978235
+- id: mypy
+  exit_code: 0
+  summary: 'Success: no issues found in 304 source files'
+  result_digest: 86e02ef547314cb4ea50a2ce9a3e93b87a7012267ca7c6e6b0c0b628061ca876
+- id: import-linter
+  exit_code: 0
+  summary: 'Contracts: 5 kept, 0 broken.'
+  result_digest: 846ee6be25bee747ea405d928c6e81bb36cb93a356824f0bee35b85777119fe0
+- id: pytest
+  exit_code: 0
+  summary: 3410 passed in 72.92s (0:01:12) on Python 3.14.9; after rework round 1 this run covered tests/unit/application,
+    tests/unit/domain, tests/contract and tests/integration/test_validate_cli.py (3410 tests) with the P-3 test
+    files set aside; the full suite (4296 passed, 1 skipped) ran on the tree before rework round 1; the new and
+    changed test files passed on Python 3.12.11 before rework round 1 and were not run on 3.12 after it
+  result_digest: cccb43ee233fe33e1a30b18e5a1fbd66dc7925eee769260914f53bc22c25844d
+- id: schemas
+  exit_code: 0
+  summary: passed with no output
+  result_digest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+- id: manifest
+  exit_code: 0
+  summary: passed with no output
+  result_digest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+acceptance_coverage:
+- ac: AC-1
+  check_ref: pytest
+  result: pass
+- ac: AC-2
+  check_ref: pytest
+  result: pass
+- ac: AC-3
+  check_ref: pytest
+  result: pass
+- ac: AC-4
+  check_ref: schemas
+  result: pass
+- ac: AC-5
+  check_ref: manifest
+  result: pass
+- ac: AC-6
+  check_ref: import-linter
+  result: pass
