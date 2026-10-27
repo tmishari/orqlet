@@ -1,4 +1,4 @@
-"""`orqlet validate as-is|design|plan|ledger`: check an artifact an agent wrote."""
+"""`orqlet validate as-is|design|plan|ledger|resources`: check an artifact someone wrote."""
 
 from __future__ import annotations
 
@@ -17,6 +17,7 @@ from orqlet.application.usecases.validate_records import (
     validate_review,
     validate_test,
 )
+from orqlet.application.usecases.validate_resources import validate_resources
 from orqlet.application.usecases.validation import ValidationResult
 from orqlet.domain.findings import Verdict
 from orqlet.interface.cli.commands.lifecycle import JsonOption, RootOption, findings_out
@@ -112,6 +113,22 @@ def ledger_command(
     execute(
         "validate ledger",
         lambda: output_of(validate_ledger(build_validate_services(root), file), file),
+        as_json=json_output,
+    )
+
+
+@validate_app.command("resources")
+def resources_command(
+    file: Annotated[str, typer.Argument(help="The registry, relative to the root.")] = (
+        ".orqlet/resources.yaml"
+    ),
+    root: RootOption = Path(),
+    json_output: JsonOption = False,
+) -> None:
+    """The registry of links and every stored copy: hashes, headers, hidden text, credentials."""
+    execute(
+        "validate resources",
+        lambda: output_of(validate_resources(build_validate_services(root), file), file),
         as_json=json_output,
     )
 

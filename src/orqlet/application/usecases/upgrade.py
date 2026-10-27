@@ -10,8 +10,11 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Literal
 
+from orqlet.application.contracts.resources import Resources
+from orqlet.application.ports.filesystem import FileKind
 from orqlet.application.ports.prompter import NoAnswerAvailable
 from orqlet.application.usecases.apply_plan import apply_plan
+from orqlet.application.usecases.init_files import contract_bytes
 from orqlet.application.usecases.installation import Installation, load_installation
 from orqlet.application.usecases.render_all import (
     PROFILE_PATH,
@@ -22,6 +25,7 @@ from orqlet.application.usecases.render_all import (
     plan_changes,
     resolve_for,
 )
+from orqlet.application.usecases.resources_source import load_resources, resources_path
 from orqlet.application.usecases.services import Services
 from orqlet.domain.changeplan import ChangePlan
 from orqlet.domain.findings import Finding, Severity
@@ -94,16 +98,24 @@ def upgrade(services: Services, options: UpgradeOptions) -> UpgradeResult:
             "refused", tuple(findings), installed=inst.installed_release, candidate=release
         )
 
+    registry = _registry(services, inst, findings)
+    if registry is None:
+        return UpgradeResult(
+            "refused", tuple(findings), installed=inst.installed_release, candidate=release
+        )
+    resources, resources_bytes = registry
     resolution = resolve_for(services, inst.profile)
     profile_bytes = services.project.read_bytes(PROFILE_PATH)
     composition = compose(
         services,
         inst.profile,
         resolution,
+        resources,
         clients=inst.profile.clients.enabled,
         prompts_dir=_prompts_dir(inst),
         pr_targets=inst.profile.repository.pull_requests.template.targets,
         profile_bytes=profile_bytes,
+        resources_bytes=resources_bytes,
         orqlet_owned=frozenset(
             str(entry.path) for entry in inst.recorded if entry.owner is OwnerMode.ORQLET
         ),
@@ -179,6 +191,48 @@ def upgrade(services: Services, options: UpgradeOptions) -> UpgradeResult:
         release,
         resumed=tuple(unfinished),
     )
+
+
+def _registry(
+    services: Services, inst: Installation, findings: list[Finding]
+) -> tuple[Resources, bytes] | None:
+    """The registry as it is on disk, or `None` after a finding that refuses the upgrade.
+
+    An invalid registry, or one that is missing while the lock records it, would turn into an
+    empty one, and then every file rendered from it would be an orphan that the plan deletes. So
+    both are refused before any plan is built (ADR-002 decision 6). A registry that is missing and
+    not recorded is an empty one, and the upgrade writes it.
+    """
+    path = resources_path()
+    resources, problems = load_resources(services.project, services.loader, str(path))
+    if resources is None:
+        detail = "; ".join(problem.message for problem in problems)
+        findings.append(
+            Finding(
+                "ORQ-E503",
+                f"The registry {path} cannot be used: {detail}. Nothing was changed. Fix the file "
+                "or restore it from Git, then run `orqlet upgrade` again.",
+                Severity.ERROR,
+                str(path),
+            )
+        )
+        return None
+    if services.project.kind(path) is FileKind.FILE:
+        return resources, services.project.read_bytes(path)
+    if any(entry.path == path for entry in inst.recorded):
+        findings.append(
+            Finding(
+                "ORQ-E503",
+                f"The registry {path} is missing, but the lock records it. Nothing was changed, "
+                "because the files that are rendered from it would be deleted. Restore it from "
+                "Git, or write an empty valid one (`schema: orqlet.resources/v1` and "
+                "`resources: []`) and remove entries with `orqlet resources remove`.",
+                Severity.ERROR,
+                str(path),
+            )
+        )
+        return None
+    return resources, contract_bytes(services.writer, resources)
 
 
 def _downgrade_refusal(

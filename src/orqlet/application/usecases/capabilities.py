@@ -27,6 +27,7 @@ IMPLEMENTED_COMMANDS: frozenset[str] = frozenset(
         "validate design",
         "validate plan",
         "validate ledger",
+        "validate resources",
         "gate status",
         "evidence cite",
         "evidence hash",

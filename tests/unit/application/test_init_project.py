@@ -60,6 +60,7 @@ def test_an_existing_project_gets_every_expected_file() -> None:
         ".prompts/rules.yaml",
         ".github/pull_request_template.md",
         ".orqlet/project-profile.yaml",
+        ".orqlet/resources.yaml",  # P-3 AC-2: init seeds an empty registry (ADR-002 decision 1)
         ".orqlet/versions.yaml",
         ".orqlet/role-bindings.yaml",
         ".orqlet/standards.lock.yaml",

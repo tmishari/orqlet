@@ -7,9 +7,10 @@ a path. A check that could not run is listed in `not_run`; it is never reported 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from datetime import datetime
 from typing import Literal
 
-from orqlet.application.ports.filesystem import FileKind, FileSystem
+from orqlet.application.ports.filesystem import FileKind, FileSystem, FileSystemError
 from orqlet.application.ports.personal import PersonalNames
 from orqlet.application.usecases.draft_profile import open_questions
 from orqlet.application.usecases.installation import Installation, load_installation
@@ -18,13 +19,17 @@ from orqlet.application.usecases.render_all import (
     environment_findings,
     ignored_findings,
 )
+from orqlet.application.usecases.resources_source import load_resources, resources_path
 from orqlet.application.usecases.services import Services
+from orqlet.application.usecases.validation import content_hash
 from orqlet.domain.blocks import BlockError, decode_utf8, parse_blocks
 from orqlet.domain.changeplan import Recorded, normalised_hash
 from orqlet.domain.digest import sha256_hex
+from orqlet.domain.errors import InvalidPath
 from orqlet.domain.findings import Finding, Severity
 from orqlet.domain.ownership import FileClass, OwnerMode
 from orqlet.domain.paths import CanonicalPath
+from orqlet.domain.resources import copy_path, is_stale, resource_id_problems
 from orqlet.domain.versions import Version, is_below_floor
 
 DriftState = Literal["up-to-date", "edited", "tampered", "missing", "unreadable"]
@@ -38,6 +43,7 @@ _MANAGED_DIRECTORIES = (
     ".codex/agents",
 )
 RESERVED_PREFIX = "orqlet-"
+_MAX_FOLDERS_VISITED = 1000
 
 
 @dataclass(frozen=True, slots=True)
@@ -122,6 +128,7 @@ def _diagnose(services: Services, personal: PersonalNames | None, *, full: bool)
     listed: tuple[tuple[str, str], ...] = ()
     if full:
         findings += _profile_findings(inst)
+        findings += _resource_findings(services)
         findings += _released_findings(inst)
         findings.append(
             Finding(
@@ -200,6 +207,8 @@ def _extra_reserved_files(project: FileSystem, inst: Installation) -> list[Findi
                 continue
             path = f"{directory}/{name}"
             if path not in listed and not any(item.startswith(f"{path}/") for item in listed):
+                if _holds_no_file(project, path):
+                    continue  # `apply_plan` removes files and not folders, so an empty one stays
                 found.append(
                     Finding(
                         "ORQ-E153",
@@ -209,6 +218,107 @@ def _extra_reserved_files(project: FileSystem, inst: Installation) -> list[Findi
                         path,
                     )
                 )
+    return found
+
+
+def _holds_no_file(project: FileSystem, path: str) -> bool:
+    """True for a folder that has no file anywhere below it. A name that cannot be checked counts as
+    something that is there."""
+    pending = [path]
+    visited = 0
+    while pending:
+        visited += 1
+        if visited > _MAX_FOLDERS_VISITED:
+            return False
+        current = pending.pop()
+        try:
+            target = CanonicalPath.parse(current)
+            if project.kind(target) is not FileKind.DIRECTORY:
+                return False
+            pending += [f"{current}/{name}" for name in project.list_dir(target)]
+        except (InvalidPath, FileSystemError):
+            return False
+    return True
+
+
+def _resource_findings(services: Services) -> list[Finding]:
+    """What `doctor` says about the registry of links and its stored copies (ADR-002 decision 9).
+
+    A copy past its time-to-live is only advised: the record is the team's own hand edit away
+    from looking fresh. A copy that differs from its hash is an error, as `validate resources`
+    says. A copy whose entry is gone is named, never deleted.
+    """
+    project = services.project
+    registry = str(resources_path())
+    resources, problems = load_resources(project, services.loader, registry)
+    if resources is None:
+        return list(problems)
+    found: list[Finding] = []
+    now = services.clock.now()
+    for item in resources.resources:
+        record = item.stored_copy
+        if record is None:
+            continue
+        path = copy_path(item.id)
+        if is_stale(datetime.fromisoformat(record.retrieved_at), record.ttl_days, now):
+            found.append(
+                Finding(
+                    "ORQ-W500",
+                    f"The stored copy {path} was retrieved at {record.retrieved_at} and its "
+                    f"time-to-live of {record.ttl_days} days has passed. Read the page again and "
+                    "attach a new copy. Freshness is advisory: the record is a hand edit away from "
+                    "looking fresh.",
+                    Severity.WARNING,
+                    path,
+                )
+            )
+        data = _read_regular_file(project, path)
+        if data is not None and content_hash(data) != record.sha256:
+            found.append(
+                Finding(
+                    "ORQ-E505",
+                    f"The stored copy {path} differs from the SHA-256 recorded in {registry}. "
+                    "Attach it again if the change is wanted, or restore it from Git.",
+                    Severity.ERROR,
+                    path,
+                )
+            )
+    return found + _copies_without_an_entry(project, {item.id for item in resources.resources})
+
+
+def _read_regular_file(project: FileSystem, path: str) -> bytes | None:
+    try:
+        target = CanonicalPath.parse(path)
+        if project.kind(target) is not FileKind.FILE:
+            return None
+        return project.read_bytes(target)
+    except (InvalidPath, FileSystemError):
+        return None
+
+
+def _copies_without_an_entry(project: FileSystem, ids: set[str]) -> list[Finding]:
+    folder = CanonicalPath.parse("docs/resources")
+    try:
+        if project.kind(folder) is not FileKind.DIRECTORY:
+            return []
+        names = project.list_dir(folder)
+    except FileSystemError:
+        return []
+    found = []
+    for name in names:
+        stem = name.removesuffix(".md")
+        if stem == name or stem in ids or resource_id_problems(stem):
+            continue
+        path = copy_path(stem)
+        found.append(
+            Finding(
+                "ORQ-I501",
+                f"{path} is a stored copy whose entry is gone. Orqlet never deletes a copy: "
+                "remove the file yourself if it is no longer wanted.",
+                Severity.INFO,
+                path,
+            )
+        )
     return found
 
 

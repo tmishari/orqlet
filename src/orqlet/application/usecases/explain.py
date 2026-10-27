@@ -4,9 +4,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from orqlet.application.contracts.resources import Resources
 from orqlet.application.usecases.diagnose import Drift, measure_drift
 from orqlet.application.usecases.installation import load_installation
 from orqlet.application.usecases.render_all import compose, resolve_for
+from orqlet.application.usecases.resources_source import load_resources, resources_path
 from orqlet.application.usecases.services import Services
 from orqlet.application.usecases.standards_for import StandardsQuery
 from orqlet.domain.findings import Finding
@@ -30,20 +32,28 @@ class Explanation:
     rules: tuple[RuleSpec, ...]
     uninspectable: tuple[str, ...]
     not_run: tuple[str, ...]
+    findings: tuple[Finding, ...] = ()
 
 
 def explain(services: Services, query: StandardsQuery) -> Explanation:
     inst = load_installation(services)
     release = services.workflow.release
     resolution = resolve_for(services, inst.profile)
+    resources, resource_findings = load_resources(
+        services.project, services.loader, str(resources_path())
+    )
     composition = compose(
         services,
         inst.profile,
         resolution,
+        # An explanation builds no plan and so deletes nothing: it previews without the resource
+        # files when the registry cannot be used, and prints the finding (ADR-002 decision 6).
+        resources if resources is not None else Resources(schema_id="orqlet.resources/v1"),
         clients=inst.profile.clients.enabled,
         prompts_dir=".prompts",
         pr_targets=(),
         profile_bytes=b"",
+        resources_bytes=b"",
     )
     limits = tuple(finding for finding in composition.findings if finding.code.startswith("ORQ-L"))
     declared: dict[str, object] = {
@@ -72,6 +82,7 @@ def explain(services: Services, query: StandardsQuery) -> Explanation:
     ]
     if packs_missing:
         not_run.append("pack rules: pass --packs-dir to include the rules of the pinned packs")
+    not_run += [f"resource files: {finding.message}" for finding in resource_findings]
     return Explanation(
         declared=declared,
         generated=measure_drift(services.project, inst.recorded),
@@ -79,4 +90,5 @@ def explain(services: Services, query: StandardsQuery) -> Explanation:
         rules=select(resolution.rules, path=query.path, role=query.role, phase=query.phase),
         uninspectable=UNINSPECTABLE,
         not_run=tuple(not_run),
+        findings=resource_findings,
     )

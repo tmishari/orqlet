@@ -1,0 +1,201 @@
+schema: orqlet.review-result/v1
+task: team-conventions-resources
+phase: P-3
+role: architecture-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 057883e4bf10428b866992acdd7e78606bd8b2b5f23e4088da29fd84e46fea7e
+    design: bbe26a9596127dc8f6769bc5be680e6b959bf05f54b94d3ba598a6285fae43cb
+    evidence_inputs: ec2912a19653731279fab5b2f3f02638bc8c55d9770d7d33ad9d8f745210df24
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: cebd53df7986b17ae02bddb6ae1d32a654f8677fe04cef91c9ed71869782f0f1
+    reviewer_definition: 340c9ce62dce3ba2907f9e6e42d6f028f0e2617c1ef5e2fb0b52e170f54c6bb1
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 5a3a13286bce9a1a91e4cbebf057c204a3a63081b05d72e87561687b28418ee5
+  merge_base: d03e0d435da186950583dd471e18ad07660cec51
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: d07a4aa80f9fdb8e5220c9ec8842a3d694df3ab29747a19229b13cd20b071990
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; it had no shell, so it ran no check and recomputed
+  no digest.
+- Quote digests were not computed, so each finding rests on reading and is an observation that never blocks.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the design-phase review notes of this task, so the reviewer was not fully context-clean
+  (the known gap of the harness2-fit ADR-002).
+- The reviewer ran in the same client as the Coder, so independence is I1, not I2.
+applicability:
+  examined:
+  - src/orqlet/application/usecases/resources_edit.py
+  - src/orqlet/application/usecases/validate_resources.py
+  - src/orqlet/application/usecases/render_all.py
+  - src/orqlet/application/usecases/init_project.py
+  - src/orqlet/application/usecases/upgrade.py
+  - src/orqlet/application/usecases/explain.py
+  - src/orqlet/application/usecases/diagnose.py
+  - src/orqlet/application/usecases/capabilities.py
+  - src/orqlet/interface/cli/commands/validate.py
+  - tests/unit/application/test_resources_builders.py
+  - tests/unit/application/test_validate_resources.py
+  - tests/unit/application/test_resources_composition.py
+  - tests/unit/application/test_resources_diagnose.py
+  - tests/integration/test_resources_validate_cli.py
+  - tests/unit/application/test_init_project.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: compatibility
+  evidence: []
+  claim: '[minor] Explanation gains the defaulted field findings; no expected change covers it, the extractor reads
+    the class by its bases only, and the explain command passes only explanation.limits to the findings output,
+    so the finding reaches a user as not_run text.'
+  suggested_action: Record the field in the completion note and print explanation.findings in a later phase, or
+    accept the not_run text.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: tests
+  evidence: []
+  claim: '[minor] The only user-visible path of the explain finding is the new not_run line and no test asserts
+    it.'
+  suggested_action: Add one test that an invalid registry gives a not_run entry that starts with resource files.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: docs
+  evidence: []
+  claim: '[minor] ORQ-E507 is allocated and never produced; ORQ-E506 also covers the size and encoding of a copy
+    and ORQ-E504 also covers a copy that is not a regular file.'
+  suggested_action: Mark E507 as reserved and state the real meaning of E504 and E506 in the P-8 table.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: docs
+  evidence: []
+  claim: EC-61 and considerations say explain stops before any plan; ADR-002 decision 6 and the plan say explain
+    does not refuse. The code follows the ADR and the plan.
+  suggested_action: Correct the wording at the next amendment of the design.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: non-blocking
+  category: architecture
+  evidence: []
+  claim: '[minor] The init and upgrade registry helpers repeat the load, the refusal text and the read-or-seed step,
+    doctor imports content_hash although normalised_hash exists, and two readers of a copy repeat the path and kind
+    checks.'
+  suggested_action: Accept for P-3; a shared private module needs a file-list amendment.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: non-blocking
+  category: tests
+  evidence: []
+  claim: '[minor] The new tests repeat helpers (leaks, TOKEN, OPAQUE, digest, registered_names) that other test
+    files already define.'
+  suggested_action: Move them to tests/support in a later change.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: non-blocking
+  category: tests
+  evidence: []
+  claim: '[minor] _updated removes applies_to when paths is empty; the docstring and the tests say a field can only
+    be replaced, and no test covers the branch.'
+  suggested_action: Document and test it, or remove it; P-4 decides how a command clears a field.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-8
+  kind: observation
+  severity: non-blocking
+  category: tests
+  evidence: []
+  claim: '[minor] _unowned_paths reads the CODEOWNERS files twice, names the clients that are disabled, matches
+    substrings and has no test for a partial mention.'
+  suggested_action: Read once and add the test later; state in the README that the notice is a mention.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-9
+  kind: observation
+  severity: info
+  category: docs
+  evidence: []
+  claim: A test says it is replaced in P-6 but the P-6 file list does not name it.
+  suggested_action: Add the file to the P-6 file list at the next plan amendment.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-10
+  kind: observation
+  severity: non-blocking
+  category: tests
+  evidence: []
+  claim: '[minor] The test record is claimed; the full suite ran on 3.14.9 and the six new or changed test files
+    on 3.12.11.'
+  suggested_action: The CI matrix gives the rest.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-11
+  kind: observation
+  severity: non-blocking
+  category: docs
+  evidence: []
+  claim: '[minor] The knowledge record says compose and data_files were added; they were changed.'
+  suggested_action: Reword in the next record.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-12
+  kind: observation
+  severity: info
+  category: failure-handling
+  evidence: []
+  claim: Doctor hashes a copy without the 64 KiB cap, an entry without a record whose file exists is E508 in validate
+    and silent in doctor, and only upgrade refuses a registry that is missing while the lock records it.
+  suggested_action: Record in the P-4 and P-8 notes.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read
+    how: MANIFEST, diff.patch, plan, test record, knowledge-impact record and the snapshot of the changed files
+    result: pass
+  - what: re-run of ruff, mypy, import-linter and pytest
+    how: no shell
+    result: not-run
+  - what: packet and record digests recomputed
+    how: no shell; hashes not computed
+    result: not-run

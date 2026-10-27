@@ -1,0 +1,170 @@
+schema: orqlet.review-result/v1
+task: team-conventions-resources
+phase: P-3
+role: security-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 057883e4bf10428b866992acdd7e78606bd8b2b5f23e4088da29fd84e46fea7e
+    design: bbe26a9596127dc8f6769bc5be680e6b959bf05f54b94d3ba598a6285fae43cb
+    evidence_inputs: ec2912a19653731279fab5b2f3f02638bc8c55d9770d7d33ad9d8f745210df24
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: cebd53df7986b17ae02bddb6ae1d32a654f8677fe04cef91c9ed71869782f0f1
+    reviewer_definition: f969d0c8c6d65779f619b5254b1c1583aa3a4d6f0ecb56b0fd3d4647104bcb69
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 4d1111412bbfe0689b76bb831fd0c73c2a0aa9266c2984aa96871ad48aa45638
+  merge_base: d03e0d435da186950583dd471e18ad07660cec51
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: 03556c914cc53a8d2d8bacb1ecc1d703d0e50d31ad2376f983d6098a398692df
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; it had no shell, so it ran no check and recomputed
+  no digest.
+- Quote digests were not computed, so each finding rests on reading and is an observation that never blocks.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the design-phase review notes of this task, so the reviewer was not fully context-clean
+  (the known gap of the harness2-fit ADR-002).
+- The reviewer ran in the same client as the Coder, so independence is I1, not I2.
+applicability:
+  examined:
+  - src/orqlet/application/usecases/resources_edit.py
+  - src/orqlet/application/usecases/validate_resources.py
+  - src/orqlet/application/usecases/render_all.py
+  - src/orqlet/application/usecases/init_project.py
+  - src/orqlet/application/usecases/upgrade.py
+  - src/orqlet/application/usecases/explain.py
+  - src/orqlet/application/usecases/diagnose.py
+  - src/orqlet/application/usecases/capabilities.py
+  - src/orqlet/interface/cli/commands/validate.py
+  - tests/unit/application/test_resources_builders.py
+  - tests/unit/application/test_validate_resources.py
+  - tests/unit/application/test_resources_composition.py
+  - tests/unit/application/test_resources_diagnose.py
+  - tests/integration/test_resources_validate_cli.py
+  - tests/unit/application/test_init_project.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: '[minor] The raw file argument of validate resources is echoed unescaped as the subject of the first output
+    line and in loader messages; CanonicalPath refuses only categories Cc, Cf and Cs, so a path with U+2028 or a
+    private-use character is printed raw. It is typed by the person who runs the command.'
+  suggested_action: Pass printable(file, 200) as the subject and build loader messages from the constant name; add
+    a test with U+2028.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: '[minor] The size caps apply after the whole file is read and directory listings are unbounded; doctor
+    reads a copy without a cap. ADR-002 decision 10 accepts the read for files only.'
+  suggested_action: Add a bounded read to the file system port later, or record in ADR-002 that listings and doctor
+    are covered.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: tests
+  evidence: []
+  claim: '[minor] The limits of the walk (100 listed items, depth three, 1000 folders for doctor, a folder that
+    is a file or a link) have no test.'
+  suggested_action: Add tests on the in-memory file system in a later change.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: failure-handling
+  evidence: []
+  claim: An OSError from os.scandir or a read of a real file that is not wrapped by the local adapter ends as an
+    internal error with a stable exit code and no value.
+  suggested_action: Map OSError to FileSystemError in the adapter.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: If the registry file and its lock line are both gone, upgrade writes an empty registry; nothing is rendered
+    from the registry in P-3.
+  suggested_action: In P-6 also refuse when the lock records a generated resource file and the registry is absent.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: info
+  category: standards
+  evidence: []
+  claim: ORQ-E507 is never emitted; the contract refuses the case as ORQ-E501.
+  suggested_action: State it in the P-8 table.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: The code-owners notice counts a path as covered when its name appears anywhere in any CODEOWNERS text,
+    a comment included; the notice is advisory.
+  suggested_action: Match on non-comment lines in a later change.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-8
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: ORQ-E153 in doctor prints a listing name raw; this is older than P-3.
+  suggested_action: Print it through printable.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-9
+  kind: observation
+  severity: info
+  category: tests
+  evidence: []
+  claim: The test record is claimed and the full suite ran on 3.14.9 only.
+  suggested_action: The CI matrix gives the rest.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read
+    how: MANIFEST, diff.patch, plan, test record, knowledge-impact record and the snapshot of the changed files
+    result: pass
+  - what: re-run of ruff, mypy, import-linter and pytest
+    how: no shell
+    result: not-run
+  - what: packet and record digests recomputed
+    how: no shell; hashes not computed
+    result: not-run

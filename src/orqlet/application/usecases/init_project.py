@@ -19,6 +19,7 @@ from orqlet.application.contracts.profile import (
     StandardsSourceRef,
     Technology,
 )
+from orqlet.application.contracts.resources import Resources
 from orqlet.application.ports.filesystem import FileKind, FileSystemError
 from orqlet.application.ports.prompter import NoAnswerAvailable, Question
 from orqlet.application.usecases.apply_plan import apply_plan
@@ -52,6 +53,7 @@ from orqlet.application.usecases.render_all import (
     plan_changes,
     resolve_for,
 )
+from orqlet.application.usecases.resources_source import load_resources, resources_path
 from orqlet.application.usecases.services import Services, Stores
 from orqlet.application.usecases.standards_for import Resolution
 from orqlet.domain.blocks import BlockError
@@ -116,6 +118,7 @@ def _run(services: InitServices, options: InitOptions) -> InitResult:
         confirm_new_project=options.new_project,
         languages_found=bool(discovery.languages()),
     )
+    resources, resources_bytes = _registry(services)
     profile = _load_existing_profile(services)
     if profile is None:
         profile = _draft_and_ask(services, options, root, findings, discovery.technologies)
@@ -143,10 +146,12 @@ def _run(services: InitServices, options: InitOptions) -> InitResult:
         services,
         profile,
         resolution,
+        resources,
         clients=options.clients,
         prompts_dir=options.prompts_dir,
         pr_targets=targets,
         profile_bytes=existing or contract_bytes(services.writer, profile),
+        resources_bytes=resources_bytes,
     )
     findings += composition.findings
     findings += environment_findings(services, options.prompts_dir)
@@ -212,6 +217,27 @@ def _run(services: InitServices, options: InitOptions) -> InitResult:
     return InitResult(
         "applied", tuple(findings), plan, profile, open_now, change_id, git_done, root.needs_git
     )
+
+
+# --- registry ----------------------------------------------------------------------------------
+def _registry(services: InitServices) -> tuple[Resources, bytes]:
+    """The registry that is on disk, or an empty one; an invalid one stops `init` (ADR-002 6).
+
+    A run that follows an interruption reads what is on disk, as it does for the profile, so a
+    registry the team wrote is kept as it is and an invalid one is never replaced by an empty one.
+    """
+    path = resources_path()
+    resources, problems = load_resources(services.project, services.loader, str(path))
+    if resources is None:
+        detail = "; ".join(problem.message for problem in problems)
+        raise InitRefused(
+            "ORQ-E503",
+            f"The registry {path} cannot be used: {detail}. Nothing was changed. Fix the file or "
+            "restore it from Git, then run `orqlet init` again.",
+        )
+    if services.project.kind(path) is FileKind.FILE:
+        return resources, services.project.read_bytes(path)
+    return resources, contract_bytes(services.writer, resources)
 
 
 # --- profile -----------------------------------------------------------------------------------
