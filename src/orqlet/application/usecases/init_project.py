@@ -53,6 +53,7 @@ from orqlet.application.usecases.render_all import (
     plan_changes,
     resolve_for,
 )
+from orqlet.application.usecases.resources_edit import ResourceSpec, resources_with
 from orqlet.application.usecases.resources_source import load_resources, resources_path
 from orqlet.application.usecases.services import Services, Stores
 from orqlet.application.usecases.standards_for import Resolution
@@ -61,6 +62,11 @@ from orqlet.domain.changeplan import ChangePlan, PlanError
 from orqlet.domain.findings import Finding, Severity
 
 InitServices = Services
+_LINKS_TEXT = (
+    "Are there links to team resources (API guidelines, tool docs, team pages) to register?"
+)
+_URL_TEXT = "The address of a link (https; leave empty to finish)"
+_MAX_LINK_PROMPTS = 100
 InitStatus = Literal["applied", "previewed", "already-initialised", "needs-input", "refused"]
 
 
@@ -122,6 +128,7 @@ def _run(services: InitServices, options: InitOptions) -> InitResult:
     profile = _load_existing_profile(services)
     if profile is None:
         profile = _draft_and_ask(services, options, root, findings, discovery.technologies)
+        resources, resources_bytes = _links(services, options, resources, resources_bytes, findings)
     branch = profile.repository.target_branch.value
     if root.needs_git and options.git_init and branch is None:
         findings.append(
@@ -238,6 +245,101 @@ def _registry(services: InitServices) -> tuple[Resources, bytes]:
     if services.project.kind(path) is FileKind.FILE:
         return resources, services.project.read_bytes(path)
     return resources, contract_bytes(services.writer, resources)
+
+
+def _links(
+    services: InitServices,
+    options: InitOptions,
+    resources: Resources,
+    resources_bytes: bytes,
+    findings: list[Finding],
+) -> tuple[Resources, bytes]:
+    """Ask for links to team resources and add them in memory (ADR-002 decision 6, Q-8).
+
+    The registry is written in the one plan of `init`, after the profile. Without a terminal, or
+    with `--yes`, nothing is asked and the finding says how to add links later.
+    """
+    if options.assume_yes or not services.prompter.interactive:
+        findings.append(
+            Finding(
+                "ORQ-I504",
+                "No links to team resources were registered. Run `orqlet resources add` to "
+                "register API guidelines, tool documentation or team pages.",
+                Severity.INFO,
+            )
+        )
+        return resources, resources_bytes
+    added = False
+    try:
+        if _answer(services, "resources.links", _LINKS_TEXT, ("yes", "no"), "no") != "yes":
+            return resources, resources_bytes
+        for _ in range(_MAX_LINK_PROMPTS):
+            url = _answer(services, "resources.url", _URL_TEXT, (), "")
+            if not url:
+                break
+            spec = _link_spec(services, url)
+            built, found = resources_with(resources, spec, replace=False)
+            if built is None:
+                findings.append(
+                    Finding(
+                        "ORQ-E509",
+                        f"A link was not added. {found[0].message}",
+                        Severity.WARNING,
+                    )
+                )
+                continue
+            resources, added = built, True
+            findings += found
+    except NoAnswerAvailable:
+        pass
+    if not added:
+        return resources, resources_bytes
+    return resources, contract_bytes(services.writer, resources)
+
+
+def _link_spec(services: InitServices, url: str) -> ResourceSpec:
+    kinds = ("api-guidelines", "tool-docs", "team-docs", "other")
+    resource_id = _answer(
+        services, "resources.id", "A short id for it (lower case, digits, -)", (), ""
+    )
+    title = _answer(services, "resources.title", "A title (one line)", (), "")
+    kind = _answer(services, "resources.kind", "What kind of page is it?", kinds, "")
+    note = _answer(services, "resources.note", "Why and when should an agent use it?", (), "")
+    access = _answer(
+        services,
+        "resources.access",
+        "Is the page public or behind a login?",
+        ("public", "login"),
+        "public",
+    )
+    paths = _answer(
+        services,
+        "resources.paths",
+        "Paths it applies to, as globs separated by commas (empty for none)",
+        (),
+        "",
+    )
+    tool = (
+        _answer(services, "resources.tool", "The name of the tool it documents", (), "")
+        if kind == "tool-docs"
+        else ""
+    )
+    return ResourceSpec(
+        id=resource_id,
+        url=url,
+        title=title,
+        kind=kind,
+        note=note,
+        access=access,
+        paths=tuple(part.strip() for part in paths.split(",") if part.strip()),
+        tool=tool or None,
+    )
+
+
+def _answer(
+    services: InitServices, key: str, text: str, options: tuple[str, ...], default: str
+) -> str:
+    return services.prompter.ask(Question(key, text, options, default)).strip()
 
 
 # --- profile -----------------------------------------------------------------------------------
