@@ -2,7 +2,7 @@ schema: orqlet.implementation-plan/v1
 header:
   schema: orqlet.artifact-header/v1
   task: team-conventions-resources
-  status: draft
+  status: approved
   workflow_version: 0.3.1
   protected_set_digest: be7723282aec5a67e8161540bfba464562fb2a53d9bc3f8245ea22b812134eec
   bound:
@@ -1401,6 +1401,9 @@ self_check:
   - what: design approved
     how: the person chose 'I accept the design in conversation, without a merge' on 2026-10-26 when /orqlet-plan was started; the design pull
       request is not merged and origin/main does not hold the design; recorded in the design manifest header and self_check (commit 227e674)
+    result: pass
+  - what: plan accepted by the person
+    how: the person chose 'I accept the plan in conversation, without a merge' and 'All code phases P-1 to P-8 in order, a local commit after each' on 2026-10-27 when /orqlet-implement was started; this is not a merge on the protected baseline, and neither the design nor the plan is on origin/main
     result: pass
   - what: standards read
     how: orqlet standards for --phase plan --role planner (15 rules)
