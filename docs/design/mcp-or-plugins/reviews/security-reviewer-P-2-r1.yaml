@@ -1,0 +1,129 @@
+schema: orqlet.review-result/v1
+task: mcp-or-plugins
+phase: P-2
+role: security-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 17a2e45016092385eb12ca1f49fa14fc303809220f879c1171e2e6cf89deea2b
+    design: fb6c0a6f61fac66ff595624f194201b4a0bdd04febea332964afcae06f8fce98
+    evidence_inputs: 09275dd1fa7f2bcc0328ead521d4f0f870b44afbe52d526123f33c93a3c4f676
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 0087e36e1b60db29914fa72d98433c3d7fbac32a7464364de907ea08aefaef8c
+    reviewer_definition: adb518646f16cabf596e57830f19b79e9c2de39442b9ab0dc1f19123d71dab2c
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 59fd416a288c385e8ae937fefa8b5f63c10c0e7a7e23d29103511ea5d50b61e1
+  merge_base: f76d775595a1f41ff1a0b97c499739e7c348b58e
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: 03556c914cc53a8d2d8bacb1ecc1d703d0e50d31ad2376f983d6098a398692df
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; it had no shell, so it ran no check and recomputed
+  no digest.
+- Quote digests were not computed, so each finding rests on reading and is an observation that never blocks.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the design-phase review notes of this task, so the reviewer was not fully context-clean
+  (the known gap of the harness2-fit ADR-002).
+- The reviewer ran in the same client as the Coder, so independence is I1, not I2.
+applicability:
+  examined:
+  - src/orqlet/application/contracts/integrations.py
+  - tests/fixtures/contracts/valid/orqlet.integrations.v1.yaml
+  - tests/unit/application/test_integrations_contract.py
+  - tests/unit/domain/test_mcp_credentials.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: '[minor] For a stdio server identity.url is not validated at all: the code passes the real url and then
+    drops the address rule, so any value, including user information or a variable reference, is accepted.'
+  suggested_action: Pass an empty address for stdio, or refuse a url on a stdio server, and test a credential-shaped
+    address on a stdio server.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: '[minor] The guarantee that messages hold no value covers the validator text and the hidden input, not
+    the location of an error, which can hold a raw key of a free-form map; the module docstring says every message.'
+  suggested_action: Narrow the docstring and keep the loader criterion of P-3 (a credential-shaped key must not
+    appear in any output).
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: A server with auth.mode none that is not registered has no backend_identity rule, so a shared-account label
+    can be declared for it.
+  suggested_action: The person decides whether an unregistered none server may carry a free-text label.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: The contract accepts any literal https host, including an internal name; the closed table of the loader
+    of P-3 restricts it.
+  suggested_action: None in P-2; keep the table check before anything is rendered.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: tests
+  evidence: []
+  claim: The test record is claimed evidence; the reviewer could run nothing.
+  suggested_action: Re-run the checks in CI before merge.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: One test constant is a URL with a literal user and password pair; it is an obvious placeholder.
+  suggested_action: Optionally assemble it at run time.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read
+    how: MANIFEST, diff.patch, plan, test record, knowledge-impact record and the snapshot of the changed files
+    result: pass
+  - what: re-run of ruff, mypy, import-linter and pytest
+    how: no shell
+    result: not-run
+  - what: packet and record digests recomputed
+    how: no shell; hashes not computed
+    result: not-run

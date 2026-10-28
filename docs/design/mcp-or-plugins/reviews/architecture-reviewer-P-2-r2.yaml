@@ -1,0 +1,152 @@
+schema: orqlet.review-result/v1
+task: mcp-or-plugins
+phase: P-2
+role: architecture-reviewer
+round: 2
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 26a442c8623ff05d3c4bb449ff16bf2a249a8c156493256b2a6291a14fe84f8d
+    design: fb6c0a6f61fac66ff595624f194201b4a0bdd04febea332964afcae06f8fce98
+    evidence_inputs: ea706c991f3cceae0820c3eaa8a95484f2b76ae05964233c2cf5551301fe0d3b
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 0087e36e1b60db29914fa72d98433c3d7fbac32a7464364de907ea08aefaef8c
+    reviewer_definition: 4163e77c515dce4c8168220a3dda8e273455f3b0dc97c09b4ccb3b7657368f10
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: ae1fa632388d8d1dcda6592bb6381ac637a128f7a1a2b866f7b4c2e1398d4472
+  merge_base: f76d775595a1f41ff1a0b97c499739e7c348b58e
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: d07a4aa80f9fdb8e5220c9ec8842a3d694df3ab29747a19229b13cd20b071990
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; it had no shell, so it ran no check and recomputed
+  no digest.
+- Quote digests were not computed, so each finding rests on reading and is an observation that never blocks.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the design-phase review notes of this task, so the reviewer was not fully context-clean
+  (the known gap of the harness2-fit ADR-002).
+- The reviewer ran in the same client as the Coder, so independence is I1, not I2.
+- Round 2 followed a rework of the contract module and of one test; the reviewer read the new staged snapshot and
+  the round-1 records in the snapshot, so it was not context-clean.
+applicability:
+  examined:
+  - src/orqlet/application/contracts/integrations.py
+  - tests/fixtures/contracts/valid/orqlet.integrations.v1.yaml
+  - tests/unit/application/test_integrations_contract.py
+  - tests/unit/domain/test_mcp_credentials.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: tests
+  evidence: []
+  claim: '[minor] The refusal tests only check that some ValidationError is raised; the one text check accepts any
+    name of the closed set, so a declaration refused for another rule would still pass.'
+  suggested_action: Let each refusal case pass the expected rule name and assert it.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: tests
+  evidence: []
+  claim: '[minor] The rule that auth mode none is refused for a registered server has only a failing case; no test
+    shows that an unregistered none server loads.'
+  suggested_action: Add a passing test once the person has decided what label such a server carries.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: A server with auth.mode none that is not registered has no backend_identity rule, so a shared-account label
+    can be declared for it; ADR-002 decision 1 does not say what a none server carries.
+  suggested_action: The person decides whether such a server may carry a free-text label.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: For a stdio server identity.url is not examined by the contract, as plan AC-3 and ADR-002 decision 5 say;
+    a stdio server cannot be registered, so the value never reaches a file; only the scan of the declaration in
+    P-3 guards it.
+  suggested_action: Carry into P-3 a test that a credential-shaped url on a stdio server is refused by the loader's
+    scan.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: architecture
+  evidence: []
+  claim: The validators raise one error per server whose message lists rule names, so the loader of P-3 can read
+    the rules only from the text; no test pins that format.
+  suggested_action: Decide in P-3 how the loader reads the rules and pin the format there.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: info
+  category: standards
+  evidence: []
+  claim: The staged round-1 records cover an older code_tests digest, so a round 2 of the security reviewer is needed.
+  suggested_action: Done in this round.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: info
+  category: tests
+  evidence: []
+  claim: The test record is claimed evidence and lists no command for the public-API claim; the reviewer's conclusion
+    comes from reading the extractor.
+  suggested_action: Run the extractor over the base and the staged revisions in CI.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-8
+  kind: observation
+  severity: info
+  category: standards
+  evidence: []
+  claim: A test docstring still invites deleting the test (Drop this test if only the fixed-text messages are meant);
+    with hide_input_in_errors implemented it is a leftover.
+  suggested_action: Remove the sentence in a later change.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read
+    how: MANIFEST, diff.patch, plan, test record, knowledge-impact record and the snapshot of the changed files
+    result: pass
+  - what: re-run of ruff, mypy, import-linter and pytest
+    how: no shell
+    result: not-run
+  - what: packet and record digests recomputed
+    how: no shell; hashes not computed
+    result: not-run

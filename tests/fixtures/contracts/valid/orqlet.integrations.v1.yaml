@@ -6,11 +6,12 @@ servers:
     identity: {kind: remote, url: "https://docs.example.com/mcp"}
     expected_publisher: Example Inc.
     capability_tier: read
-    registration: {name: docs, mode: read-only, enforced_by: server}
+    registration: {name: orqlet-docs, mode: read-only, enforced_by: client-enforced-editable}
     per_client:
       claude-code: {register: true, enforced_by: client-enforced-editable}
     write_tools: {policy: deny, names_verified: false}
     auth: {mode: client-native-oauth}
-    data_flow: {backend_identity: Example, scope: [public docs], data_classes: [public], egress: queries, owner_review: {status: pending}}
+    data_flow: {backend_identity: user-oauth, scope: [public docs], data_classes: [public], egress: queries, owner_review: {status: pending}}
+    clients: [claude-code]
 roles: {architecture-reviewer: {servers: [docs]}}
 policy: {modify_global_config: never, live_inspection: opt-in}

@@ -1,9 +1,16 @@
-"""MCP credentials: the pure domain rules (task mcp-or-plugins, phase P-1).
+"""MCP credentials: the pure domain rules (task mcp-or-plugins, phase P-1 of the replaced plan).
 
 Every test cites its `expected_behavior_source`. ADR-002 is
-docs/design/mcp-or-plugins/design/adr-002-one-credential-per-user.md, ADR-003 is
-docs/design/mcp-or-plugins/design/adr-003-build-order-and-seeded-files.md, and AC-1 to AC-7 are the
-acceptance criteria of phase P-1 in docs/design/mcp-or-plugins/plan.yaml.
+docs/design/mcp-or-plugins/design/adr-002-one-credential-per-user.md and ADR-003 is
+docs/design/mcp-or-plugins/design/adr-003-build-order-and-seeded-files.md; both are the current
+ADRs, and every decision number below is a decision of those files.
+
+The "AC-n" labels in this file (AC-1 to AC-7) belong to phase P-1 of the REPLACED plan, whose test
+record is docs/design/mcp-or-plugins/tests/P-1.yaml. They are not the criteria of phase P-2 or of
+any phase of the current plan.yaml, which starts at P-2. The same holds for "the tester brief of
+phase P-1" and for "plan.yaml `unverified`" below: they name that replaced plan. The one
+exception is the test of the closed table over a fixed grid, after the AC-2 tests: phase P-2 of
+the current docs/design/mcp-or-plugins/plan.yaml added it and it cites AC-8 of that phase.
 
 These tests were written first, by the Tester of phase P-1, before `orqlet.domain.mcp_credentials`
 existed. The section "rework round 1" at the end was added after the first review.
@@ -50,8 +57,8 @@ pytestmark = pytest.mark.unit
 
 # --- values that the sources state ---------------------------------------------------------------
 
-ATLASSIAN_URL = "https://mcp.atlassian.com/v2/mcp"  # ADR-002 decision 2 and 12
-GITHUB_URL = "https://api.githubcopilot.com/mcp/"  # ADR-002 decision 12
+ATLASSIAN_URL = "https://mcp.atlassian.com/v2/mcp"  # ADR-002 decision 2 (the table)
+GITHUB_URL = "https://api.githubcopilot.com/mcp/"  # ADR-002 decision 2 (a GitHub row waits)
 OAUTH = "client-native-oauth"
 CLAUDE_CODE = "claude-code"
 OTHER_CLIENTS = ("cursor", "codex")
@@ -72,7 +79,7 @@ RENDERED_FILE_TEXT = (
     "    }\n"
     "  }\n"
     "}\n"
-)  # the shape of ADR-003 decision 6 for the one generated entry
+)  # the shape of ADR-003 decision 4 for the one generated entry
 
 Arguments = tuple[str, str, str | None, str]
 
@@ -399,6 +406,43 @@ def test_any_other_client_enables_nothing_for_any_address(url: str, client: str)
     assert allowed_auth_modes(url, client) == ()
 
 
+# --- the closed table over a fixed grid (phase P-2 of the current plan, AC-8) --------------------
+
+# The AS-IS address, the look-alikes of it and the GitHub address, written out so that a reviewer
+# reads every one of them. A new row of the table changes the expected pair below, so it changes
+# this test and has a reviewer (ADR-004 decision 2).
+GRID_ADDRESSES = {
+    "atlassian": ATLASSIAN_URL,
+    "atlassian-trailing-slash": ATLASSIAN_URL + "/",
+    "atlassian-upper-case-host": "https://MCP.ATLASSIAN.COM/v2/mcp",
+    "atlassian-http": "http://mcp.atlassian.com/v2/mcp",
+    "atlassian-with-a-port": "https://mcp.atlassian.com:443/v2/mcp",
+    "atlassian-path-suffix": ATLASSIAN_URL + "/extra",
+    "atlassian-other-host": "https://mcp.example.com/v2/mcp",
+    "github": GITHUB_URL,
+    "empty": "",
+}
+GRID_CLIENTS = (CLAUDE_CODE, *OTHER_CLIENTS, "unknown-client")
+THE_ONE_ENABLED_PAIR = (ATLASSIAN_URL, CLAUDE_CODE)
+
+
+def test_exactly_one_pair_of_the_fixed_grid_enables_a_mode() -> None:
+    """AC-8. expected_behavior_source: ADR-004 decision 2 ("the plan keeps [the tests of the
+    single row] and extends them to a fixed grid of addresses and clients, so that adding a row
+    changes a test and has a reviewer") and ADR-002 decision 2 ("this change enables one row:
+    `https://mcp.atlassian.com/v2/mcp` with `client-native-oauth` for `claude-code`")."""
+    results = {
+        (url, client): allowed_auth_modes(url, client)
+        for url in GRID_ADDRESSES.values()
+        for client in GRID_CLIENTS
+    }
+    enabled = {pair: modes for pair, modes in results.items() if modes != ()}
+
+    assert len(results) == len(GRID_ADDRESSES) * len(GRID_CLIENTS)  # no two addresses coincide
+    assert all(isinstance(modes, tuple) for modes in results.values())
+    assert enabled == {THE_ONE_ENABLED_PAIR: (OAUTH,)}
+
+
 # --- AC-3: rendered_entry and mcp_file_path ------------------------------------------------------
 
 
@@ -406,7 +450,7 @@ def test_any_other_client_enables_nothing_for_any_address(url: str, client: str)
 def test_the_atlassian_oauth_entry_for_claude_code_has_type_and_url_in_that_order(
     server_id: str,
 ) -> None:
-    """AC-3. expected_behavior_source: ADR-002 decision 5 and ADR-003 decision 6."""
+    """AC-3. expected_behavior_source: ADR-002 decision 5 and ADR-003 decision 4."""
     entry = rendered_entry(server_id, ATLASSIAN_URL, None, CLAUDE_CODE)
 
     assert isinstance(entry, dict)
@@ -511,8 +555,9 @@ def test_the_refusal_text_holds_no_input_value(arguments: Arguments, secret: str
     [(CLAUDE_CODE, ".mcp.json"), ("cursor", ".cursor/mcp.json"), ("codex", ".codex/config.toml")],
 )
 def test_each_client_has_its_own_mcp_file_path(client: str, path: str) -> None:
-    """AC-3. expected_behavior_source: ADR-003 decision 6 and decision 2 (the three seeded files);
-    ADR-002 decision 5 (`mcp_file_path` gives the path of a client's file)."""
+    """AC-3. expected_behavior_source: ADR-003 decision 4 (the shape of the one generated entry)
+    and decision 5 (the three seeded files); ADR-002 decision 5 (`mcp_file_path` gives the path of
+    a client's file)."""
     assert mcp_file_path(client) == path
 
 
