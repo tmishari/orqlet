@@ -32,15 +32,19 @@ Version 0.1.0. What is built and tested in this repository:
   `review prepare`;
 - the registry of links to team resources (`resources add`, `update`, `remove`, `attach`, `list`,
   `validate resources`), the conventions of the profile and `conventions check`, and the rules,
-  skills and `AGENTS.md` block that render them for the three clients.
+  skills and `AGENTS.md` block that render them for the three clients;
+- the declaration of MCP servers (`.orqlet/integrations.yaml`), `validate integrations`, and the
+  `.mcp.json` of Claude Code that `upgrade` writes from it, for one server only (Atlassian). The
+  section "MCP servers, one credential per user" says what that covers.
 
 What is **not** built yet: `orqlet ci check` and the merge-time gate, local Git hooks, the
-knowledge index and module catalogue, and the MCP configuration. Approval cannot be verified by the
+knowledge index and module catalogue, and MCP files for Cursor and Codex or for a server other
+than Atlassian. Approval cannot be verified by the
 tool today: `orqlet gate status <task>` always ends `NOT_RUN` for approval, because approval is meant
 to be a merge on the protected branch and that evidence comes from the code host. The generated files
 follow each client's published documentation; the tests check the files, not the clients.
 
-Orqlet itself opens no connection and reads no credential. A page is read by the client's own web
+Orqlet itself opens no connection and never reads a credential store. A page is read by the client's own web
 tool, as the developer, under the section "Looking things up" of the baseline. That text is advice
 to the agent, not a control, and no check has shown that a client honours it: each client reports
 the capability limit ORQ-L006 for it. A person records the checks of the design (V-1 to V-8, V-10 and V-11) with a
@@ -288,7 +292,7 @@ files are gone. The stored copy stays, because it is the team's file: delete it 
 | `release` | Take a file out of the manifest (protected files cannot be released) |
 | `profile` | Answer open facts and approve the project profile |
 | `standards` | Read the standards that apply to a path, phase and role |
-| `validate` | Check an artifact an agent wrote, and the registry of links (`validate resources`) |
+| `validate` | Check an artifact an agent wrote, the registry of links (`validate resources`) and the MCP declaration (`validate integrations`) |
 | `resources` | Register links to team resources (`add`, `update`, `remove`, `attach`, `list`) |
 | `conventions` | Check the branch name and the commit subjects against the profile (`check`) |
 | `gate` | Check what the workflow's gates would see |
@@ -311,8 +315,11 @@ is the check that decides; Orqlet builds no local hook.
   `base..head`. The rules are read from the profile at the base revision, not from the pull
   request, so a pull request cannot relax the rule that judges it; a change of the profile takes
   effect after it is merged.
-- `orqlet upgrade --check` exits non-zero when a change of the registry or the profile has not been
-  rendered, or when a protected generated file was edited by hand.
+- `orqlet upgrade --check` exits non-zero when a change of the registry, the profile or the MCP
+  declaration has not been rendered, or when a protected generated file was edited by hand.
+
+A project that holds `.orqlet/integrations.yaml` adds a fourth step, `orqlet validate integrations`;
+the section "MCP servers, one credential per user" has it.
 
 Add the step after the conventions are answered: `conventions check` is `NOT_RUN`, and exits 5,
 when nothing is configured, when the base cannot be found (a shallow clone), or when a Git command
@@ -424,6 +431,151 @@ What stays with the team:
   that the team does not want in the repository.
 - Keep a browser profile that agents use signed in only to the team's sites, and keep profile
   folders out of Git.
+
+## MCP servers, one credential per user
+
+A team that uses Atlassian with Claude Code can have Orqlet write the MCP file of Claude Code from
+one declaration, so that every developer starts from the same entry and signs in with their own
+account. The sameness is checked on demand and not enforced: a file that someone edits by hand stays
+as edited until the check runs. This is the only combination that Orqlet generates. The declaration may name the address
+`https://mcp.atlassian.com/v2/mcp` with the mode `client-native-oauth` for `claude-code`; the loader
+refuses another combination for a server that is registered for a client (ORQ-E532) until a later
+release enables it.
+
+1. **Declare.** Write `.orqlet/integrations.yaml`. It names the server, its address, the sign-in
+   mode and the clients. It holds no secret and no value of a variable. The JSON Schema that ships
+   with the tool shows only its structure.
+2. **Generate.** `orqlet upgrade` writes `.mcp.json` with one entry, named `orqlet-<id>`, for each
+   declared server that is registered for Claude Code, when Claude Code is enabled in the profile.
+   The file is written once, and afterwards it belongs to the team. A file that the team deleted is
+   not written again.
+3. **A file that exists.** Orqlet never rewrites a `.mcp.json` that the team already has, and
+   `orqlet upgrade` never copies a byte of it into a proposal, a plan, a preview, the journal or a
+   backup; one case, named under "What this does and does not give", is the exception. When Orqlet
+   did not write the file, or the text that Orqlet would write has changed since it did, and the
+   file differs from that text, `orqlet upgrade` offers a proposal that shows only the text that
+   Orqlet wants. The proposal stays until you merge it by hand into your file. It comes back on
+   every run until the file equals that text byte for byte, so a file that holds other servers
+   keeps the proposal until the team takes the file over (step 5). A file that Orqlet wrote and the
+   team then edited gets no proposal while the text that Orqlet would write is unchanged.
+4. **Sign in.** Each developer opens `/mcp` in Claude Code and signs in with their own Atlassian
+   account. No token is committed and no variable is set.
+5. **Take the file over.** A team that does not want the check can delete the declaration and
+   rename or remove the `orqlet-*` entries. While an `orqlet-` name remains in an MCP file after the
+   declaration is gone, `orqlet doctor` and `orqlet sync` print a warning that nothing was checked,
+   and a warning makes `doctor` exit 1. Deleting the declaration and renaming the entries in one
+   pull request leaves them silent, so only review covers that change.
+
+A declaration that is invalid stops `orqlet upgrade` with exit 3 and writes nothing. A declaration
+written for an earlier schema is invalid in the same way until it is fixed.
+
+### The check
+
+The committed JSON Schema does not express the rules of the declaration, so
+only `orqlet validate integrations` checks the rules in a CI job. `orqlet doctor` and `orqlet sync`
+run the same reader when they run, and `orqlet upgrade` refuses an invalid declaration. The command
+reads the declaration and the MCP files and nothing else. It checks that:
+
+- the declaration holds no credential shape and registers no server with a combination of address,
+  mode and client that the table of this release does not enable;
+- each declared entry in an existing `.mcp.json` or `.cursor/mcp.json` is the entry that Orqlet
+  would write, and none is missing;
+- in those two files, no entry whose name starts with `orqlet-` is undeclared, and nothing holds a
+  key of the closed list or the text `${`;
+- none of the three MCP files, `.codex/config.toml` included, holds a credential shape.
+
+A finding about a credential shape names the rule and the position and never the text that matched.
+The command exits 5 (`NOT_RUN`) when there is no declaration. Add it to the CI job of your host, after the step that installs Orqlet at a
+pinned version:
+
+```sh
+orqlet validate integrations .orqlet/integrations.yaml
+```
+
+The check is advisory until a person makes it a required status check on the host and requires a
+review of the files that pin the tool: the version in the CI workflow and any lockfile. A pull
+request that edits the workflow, the pinned version, `.claude/settings.json` or `CODEOWNERS` can
+switch the check off. Orqlet cannot set or read the rules of the host.
+
+### What this does and does not give
+
+The standard of one credential for each user is met by what Orqlet generates only for Atlassian on
+Claude Code. GitHub, Miro, Cursor and Codex stay manual, and Orqlet has not verified them. No check
+with a test account has run yet, so this README claims nothing about how a client prompts for a
+sign-in, which entry wins when two have the same name, or where a client stores a token. A
+developer's own entry with the same name as an `orqlet-*` entry is not covered.
+
+- **Your own credential.** Sign in with your own account, or set your own variable, and keep the
+  value out of the repository. For GitHub, create a fine-grained read-only personal token yourself;
+  an entry does not limit a token that has write scopes. This is an instruction, not a check.
+- **Another person's credential.** Orqlet cannot stop a person from lending a token or a shell. A
+  shared Atlassian account that a human signs in to cannot be told apart from a personal one.
+- **The user's permissions.** The sign-in entry carries the user's full Atlassian permissions.
+  Text that the agent reads through the server, such as an issue or a page, can steer actions with
+  the user's write rights, and the entry limits none of it. The contract forces the label
+  `read-only`, but that label restricts nothing.
+- **Cloud agents, review contexts and CI.** Such a surface should use the account of the one user
+  who started or owns it. Whether the clients can do that is not verified, and where one
+  environment is shared by several people the standard is not met, for sign-in as well as for a
+  token.
+- **What Orqlet reads.** It never reads a credential store. It reads repository files that may hold
+  a pasted credential, in order to scan them. `orqlet review prepare` copies the staged files to a
+  packet outside the repository without a scan, so a pasted credential in a staged MCP file would
+  be copied there. A profile that names an MCP file as a pull-request template target would make
+  Orqlet write a block into that file, and the backup of that write would copy it.
+
+Routes that Orqlet does not examine:
+
+- managed settings that an administrator sets for every user, in Claude Code or in Codex;
+- plugins that a committed settings file enables, and plugin settings in `.codex/config.toml`;
+- the other keys of `.codex/config.toml`, including its helper and static-credential keys;
+- an entry that starts a process, or that reaches a server without a reference, when it is not
+  declared;
+- committed hooks, `env` and helper commands in `.claude/settings.json`, and servers written inside
+  agent files;
+- a committed settings file that approves project MCP servers in advance;
+- MCP files in a nested or a parent folder.
+
+Limits of the check:
+
+- a project without a declaration is not checked;
+- the scan of the declaration reads its text and not its decoded values;
+- an undeclared entry whose name does not start with `orqlet-` is counted and not examined;
+- a closed key, the text `${` or a credential shape is an error in any entry of `.mcp.json` or
+  `.cursor/mcp.json`, so an existing entry of the team that holds a `${VAR}` reference turns the
+  check red, on purpose;
+- `.codex/config.toml` gets only the scan of its raw text for credential shapes: no closed key, no
+  `${` and no `orqlet-` name is checked in it;
+- a declaration written for an earlier schema blocks `orqlet upgrade` until it is fixed;
+- the notice about CODEOWNERS matches text and does not check ownership: `orqlet upgrade` lists
+  `.mcp.json` among the paths that no CODEOWNERS file mentions (ORQ-I030), and it looks for the
+  name in the text;
+- the scan knows a list of shapes and misses a credential that has another shape or that someone
+  encoded on purpose.
+
+The check does not cover every MCP entry of a project: it compares the entries that the declaration
+names and every `orqlet-*` entry, and it counts the others.
+
+### Finding codes of the MCP declaration
+
+| Code | Meaning |
+|---|---|
+| ORQ-E530 | The declaration cannot be read: it is above 256 KiB, is not a regular file, or breaks the rules for reading a document |
+| ORQ-E531 | The declaration fails its contract |
+| ORQ-E532 | A server is registered for a client with a mode that the table of this release does not enable for its address |
+| ORQ-E533 | The declaration holds a credential shape (the finding names the rule and the line) |
+| ORQ-E534 | An MCP file cannot be read safely (a link, a directory, too large, not UTF-8, not valid JSON, a duplicate key, not an `mcpServers` object, text that cannot be encoded, or above a limit) |
+| ORQ-E535 | A declared entry differs from the entry that Orqlet would write |
+| ORQ-E536 | An existing MCP file lacks the entry of a declared server |
+| ORQ-E537 | An entry whose name starts with `orqlet-` is not declared |
+| ORQ-E538 | `.mcp.json` or `.cursor/mcp.json` holds a key of the closed list or the text `${` in an entry or a value |
+| ORQ-E539 | An MCP file holds a credential shape |
+| ORQ-W530 | There is no declaration and an MCP file holds an `orqlet-` name, so nothing was checked in it |
+| ORQ-I530 | A server that is registered for a client uses sign-in: its entry gives the user's full permissions and restricts nothing |
+| ORQ-I531 | A file holds undeclared entries; the finding gives the count and how many have an address that is not on the table |
+| ORQ-I532 | A declared MCP file does not exist, so its entries were not checked |
+| ORQ-I533 | There is no declaration and an MCP file could not be read, so nothing was checked in it |
+| ORQ-I534 | `orqlet upgrade` shows a proposal for an MCP file that exists; it shows only the text that Orqlet wants, and it comes back on every run until the file equals that text |
 
 ## Development
 

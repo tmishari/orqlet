@@ -1,0 +1,192 @@
+schema: orqlet.review-result/v1
+task: mcp-or-plugins
+phase: P-8
+role: architecture-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: fb625d2cb0e81736888316cde5380c672f6cb844ed89d5abc68556f841e209ff
+    design: fb6c0a6f61fac66ff595624f194201b4a0bdd04febea332964afcae06f8fce98
+    evidence_inputs: 3646864429b34d61729a5351abc1c178c44854f28f0d58efddcfc5a4bae00c56
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 0087e36e1b60db29914fa72d98433c3d7fbac32a7464364de907ea08aefaef8c
+    reviewer_definition: 4163e77c515dce4c8168220a3dda8e273455f3b0dc97c09b4ccb3b7657368f10
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 20c314345a07fd8666c051f663f8d71f939b51c95dd0075e9aee405614bcdd7d
+  merge_base: f76d775595a1f41ff1a0b97c499739e7c348b58e
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: d07a4aa80f9fdb8e5220c9ec8842a3d694df3ab29747a19229b13cd20b071990
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; it had no shell, so it ran no check and recomputed
+  no digest.
+- Quote digests were not computed, so each finding rests on reading and is an observation that never blocks.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the design-phase review notes of this task, so the reviewer was not fully context-clean
+  (the known gap of the harness2-fit ADR-002).
+- The reviewer ran in the same client as the Coder, so independence is I1, not I2.
+- The architecture proposal is not in the packet snapshot, so only its diff hunks were read; whether another statement
+  of the document is stale was not established.
+- The packet diff is cumulative from the merge base, so the reviewer scoped the review to the file list of the phase.
+applicability:
+  examined:
+  - README.md
+  - docs/design/orqlet-architecture-proposal.md
+  - tests/unit/test_readme_integrations.py
+  - tests/unit/test_check_records_scan.py
+  - docs/design/mcp-or-plugins/knowledge/P-8.yaml
+  - docs/design/mcp-or-plugins/tests/P-8.yaml
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: docs
+  evidence: []
+  claim: README step 3 says the proposal comes back on every run until the file holds that text; the code ends it
+    only when the whole file equals the render byte for byte, so a team file with other servers keeps the proposal
+    and ORQ-I534 after the entry is merged by hand. The ORQ-I534 row says the proposal was written, but the finding
+    is printed on runs that write nothing.
+  suggested_action: Say that the proposal ends only at byte equality, that a file with other servers keeps it until
+    the team takes the file over, and that the finding is shown, not written.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: docs
+  evidence: []
+  claim: README says only validate integrations checks the rules, but doctor and sync run the same reader and upgrade
+    refuses an invalid declaration with exit 3.
+  suggested_action: Reword to say it is the command meant for a CI job; the phrase is pinned by a test, so a person
+    decides.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: docs
+  evidence: []
+  claim: 'The limit that an undeclared non-orqlet entry is counted and not examined understates the check: a closed
+    key, the text ${ or a credential shape is an error in any entry, and the README contradicts itself about ${
+    and the strictness for an adopter''s existing entry.'
+  suggested_action: State the strictness and the adopter consequence of ADR-002 decision 6; the limit phrase stays.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: non-blocking
+  category: docs
+  evidence: []
+  claim: 'Two sentences are more absolute than ADR-002 decision 12: never copies a byte (review prepare copies staged
+    MCP files), and every developer gets the same entry (the sameness is only detectable on demand).'
+  suggested_action: Scope the first to upgrade and word the second as the intended result that is checked on demand.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: non-blocking
+  category: docs
+  evidence: []
+  claim: The Checks for pull requests text still says three offline commands, and the upgrade --check bullet omits
+    the MCP declaration although a check reports the file that would be created.
+  suggested_action: Add the declaration to the bullet and name the fourth CI line.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: non-blocking
+  category: docs
+  evidence: []
+  claim: 'README steps 1 and 2 treat declared and registered for Claude Code as the same: the adapter writes only
+    servers registered for Claude Code and only when the client is enabled; the no variable reference claim holds
+    for registered servers only.'
+  suggested_action: Say each server registered for Claude Code, and no value of a variable.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: non-blocking
+  category: docs
+  evidence: []
+  claim: In the section 24.4 example the codex line keeps an old trailing comment that contradicts the new one,
+    backend_identity stays free text although the contract requires user-oauth, and the T4 row still says entries
+    use interpolation and forbids it only in command and args.
+  suggested_action: Remove the stale comment, show user-oauth and align T4 with section 15.1.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-8
+  kind: observation
+  severity: info
+  category: docs
+  evidence: []
+  claim: Acceptance criterion AC-2 could not be confirmed for the whole architecture document because it is not
+    in the snapshot; Section 22.0 was not read.
+  suggested_action: A person searches the full document for every MCP entry, shared-entry, TOML per entry and the
+    text of Section 22.0.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-9
+  kind: observation
+  severity: info
+  category: docs
+  evidence: []
+  claim: README line 50 cites checks V-1 to V-8, V-10 and V-11 of the older design, while ADR-004 here has V-1 to
+    V-10.
+  suggested_action: Reconcile the list when the person records the checks.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-10
+  kind: observation
+  severity: info
+  category: tests
+  evidence: []
+  claim: The record-scan test is anchored by parents[2] and an absent folder passes without an assertion that the
+    folder exists; the address pattern needs a dotted domain and matches tool@2.0.preview.
+  suggested_action: 'Optional: assert that the folder exists once the first record is committed.'
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-11
+  kind: observation
+  severity: info
+  category: tests
+  evidence: []
+  claim: The test record marks AC-1, AC-2 and AC-4 as pass although only a review can establish them, and the knowledge
+    record repeats the cumulative-candidate wording of P-7.
+  suggested_action: Record the review-based criteria as not run until reviewed.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read
+    how: MANIFEST, diff.patch, plan, test record, knowledge-impact record and the snapshot of the changed files
+    result: pass
+  - what: re-run of ruff, mypy, import-linter and pytest
+    how: no shell
+    result: not-run
+  - what: packet and record digests recomputed
+    how: no shell; hashes not computed
+    result: not-run

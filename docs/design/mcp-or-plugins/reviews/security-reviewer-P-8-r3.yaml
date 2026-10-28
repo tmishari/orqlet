@@ -1,0 +1,151 @@
+schema: orqlet.review-result/v1
+task: mcp-or-plugins
+phase: P-8
+role: security-reviewer
+round: 3
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 2f9044210426e1ea4e2fa2ad5003b204db85ac2d2695181e629362342da5bf9b
+    design: fb6c0a6f61fac66ff595624f194201b4a0bdd04febea332964afcae06f8fce98
+    evidence_inputs: 3a7832870e7db22da05b90acc29c7eeb24cd7709ab535f6e39ca769872ac85cb
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 0087e36e1b60db29914fa72d98433c3d7fbac32a7464364de907ea08aefaef8c
+    reviewer_definition: adb518646f16cabf596e57830f19b79e9c2de39442b9ab0dc1f19123d71dab2c
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 28e4a1a0227ccb5ac30264d51c9b3b6629bfc247f341a96779645892bd5ce080
+  merge_base: f76d775595a1f41ff1a0b97c499739e7c348b58e
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: 03556c914cc53a8d2d8bacb1ecc1d703d0e50d31ad2376f983d6098a398692df
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; it had no shell, so it ran no check and recomputed
+  no digest.
+- Quote digests were not computed, so each finding rests on reading and is an observation that never blocks.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the design-phase review notes of this task, so the reviewer was not fully context-clean
+  (the known gap of the harness2-fit ADR-002).
+- The reviewer ran in the same client as the Coder, so independence is I1, not I2.
+- The architecture proposal is not in the packet snapshot, so only its diff hunks were read; Section 22.0 and any
+  statement without a hunk were not read.
+- The packet diff is cumulative from the merge base, so the reviewer scoped the review to the file list of the phase.
+- The packet holds the earlier review records of this phase, so the reviewer was not context-clean.
+applicability:
+  examined:
+  - README.md
+  - docs/design/orqlet-architecture-proposal.md
+  - tests/unit/test_readme_integrations.py
+  - tests/unit/test_check_records_scan.py
+  - docs/design/mcp-or-plugins/knowledge/P-8.yaml
+  - docs/design/mcp-or-plugins/tests/P-8.yaml
+  - docs/design/mcp-or-plugins/reviews/architecture-reviewer-P-8-r1.yaml
+  - docs/design/mcp-or-plugins/reviews/architecture-reviewer-P-8-r2.yaml
+  - docs/design/mcp-or-plugins/reviews/security-reviewer-P-8-r1.yaml
+  - docs/design/mcp-or-plugins/reviews/security-reviewer-P-8-r2.yaml
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: tests
+  evidence: []
+  claim: The test record marks AC-1, AC-2 and AC-4 as pass, and the check of AC-4 is this security review, which
+    had not returned when the record was written.
+  suggested_action: Record these as not run until the review records exist or state that the review records establish
+    them.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: standards
+  evidence: []
+  claim: 'The record does not evidence the plan completion line All checks pass on Python 3.12 nor ORQLET-QA-001
+    on every version: no interpreter is named for ruff and mypy and there is no import-linter command in the record.'
+  suggested_action: Rely on the CI matrix or record which interpreter ran each command.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: The record scan can miss name@localhost, name@10.0.0.5 and tenant hosts other than .atlassian.net, and
+    skips a dangling link without failing; ADR-004 decision 1 leaves a private server address to review.
+  suggested_action: Optionally widen the address rule and fail on any link under the records folder.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: docs
+  evidence: []
+  claim: The README says a credential finding names the rule and the position, but a finding on the decoded text
+    carries no line (ADR-002 decision 7), and the ORQ-E530 row omits the unusable path and the unreadable file.
+  suggested_action: Say the rule and the line when the raw text matched, and add the cases to the E530 row.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: docs
+  evidence: []
+  claim: The architecture rows T4 and T12 say other entries are counted and not examined without the qualifier that
+    a closed key, ${ or a credential shape is an error anywhere in the file, and Section 15.1 says no variable reference
+    in an MCP entry at all, which does not hold for the Codex file that gets only the raw scan.
+  suggested_action: Add with none of the above to the architecture rows as ADR-002 decision 6 does.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: info
+  category: docs
+  evidence: []
+  claim: Plan AC-2 and AC-4 cannot be confirmed for the whole architecture document; a search of the working tree
+    copy shows lines such as Base MCP servers read-only by default that decision 10 qualifies.
+  suggested_action: A person compares those lines with ADR-002 decision 10.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: The snapshot holds a real tenant host in the committed ledger and in earlier P-1 review records; this diff
+    does not add it.
+  suggested_action: The person decides whether to redact it.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read
+    how: MANIFEST, diff.patch, plan, test record, knowledge-impact record and the snapshot of the changed files
+    result: pass
+  - what: re-run of ruff, mypy, import-linter and pytest
+    how: no shell
+    result: not-run
+  - what: packet and record digests recomputed
+    how: no shell; hashes not computed
+    result: not-run

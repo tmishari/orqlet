@@ -1,0 +1,119 @@
+schema: orqlet.review-result/v1
+task: mcp-or-plugins
+phase: P-8
+role: security-reviewer
+round: 2
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 5ca82b32c5325c6c394ee60e8e6a78fa091419da10d28722ee904bf5bb25d841
+    design: fb6c0a6f61fac66ff595624f194201b4a0bdd04febea332964afcae06f8fce98
+    evidence_inputs: f3aeef06412a019de8f153f467bfed0cf97a5684935504fd7746aa1a00c29e48
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 0087e36e1b60db29914fa72d98433c3d7fbac32a7464364de907ea08aefaef8c
+    reviewer_definition: adb518646f16cabf596e57830f19b79e9c2de39442b9ab0dc1f19123d71dab2c
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: b9c9d7089f75df4f57c698640034bca56ee0f773d1a6a1ee3caeea260eeccd62
+  merge_base: f76d775595a1f41ff1a0b97c499739e7c348b58e
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: 03556c914cc53a8d2d8bacb1ecc1d703d0e50d31ad2376f983d6098a398692df
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; it had no shell, so it ran no check and recomputed
+  no digest.
+- Quote digests were not computed, so each finding rests on reading and is an observation that never blocks.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the design-phase review notes of this task, so the reviewer was not fully context-clean
+  (the known gap of the harness2-fit ADR-002).
+- The reviewer ran in the same client as the Coder, so independence is I1, not I2.
+- The architecture proposal is not in the packet snapshot, so only its diff hunks were read; Section 22.0 and any
+  other statement without a hunk were not read.
+- The packet diff is cumulative from the merge base, so the reviewer scoped the review to the file list of the phase.
+- The packet holds the round 1 review records of this phase, so the reviewer was not context-clean.
+applicability:
+  examined:
+  - README.md
+  - docs/design/orqlet-architecture-proposal.md
+  - tests/unit/test_readme_integrations.py
+  - tests/unit/test_check_records_scan.py
+  - docs/design/mcp-or-plugins/knowledge/P-8.yaml
+  - docs/design/mcp-or-plugins/tests/P-8.yaml
+  - docs/design/mcp-or-plugins/reviews/architecture-reviewer-P-8-r1.yaml
+  - docs/design/mcp-or-plugins/reviews/security-reviewer-P-8-r1.yaml
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: Step 3 of the README states an absolute never about copying a byte of an existing .mcp.json into a backup,
+    and about 70 lines later the same section describes a profile configuration in which a backup does copy it.
+  suggested_action: Qualify step 3 in place and point to the case below.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: 'In the code .codex/config.toml gets only the raw-text credential scan: no closed key, no ${ and no orqlet-
+    name check. The README wording about closed keys in any entry of an MCP file can lead a Codex team to think
+    those checks cover its file.'
+  suggested_action: Add a limit that says the Codex file gets the scan of its raw text only.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: tests
+  evidence: []
+  claim: The test record marks the review-based criteria AC-1, AC-2 and AC-4 as pass before any reviewer returned,
+    and the plan completion line names Python 3.12 while the record shows the full suite on 3.14 only.
+  suggested_action: Record the review-based criteria as not run until the review records exist and state per interpreter
+    which files ran.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: The record scan matches only a dotted at-sign domain and .atlassian.net hosts, skips a dangling link without
+    failing, and may treat a linked folder differently across Python versions; P-9 relies on it plus a reviewer.
+  suggested_action: Optionally widen the address rule and fail on any link under the records folder.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read
+    how: MANIFEST, diff.patch, plan, test record, knowledge-impact record and the snapshot of the changed files
+    result: pass
+  - what: re-run of ruff, mypy, import-linter and pytest
+    how: no shell
+    result: not-run
+  - what: packet and record digests recomputed
+    how: no shell; hashes not computed
+    result: not-run

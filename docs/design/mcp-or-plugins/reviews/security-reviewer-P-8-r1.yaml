@@ -1,0 +1,146 @@
+schema: orqlet.review-result/v1
+task: mcp-or-plugins
+phase: P-8
+role: security-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: fb625d2cb0e81736888316cde5380c672f6cb844ed89d5abc68556f841e209ff
+    design: fb6c0a6f61fac66ff595624f194201b4a0bdd04febea332964afcae06f8fce98
+    evidence_inputs: 3646864429b34d61729a5351abc1c178c44854f28f0d58efddcfc5a4bae00c56
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 0087e36e1b60db29914fa72d98433c3d7fbac32a7464364de907ea08aefaef8c
+    reviewer_definition: adb518646f16cabf596e57830f19b79e9c2de39442b9ab0dc1f19123d71dab2c
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: a46f1168bf5f0d98fa9e3988528ad310779799ea511c291c68a97c7534717879
+  merge_base: f76d775595a1f41ff1a0b97c499739e7c348b58e
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: 03556c914cc53a8d2d8bacb1ecc1d703d0e50d31ad2376f983d6098a398692df
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; it had no shell, so it ran no check and recomputed
+  no digest.
+- Quote digests were not computed, so each finding rests on reading and is an observation that never blocks.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the design-phase review notes of this task, so the reviewer was not fully context-clean
+  (the known gap of the harness2-fit ADR-002).
+- The reviewer ran in the same client as the Coder, so independence is I1, not I2.
+- The architecture proposal is not in the packet snapshot, so only its diff hunks were read; whether another statement
+  of the document is stale was not established.
+- The packet diff is cumulative from the merge base, so the reviewer scoped the review to the file list of the phase.
+applicability:
+  examined:
+  - README.md
+  - docs/design/orqlet-architecture-proposal.md
+  - tests/unit/test_readme_integrations.py
+  - tests/unit/test_check_records_scan.py
+  - docs/design/mcp-or-plugins/knowledge/P-8.yaml
+  - docs/design/mcp-or-plugins/tests/P-8.yaml
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: docs
+  evidence: []
+  claim: After P-8 the architecture document still describes base MCP entries as read-only, and its 24.4 example
+    registers Claude Code while its own comment says such a server is not registered, labels the unenforced entry
+    client-enforced-editable (Cursor's label was flipped from none without a reason) and keeps a backend_identity
+    placeholder that invites a service identity.
+  suggested_action: Qualify T1 and section 15.1 for the first release, use none for an entry that restricts nothing,
+    and fix the placeholder.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: docs
+  evidence: []
+  claim: The proposal and ORQ-I534 end only when the whole .mcp.json equals the render; the README says merging
+    ends it, and the finding is printed on runs that write nothing.
+  suggested_action: State that the proposal persists while the file differs and give the way out.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: docs
+  evidence: []
+  claim: 'Read literally, only validate integrations checks the rules is false: doctor, sync and upgrade run the
+    same reader.'
+  suggested_action: Reword; the phrase is pinned and needs the person's approval.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: non-blocking
+  category: docs
+  evidence: []
+  claim: The file holds one entry for each server registered for Claude Code, not for each declared server.
+  suggested_action: Say each server registered for Claude Code.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: 'The README never copies a byte has the exception that ADR-003 records: a profile that names an MCP path
+    as a pull-request template target makes Orqlet write into the file and back it up.'
+  suggested_action: Add the exception to the README limits.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: non-blocking
+  category: tests
+  evidence: []
+  claim: 'The test record gives AC-1, AC-2 and AC-4 as pass although their check is a review, and it carries the
+    multi-version sentence of P-7: the 3.12, 3.13 and 3.15 counts do not belong to this tree.'
+  suggested_action: Record the review criteria as not run until reviewed and state which versions ran which files.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: info
+  category: tests
+  evidence: []
+  claim: The record scan misses name@10.0.0.5 and name@localhost, searches only .atlassian.net hosts, and a record
+    behind a link is not scanned and does not fail.
+  suggested_action: Optionally widen the address rule and fail on links under the records folder.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read
+    how: MANIFEST, diff.patch, plan, test record, knowledge-impact record and the snapshot of the changed files
+    result: pass
+  - what: re-run of ruff, mypy, import-linter and pytest
+    how: no shell
+    result: not-run
+  - what: packet and record digests recomputed
+    how: no shell; hashes not computed
+    result: not-run
