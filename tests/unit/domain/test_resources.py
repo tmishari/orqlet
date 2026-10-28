@@ -727,6 +727,12 @@ VALID_GLOBS = [
     "a" * 120,
 ]
 BROKEN_GLOBS = {
+    # Rework round 1 of phase P-6 (security review F-1): a glob reaches the catalogue skill.
+    "space": "src/my dir/*.py",
+    "at-sign": "src/** @notes/secret",
+    "backtick": "src/`x`/*.py",
+    "less-than": "src/<x>/*.py",
+    "greater-than": "src/x>/*.py",
     "single-star": "*",
     "double-star": "**",
     "star-slash-star": "*/*",

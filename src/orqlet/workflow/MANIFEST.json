@@ -248,6 +248,22 @@
     {
       "path": "skills/orqlet-review/skill.md",
       "sha256": "500b602fa13312d3f54ce73148aa75d99aaf267cdb43eaa4a1bd6d1b1cc876e6"
+    },
+    {
+      "path": "templates/catalogue-skill.md",
+      "sha256": "e0b8a32c00929ee93c0825d71c65995c1bb6169ffa208c4e562741536c817d17"
+    },
+    {
+      "path": "templates/conventions-block.md",
+      "sha256": "36a757971b10dafe794978a21170e9e054d1ae482f591402fce31c1f75c667bb"
+    },
+    {
+      "path": "templates/resource-rule.md",
+      "sha256": "991628325af0f19a05cfe67378c51f859f35c9884a926ed88de013fd3840e6d7"
+    },
+    {
+      "path": "templates/tool-skill.md",
+      "sha256": "49ccd1297df96c952518dd1b1c608646477714c897d43c80195b77aa64bf017b"
     }
   ],
   "schema": "orqlet.workflow-manifest/v1",

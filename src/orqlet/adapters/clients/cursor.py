@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
-from orqlet.adapters.render.instructions import agents_block
+from orqlet.adapters.render.instructions import agents_block, conventions_block
 from orqlet.adapters.render.roles import cursor_role
 from orqlet.adapters.render.rules import cursor_command, cursor_rule
 from orqlet.adapters.render.skills import agents_skill_files
 from orqlet.application.ports.instruction_adapter import (
     CapabilityLimit,
+    RenderedFile,
     RenderRequest,
     RenderResult,
 )
@@ -24,12 +25,17 @@ SKILL_PLACES_LIMIT = CapabilityLimit(
 )
 
 
+def _optional(file: RenderedFile | None) -> tuple[RenderedFile, ...]:
+    return () if file is None else (file,)
+
+
 class CursorAdapter:
     client_id = "cursor"
 
     def render(self, request: RenderRequest) -> RenderResult:
         files = (
             agents_block(request),
+            *_optional(conventions_block(request)),
             *(cursor_rule(rule) for rule in request.scoped_rules),
             *(cursor_command(command) for command in request.commands),
             *(file for skill in request.skills for file in agents_skill_files(skill)),

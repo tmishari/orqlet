@@ -31,6 +31,7 @@ from orqlet.application.usecases.init_files import (
 from orqlet.application.usecases.init_state import InitRefused
 from orqlet.application.usecases.render_request import build_render_request
 from orqlet.application.usecases.resources_source import resources_path
+from orqlet.application.usecases.resources_view import conventions_view
 from orqlet.application.usecases.services import Services
 from orqlet.application.usecases.standards_for import (
     Resolution,
@@ -112,11 +113,15 @@ def compose(
     released_record: bytes | None = None,
 ) -> Composition:
     """Every file the project should hold, as `Desired`, with the findings the render raised."""
-    del profile  # the profile's effect is already in `resolution` and `profile_bytes`
-    del resources  # nothing is rendered from the registry yet; its bytes are only seeded
     findings: list[Finding] = []
+    conventions, convention_findings = conventions_view(profile, resources)
+    findings += convention_findings
     request = build_render_request(
-        services.workflow, services.loader, tuple(resolution.rules.values())
+        services.workflow,
+        services.loader,
+        tuple(resolution.rules.values()),
+        resources,
+        conventions,
     )
     results = [services.adapters[client].render(request) for client in clients]
     findings += limit_findings(limit for result in results for limit in result.limits)

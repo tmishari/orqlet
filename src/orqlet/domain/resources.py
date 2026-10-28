@@ -333,9 +333,11 @@ def resource_id_problems(resource_id: str) -> tuple[str, ...]:
 def glob_problems(pattern: str) -> tuple[str, ...]:
     """The rules that a repository-relative glob breaks; the clients match it, Orqlet does not.
 
-    Stricter than the design text in three places, all on purpose: a backslash anywhere is refused
-    (a Windows path), a comma is refused (a client may read it as a list), and a glob whose every
-    segment is only `*`, `?` and `.` is refused as matching everything.
+    Stricter than the design text in four places, all on purpose: a backslash anywhere is refused
+    (a Windows path), a comma is refused (a client may read it as a list), a glob whose every
+    segment is only `*`, `?` and `.` is refused as matching everything, and a space, `@`, a
+    backtick, `<` or `>` is refused because a glob is repeated in the catalogue skill that an
+    agent reads (security review of phase P-6, finding F-1).
     """
     found: list[str] = []
     if not pattern:
@@ -352,6 +354,8 @@ def glob_problems(pattern: str) -> tuple[str, ...]:
         found.append("glob-negation")
     if "{" in pattern or "}" in pattern or "," in pattern:
         found.append("glob-braces-or-comma")
+    if any(c in " @`<>" for c in pattern):
+        found.append("glob-text-character")
     if all(set(part) <= set("*?.") for part in pattern.split("/")):
         found.append("glob-matches-everything")
     return _unique(found)

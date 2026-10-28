@@ -1,0 +1,231 @@
+schema: orqlet.review-result/v1
+task: team-conventions-resources
+phase: P-6
+role: architecture-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: c575d39a2f4ff7b5df9dfb4f6cca9574d2f3dbdab7cd8b3f3866daacd34d990b
+    design: bbe26a9596127dc8f6769bc5be680e6b959bf05f54b94d3ba598a6285fae43cb
+    evidence_inputs: 89ac3abd849f926c5445bf5c87f5247bd6f1048ccaba0a2a08298aedf6f2d757
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: cebd53df7986b17ae02bddb6ae1d32a654f8677fe04cef91c9ed71869782f0f1
+    reviewer_definition: 340c9ce62dce3ba2907f9e6e42d6f028f0e2617c1ef5e2fb0b52e170f54c6bb1
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 809668ee16ec6dc45b9129950b1f1791ab7dd4aed64f99dee435e30f4c21bdfb
+  merge_base: d03e0d435da186950583dd471e18ad07660cec51
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: d07a4aa80f9fdb8e5220c9ec8842a3d694df3ab29747a19229b13cd20b071990
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; it had no shell, so it ran no check and recomputed
+  no digest.
+- Quote digests were not computed, so each finding rests on reading and is an observation that never blocks.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the design-phase review notes of this task, so the reviewer was not fully context-clean
+  (the known gap of the harness2-fit ADR-002).
+- The reviewer ran in the same client as the Coder, so independence is I1, not I2.
+applicability:
+  examined:
+  - src/orqlet/application/ports/instruction_adapter.py
+  - src/orqlet/application/usecases/resources_view.py
+  - src/orqlet/application/usecases/render_request.py
+  - src/orqlet/application/usecases/render_all.py
+  - src/orqlet/application/usecases/init_project.py
+  - src/orqlet/adapters/render/instructions.py
+  - src/orqlet/adapters/render/skills.py
+  - src/orqlet/adapters/clients/claude_code.py
+  - src/orqlet/adapters/clients/codex.py
+  - src/orqlet/adapters/clients/cursor.py
+  - src/orqlet/workflow/templates/resource-rule.md
+  - src/orqlet/workflow/templates/tool-skill.md
+  - src/orqlet/workflow/templates/catalogue-skill.md
+  - src/orqlet/workflow/templates/conventions-block.md
+  - src/orqlet/workflow/MANIFEST.json
+  - src/orqlet/domain/resources.py
+  - tests/unit/application/test_resources_view.py
+  - tests/unit/render/test_resources_golden.py
+  - tests/unit/render/test_conventions_block.py
+  - tests/support/render.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: architecture
+  evidence: []
+  claim: '[minor] The labels, the Not decided sentence and the links pointer of the conventions block are constants
+    of resources_view.py and not template text, although ADR-002 decision 2 and EC-63 put the fixed text of the
+    block in the templates.'
+  suggested_action: Record an amendment, or move the frame into the template with a second slot.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: architecture
+  evidence: []
+  claim: '[minor] init composes with an empty registry, so files that follow from links typed at init are written
+    by the next upgrade; this departs from sequence view 1, prints no note to run upgrade and has no test.'
+  suggested_action: Record the amendment, add an information finding and a test that init with links writes no generated
+    resource file.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: '[minor] The tool-skill template restated the signed-in route without the ask-first rule of ADR-001 decision
+    3.'
+  suggested_action: Point to the baseline section or restate the rule.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: non-blocking
+  category: correctness
+  evidence: []
+  claim: '[minor] Taking a managed block out of AGENTS.md leaves one blank line, and a fault test now tolerates
+    it.'
+  suggested_action: Record it as a known limitation or make block removal strip its separator.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: non-blocking
+  category: docs
+  evidence: []
+  claim: '[minor] The golden of the conventions block holds the workflow version 0.3.1, which the P-8 bump changes,
+    and it is not in the P-8 list of regenerated goldens.'
+  suggested_action: Add it to P-8.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: non-blocking
+  category: tests
+  evidence: []
+  claim: '[minor] Tests of earlier phases were amended (kill-after-k resume tests, listing public names, composition,
+    init links, edit commands) and are outside the P-6 file list.'
+  suggested_action: Record all of them as plan amendments.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: non-blocking
+  category: tests
+  evidence: []
+  claim: '[minor] No test shows that an edit inside the conventions block is the error ORQ-E150 and that upgrade
+    restores it.'
+  suggested_action: Add one doctor and upgrade test.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-8
+  kind: observation
+  severity: non-blocking
+  category: standards
+  evidence: []
+  claim: '[minor] The full suite ran on 3.14.9 only.'
+  suggested_action: The CI matrix gives the rest.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-9
+  kind: observation
+  severity: non-blocking
+  category: docs
+  evidence: []
+  claim: '[minor] The templates point to the baseline section Looking things up, which exists only after P-8.'
+  suggested_action: P-8 must land in the same release.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-10
+  kind: observation
+  severity: info
+  category: compatibility
+  evidence: []
+  claim: ORQ-W060 is reused for a profile value left out of the conventions block.
+  suggested_action: List both uses in the P-8 table.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-11
+  kind: observation
+  severity: info
+  category: docs
+  evidence: []
+  claim: The package digest changed with the templates while identity.json is unchanged.
+  suggested_action: The P-8 bump.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-12
+  kind: observation
+  severity: info
+  category: standards
+  evidence: []
+  claim: The cap of the conventions block counts the body and not the markers.
+  suggested_action: State it or lower the cap.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-13
+  kind: observation
+  severity: info
+  category: architecture
+  evidence: []
+  claim: 'Small duplication: a helper in two adapters, a name pattern in three modules, two literals in resources_view
+    and an inline empty registry in two modules.'
+  suggested_action: Optional private helpers.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-14
+  kind: observation
+  severity: info
+  category: docs
+  evidence: []
+  claim: The knowledge record says compose and data_files were added; they were changed.
+  suggested_action: Reword in the next record.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-15
+  kind: observation
+  severity: info
+  category: failure-handling
+  evidence: []
+  claim: A name collision raises RenderRequestError from compose, also in explain, which ADR-002 decision 6 says
+    does not refuse.
+  suggested_action: Optionally catch it in explain.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read
+    how: MANIFEST, diff.patch, plan, test record, knowledge-impact record and the snapshot of the changed files
+    result: pass
+  - what: re-run of ruff, mypy, import-linter and pytest
+    how: no shell
+    result: not-run
+  - what: packet and record digests recomputed
+    how: no shell; hashes not computed
+    result: not-run

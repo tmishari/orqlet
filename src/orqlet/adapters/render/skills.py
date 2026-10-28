@@ -4,12 +4,15 @@ Claude Code reads `.claude/skills/<name>/SKILL.md`. Cursor and Codex both read
 `.agents/skills/<name>/SKILL.md`, so the file is the same for both and `merge_rendered` keeps one.
 A phase skill is started by the person only: Claude Code and Cursor document the field
 `disable-model-invocation`, and Codex documents `allow_implicit_invocation: false` in a sidecar
-`agents/openai.yaml`.
+`agents/openai.yaml`. A skill for the team's resources (`agent_may_start`) carries neither: the
+agent may start it, because it only says how to read.
 """
 
 from __future__ import annotations
 
-from orqlet.adapters.render.emit import front_matter, normalise_text, yaml_document
+import re
+
+from orqlet.adapters.render.emit import Data, front_matter, normalise_text, yaml_document
 from orqlet.adapters.render.instructions import GENERATED_NOTICE
 from orqlet.application.ports.instruction_adapter import ClientSkill, RenderedFile
 from orqlet.domain.digest import sha256_hex
@@ -18,6 +21,7 @@ from orqlet.domain.paths import CanonicalPath
 
 CLAUDE_SKILLS = ".claude/skills"
 AGENTS_SKILLS = ".agents/skills"
+_NAME = re.compile(r"[a-z0-9][a-z0-9-]*")
 
 
 def claude_skill_files(skill: ClientSkill) -> tuple[RenderedFile, ...]:
@@ -41,14 +45,12 @@ def codex_sidecar(skill: ClientSkill) -> RenderedFile:
 
 
 def _skill_files(base: str, skill: ClientSkill) -> tuple[RenderedFile, ...]:
-    head = front_matter(
-        [
-            ("name", skill.name),
-            ("description", skill.description),
-            ("disable-model-invocation", True),
-        ],
-        plain_when_safe=True,
-    )
+    if _NAME.fullmatch(skill.name) is None:
+        raise ValueError(f"a skill name is lower case letters, digits and hyphens: {skill.name!r}")
+    fields: list[tuple[str, Data]] = [("name", skill.name), ("description", skill.description)]
+    if not skill.agent_may_start:
+        fields.append(("disable-model-invocation", True))
+    head = front_matter(fields, plain_when_safe=True)
     text = f"{head}{GENERATED_NOTICE}\n\n{normalise_text(skill.body)}"
     files = [_file(f"{base}/{skill.name}/SKILL.md", text, skill.inputs)]
     for name, content in skill.references:

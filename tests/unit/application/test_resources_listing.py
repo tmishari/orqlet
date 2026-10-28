@@ -44,10 +44,10 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from orqlet.application.usecases.resources_view import ResourcesListing, list_resources
 
 from orqlet.adapters.fs.yaml_loader import StrictYamlLoader
 from orqlet.application.usecases import resources_view
+from orqlet.application.usecases.resources_view import ResourcesListing, list_resources
 from orqlet.application.usecases.validation import ValidateServices
 from orqlet.domain.conventions import printable
 from orqlet.domain.paths import CanonicalPath
@@ -199,7 +199,15 @@ def test_the_module_has_only_the_two_public_names_of_this_phase() -> None:
         and getattr(value, "__module__", None) == resources_view.__name__
     }
 
-    assert defined == {"ResourcesListing", "list_resources"}
+    # Phase P-6 adds the four view functions of ADR-002 decision 2 and ADR-003 decision 3.
+    assert defined == {
+        "ResourcesListing",
+        "list_resources",
+        "resource_rules",
+        "resource_skills",
+        "catalogue_skill",
+        "conventions_view",
+    }
 
 
 # --- the rows -------------------------------------------------------------------------------------

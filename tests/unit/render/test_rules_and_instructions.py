@@ -15,7 +15,7 @@ from orqlet.application.usecases.render_request import (
 from orqlet.domain.blocks import parse_blocks
 from orqlet.domain.ownership import FileClass
 from orqlet.domain.resolver import Level
-from tests.support.render import SAMPLE_RULES, packaged_request
+from tests.support.render import EMPTY_RESOURCES, SAMPLE_RULES, packaged_request
 
 pytestmark = pytest.mark.unit
 
@@ -119,4 +119,6 @@ def _build(rules: list) -> RenderRequest:  # type: ignore[type-arg]
     from orqlet.adapters.fs.yaml_loader import StrictYamlLoader
     from orqlet.adapters.workflow_package import PackagedWorkflow
 
-    return build_render_request(PackagedWorkflow(), StrictYamlLoader(), rules)
+    return build_render_request(
+        PackagedWorkflow(), StrictYamlLoader(), rules, EMPTY_RESOURCES, None
+    )

@@ -148,11 +148,15 @@ def _run(services: InitServices, options: InitOptions) -> InitResult:
         if services.project.kind(PROFILE_PATH) is FileKind.FILE
         else None
     )
+    # `init` writes the registry but renders nothing from it, as an edit command does: the files
+    # that follow from the links are written by the next `orqlet upgrade`. A write that stopped
+    # between the files could otherwise leave generated files that no lock records and that a
+    # re-run, which may have lost the links, could not remove (ADR-002 decisions 6 and 7).
     composition = compose(
         services,
         profile,
         resolution,
-        resources,
+        Resources(schema_id="orqlet.resources/v1"),
         clients=options.clients,
         prompts_dir=options.prompts_dir,
         pr_targets=targets,

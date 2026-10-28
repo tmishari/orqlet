@@ -208,6 +208,10 @@ class Outcome:
     before: dict[str, bytes]
     expected: dict[str, bytes]
     writes: int
+    # Phase P-6: `upgrade` renders the files that follow from the registry. These are the files
+    # of the project before and after the edit when `upgrade` has run in each of them.
+    settled_before: dict[str, bytes]
+    settled_expected: dict[str, bytes]
 
 
 @pytest.fixture(scope="module")
@@ -221,12 +225,33 @@ def outcomes(
         result = run_edit(edit, root, data)
         assert result.status == "applied", (edit.label, result.findings)
         assert result.plan is not None
+        expected = snapshot(root)
+        before_root, before_data = clone(template, tmp_path_factory.mktemp(f"before-{edit.label}"))
+        settle(before_root, before_data)
+        settle(root, data)
         found[edit.label] = Outcome(
             before=snapshot(template / "project"),
-            expected=snapshot(root),
+            expected=expected,
             writes=len(result.plan.writes),
+            settled_before=snapshot(before_root),
+            settled_expected=snapshot(root),
         )
     return found
+
+
+def without_trailing_blanks(files: dict[str, bytes]) -> dict[str, bytes]:
+    return {
+        name: content.rstrip(b"\n") if name == "AGENTS.md" else content
+        for name, content in files.items()
+    }
+
+
+def settle(root: Path, data: Path) -> None:
+    """Run `upgrade`, which writes the files that follow from the registry (phase P-6)."""
+    result = upgrade(
+        real_services(root, data, ids=SequentialIds(start=700)), UpgradeOptions(assume_yes=True)
+    )
+    assert result.status in {"applied", "up-to-date"}, result.findings
 
 
 def differing(before: dict[str, bytes], after: dict[str, bytes]) -> set[str]:
@@ -348,7 +373,7 @@ def test_upgrade_resume_settles_a_kill_between_the_registry_and_the_lock(
     )
 
     assert resumed.status == "applied", resumed.findings
-    assert snapshot(root) == outcome.expected
+    assert snapshot(root) == outcome.settled_expected
     assert not any(name.startswith(".orqlet/proposals/") for name in snapshot(root))
     assert not [
         f for f in doctor(real_services(root, data)).findings if f.severity.value == "error"
@@ -371,10 +396,16 @@ def test_upgrade_resume_after_a_kill_before_any_write_leaves_the_state_and_the_e
     )
 
     assert resumed.status in {"up-to-date", "applied"}, resumed.findings
-    assert snapshot(root) == outcome.before
+    assert snapshot(root) == outcome.settled_before
     again = run_edit(edit, root, data, first_id=1100)
     assert again.status == "applied", again.findings
-    assert snapshot(root) == outcome.expected
+    settle(root, data)
+    # Taking a managed block out of `AGENTS.md` leaves one blank line behind (the conventions
+    # block, written by the first upgrade and removed by the second), so the end of the file is
+    # compared without trailing blank lines.
+    assert without_trailing_blanks(snapshot(root)) == without_trailing_blanks(
+        outcome.settled_expected
+    )
 
 
 @pytest.mark.parametrize("crash", range(WRITES))

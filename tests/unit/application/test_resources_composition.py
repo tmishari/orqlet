@@ -16,7 +16,12 @@ registry (the current bytes equal the file, the lock record older) causes no pro
 `upgrade`; an interrupted `init` that is run again (profile on disk, no lock) loads the registry on
 disk and refuses an invalid one with ORQ-E503 (status `refused`).
 
-These tests were written first, by the Tester of phase P-3, before the composition changed. The
+These tests were written first, by the Tester of phase P-3, before the composition changed. In phase
+P-6 the composition renders the registry (generated rules, tool skills, the catalogue skill) and the
+conventions block: the P-3 test that said "nothing is rendered from the registry" is replaced by the
+tests of the section "compose renders the registry and the conventions" below (the plan of P-6 does
+not list this file; the amendment is recorded by the person), and two tests that compared a whole
+tree before and after an `upgrade` of a non-empty registry are narrowed as their docstrings say. The
 file system is the in-memory fake of tests/fakes and the services are the ones of
 tests/support/init_env.py (ORQLET-TEST-001). Credential-shaped text is assembled from parts at run
 time and never written as one literal (ORQLET-SEC-003).
@@ -47,6 +52,7 @@ from orqlet.adapters.fs.yaml_loader import StrictYamlLoader
 from orqlet.adapters.render.emit import YamlWriter
 from orqlet.application.contracts.generated_lock import GeneratedLock, LockedFile
 from orqlet.application.contracts.loading import load_contract
+from orqlet.application.contracts.profile import ProjectProfile
 from orqlet.application.contracts.resources import Resources
 from orqlet.application.ports.vcs import RepoState
 from orqlet.application.usecases.explain import Explanation, explain
@@ -62,6 +68,7 @@ from orqlet.application.usecases.render_all import (
 from orqlet.application.usecases.resources_source import load_resources
 from orqlet.application.usecases.standards_for import StandardsQuery
 from orqlet.application.usecases.upgrade import UpgradeOptions, UpgradeResult, upgrade
+from orqlet.domain.blocks import parse_blocks
 from orqlet.domain.changeplan import Desired
 from orqlet.domain.digest import sha256_hex
 from orqlet.domain.findings import Finding, Severity
@@ -69,6 +76,7 @@ from orqlet.domain.ownership import FileClass, OwnerMode
 from orqlet.domain.paths import CanonicalPath
 from tests.fakes.vcs import FakeVcs
 from tests.support.init_env import Env, tree
+from tests.support.render import BRANCH_MODEL, COMMIT_CONVENTION, SAMPLE_ANSWERS, profile_with
 from tests.support.trees import repo
 
 pytestmark = pytest.mark.unit
@@ -266,15 +274,23 @@ def credential_registry() -> bytes:
     )
 
 
-def composed(env: Env, resources_bytes: bytes) -> Composition:
-    """`compose` for the installed project with the registry that `resources_bytes` holds."""
+def composed(
+    env: Env, resources_bytes: bytes, answers: dict[str, str] | None = None
+) -> Composition:
+    """`compose` for the installed project with the registry that `resources_bytes` holds.
+
+    With `answers`, the profile that is composed holds those conventions, set by hand.
+    """
     services = env.services()
     inst = load_installation(services)
+    profile: ProjectProfile = inst.profile
+    if answers is not None:
+        profile = profile_with(answers, base=profile)
     resources = load_contract(LOADER, Resources, resources_bytes, source="registry")
     return compose(
         services,
-        inst.profile,
-        resolve_for(services, inst.profile),
+        profile,
+        resolve_for(services, profile),
         resources,
         clients=inst.profile.clients.enabled,
         prompts_dir=".prompts",
@@ -476,16 +492,21 @@ def test_an_upgrade_leaves_a_registry_that_the_lock_records_as_it_is() -> None:
     """AC-2. expected_behavior_source: ADR-002 decision 6 ("`compose` takes `resources` and
     `resources_bytes`") and EC-61 ("composition receives its current bytes"): the bytes of the file
     reach `compose` as they are, so a registry that the team wrote and recorded makes no
-    proposal."""
+    proposal. Adapted in phase P-6: the first upgrade now also renders the files of the entry, so
+    the tree is compared after it, and the second upgrade has nothing to do."""
     env = initialised()
     env.project.write_atomic(REGISTRY_PATH, TEAM_REGISTRY)
     record_in_lock(env, REGISTRY, TEAM_REGISTRY)
-    before = tree(env.project)
 
-    result = upgrade(env.services(), GO)
+    first = upgrade(env.services(), GO)
 
-    assert result.status == "up-to-date"
-    assert tree(env.project) == before
+    assert first.status in {"applied", "up-to-date"}
+    assert proposals(env) == []
+    assert read(env, REGISTRY) == TEAM_REGISTRY
+    settled = tree(env.project)
+    again = upgrade(env.services(), GO)
+    assert again.status == "up-to-date"
+    assert tree(env.project) == settled
 
 
 @pytest.mark.parametrize(
@@ -524,17 +545,23 @@ def test_an_edit_of_the_registry_makes_no_proposal_and_the_next_upgrade_advances
 def test_an_upgrade_never_changes_or_deletes_a_stored_copy() -> None:
     """AC-2. expected_behavior_source: EC-64 ("never deleted by Orqlet") and ADR-002 decision 7
     ("The stored copy is the team's: Orqlet never deletes it"): a copy whose entry is gone and a
-    copy of an entry survive an upgrade."""
+    copy of an entry survive an upgrade. Adapted in phase P-6: the upgrade also renders the files of
+    the entry, so only the folder of the copies is compared."""
     env = initialised()
     env.project.write_atomic(path_of("docs/resources/gone.md"), b"a copy whose entry is gone\n")
     env.project.write_atomic(path_of("docs/resources/api-guide.md"), b"a copy\n")
     env.project.write_atomic(REGISTRY_PATH, TEAM_REGISTRY)
     record_in_lock(env, REGISTRY, TEAM_REGISTRY)
-    before = tree(env.project)
+
+    def copies() -> dict[str, bytes]:
+        return {n: b for n, b in tree(env.project).items() if n.startswith("docs/resources/")}
+
+    before = copies()
+    assert sorted(before) == ["docs/resources/api-guide.md", "docs/resources/gone.md"]
 
     upgrade(env.services(), GO)
 
-    assert tree(env.project) == before
+    assert copies() == before
 
 
 # --- upgrade: a registry that is invalid or missing is refused before any plan --------------------
@@ -801,23 +828,161 @@ def test_compose_passes_the_bytes_of_the_registry_through_unchanged(content: byt
     assert registry.file_class is None
 
 
-def test_nothing_is_rendered_from_the_registry_in_this_phase() -> None:
-    """AC-7. expected_behavior_source: plan P-3 objective ("nothing is rendered from it yet"),
-    completion ("No client file is rendered from the registry in this phase") and AC-7 ("The
-    resources parameter of compose is acknowledged with del and unused until P-6"): a registry with
-    a path-scoped entry, a tool entry and stored copies gives the same files as the empty
-    registry, except for the registry file itself. This test belongs to phase P-3 and is replaced
-    in phase P-6."""
+# --- compose renders the registry and the conventions (phase P-6) ---------------------------------
+# The fixture registry has `fastapi-docs` (paths, a tool, a stored copy) and `team-handbook` (a
+# login page with a summary and neither paths nor a tool). Every client is enabled by `init`.
+GENERATED_FOR_FIXTURE = frozenset(
+    {
+        ".claude/rules/orqlet-resource-fastapi-docs.md",
+        ".cursor/rules/orqlet-resource-fastapi-docs.mdc",
+        ".claude/skills/orqlet-tool-fastapi-docs/SKILL.md",
+        ".agents/skills/orqlet-tool-fastapi-docs/SKILL.md",
+        ".claude/skills/orqlet-resources/SKILL.md",
+        ".agents/skills/orqlet-resources/SKILL.md",
+    }
+)
+LINKS_LINE = "Links to team resources: 2 registered. Use the skill orqlet-resources."
+
+
+def desired_paths(composition: Composition) -> set[str]:
+    return {str(item.path) for item in composition.desired}
+
+
+def conventions_blocks(composition: Composition) -> list[Desired]:
+    return [item for item in composition.desired if item.block_name == "conventions"]
+
+
+def block_body(item: Desired) -> list[str]:
+    (parsed,) = parse_blocks(item.content.decode("utf-8"))
+    return parsed.body.split("\n")
+
+
+def test_with_the_fixture_registry_compose_also_yields_the_generated_resource_files() -> None:
+    """AC-1, AC-6. expected_behavior_source: plan P-6 objective ("compose using the profile and the
+    registry"), EC-50 (compose "no longer executes del resources"), EC-62 (the generated resource
+    files: a rule for Claude Code and Cursor with applies_to.paths, a tool skill for the clients,
+    the catalogue skill once) and ADR-002 decision 2. It replaces the P-3 test that said that
+    nothing is rendered from the registry."""
+    env = initialised()
+
+    without = composed(env, EMPTY)
+    with_links = composed(env, FIXTURE.read_bytes())
+
+    assert desired_paths(with_links) - desired_paths(without) == GENERATED_FOR_FIXTURE
+    assert desired_paths(without) - desired_paths(with_links) == set()
+    generated = [item for item in with_links.desired if str(item.path) in GENERATED_FOR_FIXTURE]
+    assert len(generated) == len(GENERATED_FOR_FIXTURE)
+    assert {item.owner for item in generated} == {OwnerMode.ORQLET}
+    assert {item.file_class for item in generated} == {FileClass.PROTECTED}
+    assert all(item.inputs for item in generated)
+
+
+def test_the_registry_file_is_in_both_compositions_with_its_own_bytes() -> None:
+    """AC-2, AC-6. expected_behavior_source: the interface decision (compose yields "the generated
+    resource files (and the registry file itself)") and EC-61 (the registry is seeded with its
+    current bytes)."""
+    env = initialised()
+
+    for content in (EMPTY, FIXTURE.read_bytes()):
+        composition = composed(env, content)
+
+        (registry,) = [item for item in composition.desired if item.path == REGISTRY_PATH]
+        assert registry.content == content
+        assert registry.owner is OwnerMode.SEEDED
+
+
+def test_an_empty_registry_yields_none_of_the_generated_files_and_no_conventions_block() -> None:
+    """AC-1, AC-4, AC-6. expected_behavior_source: the interface decision ("An empty registry yields
+    none of them"; "A project with an empty registry and no answered convention composes exactly
+    the same desired files as before") and ADR-003 decision 3 (the block exists only when a
+    convention is answered or the registry is not empty)."""
+    env = initialised()
+
+    composition = composed(env, EMPTY)
+
+    names = desired_paths(composition)
+    assert not [n for n in names if "orqlet-resource" in n or "orqlet-tool-" in n]
+    assert not [n for n in names if "orqlet-resources" in n]
+    assert conventions_blocks(composition) == []
+    assert [item.block_name for item in composition.desired if str(item.path) == "AGENTS.md"] == [
+        "baseline"
+    ]
+
+
+def test_a_registry_changes_no_other_desired_file_and_no_finding() -> None:
+    """AC-6. expected_behavior_source: AC-6 ("the existing golden files are byte-identical to the
+    base") and the interface decision: with the fixture registry every desired file is the same as
+    with the empty one except the registry, the generated files and the conventions block."""
     env = initialised()
 
     without = composed(env, EMPTY)
     with_links = composed(env, FIXTURE.read_bytes())
 
     def others(composition: Composition) -> list[Desired]:
-        return [item for item in composition.desired if item.path != REGISTRY_PATH]
+        return [
+            item
+            for item in composition.desired
+            if item.path != REGISTRY_PATH
+            and str(item.path) not in GENERATED_FOR_FIXTURE
+            and item.block_name != "conventions"
+        ]
 
     assert others(with_links) == others(without)
     assert with_links.findings == without.findings
+
+
+def test_the_registry_alone_gives_a_conventions_block_that_points_to_the_catalogue() -> None:
+    """AC-4. expected_behavior_source: ADR-003 decision 3 ("The block exists only when ... the
+    registry is not empty"; "one line that points to the skill orqlet-resources") and the
+    interface decision (class PROTECTED, a shared block of AGENTS.md)."""
+    env = initialised()
+
+    composition = composed(env, FIXTURE.read_bytes())
+
+    (block,) = conventions_blocks(composition)
+    assert str(block.path) == "AGENTS.md"
+    assert block.owner is OwnerMode.SHARED_BLOCK
+    assert block.file_class is FileClass.PROTECTED
+    assert block_body(block)[-1] == LINKS_LINE
+    assert any(row.startswith("Not decided: ") for row in block_body(block))
+
+
+def test_an_answered_convention_of_the_profile_reaches_the_block_without_any_link() -> None:
+    """AC-4. expected_behavior_source: EC-50 (compose "no longer executes del profile"), ADR-003
+    decision 3 ("`compose` stops discarding the profile and calls `conventions_view`") and AC-4
+    (the block exists when a convention is answered)."""
+    env = initialised()
+
+    composition = composed(env, EMPTY, SAMPLE_ANSWERS)
+
+    (block,) = conventions_blocks(composition)
+    rows = block_body(block)
+    assert 'Branch model: "trunk-based"' in rows
+    assert 'Merge strategy: "squash"' in rows
+    assert not [row for row in rows if row.startswith("Links to team resources")]
+    assert composition.findings == composed(env, EMPTY).findings
+    assert not [n for n in desired_paths(composition) if "orqlet-resource" in n]
+
+
+def test_a_value_that_fails_the_text_rules_is_left_out_of_every_file_and_reported() -> None:
+    """AC-4. expected_behavior_source: AC-4 ("a value that fails text_problems is left out with a
+    finding"), the interface decision ("adds its findings to the composition findings": ORQ-W060, a
+    WARNING that names the profile key and holds no part of the value) and ORQLET-SEC-003."""
+    env = initialised()
+    value = "".join(("Zq7Xv3Lm9Tk2", "://", "Rb8Wc4Yd6Hn1"))
+
+    composition = composed(env, EMPTY, {BRANCH_MODEL: "trunk-based", COMMIT_CONVENTION: value})
+
+    (block,) = conventions_blocks(composition)
+    assert 'Branch model: "trunk-based"' in block_body(block)
+    assert not [row for row in block_body(block) if row.startswith("Commit convention")]
+    warning = [f for f in composition.findings if f.code == "ORQ-W060"]
+    assert len(warning) == 1
+    assert warning[0].severity is Severity.WARNING
+    assert named(warning[0], "repository.commit_convention")
+    assert not leaks(shown(warning), value)
+    for item in composition.desired:
+        assert not leaks(item.content.decode("utf-8", errors="replace"), value)
 
 
 # --- AC-8: the code-owners notice -----------------------------------------------------------------

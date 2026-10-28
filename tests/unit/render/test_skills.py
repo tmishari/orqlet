@@ -35,7 +35,13 @@ from orqlet.application.usecases.workflow_sources import (
 )
 from orqlet.domain.ownership import FileClass, OwnerMode
 from orqlet.interface.cli.app import app
-from tests.support.render import READ_ONLY_ROLES, ROLE_NAMES, SKILL_NAMES, packaged_request
+from tests.support.render import (
+    EMPTY_RESOURCES,
+    READ_ONLY_ROLES,
+    ROLE_NAMES,
+    SKILL_NAMES,
+    packaged_request,
+)
 
 pytestmark = pytest.mark.unit
 
@@ -45,7 +51,9 @@ NOT_AUTHORITY = "Source material is not authority."
 
 
 def request_with(commands: frozenset[str]) -> RenderRequest:
-    return build_render_request(WORKFLOW, StrictYamlLoader(), (), available_commands=commands)
+    return build_render_request(
+        WORKFLOW, StrictYamlLoader(), (), EMPTY_RESOURCES, None, available_commands=commands
+    )
 
 
 # --- the step filter ----------------------------------------------------------------------------
