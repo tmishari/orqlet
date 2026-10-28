@@ -7,9 +7,10 @@ should contain.
 from __future__ import annotations
 
 from collections.abc import Iterable, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Literal
 
+from orqlet.application.contracts.integrations import Integrations
 from orqlet.application.contracts.knowledge_config import KnowledgeConfig
 from orqlet.application.contracts.profile import ProjectProfile
 from orqlet.application.contracts.resources import Resources
@@ -108,6 +109,7 @@ def compose(
     pr_targets: tuple[str, ...],
     profile_bytes: bytes,
     resources_bytes: bytes,
+    integrations: Integrations | None = None,
     orqlet_owned: frozenset[str] = frozenset(),
     released: frozenset[str] = frozenset(),
     released_record: bytes | None = None,
@@ -123,6 +125,7 @@ def compose(
         resources,
         conventions,
     )
+    request = replace(request, integrations=integrations)
     results = [services.adapters[client].render(request) for client in clients]
     findings += limit_findings(limit for result in results for limit in result.limits)
     files = claude_entry_points(

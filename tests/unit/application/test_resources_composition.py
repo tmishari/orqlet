@@ -757,7 +757,13 @@ def test_the_finding_of_explain_shows_no_part_of_an_input_value(
 def test_compose_takes_the_registry_and_its_bytes_next_to_the_profile_and_its_bytes() -> None:
     """AC-7. expected_behavior_source: EC-50 (`def compose(services, profile, resolution,
     resources, *, clients, prompts_dir, pr_targets, profile_bytes, resources_bytes, orqlet_owned,
-    released, released_record) -> Composition`)."""
+    released, released_record) -> Composition`).
+
+    Task mcp-or-plugins, phase P-5, AC-4. expected_behavior_source: EC-9 of that task (`def
+    compose(..., *, clients, prompts_dir, pr_targets, profile_bytes, resources_bytes,
+    integrations: Integrations | None=None, orqlet_owned=frozenset(), released=frozenset(),
+    released_record=None) -> Composition`): the keyword parameter `integrations` comes between
+    `resources_bytes` and `orqlet_owned`, is keyword-only and defaults to `None`."""
     parameters = inspect.signature(compose).parameters
 
     assert list(parameters) == [
@@ -770,6 +776,7 @@ def test_compose_takes_the_registry_and_its_bytes_next_to_the_profile_and_its_by
         "pr_targets",
         "profile_bytes",
         "resources_bytes",
+        "integrations",
         "orqlet_owned",
         "released",
         "released_record",
@@ -780,6 +787,7 @@ def test_compose_takes_the_registry_and_its_bytes_next_to_the_profile_and_its_by
     assert keyword_only == set(list(parameters)[4:])
     assert parameters["resources"].default is inspect.Parameter.empty
     assert parameters["resources_bytes"].default is inspect.Parameter.empty
+    assert parameters["integrations"].default is None
 
 
 def test_data_files_takes_the_bytes_of_the_registry_before_the_resolution() -> None:

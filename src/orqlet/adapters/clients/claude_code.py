@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from orqlet.adapters.render.instructions import agents_block, claude_bridge, conventions_block
+from orqlet.adapters.render.mcp import render_mcp_file
 from orqlet.adapters.render.roles import claude_role
 from orqlet.adapters.render.rules import claude_command, claude_rule
 from orqlet.adapters.render.skills import claude_skill_files
@@ -12,6 +13,9 @@ from orqlet.application.ports.instruction_adapter import (
     RenderRequest,
     RenderResult,
 )
+from orqlet.domain.mcp_credentials import mcp_file_path
+from orqlet.domain.ownership import OwnerMode
+from orqlet.domain.paths import CanonicalPath
 
 DOCUMENTATION_LIMIT = CapabilityLimit(
     "ORQ-L001",
@@ -22,6 +26,21 @@ DOCUMENTATION_LIMIT = CapabilityLimit(
 
 def _optional(file: RenderedFile | None) -> tuple[RenderedFile, ...]:
     return () if file is None else (file,)
+
+
+def _mcp_file(request: RenderRequest) -> RenderedFile | None:
+    """`.mcp.json`, seeded once and the team's afterwards, if a server is registered for Claude."""
+    if request.integrations is None:
+        return None
+    servers = request.integrations.registered_for("claude-code")
+    if not servers:
+        return None
+    return RenderedFile(
+        path=CanonicalPath.parse(mcp_file_path("claude-code")),
+        content=render_mcp_file(servers, "claude-code").encode("utf-8"),
+        owner=OwnerMode.SEEDED,
+        file_class=None,
+    )
 
 
 _WEB_LOOKUP_LIMIT = CapabilityLimit(
@@ -48,5 +67,6 @@ class ClaudeCodeAdapter:
             *(claude_command(command) for command in request.commands),
             *(file for skill in request.skills for file in claude_skill_files(skill)),
             *(claude_role(role) for role in request.roles),
+            *_optional(_mcp_file(request)),
         )
         return RenderResult(files=files, limits=(DOCUMENTATION_LIMIT, _WEB_LOOKUP_LIMIT))

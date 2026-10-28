@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Protocol
 
+from orqlet.application.contracts.integrations import Integrations
 from orqlet.domain.ownership import FileClass, OwnerMode
 from orqlet.domain.paths import CanonicalPath
 
@@ -99,6 +100,7 @@ class RenderRequest:
     roles: tuple[ClientRole, ...] = ()
     client_version: str | None = None  # recorded when known; no floor is assumed (spike S-21)
     conventions: ConventionsView | None = None  # None: no convention answered, no link registered
+    integrations: Integrations | None = None  # None: no declaration, so no MCP file
 
 
 @dataclass(frozen=True, slots=True)

@@ -10,12 +10,14 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Literal
 
+from orqlet.application.contracts.integrations import Integrations
 from orqlet.application.contracts.resources import Resources
 from orqlet.application.ports.filesystem import FileKind
 from orqlet.application.ports.prompter import NoAnswerAvailable
 from orqlet.application.usecases.apply_plan import apply_plan
 from orqlet.application.usecases.init_files import contract_bytes
 from orqlet.application.usecases.installation import Installation, load_installation
+from orqlet.application.usecases.integrations_source import integrations_path, load_integrations
 from orqlet.application.usecases.render_all import (
     PROFILE_PATH,
     RELEASED_PATH,
@@ -28,8 +30,11 @@ from orqlet.application.usecases.render_all import (
 from orqlet.application.usecases.resources_source import load_resources, resources_path
 from orqlet.application.usecases.services import Services
 from orqlet.domain.changeplan import ChangePlan
+from orqlet.domain.classify import FileState
 from orqlet.domain.findings import Finding, Severity
+from orqlet.domain.mcp_credentials import mcp_file_path
 from orqlet.domain.ownership import OwnerMode
+from orqlet.domain.paths import CanonicalPath
 from orqlet.domain.versions import WorkflowRelease, is_below_floor, is_downgrade
 
 UpgradeStatus = Literal["up-to-date", "available", "applied", "previewed", "needs-input", "refused"]
@@ -104,6 +109,11 @@ def upgrade(services: Services, options: UpgradeOptions) -> UpgradeResult:
             "refused", tuple(findings), installed=inst.installed_release, candidate=release
         )
     resources, resources_bytes = registry
+    integrations, refused = _integrations(services, findings)
+    if refused:
+        return UpgradeResult(
+            "refused", tuple(findings), installed=inst.installed_release, candidate=release
+        )
     resolution = resolve_for(services, inst.profile)
     profile_bytes = services.project.read_bytes(PROFILE_PATH)
     composition = compose(
@@ -116,6 +126,7 @@ def upgrade(services: Services, options: UpgradeOptions) -> UpgradeResult:
         pr_targets=inst.profile.repository.pull_requests.template.targets,
         profile_bytes=profile_bytes,
         resources_bytes=resources_bytes,
+        integrations=integrations,
         orqlet_owned=frozenset(
             str(entry.path) for entry in inst.recorded if entry.owner is OwnerMode.ORQLET
         ),
@@ -125,6 +136,7 @@ def upgrade(services: Services, options: UpgradeOptions) -> UpgradeResult:
     findings += composition.findings
     findings += environment_findings(services, _prompts_dir(inst))
     plan = plan_changes(services, composition.desired, inst.recorded)
+    findings += _proposal_notes(services, plan)
     findings += [
         Finding(
             "ORQ-W080",
@@ -191,6 +203,42 @@ def upgrade(services: Services, options: UpgradeOptions) -> UpgradeResult:
         release,
         resumed=tuple(unfinished),
     )
+
+
+def _integrations(services: Services, findings: list[Finding]) -> tuple[Integrations | None, bool]:
+    """The declaration as it is on disk, and whether it refuses the upgrade.
+
+    An absent declaration is no declaration and writes no MCP file. A declaration that is present
+    and cannot be used refuses the upgrade before any plan is built, so that a half-applied
+    security setting never exists (ADR-003 decision 3).
+    """
+    declaration, problems = load_integrations(
+        services.project, services.loader, str(integrations_path())
+    )
+    findings += problems
+    refused = declaration is None and any(f.severity is Severity.ERROR for f in problems)
+    return declaration, refused
+
+
+def _proposal_notes(services: Services, plan: ChangePlan) -> list[Finding]:
+    """One information finding for each proposal on an MCP file: it holds only the wanted text."""
+    keys = set()
+    for client in services.adapters:
+        try:
+            keys.add(CanonicalPath.parse(mcp_file_path(client)).key)
+        except ValueError:
+            continue  # a client without an MCP file
+    return [
+        Finding(
+            "ORQ-I534",
+            f"{item.path}: the proposal shows only the text that Orqlet wants and none of your "
+            "file. Merge it by hand.",
+            Severity.INFO,
+            str(item.path),
+        )
+        for item in plan.items
+        if item.state is FileState.SEEDED_PROPOSAL and item.path.key in keys
+    ]
 
 
 def _registry(

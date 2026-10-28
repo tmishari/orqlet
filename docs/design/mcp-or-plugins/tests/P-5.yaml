@@ -1,0 +1,72 @@
+schema: orqlet.test-record/v1
+task: mcp-or-plugins
+phase: P-5
+review_input:
+  components:
+    code_tests: cf5b8a12db9c852e512c6a8744c0b7252a385f42e5900576b247882c974f62e6
+    plan: 0087e36e1b60db29914fa72d98433c3d7fbac32a7464364de907ea08aefaef8c
+  covers:
+  - code_tests
+  - plan
+  digest: b592548b70919afc10a8fdebb3aba49e226ffc6c7c9191d1193858bd4b8c3de8
+  merge_base: f76d775595a1f41ff1a0b97c499739e7c348b58e
+  schema: orqlet.review-input/v1
+verdict: PASS
+evidence_kind: claimed
+commands:
+- id: ruff-check
+  exit_code: 0
+  summary: All checks passed!
+  result_digest: 5b196eb3a6acb50d3fa398d04ca284985cc1ffec870e940264b00780bfd2c971
+- id: ruff-format
+  exit_code: 0
+  summary: 516 files already formatted
+  result_digest: f88968173c895ea7908cb06ac37064c0c779d82a4ae96f6d1ecdb543fee1eb8e
+- id: mypy
+  exit_code: 0
+  summary: 'Success: no issues found in 343 source files'
+  result_digest: 20a34e579b365382a5e848ce63a891e1b539600f6deb782e520ce43304d1de64
+- id: import-linter
+  exit_code: 0
+  summary: 'Contracts: 5 kept, 0 broken.'
+  result_digest: afd56a6d97e0c84374cb15e134f4d094a29f7535fe3df11326bba3f935aa85a3
+- id: schemas
+  exit_code: 0
+  summary: passed with no output
+  result_digest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+- id: pytest
+  exit_code: 0
+  summary: 7624 passed, 1 skipped in 807.63s (0:13:27) on Python 3.14.9; the new and changed tests also passed on
+    Python 3.12.11
+  result_digest: 16acd1e7640bae18603cbaa96c8ffc413afea6bc2e1d5cb233ca8acadd9d88c2
+acceptance_coverage:
+- ac: AC-1
+  check_ref: pytest
+  result: pass
+- ac: AC-2
+  check_ref: pytest
+  result: pass
+- ac: AC-3
+  check_ref: pytest
+  result: pass
+- ac: AC-4
+  check_ref: pytest
+  result: pass
+- ac: AC-5
+  check_ref: pytest
+  result: pass
+- ac: AC-6
+  check_ref: pytest
+  result: pass
+- ac: AC-7
+  check_ref: pytest
+  result: pass
+- ac: AC-8
+  check_ref: pytest
+  result: pass
+- ac: AC-9
+  check_ref: pytest
+  result: pass
+- ac: AC-10
+  check_ref: pytest
+  result: pass
