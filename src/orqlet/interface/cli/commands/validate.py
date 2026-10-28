@@ -9,6 +9,7 @@ import typer
 
 from orqlet.application.usecases.validate_as_is import AsIsOptions, validate_as_is
 from orqlet.application.usecases.validate_design import validate_design
+from orqlet.application.usecases.validate_integrations import validate_integrations
 from orqlet.application.usecases.validate_ledger import validate_ledger
 from orqlet.application.usecases.validate_plan import validate_plan
 from orqlet.application.usecases.validate_records import (
@@ -129,6 +130,22 @@ def resources_command(
     execute(
         "validate resources",
         lambda: output_of(validate_resources(build_validate_services(root), file), file),
+        as_json=json_output,
+    )
+
+
+@validate_app.command("integrations")
+def integrations_command(
+    file: Annotated[str, typer.Argument(help="The declaration, relative to the root.")] = (
+        ".orqlet/integrations.yaml"
+    ),
+    root: RootOption = Path(),
+    json_output: JsonOption = False,
+) -> None:
+    """Check the declaration of MCP servers and the MCP files for credential-shaped text."""
+    execute(
+        "validate integrations",
+        lambda: output_of(validate_integrations(build_validate_services(root), file), file),
         as_json=json_output,
     )
 

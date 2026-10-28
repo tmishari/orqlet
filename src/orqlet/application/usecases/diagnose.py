@@ -14,6 +14,7 @@ from orqlet.application.ports.filesystem import FileKind, FileSystem, FileSystem
 from orqlet.application.ports.personal import PersonalNames
 from orqlet.application.usecases.draft_profile import open_questions
 from orqlet.application.usecases.installation import Installation, load_installation
+from orqlet.application.usecases.integrations_source import integrations_path
 from orqlet.application.usecases.render_all import (
     STANDARDS_LOCK_PATH,
     environment_findings,
@@ -21,6 +22,7 @@ from orqlet.application.usecases.render_all import (
 )
 from orqlet.application.usecases.resources_source import load_resources, resources_path
 from orqlet.application.usecases.services import Services
+from orqlet.application.usecases.validate_integrations import integration_findings
 from orqlet.application.usecases.validation import content_hash
 from orqlet.domain.blocks import BlockError, decode_utf8, parse_blocks
 from orqlet.domain.changeplan import Recorded, normalised_hash
@@ -123,6 +125,7 @@ def _diagnose(services: Services, personal: PersonalNames | None, *, full: bool)
     findings += _version_findings(services, inst)
     findings += _journal_findings(services, inst)
     findings += _standards_lock_findings(services, inst)
+    findings += integration_findings(services.project, services.loader, str(integrations_path()))
     not_run = [
         "client versions: the installed versions of Claude Code, Codex and Cursor are not "
         "detected in this release, so declared minimum versions are not checked",

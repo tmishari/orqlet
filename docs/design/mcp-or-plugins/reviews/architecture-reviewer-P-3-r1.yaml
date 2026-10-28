@@ -1,0 +1,183 @@
+schema: orqlet.review-result/v1
+task: mcp-or-plugins
+phase: P-3
+role: architecture-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: e4e2aa94c138941e4cbbdafa456fff886efe9f2569df8b66b07d8de1410900ee
+    design: fb6c0a6f61fac66ff595624f194201b4a0bdd04febea332964afcae06f8fce98
+    evidence_inputs: 17517c31c9c130f921187977a9e69839b85661aca7ad47db002eb4270aa1bdaf
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 0087e36e1b60db29914fa72d98433c3d7fbac32a7464364de907ea08aefaef8c
+    reviewer_definition: 4163e77c515dce4c8168220a3dda8e273455f3b0dc97c09b4ccb3b7657368f10
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 7693eac0ad0b28cf5f11158e46b93c6aa417d8d462e0c7e632a09004e73895dc
+  merge_base: f76d775595a1f41ff1a0b97c499739e7c348b58e
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: d07a4aa80f9fdb8e5220c9ec8842a3d694df3ab29747a19229b13cd20b071990
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; it had no shell, so it ran no check and recomputed
+  no digest.
+- Quote digests were not computed, so each finding rests on reading and is an observation that never blocks.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the design-phase review notes of this task, so the reviewer was not fully context-clean
+  (the known gap of the harness2-fit ADR-002).
+- The reviewer ran in the same client as the Coder, so independence is I1, not I2.
+applicability:
+  examined:
+  - src/orqlet/application/usecases/integrations_source.py
+  - src/orqlet/application/usecases/validate_integrations.py
+  - src/orqlet/application/usecases/capabilities.py
+  - src/orqlet/interface/cli/commands/validate.py
+  - src/orqlet/application/usecases/diagnose.py
+  - tests/unit/application/test_integrations_source.py
+  - tests/unit/application/test_validate_integrations.py
+  - tests/unit/application/test_diagnose_integrations.py
+  - tests/integration/test_validate_integrations_cli.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: correctness
+  evidence: []
+  claim: '[minor] The JSON field data.errors of validate integrations counts every finding, so a passing run with
+    only the information finding I530 says errors: 1.'
+  suggested_action: Count the findings with severity error, or rename the key.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: standards
+  evidence: []
+  claim: '[minor] AC-8 says that I530 states the entry gives the user''s full permissions; the message does not
+    say full and its clause about consent can read as if the user could narrow it; the test was weakened to match.'
+  suggested_action: Use the criterion's words and make the test require full.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: standards
+  evidence: []
+  claim: '[minor] ADR-002 decision 9 names the words declaration-unreadable and unknown-key; the loader prints other
+    words and passes the library message through; the format is pinned by no test.'
+  suggested_action: Use the words of the ADR or amend the ADR.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: non-blocking
+  category: tests
+  evidence: []
+  claim: '[minor] Both P-2 reviewers asked for a test that a credential-shaped url on a stdio server is refused
+    by the loader''s scan; none exists.'
+  suggested_action: Add the case.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: non-blocking
+  category: architecture
+  evidence: []
+  claim: '[minor] The client lists of the loader and of the validator are in two modules in two orders and no test
+    ties them to mcp_file_path; the cap is defined twice.'
+  suggested_action: Add one test that compares both lists with the clients that have an MCP file.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: non-blocking
+  category: tests
+  evidence: []
+  claim: '[minor] All checks pass on Python 3.12 is only partly shown: the full suite ran on 3.14.9 and only the
+    new tests on 3.12.11.'
+  suggested_action: Rely on the CI matrix before merge.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: info
+  category: docs
+  evidence: []
+  claim: ADR-003 decision 6 says unreadable files are skipped without a finding in the absent branch; ADR-002 decision
+    8 and AC-6 say one information finding I533. The code follows the plan.
+  suggested_action: Fix the ADR-003 sentence at the next design amendment.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-8
+  kind: observation
+  severity: info
+  category: standards
+  evidence: []
+  claim: The diff is cumulative from the merge base and carries the outputs and records of P-2.
+  suggested_action: None.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-9
+  kind: observation
+  severity: info
+  category: architecture
+  evidence: []
+  claim: _check_document is long and _error and _with_printable_path copy helpers of neighbouring modules; ORQLET-STYLE-001
+    is SHOULD.
+  suggested_action: Split the classification of entries later.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-10
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: The scan of the declaration reads raw text only, so a YAML escape in a double-quoted scalar hides a credential
+    from it; ADR-002 decision 7 states the limit for TOML only.
+  suggested_action: State the limit in the README or scan a re-serialisation; the person decides.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-11
+  kind: observation
+  severity: info
+  category: standards
+  evidence: []
+  claim: ADR-002 decision 8 read literally applies the nesting, entry and string limits to the declaration too;
+    the code applies only the 256 KiB cap and the strict loader's own limits, as plan P-3 names.
+  suggested_action: The person confirms which reading holds.
+  confidence: low
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read
+    how: MANIFEST, diff.patch, plan, test record, knowledge-impact record and the snapshot of the changed files
+    result: pass
+  - what: re-run of ruff, mypy, import-linter and pytest
+    how: no shell
+    result: not-run
+  - what: packet and record digests recomputed
+    how: no shell; hashes not computed
+    result: not-run
