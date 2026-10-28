@@ -1,43 +1,68 @@
 # Architecture review of the design `mcp-or-plugins`
 
-Role: architecture-reviewer, run as a typed subagent in a clean context with the design set, the AS-IS file, the ledger, the cited evidence and the standards. The reviewer had no shell, so it did not run `orqlet standards` or any hash check; it read `.prompts/rules.yaml` (15 rules, the same 15 as `standards_applied`). The author ran `orqlet standards for --phase design --role architect` (also per path) and `orqlet validate design`.
+Role: architecture-reviewer, started three times as a typed subagent (`orqlet-arch-reviewer`), each time in a clean context. It was given the paths of the design set, the AS-IS file, the question ledger, the cited vendor excerpts and the code, and told to ignore any earlier design in Git history. Rounds 2 and 3 were also given the notes of the earlier round, to be read after the reviewer's own pass. **No reviewer had a working shell** (its shell tool refused every command), so none ran `orqlet standards`, `orqlet validate design` or a hash check; each read `.prompts/rules.yaml` (the 15 rules that `standards_applied` lists) and the code. The author ran `orqlet standards for --phase design --role architect` and `orqlet validate design`. This note replaces the note of the design that the person asked to rewrite from scratch; that note remains in the Git history.
 
 ## Rounds
 
-| Round | Verdict | Blocking | What the blocking finding was |
+| Round | Verdict | Blocking | Major | Minor |
+|---|---|---|---|---|
+| 1 | PASS | 0 | 4 | 15 |
+| 2 | PASS | 0 | 3 | 7 |
+| 3 (delta) | PASS | 0 | 0 | 11 |
+
+The author changed the design after every round. **The text changes that followed round 3 (listed under round 3) were not seen by a reviewer.**
+
+## Round 1: findings and what was done
+
+| Id | Severity | Finding (short) | Disposition |
 |---|---|---|---|
-| 1 | FAIL | yes | No enforcement path (doctor, CI), an unclear seam and scope, an unclear contract shape and pin, scan bypasses, and an unsourced GitHub address (recorded here as the author summarised them; the reviewer's own text was returned in the session and was not stored) |
-| 2 | FAIL | 2 | Nothing built the pinned entry that validator and renderer share; the same two rules for unlisted entries |
-| 3 | FAIL | 1 | Build order put the contract rules before the domain module that they call |
-| 4 | FAIL | 1 | The refusal of an untracked MCP file also refused the file that Orqlet wrote itself, so a re-run did not converge |
+| AR-1 | major | When no declaration exists, a recorded seeded `.mcp.json` becomes an orphan and the lock forgets it, so a signal that uses the lock disappears | Fixed: the signal does not use the lock (ADR-002 decision 11; ADR-003 context and decision 6) |
+| AR-2 | major | `integration_findings` cannot return a "not run" reason | Fixed: it returns findings only; the use case does the existence check |
+| AR-3 | major | The closed list of forbidden keys has no owner; TOML-only items are enforced nowhere | Fixed: a private constant of `validate_integrations.py` with the key names that the evidence gives; the Codex file gets the scan only; limits stated |
+| AR-4 | major | How `RenderRequest.integrations` is set is not stated | Fixed: `dataclasses.replace` in `compose` |
+| AR-5 to AR-19 | minor | Underscore rule for every changed module; contract object in the port; per-client selection; `init` versus the registry's precedent; `explain`; the pre-flight; ORQ-I030 for every project; golden claims; build-order gaps; scope and globs; diagram arrows; factual slips; unbacked statements; simplicity of `env-ref` | Fixed or closed by the redesign, except AR-6 (kept with a reason, ADR-003 decision 4) and AR-19 (partly: `env-ref` stays a specification; some checks moved out of this change's plan) |
 
-The author changed the design after every round. **The changes made after round 4 have not been reviewed by a fresh reviewer.** The person must treat the round 4 verdict as the last independent one.
+## Round 2: findings and what was done
 
-## Round 4 findings and what was done
-
-| Id | Severity | Finding | Disposition |
+| Id | Severity | Finding (short) | Disposition |
 |---|---|---|---|
-| AR-1 | blocking | Untracked-file refusal in `plan_changes` refuses Orqlet's own `.mcp.json`; breaks re-run, `--resume`, `--check`; undermines ORQLET-SAFE-001 and TEST-002 | Fixed: ADR-003 decision 3 now refuses only a planned proposal that comes from an untracked file or whose text the scan flags; a file that Orqlet wrote or that equals the render yields no proposal. The fault test of ORQLET-TEST-002 covers the interrupted run |
-| AR-2 | major | Seam signatures: `validate_integrations` file argument cannot reach `load_integrations`; `plan_changes` has no way to get the declaration; absent versus invalid; messages to findings | Fixed: `load_integrations(project, loader, path)` returns `Finding`s with a stated absent, invalid, valid convention; public `DECLARATION_PATH` (EC-20); `plan_changes` keeps its signature and needs no declaration; new ORQ codes are named in the plan |
-| AR-3 | major | The committed schema is said to change but validators leave it unchanged | Fixed: the contract rules are validators; the schema is unchanged; the workflow package changes in two files (rule text and meta); ADR-002, ADR-003, container, considerations and EC-13 aligned; the schema file is removed from the scope |
-| AR-4 | major | Release 1 ships API for paths that cannot run (`referenced_variables`, `variable` parameters) | Kept with a stated reason: the signatures stay stable when `env-ref` is enabled, `rendered_entry` refuses a variable, and `referenced_variables` has a release-1 caller on undeclared entries (ADR-002 consequences). Not moved. The person may disagree |
-| AR-5 | major | The Atlassian entry is not read-only; disclosed once | Fixed: ADR-002 decision 5, considerations (Security), an information finding by `validate` and `doctor`, and the README plan. Worded as unknown where the evidence is silent (U-10, U-11, U-12, V-13) |
-| AR-6 | minor | Phase numbering of the fixture update | Fixed: phase 2 everywhere, with the golden regeneration stated |
-| AR-7 | minor | EC-13 omits `verification: verified` refusal and stdio registration refusal | Fixed in EC-13 and ADR-002 |
-| AR-8 | minor | `registration.name == id` contradicts the architecture document Section 24.4 | Fixed: `registration.name` equals `orqlet-<id>` |
-| AR-9 | minor | Wording and citation slips (process start, `ORQLET_DATA_DIR`, Q-7 and CI, line numbers, base class source, Codex managed configuration) | Fixed |
-| AR-10 | minor | Material unknowns U-10 to U-12 not carried forward | Carried into ADR-002 and the question Q-14 |
-| AR-11 | minor | `considerations.md` has no artifact kind and no hash; `.orqlet/proposals/**` missing from scope; container diagram says adapters seed files | Fixed: the hash is recorded in the self-check, the path is in the scope, the diagram edges are corrected |
-| AR-12 | minor | Raw unknown key in contract error location; `registered_for` keying; empty file | Fixed in ADR-002 decisions 5 and 9 |
+| AR2-1 | major | Opting out leaves `orqlet-*` entries, so `doctor` warns for ever and exits 1 | Fixed: the opt-out is "delete the declaration and rename or remove the `orqlet-*` entries"; the exit code is stated (ADR-002 decision 11, considerations) |
+| AR2-2 | major | The absent-declaration branch reads three files and the design does not say what unreadable ones do | Fixed: no error without a declaration, one information finding that does not change the exit code; the error is for the declared branch (ADR-002 decision 8) |
+| AR2-3 | major | The proposal guard was a flag that each adapter must set: it fails open, with no end-to-end test | Fixed by a redesign: the guard is derived from the path and sits in `_Builder._propose`; an `upgrade`-level sentinel test (ADR-003 decision 5) |
+| AR2-4 | minor | Files that carry the flag were not on the security globs | Closed: the flag and its files are gone |
+| AR2-5 | minor | Seam gaps: where the existence check is, where the rendered text is scanned, how `name_problems` serves a stdio server | Fixed (ADR-002 decisions 5 and 7, ADR-003 decision 6) |
+| AR2-6 | minor | Build-order step 4 bundles four things; the golden is late | Fixed: ten steps; the golden at the adapter step |
+| AR2-7 | minor | Sequence 1 draws the builder reading the file; a diagram edge is missing | Fixed |
+| AR2-8 | minor | Side effects of the guard: no old-to-new diff; a permanent proposal | Accepted and documented (ADR-003 decision 5) |
+| AR2-9 | minor | Wording, a wrong citation, `env-ref` shown as holding a boundary | Fixed |
+| AR2-10 | minor | Existing test comments cite replaced decisions; the architecture-document corrections are incomplete; the meta `paths` question | Fixed: the plan updates the comments; the list is extended; `.mcp.json` stays in `paths` (ADR-003 decisions 7 and 8) |
 
-## What the reviewer verified as correct (round 4)
+## Round 3 (delta): findings and what was done
 
-More than 40 citations to AS-IS facts, evidence lines and code lines held. Layering of `domain.mcp_credentials`, the contract validators, the validator, the renderer and the plan is permitted by the import-linter contracts. The eleven original public names and their signatures match what `python_api.py` computes. Trust boundaries, exit codes and the one-entry-kind release 1 are consistent across the artifacts.
+The reviewer confirmed that the seven round-2 changes are real and match the code: the guard has two callers and both pass through `_propose`; the import into the domain is allowed; classification, `--check`, `--resume` and an interrupted run converge; the signature `integration_findings` can carry the absent branch; EC-1 to EC-16 agree across the files.
 
-## Open points left to the person
+| Id | Severity | Finding (short) | Disposition (text changed after the round, not reviewed) |
+|---|---|---|---|
+| AR3-1 | minor | EC-13 still names the removed flag | Fixed |
+| AR3-2 | minor | Three diagram edges missing | Fixed |
+| AR3-3 | minor | The `upgrade`-level sentinel test cannot run at step 4 | Fixed: it is in step 5; step 4 has `build_plan`-level tests |
+| AR3-4 | minor | The table pin already exists on `main`; the record-scan test has no step | Fixed: the existing tests are the pin and are extended; the scan test is in step 8 |
+| AR3-5 | minor | Who emits the information finding for a proposal, and when | Fixed: `upgrade.py`, for every seeded proposal item on an MCP path, code in the `ORQ-I53x` family |
+| AR3-6 | minor | Check ids and counts differ between three places | Fixed |
+| AR3-7 | minor | Which client each of the six checks is for | Fixed: Claude Code only for the first release |
+| AR3-8 | minor | "A fourth client needs one constant" is understated | Fixed: the three places are listed and a test fails when they diverge |
+| AR3-9 | minor | Sequence 2 draws `integration_findings` doing the existence check | Fixed |
+| AR3-10 | minor | A symlinked `.mcp.json` with a declaration makes `plan_changes` refuse | Fixed: stated, with a test |
+| AR3-11 | minor | This note was stale | Fixed by this update |
 
-Q-12 (identity of unattended surfaces), Q-13 (versioning waiver for the contract) and the AR-4 disposition. A design pull request reviewer should check that the changes after round 4 resolve AR-1 to AR-3.
+## What the reviewer verified as correct (round 3)
 
-## Update after the reviews
+The path-derived guard against `changeplan.py`, `classify.py` and the import contracts; the absent branch against `_diagnose` and the exit codes (`warning` gives 1, `error` gives 5, not run gives 5); the ten build steps; EC-1 to EC-16 and the scope and security globs; the unchanged comments of `mcp_credentials.py` against ADR-002 decisions 2, 3, 4, 6, 7, 8 and 9.
 
-Q-12 and Q-13 were answered by the person on 2026-10-26, after these reviews: an unattended surface uses the account of the one user who started or owns it, and the contract is tightened in place. The design text was updated; the reviewers did not see that update.
+## Not checked by the reviewer
+
+Anything that needed a shell (hashes, `orqlet standards`, `orqlet validate design`, the tests, import-linter); vendor facts A-54 to A-142 beyond a spot check; the code of the renderer, the validator and the loader, which does not exist yet.
+
+## Open points for the person
+
+Whether `init` should render `.mcp.json` from a hand-written declaration (the design defers it to `upgrade`); whether a plain `orqlet-` text match is right for `.codex/config.toml`; whether a team with its own servers may keep a proposal item on every run; whether the forced labels may stay (ADR-002 decision 10); the workflow version (0.3.3 proposed) and when to record it in `releases.json`; that tightening v1 in place makes `upgrade` refuse for any team whose hand-written declaration breaks the new rules.

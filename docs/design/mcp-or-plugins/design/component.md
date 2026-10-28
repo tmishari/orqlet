@@ -1,76 +1,79 @@
-# Component view: the new and changed parts inside Orqlet
+# Component view
+
+The new and changed components, with the layer each sits in and what it may call. The pure rules already exist in `src/orqlet/domain/mcp_credentials.py` on `main` (eight public names: `CredentialFinding`, `name_problems`, `allowed_auth_modes`, `mcp_file_path`, `rendered_entry`, `entry_differences`, `referenced_variables`, `find_literal_credentials`). This change calls them and does not change them.
 
 ```mermaid
-flowchart TB
-  subgraph interface["interface (Typer)"]
-    cmd["commands/validate.py<br/>integrations_command NEW"]
+flowchart LR
+  subgraph domain
+    mc["mcp_credentials<br/>table, names, rendered_entry,<br/>entry_differences, scan"]
+    cp["changeplan<br/>_Builder._propose passes no existing bytes<br/>for an MCP file path"]
   end
-  subgraph application["application"]
-    cap["usecases/capabilities.py<br/>IMPLEMENTED_COMMANDS gains validate integrations"]
-    uc["usecases/validate_integrations.py<br/>validate_integrations NEW"]
-    src["usecases/integrations_source.py NEW<br/>load_integrations"]
-    ra["usecases/render_all.py<br/>compose sets RenderRequest.integrations<br/>plan_changes scans planned MCP proposals"]
-    dg["usecases/diagnose.py<br/>doctor and sync also run the MCP checks"]
-    ct["contracts/integrations.py<br/>closed models, validators TIGHTENED<br/>Integrations.registered_for NEW"]
-    port["ports/instruction_adapter.py<br/>RenderRequest gains optional integrations<br/>InstructionAdapter unchanged"]
-    pt["ports: FileSystem, DocumentLoader, Vcs<br/>unchanged"]
+  subgraph contracts
+    ig["Integrations<br/>_validators call name_problems<br/>registered_for(client)"]
   end
-  subgraph domain["domain (pure)"]
-    mc["mcp_credentials.py NEW<br/>CredentialFinding, find_literal_credentials,<br/>rendered_entry, mcp_file_path,<br/>entry_differences, allowed_auth_modes,<br/>referenced_variables, name_problems<br/>table, patterns and key sets are private"]
-    ow["ownership.py<br/>seeded mode used, unchanged"]
+  subgraph usecases
+    ls["integrations_source<br/>integrations_path<br/>parse_integrations<br/>load_integrations"]
+    vi["validate_integrations<br/>integration_findings<br/>validate_integrations"]
+    ra["render_all<br/>compose(integrations)<br/>_OWNED_PATHS"]
+    dg["diagnose<br/>_diagnose calls integration_findings"]
+    up["upgrade<br/>calls load_integrations"]
   end
-  subgraph adapters["adapters"]
-    rm["render/mcp.py NEW<br/>render_mcp_file"]
-    ca["clients/claude_code.py<br/>adds .mcp.json to its RenderedFile list<br/>codex.py and cursor.py ignore the field"]
-    em["render/emit.py<br/>unchanged"]
+  subgraph ports
+    rr["RenderRequest.integrations"]
+  end
+  subgraph adapters
+    rm["render/mcp<br/>render_mcp_file"]
+    cc["clients/claude_code<br/>writes .mcp.json"]
+  end
+  subgraph interface
+    cm["commands/validate<br/>integrations_command"]
   end
 
-  cmd --> uc
-  cap -.-> cmd
-  uc --> src
-  uc --> ct
-  uc --> pt
-  dg --> uc
-  ra --> src
-  ra --> mc
-  ra --> pt
-  src --> ct
-  src --> pt
-  src --> mc
-  ct --> mc
-  ra --> port
-  port -. "implemented by" .-> ca
-  ca --> rm
+  ig --> mc
+  ls --> ig
+  ls --> mc
+  vi --> ls
+  vi --> mc
+  dg --> vi
+  cm --> vi
+  up --> ls
+  up --> ra
+  ra --> cp
+  cp --> mc
+  ra --> rr
+  cc --> rr
+  cc --> rm
   rm --> mc
-  rm --> em
-  ra --> ow
+  rm --> ig
+  rr --> ig
 ```
 
-The application layer reaches an adapter only through the `InstructionAdapter` port; `render_all.py` hands the loaded declaration to it by the new optional `RenderRequest.integrations` field, and every adapter that does not use the field keeps its output. The entry that the renderer writes and the entry that the validator compares are both built by `rendered_entry` in the domain, so the pin has one source.
+`compose` sets `RenderRequest.integrations` with `dataclasses.replace` after `build_render_request`, so the request builder is not changed.
 
-Layer rules that the new code must keep (import-linter contracts of `pyproject.toml`, ORQLET-QA-001, ORQLET-ARCH-001, ORQLET-ARCH-002, ORQLET-ARCH-003):
+## Layer rules for the new components
 
-- `domain.mcp_credentials` takes and returns plain values (strings, mappings, tuples). It imports only the standard library (`re`, `collections.abc`, `typing`, `dataclasses`); the domain contract forbids `os`, `pathlib`, `pydantic`, `yaml` and process, network and file modules. It holds the closed table of addresses, modes and clients, the name patterns and the closed key sets as private names; each function is deterministic on its inputs (ORQLET-DET-001) and uses no clock, random number or environment.
-- `application.usecases.integrations_source.load_integrations` reads the declaration through the `FileSystem` port and the `DocumentLoader` and owns the contract check, the table check and the scan of the declaration; `validate_integrations` calls it and reads the MCP files through the `FileSystem` port (the committed-assignment check, built later, reads tracked files through `Vcs.read_committed`), parses with a duplicate-key-rejecting JSON reader and `tomllib`, then passes plain mappings to the domain.
-- `adapters.render.mcp` writes no file; it returns text, as the other renderers do, and the existing apply path writes it. Adapters do not import the application's use cases. The three client adapters never import one another (ORQLET-ARCH-003).
+- `integrations_source`, `validate_integrations` and the `compose` parameter import no file, process or network module. They reach the repository only through the `FileSystem` port and the strict loader through the `DocumentLoader` port (ORQLET-ARCH-002, ORQLET-SEC-002).
+- `render_mcp_file` is an adapter helper. It imports the domain and the contract, never another client adapter (ORQLET-ARCH-003).
+- The Claude Code adapter writes `.mcp.json` only when `RenderRequest.integrations` has a server registered for it. The Codex and Cursor adapters do not read the field.
+- The entry that the renderer writes and the entry that the validator compares come from one function, `rendered_entry`, so the pin has one source (ADR-002 decision 5).
+- In every module that this change edits, the only public names added are the ones listed below; every other new name starts with an underscore (the contract validators, the closed key list, the helpers), so the public-API extractor sees exactly the listed names. The modules are `contracts/integrations.py`, `render_all.py`, `diagnose.py`, `upgrade.py`, `claude_code.py`, `commands/validate.py` and `changeplan.py`, as well as the new ones.
 
-## Public names the change adds
+## Public names added or changed
 
-| Name | Module | Purpose |
-|---|---|---|
-| `CredentialFinding` | `orqlet.domain.mcp_credentials` | A line number and a rule name; never a value |
-| `find_literal_credentials` | `orqlet.domain.mcp_credentials` | Finds token-shaped strings, URL user information and query secrets, a literal `Authorization` value and credential-named fields in text |
-| `rendered_entry` | `orqlet.domain.mcp_credentials` | Builds the one entry of a server for a client; the renderer and the validator both use it |
-| `mcp_file_path` | `orqlet.domain.mcp_credentials` | The path of a client's MCP file |
-| `entry_differences` | `orqlet.domain.mcp_credentials` | Names the fields in which a parsed entry differs from the built one; never prints a value |
-| `allowed_auth_modes` | `orqlet.domain.mcp_credentials` | The modes that this release enables for an exact address and a client; empty for an unknown combination |
-| `referenced_variables` | `orqlet.domain.mcp_credentials` | The variable names that an entry refers to; empty when the entry holds none |
-| `name_problems` | `orqlet.domain.mcp_credentials` | Rule names broken by a server id, an address or a variable name; used by the contract |
-| `Integrations.registered_for` | `orqlet.application.contracts.integrations` | The servers registered for one client; used by the renderer, the validator and the plan |
-| `load_integrations` | `orqlet.application.usecases.integrations_source` | Owns the three declaration checks (contract, closed table, scan); returns the declaration and its findings |
-| `DECLARATION_PATH` | `orqlet.application.usecases.integrations_source` | The path `.orqlet/integrations.yaml`, passed by compose, `_diagnose` and `validate_integrations` |
-| `validate_integrations` | `orqlet.application.usecases.validate_integrations` | The `validate integrations` use case |
-| `integrations_command` | `orqlet.interface.cli.commands.validate` | The CLI wiring |
-| `render_mcp_file` | `orqlet.adapters.render.mcp` | One file's text for one client |
+| Id | Name | Signature | Notes |
+|---|---|---|---|
+| EC-1 | `orqlet.application.usecases.integrations_source.integrations_path` | `def integrations_path() -> CanonicalPath` | Where the declaration lives, `.orqlet/integrations.yaml`, as a function like `resources_path` |
+| EC-2 | `...integrations_source.parse_integrations` | `def parse_integrations(loader: DocumentLoader, raw: bytes, source: str) -> tuple[Integrations \| None, tuple[Finding, ...]]` | Strict load, contract, closed table, scan |
+| EC-3 | `...integrations_source.load_integrations` | `def load_integrations(project: FileSystem, loader: DocumentLoader, path: str) -> tuple[Integrations \| None, tuple[Finding, ...]]` | Absent: `(None, ())`; invalid: `(None, findings)`; valid: the declaration |
+| EC-4 | `...validate_integrations.validate_integrations` | `def validate_integrations(services: ValidateServices, raw_path: str) -> ValidationResult` | The `validate integrations` use case |
+| EC-5 | `...validate_integrations.integration_findings` | `def integration_findings(project: FileSystem, loader: DocumentLoader, path: str) -> tuple[Finding, ...]` | Shared by the use case and `doctor` and `sync` |
+| EC-6 | `orqlet.interface.cli.commands.validate.integrations_command` | `def integrations_command(file, root, json_output) -> None` | One subcommand, defaults like `resources_command` |
+| EC-7 | `orqlet.adapters.render.mcp.render_mcp_file` | `def render_mcp_file(servers: Sequence[McpServer], client: str) -> str` | One client's file text |
+| EC-8 | `orqlet.application.contracts.integrations.Integrations.registered_for` | `def registered_for(self, client: str) -> tuple[McpServer, ...]` | The servers whose `per_client[client].register` is true |
+| EC-9 | `orqlet.application.usecases.render_all.compose` | the signature gains `integrations: Integrations \| None=None` | A keyword-only parameter, between `resources_bytes` and `orqlet_owned` |
+| EC-10 | `orqlet.application.ports.instruction_adapter.RenderRequest` | one optional field `integrations` | The class line does not change, so the extractor cannot see it (manual) |
+| EC-11 | `orqlet.application.usecases.capabilities.IMPLEMENTED_COMMANDS` | gains `validate integrations` | The extractor reads an assignment by name only (manual) |
 
-`RenderRequest` gains one optional field, `integrations`, and `IMPLEMENTED_COMMANDS` gains one entry. The extractor cannot see either edit (the class line does not change and the assignment is read by name only), so both are manual expected changes (EC-12, EC-19). Everything else in the new and edited modules is private (leading underscore, including the validators of the contract), so that the public-API extractor sees exactly these names (expected changes EC-1 to EC-11, EC-17, EC-18, EC-20). Release 1 enables one combination only; the other client shapes are specified in ADR-002 and built by the release that enables them.
+Behaviour and persisted shape, listed in the manifest as manual changes: the contract rules (EC-12), the generated `.mcp.json` (EC-13), the proposal files for the three MCP paths (EC-14), the trust boundaries (EC-15). The guard in `_Builder._propose` is private and has no public name.
+
+Not public and therefore not listed: `_OWNED_PATHS` (gains `.mcp.json`), the closed key list of the validator, the contract validators, the constant of client ids in `changeplan.py`, and every helper of the new modules.
