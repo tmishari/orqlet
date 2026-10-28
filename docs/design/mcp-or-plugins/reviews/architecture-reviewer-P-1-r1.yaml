@@ -1,0 +1,169 @@
+schema: orqlet.review-result/v1
+task: mcp-or-plugins
+phase: P-1
+role: architecture-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: c03dfc2636329137caf47e57958dc7f155f0724de2b7c9839ef7f4a0967d4746
+    design: 337747f797b071a5f4e50e6de1a68d4f565d1df0f493edbfbc8d977d3b03adfd
+    evidence_inputs: 753d9349ad1898c220b2b42ce0db7a748d0d96af431b538bd967de4ef64bf5e7
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 7330faf2044804e253c30940c1827d54dbf81ddbec7796fe6d2d3e4a45924be5
+    reviewer_definition: 340c9ce62dce3ba2907f9e6e42d6f028f0e2617c1ef5e2fb0b52e170f54c6bb1
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: a08e7081b762a9a1c6bea99e2c029561015c8be6b8b1bb4f69ea954a341a38a3
+  merge_base: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: d07a4aa80f9fdb8e5220c9ec8842a3d694df3ab29747a19229b13cd20b071990
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; its shell was refused, so it ran no check and
+  recomputed no digest.
+- Quote digests were not computed, so each finding rests on reading and is an observation unless it carries an absence
+  record.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the design-phase review notes of this task, so the reviewer was not fully context-clean
+  (the known gap of the harness2-fit ADR-002).
+applicability:
+  examined:
+  - src/orqlet/domain/mcp_credentials.py
+  - tests/unit/domain/test_mcp_credentials.py
+  - tests/unit/domain/test_mcp_credentials_properties.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: architecture
+  evidence: []
+  claim: The staged change carries edits to the design set that are outside the file list of P-1. One of them is
+    the EC-20 relabel in the design manifest (extractor to manual), which the gate says needs a renewed design approval
+    that the packet shows as not given. The packet gives no independent evidence of the design or plan approval
+    (diff.patch lines 1437-1454; plan.yaml self-check; design manifest status draft).
+  suggested_action: The person decides the renewed design approval, or reverts the EC-20 relabel, before the phase
+    gate is closed. Keep the design-set edits easy to tell apart from the code in the commit.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: architecture
+  evidence: []
+  claim: The closed list of credential keys of ADR-002 decision 6 (headersHelper, http_headers_helper, env_http_headers,
+    bearer_token_env_var, envFile, Cursor auth) has no home. component.md says the module holds the closed key sets,
+    but the module holds only the four entry fields, and the public surface gives P-4 no way to read the list.
+  suggested_action: Before P-4, either hold the list privately in validate_integrations.py and amend component.md,
+    or add a public function through a design change and a new expected change.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: 'referenced_variables returns strings that the caller supplied: the raw value of bearer_token_env_var and
+    the text inside `${...}`. The module docstring says that no function returns a value it was given, so a P-4
+    caller that prints these names would leak a pasted token.'
+  suggested_action: Correct the docstring, or return only names that match the variable pattern; add a test with
+    a token in bearer_token_env_var; make P-4 AC-2 cover it.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: non-blocking
+  category: correctness
+  evidence: []
+  claim: 'The Bearer, Basic and Authorization rules trade precision both ways and no look-alike test covers it:
+    prose such as ''Basic configuration'' matched, `"authorization": {` was flagged, and the scheme words were case-sensitive.
+    By reading the patterns, not by running them.'
+  suggested_action: Add look-alike cases (prose, object-valued key) and decide whether the scheme words are case-insensitive.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: non-blocking
+  category: standards
+  evidence: []
+  claim: The comment and ADR-002 decision 7 say that every repetition is bounded and every pattern has a fixed prefix;
+    several patterns use unbounded whitespace runs and an unbounded tail. The runtime effect looks benign because
+    the line cap bounds the work.
+  suggested_action: Bound the whitespace runs or correct the comment and note the departure from the ADR.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: non-blocking
+  category: failure-handling
+  evidence: []
+  claim: referenced_variables fails open silently above depth 32 and for a reference nested in a default (`${A:-${B}}`),
+    and none of it is tested; a long string of reference starts costs about 4096 steps per start by reasoning.
+  suggested_action: Document the precondition (P-4's caps) or fail closed; add tests for the depth cut-off and the
+    nested default.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: info
+  category: tests
+  evidence: []
+  claim: 'Small record and text gaps: the 0.25 s limit and its measurement are only in a test comment; the module''s
+    rule names, one-based line numbers, minimum token lengths and ValueError are open choices no phase record lists;
+    entry_differences can never return `entry`; both test files still said they were written before the module exists.'
+  suggested_action: Name these choices and the time limit in the completion note and refresh the stale docstrings.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-8
+  kind: observation
+  severity: info
+  category: docs
+  evidence: []
+  claim: Entry K-10 of the knowledge-impact record cites ADR-002 as documenting CredentialFinding, but ADR-002 only
+    says 'one class'; the class is named in manifest.yaml and component.md.
+  suggested_action: Cite component.md for the public symbols, or reword the reason.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-9
+  kind: observation
+  severity: info
+  category: tests
+  evidence: []
+  claim: The check results are self-reported (evidence_kind claimed) and the record does not name the Python version,
+    although the plan completion item asks for Python 3.12.
+  suggested_action: Re-run the checks on Python 3.12 or let CI attest them.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read
+    how: MANIFEST, diff.patch, plan, test record, knowledge-impact record and the snapshot of the changed files
+    result: pass
+  - what: re-run of ruff, mypy, import-linter and pytest
+    how: shell refused in this mode
+    result: not-run
+  - what: packet and record digests recomputed
+    how: no shell; hashes not computed
+    result: not-run

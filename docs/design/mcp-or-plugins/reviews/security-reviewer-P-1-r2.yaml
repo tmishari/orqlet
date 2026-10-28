@@ -1,0 +1,147 @@
+schema: orqlet.review-result/v1
+task: mcp-or-plugins
+phase: P-1
+role: security-reviewer
+round: 2
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: b38901a381c389fcc9d8f306710bc44c4fb1c371f1e277876301d20be3a9de13
+    design: 337747f797b071a5f4e50e6de1a68d4f565d1df0f493edbfbc8d977d3b03adfd
+    evidence_inputs: 507ef775ba88d47787255871e7120b802a69019f631bc67772470b805ca55b17
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 7330faf2044804e253c30940c1827d54dbf81ddbec7796fe6d2d3e4a45924be5
+    reviewer_definition: f969d0c8c6d65779f619b5254b1c1583aa3a4d6f0ecb56b0fd3d4647104bcb69
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: c9900d8f8c594e61de416cc5082536f91bdeebd75d44b81088beb548e687e577
+  merge_base: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: 03556c914cc53a8d2d8bacb1ecc1d703d0e50d31ad2376f983d6098a398692df
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; its shell was refused, so it ran no check and
+  recomputed no digest.
+- Quote digests were not computed, so each finding rests on reading and is an observation unless it carries an absence
+  record.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the design-phase review notes of this task, so the reviewer was not fully context-clean
+  (the known gap of the harness2-fit ADR-002).
+applicability:
+  examined:
+  - src/orqlet/domain/mcp_credentials.py
+  - tests/unit/domain/test_mcp_credentials.py
+  - tests/unit/domain/test_mcp_credentials_properties.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: 'A quoted literal under a credential-named key is not reported when its first character is `{` or `[`:
+    _is_literal strips quotes and then treats a leading bracket as a nested structure, although a JSON pair value
+    is always a quoted string. Traced by hand, not run.'
+  suggested_action: Decide literal versus nested from whether the value was quoted and add cases for the JSON, TOML
+    and YAML styles.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: 'Some scan rules are narrower than the module''s own normalisation: query names have no `-` to `_` mapping,
+    the Bearer and Basic words are case-sensitive and need a digit, `=`, `+` or `/`, and the token lookbehind skips
+    a token that follows a letter, digit or underscore.'
+  suggested_action: Normalise hyphens for query names and consider case-insensitive scheme words; state the limits
+    in the README.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: find_literal_credentials scans raw text line by line, so JSON escapes, a value on the next line, a TOML
+    multi-line string split by a backslash and inline tables are not matched on the raw text; decoded values are
+    a duty of the call sites, and no test combines escapes with the scan.
+  suggested_action: Add acceptance criteria and tests in P-4 and P-5 for decoded string values, one JSON-escaped
+    token and one inline table.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: referenced_variables returns text as written, including a token pasted into bearer_token_env_var (documented
+    and tested), and its reference pattern can cost up to about 2048 steps per start; it relies on the caller's
+    caps.
+  suggested_action: P-4 applies the caps before calling and tests that no output contains a token placed in bearer_token_env_var.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: standards
+  evidence: []
+  claim: 'One regex exceeds the bound of ADR-002 decision 7 (no repetition above 2048): _LINE_KEY uses a leading
+    blank run of 4096 and an unbounded tail; it is harmless because the line is cut to 4096 and the pattern is fully
+    matched.'
+  suggested_action: Align the pattern with the ADR or note the exception.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: The added plan.yaml names the tenant cisco-cxe.atlassian.net and the handle @tmishari. They are not credentials;
+    the tenant name is already in ADR-002 at base.
+  suggested_action: The person confirms that the name may stay in a committed plan; use a placeholder if the repository
+    becomes public.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: The staged change edits the approved design manifest (EC-20 manual, as_is_ref re-pointed) and the plan's
+    own self-check records that a renewed design approval is needed and not given, while the plan header says approved.
+  suggested_action: The person decides on re-approval; this is for the person and the architecture reviewer.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read
+    how: MANIFEST, diff.patch, plan, test record, knowledge-impact record and the snapshot of the changed files
+    result: pass
+  - what: re-run of ruff, mypy, import-linter and pytest
+    how: shell refused in this mode
+    result: not-run
+  - what: packet and record digests recomputed
+    how: no shell; hashes not computed
+    result: not-run

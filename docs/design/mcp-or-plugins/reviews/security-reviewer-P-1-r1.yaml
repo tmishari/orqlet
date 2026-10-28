@@ -1,0 +1,146 @@
+schema: orqlet.review-result/v1
+task: mcp-or-plugins
+phase: P-1
+role: security-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: c03dfc2636329137caf47e57958dc7f155f0724de2b7c9839ef7f4a0967d4746
+    design: 337747f797b071a5f4e50e6de1a68d4f565d1df0f493edbfbc8d977d3b03adfd
+    evidence_inputs: 753d9349ad1898c220b2b42ce0db7a748d0d96af431b538bd967de4ef64bf5e7
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 7330faf2044804e253c30940c1827d54dbf81ddbec7796fe6d2d3e4a45924be5
+    reviewer_definition: f969d0c8c6d65779f619b5254b1c1583aa3a4d6f0ecb56b0fd3d4647104bcb69
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 12662165219fff7a5019e1b044d5f54e75d877434feb310cfdbe7294ee2bc0d5
+  merge_base: ab7adb0e2862c32282343be7dc7c834a5ca3cccc
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: 03556c914cc53a8d2d8bacb1ecc1d703d0e50d31ad2376f983d6098a398692df
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; its shell was refused, so it ran no check and
+  recomputed no digest.
+- Quote digests were not computed, so each finding rests on reading and is an observation unless it carries an absence
+  record.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the design-phase review notes of this task, so the reviewer was not fully context-clean
+  (the known gap of the harness2-fit ADR-002).
+applicability:
+  examined:
+  - src/orqlet/domain/mcp_credentials.py
+  - tests/unit/domain/test_mcp_credentials.py
+  - tests/unit/domain/test_mcp_credentials_properties.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: 'referenced_variables returns raw input text, which contradicts the module''s own invariant: a credential
+    pasted into bearer_token_env_var or written as `${<token>}` comes back verbatim as a variable name, and a later
+    phase that prints these names would leak it.'
+  suggested_action: Reword the docstring; in P-4 use the result only for comparison; add a test with a token-shaped
+    string in bearer_token_env_var.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: '_is_literal treats any value that contains `${` as a reference, so a credential-named key whose value
+    mixes a literal with a reference, such as `"password": "<literal>${X}"`, produces no finding. The planned-proposal
+    scan of P-5 runs only this function.'
+  suggested_action: Exempt a value only when the whole value is a single reference; add a failing test for the mixed
+    case.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: 'Two shapes with a literal credential pass the key rule: hyphenated key names such as `x-api-key`, `api-key`
+    and `private-key`, and inline maps (a one-line TOML inline table or a YAML flow map).'
+  suggested_action: Normalise `-` to `_` before the word test; handle inline maps or rely on P-4's structured check
+    and say so.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: The default-form branch of _REFERENCE is bounded but not possessive, so text such as `${a:-` repeated costs
+    up to about 4000 steps per start, and referenced_variables has no input cap of its own; this is reasoning, not
+    a measurement.
+  suggested_action: Make the optional group atomic, add the string to the timing tests, and apply P-4's caps first.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: failure-handling
+  evidence: []
+  claim: _collect_references stops silently at depth 32. P-4 refuses nesting above 16, so it is unreachable in the
+    planned flow, but no test covers the limit.
+  suggested_action: Add a test for the depth limit.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: info
+  category: correctness
+  evidence: []
+  claim: Ordinary prose such as 'Basic configuration' or 'Bearer authentication' matches the Basic or Bearer rule,
+    which could make a prose field in the declaration fail init, upgrade or sync.
+  suggested_action: Add a test that records the intended behaviour, whichever way it goes.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: 'Two things need tests in the phase that wires them in: a JSON key with `\uXXXX` escapes defeats the pair
+    rule (decoded values are scanned at the call sites), and the tenant name cisco-cxe.atlassian.net is now in one
+    more committed file.'
+  suggested_action: P-4 and P-5 scan decoded text, with tests; consider whether the tenant name belongs in committed
+    text.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read
+    how: MANIFEST, diff.patch, plan, test record, knowledge-impact record and the snapshot of the changed files
+    result: pass
+  - what: re-run of ruff, mypy, import-linter and pytest
+    how: shell refused in this mode
+    result: not-run
+  - what: packet and record digests recomputed
+    how: no shell; hashes not computed
+    result: not-run

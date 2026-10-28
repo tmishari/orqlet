@@ -1,0 +1,135 @@
+schema: orqlet.review-result/v1
+task: mcp-or-plugins
+phase: P-1
+role: security-reviewer
+round: 3
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 371a2c797bf8986a3bd5be55a69b06aa73f4c40404025cb2d13cb990baa59450
+    design: 660c4f1e0d205b23e46e4f2594da787ab0f2bcc09975b416875134010fc46f9d
+    evidence_inputs: 6ee075a1caef5c269d23e418022bffe88599fed48c7aaf04b24ac6bcdbb30517
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: eff7651b7a073432a3e38f5ea8d6ec36bc493b1c368a55571ef6707694f3e19f
+    reviewer_definition: f969d0c8c6d65779f619b5254b1c1583aa3a4d6f0ecb56b0fd3d4647104bcb69
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: c8b0b144c4d37ab6d993b2de33415c44391656c6bec93e0faadcf296fe9dd1ad
+  merge_base: d03e0d435da186950583dd471e18ad07660cec51
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: 03556c914cc53a8d2d8bacb1ecc1d703d0e50d31ad2376f983d6098a398692df
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; its shell was refused, so it ran no check and
+  recomputed no digest.
+- Quote digests were not computed, so each finding rests on reading and is an observation unless it carries an absence
+  record.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the design-phase review notes of this task, so the reviewer was not fully context-clean
+  (the known gap of the harness2-fit ADR-002).
+applicability:
+  examined:
+  - src/orqlet/domain/mcp_credentials.py
+  - tests/unit/domain/test_mcp_credentials.py
+  - tests/unit/domain/test_mcp_credentials_properties.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: The authorization-literal and credential-key-literal rules can be evaded by more than 64 blanks between
+    a key and its colon or by a newline between key and value; the bound is in _AUTHORIZATION, _LINE_KEY and _PAIR
+    and no test pins it. Read, not executed.
+  suggested_action: Accept as the floor, not a guarantee, of ADR-002 decision 7 and say so in the README; optionally
+    pin the limit or flag a long run of blanks before a colon.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: The raw-text scan cannot see credential keys or separators written with JSON escapes, for example `Authoriz\u0061tion`
+    or `\u0026` for `&` in a query; the decoded call in P-4 closes this for values, and the ADR says values, not
+    keys.
+  suggested_action: In P-4 scan decoded keys as well, for example by re-serialising the parsed mapping, and add
+    tests with an escaped key and an escaped ampersand.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: The credential-key rule looks only at the first key on a line and at JSON-style quoted pairs; TOML inline
+    tables and YAML flow mappings with a credential-named key are not examined, for example `env = { API_KEY = "..."
+    }`.
+  suggested_action: P-4 scans .codex/config.toml too, so add unit cases for inline tables and flow mappings or state
+    the limit in the README.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: referenced_variables can return a pasted secret verbatim (documented and tested), and its reference pattern
+    costs roughly the string length times 2048; only 2048 characters are timed, so P-4 must cap strings first.
+  suggested_action: In P-4 cap strings at 2048 before calling it, never print its result and add a test for both.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: docs
+  evidence: []
+  claim: 'The code deviates from the ADR text it implements: ADR-002 decision 7 says no repetition above 2048 and
+    three patterns use up to 4096. The module comment documents the choice; the ADR was not updated.'
+  suggested_action: Update ADR-002 decision 7 in a later phase or in this one.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: 'The scan''s coverage lists are closed and short and match the ADR, so this is not a defect: the token
+    prefixes omit AIza, sk_live_, glpat- and PEM private-key headers; the query names omit auth and client_secret;
+    the key words omit credential, bearer, pwd and cookie; and an all-letter Basic value is accepted.'
+  suggested_action: State these limits in the README.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read
+    how: MANIFEST, diff.patch, plan, test record, knowledge-impact record and the snapshot of the changed files
+    result: pass
+  - what: re-run of ruff, mypy, import-linter and pytest
+    how: shell refused in this mode
+    result: not-run
+  - what: packet and record digests recomputed
+    how: no shell; hashes not computed
+    result: not-run
