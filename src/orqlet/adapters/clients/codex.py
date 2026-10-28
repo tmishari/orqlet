@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from orqlet.adapters.render.instructions import agents_block
+from orqlet.adapters.render.instructions import agents_block, conventions_block
 from orqlet.adapters.render.roles import codex_role
 from orqlet.adapters.render.skills import agents_skill_files, codex_sidecar
 from orqlet.application.ports.instruction_adapter import (
@@ -18,8 +18,9 @@ DOCUMENTATION_LIMIT = CapabilityLimit(
 )
 NO_PATH_RULES_LIMIT = CapabilityLimit(
     "ORQ-L002",
-    "Codex has no per-path rules. Scoped rules are not delivered as files; an agent reads them "
-    "with `orqlet standards for`.",
+    "Codex has no per-path rules. Scoped rules are not delivered as files; the team's resource "
+    "rules reach Codex through the catalogue skill, and an agent reads the other rules with "
+    "`orqlet standards for`.",
 )
 NO_COMMANDS_LIMIT = CapabilityLimit(
     "ORQ-L003",
@@ -28,8 +29,19 @@ NO_COMMANDS_LIMIT = CapabilityLimit(
 SKILL_FIELD_LIMIT = CapabilityLimit(
     "ORQ-L005",
     "Codex reads the same `SKILL.md` as Cursor, which carries the field "
-    "`disable-model-invocation` that Codex does not document. A skill is kept from starting on "
-    "its own by `agents/openai.yaml`, which is documented but not observed.",
+    "`disable-model-invocation` that Codex does not document. A workflow skill is kept from "
+    "starting on its own by `agents/openai.yaml`, which is documented but not observed; the "
+    "skills for the team's resources may be started by the agent and have no such file.",
+)
+
+_WEB_LOOKUP_LIMIT = CapabilityLimit(
+    "ORQ-L006",
+    "Lookups on the web are requested by the baseline in every phase. Codex "
+    "`web_search` defaults to `cached`, and to `live` under a full-access sandbox, so a "
+    "lookup may not see a current page. To opt out, turn the web search off in the "
+    "Codex configuration. This is documented and not observed. The signed-in browser "
+    "route is a separate tool that this does not turn off, and the role sentence and "
+    "the rule to open registered addresses only are advice.",
 )
 
 
@@ -37,15 +49,17 @@ class CodexAdapter:
     client_id = "codex"
 
     def render(self, request: RenderRequest) -> RenderResult:
-        limits = [DOCUMENTATION_LIMIT]
+        limits = [DOCUMENTATION_LIMIT, _WEB_LOOKUP_LIMIT]
         if request.scoped_rules:
             limits.append(NO_PATH_RULES_LIMIT)
         if request.commands:
             limits.append(NO_COMMANDS_LIMIT)
+        conventions = conventions_block(request)
         files = [
             agents_block(request),
+            *(() if conventions is None else (conventions,)),
             *(file for skill in request.skills for file in agents_skill_files(skill)),
-            *(codex_sidecar(skill) for skill in request.skills),
+            *(codex_sidecar(skill) for skill in request.skills if not skill.agent_may_start),
             *(codex_role(role) for role in request.roles),
         ]
         if request.skills:

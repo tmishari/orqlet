@@ -13,6 +13,9 @@ from orqlet.application.ports.vcs import (
 )
 from orqlet.domain.digest import sha256_hex
 
+_MAX_RANGE_COMMITS = 201  # one more than the 200 that the convention check reads
+_MAX_SUBJECT_CHARACTERS = 1024
+
 
 class FakeVcs:
     """A repository described by plain data; enough to test code that only reads Git state."""
@@ -33,6 +36,7 @@ class FakeVcs:
         merge_bases: dict[tuple[str, str], tuple[str, ...]] | None = None,
         staged_tree: tuple[str, dict[str, bytes]] | None = None,
         refs: dict[str, str] | None = None,
+        ranges: dict[tuple[str, str], tuple[CommitSummary, ...]] | None = None,
     ) -> None:
         self._state = state
         self._branch = branch
@@ -46,6 +50,7 @@ class FakeVcs:
         self._modes = dict(modes or {})  # (revision, path) -> Git mode other than 100644
         self._merge_bases = dict(merge_bases or {})
         self._refs = dict(refs or {})
+        self._ranges = dict(ranges or {})  # (base, head) -> the commits of base..head, newest first
         self._trees: dict[str, dict[str, bytes]] = {}  # tree object ids, never commits
         self._staged_tree = None if staged_tree is None else staged_tree[0]
         if staged_tree is not None:
@@ -151,6 +156,30 @@ class FakeVcs:
 
     def recent_commits(self, limit: int) -> tuple[CommitSummary, ...]:
         return self._commits[:limit]
+
+    def _known_commit_ids(self) -> frozenset[str]:
+        """Every id that the data of this fake names, so that an invented id is an error."""
+        known = {summary.commit_id for summary in self._commits}
+        known.update(summary.commit_id for found in self._ranges.values() for summary in found)
+        known.update(self._refs.values())
+        known.update(self._revisions)
+        for (first, second), members in self._merge_bases.items():
+            known.update((first, second, *members))
+        return frozenset(known)
+
+    def commit_subjects(self, base: str, head: str) -> tuple[CommitSummary, ...]:
+        """The commits of `base..head`, newest first: at most 201, each subject cut at 1024."""
+        for revision in (base, head):
+            if not re.fullmatch(r"HEAD|[0-9a-f]{40}|[0-9a-f]{64}", revision):
+                raise VcsError(f"not an accepted revision: {revision!r}")
+        known = self._known_commit_ids()
+        for revision in (base, head):
+            if revision not in known:
+                raise VcsError(f"not a commit of this repository: {revision!r}")
+        return tuple(
+            CommitSummary(summary.commit_id, summary.subject[:_MAX_SUBJECT_CHARACTERS])
+            for summary in self._ranges.get((base, head), ())[:_MAX_RANGE_COMMITS]
+        )
 
     def remote_names(self) -> tuple[str, ...]:
         return tuple(sorted(self._remotes))

@@ -65,6 +65,7 @@ class ClientSkill:
     body: str
     references: tuple[tuple[str, str], ...] = ()  # (file name, text) of `references/<file>`
     inputs: tuple[tuple[str, str, str], ...] = ()  # (id, version, sha256) of the skill text
+    agent_may_start: bool = False  # True: the agent may start it; a workflow skill is person-only
 
 
 @dataclass(frozen=True, slots=True)
@@ -79,6 +80,14 @@ class ClientRole:
 
 
 @dataclass(frozen=True, slots=True)
+class ConventionsView:
+    """The finished lines of the conventions block of `AGENTS.md`, and the registry's size."""
+
+    lines: tuple[str, ...]
+    resources: int
+
+
+@dataclass(frozen=True, slots=True)
 class RenderRequest:
     """Everything an adapter needs, already resolved: it never re-reads the profile or packs."""
 
@@ -89,6 +98,7 @@ class RenderRequest:
     skills: tuple[ClientSkill, ...] = ()
     roles: tuple[ClientRole, ...] = ()
     client_version: str | None = None  # recorded when known; no floor is assumed (spike S-21)
+    conventions: ConventionsView | None = None  # None: no convention answered, no link registered
 
 
 @dataclass(frozen=True, slots=True)

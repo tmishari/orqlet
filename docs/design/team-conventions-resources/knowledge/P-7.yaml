@@ -1,0 +1,1102 @@
+schema: orqlet.knowledge-impact/v1
+task: team-conventions-resources
+phase: P-7
+review_input:
+  components:
+    candidates: b3fdc8ca414831cf5f0840e97cbad72f982617850820944c1a302b763d8d7feb
+    code_tests: 5db4a4f9ae5fde7c948e6be4f7eed2a7d37499b12784dccf5671f7cd1c93fba6
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: cebd53df7986b17ae02bddb6ae1d32a654f8677fe04cef91c9ed71869782f0f1
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  covers:
+  - code_tests
+  - knowledge
+  - plan
+  - standards
+  - candidates
+  digest: 83894721b3a7c191d824826dff2abdca9d13f11a8aea01fa180d6cb076d45884
+  merge_base: d03e0d435da186950583dd471e18ad07660cec51
+  schema: orqlet.review-input/v1
+outcome: no-impact
+analysis:
+  command: orqlet knowledge impact
+  orqlet_version: 0.1.0
+  candidates_digest: b3fdc8ca414831cf5f0840e97cbad72f982617850820944c1a302b763d8d7feb
+  candidate_count: 105
+  input: pre-draft-tree
+  views:
+  - committed:HEAD
+  index_state: not-used
+entries:
+- id: K-1
+  candidate_ref: cand-201029722530
+  action: unaffected
+  scope: project
+  reason: EC-1 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-2
+  candidate_ref: cand-ce66f367a768
+  action: unaffected
+  scope: project
+  reason: EC-10 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-3
+  candidate_ref: cand-3451e9ca4f76
+  action: unaffected
+  scope: project
+  reason: EC-11 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-4
+  candidate_ref: cand-7493ed512e36
+  action: unaffected
+  scope: project
+  reason: EC-12 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-5
+  candidate_ref: cand-d10f3163a2ab
+  action: unaffected
+  scope: project
+  reason: EC-13 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-6
+  candidate_ref: cand-3d95d77f3ff7
+  action: unaffected
+  scope: project
+  reason: EC-14 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-7
+  candidate_ref: cand-d671e55a309c
+  action: unaffected
+  scope: project
+  reason: EC-15 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-8
+  candidate_ref: cand-b5358be988b2
+  action: unaffected
+  scope: project
+  reason: EC-16 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-9
+  candidate_ref: cand-ce2a5315ace4
+  action: unaffected
+  scope: project
+  reason: EC-17 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-10
+  candidate_ref: cand-435a40024a83
+  action: unaffected
+  scope: project
+  reason: EC-18 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-11
+  candidate_ref: cand-4e92f830d453
+  action: unaffected
+  scope: project
+  reason: EC-19 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-12
+  candidate_ref: cand-33b6b82bf167
+  action: unaffected
+  scope: project
+  reason: EC-2 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-13
+  candidate_ref: cand-89ec8436dfef
+  action: unaffected
+  scope: project
+  reason: EC-20 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-14
+  candidate_ref: cand-1c8f8cb199ca
+  action: unaffected
+  scope: project
+  reason: EC-21 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-15
+  candidate_ref: cand-9425c7ebf48a
+  action: unaffected
+  scope: project
+  reason: EC-22 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-16
+  candidate_ref: cand-5956bed3c1b8
+  action: unaffected
+  scope: project
+  reason: EC-23 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-17
+  candidate_ref: cand-d80f5cf10892
+  action: unaffected
+  scope: project
+  reason: EC-24 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-18
+  candidate_ref: cand-c4c0d38d875b
+  action: unaffected
+  scope: project
+  reason: EC-25 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-19
+  candidate_ref: cand-42beba0c907a
+  action: unaffected
+  scope: project
+  reason: EC-26 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-20
+  candidate_ref: cand-a8e03efdf1ca
+  action: unaffected
+  scope: project
+  reason: EC-27 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-21
+  candidate_ref: cand-07fa05199b1f
+  action: unaffected
+  scope: project
+  reason: EC-28 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-22
+  candidate_ref: cand-379f1a6b8366
+  action: unaffected
+  scope: project
+  reason: EC-29 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-23
+  candidate_ref: cand-9fa0814a6cb9
+  action: unaffected
+  scope: project
+  reason: EC-3 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-24
+  candidate_ref: cand-e0f2f4f983f5
+  action: unaffected
+  scope: project
+  reason: EC-30 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-25
+  candidate_ref: cand-570b94b9d3bc
+  action: unaffected
+  scope: project
+  reason: EC-31 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-26
+  candidate_ref: cand-321621542270
+  action: unaffected
+  scope: project
+  reason: EC-32 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-27
+  candidate_ref: cand-0d930468cadf
+  action: unaffected
+  scope: project
+  reason: EC-33 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-28
+  candidate_ref: cand-634cf2dbe837
+  action: unaffected
+  scope: project
+  reason: EC-34 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-29
+  candidate_ref: cand-ef2740a6fc06
+  action: unaffected
+  scope: project
+  reason: EC-35 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-30
+  candidate_ref: cand-d69c98936c23
+  action: unaffected
+  scope: project
+  reason: EC-36 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-31
+  candidate_ref: cand-1364d0f05323
+  action: unaffected
+  scope: project
+  reason: EC-37 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-32
+  candidate_ref: cand-7211aa83fe14
+  action: unaffected
+  scope: project
+  reason: EC-38 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-33
+  candidate_ref: cand-4acdc938de4c
+  action: unaffected
+  scope: project
+  reason: EC-39 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-34
+  candidate_ref: cand-d0a63797e1bc
+  action: unaffected
+  scope: project
+  reason: EC-4 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-35
+  candidate_ref: cand-f8229233ace7
+  action: unaffected
+  scope: project
+  reason: EC-40 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-36
+  candidate_ref: cand-ab78c69ac6aa
+  action: unaffected
+  scope: project
+  reason: EC-41 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-37
+  candidate_ref: cand-3b5ee9a55efe
+  action: unaffected
+  scope: project
+  reason: EC-42 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-38
+  candidate_ref: cand-6e7d342ac467
+  action: unaffected
+  scope: project
+  reason: EC-43 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-39
+  candidate_ref: cand-21762b195b15
+  action: unaffected
+  scope: project
+  reason: EC-44 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-40
+  candidate_ref: cand-39dba670b92b
+  action: unaffected
+  scope: project
+  reason: EC-45 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-41
+  candidate_ref: cand-acf2db6f7a9e
+  action: unaffected
+  scope: project
+  reason: EC-46 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-42
+  candidate_ref: cand-a3ec6939610b
+  action: unaffected
+  scope: project
+  reason: EC-47 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-43
+  candidate_ref: cand-d85157c2ec57
+  action: unaffected
+  scope: project
+  reason: EC-48 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-44
+  candidate_ref: cand-7ada91e9d1f2
+  action: unaffected
+  scope: project
+  reason: EC-49 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-45
+  candidate_ref: cand-cee64e0e0d69
+  action: unaffected
+  scope: project
+  reason: EC-5 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-46
+  candidate_ref: cand-314ab5bb29c5
+  action: unaffected
+  scope: project
+  reason: EC-50 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-47
+  candidate_ref: cand-470095f3a9d6
+  action: unaffected
+  scope: project
+  reason: EC-51 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-48
+  candidate_ref: cand-6f68b24288c5
+  action: unaffected
+  scope: project
+  reason: EC-52 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-49
+  candidate_ref: cand-683657d94ca4
+  action: unaffected
+  scope: project
+  reason: EC-6 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-50
+  candidate_ref: cand-dbaedfef085a
+  action: unaffected
+  scope: project
+  reason: EC-67 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-51
+  candidate_ref: cand-4a8f5a32b2d4
+  action: unaffected
+  scope: project
+  reason: EC-7 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-52
+  candidate_ref: cand-4b241aef0a3d
+  action: unaffected
+  scope: project
+  reason: EC-8 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-53
+  candidate_ref: cand-a51af2591937
+  action: unaffected
+  scope: project
+  reason: EC-9 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+- id: K-54
+  candidate_ref: cand-000009e745b9
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.adapters.git.vcs_git.GitVcs.commit_subjects was added; the component view of
+    the approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-55
+  candidate_ref: cand-abe7b4d342c8
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.adapters.render.instructions.conventions_block was added; the component view
+    of the approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-56
+  candidate_ref: cand-72db9a120f4e
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.application.contracts.resources.AppliesTo was added; the component view of the
+    approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-57
+  candidate_ref: cand-89983dca022d
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.application.contracts.resources.Resource was added; the component view of the
+    approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-58
+  candidate_ref: cand-93f75c76463b
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.application.contracts.resources.Resources was added; the component view of the
+    approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-59
+  candidate_ref: cand-63237db198c2
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.application.contracts.resources.Resources.covered_tools was added; the component
+    view of the approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-60
+  candidate_ref: cand-b0ffe84393fe
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.application.contracts.resources.StoredCopy was added; the component view of the
+    approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-61
+  candidate_ref: cand-ed8ae8c05cbe
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.application.ports.instruction_adapter.ConventionsView was added; the component
+    view of the approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-62
+  candidate_ref: cand-b22cfaeb4f2d
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.application.ports.vcs.Vcs.commit_subjects was added; the component view of the
+    approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-63
+  candidate_ref: cand-e517a1cbcd81
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.application.usecases.conventions_check.ConventionsRequest was added; the component
+    view of the approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-64
+  candidate_ref: cand-969f74dc628b
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.application.usecases.conventions_check.check_conventions was added; the component
+    view of the approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-65
+  candidate_ref: cand-15373819f792
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.application.usecases.render_all.compose was added; the component view of the
+    approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-66
+  candidate_ref: cand-1263652d5cbb
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.application.usecases.render_all.data_files was added; the component view of the
+    approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-67
+  candidate_ref: cand-9a47761efe7d
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.application.usecases.render_request.build_render_request was added; the component
+    view of the approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-68
+  candidate_ref: cand-b8418a6cd6f6
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.application.usecases.resources_edit.CopySpec was added; the component view of
+    the approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-69
+  candidate_ref: cand-346abcb7992c
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.application.usecases.resources_edit.ResourceSpec was added; the component view
+    of the approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-70
+  candidate_ref: cand-da3614b0f67c
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.application.usecases.resources_edit.ResourcesEditResult was added; the component
+    view of the approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-71
+  candidate_ref: cand-eb94dd2a5c74
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.application.usecases.resources_edit.add_resource was added; the component view
+    of the approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-72
+  candidate_ref: cand-429016429347
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.application.usecases.resources_edit.attach_copy was added; the component view
+    of the approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-73
+  candidate_ref: cand-58e0e86107d7
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.application.usecases.resources_edit.remove_resource was added; the component
+    view of the approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-74
+  candidate_ref: cand-e523c6c8ff7b
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.application.usecases.resources_edit.resources_with was added; the component view
+    of the approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-75
+  candidate_ref: cand-e37b1c34565c
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.application.usecases.resources_edit.resources_without was added; the component
+    view of the approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-76
+  candidate_ref: cand-0afc5bddd91f
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.application.usecases.resources_edit.update_resource was added; the component
+    view of the approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-77
+  candidate_ref: cand-3d2f828b4438
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.application.usecases.resources_source.load_resources was added; the component
+    view of the approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-78
+  candidate_ref: cand-84d4a3bea3f0
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.application.usecases.resources_source.parse_resources was added; the component
+    view of the approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-79
+  candidate_ref: cand-6a8d513ec7c0
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.application.usecases.resources_source.resources_path was added; the component
+    view of the approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-80
+  candidate_ref: cand-df1adfd3efd1
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.application.usecases.resources_view.ResourcesListing was added; the component
+    view of the approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-81
+  candidate_ref: cand-4a8ce4d84bed
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.application.usecases.resources_view.catalogue_skill was added; the component
+    view of the approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-82
+  candidate_ref: cand-620b1752ba29
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.application.usecases.resources_view.conventions_view was added; the component
+    view of the approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-83
+  candidate_ref: cand-18bef6d710d2
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.application.usecases.resources_view.list_resources was added; the component view
+    of the approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-84
+  candidate_ref: cand-1f8f078f3e48
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.application.usecases.resources_view.resource_rules was added; the component view
+    of the approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-85
+  candidate_ref: cand-8dc92d63cd06
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.application.usecases.resources_view.resource_skills was added; the component
+    view of the approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-86
+  candidate_ref: cand-11bfa376729d
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.application.usecases.validate_resources.validate_resources was added; the component
+    view of the approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-87
+  candidate_ref: cand-9c7d872856a4
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.domain.conventions.branch_problems was added; the component view of the approved
+    design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-88
+  candidate_ref: cand-c4a43e233b8e
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.domain.conventions.commit_subject_problems was added; the component view of the
+    approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-89
+  candidate_ref: cand-cd0a9c37079e
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.domain.conventions.is_checkable_convention was added; the component view of the
+    approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-90
+  candidate_ref: cand-bee259c18638
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.domain.conventions.pattern_problems was added; the component view of the approved
+    design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-91
+  candidate_ref: cand-5298282c2eb9
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.domain.conventions.printable was added; the component view of the approved design
+    lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-92
+  candidate_ref: cand-3d2b2fd35186
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.domain.resources.copy_path was added; the component view of the approved design
+    lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-93
+  candidate_ref: cand-f362575ce82c
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.domain.resources.copy_problems was added; the component view of the approved
+    design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-94
+  candidate_ref: cand-00f34cc4d799
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.domain.resources.credential_problems was added; the component view of the approved
+    design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-95
+  candidate_ref: cand-023ed20a20c3
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.domain.resources.glob_problems was added; the component view of the approved
+    design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-96
+  candidate_ref: cand-4660e502c854
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.domain.resources.hidden_text_problems was added; the component view of the approved
+    design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-97
+  candidate_ref: cand-350bbbc09978
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.domain.resources.host_of was added; the component view of the approved design
+    lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-98
+  candidate_ref: cand-9a69eb7823bd
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.domain.resources.is_stale was added; the component view of the approved design
+    lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-99
+  candidate_ref: cand-e8ce98b53a71
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.domain.resources.resource_id_problems was added; the component view of the approved
+    design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-100
+  candidate_ref: cand-1c73e8d65543
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.domain.resources.text_problems was added; the component view of the approved
+    design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-101
+  candidate_ref: cand-8e0a0254dcf4
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.domain.resources.uncovered_names was added; the component view of the approved
+    design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-102
+  candidate_ref: cand-b402dcea21ea
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.domain.resources.url_problems was added; the component view of the approved design
+    lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-103
+  candidate_ref: cand-3f641f5eedf3
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.interface.cli.commands.conventions.conventions_group was added; the component
+    view of the approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-104
+  candidate_ref: cand-476b68311528
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.interface.cli.commands.resources.resources_group was added; the component view
+    of the approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+- id: K-105
+  candidate_ref: cand-6c35b1874d54
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.interface.cli.commands.validate.resources_command was added; the component view
+    of the approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+no_impact:
+  category: already-documented
+  reason: The behaviour of this phase is already written down in the ADR named in the references, in the component
+    view and in the approved design manifest.
+  absence_record:
+    scopes_searched:
+    - .orqlet/knowledge.yaml sources
+    - the plan's knowledge_scope
+    views:
+    - committed:HEAD
+    revision: d03e0d435da186950583dd471e18ad07660cec51
+    method: orqlet knowledge impact on the staged tree; the project configures no knowledge sources and the plan's
+      knowledge_scope is empty, so no knowledge document exists that the phase could change.
+    index_state: not-used
+    candidates_found: 105
+  already_documented_refs:
+  - path: docs/design/team-conventions-resources/design/adr-003-conventions-in-the-profile-told-to-agents-and-checked-in-ci.md
+    sha256: 605dc373a5fbd76543fee32d41571772b6cd69da699eb37f9e25c329caca8ba7
+  - path: docs/design/team-conventions-resources/design/component.md
+    sha256: d1a568d7121f3b6c6f87a34569803a4f92869c804b41eb6c33209335434cdf92
+  - path: docs/design/team-conventions-resources/design/manifest.yaml
+    sha256: 0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694

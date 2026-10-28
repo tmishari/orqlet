@@ -1,0 +1,175 @@
+schema: orqlet.review-result/v1
+task: team-conventions-resources
+phase: P-1
+role: security-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 4893e1497484a6cf4e71228fde7162ef170eec1eea3c4af7d353bfbf0bb6e29b
+    design: bbe26a9596127dc8f6769bc5be680e6b959bf05f54b94d3ba598a6285fae43cb
+    evidence_inputs: 90d82fa4670aa4c1a3ede19adbaf87521dfc6065d7bc5f0e068a633fb8a24a2d
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: cebd53df7986b17ae02bddb6ae1d32a654f8677fe04cef91c9ed71869782f0f1
+    reviewer_definition: f969d0c8c6d65779f619b5254b1c1583aa3a4d6f0ecb56b0fd3d4647104bcb69
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 050f24c307765873082b9f4fb3f5d386b1db34537680dfd0ea21fa5ff26d7ff1
+  merge_base: d03e0d435da186950583dd471e18ad07660cec51
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: 03556c914cc53a8d2d8bacb1ecc1d703d0e50d31ad2376f983d6098a398692df
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; it had no shell, so it ran no check and recomputed
+  no digest.
+- Quote digests were not computed, so each finding rests on reading and is an observation that never blocks.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the design-phase review notes of this task, so the reviewer was not fully context-clean
+  (the known gap of the harness2-fit ADR-002).
+- The reviewer ran in the same client as the Coder, so independence is I1, not I2.
+applicability:
+  examined:
+  - src/orqlet/domain/resources.py
+  - src/orqlet/domain/conventions.py
+  - src/orqlet/domain/classify.py
+  - tests/unit/domain/test_resources.py
+  - tests/unit/domain/test_resources_properties.py
+  - tests/unit/domain/test_conventions.py
+  - tests/unit/domain/test_conventions_properties.py
+  - tests/unit/domain/test_classify.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: '[major] text_problems accepts ''@'', which Claude Code reads as a file import in a memory file; AGENTS.md
+    is imported by CLAUDE.md, so a note or answer such as ''see @~/.ssh/key'' could pull a local file into the context.
+    Not observed in a client.'
+  suggested_action: Refuse '@' in text_problems and add hostile vectors; extend check V-3.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: '[minor] The hidden-code-point table stops at U+180E; U+180F is a default-ignorable variation selector
+    and is not in it.'
+  suggested_action: Extend the table (U+180F, U+FFF0 to U+FFF8) and update the tests.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: '[minor] The open-redirect rule refuses a decoded query value only for ''//'' or a scheme; ''/\host'' and
+    ''\\host'' (as %5C) pass.'
+  suggested_action: Also refuse a decoded value that holds a backslash; add vectors.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: '[minor] The URL allow-list admits ''$'', ''\'''', ''!'', ''*'' and '';'' in a path, so an address put
+    unquoted in a shell command could chain commands; ADR-001 routes lookups through client web tools.'
+  suggested_action: Refuse those characters in a path and a path parameter; the baseline says an address is never
+    put into a shell command.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: '[minor] The opaque-token heuristic covers path segments of letters, digits and ''_'' only; a webhook-style
+    secret under 32 characters or with a hyphen, or a '';jsessionid='' path parameter, passes.'
+  suggested_action: Refuse ';' in a path; accept the rest as a stated limit.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: '[minor] glob_problems refuses a glob only when every character is ''*'', ''?'' or ''/''; ''*.*'' and ''**/*.*''
+    pass and match nearly every file, and '','' is accepted.'
+  suggested_action: Refuse ',' and a glob whose segments are only '*', '?' and '.'.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: The token prefixes omit model-vendor keys ('sk-', 'sk-ant-'), 'npm_', 'rk_live_' and 'pk_test_'; _TOKEN_BODY_CHARS
+    is unused.
+  suggested_action: Add the prefixes and remove the constant.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-8
+  kind: observation
+  severity: non-blocking
+  category: failure-handling
+  evidence: []
+  claim: '[minor] is_stale raises OverflowError near datetime.max and TypeError for a naive datetime; doctor would
+    crash on a hostile registry unless the contract bounds retrieved_at.'
+  suggested_action: Bound retrieved_at in the P-2 contract and catch the overflow.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-9
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: copy_path builds a path from an unchecked id and host_of returns raw host text for a refused address; both
+    are safe only if callers validate first.
+  suggested_action: Make the functions refuse bad input themselves.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-10
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: The public-entry rule for internal-looking hosts has no function in P-1 and appears in the P-2 plan only
+    in an explanatory text.
+  suggested_action: Add an acceptance criterion to P-2 that the contract refuses a public entry with such a host.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read
+    how: MANIFEST, diff.patch, plan, test record, knowledge-impact record and the snapshot of the changed files
+    result: pass
+  - what: re-run of ruff, mypy, import-linter and pytest
+    how: no shell
+    result: not-run
+  - what: packet and record digests recomputed
+    how: no shell; hashes not computed
+    result: not-run

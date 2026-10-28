@@ -1,0 +1,124 @@
+schema: orqlet.review-result/v1
+task: team-conventions-resources
+phase: P-6
+role: security-reviewer
+round: 2
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 53e9784efde6759f5ad701138ae10b24a77d12e7c50f414a492869e7266040c6
+    design: bbe26a9596127dc8f6769bc5be680e6b959bf05f54b94d3ba598a6285fae43cb
+    evidence_inputs: 4ecd857bf436382d797595038b61b0e32c160b72d1f2988b0237e062973fe1be
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: cebd53df7986b17ae02bddb6ae1d32a654f8677fe04cef91c9ed71869782f0f1
+    reviewer_definition: f969d0c8c6d65779f619b5254b1c1583aa3a4d6f0ecb56b0fd3d4647104bcb69
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: b31f7eed6350943455f80b3563bc5d5627ff637c2f2fc22ff8710bb8000e90f3
+  merge_base: d03e0d435da186950583dd471e18ad07660cec51
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: 03556c914cc53a8d2d8bacb1ecc1d703d0e50d31ad2376f983d6098a398692df
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; it had no shell, so it ran no check and recomputed
+  no digest.
+- Quote digests were not computed, so each finding rests on reading and is an observation that never blocks.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the design-phase review notes of this task, so the reviewer was not fully context-clean
+  (the known gap of the harness2-fit ADR-002).
+- The reviewer ran in the same client as the Coder, so independence is I1, not I2.
+- Round 2 followed a rework of the tool-skill template and of glob_problems; the reviewer found the change by reading
+  the snapshot.
+applicability:
+  examined:
+  - src/orqlet/application/ports/instruction_adapter.py
+  - src/orqlet/application/usecases/resources_view.py
+  - src/orqlet/application/usecases/render_request.py
+  - src/orqlet/application/usecases/render_all.py
+  - src/orqlet/application/usecases/init_project.py
+  - src/orqlet/adapters/render/instructions.py
+  - src/orqlet/adapters/render/skills.py
+  - src/orqlet/adapters/clients/claude_code.py
+  - src/orqlet/adapters/clients/codex.py
+  - src/orqlet/adapters/clients/cursor.py
+  - src/orqlet/workflow/templates/resource-rule.md
+  - src/orqlet/workflow/templates/tool-skill.md
+  - src/orqlet/workflow/templates/catalogue-skill.md
+  - src/orqlet/workflow/templates/conventions-block.md
+  - src/orqlet/workflow/MANIFEST.json
+  - src/orqlet/domain/resources.py
+  - tests/unit/application/test_resources_view.py
+  - tests/unit/render/test_resources_golden.py
+  - tests/unit/render/test_conventions_block.py
+  - tests/support/render.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: '[minor] A glob can still carry a URL or a link sequence into the catalogue skill.'
+  suggested_action: Refuse the URL and link sequences in glob_problems.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: tests
+  evidence: []
+  claim: '[minor] The new at-sign and less-than vectors are not isolated.'
+  suggested_action: Use single-character vectors and add spoilers to the property test.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: docs
+  evidence: []
+  claim: '[minor] The template names a password or a token while ADR-001 also names cookie, session value and storage-state
+    file.'
+  suggested_action: Widen the list or ship P-8 first.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: tests
+  evidence: []
+  claim: The ask-first sentence of step 2 is pinned only by golden bytes.
+  suggested_action: Assert the phrases in a test.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read
+    how: MANIFEST, diff.patch, plan, test record, knowledge-impact record and the snapshot of the changed files
+    result: pass
+  - what: re-run of ruff, mypy, import-linter and pytest
+    how: no shell
+    result: not-run
+  - what: packet and record digests recomputed
+    how: no shell; hashes not computed
+    result: not-run

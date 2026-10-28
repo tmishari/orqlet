@@ -14,7 +14,11 @@ import pytest
 from orqlet.adapters.clients.claude_code import ClaudeCodeAdapter
 from orqlet.adapters.clients.codex import CodexAdapter
 from orqlet.adapters.clients.cursor import CursorAdapter
-from orqlet.application.ports.instruction_adapter import InstructionAdapter, RenderedFile
+from orqlet.application.ports.instruction_adapter import (
+    InstructionAdapter,
+    RenderedFile,
+    RenderRequest,
+)
 from orqlet.domain.ownership import FileClass, OwnerMode
 from tests.support.render import (
     COMMAND_NAMES,
@@ -131,3 +135,98 @@ def test_the_codex_chain_budget_is_respected_by_the_baseline_block() -> None:
     block = CodexAdapter().render(packaged_request()).files[0]
 
     assert len(block.content) < 32 * 1024
+
+
+# --- the limits of each client (task team-conventions-resources, phase P-8) ----------------------
+# Every case cites its `expected_behavior_source`: ADR-004 is `adr-004-*.md` under
+# docs/design/team-conventions-resources/design/ and AC-5 is an acceptance criterion of phase P-8
+# in the `plan.yaml` there. The Coder wrote the limits before the Tester, so these cases were run
+# against them and then checked by changing a copy of the adapters. The wording of a message is not
+# pinned beyond the words below, and the set of limits is pinned for two requests only: the
+# packaged one and an empty one. A request with other parts may add limits that are not pinned.
+REQUESTS: dict[str, Callable[[], RenderRequest]] = {
+    "the packaged request": packaged_request,
+    "an empty request": lambda: RenderRequest(workflow_version="1", baseline_body="b\n"),
+}
+REQUEST_FACTORIES = list(REQUESTS.values())
+REQUEST_IDS = list(REQUESTS)
+# The codes that each client reported before phase P-8: the characterization of the base revision
+# (claude_code.py, codex.py and cursor.py as committed), for each request above.
+LIMITS_BEFORE: dict[str, dict[str, set[str]]] = {
+    "the packaged request": {
+        "claude-code": {"ORQ-L001"},
+        "codex": {"ORQ-L001", "ORQ-L002", "ORQ-L003", "ORQ-L005"},
+        "cursor": {"ORQ-L001", "ORQ-L004"},
+    },
+    "an empty request": {
+        "claude-code": {"ORQ-L001"},
+        "codex": {"ORQ-L001"},
+        "cursor": {"ORQ-L001"},
+    },
+}
+
+
+def web_limit_message(adapter: InstructionAdapter, request: RenderRequest) -> str:
+    """The message of the one limit ORQ-L006, in lower case (the letter case is not a rule)."""
+    messages = [
+        limit.message.lower()
+        for limit in adapter.render(request).limits
+        if limit.code == "ORQ-L006"
+    ]
+    assert len(messages) == 1, f"{adapter.client_id}: ORQ-L006 is reported exactly once"
+    return messages[0]
+
+
+@pytest.mark.parametrize("make_request", REQUEST_FACTORIES, ids=REQUEST_IDS)
+@pytest.mark.parametrize("adapter", ADAPTERS, ids=lambda adapter: adapter.client_id)
+def test_every_client_says_that_lookups_are_requested_and_how_to_opt_out(
+    adapter: InstructionAdapter, make_request: Callable[[], RenderRequest]
+) -> None:
+    """AC-5. expected_behavior_source: plan P-8 AC-5 (each client reports one new limit that says
+    lookups are requested and how to opt out, labelled documented and not observed); ADR-004
+    decision 6; the interface decision (code ORQ-L006, `opt out`, `not observed`)."""
+    message = web_limit_message(adapter, make_request())
+
+    assert "requested" in message
+    assert "opt out" in message
+    assert "not observed" in message
+
+
+@pytest.mark.parametrize("make_request", REQUEST_FACTORIES, ids=REQUEST_IDS)
+@pytest.mark.parametrize(
+    ("adapter", "words"),
+    [
+        (ClaudeCodeAdapter(), ("forked", "tester")),
+        (CodexAdapter(), ("cached",)),
+        (CursorAdapter(), ("not verified",)),
+    ],
+    ids=["claude-code", "codex", "cursor"],
+)
+def test_each_client_names_what_is_true_of_its_own_web_tool(
+    adapter: InstructionAdapter,
+    words: tuple[str, ...],
+    make_request: Callable[[], RenderRequest],
+) -> None:
+    """AC-5. expected_behavior_source: ADR-004 decision 6 (Codex: `web_search` defaults to
+    `cached`; Cursor: its web tools are not verified); plan P-8 file list (claude_code.py: a fork
+    ignores a role's tools and the tester inherits the web tools); the interface decision
+    (`cached` for Codex, `forked` for Claude Code)."""
+    message = web_limit_message(adapter, make_request())
+
+    for word in words:
+        assert word in message
+
+
+@pytest.mark.parametrize("request_name", REQUEST_IDS)
+@pytest.mark.parametrize("adapter", ADAPTERS, ids=lambda adapter: adapter.client_id)
+def test_each_client_reports_the_codes_it_reported_before_and_the_new_one(
+    adapter: InstructionAdapter, request_name: str
+) -> None:
+    """AC-5. expected_behavior_source: plan P-8 AC-5 (one new capability limit; ORQ-L001 is still
+    reported by every client); the interface decision (ORQ-L002 to ORQ-L005 are unchanged in
+    code); the codes before are the base revision's, written out in LIMITS_BEFORE."""
+    result = adapter.render(REQUESTS[request_name]())
+
+    codes = [limit.code for limit in result.limits]
+    assert len(codes) == len(set(codes))
+    assert set(codes) == LIMITS_BEFORE[request_name][adapter.client_id] | {"ORQ-L006"}

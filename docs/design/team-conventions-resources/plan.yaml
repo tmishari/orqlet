@@ -1,0 +1,1437 @@
+schema: orqlet.implementation-plan/v1
+header:
+  schema: orqlet.artifact-header/v1
+  task: team-conventions-resources
+  status: approved
+  workflow_version: 0.3.1
+  protected_set_digest: be7723282aec5a67e8161540bfba464562fb2a53d9bc3f8245ea22b812134eec
+  bound:
+    base_revision: 227e67468ac28602d95d1cb9d360295c58d56be5
+    standards_lock_hash: 89a225016ff9d8b3ed977df39a70dfbe9dbc5f7c6d3762d0f2208b1b7a037a52
+    applicable_rules_hash: 56502a0ec5eda3b13b4c9d97c7d4dfa41df82c86a206e36dd5d2d92aab299b97
+    profile_version: 1
+design_ref: docs/design/team-conventions-resources/design/manifest.yaml#0b278caa5ab45aaf631fdac4f56ad10137b1e2acd3e1fbbb7d419c3da8455694
+base_revision: 227e67468ac28602d95d1cb9d360295c58d56be5
+knowledge_scope: []
+phases:
+- id: P-1
+  objective: Add the two pure domain modules of ADR-002 and ADR-003 and the one added branch of classify, with unit, property and hostile-input
+    tests. Nothing else imports the new modules yet.
+  depends_on: []
+  implements:
+  - EC-1
+  - EC-2
+  - EC-3
+  - EC-4
+  - EC-5
+  - EC-6
+  - EC-7
+  - EC-8
+  - EC-9
+  - EC-10
+  - EC-11
+  - EC-12
+  - EC-13
+  - EC-14
+  - EC-15
+  - EC-16
+  - EC-55
+  - EC-67
+  file_operations:
+  - op: create
+    path: src/orqlet/domain/resources.py
+    why: 'url_problems, text_problems, resource_id_problems, glob_problems, copy_path, copy_problems, hidden_text_problems, credential_problems,
+      is_stale, uncovered_names and host_of (ADR-002 decisions 1, 8, 9; EC-1 to EC-11). Pure: standard library only, no unicodedata (the code
+      point table is numeric), no clock, no public assignment (component rule 6): constants are private. host_of and url_problems share one private
+      splitter. Every problem is a fixed rule name and holds no input value (ORQLET-SEC-003).'
+  - op: create
+    path: src/orqlet/domain/conventions.py
+    why: pattern_problems, branch_problems, commit_subject_problems, is_checkable_convention and printable (ADR-003 decisions 2 and 4; EC-12 to
+      EC-16). Pure; branch patterns use the existing glob_match from domain/globs.py with the caps of pattern_problems; no public assignment.
+  - op: modify
+    path: src/orqlet/domain/classify.py
+    why: _seeded returns UP_TO_DATE when the current text equals the new text and differs from the record, after the check for a deleted file;
+      the case current, recorded and new all equal keeps SEEDED_KEEP (ADR-002 decision 5; EC-55).
+  - op: create
+    path: tests/unit/domain/test_resources.py
+    why: 'A failing and a passing case for every rule of ADR-002 decisions 1, 8 and 9, with the named negative vectors: 127.1, 0xa9.0xfe.0xa9.0xfe,
+      LOCALHOST, a.b.nip.io, a backslash and a percent sign before the at sign, userinfo, a port, a fragment, X-Amz-Signature and private_token
+      query keys, a double-encoded open-redirect value, a 32-character opaque value in a path, a query value and a host label, home.arpa, metadata.google.internal
+      for access public; the ASCII-only rule with U+202E, U+200B, U+E0041, U+2028, U+FE0F and U+2800; angle brackets; the id grammar with a trailing
+      hyphen, a doubled hyphen and every device name; the glob grammar with a match-all pattern; the copy header lines; one test per numeric range
+      of hidden_text_problems; every rule name of credential_problems including the storage-state shape (EC-1 to EC-11).'
+  - op: create
+    path: tests/unit/domain/test_resources_properties.py
+    why: Property tests that no problem string contains any part of the input, that no function raises for arbitrary text, and timed hostile-input
+      tests (long runs of eyJ, of equals signs and of spaces; hosts of many labels; a line of 4096 and one of 4097 characters) with a time limit
+      set after a first measurement (ADR-002 decision 9; ORQLET-TEST-001).
+  - op: create
+    path: tests/unit/domain/test_conventions.py
+    why: Cases for pattern_problems (more than one **, more than 8 segments, more than 60 characters), branch_problems (255 and 256 characters,
+      32 and 33 segments, a name that matches and one that does not), commit_subject_problems (type, scope, bang, colon and space, the Merge exemption,
+      Revert quoted subjects failing, an empty description), is_checkable_convention (Conventional Commits with spaces, case and underscores)
+      and printable (only U+0020 to U+007E pass; ESC, CR, BEL, NUL, DEL, a leading double colon, U+202E; the cut at 100 characters) (EC-12 to
+      EC-16).
+  - op: create
+    path: tests/unit/domain/test_conventions_properties.py
+    why: A timed test of branch_problems with the worst pattern that pattern_problems accepts against a 255-character, 32-segment name, and property
+      tests that printable output is ASCII only and never longer than the limit plus the escape marker (ADR-003 decision 4; ORQLET-TEST-001).
+  - op: modify
+    path: tests/unit/domain/test_classify.py
+    why: 'A new row: current equal to new and different from recorded gives UP_TO_DATE for a seeded file. The existing rows keep their results
+      (EC-55).'
+  acceptance_criteria:
+  - id: AC-1
+    text: url_problems returns the names of the rules that an address breaks and an empty tuple when none; it never contains the input. It refuses
+      every named vector of the test file and accepts https://docs.example.com/guides/api and a Confluence-style address with a pageId query.
+    source: ADR-002 decision 8
+    check_ref: pytest
+  - id: AC-2
+    text: text_problems accepts only printable ASCII on one line within the limit and refuses ://, ](, <!--, -->, a backtick, < and >, and every
+      code point above U+007E; resource_id_problems accepts [a-z][a-z0-9]*(-[a-z0-9]+)* up to 32 characters and refuses a trailing or doubled
+      hyphen and the device names; glob_problems refuses a match-all glob, .., a leading slash or backslash, !, braces and more than 120 characters.
+    source: ADR-002 decisions 1 and 8
+    check_ref: pytest
+  - id: AC-3
+    text: copy_path(id) is docs/resources/<id>.md; host_of returns the host that url_problems checked; uncovered_names compares after trimming
+      and case folding without the version; is_stale raises no error for two timezone-aware datetimes and compares ttl_days.
+    source: ADR-002 decisions 1, 7 and 9
+    check_ref: pytest
+  - id: AC-4
+    text: 'hidden_text_problems refuses every code point range of ADR-002 decision 9 (one test per range) and HTML comments and allows tab and
+      line feed; copy_problems refuses a text whose first two lines are not Source: <address> and the fixed reference line; credential_problems
+      reports a rule name and a line number for each rule of decision 9 including the storage-state shape, never the text.'
+    source: ADR-002 decision 9
+    check_ref: pytest
+  - id: AC-5
+    text: 'The scans run in linear time: the timed hostile-input tests finish under the recorded limit, and a line of more than 4096 characters
+      is itself a finding.'
+    source: ADR-002 decision 9; considerations S-5, S-7
+    check_ref: pytest
+  - id: AC-6
+    text: branch_problems matches branch names with at most one ** per pattern; pattern_problems refuses more; a name over 255 characters or 32
+      segments is a finding before matching; commit_subject_problems accepts type, optional scope of letters, digits and ._/-, optional !, a colon,
+      one space and a description, and exempts subjects that start with Merge; printable escapes everything outside U+0020 to U+007E and cuts
+      at the limit.
+    source: ADR-003 decisions 2 and 4
+    check_ref: pytest
+  - id: AC-7
+    text: classify returns UP_TO_DATE for a seeded file with current equal to new and different from recorded and keeps every other result of
+      the existing tests.
+    source: ADR-002 decision 5
+    check_ref: pytest
+  - id: AC-8
+    text: Both modules import only the standard library and domain modules, use no clock, random number or environment, define no public name
+      that is not a function or a class, and the layers contract of import-linter passes.
+    source: ORQLET-ARCH-002; component rule 6
+    check_ref: import-linter
+  checks:
+  - ruff-check
+  - ruff-format
+  - mypy
+  - import-linter
+  - pytest
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  knowledge_step: required
+  completion:
+  - All checks pass on Python 3.12
+  - The public API of the package differs from the base only by EC-1 to EC-16
+  - The only paths on the security globs that this phase touches are src/orqlet/domain/resources.py and src/orqlet/domain/conventions.py
+  expected_outputs:
+  - src/orqlet/domain/resources.py
+  - src/orqlet/domain/conventions.py
+  - src/orqlet/domain/classify.py
+- id: P-2
+  objective: Add the orqlet.resources/v1 contract and the additive fields of the project profile, their committed JSON Schemas, a rebuilt workflow
+    manifest, a valid fixture, and the single reader of the registry (resources_path, parse_resources, load_resources).
+  depends_on:
+  - P-1
+  implements:
+  - EC-17
+  - EC-18
+  - EC-19
+  - EC-20
+  - EC-21
+  - EC-22
+  - EC-23
+  - EC-24
+  - EC-59
+  - EC-60
+  - EC-67
+  file_operations:
+  - op: create
+    path: src/orqlet/application/contracts/resources.py
+    why: 'Resources (with covered_tools), Resource, AppliesTo and StoredCopy (ADR-002 decision 1): a closed contract, at most 100 entries in order
+      of id, validators that call the domain rules and raise fixed-text errors (they do not reuse the Glob and RepoPath types, whose errors repeat
+      the value), the cross-field rules (a login entry is internal and only a summary may be stored for it; a public entry has no internal-looking
+      last label; tool only for tool-docs; the copy path is derived from the id). Names the helpers with a leading underscore (EC-17 to EC-21).'
+  - op: modify
+    path: src/orqlet/application/contracts/profile.py
+    why: Repository gains branch_model, release_flow and branch_patterns; PullRequests gains shape and required_checks. All five are FactValue
+      with a default that is an unknown with its question. merge_strategy and reviewers keep their type (ADR-003 decision 1; EC-60).
+  - op: modify
+    path: src/orqlet/application/contracts/__init__.py
+    why: Register orqlet.resources/v1 in CONTRACTS so that the schema export and the fixture tests cover it (ORQLET-DET-003).
+  - op: create
+    path: src/orqlet/workflow/schemas/orqlet.resources.v1.json
+    why: Written by tools/export_schemas.py, never by hand (ORQLET-DET-003; EC-59).
+  - op: modify
+    path: src/orqlet/workflow/schemas/orqlet.project-profile.v1.json
+    why: Regenerated with tools/export_schemas.py for the additive fields (EC-60).
+  - op: modify
+    path: src/orqlet/workflow/MANIFEST.json
+    why: Rebuilt with tools/build_manifest.py, because a schema is a file of the workflow package and CI checks the manifest on every pull request
+      (ORQLET-DET-002; ADR-005 decision 1).
+  - op: create
+    path: tests/fixtures/contracts/valid/orqlet.resources.v1.yaml
+    why: A valid registry with a public tool-docs entry that has applies_to paths and a stored copy, and a login team-docs entry whose copy is
+      a summary; the parametrised contract tests load it, round-trip it and compare the committed schema.
+  - op: create
+    path: src/orqlet/application/usecases/resources_source.py
+    why: resources_path, parse_resources and load_resources (ADR-002 decisions 6 and 10). A missing file is an empty registry; a file that cannot
+      be read safely, is above 256 KiB or fails its contract returns no registry and findings that name the field and the rule and never the value;
+      read through the FileSystem port and the strict loader (EC-22 to EC-24).
+  - op: create
+    path: tests/unit/application/test_resources_contract.py
+    why: 'A failing and a passing case for every rule of the contract (EC-17 to EC-21), the ordering by id, the 100-entry cap, the cross-field
+      rules, the default of every optional field, and that no error text holds the input: credential-shaped strings are placed in the address,
+      the note, a glob and the copy fields and must not appear in any message.'
+  - op: create
+    path: tests/unit/application/test_resources_source.py
+    why: 'parse_resources and load_resources: a missing file gives an empty registry and no finding, a bad file gives no registry and a finding
+      with a code, a file of 256 KiB plus one byte is refused after reading, a file with anchors or duplicate keys is refused by the strict loader
+      (EC-22 to EC-24).'
+  - op: create
+    path: tests/unit/application/test_profile_conventions_contract.py
+    why: An existing profile without the new fields still loads and the new facts default to an unknown with their question; each new field accepts
+      an answered FactValue; an unknown extra field is refused (ADR-003 decision 1; EC-60).
+  acceptance_criteria:
+  - id: AC-1
+    text: 'A registry loads when every rule holds and is refused with a fixed-text error that names the rule for: a repeated id, an id that fails
+      resource_id_problems, an address that fails url_problems, a note or title that fails text_problems, more than 8 globs or a glob that fails
+      glob_problems, a tool on an entry whose kind is not tool-docs, a login entry whose copy form is copy, a stored_copy without ttl_days between
+      1 and 365, a retrieved_at without a zone, more than 100 entries.'
+    source: ADR-002 decisions 1 and 9
+    check_ref: pytest
+  - id: AC-2
+    text: 'No message of the contract, the loader or the findings contains a part of any input value: a test places credential-shaped text in
+      the address, the note, a glob and the copy fields and asserts that nothing appears in a finding, an exception message, standard output or
+      standard error.'
+    source: ORQLET-SEC-003; ADR-002 decision 10
+    check_ref: pytest
+  - id: AC-3
+    text: load_resources returns an empty Resources and no finding for a missing file, and no registry and a finding for an unreadable, oversized
+      (more than 256 KiB, checked after the read and before parsing) or invalid file.
+    source: ADR-002 decisions 6 and 10
+    check_ref: pytest
+  - id: AC-4
+    text: An existing profile fixture loads unchanged and its new facts are unknowns with questions; the profile JSON Schema and orqlet.resources.v1.json
+      are the committed output of tools/export_schemas.py.
+    source: ADR-003 decision 1; ORQLET-DET-003
+    check_ref: schemas
+  - id: AC-5
+    text: 'tools/build_manifest.py --check passes: MANIFEST.json lists the new schema file and the changed one, and identity.json and releases.json
+      are not edited in this phase.'
+    source: ORQLET-DET-002; ADR-005 decision 1
+    check_ref: manifest
+  - id: AC-6
+    text: The new modules define no public name that is not a function or a class, import only domain, contracts and ports, and the layers contract
+      of import-linter passes; the public API of the package differs from the base only by EC-17 to EC-24.
+    source: ORQLET-ARCH-001; component rule 6
+    check_ref: import-linter
+  checks:
+  - ruff-check
+  - ruff-format
+  - mypy
+  - import-linter
+  - pytest
+  - schemas
+  - manifest
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  knowledge_step: required
+  completion:
+  - All checks pass on Python 3.12
+  - tools/export_schemas.py --check and tools/build_manifest.py --check pass
+  - The public API of the package differs from the base, in this phase, only by EC-17 to EC-24
+  expected_outputs:
+  - src/orqlet/application/contracts/resources.py
+  - src/orqlet/application/contracts/profile.py
+  - src/orqlet/application/usecases/resources_source.py
+  - src/orqlet/workflow/schemas/orqlet.resources.v1.json
+- id: P-3
+  objective: 'The registry reaches composition and nothing is rendered from it yet: compose and data_files take and seed it, init, upgrade and
+    explain load it and refuse an invalid or recorded-but-missing registry before any plan, the pure builders and validate resources exist, doctor
+    reports stored copies, and a removed tool skill folder no longer makes doctor fail.'
+  depends_on:
+  - P-2
+  implements:
+  - EC-25
+  - EC-28
+  - EC-29
+  - EC-40
+  - EC-49
+  - EC-50
+  - EC-51
+  - EC-56
+  - EC-61
+  - EC-64
+  - EC-67
+  file_operations:
+  - op: create
+    path: src/orqlet/application/usecases/resources_edit.py
+    why: 'ResourceSpec, resources_with and resources_without: pure builders that return a new Resources or findings, shared by init and the commands
+      of the next phase (ADR-002 decisions 6 and 7; EC-25, EC-28, EC-29). No I/O here; the commands are added in P-4.'
+  - op: create
+    path: src/orqlet/application/usecases/validate_resources.py
+    why: 'validate_resources (EC-40): the contract, every stored copy (missing, hash of the LF-normalised text differs from the record, header
+      lines, hidden text, credential scan, size), a login entry whose copy is not a summary, and a recursive walk of docs/resources to depth three
+      that fails on anything that is not a regular <id>.md named by an entry. Offline; odd names printed through printable.'
+  - op: modify
+    path: src/orqlet/application/usecases/render_all.py
+    why: compose gains resources and resources_bytes (EC-50) and acknowledges resources with del until P-6; data_files gains resources_bytes and
+      seeds .orqlet/resources.yaml as a seeded file (EC-51, EC-61); the code-owners notice ORQ-I030 also names .orqlet/**, docs/resources/**,
+      the generated rule and skill paths and .github/workflows/** (ADR-002 decision 11).
+  - op: modify
+    path: src/orqlet/application/usecases/init_project.py
+    why: init builds the registry in memory (empty for now), passes it and its bytes to compose, and on a re-run after an interruption loads the
+      registry that is on disk, refusing an invalid one with the stable finding (ADR-002 decision 6).
+  - op: modify
+    path: src/orqlet/application/usecases/upgrade.py
+    why: upgrade loads the registry through load_resources, returns the status refused with the finding for an invalid registry or one that is
+      missing while the lock records it, and otherwise passes the parsed registry and the current bytes (an absent file is written empty) (ADR-002
+      decision 6).
+  - op: modify
+    path: src/orqlet/application/usecases/explain.py
+    why: explain loads the registry, previews without the resource files and prints the finding when it is invalid; it builds no plan and does
+      not refuse (ADR-002 decision 6).
+  - op: modify
+    path: src/orqlet/application/usecases/diagnose.py
+    why: doctor warns when a stored copy is past retrieved_at plus ttl_days, reports a copy whose hash differs from the record, reports an invalid
+      registry, names a copy whose entry is gone, says that freshness is advisory, and ignores a reserved-prefix folder that holds no file (ADR-002
+      decisions 7 and 9; considerations S-17).
+  - op: modify
+    path: src/orqlet/application/usecases/capabilities.py
+    why: IMPLEMENTED_COMMANDS gains validate resources (EC-56).
+  - op: modify
+    path: src/orqlet/interface/cli/commands/validate.py
+    why: 'resources_command: the file argument defaults to .orqlet/resources.yaml, PASS exits 0 and FAIL and NOT_RUN exit 5 through output_of
+      (EC-49).'
+  - op: create
+    path: tests/unit/application/test_resources_builders.py
+    why: resources_with adds, refuses a repeated id, updates with replace and keeps the fields that the spec leaves unset, refuses to change an
+      id, and resources_without removes and refuses an unknown id; the output stays in order of id (ADR-002 decision 7).
+  - op: create
+    path: tests/unit/application/test_validate_resources.py
+    why: Every failure of validate_resources with its code, a PASS for the fixture registry with its copies, the recursive walk (a subfolder,
+      a symbolic link, an unnamed file, a name that does not canonicalise), and that odd names are printed through printable.
+  - op: create
+    path: tests/unit/application/test_resources_composition.py
+    why: init seeds an empty .orqlet/resources.yaml; upgrade writes it when absent and records it; an invalid registry makes init (re-run) and
+      upgrade return refused with ORQ-E503 and delete nothing; a registry that is missing while the lock records it is refused; explain previews
+      and prints the finding; a hand edit and a merged lock line make no proposal (ADR-002 decisions 5 and 6).
+  - op: create
+    path: tests/unit/application/test_resources_diagnose.py
+    why: 'doctor: a copy past its time-to-live (ORQ-W500), a copy that differs from its hash (ORQ-E505), an invalid registry, a copy whose entry
+      is gone (ORQ-I501), and no ORQ-E153 for an empty orqlet-tool-<id> folder after a removal.'
+  - op: create
+    path: tests/integration/test_resources_validate_cli.py
+    why: 'orqlet validate resources through the command line: exit 0 for a valid registry, exit 5 for FAIL and for a missing registry (NOT_RUN),
+      the JSON envelope, and that the equality test between IMPLEMENTED_COMMANDS and the registered commands holds.'
+  - op: modify
+    path: tests/unit/application/test_init_project.py
+    why: The set of files that init writes now includes .orqlet/resources.yaml.
+  acceptance_criteria:
+  - id: AC-1
+    text: 'The finding codes of this change are fixed here: ORQ-E500 the registry cannot be read safely, ORQ-E501 it fails its contract, ORQ-E502
+      it is above 256 KiB, ORQ-E503 init or upgrade refuses an invalid or recorded-but-missing registry, ORQ-E504 a stored copy is missing, ORQ-E505
+      a copy differs from its hash, ORQ-E506 a copy fails its header, hidden-text or credential check, ORQ-E507 a copy of a login entry is not
+      a summary, ORQ-E508 an entry under docs/resources is not named by the registry, ORQ-E509 an edit command is refused, ORQ-E510 attach needs
+      a terminal, ORQ-E511 evidence cite refuses a file; ORQ-W500 a copy is past its time-to-live; ORQ-I500 the notice for a login entry, ORQ-I501
+      a copy whose entry is gone, ORQ-I502 unknown conventions, ORQ-I503 conventions that only the host enforces, ORQ-I520 the branch check was
+      skipped; ORQ-E520 a branch name is not allowed, ORQ-E521 a commit subject has the wrong shape. Each is used with exactly that meaning.'
+    source: ADR-005 decision 5
+    check_ref: review:finding-codes
+  - id: AC-2
+    text: init writes an empty .orqlet/resources.yaml recorded as seeded, upgrade writes it when absent, and an edit made through the commands
+      or by hand (current equal to the file, record older) causes no proposal.
+    source: ADR-002 decisions 1, 5 and 6
+    check_ref: pytest
+  - id: AC-3
+    text: An invalid registry stops init (re-run) and upgrade with the status refused and ORQ-E503 before any plan is built and no file is deleted;
+      a registry that is missing while the lock records it is refused the same way and the finding names the way out; explain previews without
+      resource files and prints the finding.
+    source: ADR-002 decision 6
+    check_ref: pytest
+  - id: AC-4
+    text: validate resources returns PASS for the fixture and FAIL with the right code for a missing copy, a hash that differs, a copy without
+      the two header lines, a copy with a hidden code point or a credential shape, a login copy that is not a summary, and an unnamed or odd file
+      under docs/resources.
+    source: ADR-002 decision 9
+    check_ref: pytest
+  - id: AC-5
+    text: doctor reports ORQ-W500 for a copy past its time-to-live and says freshness is advisory, reports ORQ-E505 and the invalid registry,
+      and does not report ORQ-E153 for a reserved-prefix folder that holds no file.
+    source: ADR-002 decisions 7 and 9
+    check_ref: pytest
+  - id: AC-6
+    text: The pure builders keep order of id, refuse a repeated id and an id change, and carry no I/O; init and the commands of P-4 will use them.
+    source: ADR-002 decision 7
+    check_ref: pytest
+  - id: AC-7
+    text: The resources parameter of compose is acknowledged with del and unused until P-6, the lint rule for unused arguments passes, the equality
+      test between IMPLEMENTED_COMMANDS and the application's commands holds, and the public API differs from the base only by EC-25, EC-28, EC-29,
+      EC-40, EC-49, EC-50 and EC-51.
+    source: ADR-005 decision 1
+    check_ref: ruff-check
+  - id: AC-8
+    text: The code-owners notice ORQ-I030 names the registry, the stored copies, the generated paths and the workflow files when no CODEOWNERS
+      entry mentions them.
+    source: ADR-002 decision 11
+    check_ref: pytest
+  checks:
+  - ruff-check
+  - ruff-format
+  - mypy
+  - import-linter
+  - pytest
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  knowledge_step: required
+  completion:
+  - All checks pass on Python 3.12
+  - The public API of the package differs from the base, in this phase, only by EC-25, EC-28, EC-29, EC-40, EC-49, EC-50 and EC-51
+  - No client file is rendered from the registry in this phase
+  expected_outputs:
+  - src/orqlet/application/usecases/resources_edit.py
+  - src/orqlet/application/usecases/validate_resources.py
+  - src/orqlet/application/usecases/render_all.py
+- id: P-4
+  objective: 'The edit commands: resources add, update, remove, attach and list, the link prompt of init, and their fault tests. They write the
+    registry and the lock through apply_plan; generated files follow by upgrade.'
+  depends_on:
+  - P-3
+  implements:
+  - EC-26
+  - EC-27
+  - EC-30
+  - EC-31
+  - EC-32
+  - EC-33
+  - EC-38
+  - EC-39
+  - EC-47
+  - EC-56
+  - EC-64
+  - EC-67
+  file_operations:
+  - op: modify
+    path: src/orqlet/application/usecases/resources_edit.py
+    why: 'CopySpec, ResourcesEditResult, add_resource, update_resource, remove_resource and attach_copy: each builds a ChangePlan of the registry
+      and the lock and calls apply_plan, with dry_run, assume_yes and the confirmation as profile answer does; attach checks the copy, records
+      the SHA-256 of the LF-normalised text and retrieved_at from the clock, and for a login entry asks at a terminal even with --yes (ORQ-E510
+      without one). An id cannot change; update of an address keeps the copy record and prints that the Source line no longer matches; remove
+      prints that a kept copy must be deleted (ADR-002 decisions 7 and 9; EC-26, EC-27, EC-30 to EC-33).'
+  - op: create
+    path: src/orqlet/application/usecases/resources_view.py
+    why: 'ResourcesListing and list_resources only in this phase: the registry in order of id with the host shown separately, and with uncovered
+      the technologies and frameworks of the profile that no entry names as its tool (EC-38, EC-39). The rule, skill and view functions are added
+      in P-6.'
+  - op: create
+    path: src/orqlet/interface/cli/commands/resources.py
+    why: resources_group returns the Typer application with the private commands add (the address as the argument and --id --title --kind --note
+      --access --path --tool --version), update, remove, attach (--form --ttl-days), and list (--uncovered --json); every command and helper is
+      private; every echo of repository text goes through printable; add with --access login prints ORQ-I500, which says that page text goes to
+      the client's model vendor (EC-47).
+  - op: modify
+    path: src/orqlet/interface/cli/app.py
+    why: app.add_typer(resources_group(), name="resources").
+  - op: modify
+    path: src/orqlet/application/usecases/capabilities.py
+    why: IMPLEMENTED_COMMANDS gains resources add, resources update, resources remove, resources attach and resources list (EC-56).
+  - op: modify
+    path: src/orqlet/application/usecases/init_project.py
+    why: With a terminal, init asks once whether there are links to team resources, then for each link the address, id, title, kind, note, access
+      and optional paths and tool, and adds each with resources_with in memory; an empty address ends the loop; without a terminal it prints the
+      hint to run orqlet resources add (ADR-002 decision 6, Q-8).
+  - op: modify
+    path: tests/unit/application/test_init_project.py
+    why: The interactive tests script the new confirmation of the link prompt with the answer no.
+  - op: create
+    path: tests/unit/application/test_resources_edit_commands.py
+    why: 'add, update, remove and attach with --dry-run, with --yes, and refused: a repeated id, an unknown id, an id change, an address that
+      fails url_problems, a copy with a credential, a login copy that is not a summary; attach records the hash of the LF-normalised text; attach
+      for a login entry stops with ORQ-E510 without a terminal even with --yes; the applied change is undone by rollback.'
+  - op: create
+    path: tests/unit/application/test_resources_listing.py
+    why: list_resources prints the registry in order of id, hosts on their own, --uncovered prints profile technologies and frameworks that no
+      entry names as its tool after trimming and case folding, and every value goes through printable.
+  - op: create
+    path: tests/unit/application/test_init_links.py
+    why: 'The link prompt: no links, one link, several links, an invalid address that is asked again or skipped, the empty address that ends the
+      loop, and the non-interactive hint.'
+  - op: create
+    path: tests/integration/test_resources_cli.py
+    why: 'The commands through the command line: exit codes 0, 3 and 4, the JSON envelope, the list --json shape of ADR-002 decision 7, and hostile
+      values (ESC, a leading double colon, U+202E) shown escaped.'
+  - op: create
+    path: tests/fault/test_resources_edit_kill_after_k.py
+    why: 'For add, update, remove and attach: stop the write after each file on the real file system and show that a re-run converges to the same
+      state and that rollback restores the earlier one (ORQLET-TEST-002).'
+  - op: create
+    path: tests/fault/test_init_links_resume.py
+    why: Stop init with links after each write and show that a re-run converges; links typed in an interrupted init may be lost and the test says
+      so (ADR-002 decision 6; ORQLET-TEST-002).
+  acceptance_criteria:
+  - id: AC-1
+    text: resources add writes the entry in order of id, records the registry and the lock in one journalled change, prints the next step orqlet
+      upgrade, and is refused (exit 3, ORQ-E509) for a repeated id, an invalid address, text or glob, or a tool on a kind that is not tool-docs.
+    source: Q-2; Q-8; ADR-002 decision 7
+    check_ref: pytest
+  - id: AC-2
+    text: resources update changes only the fields that are given, refuses an id change, and keeps the stored-copy record when the address changes
+      while printing that the Source line no longer matches; resources remove deletes the entry, prints that a kept copy must be deleted by the
+      person, and after upgrade the generated files of that entry are gone and doctor is clean.
+    source: Q-8; ADR-002 decision 7
+    check_ref: pytest
+  - id: AC-3
+    text: resources attach checks the copy as validate resources does, records form, the SHA-256 of the LF-normalised text, retrieved_at from
+      the clock and ttl_days, and for a login entry asks at a terminal also with --yes and stops with ORQ-E510 without one.
+    source: ADR-002 decision 9; Q-12
+    check_ref: pytest
+  - id: AC-4
+    text: resources list prints the registry, --uncovered prints the technologies of the profile that no entry covers, and --json prints the shape
+      of ADR-002 decision 7; every value from the repository is escaped by printable.
+    source: Q-5; ADR-002 decision 7
+    check_ref: pytest
+  - id: AC-5
+    text: init with a terminal asks about links and records the answers in the one plan of init; without a terminal it prints the hint and asks
+      nothing; an interrupted init converges on a re-run.
+    source: Q-8; ADR-002 decision 6
+    check_ref: pytest
+  - id: AC-6
+    text: Every write path of the four commands and of the link prompt has a fault test that stops it after each step and proves a re-run or a
+      rollback converges.
+    source: ORQLET-TEST-002; Q-14
+    check_ref: pytest
+  - id: AC-7
+    text: resources add with --access login prints ORQ-I500, which says that page text goes to the client's model vendor and that using the login
+      route for internal content is an owners' decision.
+    source: ADR-001 consequences; considerations S-9
+    check_ref: review:login-notice
+  - id: AC-8
+    text: The public API of the package differs from the base, in this phase, only by EC-26, EC-27, EC-30 to EC-33, EC-38, EC-39 and EC-47; every
+      command function and helper of the new module is private; the equality test between IMPLEMENTED_COMMANDS and the application's commands
+      holds.
+    source: component rule 6
+    check_ref: import-linter
+  checks:
+  - ruff-check
+  - ruff-format
+  - mypy
+  - import-linter
+  - pytest
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  knowledge_step: required
+  completion:
+  - All checks pass on Python 3.12
+  - The public API of the package differs from the base, in this phase, only by EC-26, EC-27, EC-30 to EC-33, EC-38, EC-39 and EC-47
+  - The fault tests of the five write paths pass on the real file system
+  expected_outputs:
+  - src/orqlet/application/usecases/resources_edit.py
+  - src/orqlet/application/usecases/resources_view.py
+  - src/orqlet/interface/cli/commands/resources.py
+- id: P-5
+  objective: 'The convention questions: seven new answer keys with their vocabulary, the checks at answer time, the nested update that keeps the
+    new fields, and the information finding for unknown conventions.'
+  depends_on:
+  - P-4
+  implements:
+  - EC-57
+  - EC-60
+  - EC-67
+  file_operations:
+  - op: modify
+    path: src/orqlet/application/usecases/init_questions.py
+    why: ANSWER_KEYS gains the seven keys of ADR-003 decision 2; questions_for asks them while unknown (branch model, branch patterns when naming
+      is answered and not none, release flow, pull-request shape, merge strategy, reviewers, required checks); _acceptable applies text_problems,
+      the closed vocabularies of branch_model and merge_strategy, the list caps and pattern_problems; _repository handles the nested keys; the
+      answer none is a recorded value (EC-57, EC-60).
+  - op: modify
+    path: src/orqlet/application/usecases/init_project.py
+    why: _with_pr_template keeps and sets shape and required_checks (model_copy) so that an answer given at init survives the rest of init, and
+      keeps reviewers and merge_strategy as today (ADR-003 decision 1).
+  - op: modify
+    path: src/orqlet/application/usecases/draft_profile.py
+    why: An old or new draft profile gets the unknown defaults of the new facts; a new function lists the unknown conventions without adding them
+      to open_questions, so ORQ-W181 does not change (ADR-003 decision 2).
+  - op: modify
+    path: src/orqlet/application/usecases/diagnose.py
+    why: doctor prints ORQ-I502 listing the unknown conventions and ORQ-I503 when merge strategy, reviewers, required checks, shape or release
+      flow is answered (the host enforces them and Orqlet cannot read it); no warning is added (ADR-003 decisions 2 and 6).
+  - op: modify
+    path: tests/unit/application/test_init_project.py
+    why: The interactive tests script the new questions; an answer given at init for each new key survives the rest of init; open_questions still
+      lists only the three existing facts.
+  - op: modify
+    path: tests/unit/application/test_draft_profile.py
+    why: The new facts are unknowns with questions for a fresh draft, and the list of unknown conventions is separate from open_questions.
+  - op: modify
+    path: tests/unit/application/test_profile_edit.py
+    why: profile answer accepts each new key, the answer none, a list within the caps, and refuses a value that fails text_problems, a branch
+      model outside the vocabulary and a pattern with two **; an answer withdraws an approval as before.
+  - op: create
+    path: tests/unit/application/test_conventions_questions.py
+    why: 'The vocabulary and caps of ADR-003 decision 2: branch_patterns and required_checks are comma-separated lists of at most 12 items of
+      60 characters whose text is at most 160 characters, the other answers are cut at 160 characters only when shown, none is recorded as a value,
+      and doctor prints ORQ-I502 and ORQ-I503 with exit code unchanged for an existing install.'
+  acceptance_criteria:
+  - id: AC-1
+    text: 'init and profile answer accept repository.branch_model (trunk-based, github-flow, gitflow, other: text), repository.branch_patterns,
+      repository.release_flow, repository.pull_requests.shape, repository.pull_requests.merge_strategy (squash, rebase, merge-commit, other: text),
+      repository.pull_requests.reviewers and repository.pull_requests.required_checks, and refuse a value that fails the vocabulary, the caps
+      or text_problems with a note that names the key.'
+    source: Q-3; ADR-003 decision 2
+    check_ref: pytest
+  - id: AC-2
+    text: The answer none is recorded as a value and the fact is no longer unknown; an empty answer keeps the fact unknown; a question is asked
+      again only while the fact is unknown.
+    source: Q-3; ADR-003 decision 2
+    check_ref: pytest
+  - id: AC-3
+    text: An answer given at init for each new key is in the written profile after the whole init, including pull_requests.shape and required_checks.
+    source: ADR-003 decision 1
+    check_ref: pytest
+  - id: AC-4
+    text: doctor exits as before for an existing install that has none of the new answers and prints ORQ-I502 as information only; ORQ-I503 is
+      printed when a host-enforced convention is answered; ORQ-W181 still lists only target_branch, branch_naming and commit_convention.
+    source: ADR-003 decisions 2 and 6
+    check_ref: pytest
+  - id: AC-5
+    text: Answering a convention withdraws the profile's approval (ORQ-I070) and approving stays a person's act.
+    source: ADR-003 decision 7
+    check_ref: pytest
+  - id: AC-6
+    text: The public API of the package differs from the base, in this phase, by nothing; ANSWER_KEYS gains seven keys (EC-57, manual).
+    source: ADR-003 decision 2
+    check_ref: pytest
+  checks:
+  - ruff-check
+  - ruff-format
+  - mypy
+  - import-linter
+  - pytest
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  knowledge_step: required
+  completion:
+  - All checks pass on Python 3.12
+  - The public API of the package does not differ from the base in this phase
+  - orqlet doctor on an existing install has the same exit code as before
+  expected_outputs:
+  - src/orqlet/application/usecases/init_questions.py
+  - src/orqlet/application/usecases/draft_profile.py
+- id: P-6
+  objective: 'Render the registry and the conventions: the request types, the four templates of the workflow package, the view functions, the
+    renderers and the three adapters, the collision check, and compose using the profile and the registry. The default request has no resources
+    and no conventions, so the existing goldens do not change.'
+  depends_on:
+  - P-5
+  implements:
+  - EC-34
+  - EC-35
+  - EC-36
+  - EC-37
+  - EC-43
+  - EC-46
+  - EC-50
+  - EC-52
+  - EC-53
+  - EC-54
+  - EC-62
+  - EC-63
+  - EC-66
+  - EC-67
+  file_operations:
+  - op: modify
+    path: src/orqlet/application/ports/instruction_adapter.py
+    why: ConventionsView (the finished lines of the block, the count of resources), RenderRequest.conventions (default None) and ClientSkill.agent_may_start
+      (default False) (ADR-002 decision 4, ADR-003 decision 3; EC-43, EC-53, EC-54).
+  - op: create
+    path: src/orqlet/workflow/templates/resource-rule.md
+    why: The fixed text of a generated rule for an entry with applies_to paths, with slots for the quoted title and note, the host, the address,
+      the access class and the copy line (ADR-002 decision 2; EC-63).
+  - op: create
+    path: src/orqlet/workflow/templates/tool-skill.md
+    why: 'The fixed text of a tool skill: how to read the tool''s documentation, the stored copy first, and a pointer to the Looking things up
+      section of the baseline (EC-63).'
+  - op: create
+    path: src/orqlet/workflow/templates/catalogue-skill.md
+    why: The fixed text of the catalogue skill, with a line per resource and a pointer to the baseline for the reading rules, which it does not
+      restate (EC-63).
+  - op: create
+    path: src/orqlet/workflow/templates/conventions-block.md
+    why: 'The frame of the conventions block of AGENTS.md: the labels, the line Not decided, and the pointer to the skill orqlet-resources (EC-63).'
+  - op: modify
+    path: src/orqlet/workflow/MANIFEST.json
+    why: Rebuilt with tools/build_manifest.py because the templates are files of the package (ORQLET-DET-002).
+  - op: modify
+    path: src/orqlet/application/usecases/resources_view.py
+    why: resource_rules (PROTECTED, one per entry with applies_to), resource_skills (one per tool entry), catalogue_skill (None for an empty registry;
+      a fixed description and a count; ids only in the body, sorted), and conventions_view (the finished quoted lines, at most 12 lines and 3
+      KiB, left-out values reported as findings, None when nothing is answered and the registry is empty) (EC-34 to EC-37).
+  - op: modify
+    path: src/orqlet/application/usecases/render_request.py
+    why: build_render_request gains resources and conventions (EC-52), adds the rules and skills, and refuses two sources that would claim the
+      same generated file name.
+  - op: modify
+    path: src/orqlet/application/usecases/render_all.py
+    why: compose stops executing del profile and del resources, builds the conventions view, passes both and adds their findings (EC-50).
+  - op: modify
+    path: src/orqlet/adapters/render/instructions.py
+    why: conventions_block writes the finished lines between the markers of the shared block named conventions, class PROTECTED, or returns None
+      (EC-46).
+  - op: modify
+    path: src/orqlet/adapters/render/skills.py
+    why: A skill with agent_may_start omits disable-model-invocation; the skill name is checked against [a-z0-9][a-z0-9-]* as the rule renderer
+      does.
+  - op: modify
+    path: src/orqlet/adapters/clients/claude_code.py
+    why: Returns the conventions block next to the baseline block.
+  - op: modify
+    path: src/orqlet/adapters/clients/codex.py
+    why: Returns the conventions block; writes no sidecar for a skill that the agent may start; the text of ORQ-L002 says that team resource rules
+      reach Codex through the catalogue skill and the text of ORQ-L005 says the sidecar holds for the workflow skills only.
+  - op: modify
+    path: src/orqlet/adapters/clients/cursor.py
+    why: Returns the conventions block next to the baseline block.
+  - op: modify
+    path: tests/support/render.py
+    why: packaged_request passes an empty registry and no conventions to build_render_request; a second helper builds a request with the sample
+      registry and conventions.
+  - op: modify
+    path: tests/unit/render/test_skills.py
+    why: The call to build_render_request passes the new parameters.
+  - op: modify
+    path: tests/unit/render/test_rules_and_instructions.py
+    why: The call to build_render_request passes the new parameters.
+  - op: create
+    path: tests/unit/application/test_resources_view.py
+    why: The derivation of reach from an entry (catalogue for every entry, a rule only with applies_to, a skill only with a tool, the copy line
+      only with a stored copy), the order by id, fixed descriptions, that no title, note or glob reaches a name or a description, the cap of the
+      block, left-out values as findings, and the name-collision refusal.
+  - op: create
+    path: tests/unit/render/test_resources_golden.py
+    why: Every generated resource file and the conventions block compared with golden files for the three clients, rendering twice gives identical
+      bytes, a hostile registry and profile (word-like ids and tool names, pseudo-tags, markers, quotes) leaves no hostile field in any name or
+      description, Codex gets no sidecar for an agent-startable skill, and the workflow skills keep their flag.
+  - op: create
+    path: tests/unit/render/test_conventions_block.py
+    why: The block exists only when a convention is answered or the registry is not empty, holds at most 12 lines and 3 KiB, drops lines beyond
+      twelve with a final line, and is the same bytes for the three clients.
+  - op: create
+    path: tests/golden/claude-code/resources-2026-10/.claude/rules/orqlet-resource-api-guidelines.md
+    why: Written locally with --update-golden from the sample registry and never in CI (ORQLET-DET-001).
+  - op: create
+    path: tests/golden/claude-code/resources-2026-10/.claude/skills/orqlet-tool-pytest/SKILL.md
+    why: Written locally with --update-golden from the sample registry and never in CI (ORQLET-DET-001).
+  - op: create
+    path: tests/golden/claude-code/resources-2026-10/.claude/skills/orqlet-resources/SKILL.md
+    why: Written locally with --update-golden from the sample registry and never in CI (ORQLET-DET-001).
+  - op: create
+    path: tests/golden/cursor/resources-2026-10/.cursor/rules/orqlet-resource-api-guidelines.mdc
+    why: Written locally with --update-golden from the sample registry and never in CI (ORQLET-DET-001).
+  - op: create
+    path: tests/golden/cursor/resources-2026-10/.agents/skills/orqlet-tool-pytest/SKILL.md
+    why: Written locally with --update-golden from the sample registry and never in CI (ORQLET-DET-001).
+  - op: create
+    path: tests/golden/cursor/resources-2026-10/.agents/skills/orqlet-resources/SKILL.md
+    why: Written locally with --update-golden from the sample registry and never in CI (ORQLET-DET-001).
+  - op: create
+    path: tests/golden/codex/resources-2026-10/.agents/skills/orqlet-tool-pytest/SKILL.md
+    why: Written locally with --update-golden from the sample registry and never in CI (ORQLET-DET-001).
+  - op: create
+    path: tests/golden/codex/resources-2026-10/.agents/skills/orqlet-resources/SKILL.md
+    why: Written locally with --update-golden from the sample registry and never in CI (ORQLET-DET-001).
+  - op: create
+    path: tests/golden/common/resources/conventions-block.md
+    why: The conventions block, identical for the three clients, written locally with --update-golden (ORQLET-DET-001).
+  - op: create
+    path: tests/golden/common/resources/hostile-catalogue-skill.md
+    why: The catalogue skill rendered from the hostile registry, written locally with --update-golden.
+  acceptance_criteria:
+  - id: AC-1
+    text: 'An entry reaches an agent exactly as ADR-002 decision 2 says: the catalogue skill for every entry; a path-scoped rule for Claude Code
+      (paths) and Cursor (globs, alwaysApply false) only when applies_to.paths is set; a tool skill for the three clients only when tool is set;
+      the path, form, retrieval date and time-to-live of the copy only when stored_copy is set; Codex gets no rule file.'
+    source: Q-5; ADR-002 decision 2
+    check_ref: pytest
+  - id: AC-2
+    text: The name and description of every generated rule and skill are fixed templates over the validated id, kind, tool and version; the catalogue
+      description is fixed text and a count with no id; no title, note or glob reaches a name or a description, which a golden test with a hostile
+      registry shows.
+    source: ADR-002 decision 2; considerations S-1
+    check_ref: pytest
+  - id: AC-3
+    text: Every value written to a generated file is written with json.dumps after a fixed label, one per line; generated resource files and the
+      conventions block have class PROTECTED; the skills that the agent may start omit disable-model-invocation and get no Codex sidecar; the
+      workflow skills are byte-identical to before.
+    source: ADR-002 decisions 3 and 4; ADR-003 decision 3
+    check_ref: pytest
+  - id: AC-4
+    text: The conventions block exists only when a convention is answered or the registry is not empty, shows the answered conventions and a line
+      Not decided, drops lines beyond twelve with a final line, is at most 3 KiB, and is the same bytes for the three clients; a value that fails
+      text_problems is left out with a finding.
+    source: Q-3; ADR-003 decision 3
+    check_ref: pytest
+  - id: AC-5
+    text: Rendering twice gives identical bytes and no render reads the clock; the retrieval date shown is registry data.
+    source: ORQLET-DET-001; ADR-002 decision 2
+    check_ref: pytest
+  - id: AC-6
+    text: The existing golden files are byte-identical to the base and the new golden files exist for the three clients; build_render_request
+      refuses two sources that claim the same file name; the public API differs from the base only by EC-34 to EC-37, EC-43, EC-46, EC-50 and
+      EC-52.
+    source: ORQLET-DET-001; component rule 4
+    check_ref: review:golden-diff
+  - id: AC-7
+    text: tools/build_manifest.py --check passes with the four templates; the layers contract of import-linter passes and the client adapters
+      import no other client adapter.
+    source: ORQLET-DET-002; ORQLET-ARCH-003
+    check_ref: manifest
+  checks:
+  - ruff-check
+  - ruff-format
+  - mypy
+  - import-linter
+  - pytest
+  - manifest
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  knowledge_step: required
+  completion:
+  - All checks pass on Python 3.12
+  - Golden files were written locally with --update-golden and never in CI; no existing golden file changed
+  - The public API of the package differs from the base, in this phase, only by EC-34 to EC-37, EC-43, EC-46, EC-50 and EC-52
+  expected_outputs:
+  - src/orqlet/application/usecases/resources_view.py
+  - src/orqlet/adapters/render/instructions.py
+  - src/orqlet/workflow/templates/resource-rule.md
+- id: P-7
+  objective: 'The convention check: Vcs.commit_subjects with a real-Git test and a fake, the use case, the command, and the README step for an
+    adopter''s CI, pinned by a test.'
+  depends_on:
+  - P-6
+  implements:
+  - EC-41
+  - EC-42
+  - EC-44
+  - EC-45
+  - EC-48
+  - EC-56
+  - EC-66
+  - EC-67
+  file_operations:
+  - op: modify
+    path: src/orqlet/application/ports/vcs.py
+    why: Vcs.commit_subjects(base, head) returns the subjects of the commits in base..head, newest first, each cut at 1 KiB, at most 201 (EC-44).
+  - op: modify
+    path: src/orqlet/adapters/git/objects.py
+    why: 'Reads a commit object: the first message line only, cut at 1 KiB; every new helper is private.'
+  - op: modify
+    path: src/orqlet/adapters/git/vcs_git.py
+    why: GitVcs.commit_subjects through rev-list and cat-file with ids only and a fixed number of Git processes; check_ref_name has run on the
+      ids' source names before they are resolved; a Git failure or the runner's output or time limit becomes a VcsError (EC-45).
+  - op: modify
+    path: tests/fakes/vcs.py
+    why: FakeVcs.commit_subjects over plain data, with the same limit of 201.
+  - op: create
+    path: src/orqlet/application/usecases/conventions_check.py
+    why: 'ConventionsRequest and check_conventions (EC-41, EC-42): resolves base and head to ids with Vcs.resolve (with a few private lines for
+      the default base from the target branch of the working-tree profile), reads the profile at the base revision with Vcs.read_at, re-validates
+      the patterns, checks the branch and the subjects, and returns PASS, FAIL or NOT_RUN with the reasons of ADR-003 decision 4; every echo goes
+      through printable.'
+  - op: create
+    path: src/orqlet/interface/cli/commands/conventions.py
+    why: conventions_group returns the Typer application with the private command check (--branch --base --head --root --json); FAIL and NOT_RUN
+      exit 5 (EC-48).
+  - op: modify
+    path: src/orqlet/interface/cli/app.py
+    why: app.add_typer(conventions_group(), name="conventions").
+  - op: modify
+    path: src/orqlet/application/usecases/capabilities.py
+    why: IMPLEMENTED_COMMANDS gains conventions check (EC-56).
+  - op: create
+    path: tests/contract/test_vcs_commit_subjects_contract.py
+    why: 'The same cases against FakeVcs and the real GitVcs: order, the cut at 1 KiB, 201 commits, a range with no commits, an unknown id.'
+  - op: create
+    path: tests/unit/application/test_conventions_check.py
+    why: Every verdict and NOT_RUN reason of ADR-003 decision 4, the profile read at the base and not at the head, an explicit --branch always
+      checked and a defaulted one equal to the target skipped with ORQ-I520 and NOT_RUN for that check, the Merge exemption, Revert subjects failing,
+      FAIL winning over NOT_RUN, and escaped output.
+  - op: create
+    path: tests/integration/test_conventions_cli.py
+    why: 'The command on a real repository: a shallow clone is NOT_RUN, a good range is PASS, a bad subject and a bad branch are FAIL with ORQ-E521
+      and ORQ-E520, exit codes 0 and 5, and hostile branch and subject text is escaped.'
+  - op: modify
+    path: README.md
+    why: 'A section for adopters with the CI step of ADR-003 decision 5 (pull_request, contents: read, persist-credentials false, a timeout, pinned
+      actions, the version of cli.pinned in the workflow file, env indirection, --branch and --base in the equals form, no if, the three steps
+      validate resources, conventions check and upgrade --check), the statement that two of eight conventions are checked, that a squash-merge
+      title is outside the check, that stored copies and storage-state files stay out of Git, and that reviewers read the raw diff of docs/resources.'
+  - op: create
+    path: tests/unit/test_readme_ci_snippet.py
+    why: 'Pins the snippet of the README: every required line is present, pull_request_target and job-level if are absent.'
+  acceptance_criteria:
+  - id: AC-1
+    text: 'check_conventions returns FAIL with ORQ-E520 for a branch name that no pattern allows and ORQ-E521 for each subject with the wrong
+      shape, PASS only when every configured check ran and passed, and NOT_RUN with the reason for: nothing configured, a free-text convention,
+      a base that cannot be resolved or whose name check_ref_name refuses, a missing or unreadable base profile, no merge base, an unknown branch,
+      more than 200 commits, or a Git failure or limit; a FAIL that was found is reported as FAIL.'
+    source: Q-11; Q-16; ADR-003 decision 4
+    check_ref: pytest
+  - id: AC-2
+    text: The rules come from the profile at the base revision, not from the head; an explicit --branch is always checked; a defaulted branch
+      equal to the target branch is skipped with ORQ-I520 and the verdict for that check is NOT_RUN, not PASS.
+    source: ADR-003 decision 4; considerations S-14
+    check_ref: pytest
+  - id: AC-3
+    text: Output lines start with a fixed code prefix, show branch and subject text only through printable (only U+0020 to U+007E, cut at 100
+      characters), and no line starts with contributor text.
+    source: ADR-003 decision 4; considerations S-8
+    check_ref: pytest
+  - id: AC-4
+    text: Vcs.commit_subjects behaves the same in FakeVcs and in GitVcs, returns at most 201 commits, cuts each subject at 1 KiB, uses only rev-list
+      and cat-file with ids, and never lets a Git failure surface as anything but a VcsError.
+    source: ORQLET-SEC-001; ADR-003 decision 4
+    check_ref: pytest
+  - id: AC-5
+    text: The README step contains every rule of ADR-003 decision 5 and none of pull_request_target, a job-level if, an interpolated branch name
+      or a missing timeout; a test pins it.
+    source: ADR-003 decision 5; considerations S-15
+    check_ref: pytest
+  - id: AC-6
+    text: The public API differs from the base, in this phase, only by EC-41, EC-42, EC-44, EC-45 and EC-48; no new subcommand is added to the
+      Git allow-list.
+    source: component rule 6; ORQLET-SEC-001
+    check_ref: import-linter
+  checks:
+  - ruff-check
+  - ruff-format
+  - mypy
+  - import-linter
+  - pytest
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  knowledge_step: required
+  completion:
+  - All checks pass on Python 3.12
+  - The public API of the package differs from the base, in this phase, only by EC-41, EC-42, EC-44, EC-45 and EC-48
+  - The Git allow-list is unchanged
+  expected_outputs:
+  - src/orqlet/application/usecases/conventions_check.py
+  - src/orqlet/interface/cli/commands/conventions.py
+  - src/orqlet/adapters/git/vcs_git.py
+- id: P-8
+  objective: 'The workflow text and the guard of the evidence folder: the Looking things up section and the changed sentence in the baseline,
+    one step in four skills, one sentence in five roles, the format of web evidence, the scan in evidence cite, the per-client limits, the version
+    bump and rebuilt manifest, the regenerated goldens, and the documents that the change makes wrong.'
+  depends_on:
+  - P-7
+  implements:
+  - EC-58
+  - EC-65
+  - EC-66
+  - EC-67
+  file_operations:
+  - op: modify
+    path: src/orqlet/workflow/baseline/baseline.md
+    why: 'The section Looking things up of ADR-001 decision 3 and ADR-004 decision 1 (about 12 lines, within 60 lines and 8 KiB), and the changed
+      sentence about the lock: seeded files belong to the team and are changed with the command named for them or by a reviewed edit (EC-65, EC-66).'
+  - op: modify
+    path: src/orqlet/workflow/skills/orqlet-onboard/skill.md
+    why: 'The step of ADR-004 decision 2 for onboarding, marked requires: resources list: ask the conventions and the links in one batch, run
+      orqlet doctor and read ORQ-I502, resources add after showing the exact title, note and address and a yes, the lookup for an uncovered technology,
+      and the steps for a stored copy with the summary form.'
+  - op: modify
+    path: src/orqlet/workflow/skills/orqlet-research/skill.md
+    why: 'The research step: resources list --uncovered --json, the lookup for each technology that is not documented, the evidence file in the
+      format of the reference, and self_check.unverified for a needed lookup that was not done; marked requires: resources list.'
+  - op: modify
+    path: src/orqlet/workflow/skills/orqlet-design/skill.md
+    why: 'The design step for a decision that depends on a library or tool that the AS-IS file does not cover; marked requires: resources list.'
+  - op: modify
+    path: src/orqlet/workflow/skills/orqlet-implement/skill.md
+    why: 'The implementation step: the registered resource, then the official page, and the evidence file when a page decides how the code is
+      written; marked requires: resources list.'
+  - op: modify
+    path: src/orqlet/workflow/skills/orqlet-research/references/as-is-format.md
+    why: 'The section Evidence from the web: title, URL, Retrieved with a zone, Tool, Processed, Data class, numbered excerpts; verbatim means
+      as the tool returned it (ADR-004 decision 3).'
+  - op: modify
+    path: src/orqlet/workflow/roles/orqlet-inventory.md
+    why: 'One sentence: look nothing up on the web and report what cannot be read as an unknown (ADR-001 decision 6).'
+  - op: modify
+    path: src/orqlet/workflow/roles/orqlet-tracer.md
+    why: 'One sentence: look nothing up on the web and report what cannot be read as an unknown (ADR-001 decision 6).'
+  - op: modify
+    path: src/orqlet/workflow/roles/orqlet-arch-reviewer.md
+    why: 'One sentence: look nothing up on the web and report what cannot be read as an unknown (ADR-001 decision 6).'
+  - op: modify
+    path: src/orqlet/workflow/roles/orqlet-security-reviewer.md
+    why: 'One sentence: look nothing up on the web and report what cannot be read as an unknown (ADR-001 decision 6).'
+  - op: modify
+    path: src/orqlet/workflow/roles/orqlet-tester.md
+    why: 'One sentence: look nothing up on the web and report what cannot be read as an unknown (ADR-001 decision 6).'
+  - op: modify
+    path: src/orqlet/application/usecases/evidence_cite.py
+    why: For a path under docs/design/*/evidence/web/ (canonical, case-folded) cite reads the exact bytes it hashes with a cap of 256 KiB and
+      refuses, with ORQ-E511 and the rule name and line, a file that fails credential_problems or hidden_text_problems or exceeds the cap; any
+      other path behaves as before (ADR-004 decision 4; EC-58).
+  - op: modify
+    path: tests/unit/application/test_evidence_cite.py
+    why: A file with a credential shape, one with a hidden code point, one above the cap and a clean one under evidence/web, a case-folded path,
+      and unchanged behaviour for other paths.
+  - op: modify
+    path: src/orqlet/adapters/clients/claude_code.py
+    why: A capability limit that says lookups are now requested by the baseline, that a fork ignores a role's tools and that the tester inherits
+      the web tools, and that the way to opt out is to disable the client's own web tool; documented and not observed.
+  - op: modify
+    path: src/orqlet/adapters/clients/codex.py
+    why: A capability limit that says web_search defaults to cached, that lookups are requested, and how to opt out; documented and not observed.
+  - op: modify
+    path: src/orqlet/adapters/clients/cursor.py
+    why: A capability limit that says Cursor's web tools are not verified, that lookups are requested, and how to opt out.
+  - op: modify
+    path: tests/unit/render/test_clients_golden.py
+    why: The set of limit codes of each client includes the new web-lookup limit; every client still reports ORQ-L001.
+  - op: create
+    path: tests/unit/test_workflow_lookup_text.py
+    why: 'The baseline holds every rule of ADR-001 decision 3 and stays within 60 lines and 8 KiB; each of the four skills has the step marked
+      requires: resources list; each of the five roles has the sentence; the skill step names no address and no product.'
+  - op: modify
+    path: src/orqlet/workflow/MANIFEST.json
+    why: Rebuilt with tools/build_manifest.py (ORQLET-DET-002).
+  - op: modify
+    path: src/orqlet/workflow/identity.json
+    why: workflow_version from 0.3.1 to the next patch value. 0.3.2 is a proposal for the person to confirm; the plan of the other task also proposes
+      0.3.2, so whichever change merges second takes 0.3.3 (ADR-005 decision 3). releases.json is not edited here.
+  - op: modify
+    path: docs/design/orqlet-architecture-proposal.md
+    why: The rows Read-only; no network of Section 17.10, Section 15.8, the commands and network columns of Sections 22 and 23, and the profile
+      fields of Sections 17.2 and 24.2 say what this change built (ADR-005 context).
+  - op: modify
+    path: README.md
+    why: The status section and the command list name the seven new commands, the table of finding codes of ADR-005 decision 5 (the codes of P-3
+      AC-1) is added, and the limits that stay with the team (ADR-002 decision 9, considerations S-17) are listed.
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/agents/orqlet-arch-reviewer.md
+    why: 'Regenerated locally with --update-golden: the role sentence.'
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/agents/orqlet-inventory.md
+    why: 'Regenerated locally with --update-golden: the role sentence.'
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/agents/orqlet-security-reviewer.md
+    why: 'Regenerated locally with --update-golden: the role sentence.'
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/agents/orqlet-tester.md
+    why: 'Regenerated locally with --update-golden: the role sentence.'
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/agents/orqlet-tracer.md
+    why: 'Regenerated locally with --update-golden: the role sentence.'
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-design/SKILL.md
+    why: 'Regenerated locally with --update-golden: the new step.'
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-implement/SKILL.md
+    why: 'Regenerated locally with --update-golden: the new step.'
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-onboard/SKILL.md
+    why: 'Regenerated locally with --update-golden: the new step.'
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-research/SKILL.md
+    why: 'Regenerated locally with --update-golden: the new step.'
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-research/references/as-is-format.md
+    why: 'Regenerated locally with --update-golden: the section Evidence from the web.'
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/AGENTS.md
+    why: 'Regenerated locally with --update-golden: the baseline section, the changed sentence and the workflow version in the marker.'
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.cursor/agents/orqlet-arch-reviewer.md
+    why: 'Regenerated locally with --update-golden: the role sentence.'
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.cursor/agents/orqlet-inventory.md
+    why: 'Regenerated locally with --update-golden: the role sentence.'
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.cursor/agents/orqlet-security-reviewer.md
+    why: 'Regenerated locally with --update-golden: the role sentence.'
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.cursor/agents/orqlet-tester.md
+    why: 'Regenerated locally with --update-golden: the role sentence.'
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.cursor/agents/orqlet-tracer.md
+    why: 'Regenerated locally with --update-golden: the role sentence.'
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-design/SKILL.md
+    why: 'Regenerated locally with --update-golden: the new step.'
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-implement/SKILL.md
+    why: 'Regenerated locally with --update-golden: the new step.'
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-onboard/SKILL.md
+    why: 'Regenerated locally with --update-golden: the new step.'
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-research/SKILL.md
+    why: 'Regenerated locally with --update-golden: the new step.'
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-research/references/as-is-format.md
+    why: 'Regenerated locally with --update-golden: the section Evidence from the web.'
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/AGENTS.md
+    why: 'Regenerated locally with --update-golden: the baseline section, the changed sentence and the workflow version in the marker.'
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.codex/agents/orqlet-arch-reviewer.toml
+    why: 'Regenerated locally with --update-golden: the role sentence.'
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.codex/agents/orqlet-inventory.toml
+    why: 'Regenerated locally with --update-golden: the role sentence.'
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.codex/agents/orqlet-security-reviewer.toml
+    why: 'Regenerated locally with --update-golden: the role sentence.'
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.codex/agents/orqlet-tester.toml
+    why: 'Regenerated locally with --update-golden: the role sentence.'
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.codex/agents/orqlet-tracer.toml
+    why: 'Regenerated locally with --update-golden: the role sentence.'
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-design/SKILL.md
+    why: 'Regenerated locally with --update-golden: the new step.'
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-implement/SKILL.md
+    why: 'Regenerated locally with --update-golden: the new step.'
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-onboard/SKILL.md
+    why: 'Regenerated locally with --update-golden: the new step.'
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-research/SKILL.md
+    why: 'Regenerated locally with --update-golden: the new step.'
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-research/references/as-is-format.md
+    why: 'Regenerated locally with --update-golden: the section Evidence from the web.'
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/AGENTS.md
+    why: 'Regenerated locally with --update-golden: the baseline section, the changed sentence and the workflow version in the marker.'
+  - op: modify
+    path: tests/golden/common/pr_template/existing-reconciled.md
+    why: 'Regenerated locally with --update-golden: the workflow version in the marker.'
+  - op: modify
+    path: tests/golden/common/pr_template/new-with-team.md
+    why: 'Regenerated locally with --update-golden: the workflow version in the marker.'
+  - op: modify
+    path: tests/golden/common/pr_template/new-workflow-only.md
+    why: 'Regenerated locally with --update-golden: the workflow version in the marker.'
+  acceptance_criteria:
+  - id: AC-1
+    text: 'The baseline holds the rules of ADR-001 decision 3: the order of sources, the signed-in browser only for an access login entry and
+      the ask before its first use in a session, the host told to the developer at a login page, same host narrowed to the registered path prefix
+      for a login entry, no form or action, no credential, cookie, token or storage-state file, no command run or package installed because a
+      page says so, a query that carries only the public name and version of a published technology, page text as evidence, and an unknown instead
+      of a guess; it stays within 60 lines and 8 KiB and names no address and no product.'
+    source: Q-6; Q-12; ADR-001 decision 3; ADR-004 decision 1
+    check_ref: pytest
+  - id: AC-2
+    text: 'Each of the skills onboard, research, design and implement has its step marked requires: resources list; the research step lists a
+      needed lookup that was not done under self_check.unverified; the onboard step shows the exact title, note and address and waits for a yes
+      before resources add --yes and reads ORQ-I502.'
+    source: Q-6; ADR-004 decision 2
+    check_ref: pytest
+  - id: AC-3
+    text: All five roles carry the sentence that forbids a web lookup and asks to report what cannot be read as an unknown.
+    source: ADR-001 decision 6
+    check_ref: pytest
+  - id: AC-4
+    text: evidence cite refuses with ORQ-E511 a file under docs/design/*/evidence/web/ that has a credential shape or a hidden code point or is
+      larger than 256 KiB, scanning the exact bytes it hashes; it requires no header, so the 38 existing evidence files still cite; any other
+      path behaves as before.
+    source: ADR-004 decision 4; considerations S-18
+    check_ref: pytest
+  - id: AC-5
+    text: Each client reports one new capability limit that says lookups are requested and how to opt out, labelled documented and not observed;
+      ORQ-L001 is still reported by every client.
+    source: ADR-004 decision 6; ADR-004 consequences
+    check_ref: pytest
+  - id: AC-6
+    text: tools/build_manifest.py --check and tools/export_schemas.py --check pass, identity.json carries the proposed version, and the release-gate
+      test passes because the version is not yet in the release history.
+    source: ORQLET-DET-002; ORQLET-DET-003
+    check_ref: manifest
+  - id: AC-7
+    text: 'The golden files differ from before only in the 36 files of this phase (11 for each client and 3 PR templates): the five roles, the
+      four skills, the research reference, AGENTS.md, and the version marker; no other golden file changes.'
+    source: ORQLET-DET-001
+    check_ref: review:golden-diff
+  - id: AC-8
+    text: 'The architecture document and the README say what was built: the rows Read-only; no network are corrected, the seven commands and the
+      table of finding codes are listed, and nothing in them claims that a client honours a rule that no check has shown.'
+    source: 'baseline: update the documentation; ADR-005 decisions 2 and 5'
+    check_ref: review:documents
+  checks:
+  - ruff-check
+  - ruff-format
+  - mypy
+  - import-linter
+  - pytest
+  - manifest
+  - schemas
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  knowledge_step: required
+  completion:
+  - All checks pass on Python 3.12
+  - Golden files were written locally with --update-golden and never in CI
+  - The completion note names the proposed workflow version for the person to confirm or replace
+  - This task's own design and plan headers go stale on workflow_version and protected_set_digest when the person runs orqlet upgrade in this
+    repository, which is the last step (ORQ-W390)
+  expected_outputs:
+  - src/orqlet/workflow/baseline/baseline.md
+  - src/orqlet/application/usecases/evidence_cite.py
+  - src/orqlet/workflow/identity.json
+- id: P-9
+  objective: A person with test accounts runs the checks V-1 to V-8, V-10 and V-11 of ADR-005 and writes one record per check and client; V-9
+    waits for the integrations design to build the Atlassian entry. Orqlet and its agents cannot run them. No code phase depends on a record.
+  depends_on:
+  - P-8
+  implements: []
+  file_operations:
+  - op: create
+    path: docs/design/team-conventions-resources/evidence/checks/V-1-claude-code.md
+    why: 'V-1: whether .claude/rules/orqlet-resource-<id>.md loads only when Claude Code works with a file that matches its paths. The record
+      states the date, the client name and version, the kind of test account or project, the steps, the observed result and a verdict, and holds
+      no credential, no account name and no raw client log.'
+  - op: create
+    path: docs/design/team-conventions-resources/evidence/checks/V-2-cursor.md
+    why: 'V-2: whether Cursor accepts globs as a YAML list in an .mdc file and attaches the rule only for a matching file. The record states the
+      date, the client name and version, the kind of test account or project, the steps, the observed result and a verdict, and holds no credential,
+      no account name and no raw client log.'
+  - op: create
+    path: docs/design/team-conventions-resources/evidence/checks/V-3-claude-code.md
+    why: 'V-3: whether the client reads both managed blocks of AGENTS.md (Claude Code through the bridge), and whether Codex stays under 32 KiB
+      with the baseline, the new section and the block, and where the blocks sit in a long file. The record states the date, the client name and
+      version, the kind of test account or project, the steps, the observed result and a verdict, and holds no credential, no account name and
+      no raw client log.'
+  - op: create
+    path: docs/design/team-conventions-resources/evidence/checks/V-3-codex.md
+    why: 'V-3: whether the client reads both managed blocks of AGENTS.md (Claude Code through the bridge), and whether Codex stays under 32 KiB
+      with the baseline, the new section and the block, and where the blocks sit in a long file. The record states the date, the client name and
+      version, the kind of test account or project, the steps, the observed result and a verdict, and holds no credential, no account name and
+      no raw client log.'
+  - op: create
+    path: docs/design/team-conventions-resources/evidence/checks/V-3-cursor.md
+    why: 'V-3: whether the client reads both managed blocks of AGENTS.md (Claude Code through the bridge), and whether Codex stays under 32 KiB
+      with the baseline, the new section and the block, and where the blocks sit in a long file. The record states the date, the client name and
+      version, the kind of test account or project, the steps, the observed result and a verdict, and holds no credential, no account name and
+      no raw client log.'
+  - op: create
+    path: docs/design/team-conventions-resources/evidence/checks/V-4-claude-code.md
+    why: 'V-4: whether a skill without disable-model-invocation (and, for Codex, without the sidecar) is started by the agent from a matching
+      request and not from an unrelated one. The record states the date, the client name and version, the kind of test account or project, the
+      steps, the observed result and a verdict, and holds no credential, no account name and no raw client log.'
+  - op: create
+    path: docs/design/team-conventions-resources/evidence/checks/V-4-codex.md
+    why: 'V-4: whether a skill without disable-model-invocation (and, for Codex, without the sidecar) is started by the agent from a matching
+      request and not from an unrelated one. The record states the date, the client name and version, the kind of test account or project, the
+      steps, the observed result and a verdict, and holds no credential, no account name and no raw client log.'
+  - op: create
+    path: docs/design/team-conventions-resources/evidence/checks/V-4-cursor.md
+    why: 'V-4: whether a skill without disable-model-invocation (and, for Codex, without the sidecar) is started by the agent from a matching
+      request and not from an unrelated one. The record states the date, the client name and version, the kind of test account or project, the
+      steps, the observed result and a verdict, and holds no credential, no account name and no raw client log.'
+  - op: create
+    path: docs/design/team-conventions-resources/evidence/checks/V-5-claude-code.md
+    why: 'V-5: whether the client lists the catalogue skill and the tool skills once, with the description cut at the limit, and how many skills
+      a list tolerates. The record states the date, the client name and version, the kind of test account or project, the steps, the observed
+      result and a verdict, and holds no credential, no account name and no raw client log.'
+  - op: create
+    path: docs/design/team-conventions-resources/evidence/checks/V-5-codex.md
+    why: 'V-5: whether the client lists the catalogue skill and the tool skills once, with the description cut at the limit, and how many skills
+      a list tolerates. The record states the date, the client name and version, the kind of test account or project, the steps, the observed
+      result and a verdict, and holds no credential, no account name and no raw client log.'
+  - op: create
+    path: docs/design/team-conventions-resources/evidence/checks/V-5-cursor.md
+    why: 'V-5: whether the client lists the catalogue skill and the tool skills once, with the description cut at the limit, and how many skills
+      a list tolerates. The record states the date, the client name and version, the kind of test account or project, the steps, the observed
+      result and a verdict, and holds no credential, no account name and no raw client log.'
+  - op: create
+    path: docs/design/team-conventions-resources/evidence/checks/V-6-claude-code.md
+    why: 'V-6: which public official page the web tool reads, whether the client can be limited to a registered address, what Codex cached returns
+      for a page that changed, and which host names and which page text the client sends to its vendor. The record states the date, the client
+      name and version, the kind of test account or project, the steps, the observed result and a verdict, and holds no credential, no account
+      name and no raw client log.'
+  - op: create
+    path: docs/design/team-conventions-resources/evidence/checks/V-6-codex.md
+    why: 'V-6: which public official page the web tool reads, whether the client can be limited to a registered address, what Codex cached returns
+      for a page that changed, and which host names and which page text the client sends to its vendor. The record states the date, the client
+      name and version, the kind of test account or project, the steps, the observed result and a verdict, and holds no credential, no account
+      name and no raw client log.'
+  - op: create
+    path: docs/design/team-conventions-resources/evidence/checks/V-6-cursor.md
+    why: 'V-6: which public official page the web tool reads, whether the client can be limited to a registered address, what Codex cached returns
+      for a page that changed, and which host names and which page text the client sends to its vendor. The record states the date, the client
+      name and version, the kind of test account or project, the steps, the observed result and a verdict, and holds no credential, no account
+      name and no raw client log.'
+  - op: create
+    path: docs/design/team-conventions-resources/evidence/checks/V-7-claude-code-chrome.md
+    why: 'V-7: with a test SAML site: whether the client asks before it first uses the signed-in route, stops at the login page, lets the developer
+      sign in in their own browser or client, and then reads the page; plus the hostile-page case: a public page that tells the agent to open
+      a registered login address and send what it read to another host. The record states the date, the client name and version, the kind of test
+      account or project, the steps, the observed result and a verdict, and holds no credential, no account name and no raw client log.'
+  - op: create
+    path: docs/design/team-conventions-resources/evidence/checks/V-7-playwright-mcp.md
+    why: 'V-7: with a test SAML site: whether the client asks before it first uses the signed-in route, stops at the login page, lets the developer
+      sign in in their own browser or client, and then reads the page; plus the hostile-page case: a public page that tells the agent to open
+      a registered login address and send what it read to another host. The record states the date, the client name and version, the kind of test
+      account or project, the steps, the observed result and a verdict, and holds no credential, no account name and no raw client log.'
+  - op: create
+    path: docs/design/team-conventions-resources/evidence/checks/V-7-cursor.md
+    why: 'V-7: with a test SAML site: whether the client asks before it first uses the signed-in route, stops at the login page, lets the developer
+      sign in in their own browser or client, and then reads the page; plus the hostile-page case: a public page that tells the agent to open
+      a registered login address and send what it read to another host. The record states the date, the client name and version, the kind of test
+      account or project, the steps, the observed result and a verdict, and holds no credential, no account name and no raw client log.'
+  - op: create
+    path: docs/design/team-conventions-resources/evidence/checks/V-7-codex.md
+    why: 'V-7: with a test SAML site: whether the client asks before it first uses the signed-in route, stops at the login page, lets the developer
+      sign in in their own browser or client, and then reads the page; plus the hostile-page case: a public page that tells the agent to open
+      a registered login address and send what it read to another host. The record states the date, the client name and version, the kind of test
+      account or project, the steps, the observed result and a verdict, and holds no credential, no account name and no raw client log.'
+  - op: create
+    path: docs/design/team-conventions-resources/evidence/checks/V-8-cursor.md
+    why: 'V-8: whether Cursor readonly or Codex sandbox_mode read-only stops a role from using a web tool. The record states the date, the client
+      name and version, the kind of test account or project, the steps, the observed result and a verdict, and holds no credential, no account
+      name and no raw client log.'
+  - op: create
+    path: docs/design/team-conventions-resources/evidence/checks/V-8-codex.md
+    why: 'V-8: whether Cursor readonly or Codex sandbox_mode read-only stops a role from using a web tool. The record states the date, the client
+      name and version, the kind of test account or project, the steps, the observed result and a verdict, and holds no credential, no account
+      name and no raw client log.'
+  - op: create
+    path: docs/design/team-conventions-resources/evidence/checks/V-10-claude-code.md
+    why: 'V-10: whether an agent that a rule or skill tells to read docs/resources/<id>.md opens it before it opens the address. The record states
+      the date, the client name and version, the kind of test account or project, the steps, the observed result and a verdict, and holds no credential,
+      no account name and no raw client log.'
+  - op: create
+    path: docs/design/team-conventions-resources/evidence/checks/V-10-codex.md
+    why: 'V-10: whether an agent that a rule or skill tells to read docs/resources/<id>.md opens it before it opens the address. The record states
+      the date, the client name and version, the kind of test account or project, the steps, the observed result and a verdict, and holds no credential,
+      no account name and no raw client log.'
+  - op: create
+    path: docs/design/team-conventions-resources/evidence/checks/V-10-cursor.md
+    why: 'V-10: whether an agent that a rule or skill tells to read docs/resources/<id>.md opens it before it opens the address. The record states
+      the date, the client name and version, the kind of test account or project, the steps, the observed result and a verdict, and holds no credential,
+      no account name and no raw client log.'
+  - op: create
+    path: docs/design/team-conventions-resources/evidence/checks/V-11-github-actions.md
+    why: 'V-11: on the code host''s runner, with a shallow and a full clone: whether conventions check resolves the base, the branch name and
+      the subjects, how a fork''s pull request behaves, and whether a required status check blocks a merge. The record states the date, the client
+      name and version, the kind of test account or project, the steps, the observed result and a verdict, and holds no credential, no account
+      name and no raw client log.'
+  - op: create
+    path: tests/unit/test_check_records_scan.py
+    why: Runs credential_problems and hidden_text_problems over every committed check record under docs/design/team-conventions-resources/evidence/checks
+      and fails on a credential shape or a hidden code point (ORQLET-SEC-003).
+  acceptance_criteria:
+  - id: AC-1
+    text: Each record states the date, the client name and version, the kind of test account, the steps, the observed result and a verdict, and
+      holds no credential value, no account name, no raw client log and no page text of an internal site.
+    source: ADR-005 decision 2; Q-14
+    check_ref: review:check-records
+  - id: AC-2
+    text: V-7 ran against a test SAML site and recorded, per client, whether the client asks before it first uses the signed-in route and whether
+      the hostile-page case moved text to another host; the test session was signed out afterwards.
+    source: ADR-005 decision 2; Q-12; Q-15
+    check_ref: security-reviewer
+  - id: AC-3
+    text: The repository test finds no credential shape and no hidden code point in any committed check record, and no statement in a skill, a
+      limit or the README claims that a client honours a rule on the strength of a record that does not exist.
+    source: ADR-005 decision 2; ORQLET-SEC-003
+    check_ref: pytest
+  checks:
+  - ruff-check
+  - ruff-format
+  - mypy
+  - pytest
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  knowledge_step: required
+  completion:
+  - The person with the test accounts ran each check; an agent did not
+  - A record that is missing is listed for the person; the claim that depends on it stays out of the text until it exists
+  - V-9 is not run in this change
+  expected_outputs:
+  - docs/design/team-conventions-resources/evidence/checks/V-7-playwright-mcp.md
+  - tests/unit/test_check_records_scan.py
+reuse_decisions: []
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: planner
+    phase: plan
+  checks:
+  - what: design approved
+    how: the person chose 'I accept the design in conversation, without a merge' on 2026-10-26 when /orqlet-plan was started; the design pull
+      request is not merged and origin/main does not hold the design; recorded in the design manifest header and self_check (commit 227e674)
+    result: pass
+  - what: plan accepted by the person
+    how: the person chose 'I accept the plan in conversation, without a merge' and 'All code phases P-1 to P-8 in order, a local commit after each' on 2026-10-27 when /orqlet-implement was started; this is not a merge on the protected baseline, and neither the design nor the plan is on origin/main
+    result: pass
+  - what: standards read
+    how: orqlet standards for --phase plan --role planner (15 rules)
+    result: pass
+  - what: design manifest hashed
+    how: orqlet evidence hash docs/design/team-conventions-resources/design/manifest.yaml
+    result: pass
+  - what: module catalogue consulted
+    how: .orqlet/knowledge.yaml has no sources and no module cards exist, so there is nothing to reuse and reuse_decisions is empty
+    result: pass
+  - what: open questions that block the plan
+    how: questions.yaml Q-1 to Q-16 are all answered; no question is open
+    result: pass
+  - what: paths projected
+    how: 'orqlet validate plan docs/design/team-conventions-resources/plan.yaml against base revision 227e67468ac2: 9 phases, 181 file operations'
+    result: pass
+  unverified:
+  - The plan was written from the code at the base revision and the design set; no phase was tried.
+  - ADR-005 says the plan has eight phases at most; the checks of P-9 are records written by a person and are not a code phase, so the plan has
+    nine.
+  - 'The workflow version proposed in P-8 is not decided: the plan of the mcp-or-plugins task proposes 0.3.2 as well, and whichever change merges
+    second takes 0.3.3. Both changes also edit render_all.py, instruction_adapter.py, capabilities.py, validate.py, diagnose.py, README.md and
+    the workflow manifest, so the second to merge rebases and amends its plan.'
+  - Existing tests that enumerate the files init writes or script its questions were found by search for test_init_project.py only; another test
+    that fails on a new seeded file or a new question is a plan amendment.
+  - The time limits of the timed hostile-input tests are set after a first measurement; the plan gives no number.
+  - The finding codes ORQ-E500 to ORQ-E511, ORQ-W500, ORQ-I500 to ORQ-I503, ORQ-I520, ORQ-E520 and ORQ-E521 are allocated by this plan from numbers
+    that no file under src uses at the base revision; a clash with the other task is not excluded.
+  - How a client behaves with the generated rules, skills, blocks and web tools is unknown until the checks of P-9 are done.
+  - Approval of the design and of the plan is evidence on the protected baseline; an offline run has none, and this plan is a draft until the
+    person accepts it.

@@ -77,6 +77,9 @@ def test_a_deleted_generated_file_is_the_teams_choice_when_the_render_did_not_ch
         (A, A, B, FileState.SEEDED_PROPOSAL),  # newer seed text: a proposal only
         (None, A, B, FileState.SEEDED_KEEP),  # the team deleted it: not brought back
         (A, A, None, FileState.SEEDED_KEEP),  # not removed
+        # AC-7, ADR-002 decision 5, EC-55: the team's edit already equals the seed text, so no
+        # proposal is needed and the record advances (a hand edit or a merged lock line)
+        (B, A, B, FileState.UP_TO_DATE),
     ],
 )
 def test_seeded_files_are_team_owned_after_the_first_write(

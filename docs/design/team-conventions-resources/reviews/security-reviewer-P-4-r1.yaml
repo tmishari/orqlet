@@ -1,0 +1,165 @@
+schema: orqlet.review-result/v1
+task: team-conventions-resources
+phase: P-4
+role: security-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 772d2b3511134fc11d15d73a528b59ca327981431a3171d80b5c5d9938727a6b
+    design: bbe26a9596127dc8f6769bc5be680e6b959bf05f54b94d3ba598a6285fae43cb
+    evidence_inputs: 6f074739c1fe60b7467f797fcfa25fdfd60fcee3ed9969e095fd4590fb719ccf
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: cebd53df7986b17ae02bddb6ae1d32a654f8677fe04cef91c9ed71869782f0f1
+    reviewer_definition: f969d0c8c6d65779f619b5254b1c1583aa3a4d6f0ecb56b0fd3d4647104bcb69
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: c6f6a7aca2a9ac63e78d35eb298df10bc10135d50e7d48fff3fde891652379ed
+  merge_base: d03e0d435da186950583dd471e18ad07660cec51
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: 03556c914cc53a8d2d8bacb1ecc1d703d0e50d31ad2376f983d6098a398692df
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; it had no shell, so it ran no check and recomputed
+  no digest.
+- Quote digests were not computed, so each finding rests on reading and is an observation that never blocks.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the design-phase review notes of this task, so the reviewer was not fully context-clean
+  (the known gap of the harness2-fit ADR-002).
+- The reviewer ran in the same client as the Coder, so independence is I1, not I2.
+applicability:
+  examined:
+  - src/orqlet/application/usecases/resources_edit.py
+  - src/orqlet/application/usecases/resources_view.py
+  - src/orqlet/application/usecases/init_project.py
+  - src/orqlet/application/usecases/capabilities.py
+  - src/orqlet/interface/cli/commands/resources.py
+  - src/orqlet/interface/cli/app.py
+  - tests/unit/application/test_resources_edit_commands.py
+  - tests/unit/application/test_resources_listing.py
+  - tests/unit/application/test_init_links.py
+  - tests/integration/test_resources_cli.py
+  - tests/fault/test_resources_edit_kill_after_k.py
+  - tests/fault/test_init_links_resume.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: '[minor] printable does not neutralise CI workflow-command markers: an uncovered name such as a double
+    colon followed by warning is printed with only blanks in front, and a title can hold the legacy ## bracket form.'
+  suggested_action: Give each uncovered line a fixed prefix, consider escaping both markers in printable, and apply
+    the same in conventions check in P-7.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: '[minor] The terminal gate covers only attach; update of the address or access of a login entry needs only
+    --yes, and a terminal check cannot show that a person answered.'
+  suggested_action: Extend the gate to update or state in the README that it is a guard and not a boundary; review
+    is the control.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: failure-handling
+  evidence: []
+  claim: '[minor] In attach the registry is read before the login question and the plan takes its before-hash after
+    it, so an edit of the registry during the question is overwritten.'
+  suggested_action: Compare the registry hash again after the gate and before apply.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: non-blocking
+  category: architecture
+  evidence: []
+  claim: '[minor] The copy checks of attach duplicate those of validate resources.'
+  suggested_action: Keep one shared function and constant.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: non-blocking
+  category: standards
+  evidence: []
+  claim: '[minor] ORQ-I504 is not allocated by the plan and ORQ-E509 is used at WARNING severity for a skipped link.'
+  suggested_action: Allocate both in the amendment.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: non-blocking
+  category: tests
+  evidence: []
+  claim: '[minor] The cap of 100 link prompts has no test.'
+  suggested_action: Add a test of an endless non-empty address and say in the completion note that the init kill
+    points are sampled.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: attach_copy reads the whole copy before its 64 KiB check; links are refused by the port.
+  suggested_action: Accept or add a size-capped read to the port.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-8
+  kind: observation
+  severity: info
+  category: correctness
+  evidence: []
+  claim: resources_edit formats pydantic errors itself and does not mask the key of an extra_forbidden error; every
+    key comes from the spec and the model, so it is safe today.
+  suggested_action: Reuse the one formatter later.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-9
+  kind: observation
+  severity: info
+  category: tests
+  evidence: []
+  claim: The full suite ran on 3.14.9 only; the seven new test files also ran on 3.12.11.
+  suggested_action: The CI matrix gives the rest.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read
+    how: MANIFEST, diff.patch, plan, test record, knowledge-impact record and the snapshot of the changed files
+    result: pass
+  - what: re-run of ruff, mypy, import-linter and pytest
+    how: no shell
+    result: not-run
+  - what: packet and record digests recomputed
+    how: no shell; hashes not computed
+    result: not-run

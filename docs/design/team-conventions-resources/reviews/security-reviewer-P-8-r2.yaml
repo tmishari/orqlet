@@ -1,0 +1,156 @@
+schema: orqlet.review-result/v1
+task: team-conventions-resources
+phase: P-8
+role: security-reviewer
+round: 2
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 6c07a3d25846a1fb7417969adf816b07d87050f148bb1294b909d8f6346583fc
+    design: bbe26a9596127dc8f6769bc5be680e6b959bf05f54b94d3ba598a6285fae43cb
+    evidence_inputs: 1c45f50e7a4adf8c665d6667cab10750b7e85a4a67e38866128f86e8a1f8dab5
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: cebd53df7986b17ae02bddb6ae1d32a654f8677fe04cef91c9ed71869782f0f1
+    reviewer_definition: adb518646f16cabf596e57830f19b79e9c2de39442b9ab0dc1f19123d71dab2c
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 2b439633476a7d94b3d4ed47deceee09a7c3db4b7906362ed064fc3c48274d07
+  merge_base: d03e0d435da186950583dd471e18ad07660cec51
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: 03556c914cc53a8d2d8bacb1ecc1d703d0e50d31ad2376f983d6098a398692df
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; it had no shell, so it ran no check and recomputed
+  no digest.
+- Quote digests were not computed, so each finding rests on reading and is an observation that never blocks.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the design-phase review notes of this task, so the reviewer was not fully context-clean
+  (the known gap of the harness2-fit ADR-002).
+- The reviewer ran in the same client as the Coder, so independence is I1, not I2.
+- Round 2 followed a rework of text and messages; the reviewer found the change by reading the snapshot.
+applicability:
+  examined:
+  - src/orqlet/workflow/baseline/baseline.md
+  - src/orqlet/workflow/skills/orqlet-onboard/skill.md
+  - src/orqlet/workflow/skills/orqlet-research/skill.md
+  - src/orqlet/workflow/skills/orqlet-design/skill.md
+  - src/orqlet/workflow/skills/orqlet-implement/skill.md
+  - src/orqlet/workflow/skills/orqlet-research/references/as-is-format.md
+  - src/orqlet/workflow/roles/orqlet-inventory.md
+  - src/orqlet/workflow/roles/orqlet-tracer.md
+  - src/orqlet/workflow/roles/orqlet-arch-reviewer.md
+  - src/orqlet/workflow/roles/orqlet-security-reviewer.md
+  - src/orqlet/workflow/roles/orqlet-tester.md
+  - src/orqlet/workflow/templates/resource-rule.md
+  - src/orqlet/workflow/templates/tool-skill.md
+  - src/orqlet/workflow/MANIFEST.json
+  - src/orqlet/workflow/identity.json
+  - src/orqlet/application/usecases/evidence_cite.py
+  - src/orqlet/adapters/clients/claude_code.py
+  - src/orqlet/adapters/clients/codex.py
+  - src/orqlet/adapters/clients/cursor.py
+  - README.md
+  - docs/design/orqlet-architecture-proposal.md
+  - tests/unit/test_workflow_lookup_text.py
+  - tests/unit/application/test_evidence_cite.py
+  - tests/unit/render/test_clients_golden.py
+  - tests/unit/render/test_skills.py
+  - tests/unit/domain/test_conventions_properties.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: '[minor] The design skill says evidence cite scans the evidence file, which the design phase never calls.'
+  suggested_action: Add the cite command to the design and implement steps.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: docs
+  evidence: []
+  claim: '[minor] The ORQ-I500 notice comes from the command after the yes.'
+  suggested_action: Preview with --dry-run.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: docs
+  evidence: []
+  claim: The V-6 pointer does not match what V-6 checks.
+  suggested_action: Add the question or drop the pointer.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: docs
+  evidence: []
+  claim: The query bullet read literally covers an address that the agent opens.
+  suggested_action: Say what you add to a query or an address.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: non-blocking
+  category: standards
+  evidence: []
+  claim: '[minor] The P-6 templates and their goldens were edited in this phase and are outside its file list.'
+  suggested_action: Record a plan amendment.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: The onboard command builds a shell command from free text without saying to quote it.
+  suggested_action: Say one quoted argument for each value.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: info
+  category: tests
+  evidence: []
+  claim: The ORQ-E511 remedy sentence says the file is already in a local commit, which is not true for a pushed
+    revision.
+  suggested_action: Word it conditionally and add a test.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read
+    how: MANIFEST, diff.patch, plan, test record, knowledge-impact record and the snapshot of the changed files
+    result: pass
+  - what: re-run of ruff, mypy, import-linter and pytest
+    how: no shell
+    result: not-run
+  - what: packet and record digests recomputed
+    how: no shell; hashes not computed
+    result: not-run

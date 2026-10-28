@@ -1,0 +1,140 @@
+schema: orqlet.review-result/v1
+task: team-conventions-resources
+phase: P-1
+role: security-reviewer
+round: 3
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: f7a2a37ea2f68082874dfb85e0b3db2326c5eb7623e89f37b7f9ef54507019ed
+    design: bbe26a9596127dc8f6769bc5be680e6b959bf05f54b94d3ba598a6285fae43cb
+    evidence_inputs: c2febd482a38d1be9c4db3616043d1022d6177fe0d2ff37bb5e0094f6a8bbd72
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: cebd53df7986b17ae02bddb6ae1d32a654f8677fe04cef91c9ed71869782f0f1
+    reviewer_definition: f969d0c8c6d65779f619b5254b1c1583aa3a4d6f0ecb56b0fd3d4647104bcb69
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 8ceec889af905b30cc18f20d69e7a79eda381e4a9ed8d60b54f0f021a29807bf
+  merge_base: d03e0d435da186950583dd471e18ad07660cec51
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: 03556c914cc53a8d2d8bacb1ecc1d703d0e50d31ad2376f983d6098a398692df
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; it had no shell, so it ran no check and recomputed
+  no digest.
+- Quote digests were not computed, so each finding rests on reading and is an observation that never blocks.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the design-phase review notes of this task, so the reviewer was not fully context-clean
+  (the known gap of the harness2-fit ADR-002).
+- The reviewer ran in the same client as the Coder, so independence is I1, not I2.
+applicability:
+  examined:
+  - src/orqlet/domain/resources.py
+  - src/orqlet/domain/conventions.py
+  - src/orqlet/domain/classify.py
+  - tests/unit/domain/test_resources.py
+  - tests/unit/domain/test_resources_properties.py
+  - tests/unit/domain/test_conventions.py
+  - tests/unit/domain/test_conventions_properties.py
+  - tests/unit/domain/test_classify.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: '[minor] The private-key rule needs ''PRIVATE KEY-----'' on the header line, so a PGP armor header (''-----BEGIN
+    PGP PRIVATE KEY BLOCK-----'') passes.'
+  suggested_action: Match PRIVATE KEY after -----BEGIN with an optional BLOCK and add a PGP vector.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: '[minor] An AWS key id followed by a full stop, or joined to a word by ''-'' or ''_'', is not flagged because
+    the run must be exactly 20 characters; provider prefixes are tested only at the start of a run.'
+  suggested_action: Test the shapes at boundaries and add full-stop, hyphen and underscore vectors.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: Cookie and Set-Cookie values, short passwords and passwords that start with a symbol are outside the scan.
+  suggested_action: State the limit in the README; optionally add a Cookie header rule.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: The public-entry rule for internal-looking hosts and the tool and version character sets are not acceptance
+    criteria of P-2.
+  suggested_action: P-2 enforces them; the P-2 tests cite ADR-002 decision 1.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: A subject that starts with 'Merge ' is exempt, so the check is not a control against a contributor who
+    wants to avoid it.
+  suggested_action: State this in the P-7 README.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: Committed design text names github.com/tmishari/orqlet; it is not a secret.
+  suggested_action: None.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: info
+  category: tests
+  evidence: []
+  claim: The test record is claimed and the full suite ran on 3.14.9 only.
+  suggested_action: CI gives the matrix.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read
+    how: MANIFEST, diff.patch, plan, test record, knowledge-impact record and the snapshot of the changed files
+    result: pass
+  - what: re-run of ruff, mypy, import-linter and pytest
+    how: no shell
+    result: not-run
+  - what: packet and record digests recomputed
+    how: no shell; hashes not computed
+    result: not-run

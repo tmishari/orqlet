@@ -71,4 +71,8 @@ def _seeded(current: str | None, recorded: str | None, new: str | None) -> FileS
         return FileState.UP_TO_DATE if current == new else FileState.SEEDED_PROPOSAL
     if current is None:
         return FileState.SEEDED_KEEP  # the team deleted it; Orqlet never brings it back
+    if current == new and recorded != new:
+        # A hand edit or a merged lock: the file already is what this render wants, so there is
+        # nothing to propose and the record advances.
+        return FileState.UP_TO_DATE
     return FileState.SEEDED_PROPOSAL if new != recorded else FileState.SEEDED_KEEP

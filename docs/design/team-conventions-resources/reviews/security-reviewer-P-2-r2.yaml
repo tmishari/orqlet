@@ -1,0 +1,109 @@
+schema: orqlet.review-result/v1
+task: team-conventions-resources
+phase: P-2
+role: security-reviewer
+round: 2
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 66318ba7584c05aca011ebefcda79c9f683131a01e7df8b6066f84c26876387b
+    design: bbe26a9596127dc8f6769bc5be680e6b959bf05f54b94d3ba598a6285fae43cb
+    evidence_inputs: c55ef78f72e6530d62253d97391948bff69292bf58ff6eac7f8ddd9bba43b654
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: cebd53df7986b17ae02bddb6ae1d32a654f8677fe04cef91c9ed71869782f0f1
+    reviewer_definition: f969d0c8c6d65779f619b5254b1c1583aa3a4d6f0ecb56b0fd3d4647104bcb69
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 4a1f55a58a7cae7155c240a75ea189bc8b7ea5646676aeafb3464fea40c5d4eb
+  merge_base: d03e0d435da186950583dd471e18ad07660cec51
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: 03556c914cc53a8d2d8bacb1ecc1d703d0e50d31ad2376f983d6098a398692df
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; it had no shell, so it ran no check and recomputed
+  no digest.
+- Quote digests were not computed, so each finding rests on reading and is an observation that never blocks.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the design-phase review notes of this task, so the reviewer was not fully context-clean
+  (the known gap of the harness2-fit ADR-002).
+- The reviewer ran in the same client as the Coder, so independence is I1, not I2.
+- Round 2 followed a rework of one validator; the reviewer found the change by reading the snapshot, not from a
+  delta.
+applicability:
+  examined:
+  - src/orqlet/application/contracts/resources.py
+  - src/orqlet/application/contracts/profile.py
+  - src/orqlet/application/contracts/__init__.py
+  - src/orqlet/application/usecases/resources_source.py
+  - src/orqlet/workflow/schemas/orqlet.resources.v1.json
+  - src/orqlet/workflow/schemas/orqlet.project-profile.v1.json
+  - src/orqlet/workflow/MANIFEST.json
+  - tests/fixtures/contracts/valid/orqlet.resources.v1.yaml
+  - tests/unit/application/test_resources_contract.py
+  - tests/unit/application/test_resources_source.py
+  - tests/unit/application/test_profile_conventions_contract.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: The committed JSON Schema types retrieved_at as a string with no pattern; the shape rule lives only in
+    the contract.
+  suggested_action: Optionally add an anchored pattern.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: tests
+  evidence: []
+  claim: '[minor] The record says the post-rework run covered a subset on 3.14.9 only and the new tests were not
+    re-run on 3.12.'
+  suggested_action: Re-run the contract tests on 3.12.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: tests
+  evidence: []
+  claim: Three of the ten new vectors (zero-width character in the time, Arabic-Indic digits, trailing newline)
+    might be refused by fromisoformat alone and would not catch a removal of the pattern; they assert only that
+    a ValidationError is raised.
+  suggested_action: Assert the fixed message and add a Unicode minus and a +24:00 offset.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read
+    how: MANIFEST, diff.patch, plan, test record, knowledge-impact record and the snapshot of the changed files
+    result: pass
+  - what: re-run of ruff, mypy, import-linter and pytest
+    how: no shell
+    result: not-run
+  - what: packet and record digests recomputed
+    how: no shell; hashes not computed
+    result: not-run

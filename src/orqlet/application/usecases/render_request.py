@@ -4,13 +4,26 @@ from __future__ import annotations
 
 import re
 from collections.abc import Callable, Collection, Sequence
+from dataclasses import replace
 
 from orqlet.application.contracts.loading import load_contract
+from orqlet.application.contracts.resources import Resources
 from orqlet.application.contracts.workflow_package import WorkflowRuleMeta
 from orqlet.application.ports.documents import DocumentLoader
-from orqlet.application.ports.instruction_adapter import ClientCommand, RenderRequest, ScopedRule
+from orqlet.application.ports.instruction_adapter import (
+    ClientCommand,
+    ClientSkill,
+    ConventionsView,
+    RenderRequest,
+    ScopedRule,
+)
 from orqlet.application.ports.workflow import WorkflowSource
 from orqlet.application.usecases.capabilities import IMPLEMENTED_COMMANDS
+from orqlet.application.usecases.resources_view import (
+    catalogue_skill,
+    resource_rules,
+    resource_skills,
+)
 from orqlet.application.usecases.workflow_sources import (
     SourceError,
     load_roles,
@@ -24,6 +37,7 @@ from orqlet.domain.resolver import Level, RuleSpec
 
 WORKFLOW_RULE = "rules/orqlet-workflow"
 COMMANDS_DIR = "commands/"
+_SLOT = "{{lines}}"
 
 
 class RenderRequestError(OrqletError):
@@ -42,6 +56,8 @@ def build_render_request(
     workflow: WorkflowSource,
     loader: DocumentLoader,
     rules: Sequence[RuleSpec],
+    resources: Resources,
+    conventions: ConventionsView | None,
     *,
     client_version: str | None = None,
     available_commands: Collection[str] = IMPLEMENTED_COMMANDS,
@@ -49,7 +65,10 @@ def build_render_request(
     """The baseline, the workflow rule and one scoped file per MUST rule that names paths.
 
     Rules without paths are not written as files: they would load for every task and grow the
-    always-on baseline. An agent reads them with `orqlet standards for`.
+    always-on baseline. An agent reads them with `orqlet standards for`. The team's registry adds
+    its rules, its tool skills and its catalogue, and the conventions view becomes the block of
+    `AGENTS.md`; the fixed text around their lines comes from the templates of the workflow
+    package, so that it is in the manifest and a change of it is a release.
     """
     version = str(workflow.release.version)
     meta = load_contract(
@@ -78,15 +97,69 @@ def build_render_request(
             raise RenderRequestError(f"rule {rule.id} would reuse the file name orqlet-{slug}")
         seen.add(slug)
         scoped.append(_pack_rule(rule, slug))
+    for team_rule in resource_rules(resources):
+        if team_rule.name in seen:
+            raise RenderRequestError(
+                f"a rule would reuse the file name orqlet-{team_rule.name}: a pack rule and a "
+                "resource of the registry claim it"
+            )
+        seen.add(team_rule.name)
+        scoped.append(_from_template(workflow, "resource-rule", team_rule, version))
+    skills = list(_checked(lambda: load_skills(workflow, available_commands)))
+    skills += _team_skills(workflow, resources, {skill.name for skill in skills}, version)
     return RenderRequest(
         workflow_version=version,
         baseline_body=workflow.read_text("baseline/baseline.md"),
         scoped_rules=tuple(scoped),
         commands=_commands(workflow, version),
-        skills=_checked(lambda: load_skills(workflow, available_commands)),
+        skills=tuple(skills),
         roles=_checked(lambda: load_roles(workflow)),
         client_version=client_version,
+        conventions=_conventions_block(workflow, conventions),
     )
+
+
+def _fill(workflow: WorkflowSource, name: str, lines: str) -> tuple[str, str]:
+    """The template `templates/<name>.md` with its one slot replaced, and the template's name."""
+    path = f"templates/{name}.md"
+    template = workflow.read_text(path)
+    if template.count(_SLOT) != 1:
+        raise RenderRequestError(f"{path} must have exactly one slot, the line {_SLOT}")
+    text = template.replace(_SLOT, lines)
+    return (text if text.endswith("\n") else text + "\n"), f"templates/{name}"
+
+
+def _from_template[T: (ScopedRule, ClientSkill)](
+    workflow: WorkflowSource, name: str, item: T, version: str
+) -> T:
+    text, source = _fill(workflow, name, item.body)
+    return replace(item, body=text, inputs=((source, version, sha256_hex(text.encode("utf-8"))),))
+
+
+def _team_skills(
+    workflow: WorkflowSource, resources: Resources, taken: set[str], version: str
+) -> list[ClientSkill]:
+    found = [
+        _from_template(workflow, "tool-skill", skill, version)
+        for skill in resource_skills(resources)
+    ]
+    catalogue = catalogue_skill(resources)
+    if catalogue is not None:
+        found.append(_from_template(workflow, "catalogue-skill", catalogue, version))
+    for skill in found:
+        if skill.name in taken:
+            raise RenderRequestError(f"two skills would use the name {skill.name}")
+        taken.add(skill.name)
+    return found
+
+
+def _conventions_block(
+    workflow: WorkflowSource, conventions: ConventionsView | None
+) -> ConventionsView | None:
+    if conventions is None:
+        return None
+    text, _ = _fill(workflow, "conventions-block", "\n".join(conventions.lines))
+    return ConventionsView(tuple(text.rstrip("\n").split("\n")), conventions.resources)
 
 
 def _checked[T](load: Callable[[], T]) -> T:

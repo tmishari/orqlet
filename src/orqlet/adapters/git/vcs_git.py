@@ -26,6 +26,8 @@ _STATUS_NAMES = {
     "T": "type-changed",
 }
 _NOT_A_REPOSITORY = "not a git repository"
+_MAX_SUBJECTS = 201
+_MAX_SUBJECT_CHARS = 1024
 
 
 class GitVcs:
@@ -186,6 +188,22 @@ class GitVcs:
             summaries.append(CommitSummary(commit_id, message.splitlines()[0] if message else ""))
         return tuple(summaries)
 
+    def commit_subjects(self, base: str, head: str) -> tuple[CommitSummary, ...]:
+        """`rev-list` for the ids of `base..head` and one `cat-file --batch` for their messages.
+
+        Two Git processes however many commits there are, and ids only on the command line.
+        """
+        check_revision(base)
+        check_revision(head)
+        listed = self._git.run("rev-list", f"--max-count={_MAX_SUBJECTS}", f"{base}..{head}")
+        ids = listed.stdout.decode("ascii").split()
+        if not ids:
+            return ()
+        for commit_id in ids:
+            check_revision(commit_id)
+        batch = self._git.run("cat-file", "--batch", stdin="".join(f"{i}\n" for i in ids).encode())
+        return _parse_commit_batch(batch.stdout, ids)
+
     def remote_names(self) -> tuple[str, ...]:
         refs = self._git.run("for-each-ref", "--format=%(refname)", "refs/remotes").stdout
         names = {
@@ -234,3 +252,41 @@ class GitVcs:
             except UnicodeDecodeError as exc:
                 raise VcsError("the repository holds a file name that is not valid UTF-8") from exc
         return names
+
+
+def _parse_commit_batch(output: bytes, ids: Sequence[str]) -> tuple[CommitSummary, ...]:
+    """The subject of each commit from the output of `cat-file --batch`: `<id> commit <size>`."""
+    summaries: list[CommitSummary] = []
+    position = 0
+    for commit_id in ids:
+        end = output.find(b"\n", position)
+        if end < 0:
+            raise VcsError("unexpected end of git cat-file output")
+        parts = output[position:end].decode("ascii", errors="replace").split(" ")
+        position = end + 1
+        if (
+            len(parts) != 3
+            or parts[0] != commit_id
+            or parts[1] != "commit"
+            or not parts[2].isdigit()
+        ):
+            raise VcsError("unexpected git cat-file header")
+        size = int(parts[2])
+        body = output[position : position + size]
+        if len(body) != size:
+            raise VcsError("truncated git cat-file output")
+        position += size + 1
+        summaries.append(CommitSummary(commit_id, _subject_of(body)))
+    return tuple(summaries)
+
+
+def _subject_of(commit_object: bytes) -> str:
+    """The first line of the message of a commit object, up to the first line feed, cut at 1 KiB.
+
+    Works on bytes so that one commit with a huge message makes no list of lines, and cuts at the
+    line feed only, so a control character that follows on the same line stays in the subject
+    where the shape check sees it.
+    """
+    message = commit_object.partition(b"\n\n")[2]
+    first = message.partition(b"\n")[0][: _MAX_SUBJECT_CHARS * 4]
+    return first.decode("utf-8", errors="replace")[:_MAX_SUBJECT_CHARS]

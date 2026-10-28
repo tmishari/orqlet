@@ -14,6 +14,7 @@ from orqlet.application.contracts.profile import (
     ProfileMeta,
     ProjectInfo,
     ProjectProfile,
+    PullRequests,
     Repository,
     StackInfo,
     TargetBranch,
@@ -22,6 +23,8 @@ from orqlet.application.contracts.profile import (
 )
 from orqlet.application.ports.prompter import NoAnswerAvailable, Prompter, Question
 from orqlet.application.usecases.draft_profile import Origin, wants_python_questions
+from orqlet.domain.conventions import pattern_problems
+from orqlet.domain.resources import text_problems
 
 ANSWER_KEYS = frozenset(
     {
@@ -33,6 +36,13 @@ ANSWER_KEYS = frozenset(
         "repository.target_branch",
         "repository.branch_naming",
         "repository.commit_convention",
+        "repository.branch_model",
+        "repository.branch_patterns",
+        "repository.release_flow",
+        "repository.pull_requests.shape",
+        "repository.pull_requests.merge_strategy",
+        "repository.pull_requests.reviewers",
+        "repository.pull_requests.required_checks",
         "technologies",
     }
 )
@@ -45,6 +55,28 @@ _KINDS: dict[str, Literal["python-cli", "python-service"]] = {
 NEW_PROJECT_ORIGINS: frozenset[Origin] = frozenset({"empty", "unborn", "existing-no-code"})
 _BRANCH = re.compile(r"[A-Za-z0-9][A-Za-z0-9._/-]*")
 _MAX_ANSWER = 200
+_BRANCH_MODELS = ("trunk-based", "github-flow", "gitflow")
+_MERGE_STRATEGIES = ("squash", "rebase", "merge-commit")
+_VOCABULARIES = {
+    "repository.branch_model": _BRANCH_MODELS,
+    "repository.pull_requests.merge_strategy": _MERGE_STRATEGIES,
+}
+_LISTS = frozenset({"repository.branch_patterns", "repository.pull_requests.required_checks"})
+_CONVENTION_KEYS = frozenset(
+    {
+        "repository.branch_model",
+        "repository.branch_patterns",
+        "repository.release_flow",
+        "repository.pull_requests.shape",
+        "repository.pull_requests.merge_strategy",
+        "repository.pull_requests.reviewers",
+        "repository.pull_requests.required_checks",
+    }
+)
+_MAX_LIST_ITEMS = 12
+_MAX_LIST_ITEM = 60
+_MAX_LIST_TEXT = 160
+_OTHER = re.compile(r"other:\s*\S.*")
 
 
 def questions_for(profile: ProjectProfile, *, asks_stack: bool) -> list[Question]:
@@ -103,7 +135,54 @@ def questions_for(profile: ProjectProfile, *, asks_stack: bool) -> list[Question
                 "Is there a commit message convention? (leave empty if not)",
             )
         )
+    asked += _convention_questions(repo)
     return asked
+
+
+def _convention_questions(repo: Repository) -> list[Question]:
+    """The convention questions that are still open. An empty answer keeps a fact unknown."""
+    pull_requests = repo.pull_requests
+    naming = repo.branch_naming.value
+    asked: list[Question] = []
+    if repo.branch_model.value is None:
+        asked.append(_open("repository.branch_model", repo.branch_model))
+    if repo.branch_patterns.value is None and naming is not None and not _is_none(naming):
+        asked.append(_open("repository.branch_patterns", repo.branch_patterns))
+    if repo.release_flow.value is None:
+        asked.append(_open("repository.release_flow", repo.release_flow))
+    if pull_requests.shape.value is None:
+        asked.append(_open("repository.pull_requests.shape", pull_requests.shape))
+    if pull_requests.merge_strategy == "unknown":
+        asked.append(
+            Question(
+                "repository.pull_requests.merge_strategy",
+                "How are pull requests merged (squash, rebase, merge-commit, other: text, "
+                "or none)? Leave empty if unknown.",
+                default="",
+            )
+        )
+    if pull_requests.reviewers == "unknown":
+        asked.append(
+            Question(
+                "repository.pull_requests.reviewers",
+                "Who reviews a pull request, and how many approvals are needed? Leave empty if "
+                "unknown.",
+                default="",
+            )
+        )
+    if pull_requests.required_checks.value is None:
+        asked.append(
+            _open("repository.pull_requests.required_checks", pull_requests.required_checks)
+        )
+    return asked
+
+
+def _open(key: str, fact: FactValue) -> Question:
+    return Question(key, f"{fact.question} Leave empty if unknown, or answer none.", default="")
+
+
+def _is_none(text: str) -> bool:
+    return text.strip().lower() == "none"
 
 
 def collect_answers(
@@ -126,7 +205,10 @@ def apply_answers(
     profile: ProjectProfile, answers: Mapping[str, str], notes: list[str]
 ) -> ProjectProfile:
     """Return the profile with every acceptable answer recorded as the maintainer's own."""
-    accepted = {key: value for key, value in answers.items() if _acceptable(key, value, notes)}
+    stripped = {
+        key: value.strip() if key in _CONVENTION_KEYS else value for key, value in answers.items()
+    }
+    accepted = {key: value for key, value in stripped.items() if _acceptable(key, value, notes)}
     facts, structure = profile.facts, dict(profile.structure)
     if "facts.python" in accepted:
         facts = facts.model_copy(update={"python": _answered(accepted["facts.python"])})
@@ -238,7 +320,23 @@ def _repository(repository: Repository, accepted: Mapping[str, str]) -> Reposito
         changes["branch_naming"] = _answered(accepted["repository.branch_naming"])
     if "repository.commit_convention" in accepted:
         changes["commit_convention"] = _answered(accepted["repository.commit_convention"])
+    for name in ("branch_model", "branch_patterns", "release_flow"):
+        if f"repository.{name}" in accepted:
+            changes[name] = _answered(accepted[f"repository.{name}"])
+    changes["pull_requests"] = _pull_requests(repository.pull_requests, accepted)
     return repository.model_copy(update=changes)
+
+
+def _pull_requests(current: PullRequests, accepted: Mapping[str, str]) -> PullRequests:
+    """The pull-request settings with the answers applied; the other fields are kept."""
+    changes: dict[str, object] = {}
+    for name in ("shape", "required_checks"):
+        if f"repository.pull_requests.{name}" in accepted:
+            changes[name] = _answered(accepted[f"repository.pull_requests.{name}"])
+    for name in ("merge_strategy", "reviewers"):
+        if f"repository.pull_requests.{name}" in accepted:
+            changes[name] = accepted[f"repository.pull_requests.{name}"]
+    return current.model_copy(update=changes)
 
 
 def _stack(
@@ -276,6 +374,35 @@ def _acceptable(key: str, value: str, notes: list[str]) -> bool:
         or value.endswith(("/", ".", ".lock"))
     ):
         problem = "is not a branch name Orqlet accepts"
+    elif key in _CONVENTION_KEYS:
+        problem = _convention_problem(key, value)
     if problem is not None:
         notes.append(f"The answer for {key} was ignored: it {problem}.")
     return problem is None
+
+
+def _convention_problem(key: str, value: str) -> str | None:
+    """Why a convention answer is refused, or `None`. The text reaches the agents' instructions."""
+    if text_problems(value, _MAX_ANSWER):
+        return "is not plain one-line text (ASCII, no link, markup or backtick)"
+    if _is_none(value):
+        return None
+    vocabulary = _VOCABULARIES.get(key)
+    if vocabulary is not None and value not in vocabulary and _OTHER.fullmatch(value) is None:
+        return f"must be one of {', '.join(vocabulary)}, none, or other: and a text"
+    if key in _LISTS:
+        return _list_problem(key, value)
+    return None
+
+
+def _list_problem(key: str, value: str) -> str | None:
+    items = [part.strip() for part in value.split(",")]
+    if len(value) > _MAX_LIST_TEXT:
+        return f"must be at most {_MAX_LIST_TEXT} characters"
+    if len(items) > _MAX_LIST_ITEMS:
+        return f"must have at most {_MAX_LIST_ITEMS} items"
+    if any(not item or len(item) > _MAX_LIST_ITEM for item in items):
+        return f"must have items of 1 to {_MAX_LIST_ITEM} characters, separated by commas"
+    if key == "repository.branch_patterns" and any(pattern_problems(item) for item in items):
+        return "has an item that is not a branch pattern (one ** at most, 8 segments, no spaces)"
+    return None

@@ -1,0 +1,504 @@
+schema: orqlet.as-is-fragment/v1
+fragment_id: documents
+base_revision: eef865714e40067b96313cadfa1cd2d551babd3d
+scope:
+  paths:
+  - docs/design/orqlet-architecture-proposal.md
+  - src/orqlet/**
+  - tests/**
+  - tools/**
+  - .orqlet/**
+  - .claude/**
+  - .cursor/**
+  - .codex/**
+  - .agents/**
+  - .github/**
+  - docs/design/team-conventions-resources/evidence/**
+  request_ref: team-conventions-resources
+facts:
+- id: A-1
+  kind: flow
+  statement: 'Section 9.1.1 step 2 says `init` asks the questionnaire: clients to enable, stack and versions
+    from the supported-stack catalogue, package manager, project kind, frameworks, test runner, linter,
+    static-analysis and build tooling, whether integration or end-to-end suites exist, the target branch,
+    the code host and CI, the required integrations, and where existing guidance lives (`.prompts` or
+    its equivalent). An unanswered fact stays `unknown` and is reported by `doctor`; without a terminal
+    the answers arrive through `--config` or `orqlet profile answer`.'
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '1914'
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
+    sha256: ef955762bf7e4b243e0adfc74939fd234595c7d125230ef05e9bdc91ef91d623
+- id: A-2
+  kind: flow
+  statement: Section 9.2 steps 2 and 3 say scanners read `CODEOWNERS`, pull-request templates, CI workflows
+    and "a bounded sample of Git history for commit and branch conventions". Facts that cannot be inferred
+    become consolidated questions, answered at the terminal, through `--config` or `orqlet profile answer`,
+    or asked by `orqlet-onboard` in the IDE.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 1947-1948
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
+    sha256: ba344accac338075e4298096e0aff9924c9cf6d9fa39782e1aded3fe9e8d314d
+- id: A-3
+  kind: structure
+  statement: Section 17.2 lists the profile contents, each with a source or an explicit `unknown`, among
+    them "Git branching and naming, including the target branch (`repository.target_branch`), never assumed
+    to be `main`; commit conventions; PR templates, reviewers and merge strategy".
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2878'
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
+    sha256: 3d2673121ba760eb128960a13f30a4d150f909b6bdc8fc311114d5604f628b7c
+- id: A-4
+  kind: interface
+  statement: 'The profile example (Section 24.2) holds `branch_naming` as `unknown` with a question, `commit_convention`
+    as detected or unknown, `reviewers` "from CODEOWNERS or unknown" and `merge_strategy: unknown`.'
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 4719-4726
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
+    sha256: c9741a55c6648c81139e1cedfcfa33e507287af27791ad5ebdd91f1bcafb378f
+- id: A-5
+  kind: flow
+  statement: Section 19.4 item 8 says the `commit-msg` check rejects AI co-author or attribution trailers
+    and "enforces the profile's commit convention". README lines 34-35 list local Git hooks as not built.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '3686'
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
+    sha256: b12e86a1bc90b81751ed1fba80e84e3c2a47063e2cd266b95f442c220d1311b0
+- id: A-6
+  kind: flow
+  statement: 'Section 13.7 says the team pull-request template is a pack asset of kind `pr-template`;
+    while it is not supplied `init` provisions only the Orqlet workflow section and reports `team-template:
+    unknown`. With several template locations `init` asks which files receive the blocks (`repository.pull_requests.template.targets`)
+    and never picks one itself.'
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 2409-2419
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
+    sha256: 855542594219c8d77264df387ced000757888030b47f9697a91f4e220c5936b1
+- id: A-7
+  kind: structure
+  statement: Section 22 puts the knowledge index, the `orqlet-catalogue` skill, the optional `orqlet-knowledge`
+    helper and the module-card commands in M3 (MVP-2). It puts external sources with the `source write`
+    protocol in M6 and the optional application scaffolding (`orqlet new`) in M7 (1.0).
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 4506-4508
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
+    sha256: 07ca85d45eeb36e50a546e85c69cf1165913dd82e7c6457a5938d269acf13ebd
+- id: A-8
+  kind: interface
+  statement: Section 13.3 says `orqlet standards import <link-or-file>` uses an Orqlet-owned, allowlisted
+    fetcher (approved domains only, preferring `.md` twins and `llms.txt`) and stores a documentation
+    pack with `SOURCE.yaml` (URL, applicable version, retrieval date, owner, licence note, freshness TTL,
+    content hash). The `orqlet-onboard` skill may then draft standards from the stored pack "with no web
+    access required".
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2363'
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
+    sha256: 51a999097e336f6285cd882aef3bc30d782ac18bda24470fd7c0ddc183ad3ba6
+- id: A-9
+  kind: operation
+  statement: Section 13.3 calls client web tools inconsistent (Claude Code has no WebSearch under Bedrock;
+    Codex web search defaults to a cache). A blocked endpoint is reported and the import stops, and without
+    external access a maintainer imports approved documentation with `--from-file` and opens a pull request
+    carrying the same metadata.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2365'
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
+    sha256: 22935a60fd9de6dc07c70b2611d635605d8bed3653a48f8a78efc83365f990a6
+- id: A-10
+  kind: flow
+  statement: Section 13.1 step 5 says that at first run `init` takes "files, packs and links that the
+    maintainer names" and stores them with `SOURCE.yaml`, and that the persistent `orqlet standards import`
+    command "is built later". The `orqlet-onboard` skill then drafts standards as proposals only, each
+    with source URL, version, retrieval date, owner and a freshness TTL.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2350'
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
+    sha256: 2a05b849cd997f85aa4c5ef8730f0b9b9b12593e20ba42491183ac40fecdd334
+- id: A-11
+  kind: structure
+  statement: The ingestion contract (Section 13.6) has fields such as `source_id`, location, owner, version,
+    `freshness_ttl` and a `level` declared by the owner. Its rules say an agent's summary of a page is
+    a draft proposal, nothing becomes `MUST` without owner review, imports are stored as data with `SOURCE.yaml`,
+    and unknowns stay `unknown` and are reported by `doctor`.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 2390-2403
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
+    sha256: ea95386be6cd9cfbedde4a5d43483a50c2d5a665d4bbdcd0a1088f0e2d51ca30
+- id: A-12
+  kind: flow
+  statement: 'Section 12.8 says imported company documents do not land in `.prompts/` by themselves: `orqlet
+    standards import` stores them as data under `.orqlet/docs-packs/`, and owners promote reviewed text
+    into `.prompts/` or a pack by pull request.'
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2336'
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
+    sha256: d50e6836a00876fff2e924e1a85aebd532e858fd31cfae2abd5a43f5d0f10739
+- id: A-13
+  kind: structure
+  statement: Section 12.8 says that what is seeded once, at the path named by `standards_sources` (default
+    `.prompts/`), includes a `README.md` with six parts, one of them a PENDING list of company content
+    not supplied (security standards, database and schema standards, API standards, domain knowledge,
+    the team pull-request template), and a `foundations.md`.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 2313-2323
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
+    sha256: efab5132b0034878232a07fd4623e02a198381ce1b1e17307b31b02c65b87491
+- id: A-14
+  kind: flow
+  statement: Section 8.11 says MUST-level standards reach the agent through generated path-scoped rules
+    (`.claude/rules/orqlet-*.md` with `paths:`, `.cursor/rules/orqlet-*.mdc` with `globs`), the phase
+    skills, and `orqlet standards for <path|phase|role>`. The resolver selects rules by metadata (scope,
+    role, phase, language, framework), not by search.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '1572'
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
+    sha256: 6e005ef3e09c46f696cabf349741b47941ada7d6b36df2819b7da70260a413a6
+- id: A-15
+  kind: structure
+  statement: The placement table (Section 12.4) maps scoped rules to `.claude/rules/orqlet-<id>.md` with
+    `paths` for Claude Code and `.cursor/rules/orqlet-<id>.mdc` with `globs` for Cursor. For Codex it
+    says "no per-path rule mechanism; delivered through skills".
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2246'
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
+    sha256: 75e505e33187820bb426a69f9939fa4188c6652477f216f82731c0b2e486dab3
+- id: A-16
+  kind: structure
+  statement: The pack layout (Section 12.3) holds `pack.yaml` (version, owner, reviewers, compatibility,
+    `applies_to`, provenance), a baseline, one rule per file, `references/*.md`, examples, and optional
+    `extensions/skills/<name>/SKILL.md` "rendered under the pack's own prefix, never a reserved name".
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 2227-2234
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
+    sha256: 6ec0fdff8096a0691c3268b3637a577cd81348eece5d76b6bacaa1397a53cdcb
+- id: A-17
+  kind: interface
+  statement: 'The pack manifest example (Section 24.3) has `applies_to: {languages: [python], project_types,
+    frameworks, python}`, `assets` of kind `pr-template` and `prompts-scaffold`, and `provenance` entries
+    with `source_url`, applicable version and retrieval date.'
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 4776-4787
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
+    sha256: 703488af3162f3148aaa7dfa023d9db8afc302c47aa05b0ef12e18b113eabb64
+- id: A-18
+  kind: flow
+  statement: Section 13.4 says that when the profile changes in a way no pack covers (a new framework,
+    a major version), `orqlet doctor` and `orqlet upgrade --check` report it, and `orqlet standards update`
+    writes a `StandardsUpdateProposal` file for the standards owner. The section describes no lookup of
+    that technology.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '2369'
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
+    sha256: 2e4cd340e20a8cf3a2c0bd83fb7514abe9c2b84304871db9c0070548e4651d82
+- id: A-19
+  kind: flow
+  statement: Section 9.1.1 steps 3 and 4 say the answers are compared with each pack's `applies_to` (supported,
+    partly covered, or unsupported or ambiguous), `init` "never selects silently", and with no pack in
+    `standards.lock.yaml` "nothing is invented and `doctor` reports the gap".
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 1915-1916
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
+    sha256: 995760699bcd31d9e23953dc2f6998e82830a3fa1d8be8583320e9c70cdc109f
+- id: A-20
+  kind: structure
+  statement: 'Section 25.2 maps the pending company inputs to mechanisms. Cisco API documents ("documents,
+    links or a repository") go through `orqlet standards import <link-or-file>` and `SOURCE.yaml`, with
+    `API standards: unknown` until supplied. The `pr-template` asset stays `team-template: unknown` until
+    supplied, and technology-specific practices arrive as packs whose `applies_to` names the technology.'
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 5103-5108
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
+    sha256: f54f3269797c30d58edcddd379615aa5897a6fea95441b1cd989ee9581bf324d
+- id: A-21
+  kind: interface
+  statement: The `knowledge.yaml` example (Section 24.9) lists `sources` of kind adr, `module-card`, docs
+    and `standards-reference` (read from a hash-verified pack cache), each with a scope and globs.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 4958-4964
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
+    sha256: 34a4b515725c3544528e3d0c7e1d470cb23941990987dcbc4471619981f97348
+- id: A-22
+  kind: flow
+  statement: Section 8.11 says the static `orqlet-catalogue` skill tells the agent to run `orqlet knowledge
+    catalogue --scope <path>` and `orqlet module check <id>`, derived from committed module cards. A card's
+    `must-consider` attribute only forces a reuse decision in the plan.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '1573'
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
+    sha256: 9aa5919ecc7f1b9bcedb1402858d61b3255844ebc8b190a3369aa8fe05bc31d4
+- id: A-23
+  kind: flow
+  statement: Section 8.5 item 5 says external sources (Confluence, Jira) live in separate per-identity
+    cache files with a TTL, a freshness display and an access class, and `orqlet knowledge purge --source`
+    removes them.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '1529'
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
+    sha256: 36943b03d91e68992ae1605f4596862e6864a9541f778e60cb68e8758fa8b943
+- id: A-24
+  kind: dependency
+  statement: Section 15.7 says Jira and Confluence are read through the Atlassian Rovo MCP server (OAuth
+    2.1; "connectivity is vendor-documented and not tested"). Internal APIs and project-specific tools
+    are "Unknown until supplied", declared in `integrations.yaml`, or placed behind an `ExternalSourcePort`
+    adapter.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 2635-2638
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
+    sha256: 2ef443f1c50135edb2c5df7530d6aea327b902a7ecadafa324f89256a3c46c3a
+- id: A-25
+  kind: operation
+  statement: Section 23 classes `init` as local only "unless it is given a standards repository or URL,
+    which it then fetches". It lists `standards status|update|import`, `sync --fetch`, `source read|write`
+    and `gate status` as commands that may use the network, and says no command is model-mediated.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '4563'
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
+    sha256: f556bde393dc9620adc6e81248b0bed9976c7959549b31cb8b7e18724bd12123
+- id: A-26
+  kind: operation
+  statement: The skill specification table (Section 17.10) gives the tool limits of `orqlet-onboard` and
+    `orqlet-research` as "Read-only; no network". The `orqlet-onboard` row lists the steps scan facts,
+    read guidance, list unknowns, ask one consolidated batch and draft the profile.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 3151-3152
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
+    sha256: cf27eb1e09509dc92cbcc4448f887487a62bde3668132a743c9d0191884cbded
+- id: A-27
+  kind: operation
+  statement: Section 22.0 says M1 and two slices of M2 are built, and that "no client was opened, there
+    is no commit, no remote and no CI run". It says `ci check`, the hooks, the edit guard, the host evidence
+    and the MCP generators are not built.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: '4480'
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
+    sha256: 3cf80ef14babbd47c7ea60425ec63c8b277504092b4c30034fb63b6b63ba626d
+- id: A-28
+  kind: test
+  statement: 'The M2 execution record says `orqlet doctor` on this repository gives 0 errors and 2 warnings,
+    one being ORQ-W181: `branch_naming` and `commit_convention` are unknown. Line 209 of the same file
+    says to answer `repository.branch_naming` and `repository.commit_convention`.'
+  evidence:
+  - path: docs/design/orqlet-m2-workflow/plan.md
+    lines: '157'
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
+    sha256: 9b1752f68dd3d94801d0a61e94c8f096f2066868a108e35963049a847605084b
+  - path: docs/design/orqlet-m2-workflow/plan.md
+    lines: '209'
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
+    sha256: bfb13e12edb31a578126825359499d777ed20ba407bba58f101c5224326125d9
+- id: A-29
+  kind: operation
+  statement: The README status lists as built `init`, `upgrade`, `rollback`, `sync`, `doctor`, `explain`,
+    `release` and `profile`, the workflow skills, the validators and `knowledge impact`. It lists as not
+    built `orqlet ci check`, local Git hooks, "the knowledge index and module catalogue, and the MCP configuration".
+  evidence:
+  - path: README.md
+    lines: 29-38
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
+    sha256: ac887607d1d98510f3ee664a7ba52b2faabcadb7c5423470629db5c971c2cefe
+- id: A-30
+  kind: operation
+  statement: The README says `init` works for an existing, new (`--git-init`, `--new-project`) or empty
+    project and writes the skills, agent definitions, commands and rules, an `AGENTS.md` block, a pull
+    request template, a seeded `.prompts/` folder and a `.orqlet/` folder with the project profile.
+  evidence:
+  - path: README.md
+    lines: 74-77
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
+    sha256: b4ef462108b228d3991f20606c8fca52d27e058985399a19d000ad581542c27c
+- id: A-31
+  kind: operation
+  statement: The implementation plan says standards packs match on `languages` and on any technology name
+    (`applies_to.technologies`). Under "Not built yet" it lists "the IDE onboarding agent skill (part
+    two), the documentation importer" and scanners for Java, .NET, Ruby and PHP.
+  evidence:
+  - path: docs/design/orqlet-implementation/plan.md
+    lines: 187-194
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
+    sha256: 16f8c6eb778ef246f4f51211b8d4e552d16b32fddf436cf566eb202dc5794fcd
+- id: A-32
+  kind: structure
+  statement: Decisions D-43 (`init` for new and empty projects with a questionnaire and supported-stack
+    list, with `orqlet new` separate), D-45 (pull-request template as two owned blocks) and D-48 (`.prompts/`
+    seeded once, then team-owned) are recorded as "Default (new)". The status column does not say built
+    or planned.
+  evidence:
+  - path: docs/design/orqlet-architecture-proposal.md
+    lines: 5168-5173
+    revision: eef865714e40067b96313cadfa1cd2d551babd3d
+    sha256: e545ec7cea235b05851f7c796198cd6cea38973b1fb5d3721f003c441ae49fea
+unknowns:
+- id: U-1
+  what: Whether any document describes a branch model such as gitflow or trunk-based development, a release
+    flow or a hotfix flow. Searched gitflow, git flow, git-flow, trunk, hotfix, release branch, branching
+    model, branch model in README.md and docs/** (excluding mcp-or-plugins) and the proposal. The only
+    hits were the generic "feature branch" of the knowledge flow and this task's own question ledger,
+    which was not cited.
+  material: true
+- id: U-2
+  what: Whether `init` or `orqlet-onboard` asks for merge strategy, reviewers or required checks. Searched
+    merge strategy, merge_strategy, reviewers and required_checks in the proposal, README and plans. `merge_strategy`
+    appears only as `unknown` (proposal line 4726), reviewers as "from CODEOWNERS or unknown" (4725),
+    and `required_checks` as a workflow-policy key (4901). No document names a question for them.
+  material: true
+- id: U-3
+  what: Whether the scanner sample of Git history for commit and branch conventions (proposal line 1947)
+    is built. Searched README.md, the implementation plans and `src/orqlet/application/usecases/draft_profile.py`.
+    README and the plans do not mention it, and draft_profile.py lines 83-84 set `branch_naming` and `commit_convention`
+    to a question.
+  material: true
+- id: U-4
+  what: Which milestone builds `orqlet standards import` and the documentation packs. Section 13.1 says
+    "built later, Section 22", but the Section 22 milestone rows (lines 4504-4508) name no milestone for
+    it. Searched standards import in Sections 13, 22, 23 and 25, in README.md and in the implementation
+    plans.
+  material: true
+- id: U-5
+  what: Whether any document defines a catalogue of resource links with a free-text note per link, or
+    a stored summary of a single page. Searched link, URL, bookmark, resource, catalogue and note in the
+    proposal and README. The only link-like records found are the `SOURCE.yaml` fields (F-8, F-11), `provenance`
+    `source_url` (F-17) and the `knowledge.yaml` source kinds (F-21).
+  material: true
+- id: U-6
+  what: Whether the allowlisted fetcher can read an internal page behind a login. Section 13.3 names approved
+    domains, `.md` twins, `llms.txt` and PyPI JSON and does not mention authentication. Section 16.3 and
+    Section 15.7 route logged-in Atlassian reads through MCP and the external-source milestone M6. Searched
+    authenticat, login, SSO and fetcher in Sections 13, 15 and 16.
+  material: true
+- id: U-7
+  what: Whether any document describes an automatic web lookup of an unknown library or tool during onboarding,
+    research, design or implementation. Searched web, fetch, search, lookup, llms.txt, WebFetch and Context7
+    in the proposal, README and plans. The documents give "no network" to the onboarding and research
+    skills (F-26) and only report an uncovered technology (F-18).
+  material: true
+- id: U-8
+  what: Whether pack `extensions/skills` (a skill per tool or technology, proposal line 2233) is built.
+    README does not mention it, and a search of `src/orqlet/application/contracts` for "extensions" found
+    only `workflow_package.py:48`, whose meaning was not read.
+  material: true
+- id: U-9
+  what: Whether `init` proposes the `CODEOWNERS` block that Section 1.3 and Section 12.8 describe. README
+    does not list it, and a search of `src` for CODEOWNERS found only `render_all.py`, which was not read.
+  material: false
+- id: U-10
+  what: Whether docs/design/harness2-fit/*, docs/design/open-items/* and docs/design/go-migration-feasibility/*
+    say anything on the three topics. Searched onboard, questionnaire, gitflow, branch naming, commit
+    convention, merge strategy, standards import, llms.txt, fetch, module card and knowledge source. The
+    only hits were ORQ-W181 mentions in harness2-fit tests and reviews, onboard golden paths, and "no
+    knowledge sources configured" notes. go-migration-feasibility had no hit.
+  material: false
+- id: U-11
+  what: Whether the plans under docs/design/orqlet-implementation/ and docs/design/orqlet-m2-workflow/,
+    which cite proposal v0.4, are re-based on v0.5. Proposal section 0.6.5 (line 121) says this is not
+    decided. It bears on whether the planned features above are tied to v0.5.
+  material: false
+- id: U-12
+  what: How Cursor web tools behave. Section 15.8 (line 2648) says "Cursor web tools not verified". Searched
+    web tools in the proposal.
+  material: false
+contradictions:
+- id: C-1
+  sources:
+  - docs/design/orqlet-architecture-proposal.md:1914
+  - docs/design/orqlet-architecture-proposal.md:2878
+  - docs/design/orqlet-architecture-proposal.md:4719-4726
+  - docs/design/orqlet-architecture-proposal.md:4504
+  - src/orqlet/application/usecases/init_questions.py:90-104
+  - docs/design/orqlet-m2-workflow/plan.md:157
+  note: The questionnaire list in Section 9.1.1 does not name branch naming, commit convention, reviewers
+    or merge strategy. Section 17.2 and the profile example do. The M1 row of Section 22 names only `repository.target_branch`.
+    The built `init_questions.py` asks target branch, branch naming and commit convention (lines 90-104)
+    and does not ask reviewers or merge strategy. The M2 plan shows `doctor` warning on both unknown facts.
+    Not resolved.
+- id: C-2
+  sources:
+  - docs/design/orqlet-architecture-proposal.md:2350
+  - docs/design/orqlet-architecture-proposal.md:4563
+  - docs/design/orqlet-architecture-proposal.md:4504
+  - docs/design/orqlet-implementation/plan.md:192-194
+  - docs/design/orqlet-m2-workflow/design.md:161
+  - docs/design/orqlet-implementation/design.md:32
+  note: Sections 13.1 and 23 say `init` takes links at first run and may fetch a standards repository
+    or URL. The M1 row of Section 22 lists no importer. The implementation plan says "the documentation
+    importer" is not built, the M2 design says "No network" in S8 and S9, and goal G-4 allows only the
+    network uses the proposal lists. Not resolved.
+- id: C-3
+  sources:
+  - docs/design/orqlet-architecture-proposal.md:1914
+  - docs/design/orqlet-architecture-proposal.md:4776
+  - docs/design/orqlet-implementation/plan.md:177-188
+  - docs/design/orqlet-architecture-proposal.md:4480
+  note: 'Section 9.1.1 says the supported-stack catalogue "initially holds one entry, Python", and the
+    pack example has `applies_to` with `languages: [python]`. The implementation plan records a `technologies`
+    list, Go, Rust, Node, Docker, Compose and Helm scanners, and packs matching on `applies_to.technologies`.
+    Section 22.0 mentions a "technology-agnostic profile". Not resolved.'
+- id: C-4
+  sources:
+  - docs/design/orqlet-architecture-proposal.md:3096
+  - docs/design/orqlet-architecture-proposal.md:2363
+  - docs/design/orqlet-architecture-proposal.md:5103
+  - docs/design/orqlet-architecture-proposal.md:3151
+  - README.md:97
+  - docs/design/orqlet-implementation/plan.md:192
+  - src/orqlet/workflow/skills/orqlet-onboard/skill.md:11-17
+  note: Sections 8, 13.3 and 25.2 give `orqlet-onboard` the job of drafting standards proposals from imported
+    documentation. The Section 17.10 row lists "Read-only; no network" and only profile steps, README
+    line 97 says it resolves unknown profile facts, and the shipped skill text (steps 1-7) has no standards
+    drafting. The implementation plan lists "the IDE onboarding agent skill (part two)" as not built.
+    Whether "part two" is this skill is not stated. Not resolved.
+- id: C-5
+  sources:
+  - docs/design/orqlet-architecture-proposal.md:4480
+  - docs/design/orqlet-m2-workflow/plan.md:169
+  - docs/design/orqlet-implementation/plan.md:145
+  - docs/design/open-items/evidence/git-history.txt:5
+  - docs/design/open-items/evidence/git-history.txt:35-39
+  note: The proposal (snapshot of 2026-10-22) and both plans say there is no commit and no remote. The
+    open-items capture (2026-10-26) lists commits on `main` (for example 2c4308ec) and an `origin` remote
+    at github.com/tmishari/orqlet. The statements differ in date; no document says the earlier ones were
+    superseded. Not resolved.
+- id: C-6
+  sources:
+  - docs/design/orqlet-architecture-proposal.md:4516
+  - docs/design/orqlet-architecture-proposal.md:4544
+  - README.md:34-35
+  note: The "Built in MVP-1" column of Section 22 lists `hook`, `ci check` and `ci collect`. README lines
+    34-35 and Sections 22.0 and 23 (line 4544) list them as not built. The column may mean target scope;
+    the text does not say.
+- id: C-7
+  sources:
+  - docs/design/orqlet-architecture-proposal.md:2644
+  - docs/design/orqlet-implementation/as-is.md:8
+  - docs/design/orqlet-implementation/as-is.md:27
+  - docs/design/orqlet-m2-workflow/plan.md:10
+  note: Section 15.8 treats Context7 as unavailable unless the owners approve it. The implementation as-is
+    records "two Context7 documentation lookups" and a session rule "use Context7 for version-sensitive
+    APIs", and the M2 plan says "I fetch the current formats with Context7 and the vendor docs". The proposal's
+    rule concerns Orqlet and the implementation uses are agent-session lookups. No document reconciles
+    the two. Not resolved.

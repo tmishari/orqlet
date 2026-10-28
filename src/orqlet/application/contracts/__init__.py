@@ -16,6 +16,7 @@ from orqlet.application.contracts.plan import ImplementationPlan
 from orqlet.application.contracts.policy import WorkflowPolicy
 from orqlet.application.contracts.profile import ProjectProfile
 from orqlet.application.contracts.question_ledger import QuestionLedger
+from orqlet.application.contracts.resources import Resources
 from orqlet.application.contracts.review_input import ReviewInput
 from orqlet.application.contracts.review_result import ReviewResult
 from orqlet.application.contracts.role_bindings import RoleBindings
@@ -68,4 +69,5 @@ CONTRACTS: dict[str, type[Contract]] = {
     "orqlet.module-card/v1": ModuleCard,
     "orqlet.knowledge/v2": KnowledgeConfig,
     "orqlet.docs-map/v1": DocsMap,
+    "orqlet.resources/v1": Resources,
 }

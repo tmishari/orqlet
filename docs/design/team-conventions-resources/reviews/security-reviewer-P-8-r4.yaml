@@ -1,0 +1,129 @@
+schema: orqlet.review-result/v1
+task: team-conventions-resources
+phase: P-8
+role: security-reviewer
+round: 4
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: cde59e79dcc9879996343b2b20fe372bc6db04a8e541002144c1d356f9ddc220
+    design: bbe26a9596127dc8f6769bc5be680e6b959bf05f54b94d3ba598a6285fae43cb
+    evidence_inputs: a8b0040560b1ae31b62a746b738711df6be6bcf1b076eb0a495fe1266bbc4d43
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: cebd53df7986b17ae02bddb6ae1d32a654f8677fe04cef91c9ed71869782f0f1
+    reviewer_definition: adb518646f16cabf596e57830f19b79e9c2de39442b9ab0dc1f19123d71dab2c
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 6373a3c1ca52928bd306deccdfc26bfd186d1a911f6965e5436a434d53a1861d
+  merge_base: d03e0d435da186950583dd471e18ad07660cec51
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: 03556c914cc53a8d2d8bacb1ecc1d703d0e50d31ad2376f983d6098a398692df
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; it had no shell, so it ran no check and recomputed
+  no digest.
+- Quote digests were not computed, so each finding rests on reading and is an observation that never blocks.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the design-phase review notes of this task, so the reviewer was not fully context-clean
+  (the known gap of the harness2-fit ADR-002).
+- The reviewer ran in the same client as the Coder, so independence is I1, not I2.
+- Round 4 followed a last rework of three skill steps; the reviewer found the change by reading the snapshot.
+applicability:
+  examined:
+  - src/orqlet/workflow/baseline/baseline.md
+  - src/orqlet/workflow/skills/orqlet-onboard/skill.md
+  - src/orqlet/workflow/skills/orqlet-research/skill.md
+  - src/orqlet/workflow/skills/orqlet-design/skill.md
+  - src/orqlet/workflow/skills/orqlet-implement/skill.md
+  - src/orqlet/workflow/skills/orqlet-research/references/as-is-format.md
+  - src/orqlet/workflow/roles/orqlet-inventory.md
+  - src/orqlet/workflow/roles/orqlet-tracer.md
+  - src/orqlet/workflow/roles/orqlet-arch-reviewer.md
+  - src/orqlet/workflow/roles/orqlet-security-reviewer.md
+  - src/orqlet/workflow/roles/orqlet-tester.md
+  - src/orqlet/workflow/templates/resource-rule.md
+  - src/orqlet/workflow/templates/tool-skill.md
+  - src/orqlet/workflow/MANIFEST.json
+  - src/orqlet/workflow/identity.json
+  - src/orqlet/application/usecases/evidence_cite.py
+  - src/orqlet/adapters/clients/claude_code.py
+  - src/orqlet/adapters/clients/codex.py
+  - src/orqlet/adapters/clients/cursor.py
+  - README.md
+  - docs/design/orqlet-architecture-proposal.md
+  - tests/unit/test_workflow_lookup_text.py
+  - tests/unit/application/test_evidence_cite.py
+  - tests/unit/render/test_clients_golden.py
+  - tests/unit/render/test_skills.py
+  - tests/unit/domain/test_conventions_properties.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: docs
+  evidence: []
+  claim: '[minor] The design step says the scan covers a credential and a hidden character, while the check finds
+    credential shapes only; the login proviso is missing from the step.'
+  suggested_action: Say a credential shape and add the proviso.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: docs
+  evidence: []
+  claim: '[minor] The implement step does not say that a file that is never cited is never scanned.'
+  suggested_action: Add the sentence.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: tests
+  evidence: []
+  claim: '[minor] The ORQ-E510 sentence is not pinned by a test.'
+  suggested_action: Pin it.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: non-blocking
+  category: tests
+  evidence: []
+  claim: '[minor] The record names rounds 2 and 3 only.'
+  suggested_action: Refresh the records.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read
+    how: MANIFEST, diff.patch, plan, test record, knowledge-impact record and the snapshot of the changed files
+    result: pass
+  - what: re-run of ruff, mypy, import-linter and pytest
+    how: no shell
+    result: not-run
+  - what: packet and record digests recomputed
+    how: no shell; hashes not computed
+    result: not-run

@@ -1,0 +1,460 @@
+schema: orqlet.question-ledger/v1
+task: team-conventions-resources
+questions:
+- id: Q-1
+  key: 3598b3db33666e916607fb505ed7b6ef598c52dfc671c8a7589aebfc90fa134f
+  subject: Task name for the research folder
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: What is the task name for docs/design/<task>/ (lowercase words joined by hyphens)?
+  why: Every artifact of the task lives in the folder that carries this name.
+  options:
+  - team-conventions-resources
+  - onboarding-resources-gitflow
+  - project-knowledge-links
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: team-conventions-resources
+    answerer: user
+    time: '2026-10-26T17:50:00+02:00'
+    scope: task
+- id: Q-2
+  key: 946a15dabdb588c2bb296d7ec0696a014b50fe708d3a774064490090dfb59dee
+  subject: Where the user adds links and answers the team questions
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: Where should the user add resource links and answer the questions about the team's conventions?
+  why: The entry point decides which commands and skills the research must map.
+  options:
+  - orqlet init (the questionnaire)
+  - the /orqlet-onboard skill in the client
+  - a separate command later, for example one that adds or removes a resource link at any time
+  - the existing profile commands (profile answer / profile approve)
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: A separate command (for example one that adds or removes a resource link at any time)
+    answerer: user
+    time: '2026-10-26T17:50:00+02:00'
+    scope: task
+- id: Q-3
+  key: bd4405b9fb4fb774b9243e81c38ae66ca591507bbffac78294554167573260bf
+  subject: Team conventions that Orqlet must ask about
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: Which team conventions must Orqlet ask about and write into the project?
+  why: These are the facts that the generated project files would carry.
+  options:
+  - branch model and gitflow
+  - branch naming and commit message convention
+  - what a pull request looks like
+  - merge strategy and the checks required before merge
+  - release and hotfix flow
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: 'All five: branch model and gitflow; branch naming and commit message convention; what a pull request
+      looks like (size, template, title, description, reviewers); merge strategy and the checks required before
+      merge; release and hotfix flow'
+    answerer: user
+    time: '2026-10-26T17:50:00+02:00'
+    scope: task
+- id: Q-4
+  key: baf95a1dea4ad289a4848e7d3476cdbeb006942d46c3e74c0c1b852f0f7ab81b
+  subject: Kinds of resource that a user can link
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: What kinds of resources does the user want to link?
+  why: The kinds decide how a link is fetched, described and shown to an agent.
+  options:
+  - API guidelines
+  - documentation of a tool or library
+  - internal pages behind a login
+  - any link with a note about when it applies
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: 'All four: API guidelines; documentation of a tool or library the team uses; internal pages behind a
+      login (Confluence, wiki, design docs); any link with a short note from the user about when it applies'
+    answerer: user
+    time: '2026-10-26T17:50:00+02:00'
+    scope: task
+- id: Q-5
+  key: cf3420feefd6c8d835ba28e8da1e2378e7daa0437b3f97032039f8b6ba1720a9
+  subject: How a linked resource reaches the agents
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: How should a linked resource reach the agents?
+  why: This decides which generated files carry it.
+  options:
+  - a rule that loads only for matching files
+  - a skill per tool
+  - a catalogue of links that agents can open
+  - a stored copy or summary of the page in the repository
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: 'All four: a rule that loads only when a developer works on matching files; a skill per tool; a catalogue
+      of links that agents can open when needed; a stored copy or summary of the page in the repository'
+    answerer: user
+    time: '2026-10-26T17:50:00+02:00'
+    scope: task
+- id: Q-6
+  key: ffd45d99cfa60acf4a3ba82363a5dcf4a7528d4622be169d4de60d14c01f5c53
+  subject: Phases that look things up on the web automatically
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: Which phases should look up a library or tool on the web when the agent does not know it?
+  why: The lookup is a step of a skill, run by the agent; the phases decide which skills change.
+  options:
+  - research
+  - design
+  - implement
+  - onboard
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: 'All four: research (each run), design, implementation of a phase, and onboarding when the questionnaire
+      meets an unknown tool'
+    answerer: user
+    time: '2026-10-26T17:50:00+02:00'
+    scope: task
+- id: Q-7
+  key: b2619be764763caa6741cad96b622dc83a8a21a048b58992a67267420592838e
+  subject: Clients that must get the feature
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: Which clients must get this?
+  why: The generated files differ per client.
+  options:
+  - Claude Code
+  - Codex
+  - Cursor
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: 'All three: Claude Code, Codex and Cursor'
+    answerer: user
+    time: '2026-10-26T17:50:00+02:00'
+    scope: task
+- id: Q-8
+  key: 92d429e6e791dd957b2b632663f31dd2bd46479d36a4d720796ef71ae0f944e7
+  subject: 'Entry points: the request and the answer differ'
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: The request says the user can add links 'on on-boarding or on init or other command', and the answer to
+    Q-2 selects only a separate command. Should onboarding and init also collect links and the team conventions?
+  why: Both readings are in the person's words; the design depends on which one holds.
+  options:
+  - orqlet init (the questionnaire)
+  - the /orqlet-onboard skill
+  - a separate command only
+  - all of them
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: On init, and also a way to remove, update or add new ones in the future.
+    answerer: user
+    time: '2026-10-26T18:40:00+02:00'
+    scope: task
+- id: Q-9
+  key: b986c3b8224a569d73c947c2329c3b85e8794a780dfcbe13bcd13de6a75c7b76
+  subject: What a resource link record holds and how it reaches agents
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: When a user adds a resource link (API guidelines, a tool or library page, an internal page, any link with
+    a note), what must the record hold (address, a note on when it applies, the files it applies to, an owner, a
+    stored copy or summary), and which of the four ways to reach agents (a rule that loads for matching files, a
+    skill per tool, a catalogue of links, a stored copy) applies to which kind of link?
+  why: No field, command or generated file carries a link today, and the knowledge configuration holds only repository
+    globs.
+  evidence_refs:
+  - docs/design/team-conventions-resources/as-is.md#U-37
+  - docs/design/team-conventions-resources/as-is.md#U-38
+  - docs/design/team-conventions-resources/as-is.md#U-39
+  - docs/design/team-conventions-resources/as-is.md#U-40
+  - docs/design/team-conventions-resources/as-is.md#U-30
+  - docs/design/team-conventions-resources/as-is.md#U-33
+  - docs/design/team-conventions-resources/as-is.md#U-35
+  - docs/design/team-conventions-resources/as-is.md#U-21
+  - docs/design/team-conventions-resources/as-is.md#U-24
+  - docs/design/team-conventions-resources/as-is.md#U-25
+  - docs/design/team-conventions-resources/as-is.md#U-26
+  - docs/design/team-conventions-resources/as-is.md#U-69
+  - docs/design/team-conventions-resources/as-is.md#U-15
+  - docs/design/team-conventions-resources/as-is.md#U-16
+  - docs/design/team-conventions-resources/as-is.md#U-2
+  - docs/design/team-conventions-resources/as-is.md#U-60
+  - docs/design/team-conventions-resources/as-is.md#U-46
+  - docs/design/team-conventions-resources/as-is.md#U-19
+  - docs/design/team-conventions-resources/as-is.md#U-31
+  - docs/design/team-conventions-resources/as-is.md#U-72
+  - docs/design/team-conventions-resources/as-is.md#U-4
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: HTML web pages, Confluence or other docs.
+    answerer: user
+    time: '2026-10-26T18:40:00+02:00'
+    scope: task
+- id: Q-10
+  key: 7d5265478f995057f7cbd088f63c48ee651bf755aea63732471e58f996c5d9f4
+  subject: Who may add or change resource links and team conventions
+  raised_by: researcher
+  phase: research
+  category: policy
+  text: Who may add, change or remove a resource link or a team convention (any developer, maintainers, code owners),
+    and how is the change reviewed, given that the profile and the knowledge configuration are seeded files that
+    the team owns?
+  why: The code and the documents do not say who writes these files after the first run.
+  evidence_refs:
+  - docs/design/team-conventions-resources/as-is.md#U-41
+  - docs/design/team-conventions-resources/as-is.md#U-48
+  - docs/design/team-conventions-resources/as-is.md#U-32
+  - docs/design/team-conventions-resources/as-is.md#U-20
+  - docs/design/team-conventions-resources/as-is.md#U-9
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: All team developers.
+    answerer: user
+    time: '2026-10-26T18:40:00+02:00'
+    scope: task
+- id: Q-11
+  key: 178a0da6d2054f00f73526818666233716b93104ae72dd6a331ff3f656af54eb
+  subject: 'Team conventions: recorded, told to agents or checked'
+  raised_by: researcher
+  phase: research
+  category: policy
+  text: For each convention (branch model and gitflow, branch naming and commit message convention, pull request
+    shape, merge strategy and required checks, release and hotfix flow), should Orqlet only record it and tell agents,
+    or also check it (a commit-message hook, a CI check), and where is it recorded (the project profile, the workflow
+    policy, a new file)?
+  why: Only the target branch, branch naming and commit convention are asked today, and no generated file carries
+    their values.
+  options:
+  - record and tell agents only
+  - also check in CI
+  - also check with a local hook
+  evidence_refs:
+  - docs/design/team-conventions-resources/as-is.md#U-65
+  - docs/design/team-conventions-resources/as-is.md#U-66
+  - docs/design/team-conventions-resources/as-is.md#U-67
+  - docs/design/team-conventions-resources/as-is.md#U-11
+  - docs/design/team-conventions-resources/as-is.md#U-12
+  - docs/design/team-conventions-resources/as-is.md#U-13
+  - docs/design/team-conventions-resources/as-is.md#U-14
+  - docs/design/team-conventions-resources/as-is.md#U-17
+  - docs/design/team-conventions-resources/as-is.md#U-1
+  - docs/design/team-conventions-resources/as-is.md#U-3
+  - docs/design/team-conventions-resources/as-is.md#U-5
+  - docs/design/team-conventions-resources/as-is.md#U-6
+  - docs/design/team-conventions-resources/as-is.md#U-8
+  - docs/design/team-conventions-resources/as-is.md#U-47
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: Checked.
+    answerer: user
+    time: '2026-10-26T18:40:00+02:00'
+    scope: task
+- id: Q-12
+  key: cc79f40dcbff256cf8ca624f2d034b1c08e8940b011290f1eb8ae1c048998d0f
+  subject: 'Web lookup: tools, domains and approval'
+  raised_by: researcher
+  phase: research
+  category: policy
+  text: When a skill step looks up an unknown library or tool on the web, which tool does it use in each client
+    (the client's own web search and fetch, an allow-listed fetcher, a documentation server such as Context7, an
+    llms.txt page), which domains are allowed, and is the approval per task, per project or per user?
+  why: The architecture document gives the onboarding and research skills 'Read-only; no network', treats Context7
+    as unavailable unless approved, and rates the clients' own web tools as inconsistent.
+  evidence_refs:
+  - docs/design/team-conventions-resources/as-is.md#U-54
+  - docs/design/team-conventions-resources/as-is.md#U-55
+  - docs/design/team-conventions-resources/as-is.md#U-56
+  - docs/design/team-conventions-resources/as-is.md#U-57
+  - docs/design/team-conventions-resources/as-is.md#U-59
+  - docs/design/team-conventions-resources/as-is.md#U-62
+  - docs/design/team-conventions-resources/as-is.md#U-68
+  - docs/design/team-conventions-resources/as-is.md#U-71
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: All of them. Part of the web may use a SAML login, so it is good to open it in a browser or use a browser plugin so that the developer can sign in and the client can read.
+    answerer: user
+    time: '2026-10-26T18:40:00+02:00'
+    scope: task
+- id: Q-13
+  key: bfa163af21b4930c5a7ec6b7e285e6c2e3a03eb2db53f556dfa78571acd5f9e0
+  subject: Linked pages that need a login
+  raised_by: researcher
+  phase: research
+  category: access
+  text: 'How may an agent read a linked page that needs a login (Confluence, an internal wiki): through the user''s
+    own MCP sign-in from the integrations design, through a copy that a person stores in the repository, or not
+    at all?'
+  why: The fetch tools cannot sign in, and no code or skill handles an authenticated read.
+  evidence_refs:
+  - docs/design/team-conventions-resources/as-is.md#U-70
+  - docs/design/team-conventions-resources/as-is.md#U-64
+  - docs/design/team-conventions-resources/as-is.md#U-61
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: Yes.
+    answerer: user
+    time: '2026-10-26T18:40:00+02:00'
+    scope: task
+- id: Q-14
+  key: b945a598901cdd04221bd02bc366705e5ea0649def86e34f49a7118c6ad73303
+  subject: Verification before the feature relies on client behaviour
+  raised_by: researcher
+  phase: research
+  category: test-expectation
+  text: May the design plan checks with test sessions in each client for behaviour that the documents state only
+    from vendor text (path-scoped rules and skills in Claude Code and Cursor, skill loading from .agents/skills,
+    how Codex gets path-specific guidance), and which write paths of other commands need fault tests?
+  why: The adapters record that no client was observed, and the vendor excerpts leave the details open.
+  options:
+  - yes, plan checks with test sessions
+  - no, decide from documentation only
+  evidence_refs:
+  - docs/design/team-conventions-resources/as-is.md#U-27
+  - docs/design/team-conventions-resources/as-is.md#U-28
+  - docs/design/team-conventions-resources/as-is.md#U-29
+  - docs/design/team-conventions-resources/as-is.md#U-36
+  - docs/design/team-conventions-resources/as-is.md#U-22
+  - docs/design/team-conventions-resources/as-is.md#U-23
+  - docs/design/team-conventions-resources/as-is.md#U-49
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: Yes.
+    answerer: user
+    time: '2026-10-26T18:40:00+02:00'
+    scope: task
+- id: Q-15
+  key: 0c9592328468a4b94402b5e833fbaf05833273657da6271ab1d7b11fe2d68366
+  subject: How a linked page behind a SAML login is read
+  raised_by: researcher
+  phase: research
+  category: access
+  text: 'The answer to Q-13 is ''yes'' and the answer to Q-12 says that a page may sit behind a SAML login, so that
+    it is good to open it in a browser or use a browser plugin so that the developer can sign in and the client
+    can read. Which way is meant for a page that needs a login: the developer signs in in a browser and the client
+    reads the page through a browser plugin or a browser tool, the user''s own MCP sign-in of the integrations design,
+    a copy that a person stores in the repository, or more than one of these?'
+  why: The fetch tools of the clients cannot sign in, and the answer names a browser route without saying which
+    client tool reads the page afterwards.
+  options:
+  - a browser or browser plugin where the developer signs in
+  - the user's own MCP sign-in
+  - a copy stored in the repository
+  - more than one of these
+  evidence_refs:
+  - docs/design/team-conventions-resources/as-is.md#U-61
+  - docs/design/team-conventions-resources/as-is.md#U-64
+  - docs/design/team-conventions-resources/as-is.md#U-70
+  - docs/design/team-conventions-resources/as-is.md#A-160
+  - docs/design/team-conventions-resources/as-is.md#A-161
+  - docs/design/team-conventions-resources/as-is.md#A-162
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: 'Delegated by the user to industry practice ("just look for best practicies of industry in web"). The practice
+      found in the committed web evidence: a client that needs a page behind a login uses the signed-in session of
+      the person who works. Claude Code with Chrome shares the browser''s login state and pauses at a login page or
+      CAPTCHA for the person to handle (evidence/web/claude-code-chrome.md). Playwright MCP offers a persistent profile,
+      an isolated profile that can load a storage-state file, and an extension that attaches to the person''s own
+      tabs (evidence/web/playwright-mcp.md). For an MCP server, the draft authorization specification requires that
+      a token is issued for that server as its audience, forbids a client to send other tokens to it, and forbids
+      a server to pass on any other token (evidence/web/mcp-authorization.md). The evidence found covers Claude Code
+      and Playwright MCP; it does not cover a browser route in Cursor or Codex, and it does not say how a stored copy
+      of a login-protected page is kept current. The design proposes the way for each client from this evidence, and
+      the person approves it in the design review.'
+    answerer: user
+    time: '2026-10-26T18:46:26+02:00'
+    scope: task
+  
+- id: Q-16
+  key: 8eeff79da000d4bb9990292d173be354b14c11402b71e2d8cff8d710a90ab618
+  subject: Where the conventions are checked
+  raised_by: researcher
+  phase: research
+  category: policy
+  text: 'The answer to Q-11 is ''checked''. Where is a convention checked: in a pull request check on the code host
+    (CI), in a local commit-message or pre-push hook, or in both, and which conventions are checked this way (branch
+    name, commit message, pull request shape, merge strategy, required checks, release and hotfix flow)?'
+  why: Local Git hooks and `ci check` are listed as not built, so the place of the check decides what must be built.
+  options:
+  - CI only
+  - a local hook only
+  - both
+  evidence_refs:
+  - docs/design/team-conventions-resources/as-is.md#U-1
+  - docs/design/team-conventions-resources/as-is.md#U-3
+  - docs/design/team-conventions-resources/as-is.md#U-5
+  - docs/design/team-conventions-resources/as-is.md#U-6
+  - docs/design/team-conventions-resources/as-is.md#U-8
+  - docs/design/team-conventions-resources/as-is.md#U-11
+  - docs/design/team-conventions-resources/as-is.md#U-12
+  - docs/design/team-conventions-resources/as-is.md#U-13
+  - docs/design/team-conventions-resources/as-is.md#U-14
+  - docs/design/team-conventions-resources/as-is.md#U-17
+  - docs/design/team-conventions-resources/as-is.md#U-47
+  - docs/design/team-conventions-resources/as-is.md#U-65
+  - docs/design/team-conventions-resources/as-is.md#U-66
+  - docs/design/team-conventions-resources/as-is.md#U-67
+  - docs/design/team-conventions-resources/as-is.md#A-151
+  - docs/design/team-conventions-resources/as-is.md#A-152
+  - docs/design/team-conventions-resources/as-is.md#A-153
+  - docs/design/team-conventions-resources/as-is.md#A-154
+  - docs/design/team-conventions-resources/as-is.md#A-155
+  - docs/design/team-conventions-resources/as-is.md#A-156
+  - docs/design/team-conventions-resources/as-is.md#A-157
+  - docs/design/team-conventions-resources/as-is.md#A-158
+  - docs/design/team-conventions-resources/as-is.md#A-159
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: 'Delegated by the user to industry practice ("just look for best practicies of industry in web"). The practice
+      found in the committed web evidence: the check that decides is enforced on the server side. Pro Git says client-side
+      hooks are not copied on clone, that `git commit --no-verify` bypasses the pre-commit hook, and that a policy
+      is better enforced on the server (evidence/web/git-hooks.md). The commitlint guide lints the commits of a pull
+      request on the CI server, after a local setup (evidence/web/commitlint-ci.md). GitHub branch protection can
+      require status checks, reviews, code owner approval, linear history and signed commits, and by default does
+      not bind admins (evidence/web/github-protected-branches.md). DORA advises protecting branches so that pull requests
+      merge only when all tests have passed, and warns against an overly heavy review process (evidence/web/dora-trunk-based.md).
+      A local commit-msg or pre-commit hook is described as a check before a commit that a person can bypass. The
+      evidence found does not cover how a tool checks a branch name or the shape of a pull request description, so
+      those two stay open for the design to decide.'
+    answerer: user
+    time: '2026-10-26T18:46:26+02:00'
+    scope: task

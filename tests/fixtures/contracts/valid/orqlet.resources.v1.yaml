@@ -1,0 +1,28 @@
+schema: orqlet.resources/v1
+resources:
+  - id: fastapi-docs
+    title: FastAPI documentation
+    kind: tool-docs
+    url: https://docs.example.com/fastapi/tutorial
+    note: Read before adding or changing an HTTP endpoint of the service.
+    access: public
+    applies_to:
+      paths: ["src/api/**/*.py", "tests/api/**/*.py"]
+    tool: FastAPI
+    version: "0.115"
+    stored_copy:
+      form: copy
+      sha256: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      retrieved_at: "2026-10-27T10:30:00Z"
+      ttl_days: 90
+  - id: team-handbook
+    title: Team engineering handbook
+    kind: team-docs
+    url: https://wiki.example.com/spaces/team/engineering-handbook
+    note: Working agreements of the team; sign in with the company account to read it.
+    access: login
+    stored_copy:
+      form: summary
+      sha256: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      retrieved_at: "2026-10-27T10:30:00+02:00"
+      ttl_days: 30

@@ -87,12 +87,25 @@ class PullRequests(Contract):
     template: PullRequestTemplate = PullRequestTemplate()
     reviewers: str = "unknown"
     merge_strategy: str = "unknown"
+    shape: FactValue = FactValue(
+        question="What should a pull request look like (size, title, description)?"
+    )
+    required_checks: FactValue = FactValue(
+        question="Which checks must pass before a pull request merges (comma-separated names)?"
+    )
 
 
 class Repository(Contract):
     target_branch: TargetBranch
     branch_naming: FactValue
     commit_convention: FactValue
+    branch_model: FactValue = FactValue(
+        question="Which branch model does the team use (trunk-based, github-flow, gitflow, other)?"
+    )
+    release_flow: FactValue = FactValue(question="How are releases and hotfixes made?")
+    branch_patterns: FactValue = FactValue(
+        question="Which branch name patterns are allowed (comma-separated globs)?"
+    )
     pull_requests: PullRequests = PullRequests()
 
 

@@ -1,0 +1,177 @@
+{
+  "$defs": {
+    "AppliesTo": {
+      "additionalProperties": false,
+      "description": "The paths a resource applies to; the clients match them, Orqlet checks only the syntax.",
+      "properties": {
+        "paths": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Paths",
+          "type": "array"
+        }
+      },
+      "title": "AppliesTo",
+      "type": "object"
+    },
+    "Resource": {
+      "additionalProperties": false,
+      "description": "One registered link with the note that says why and when to use it.",
+      "properties": {
+        "access": {
+          "enum": [
+            "public",
+            "login"
+          ],
+          "title": "Access",
+          "type": "string"
+        },
+        "applies_to": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AppliesTo"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "api-guidelines",
+            "tool-docs",
+            "team-docs",
+            "other"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "note": {
+          "title": "Note",
+          "type": "string"
+        },
+        "stored_copy": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StoredCopy"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "tool": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._+-]{0,39}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tool"
+        },
+        "url": {
+          "title": "Url",
+          "type": "string"
+        },
+        "version": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9._+-]{1,40}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Version"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "kind",
+        "url",
+        "note",
+        "access"
+      ],
+      "title": "Resource",
+      "type": "object"
+    },
+    "StoredCopy": {
+      "additionalProperties": false,
+      "description": "A stored copy or summary of the page: its form, hash, retrieval time and time-to-live.",
+      "properties": {
+        "form": {
+          "enum": [
+            "copy",
+            "summary"
+          ],
+          "title": "Form",
+          "type": "string"
+        },
+        "retrieved_at": {
+          "title": "Retrieved At",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "ttl_days": {
+          "maximum": 365,
+          "minimum": 1,
+          "title": "Ttl Days",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "form",
+        "sha256",
+        "retrieved_at",
+        "ttl_days"
+      ],
+      "title": "StoredCopy",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "The registry: at most 100 entries, unique and in order of id.",
+  "properties": {
+    "resources": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Resource"
+      },
+      "title": "Resources",
+      "type": "array"
+    },
+    "schema": {
+      "const": "orqlet.resources/v1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema"
+  ],
+  "title": "Resources",
+  "type": "object"
+}

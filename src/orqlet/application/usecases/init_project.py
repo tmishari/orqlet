@@ -14,11 +14,11 @@ from typing import Literal
 from orqlet.application.contracts.loading import load_contract
 from orqlet.application.contracts.profile import (
     ProjectProfile,
-    PullRequests,
     PullRequestTemplate,
     StandardsSourceRef,
     Technology,
 )
+from orqlet.application.contracts.resources import Resources
 from orqlet.application.ports.filesystem import FileKind, FileSystemError
 from orqlet.application.ports.prompter import NoAnswerAvailable, Question
 from orqlet.application.usecases.apply_plan import apply_plan
@@ -52,6 +52,8 @@ from orqlet.application.usecases.render_all import (
     plan_changes,
     resolve_for,
 )
+from orqlet.application.usecases.resources_edit import ResourceSpec, resources_with
+from orqlet.application.usecases.resources_source import load_resources, resources_path
 from orqlet.application.usecases.services import Services, Stores
 from orqlet.application.usecases.standards_for import Resolution
 from orqlet.domain.blocks import BlockError
@@ -59,6 +61,11 @@ from orqlet.domain.changeplan import ChangePlan, PlanError
 from orqlet.domain.findings import Finding, Severity
 
 InitServices = Services
+_LINKS_TEXT = (
+    "Are there links to team resources (API guidelines, tool docs, team pages) to register?"
+)
+_URL_TEXT = "The address of a link (https; leave empty to finish)"
+_MAX_LINK_PROMPTS = 100
 InitStatus = Literal["applied", "previewed", "already-initialised", "needs-input", "refused"]
 
 
@@ -116,9 +123,11 @@ def _run(services: InitServices, options: InitOptions) -> InitResult:
         confirm_new_project=options.new_project,
         languages_found=bool(discovery.languages()),
     )
+    resources, resources_bytes = _registry(services)
     profile = _load_existing_profile(services)
     if profile is None:
         profile = _draft_and_ask(services, options, root, findings, discovery.technologies)
+        resources, resources_bytes = _links(services, options, resources, resources_bytes, findings)
     branch = profile.repository.target_branch.value
     if root.needs_git and options.git_init and branch is None:
         findings.append(
@@ -139,14 +148,20 @@ def _run(services: InitServices, options: InitOptions) -> InitResult:
         if services.project.kind(PROFILE_PATH) is FileKind.FILE
         else None
     )
+    # `init` writes the registry but renders nothing from it, as an edit command does: the files
+    # that follow from the links are written by the next `orqlet upgrade`. A write that stopped
+    # between the files could otherwise leave generated files that no lock records and that a
+    # re-run, which may have lost the links, could not remove (ADR-002 decisions 6 and 7).
     composition = compose(
         services,
         profile,
         resolution,
+        Resources(schema_id="orqlet.resources/v1"),
         clients=options.clients,
         prompts_dir=options.prompts_dir,
         pr_targets=targets,
         profile_bytes=existing or contract_bytes(services.writer, profile),
+        resources_bytes=resources_bytes,
     )
     findings += composition.findings
     findings += environment_findings(services, options.prompts_dir)
@@ -214,6 +229,122 @@ def _run(services: InitServices, options: InitOptions) -> InitResult:
     )
 
 
+# --- registry ----------------------------------------------------------------------------------
+def _registry(services: InitServices) -> tuple[Resources, bytes]:
+    """The registry that is on disk, or an empty one; an invalid one stops `init` (ADR-002 6).
+
+    A run that follows an interruption reads what is on disk, as it does for the profile, so a
+    registry the team wrote is kept as it is and an invalid one is never replaced by an empty one.
+    """
+    path = resources_path()
+    resources, problems = load_resources(services.project, services.loader, str(path))
+    if resources is None:
+        detail = "; ".join(problem.message for problem in problems)
+        raise InitRefused(
+            "ORQ-E503",
+            f"The registry {path} cannot be used: {detail}. Nothing was changed. Fix the file or "
+            "restore it from Git, then run `orqlet init` again.",
+        )
+    if services.project.kind(path) is FileKind.FILE:
+        return resources, services.project.read_bytes(path)
+    return resources, contract_bytes(services.writer, resources)
+
+
+def _links(
+    services: InitServices,
+    options: InitOptions,
+    resources: Resources,
+    resources_bytes: bytes,
+    findings: list[Finding],
+) -> tuple[Resources, bytes]:
+    """Ask for links to team resources and add them in memory (ADR-002 decision 6, Q-8).
+
+    The registry is written in the one plan of `init`, after the profile. Without a terminal, or
+    with `--yes`, nothing is asked and the finding says how to add links later.
+    """
+    if options.assume_yes or not services.prompter.interactive:
+        findings.append(
+            Finding(
+                "ORQ-I504",
+                "No links to team resources were registered. Run `orqlet resources add` to "
+                "register API guidelines, tool documentation or team pages.",
+                Severity.INFO,
+            )
+        )
+        return resources, resources_bytes
+    added = False
+    try:
+        if _answer(services, "resources.links", _LINKS_TEXT, ("yes", "no"), "no") != "yes":
+            return resources, resources_bytes
+        for _ in range(_MAX_LINK_PROMPTS):
+            url = _answer(services, "resources.url", _URL_TEXT, (), "")
+            if not url:
+                break
+            spec = _link_spec(services, url)
+            built, found = resources_with(resources, spec, replace=False)
+            if built is None:
+                findings.append(
+                    Finding(
+                        "ORQ-E509",
+                        f"A link was not added. {found[0].message}",
+                        Severity.WARNING,
+                    )
+                )
+                continue
+            resources, added = built, True
+            findings += found
+    except NoAnswerAvailable:
+        pass
+    if not added:
+        return resources, resources_bytes
+    return resources, contract_bytes(services.writer, resources)
+
+
+def _link_spec(services: InitServices, url: str) -> ResourceSpec:
+    kinds = ("api-guidelines", "tool-docs", "team-docs", "other")
+    resource_id = _answer(
+        services, "resources.id", "A short id for it (lower case, digits, -)", (), ""
+    )
+    title = _answer(services, "resources.title", "A title (one line)", (), "")
+    kind = _answer(services, "resources.kind", "What kind of page is it?", kinds, "")
+    note = _answer(services, "resources.note", "Why and when should an agent use it?", (), "")
+    access = _answer(
+        services,
+        "resources.access",
+        "Is the page public or behind a login?",
+        ("public", "login"),
+        "public",
+    )
+    paths = _answer(
+        services,
+        "resources.paths",
+        "Paths it applies to, as globs separated by commas (empty for none)",
+        (),
+        "",
+    )
+    tool = (
+        _answer(services, "resources.tool", "The name of the tool it documents", (), "")
+        if kind == "tool-docs"
+        else ""
+    )
+    return ResourceSpec(
+        id=resource_id,
+        url=url,
+        title=title,
+        kind=kind,
+        note=note,
+        access=access,
+        paths=tuple(part.strip() for part in paths.split(",") if part.strip()),
+        tool=tool or None,
+    )
+
+
+def _answer(
+    services: InitServices, key: str, text: str, options: tuple[str, ...], default: str
+) -> str:
+    return services.prompter.ask(Question(key, text, options, default)).strip()
+
+
 # --- profile -----------------------------------------------------------------------------------
 def _load_existing_profile(services: InitServices) -> ProjectProfile | None:
     """A profile left by an interrupted run is reused, so a rerun converges on the same files."""
@@ -252,6 +383,12 @@ def _draft_and_ask(
     answers = collect_answers(questions, options.answers, services.prompter)
     notes: list[str] = []
     profile = apply_answers(profile, answers, notes)
+    # An answer can open a question: the branch patterns are asked once a naming rule is known.
+    asked = {question.id for question in questions}
+    follow_up = [q for q in questions_for(profile, asks_stack=asks_stack) if q.id not in asked]
+    if follow_up:
+        more = collect_answers(follow_up, options.answers, services.prompter)
+        profile = apply_answers(profile, more, notes)
     findings += [Finding("ORQ-W060", note, Severity.WARNING) for note in notes]
     reviewer = _reviewer(services, options)
     if reviewer:
@@ -325,11 +462,7 @@ def _with_pr_template(
         source_id=None,
         status="provisioned" if has_team else "team-template-unknown",
     )
-    pull_requests = PullRequests(
-        template=template,
-        reviewers=profile.repository.pull_requests.reviewers,
-        merge_strategy=profile.repository.pull_requests.merge_strategy,
-    )
+    pull_requests = profile.repository.pull_requests.model_copy(update={"template": template})
     repository = profile.repository.model_copy(update={"pull_requests": pull_requests})
     return profile.model_copy(update={"repository": repository})
 

@@ -129,6 +129,15 @@ class Vcs(Protocol):
         """Up to `limit` commits reachable from HEAD, newest first."""
         ...
 
+    def commit_subjects(self, base: str, head: str) -> tuple[CommitSummary, ...]:
+        """The commits of `base..head`, newest first: at most 201, each subject cut at 1024 chars.
+
+        `base` and `head` are `HEAD` or full commit ids. The subject is the first line of the
+        message. An empty range gives no commit; an id that names no commit is a `VcsError`. The
+        extra commit tells the caller that the range is longer than the 200 it reads.
+        """
+        ...
+
     def remote_names(self) -> tuple[str, ...]:
         """Remotes that have remote-tracking refs, sorted by code point."""
         ...

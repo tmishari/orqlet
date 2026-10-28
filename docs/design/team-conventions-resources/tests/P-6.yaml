@@ -1,0 +1,64 @@
+schema: orqlet.test-record/v1
+task: team-conventions-resources
+phase: P-6
+review_input:
+  components:
+    code_tests: 53e9784efde6759f5ad701138ae10b24a77d12e7c50f414a492869e7266040c6
+    plan: cebd53df7986b17ae02bddb6ae1d32a654f8677fe04cef91c9ed71869782f0f1
+  covers:
+  - code_tests
+  - plan
+  digest: 80bcd2ebd4a985f1276a8c51ee90715f26a14df53d0b5a29d20e28f44d6b38df
+  merge_base: d03e0d435da186950583dd471e18ad07660cec51
+  schema: orqlet.review-input/v1
+verdict: PASS
+evidence_kind: claimed
+commands:
+- id: ruff-check
+  exit_code: 0
+  summary: All checks passed!
+  result_digest: 5b196eb3a6acb50d3fa398d04ca284985cc1ffec870e940264b00780bfd2c971
+- id: ruff-format
+  exit_code: 0
+  summary: 496 files already formatted
+  result_digest: 7fabca2dea2395d99d510ad155aa1005188a6d879cedca47fc31a691a5717538
+- id: mypy
+  exit_code: 0
+  summary: 'Success: no issues found in 323 source files'
+  result_digest: 5528b6630a32bf44b61a1f9dfa3b1f51d83dec44d8efbb25d1395180c89193b1
+- id: import-linter
+  exit_code: 0
+  summary: 'Contracts: 5 kept, 0 broken.'
+  result_digest: 7bc2797b3c3f334f3e51130700b19031e732af1a692bca0eb65a722e246b2ddb
+- id: pytest
+  exit_code: 0
+  summary: 5661 passed, 1 skipped in 580.19s (0:09:40) on Python 3.14.9; the new and changed test files of this
+    phase, tests/unit/render, tests/contract and tests/unit/domain/test_resources.py also passed on Python 3.12.11
+    after rework round 1; the full suite ran on 3.14.9 only
+  result_digest: 95871b141284b58c3aa13a485f8d7da47bba40d4cbc09c08578b3789f39981b6
+- id: manifest
+  exit_code: 0
+  summary: passed with no output
+  result_digest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+acceptance_coverage:
+- ac: AC-1
+  check_ref: pytest
+  result: pass
+- ac: AC-2
+  check_ref: pytest
+  result: pass
+- ac: AC-3
+  check_ref: pytest
+  result: pass
+- ac: AC-4
+  check_ref: pytest
+  result: pass
+- ac: AC-5
+  check_ref: pytest
+  result: pass
+- ac: AC-6
+  check_ref: review:golden-diff
+  result: pass
+- ac: AC-7
+  check_ref: manifest
+  result: pass

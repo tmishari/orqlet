@@ -12,6 +12,7 @@ from typing import Literal
 
 from orqlet.application.contracts.knowledge_config import KnowledgeConfig
 from orqlet.application.contracts.profile import ProjectProfile
+from orqlet.application.contracts.resources import Resources
 from orqlet.application.contracts.role_bindings import Binding, MinimumCapability, RoleBindings
 from orqlet.application.contracts.standards_lock import LockedPack, StandardsLock
 from orqlet.application.contracts.versions_file import CliVersions, Versions, WorkflowVersions
@@ -29,6 +30,8 @@ from orqlet.application.usecases.init_files import (
 )
 from orqlet.application.usecases.init_state import InitRefused
 from orqlet.application.usecases.render_request import build_render_request
+from orqlet.application.usecases.resources_source import resources_path
+from orqlet.application.usecases.resources_view import conventions_view
 from orqlet.application.usecases.services import Services
 from orqlet.application.usecases.standards_for import (
     Resolution,
@@ -98,20 +101,27 @@ def compose(
     services: Services,
     profile: ProjectProfile,
     resolution: Resolution,
+    resources: Resources,
     *,
     clients: Sequence[str],
     prompts_dir: str,
     pr_targets: tuple[str, ...],
     profile_bytes: bytes,
+    resources_bytes: bytes,
     orqlet_owned: frozenset[str] = frozenset(),
     released: frozenset[str] = frozenset(),
     released_record: bytes | None = None,
 ) -> Composition:
     """Every file the project should hold, as `Desired`, with the findings the render raised."""
-    del profile  # the profile's effect is already in `resolution` and `profile_bytes`
     findings: list[Finding] = []
+    conventions, convention_findings = conventions_view(profile, resources)
+    findings += convention_findings
     request = build_render_request(
-        services.workflow, services.loader, tuple(resolution.rules.values())
+        services.workflow,
+        services.loader,
+        tuple(resolution.rules.values()),
+        resources,
+        conventions,
     )
     results = [services.adapters[client].render(request) for client in clients]
     findings += limit_findings(limit for result in results for limit in result.limits)
@@ -122,7 +132,7 @@ def compose(
     team = team_template(resolution.loaded, findings)
     desired += pr_template_files(services, pr_targets, team)
     desired += seed_files(services, prompts_dir, findings)
-    desired += data_files(services, profile_bytes, resolution)
+    desired += data_files(services, profile_bytes, resources_bytes, resolution)
     desired = [item for item in desired if str(item.path) not in released]
     if released_record is not None:
         desired.append(
@@ -198,7 +208,9 @@ def seed_files(services: Services, prompts_dir: str, findings: list[Finding]) ->
     ]
 
 
-def data_files(services: Services, profile_bytes: bytes, resolution: Resolution) -> list[Desired]:
+def data_files(
+    services: Services, profile_bytes: bytes, resources_bytes: bytes, resolution: Resolution
+) -> list[Desired]:
     release = services.workflow.release
     version = str(release.version)
     versions = Versions(
@@ -256,6 +268,7 @@ def data_files(services: Services, profile_bytes: bytes, resolution: Resolution)
 
     return [
         seeded(PROFILE_PATH, profile_bytes),
+        seeded(resources_path(), resources_bytes),
         seeded(VERSIONS_PATH, contract_bytes(writer, versions)),
         seeded(BINDINGS_PATH, contract_bytes(writer, bindings)),
         seeded(KNOWLEDGE_PATH, contract_bytes(writer, knowledge)),
@@ -322,6 +335,18 @@ def limit_findings(limits: Iterable[CapabilityLimit]) -> list[Finding]:
 
 
 _CODEOWNERS = (".github/CODEOWNERS", "CODEOWNERS", "docs/CODEOWNERS")
+# What a reviewer of a pull request should be able to see: the name that a CODEOWNERS file would
+# mention, and the glob that the notice suggests.
+_OWNED_PATHS = (
+    (".orqlet", ".orqlet/**"),
+    ("docs/resources", "docs/resources/**"),
+    (".github/workflows", ".github/workflows/**"),
+    ("AGENTS.md", "AGENTS.md"),
+    (".claude", ".claude/**"),
+    (".cursor", ".cursor/**"),
+    (".agents", ".agents/**"),
+    (".codex", ".codex/**"),
+)
 
 
 def plan_changes(
@@ -365,12 +390,14 @@ def environment_findings(services: Services, prompts_dir: str) -> list[Finding]:
                     Severity.INFO,
                 )
             )
-    if not codeowners_mentions(services.project, prompts_dir):
+    unowned = _unowned_paths(services.project, prompts_dir)
+    if unowned:
         found.append(
             Finding(
                 "ORQ-I030",
-                f"Add `/{prompts_dir.strip('/')}/ <owners>` to CODEOWNERS so that "
-                "changes to the standards are reviewed by their owners.",
+                "Add these paths to CODEOWNERS (`<path> <owners>`) so that changes to the "
+                "standards, the registry of links and its stored copies, the generated agent "
+                f"files and the workflows are reviewed by their owners: {', '.join(unowned)}.",
                 Severity.INFO,
             )
         )
@@ -378,13 +405,26 @@ def environment_findings(services: Services, prompts_dir: str) -> list[Finding]:
 
 
 def codeowners_mentions(project: FileSystem, prompts_dir: str) -> bool:
+    return any(prompts_dir.strip("/") in text for text in _codeowners_texts(project))
+
+
+def _codeowners_texts(project: FileSystem) -> list[str]:
+    texts = []
     for name in _CODEOWNERS:
         path = CanonicalPath.parse(name)
-        if project.kind(path) is FileKind.FILE and prompts_dir.strip("/") in project.read_bytes(
-            path
-        ).decode("utf-8", errors="replace"):
-            return True
-    return False
+        if project.kind(path) is FileKind.FILE:
+            texts.append(project.read_bytes(path).decode("utf-8", errors="replace"))
+    return texts
+
+
+def _unowned_paths(project: FileSystem, prompts_dir: str) -> list[str]:
+    """The paths that matter for review and that no CODEOWNERS file mentions, as globs."""
+    unowned = []
+    if not codeowners_mentions(project, prompts_dir):
+        unowned.append(f"/{prompts_dir.strip('/')}/")
+    texts = _codeowners_texts(project)
+    unowned += [glob for name, glob in _OWNED_PATHS if not any(name in text for text in texts)]
+    return unowned
 
 
 def ignored_findings(services: Services, paths: Iterable[CanonicalPath]) -> list[Finding]:

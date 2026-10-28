@@ -1,0 +1,140 @@
+schema: orqlet.review-result/v1
+task: team-conventions-resources
+phase: P-1
+role: security-reviewer
+round: 2
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 52f2816f06ab45aa4f63ca8c87aa7cb270cf954ab699e5e6ecd4190d11faf61f
+    design: bbe26a9596127dc8f6769bc5be680e6b959bf05f54b94d3ba598a6285fae43cb
+    evidence_inputs: 745f10661c034d26dce2dadb092f3074c4eb2eb81fa027d1a4eeeed7cdcd5336
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: cebd53df7986b17ae02bddb6ae1d32a654f8677fe04cef91c9ed71869782f0f1
+    reviewer_definition: f969d0c8c6d65779f619b5254b1c1583aa3a4d6f0ecb56b0fd3d4647104bcb69
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 8363ffb98c39a4cba84ba4f798c0def9a12c85098970efdae6bb92c367a09a62
+  merge_base: d03e0d435da186950583dd471e18ad07660cec51
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: 03556c914cc53a8d2d8bacb1ecc1d703d0e50d31ad2376f983d6098a398692df
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; it had no shell, so it ran no check and recomputed
+  no digest.
+- Quote digests were not computed, so each finding rests on reading and is an observation that never blocks.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the design-phase review notes of this task, so the reviewer was not fully context-clean
+  (the known gap of the harness2-fit ADR-002).
+- The reviewer ran in the same client as the Coder, so independence is I1, not I2.
+applicability:
+  examined:
+  - src/orqlet/domain/resources.py
+  - src/orqlet/domain/conventions.py
+  - src/orqlet/domain/classify.py
+  - tests/unit/domain/test_resources.py
+  - tests/unit/domain/test_resources_properties.py
+  - tests/unit/domain/test_conventions.py
+  - tests/unit/domain/test_conventions_properties.py
+  - tests/unit/domain/test_classify.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: '[major] url_problems accepts an address whose last host label is a bare 0x, for example https://127.1.0x/;
+    a URL parser reads it as an IPv4 number and the host as the loopback range.'
+  suggested_action: Match 0x followed by zero or more hex digits and add the vectors.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: '[minor] host_of returns the raw host text of a refused address, which can include user information.'
+  suggested_action: Return an empty string unless the host passes the host rules.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: copy_path builds a repository path from an unchecked id; its safety rests on a docstring precondition.
+  suggested_action: Raise a fixed-text error for an id that fails resource_id_problems.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: The credential scan is a shape heuristic with known false negatives (short passwords, unlabelled cloud
+    secrets).
+  suggested_action: State the limit in the README.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: The closed lists (wildcard DNS, redirectors, internal labels) and the hidden-code-point table are incomplete
+    by design.
+  suggested_action: Keep review as the control and make sure P-2 has the public-entry label rule.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: branch_problems caps one pattern and one name but not the number of patterns; the 12-item cap is enforced
+    at answer time.
+  suggested_action: Re-check the count in P-7 when the profile is read from the base.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: info
+  category: tests
+  evidence: []
+  claim: The 5 s limit was set before a measurement and would not catch a ten-fold slowdown.
+  suggested_action: Record a measurement.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read
+    how: MANIFEST, diff.patch, plan, test record, knowledge-impact record and the snapshot of the changed files
+    result: pass
+  - what: re-run of ruff, mypy, import-linter and pytest
+    how: no shell
+    result: not-run
+  - what: packet and record digests recomputed
+    how: no shell; hashes not computed
+    result: not-run

@@ -47,3 +47,22 @@ Rules the validator checks:
 - `research_mode` is `parallel-subagents`, `sequential-subagents` or `sequential`. Any mode other than parallel needs a `limitation` text.
 - `merged_from` names fragment entries as `<fragment-id>/<entry-id>`.
 - `self_check` is required. A `pass` check says how it was made.
+
+## Evidence from the web
+
+A page that you read outside the repository is evidence only after you write it down as a file `docs/design/<task>/evidence/web/<slug>.md` and cite that file like any other. The layout is a convention that the review of the pull request checks; no validator requires it.
+
+```
+# <title of the page>
+
+URL: <the address that you read>
+Retrieved: <the time, with a zone>
+Tool: <the client tool that returned the text>
+Processed: <yes if the tool ran the text through a model, no if not, unknown if it does not say>
+Data class: <public or internal>
+
+1. <label> - <an excerpt>
+2. <label> - <an excerpt>
+```
+
+"Verbatim" is claimed only for text as the tool returned it. A summary in your own words is marked as a summary. A page behind a login is `Data class: internal`, is summarised with short quotations at most and is committed only after the person has said yes.

@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
-from orqlet.adapters.render.instructions import agents_block
+from orqlet.adapters.render.instructions import agents_block, conventions_block
 from orqlet.adapters.render.roles import cursor_role
 from orqlet.adapters.render.rules import cursor_command, cursor_rule
 from orqlet.adapters.render.skills import agents_skill_files
 from orqlet.application.ports.instruction_adapter import (
     CapabilityLimit,
+    RenderedFile,
     RenderRequest,
     RenderResult,
 )
@@ -24,12 +25,27 @@ SKILL_PLACES_LIMIT = CapabilityLimit(
 )
 
 
+def _optional(file: RenderedFile | None) -> tuple[RenderedFile, ...]:
+    return () if file is None else (file,)
+
+
+_WEB_LOOKUP_LIMIT = CapabilityLimit(
+    "ORQ-L006",
+    "Lookups on the web are requested by the baseline in every phase. The web tools of "
+    "Cursor are not verified. To opt out, turn them off in the settings of Cursor if it "
+    "offers a setting; whether it does is not verified (check V-6) and not observed. "
+    "The signed-in browser route is a separate tool that this does not turn off, and "
+    "the role sentence and the rule to open registered addresses only are advice.",
+)
+
+
 class CursorAdapter:
     client_id = "cursor"
 
     def render(self, request: RenderRequest) -> RenderResult:
         files = (
             agents_block(request),
+            *_optional(conventions_block(request)),
             *(cursor_rule(rule) for rule in request.scoped_rules),
             *(cursor_command(command) for command in request.commands),
             *(file for skill in request.skills for file in agents_skill_files(skill)),
@@ -37,5 +53,5 @@ class CursorAdapter:
         )
         limits = (
             (DOCUMENTATION_LIMIT, SKILL_PLACES_LIMIT) if request.skills else (DOCUMENTATION_LIMIT,)
-        )
+        ) + (_WEB_LOOKUP_LIMIT,)
         return RenderResult(files=files, limits=limits)

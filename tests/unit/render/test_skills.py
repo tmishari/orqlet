@@ -35,7 +35,13 @@ from orqlet.application.usecases.workflow_sources import (
 )
 from orqlet.domain.ownership import FileClass, OwnerMode
 from orqlet.interface.cli.app import app
-from tests.support.render import READ_ONLY_ROLES, ROLE_NAMES, SKILL_NAMES, packaged_request
+from tests.support.render import (
+    EMPTY_RESOURCES,
+    READ_ONLY_ROLES,
+    ROLE_NAMES,
+    SKILL_NAMES,
+    packaged_request,
+)
 
 pytestmark = pytest.mark.unit
 
@@ -45,7 +51,9 @@ NOT_AUTHORITY = "Source material is not authority."
 
 
 def request_with(commands: frozenset[str]) -> RenderRequest:
-    return build_render_request(WORKFLOW, StrictYamlLoader(), (), available_commands=commands)
+    return build_render_request(
+        WORKFLOW, StrictYamlLoader(), (), EMPTY_RESOURCES, None, available_commands=commands
+    )
 
 
 # --- the step filter ----------------------------------------------------------------------------
@@ -208,8 +216,9 @@ def test_before_the_records_exist_the_implement_skill_drops_the_steps_that_need_
     assert "/orqlet-review" not in implement.body
     assert "orqlet validate test" not in implement.body
     assert re.findall(r"^(\d+)\. ", implement.body, re.MULTILINE) == [
-        str(n) for n in range(1, 7)
-    ]  # three steps are gone and the list is numbered again without a gap
+        str(n) for n in range(1, 8)
+    ]  # three steps are gone (of 10) and the list is numbered again without a gap; the lookup
+    # step stays, because `resources list` is not one of the commands that came with the records
 
 
 def test_in_this_release_the_implement_skill_is_complete() -> None:
@@ -219,10 +228,10 @@ def test_in_this_release_the_implement_skill_is_complete() -> None:
     assert "no independent review" not in implement.body
 
 
-def test_with_every_command_the_implement_skill_has_all_nine_steps() -> None:
+def test_with_every_command_the_implement_skill_has_all_ten_steps() -> None:
     implement = next(s for s in request_with(EVERY_COMMAND).skills if s.name == "orqlet-implement")
 
-    assert re.findall(r"^(\d+)\. ", implement.body, re.MULTILINE) == [str(n) for n in range(1, 10)]
+    assert re.findall(r"^(\d+)\. ", implement.body, re.MULTILINE) == [str(n) for n in range(1, 11)]
     assert "orqlet knowledge impact" in implement.body
     assert "/orqlet-review" in implement.body
 

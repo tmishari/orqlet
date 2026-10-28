@@ -1,0 +1,188 @@
+schema: orqlet.review-result/v1
+task: team-conventions-resources
+phase: P-7
+role: security-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 555dc4529ed300b09cac8d6d98ad54a36c644f48cb8e33944bb6a4095f813d52
+    design: bbe26a9596127dc8f6769bc5be680e6b959bf05f54b94d3ba598a6285fae43cb
+    evidence_inputs: 59d7a3854c67149906a4c36169a95091da6575e85eadf20190fa81893b79dfd4
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: cebd53df7986b17ae02bddb6ae1d32a654f8677fe04cef91c9ed71869782f0f1
+    reviewer_definition: f969d0c8c6d65779f619b5254b1c1583aa3a4d6f0ecb56b0fd3d4647104bcb69
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 2740a27bc425704f02efae5a998843481338f256c2a31e21434aec08c6b3e369
+  merge_base: d03e0d435da186950583dd471e18ad07660cec51
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: 03556c914cc53a8d2d8bacb1ecc1d703d0e50d31ad2376f983d6098a398692df
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; it had no shell, so it ran no check and recomputed
+  no digest.
+- Quote digests were not computed, so each finding rests on reading and is an observation that never blocks.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the design-phase review notes of this task, so the reviewer was not fully context-clean
+  (the known gap of the harness2-fit ADR-002).
+- The reviewer ran in the same client as the Coder, so independence is I1, not I2.
+applicability:
+  examined:
+  - src/orqlet/application/ports/vcs.py
+  - src/orqlet/adapters/git/vcs_git.py
+  - src/orqlet/application/usecases/conventions_check.py
+  - src/orqlet/interface/cli/commands/conventions.py
+  - src/orqlet/interface/cli/app.py
+  - src/orqlet/application/usecases/capabilities.py
+  - README.md
+  - tests/fakes/vcs.py
+  - tests/contract/test_vcs_commit_subjects_contract.py
+  - tests/unit/application/test_conventions_check.py
+  - tests/integration/test_conventions_cli.py
+  - tests/unit/test_readme_ci_snippet.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: '[minor] A partially shallow clone can hide older commits and still report PASS; only the merge base is
+    tested.'
+  suggested_action: Test rev-parse --is-shallow-repository, which needs a port method.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: '[minor] The subject is taken with splitlines on a whole decoded commit object; one huge message makes
+    a very long list of lines.'
+  suggested_action: Work on bytes.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: correctness
+  evidence: []
+  claim: '[minor] splitlines cuts at control characters that the shape check should see.'
+  suggested_action: Cut at the line feed only.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: non-blocking
+  category: docs
+  evidence: []
+  claim: '[minor] Without --base the base comes from the working-tree profile, which a pull request can change;
+    the README does not say that CI must pass --base.'
+  suggested_action: Add a sentence.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: non-blocking
+  category: docs
+  evidence: []
+  claim: '[minor] The README does not say that a pull request can still remove the step or change the workflow file.'
+  suggested_action: State that the workflow needs a reviewer and a required check.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: '[minor] The install line allows a tag, which can move.'
+  suggested_action: Prefer the commit id.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: The two action pins were not checked against their tags.
+  suggested_action: A person checks them.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-8
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: In a partial clone Git may fetch the profile blob from a remote.
+  suggested_action: Set GIT_NO_LAZY_FETCH or require a full clone.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-9
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: Ids from rev-list are not re-checked before cat-file.
+  suggested_action: Validate each id.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-10
+  kind: observation
+  severity: info
+  category: tests
+  evidence: []
+  claim: The limit paths are tested only with a failing process double.
+  suggested_action: Add a real-Git case.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-11
+  kind: observation
+  severity: info
+  category: tests
+  evidence: []
+  claim: The full suite ran on 3.14.9 only.
+  suggested_action: The CI matrix gives the rest.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-12
+  kind: observation
+  severity: info
+  category: architecture
+  evidence: []
+  claim: objects.py is listed in the plan and not changed.
+  suggested_action: Amend the plan.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read
+    how: MANIFEST, diff.patch, plan, test record, knowledge-impact record and the snapshot of the changed files
+    result: pass
+  - what: re-run of ruff, mypy, import-linter and pytest
+    how: no shell
+    result: not-run
+  - what: packet and record digests recomputed
+    how: no shell; hashes not computed
+    result: not-run

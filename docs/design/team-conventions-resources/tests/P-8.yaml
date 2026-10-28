@@ -1,0 +1,72 @@
+schema: orqlet.test-record/v1
+task: team-conventions-resources
+phase: P-8
+review_input:
+  components:
+    code_tests: cde59e79dcc9879996343b2b20fe372bc6db04a8e541002144c1d356f9ddc220
+    plan: cebd53df7986b17ae02bddb6ae1d32a654f8677fe04cef91c9ed71869782f0f1
+  covers:
+  - code_tests
+  - plan
+  digest: 4cc08c58993971c22070197d562e05227980bbe3d6e148aceb5edcf54767b664
+  merge_base: d03e0d435da186950583dd471e18ad07660cec51
+  schema: orqlet.review-input/v1
+verdict: PASS
+evidence_kind: claimed
+commands:
+- id: ruff-check
+  exit_code: 0
+  summary: All checks passed!
+  result_digest: 5b196eb3a6acb50d3fa398d04ca284985cc1ffec870e940264b00780bfd2c971
+- id: ruff-format
+  exit_code: 0
+  summary: 503 files already formatted
+  result_digest: b0e9c695ae47ba7cb3e1776c8337f83fef54ba32c2e7e358dba8a6c39490b964
+- id: mypy
+  exit_code: 0
+  summary: 'Success: no issues found in 330 source files'
+  result_digest: 5e683bf897630edb2d84a5a3b690736a34150452328758866dd34dcbfb88b324
+- id: import-linter
+  exit_code: 0
+  summary: 'Contracts: 5 kept, 0 broken.'
+  result_digest: 692f7bd973ae4dd8e70d01142778a36f5ce48a0746d199d4665ac58b9ec6a427
+- id: pytest
+  exit_code: 0
+  summary: 5672 passed in 127.47s (0:02:07) on Python 3.14.9; after rework rounds 2 and 3 this run covered tests/unit
+    and tests/contract (5672 tests); the full suite (6048 passed, 1 skipped) ran on the tree before rework round
+    3, which changed only workflow text, goldens and the manifest; the new and changed test files of this phase
+    also passed on Python 3.12.11 before round 3 and were not run on 3.12 after it
+  result_digest: 25fde648461a0e9deec9cd5d8b6ade9f59f6478c8e77331d00d45008f26c8da4
+- id: manifest
+  exit_code: 0
+  summary: passed with no output
+  result_digest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+- id: schemas
+  exit_code: 0
+  summary: passed with no output
+  result_digest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+acceptance_coverage:
+- ac: AC-1
+  check_ref: pytest
+  result: pass
+- ac: AC-2
+  check_ref: pytest
+  result: pass
+- ac: AC-3
+  check_ref: pytest
+  result: pass
+- ac: AC-4
+  check_ref: pytest
+  result: pass
+- ac: AC-5
+  check_ref: pytest
+  result: pass
+- ac: AC-6
+  check_ref: manifest
+  result: pass
+- ac: AC-7
+  check_ref: review:golden-diff
+  result: pass
+- ac: AC-8
+  check_ref: review:documents
+  result: pass
