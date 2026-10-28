@@ -128,13 +128,95 @@ orqlet standards for --path src --phase design --role architect
 | `release` | Take a file out of the manifest (protected files cannot be released) |
 | `profile` | Answer open facts and approve the project profile |
 | `standards` | Read the standards that apply to a path, phase and role |
-| `validate` | Check an artifact an agent wrote |
+| `validate` | Check an artifact an agent wrote, and the registry of links (`validate resources`) |
+| `resources` | Register links to team resources (`add`, `update`, `remove`, `attach`, `list`) |
+| `conventions` | Check the branch name and the commit subjects against the profile (`check`) |
 | `gate` | Check what the workflow's gates would see |
 | `evidence` | Print the hashes and citations an artifact must carry |
 | `knowledge` | Knowledge that travels with the code |
 | `review` | Independent review of a staged change |
 
 Run `orqlet <command> --help` for the options.
+
+## Checks for pull requests
+
+Three offline commands can run in a CI job of your code host on every pull request. CI on the host
+is the check that decides; Orqlet builds no local hook.
+
+- `orqlet validate resources` checks `.orqlet/resources.yaml` and every stored copy under
+  `docs/resources/`: hashes, the two header lines, hidden text and credential shapes, and any file
+  that no entry names.
+- `orqlet conventions check` checks the branch name against the branch patterns of the profile and,
+  when the commit convention is `conventional-commits`, the subject of every commit of
+  `base..head`. The rules are read from the profile at the base revision, not from the pull
+  request, so a pull request cannot relax the rule that judges it; a change of the profile takes
+  effect after it is merged.
+- `orqlet upgrade --check` exits non-zero when a change of the registry or the profile has not been
+  rendered, or when a protected generated file was edited by hand.
+
+Add the step after the conventions are answered: `conventions check` is `NOT_RUN`, and exits 5,
+when nothing is configured, when the base cannot be found (a shallow clone), or when a Git command
+fails. Replace `<cli.pinned>` by the commit id (a tag can move) of the version that `cli.pinned` of
+`.orqlet/versions.yaml` names, written into the workflow file itself and not read from the pull
+request, and replace the action pins by the commits of releases you have reviewed. The runner must
+be able to read the Orqlet repository without a secret. Always pass `--base` in CI: without it the
+base comes from the target branch named in the working tree, which a pull request can change.
+
+```yaml
+name: orqlet-checks
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  orqlet:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+      - run: uv tool install "git+https://github.com/tmishari/orqlet@<cli.pinned>"
+      - run: orqlet validate resources
+      - run: orqlet conventions check --branch="$HEAD_REF" --base="origin/$BASE_REF"
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+          BASE_REF: ${{ github.base_ref }}
+      - run: orqlet upgrade --check
+```
+
+The snippet uses `pull_request` and never `pull_request_target`, reads the contents only, keeps no
+credentials, has a timeout, passes the branch names through `env:` and has no `if:` on the job,
+because a skipped job counts as passed for a required status check. A pull request can still
+remove the step or change the workflow file, so the workflow file needs a reviewer of its own
+(for example a CODEOWNERS entry for `.github/workflows/`). Whether the step blocks a merge
+depends on a person making it a required status check on the host; Orqlet cannot set or read that.
+Do not pipe the output of `conventions check` into a job summary or another log command without
+escaping it: it shows branch and subject text escaped and cut at 100 characters, which bounds the
+size and is not a control.
+
+What is checked, and what is not:
+
+- Of the eight conventions in the profile (branch model, branch naming, commit convention,
+  pull-request shape, merge strategy, required checks, reviewers, release flow), two of the eight
+  conventions are checked by a tool: the branch name and, for `conventional-commits`, the commit
+  subjects. The other six are recorded and told to agents. A host can enforce some of them through
+  branch protection, which Orqlet cannot read, so confirm those settings there.
+- A subject that starts with `Merge ` is not checked, and a `Revert` subject has to have the shape
+  too. Under a squash merge the commit that lands has the pull-request title, and a squash-merge
+  title is outside the check, because the check never sees it.
+- Stored copies and registered links reach the instructions of three clients, so the pull request
+  that changes them must be reviewed. Reviewers read the raw diff of `docs/resources`: rendered
+  Markdown can hide text in HTML and in link definitions. Keep copies of pages behind a login, and
+  browser storage-state files, cookies and tokens, out of Git; `validate resources` refuses a copy
+  that has such a shape, but its scan is a list of known shapes and not a guarantee.
+- A path glob of a link cannot hold a space, `@`, a backtick or angle brackets, and a convention
+  answer cannot hold `@`, a link, markup or a backtick.
 
 ## Development
 

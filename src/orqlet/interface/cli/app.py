@@ -7,6 +7,7 @@ from typing import Annotated
 import typer
 
 from orqlet import __version__
+from orqlet.interface.cli.commands.conventions import conventions_group
 from orqlet.interface.cli.commands.evidence import evidence_app
 from orqlet.interface.cli.commands.gate import gate_app
 from orqlet.interface.cli.commands.init import init_command
@@ -41,6 +42,7 @@ app.command("explain")(explain_command)
 app.command("release")(release_command)
 app.add_typer(profile_app, name="profile")
 app.add_typer(resources_group(), name="resources")
+app.add_typer(conventions_group(), name="conventions")
 app.add_typer(standards_app, name="standards")
 app.add_typer(validate_app, name="validate")
 app.add_typer(gate_app, name="gate")

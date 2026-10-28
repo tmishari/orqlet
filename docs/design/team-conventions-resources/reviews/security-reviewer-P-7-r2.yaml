@@ -1,0 +1,145 @@
+schema: orqlet.review-result/v1
+task: team-conventions-resources
+phase: P-7
+role: security-reviewer
+round: 2
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 5db4a4f9ae5fde7c948e6be4f7eed2a7d37499b12784dccf5671f7cd1c93fba6
+    design: bbe26a9596127dc8f6769bc5be680e6b959bf05f54b94d3ba598a6285fae43cb
+    evidence_inputs: 93fe4f5bf171d095a81096bb514e86f15a2290c5627902161d659ac11521953f
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: cebd53df7986b17ae02bddb6ae1d32a654f8677fe04cef91c9ed71869782f0f1
+    reviewer_definition: f969d0c8c6d65779f619b5254b1c1583aa3a4d6f0ecb56b0fd3d4647104bcb69
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 5f1d35bd6de5d7789d438be7670239b2e6f5c3fb9a9d83ee90eac19598487f2d
+  merge_base: d03e0d435da186950583dd471e18ad07660cec51
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: 03556c914cc53a8d2d8bacb1ecc1d703d0e50d31ad2376f983d6098a398692df
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; it had no shell, so it ran no check and recomputed
+  no digest.
+- Quote digests were not computed, so each finding rests on reading and is an observation that never blocks.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the design-phase review notes of this task, so the reviewer was not fully context-clean
+  (the known gap of the harness2-fit ADR-002).
+- The reviewer ran in the same client as the Coder, so independence is I1, not I2.
+- Round 2 followed a rework of the subject extraction and of the README; the reviewer found the change by reading
+  the snapshot.
+applicability:
+  examined:
+  - src/orqlet/application/ports/vcs.py
+  - src/orqlet/adapters/git/vcs_git.py
+  - src/orqlet/application/usecases/conventions_check.py
+  - src/orqlet/interface/cli/commands/conventions.py
+  - src/orqlet/interface/cli/app.py
+  - src/orqlet/application/usecases/capabilities.py
+  - README.md
+  - tests/fakes/vcs.py
+  - tests/contract/test_vcs_commit_subjects_contract.py
+  - tests/unit/application/test_conventions_check.py
+  - tests/integration/test_conventions_cli.py
+  - tests/unit/test_readme_ci_snippet.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: correctness
+  evidence: []
+  claim: '[minor] A CRLF message keeps its trailing CR and a subject after leading blank lines is empty, unlike
+    Git''s own subject; every case fails closed.'
+  suggested_action: Decide and record it.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: tests
+  evidence: []
+  claim: '[minor] The byte pre-cut and invalid UTF-8 are untested.'
+  suggested_action: Add contract cases for a long multibyte subject and a byte 0xFF.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: tests
+  evidence: []
+  claim: '[minor] The test docstring says the shape check refuses C1 controls and U+2028; it refuses C0 and DEL
+    only.'
+  suggested_action: Correct the docstring and ask whether to widen the rule.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: non-blocking
+  category: docs
+  evidence: []
+  claim: '[minor] The CODEOWNERS example reads as a control; it works only if the host requires code-owner review,
+    and admins can bypass it.'
+  suggested_action: Add a clause.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: docs
+  evidence: []
+  claim: The README does not say how to find the commit of cli.pinned and the repository was recorded as private.
+  suggested_action: State that Orqlet does not check the commit against the pin.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: info
+  category: failure-handling
+  evidence: []
+  claim: Peak memory of the byte partitions is a few times the object size, bounded by the 16 MiB cap.
+  suggested_action: None at this cap.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: info
+  category: architecture
+  evidence: []
+  claim: objects.py is listed in the plan and not changed; the cut is 1024 characters and not bytes.
+  suggested_action: Record both.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read
+    how: MANIFEST, diff.patch, plan, test record, knowledge-impact record and the snapshot of the changed files
+    result: pass
+  - what: re-run of ruff, mypy, import-linter and pytest
+    how: no shell
+    result: not-run
+  - what: packet and record digests recomputed
+    how: no shell; hashes not computed
+    result: not-run

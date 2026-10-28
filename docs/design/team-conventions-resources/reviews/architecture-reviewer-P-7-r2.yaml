@@ -1,0 +1,154 @@
+schema: orqlet.review-result/v1
+task: team-conventions-resources
+phase: P-7
+role: architecture-reviewer
+round: 2
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 5db4a4f9ae5fde7c948e6be4f7eed2a7d37499b12784dccf5671f7cd1c93fba6
+    design: bbe26a9596127dc8f6769bc5be680e6b959bf05f54b94d3ba598a6285fae43cb
+    evidence_inputs: 93fe4f5bf171d095a81096bb514e86f15a2290c5627902161d659ac11521953f
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: cebd53df7986b17ae02bddb6ae1d32a654f8677fe04cef91c9ed71869782f0f1
+    reviewer_definition: 340c9ce62dce3ba2907f9e6e42d6f028f0e2617c1ef5e2fb0b52e170f54c6bb1
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 7031f4ba0d72f238d1238451b4fc9e8c29e30eb005dc435c3464ed86d2a3512a
+  merge_base: d03e0d435da186950583dd471e18ad07660cec51
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: d07a4aa80f9fdb8e5220c9ec8842a3d694df3ab29747a19229b13cd20b071990
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; it had no shell, so it ran no check and recomputed
+  no digest.
+- Quote digests were not computed, so each finding rests on reading and is an observation that never blocks.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the design-phase review notes of this task, so the reviewer was not fully context-clean
+  (the known gap of the harness2-fit ADR-002).
+- The reviewer ran in the same client as the Coder, so independence is I1, not I2.
+- Round 2 followed a rework of the subject extraction and of the README; the reviewer found the change by reading
+  the snapshot.
+applicability:
+  examined:
+  - src/orqlet/application/ports/vcs.py
+  - src/orqlet/adapters/git/vcs_git.py
+  - src/orqlet/application/usecases/conventions_check.py
+  - src/orqlet/interface/cli/commands/conventions.py
+  - src/orqlet/interface/cli/app.py
+  - src/orqlet/application/usecases/capabilities.py
+  - README.md
+  - tests/fakes/vcs.py
+  - tests/contract/test_vcs_commit_subjects_contract.py
+  - tests/unit/application/test_conventions_check.py
+  - tests/integration/test_conventions_cli.py
+  - tests/unit/test_readme_ci_snippet.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: '[minor] The shape check refuses C0 controls and DEL only, so a subject with a C1 control or U+2028 still
+    passes; the docstring of the new test says the check refuses it.'
+  suggested_action: Extend the rule in a later change or correct the docstring.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: tests
+  evidence: []
+  claim: '[minor] The per-id check_revision loop has no test that fails without it.'
+  suggested_action: Add a case with a junk rev-list line.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: tests
+  evidence: []
+  claim: '[minor] The separator vectors run on the port only, the list leaves out CR, GS, RS and U+2029, and the
+    byte pre-cut has no long non-ASCII test.'
+  suggested_action: Extend the vectors and add an integration case.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: compatibility
+  evidence: []
+  claim: A subject that ends in a carriage return is now refused as a control character.
+  suggested_action: Decide whether to tolerate one trailing CR.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: non-blocking
+  category: architecture
+  evidence: []
+  claim: '[minor] The reading of a commit object lives in vcs_git.py while the plan and component view say objects.py.'
+  suggested_action: Amend the plan.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: non-blocking
+  category: tests
+  evidence: []
+  claim: '[minor] The README advice to use a commit id is not pinned: the install rule refuses only moving names
+    and the reference snippet uses a tag.'
+  suggested_action: Accept a commit id or the placeholder only.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: info
+  category: docs
+  evidence: []
+  claim: The pre-cut factor has no comment and the port docstring says the first line.
+  suggested_action: One sentence each.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-8
+  kind: observation
+  severity: info
+  category: tests
+  evidence: []
+  claim: The full suite ran on 3.14.9 only.
+  suggested_action: Run it on 3.12 before merge.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read
+    how: MANIFEST, diff.patch, plan, test record, knowledge-impact record and the snapshot of the changed files
+    result: pass
+  - what: re-run of ruff, mypy, import-linter and pytest
+    how: no shell
+    result: not-run
+  - what: packet and record digests recomputed
+    how: no shell; hashes not computed
+    result: not-run

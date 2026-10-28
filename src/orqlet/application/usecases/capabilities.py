@@ -27,6 +27,7 @@ IMPLEMENTED_COMMANDS: frozenset[str] = frozenset(
         "resources remove",
         "resources attach",
         "resources list",
+        "conventions check",
         "standards for",
         "validate as-is",
         "validate design",
