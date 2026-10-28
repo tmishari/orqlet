@@ -29,13 +29,22 @@ Version 0.1.0. What is built and tested in this repository:
 - `init`, `upgrade`, `rollback`, `sync`, `doctor`, `explain`, `release` and `profile`;
 - the workflow skills, role definitions and rules for the three clients;
 - the validators and `gate status`, `evidence cite`, `evidence hash`, `knowledge impact` and
-  `review prepare`.
+  `review prepare`;
+- the registry of links to team resources (`resources add`, `update`, `remove`, `attach`, `list`,
+  `validate resources`), the conventions of the profile and `conventions check`, and the rules,
+  skills and `AGENTS.md` block that render them for the three clients.
 
 What is **not** built yet: `orqlet ci check` and the merge-time gate, local Git hooks, the
 knowledge index and module catalogue, and the MCP configuration. Approval cannot be verified by the
 tool today: `orqlet gate status <task>` always ends `NOT_RUN` for approval, because approval is meant
 to be a merge on the protected branch and that evidence comes from the code host. The generated files
 follow each client's published documentation; the tests check the files, not the clients.
+
+Orqlet itself opens no connection and reads no credential. A page is read by the client's own web
+tool, as the developer, under the section "Looking things up" of the baseline. That text is advice
+to the agent, not a control, and no check has shown that a client honours it: each client reports
+the capability limit ORQ-L006 for it. A person records the checks of the design (V-1 to V-8, V-10 and V-11) with a
+test account before a claim about a client is made.
 
 The full design is in
 [`docs/design/orqlet-architecture-proposal.md`](docs/design/orqlet-architecture-proposal.md); its
@@ -217,6 +226,53 @@ What is checked, and what is not:
   that has such a shape, but its scan is a list of known shapes and not a guarantee.
 - A path glob of a link cannot hold a space, `@`, a backtick or angle brackets, and a convention
   answer cannot hold `@`, a link, markup or a backtick.
+
+### Finding codes of the registry, the conventions and the check
+
+| Code | Meaning |
+|---|---|
+| ORQ-E500, E501, E502 | The registry cannot be read safely, fails its contract (a file that the strict loader refuses is reported here too), or is above 256 KiB |
+| ORQ-E503 | `init` (run again) or `upgrade` refuses an invalid registry, or one that is missing while the lock records it |
+| ORQ-E504 | A stored copy is missing, or is not a regular file that can be read |
+| ORQ-E505 | A stored copy differs from the SHA-256 recorded for it |
+| ORQ-E506 | A stored copy fails its header, hidden-text or credential check, is not valid UTF-8 or is above 64 KiB |
+| ORQ-E507 | Reserved: a login copy that is not a summary is reported as ORQ-E501, because the contract refuses it |
+| ORQ-E508 | An item under `docs/resources` is not a regular `<id>.md` named by an entry that records a copy |
+| ORQ-E509 | An edit command is refused (also a skipped link at `init`, as a warning) |
+| ORQ-E510 | `resources attach` for an entry behind a login needs a terminal |
+| ORQ-E511 | `evidence cite` refuses a file under `docs/design/*/evidence/web/` with a credential shape, a hidden character or more than 256 KiB; the file is already in a local commit, so amend it before a push |
+| ORQ-E520, E521 | A branch name is not allowed by the patterns; a commit subject has the wrong shape |
+| ORQ-W500 | A stored copy is past its time-to-live (advice: a hand edit of the record can hide it) |
+| ORQ-I500 | An entry behind a login: its page text goes to the client's model vendor |
+| ORQ-I501 | A copy whose entry is gone (Orqlet never deletes a copy) |
+| ORQ-I502, I503 | Conventions that are not recorded; conventions that only the host can enforce |
+| ORQ-I504 | `init` registered no links and says how to add them |
+| ORQ-I520 | The branch check was skipped because the branch is the target branch |
+| ORQ-L006 | Lookups on the web are requested by the baseline; how to opt out; documented and not observed |
+
+What stays with the team:
+
+- A stored copy and a link are text that three clients read as guidance. The scans catch known
+  shapes (token prefixes, a JWT, a private-key block, user information in an address, an
+  authorization value, a `key=value` pair, the shape of a browser storage-state file) and not every
+  secret: a PGP armor header, a cookie value and a short password are outside them. Review is the
+  control.
+- The freshness of a copy is advice. The hash and the time are bookkeeping: one pull request can
+  change both the file and its record.
+- The `access` of an entry and the `form` of a copy are labels that the team declares. A login
+  site registered as `public` escapes the summary-only rule, and nothing tells a summary from a
+  pasted page.
+- A client that has no web tool, or whose tool is off, gets only what a stored copy holds.
+- Taking a managed block out of `AGENTS.md` leaves one blank line behind.
+- The guard of `evidence cite` runs when a file is cited and not before: a file under
+  `evidence/web/` that is never cited is never scanned, `evidence hash` is not guarded, no CI step
+  walks the folder, and a design cites its evidence as `path:lines` strings. A file with invalid
+  UTF-8 and nothing else wrong is cited.
+- A stored copy has a licence and a permission of its own; the registry does not record either. A
+  convention answer such as the reviewers reaches `AGENTS.md`, so do not put a personal name in it
+  that the team does not want in the repository.
+- Keep a browser profile that agents use signed in only to the team's sites, and keep profile
+  folders out of Git.
 
 ## Development
 

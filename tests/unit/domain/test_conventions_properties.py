@@ -401,7 +401,9 @@ def test_the_phrase_with_one_character_added_or_removed_is_not_checkable(
         if operation == "insert"
         else written[:index] + written[index + 1 :]
     )
-    normalised = mutated.lower().replace(" ", "-").replace("_", "-")
+    # The answer is trimmed before it is read (ADR-003 decision 2), so a space added at either end
+    # leaves the phrase as it was. Found by Hypothesis in phase P-8; the P-1 test missed it.
+    normalised = mutated.strip().lower().replace(" ", "-").replace("_", "-")
     assume(normalised != _PHRASE)
 
     assert is_checkable_convention(mutated) is False

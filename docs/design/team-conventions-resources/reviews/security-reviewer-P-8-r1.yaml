@@ -1,0 +1,210 @@
+schema: orqlet.review-result/v1
+task: team-conventions-resources
+phase: P-8
+role: security-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 64ab1178ab83166a207b13581fedb42603cddace475d31a2d0f31898dc1a4049
+    design: bbe26a9596127dc8f6769bc5be680e6b959bf05f54b94d3ba598a6285fae43cb
+    evidence_inputs: 0706cffbfe08202756f5b296f410ca8d932d5f05338fc2b30678f3c898f555e4
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: cebd53df7986b17ae02bddb6ae1d32a654f8677fe04cef91c9ed71869782f0f1
+    reviewer_definition: adb518646f16cabf596e57830f19b79e9c2de39442b9ab0dc1f19123d71dab2c
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: c3af789a2d64939ff30c673810d963e30aec9af6c264aaebb0d06f46014ba337
+  merge_base: d03e0d435da186950583dd471e18ad07660cec51
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: 03556c914cc53a8d2d8bacb1ecc1d703d0e50d31ad2376f983d6098a398692df
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; it had no shell, so it ran no check and recomputed
+  no digest.
+- Quote digests were not computed, so each finding rests on reading and is an observation that never blocks.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the design-phase review notes of this task, so the reviewer was not fully context-clean
+  (the known gap of the harness2-fit ADR-002).
+- The reviewer ran in the same client as the Coder, so independence is I1, not I2.
+applicability:
+  examined:
+  - src/orqlet/workflow/baseline/baseline.md
+  - src/orqlet/workflow/skills/orqlet-onboard/skill.md
+  - src/orqlet/workflow/skills/orqlet-research/skill.md
+  - src/orqlet/workflow/skills/orqlet-design/skill.md
+  - src/orqlet/workflow/skills/orqlet-implement/skill.md
+  - src/orqlet/workflow/skills/orqlet-research/references/as-is-format.md
+  - src/orqlet/workflow/roles/orqlet-inventory.md
+  - src/orqlet/workflow/roles/orqlet-tracer.md
+  - src/orqlet/workflow/roles/orqlet-arch-reviewer.md
+  - src/orqlet/workflow/roles/orqlet-security-reviewer.md
+  - src/orqlet/workflow/roles/orqlet-tester.md
+  - src/orqlet/workflow/templates/resource-rule.md
+  - src/orqlet/workflow/templates/tool-skill.md
+  - src/orqlet/workflow/MANIFEST.json
+  - src/orqlet/workflow/identity.json
+  - src/orqlet/application/usecases/evidence_cite.py
+  - src/orqlet/adapters/clients/claude_code.py
+  - src/orqlet/adapters/clients/codex.py
+  - src/orqlet/adapters/clients/cursor.py
+  - README.md
+  - docs/design/orqlet-architecture-proposal.md
+  - tests/unit/test_workflow_lookup_text.py
+  - tests/unit/application/test_evidence_cite.py
+  - tests/unit/render/test_clients_golden.py
+  - tests/unit/render/test_skills.py
+  - tests/unit/domain/test_conventions_properties.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: docs
+  evidence: []
+  claim: '[minor] The Cursor and Claude Code opt-out texts call a setting documented without evidence in the packet.'
+  suggested_action: Say that it is not verified.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: docs
+  evidence: []
+  claim: '[minor] The Codex text omits that a full-access sandbox defaults to live.'
+  suggested_action: Add it.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: docs
+  evidence: []
+  claim: '[minor] No limit text says that the signed-in browser route is a separate tool and that the role sentence
+    is advice.'
+  suggested_action: Add one sentence per client.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: '[minor] The onboard step does not show the access class and does not relay ORQ-I500.'
+  suggested_action: Show and pass the access.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: non-blocking
+  category: standards
+  evidence: []
+  claim: '[minor] The implement step writes a file outside the phase''s list.'
+  suggested_action: Name the evidence folder as an exception.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: '[minor] The research step drops the published-technology and the login-yes conditions.'
+  suggested_action: Write them into the step.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: '[minor] Invalid UTF-8 with nothing else wrong is cited.'
+  suggested_action: Refuse it or state the choice.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-8
+  kind: observation
+  severity: non-blocking
+  category: docs
+  evidence: []
+  claim: '[minor] The limits of the guard are not in the README.'
+  suggested_action: State them.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-9
+  kind: observation
+  severity: non-blocking
+  category: failure-handling
+  evidence: []
+  claim: '[minor] The ORQ-E511 message has no remedy and an uncapped rule list.'
+  suggested_action: Add a remedy and a cap.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-10
+  kind: observation
+  severity: non-blocking
+  category: tests
+  evidence: []
+  claim: '[minor] Some baseline rules are not pinned and no test runs the guard over the real evidence files.'
+  suggested_action: Pin them and add the test later.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-11
+  kind: observation
+  severity: info
+  category: docs
+  evidence: []
+  claim: The query bullet read literally covers every address.
+  suggested_action: Reword.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-12
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: '[minor] The rule template says to read the page whenever a path matches, and the tool skill restates the
+    login rules in part.'
+  suggested_action: Say when your task needs it and list every item.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-13
+  kind: observation
+  severity: info
+  category: compatibility
+  evidence: []
+  claim: The version bump is present; releases.json cannot catch a text change at 0.3.x.
+  suggested_action: The person confirms the version.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read
+    how: MANIFEST, diff.patch, plan, test record, knowledge-impact record and the snapshot of the changed files
+    result: pass
+  - what: re-run of ruff, mypy, import-linter and pytest
+    how: no shell
+    result: not-run
+  - what: packet and record digests recomputed
+    how: no shell; hashes not computed
+    result: not-run

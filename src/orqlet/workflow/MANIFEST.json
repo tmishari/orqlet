@@ -3,7 +3,7 @@
   "files": [
     {
       "path": "baseline/baseline.md",
-      "sha256": "aff710c5ac8853ad09ea07c7bdb0ff240d8ba0b73160a552a5fe00fbac64de80"
+      "sha256": "a05153efe06d2f2684678c723a19f3c5ab1ed8166a13de20058cc5369527dc26"
     },
     {
       "path": "commands/doctor.md",
@@ -27,7 +27,7 @@
     },
     {
       "path": "identity.json",
-      "sha256": "0f3bad3653babb46c609f62ee9732e198e118063a1d2ef0bbc827ea20c85273e"
+      "sha256": "5e4af41ac4eaa3b30782228334d4b87947d7d9ec51488abe45d13e11e4d64ccd"
     },
     {
       "path": "pr_template/workflow-section.md",
@@ -35,23 +35,23 @@
     },
     {
       "path": "roles/orqlet-arch-reviewer.md",
-      "sha256": "5d05bcdd130b2cdbc54f79a3ef60bdeb914299ac05d5aa1b56b6f67b84da9409"
+      "sha256": "0f1345bb6155ca5f89fded65d5bde24b0952856d80ff918a07da887b1acfcad0"
     },
     {
       "path": "roles/orqlet-inventory.md",
-      "sha256": "7355c3aeeaf95f9eb265ae56ba80c214eca148a28a07da775beeaf6c4b3442c3"
+      "sha256": "03db5ec648d1cc72aee5c3ea06b9ff1e8d091d8dfdd7ab8a7efa3294dd1ffe49"
     },
     {
       "path": "roles/orqlet-security-reviewer.md",
-      "sha256": "b409b62fafe4c0ace0cd85bf7edbb4e2512187ce4a33bcc5e8cd60f7d60862f4"
+      "sha256": "bc530f72d045afcee06f263f81c10d066ef38c88941771d87fe4d38dbc1dafbb"
     },
     {
       "path": "roles/orqlet-tester.md",
-      "sha256": "faaac63c518885125b5f268d3dd47d8ff7ba6e118d171bf5a6428320ec3f764c"
+      "sha256": "331f73d331192129b380a26413bea6f5eb0615a483e6b62a37718dd1d5f544ff"
     },
     {
       "path": "roles/orqlet-tracer.md",
-      "sha256": "8403a74eefa9cafd2c58821f2e8f7a8f948b03fc5f5844107e6decfccce77fa6"
+      "sha256": "54756724ab2fdfe5755cafd9aa1a87047e7723dd05d27434291ae245efbcabb4"
     },
     {
       "path": "rules/orqlet-workflow.md",
@@ -215,15 +215,15 @@
     },
     {
       "path": "skills/orqlet-design/skill.md",
-      "sha256": "fce8db3135e61bccbe058d78c38fb101886c993d31d0edc91444b3e9a6851c16"
+      "sha256": "08942e94c4cb653d2e2607f686a91ce0d1fdcdb58d2ceaa6371c81d5a5fd820c"
     },
     {
       "path": "skills/orqlet-implement/skill.md",
-      "sha256": "8e906dea64d89e2fb185f38a06bc61c8307c289ae933f85629173c56d02779d3"
+      "sha256": "39aa1da7d5b2ff45c59292406d57f55d471078421cb3e0e0e87b439106b785b6"
     },
     {
       "path": "skills/orqlet-onboard/skill.md",
-      "sha256": "ae1a21dd938655a815c7b29edc74751912fab9473642dd5d918f1252a64921ac"
+      "sha256": "3a4e50fdeca166b1aa5770793383f8b77c2a1e7424bc30b457a26abc5ba10b69"
     },
     {
       "path": "skills/orqlet-plan/references/plan-format.md",
@@ -235,11 +235,11 @@
     },
     {
       "path": "skills/orqlet-research/references/as-is-format.md",
-      "sha256": "3ee724e614ba0e718d7d8a15024902c306403a01eb9d74ead8bbb842725ec014"
+      "sha256": "65bbd594c3f86e934f3069534914460d2d9b963db46d2928e82b00e1eeb218cd"
     },
     {
       "path": "skills/orqlet-research/skill.md",
-      "sha256": "84be5b0a5d933a9fefbe18f06dabc0fd895123519c84675059cf2dd6208c7575"
+      "sha256": "7a866d55b2f5004dbc12510811ba1c5986b2d700ca8957c282fede8e880b5395"
     },
     {
       "path": "skills/orqlet-review/references/review-format.md",
@@ -259,13 +259,13 @@
     },
     {
       "path": "templates/resource-rule.md",
-      "sha256": "991628325af0f19a05cfe67378c51f859f35c9884a926ed88de013fd3840e6d7"
+      "sha256": "e2b04aa7340565d5c392531bcd3c654913d37379f0ba42c8673feef4a32a4853"
     },
     {
       "path": "templates/tool-skill.md",
-      "sha256": "49ccd1297df96c952518dd1b1c608646477714c897d43c80195b77aa64bf017b"
+      "sha256": "2d18576606c5f8d4b3c37bea7aa7436f6db6cc14e7133d9e65c9cf868a849110"
     }
   ],
   "schema": "orqlet.workflow-manifest/v1",
-  "workflow_version": "0.3.1"
+  "workflow_version": "0.3.2"
 }

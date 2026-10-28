@@ -216,8 +216,9 @@ def test_before_the_records_exist_the_implement_skill_drops_the_steps_that_need_
     assert "/orqlet-review" not in implement.body
     assert "orqlet validate test" not in implement.body
     assert re.findall(r"^(\d+)\. ", implement.body, re.MULTILINE) == [
-        str(n) for n in range(1, 7)
-    ]  # three steps are gone and the list is numbered again without a gap
+        str(n) for n in range(1, 8)
+    ]  # three steps are gone (of 10) and the list is numbered again without a gap; the lookup
+    # step stays, because `resources list` is not one of the commands that came with the records
 
 
 def test_in_this_release_the_implement_skill_is_complete() -> None:
@@ -227,10 +228,10 @@ def test_in_this_release_the_implement_skill_is_complete() -> None:
     assert "no independent review" not in implement.body
 
 
-def test_with_every_command_the_implement_skill_has_all_nine_steps() -> None:
+def test_with_every_command_the_implement_skill_has_all_ten_steps() -> None:
     implement = next(s for s in request_with(EVERY_COMMAND).skills if s.name == "orqlet-implement")
 
-    assert re.findall(r"^(\d+)\. ", implement.body, re.MULTILINE) == [str(n) for n in range(1, 10)]
+    assert re.findall(r"^(\d+)\. ", implement.body, re.MULTILINE) == [str(n) for n in range(1, 11)]
     assert "orqlet knowledge impact" in implement.body
     assert "/orqlet-review" in implement.body
 

@@ -24,6 +24,18 @@ def _optional(file: RenderedFile | None) -> tuple[RenderedFile, ...]:
     return () if file is None else (file,)
 
 
+_WEB_LOOKUP_LIMIT = CapabilityLimit(
+    "ORQ-L006",
+    "Lookups on the web are requested by the baseline in every phase. A forked subagent "
+    "ignores the `tools` of a role and the tester inherits the web and browser tools, "
+    "so each role carries a sentence that forbids a lookup. To opt out, turn off the "
+    "web tool in the settings of the client if it offers one; whether and how is not "
+    "verified (check V-6) and not observed. The signed-in browser route is a separate "
+    "tool that this does not turn off, and the role sentence and the rule to open "
+    "registered addresses only are advice.",
+)
+
+
 class ClaudeCodeAdapter:
     client_id = "claude-code"
 
@@ -37,4 +49,4 @@ class ClaudeCodeAdapter:
             *(file for skill in request.skills for file in claude_skill_files(skill)),
             *(claude_role(role) for role in request.roles),
         )
-        return RenderResult(files=files, limits=(DOCUMENTATION_LIMIT,))
+        return RenderResult(files=files, limits=(DOCUMENTATION_LIMIT, _WEB_LOOKUP_LIMIT))

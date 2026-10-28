@@ -34,12 +34,22 @@ SKILL_FIELD_LIMIT = CapabilityLimit(
     "skills for the team's resources may be started by the agent and have no such file.",
 )
 
+_WEB_LOOKUP_LIMIT = CapabilityLimit(
+    "ORQ-L006",
+    "Lookups on the web are requested by the baseline in every phase. Codex "
+    "`web_search` defaults to `cached`, and to `live` under a full-access sandbox, so a "
+    "lookup may not see a current page. To opt out, turn the web search off in the "
+    "Codex configuration. This is documented and not observed. The signed-in browser "
+    "route is a separate tool that this does not turn off, and the role sentence and "
+    "the rule to open registered addresses only are advice.",
+)
+
 
 class CodexAdapter:
     client_id = "codex"
 
     def render(self, request: RenderRequest) -> RenderResult:
-        limits = [DOCUMENTATION_LIMIT]
+        limits = [DOCUMENTATION_LIMIT, _WEB_LOOKUP_LIMIT]
         if request.scoped_rules:
             limits.append(NO_PATH_RULES_LIMIT)
         if request.commands:
