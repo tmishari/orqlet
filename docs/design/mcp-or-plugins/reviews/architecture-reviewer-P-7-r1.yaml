@@ -1,0 +1,173 @@
+schema: orqlet.review-result/v1
+task: mcp-or-plugins
+phase: P-7
+role: architecture-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 2baa38efd1620611fd8e721c17d658f862a7ef6c935346e883081b6c212548c8
+    design: fb6c0a6f61fac66ff595624f194201b4a0bdd04febea332964afcae06f8fce98
+    evidence_inputs: 01030e610596c4168f63fe7fa21641f815f519b7ed80aa35c388b496052d1e86
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 0087e36e1b60db29914fa72d98433c3d7fbac32a7464364de907ea08aefaef8c
+    reviewer_definition: 4163e77c515dce4c8168220a3dda8e273455f3b0dc97c09b4ccb3b7657368f10
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 110383c6bd3f8457500f33e17f5c155cbce617a1bf229fca1a370bc121d8d0c1
+  merge_base: f76d775595a1f41ff1a0b97c499739e7c348b58e
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: d07a4aa80f9fdb8e5220c9ec8842a3d694df3ab29747a19229b13cd20b071990
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; it had no shell, so it ran no check and recomputed
+  no digest.
+- Quote digests were not computed, so each finding rests on reading and is an observation that never blocks.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the design-phase review notes of this task, so the reviewer was not fully context-clean
+  (the known gap of the harness2-fit ADR-002).
+- The reviewer ran in the same client as the Coder, so independence is I1, not I2.
+applicability:
+  examined:
+  - src/orqlet/workflow/rules/orqlet-workflow.md
+  - src/orqlet/workflow/rules/orqlet-workflow.meta.yaml
+  - src/orqlet/workflow/MANIFEST.json
+  - src/orqlet/workflow/identity.json
+  - tests/unit/test_workflow_rule_mcp_text.py
+  - tests/golden/claude-code/docs-2026-10/.claude/rules/orqlet-workflow.md
+  - tests/golden/cursor/docs-2026-10/.cursor/rules/orqlet-workflow.mdc
+  - tests/golden/claude-code/docs-2026-10/AGENTS.md
+  - tests/golden/codex/docs-2026-10/AGENTS.md
+  - tests/golden/cursor/docs-2026-10/AGENTS.md
+  - tests/golden/common/pr_template/existing-reconciled.md
+  - tests/golden/common/pr_template/new-with-team.md
+  - tests/golden/common/pr_template/new-workflow-only.md
+  - tests/golden/common/resources/conventions-block.md
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: docs
+  evidence: []
+  claim: '[minor] The new bullet says that only orqlet-* entries are restricted, but the built check reaches the
+    whole .mcp.json: a variable reference or a closed key anywhere turns validate, doctor and sync red; ADR-003
+    decision 7 prescribes the narrower wording and ADR-002 decision 6 the wider check.'
+  suggested_action: Reword to name the whole file; it needs a person's amendment of the design and, to avoid another
+    version, should be done while the bump is open.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: docs
+  evidence: []
+  claim: '[minor] The text drops the words this release, so a limit that belongs to this release reads as permanent.'
+  suggested_action: Add this release as the plan and ADR-003 decision 7 word it, and extend the test.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: docs
+  evidence: []
+  claim: 'Two sentences overstate for a project without a declaration: .mcp.json was seeded by Orqlet is false there,
+    and the check runs only in such a project is true of entry validation only, because doctor and sync can still
+    print the warning W530.'
+  suggested_action: Qualify as when Orqlet wrote it and say that a warning can appear without a declaration; check
+    the P-8 README agrees.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: non-blocking
+  category: standards
+  evidence: []
+  claim: '[minor] The plan''s check list and the test record for P-7 have no mypy and no import-linter result although
+    a new Python test file falls under strict mypy.'
+  suggested_action: Run mypy and import-linter before the pull request is ready (they ran in the project's checks
+    and passed).
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: docs
+  evidence: []
+  claim: Entry K-16 of the knowledge-impact record says compose was added; it existed at the base and EC-9 is a
+    change.
+  suggested_action: Correct the wording.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: info
+  category: docs
+  evidence: []
+  claim: The 19 candidates of the knowledge-impact record are cumulative and none is P-7's change; the record says
+    staged tree while it records committed HEAD.
+  suggested_action: State which tree was analysed.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: info
+  category: tests
+  evidence: []
+  claim: The record marks AC-3 (review of the golden diff) as pass although only a reviewer can establish that;
+    the nine diffs hold up, and the Cursor rule file also changes its description line, as AC-1 and the meta edit
+    imply.
+  suggested_action: None.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-8
+  kind: observation
+  severity: info
+  category: architecture
+  evidence: []
+  claim: The packet has no approval evidence for the plan or for the number 0.3.3.
+  suggested_action: A person confirms the plan's merge and chooses the version.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-9
+  kind: observation
+  severity: info
+  category: docs
+  evidence: []
+  claim: The first paragraph says every file under .orqlet/ is generated, while the new bullet names .orqlet/integrations.yaml,
+    a team-written file; the tension exists for other files under .orqlet/.
+  suggested_action: Word it as generated files under .orqlet/ in a later text change.
+  confidence: low
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read
+    how: MANIFEST, diff.patch, plan, test record, knowledge-impact record and the snapshot of the changed files
+    result: pass
+  - what: re-run of ruff, mypy, import-linter and pytest
+    how: no shell
+    result: not-run
+  - what: packet and record digests recomputed
+    how: no shell; hashes not computed
+    result: not-run

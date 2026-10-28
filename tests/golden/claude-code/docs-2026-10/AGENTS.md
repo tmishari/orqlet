@@ -1,4 +1,4 @@
-<!-- orqlet:begin baseline workflow@0.3.2#2a33305a98a8e6cf45fbf8a52316f5e30586ecb4106c42ac642b4647b08f8df1 -->
+<!-- orqlet:begin baseline workflow@0.3.3#2a33305a98a8e6cf45fbf8a52316f5e30586ecb4106c42ac642b4647b08f8df1 -->
 ## Orqlet baseline
 
 These statements apply to every task in this repository. Orqlet writes them. A project may add to them and may never relax them. If a role's output contract or a phase restriction conflicts with the advice below, the contract and the restriction win. A role that only reports facts never proposes, recommends or refactors.

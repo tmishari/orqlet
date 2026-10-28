@@ -1,6 +1,6 @@
 schema: orqlet.workflow-rule/v1
 name: workflow
-description: Files that Orqlet writes are generated; change their source, not the file.
+description: Files that Orqlet generates are changed at their source; files that it seeded, such as .mcp.json, belong to the team.
 paths:
   - ".orqlet/**"
   - ".claude/**"

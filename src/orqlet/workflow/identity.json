@@ -1,5 +1,5 @@
 {
   "controls_level": 3,
   "schema": "orqlet.workflow-identity/v1",
-  "workflow_version": "0.3.2"
+  "workflow_version": "0.3.3"
 }

@@ -1,0 +1,150 @@
+schema: orqlet.review-result/v1
+task: mcp-or-plugins
+phase: P-7
+role: security-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 2baa38efd1620611fd8e721c17d658f862a7ef6c935346e883081b6c212548c8
+    design: fb6c0a6f61fac66ff595624f194201b4a0bdd04febea332964afcae06f8fce98
+    evidence_inputs: 01030e610596c4168f63fe7fa21641f815f519b7ed80aa35c388b496052d1e86
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 0087e36e1b60db29914fa72d98433c3d7fbac32a7464364de907ea08aefaef8c
+    reviewer_definition: adb518646f16cabf596e57830f19b79e9c2de39442b9ab0dc1f19123d71dab2c
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 023ab6344552f6ed1aee895f55a7159099821f9b918ccb62c33e95baedc91b99
+  merge_base: f76d775595a1f41ff1a0b97c499739e7c348b58e
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: 03556c914cc53a8d2d8bacb1ecc1d703d0e50d31ad2376f983d6098a398692df
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; it had no shell, so it ran no check and recomputed
+  no digest.
+- Quote digests were not computed, so each finding rests on reading and is an observation that never blocks.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the design-phase review notes of this task, so the reviewer was not fully context-clean
+  (the known gap of the harness2-fit ADR-002).
+- The reviewer ran in the same client as the Coder, so independence is I1, not I2.
+applicability:
+  examined:
+  - src/orqlet/workflow/rules/orqlet-workflow.md
+  - src/orqlet/workflow/rules/orqlet-workflow.meta.yaml
+  - src/orqlet/workflow/MANIFEST.json
+  - src/orqlet/workflow/identity.json
+  - tests/unit/test_workflow_rule_mcp_text.py
+  - tests/golden/claude-code/docs-2026-10/.claude/rules/orqlet-workflow.md
+  - tests/golden/cursor/docs-2026-10/.cursor/rules/orqlet-workflow.mdc
+  - tests/golden/claude-code/docs-2026-10/AGENTS.md
+  - tests/golden/codex/docs-2026-10/AGENTS.md
+  - tests/golden/cursor/docs-2026-10/AGENTS.md
+  - tests/golden/common/pr_template/existing-reconciled.md
+  - tests/golden/common/pr_template/new-with-team.md
+  - tests/golden/common/pr_template/new-workflow-only.md
+  - tests/golden/common/resources/conventions-block.md
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: docs
+  evidence: []
+  claim: '[minor] The new rule text says that the check covers only orqlet-* entries; the validator checks the whole
+    MCP file and a team entry with a variable reference is an error, so the text understates the control.'
+  suggested_action: Reword the bullet to say that the check reads the whole file; the wording is also in ADR-003
+    decision 7, so it needs the person's approval.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: '[minor] The declaration is scanned as raw text only and only after the contract passes, so a YAML escape
+    hides a credential from the scan (carried from P-3).'
+  suggested_action: Scan a re-serialisation or state the limit in the P-8 README and ADR-002 decision 7.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: failure-handling
+  evidence: []
+  claim: When the declaration fails to load, doctor, sync and validate return only its errors and read no MCP file
+    until it is fixed.
+  suggested_action: Confirm that it is intended; the run still exits non-zero.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: failure-handling
+  evidence: []
+  claim: Every size cap is applied after the whole file is read; doctor and sync read the declaration and three
+    MCP files on every run.
+  suggested_action: A bounded read in the port is a repository-wide choice for the person.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: non-blocking
+  category: tests
+  evidence: []
+  claim: '[minor] The test record is claimed evidence, marks AC-3 pass before its review ran, records the other
+    Python versions as one sentence and has no mypy or import-linter entry.'
+  suggested_action: Record AC-3 as not run until a review exists and each Python version as a command.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: info
+  category: docs
+  evidence: []
+  claim: The first paragraph says everything under .orqlet/ is generated; the new bullet names the team-written
+    declaration there.
+  suggested_action: Clarify in a later text change or in the README.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: info
+  category: compatibility
+  evidence: []
+  claim: Contract v1 was tightened in place and an invalid declaration refuses the whole upgrade, so a declaration
+    written under the looser contract blocks upgrade.
+  suggested_action: Say so in the P-8 README and the release note.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read
+    how: MANIFEST, diff.patch, plan, test record, knowledge-impact record and the snapshot of the changed files
+    result: pass
+  - what: re-run of ruff, mypy, import-linter and pytest
+    how: no shell
+    result: not-run
+  - what: packet and record digests recomputed
+    how: no shell; hashes not computed
+    result: not-run
