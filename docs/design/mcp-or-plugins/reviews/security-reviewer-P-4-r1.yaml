@@ -1,0 +1,107 @@
+schema: orqlet.review-result/v1
+task: mcp-or-plugins
+phase: P-4
+role: security-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: bd643ebfe42afb115b0f37bef1e0b8cf0adb0ed09a46d760a93c490aab2a3b33
+    design: fb6c0a6f61fac66ff595624f194201b4a0bdd04febea332964afcae06f8fce98
+    evidence_inputs: 45b38732ad4bfb98348257f8b4d75f1b1800ffd4ace151923868f6b31c138f32
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 0087e36e1b60db29914fa72d98433c3d7fbac32a7464364de907ea08aefaef8c
+    reviewer_definition: adb518646f16cabf596e57830f19b79e9c2de39442b9ab0dc1f19123d71dab2c
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 072a4a05dc51f38e643624066efe472bce59dc59c920815661f22e123a3f3db2
+  merge_base: f76d775595a1f41ff1a0b97c499739e7c348b58e
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: 03556c914cc53a8d2d8bacb1ecc1d703d0e50d31ad2376f983d6098a398692df
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; it had no shell, so it ran no check and recomputed
+  no digest.
+- Quote digests were not computed, so each finding rests on reading and is an observation that never blocks.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the design-phase review notes of this task, so the reviewer was not fully context-clean
+  (the known gap of the harness2-fit ADR-002).
+- The reviewer ran in the same client as the Coder, so independence is I1, not I2.
+applicability:
+  examined:
+  - src/orqlet/domain/changeplan.py
+  - tests/unit/domain/test_changeplan_mcp_guard.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: tests
+  evidence: []
+  claim: '[minor] The guard fails open for a client that is added to the table of MCP paths but not to the guard''s
+    list, and the tests that should catch the drift compare with a hard-coded roster.'
+  suggested_action: Let the divergence tests read the keys of the private table of paths so that a fourth client
+    fails them.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: '[minor] The declaration is scanned as raw text only; a YAML escape or a folded line can hide a credential,
+    and ADR-002 decision 7 states no YAML limit.'
+  suggested_action: Scan a re-serialisation of the loaded data or state the limit in ADR-002 and the P-8 README.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: failure-handling
+  evidence: []
+  claim: The 256 KiB cap is applied after the whole file is read, now on the default path of doctor and sync.
+  suggested_action: A bounded read in the port is a repository-wide choice for the person.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: ORQ-E535 and ORQ-E536 print the declared server id against the docstring that a finding never repeats a
+    value.
+  suggested_action: Name the server by position or amend the docstring and ADR-002 decision 9.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read
+    how: MANIFEST, diff.patch, plan, test record, knowledge-impact record and the snapshot of the changed files
+    result: pass
+  - what: re-run of ruff, mypy, import-linter and pytest
+    how: no shell
+    result: not-run
+  - what: packet and record digests recomputed
+    how: no shell; hashes not computed
+    result: not-run

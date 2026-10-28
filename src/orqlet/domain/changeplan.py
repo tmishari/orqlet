@@ -24,11 +24,18 @@ from orqlet.domain.blocks import (
 from orqlet.domain.classify import FileState, classify
 from orqlet.domain.digest import digest_of, sha256_hex
 from orqlet.domain.errors import OrqletError
+from orqlet.domain.mcp_credentials import mcp_file_path
 from orqlet.domain.ownership import FileClass, OwnerMode
 from orqlet.domain.paths import CanonicalPath
 
 PROPOSALS_DIR = CanonicalPath.parse(".orqlet/proposals")
 _MAX_PROPOSAL_NAME = 150
+# The MCP file of a client may hold a credential that its team pasted there. A proposal is a diff
+# against the existing file, so it would copy that file into a new one: for these paths it is a diff
+# against nothing and shows only the text that Orqlet wants (ADR-003 decision 5). The test of the
+# guard compares this tuple with the clients for which `mcp_file_path` gives a path.
+_MCP_CLIENTS = ("claude-code", "codex", "cursor")
+_MCP_KEYS = frozenset(CanonicalPath.parse(mcp_file_path(client)).key for client in _MCP_CLIENTS)
 
 
 class PlanError(OrqletError):
@@ -372,6 +379,8 @@ class _Builder:
         self, path: CanonicalPath, block: str | None, shown: bytes | None, wanted: bytes
     ) -> None:
         target = proposal_path(path, block)
+        if path.key in _MCP_KEYS:
+            shown = None  # whichever branch asks: no byte of the team's MCP file is copied
         text = _unified_diff(path, shown, wanted).encode("utf-8")
         before = self._current.get(target)
         if before != text:
