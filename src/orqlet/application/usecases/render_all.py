@@ -349,6 +349,7 @@ _OWNED_PATHS = (
     (".cursor", ".cursor/**"),
     (".agents", ".agents/**"),
     (".codex", ".codex/**"),
+    (".mcp.json", ".mcp.json"),
 )
 
 
@@ -400,7 +401,8 @@ def environment_findings(services: Services, prompts_dir: str) -> list[Finding]:
                 "ORQ-I030",
                 "Add these paths to CODEOWNERS (`<path> <owners>`) so that changes to the "
                 "standards, the registry of links and its stored copies, the generated agent "
-                f"files and the workflows are reviewed by their owners: {', '.join(unowned)}.",
+                "files, the MCP configuration and the workflows are reviewed by their owners: "
+                f"{', '.join(unowned)}.",
                 Severity.INFO,
             )
         )

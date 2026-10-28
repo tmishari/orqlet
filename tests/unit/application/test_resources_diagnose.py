@@ -727,12 +727,25 @@ def test_the_empty_folder_is_the_only_thing_that_the_change_ignores() -> None:
 def test_doctor_names_the_registry_the_copies_the_generated_paths_and_the_workflows() -> None:
     """AC-8. expected_behavior_source: AC-8 ("The code-owners notice ORQ-I030 names the registry,
     the stored copies, the generated paths and the workflow files when no CODEOWNERS entry mentions
-    them") and ADR-002 decision 11 ("`doctor` extends the code-owners notice (ORQ-I030)")."""
+    them") and ADR-002 decision 11 ("`doctor` extends the code-owners notice (ORQ-I030)").
+
+    AC-1 of P-6 (mcp-or-plugins). expected_behavior_source: ADR-003 decision 8 ("this change adds
+    `.mcp.json` to that list (`_OWNED_PATHS` in `render_all.py`) and the words \"the MCP
+    configuration\" to its text ... The finding therefore changes for every project, with or
+    without a declaration"): `doctor` names `.mcp.json` and the MCP configuration, and the finding
+    stays an information finding."""
     result = diagnose(initialised())
 
     text = " ".join(f.message for f in result.findings if f.code == "ORQ-I030")
-    for path in (".orqlet/**", "docs/resources/**", ".github/workflows/**", "AGENTS.md"):
+    for path in (
+        ".orqlet/**",
+        "docs/resources/**",
+        ".github/workflows/**",
+        "AGENTS.md",
+        ".mcp.json",
+    ):
         assert path in text, path
+    assert "the MCP configuration" in text
     assert all(f.severity is Severity.INFO for f in result.findings if f.code == "ORQ-I030")
 
 

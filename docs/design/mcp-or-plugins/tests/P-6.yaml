@@ -1,0 +1,44 @@
+schema: orqlet.test-record/v1
+task: mcp-or-plugins
+phase: P-6
+review_input:
+  components:
+    code_tests: c7bc34869606938c708d0acbe0f8047535244d3ed9caf43a5056bc1a98fd4a3c
+    plan: 0087e36e1b60db29914fa72d98433c3d7fbac32a7464364de907ea08aefaef8c
+  covers:
+  - code_tests
+  - plan
+  digest: 9253296406f7f63c162198660f598e6155db5594f66832b942ffb8df9244b089
+  merge_base: f76d775595a1f41ff1a0b97c499739e7c348b58e
+  schema: orqlet.review-input/v1
+verdict: PASS
+evidence_kind: claimed
+commands:
+- id: ruff-check
+  exit_code: 0
+  summary: All checks passed!
+  result_digest: 5b196eb3a6acb50d3fa398d04ca284985cc1ffec870e940264b00780bfd2c971
+- id: ruff-format
+  exit_code: 0
+  summary: 516 files already formatted
+  result_digest: f88968173c895ea7908cb06ac37064c0c779d82a4ae96f6d1ecdb543fee1eb8e
+- id: mypy
+  exit_code: 0
+  summary: 'Success: no issues found in 343 source files'
+  result_digest: 20a34e579b365382a5e848ce63a891e1b539600f6deb782e520ce43304d1de64
+- id: import-linter
+  exit_code: 0
+  summary: 'Contracts: 5 kept, 0 broken.'
+  result_digest: afd56a6d97e0c84374cb15e134f4d094a29f7535fe3df11326bba3f935aa85a3
+- id: pytest
+  exit_code: 0
+  summary: 7625 passed, 1 skipped in 791.67s (0:13:11) on Python 3.14.9; the new and changed tests also passed on
+    Python 3.12.11
+  result_digest: 8b775cbf7b9fe465950393144e3c69c4dc7c426e5e29f92372c9519d57e955ab
+acceptance_coverage:
+- ac: AC-1
+  check_ref: pytest
+  result: pass
+- ac: AC-2
+  check_ref: architecture-reviewer
+  result: pass

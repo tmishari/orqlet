@@ -996,18 +996,60 @@ def test_a_value_that_fails_the_text_rules_is_left_out_of_every_file_and_reporte
 # --- AC-8: the code-owners notice -----------------------------------------------------------------
 
 
-NOTICE_PATHS = (".orqlet/**", "docs/resources/**", ".github/workflows/**", "AGENTS.md")
+NOTICE_PATHS = (
+    ".orqlet/**",
+    "docs/resources/**",
+    ".github/workflows/**",
+    "AGENTS.md",
+    ".mcp.json",
+)
+# The words that the text of ORQ-I030 gains with `.mcp.json` (mcp-or-plugins, ADR-003 decision 8).
+NOTICE_WORDS = "the MCP configuration"
+# The folders that a CODEOWNERS file can mention; the files (`AGENTS.md`, `.mcp.json`) are passed
+# to `codeowners_mentioning` one by one.
+OWNED_FOLDERS = (
+    ".prompts",
+    ".orqlet",
+    "docs/resources",
+    ".github/workflows",
+    ".claude",
+    ".claude/rules",
+    ".claude/skills",
+    ".claude/agents",
+    ".cursor",
+    ".cursor/rules",
+    ".cursor/agents",
+    ".agents",
+    ".agents/skills",
+    ".codex",
+    ".codex/agents",
+)
 
 
 def notice_text(result: InitResult | UpgradeResult) -> str:
     return " ".join(f.message for f in result.findings if f.code == "ORQ-I030")
 
 
+def codeowners_mentioning(*files: str) -> bytes:
+    """A CODEOWNERS file that mentions each folder in the folder form and in the glob form, and
+    each of `files` as a file path."""
+    lines = [f"/{name}/ @team" for name in OWNED_FOLDERS]
+    lines += [f"{name}/** @team" for name in OWNED_FOLDERS]
+    lines += [f"/{name} @team" for name in files]
+    return ("\n".join(lines) + "\n").encode()
+
+
 def test_the_codeowners_notice_names_the_new_paths() -> None:
     """AC-8. expected_behavior_source: AC-8 ("The code-owners notice ORQ-I030 names the registry,
     the stored copies, the generated paths and the workflow files when no CODEOWNERS entry mentions
     them") and ADR-002 decision 11 (`.orqlet/**`, `docs/resources/**`, "the generated rule, skill
-    and `AGENTS.md` paths and `.github/workflows/**`")."""
+    and `AGENTS.md` paths and `.github/workflows/**`").
+
+    AC-1 of P-6 (mcp-or-plugins). expected_behavior_source: ADR-003 decision 8 ("this change adds
+    `.mcp.json` to that list (`_OWNED_PATHS` in `render_all.py`) and the words \"the MCP
+    configuration\" to its text ... The finding therefore changes for every project, with or
+    without a declaration"): `init` names `.mcp.json` and the MCP configuration in a project that
+    holds no declaration, and the finding stays an information finding."""
     env = Env(project=repo("uv_fastapi"), vcs=FakeVcs(RepoState.HAS_COMMITS, branch="main"))
 
     result = init_project(env.services(), YES)
@@ -1018,6 +1060,7 @@ def test_the_codeowners_notice_names_the_new_paths() -> None:
     text = notice_text(result)
     for path in (*NOTICE_PATHS, ".prompts"):
         assert path in text, path
+    assert NOTICE_WORDS in text
     assert any(root in text for root in (".claude/", ".cursor/", ".agents/", ".codex/"))
     assert not any("CODEOWNERS" in name for name in tree(env.project))
 
@@ -1025,37 +1068,45 @@ def test_the_codeowners_notice_names_the_new_paths() -> None:
 def test_the_codeowners_notice_is_silent_when_a_codeowners_entry_mentions_every_path() -> None:
     """AC-8. expected_behavior_source: AC-8 ("when no CODEOWNERS entry mentions them") and ADR-002
     decision 11. The file mentions each path in the folder form and in the glob form: the unit
-    under test decides what 'mentions' means, so the test gives it every reading."""
+    under test decides what 'mentions' means, so the test gives it every reading.
+
+    AC-1 of P-6 (mcp-or-plugins). expected_behavior_source: ADR-003 decision 8 (`.mcp.json` joins
+    the list that a CODEOWNERS file should cover): the file of this test also mentions
+    `.mcp.json`, so that the finding is silent when every path of the list is mentioned."""
     env = Env(project=repo("uv_fastapi"), vcs=FakeVcs(RepoState.HAS_COMMITS, branch="main"))
-    owned = (
-        ".prompts",
-        ".orqlet",
-        "docs/resources",
-        ".github/workflows",
-        ".claude",
-        ".claude/rules",
-        ".claude/skills",
-        ".claude/agents",
-        ".cursor",
-        ".cursor/rules",
-        ".cursor/agents",
-        ".agents",
-        ".agents/skills",
-        ".codex",
-        ".codex/agents",
+    env.project.write_atomic(
+        path_of(".github/CODEOWNERS"), codeowners_mentioning("AGENTS.md", ".mcp.json")
     )
-    lines = [f"/{name}/ @team" for name in owned] + [f"{name}/** @team" for name in owned]
-    lines.append("/AGENTS.md @team")
-    env.project.write_atomic(path_of(".github/CODEOWNERS"), ("\n".join(lines) + "\n").encode())
 
     result = init_project(env.services(), YES)
 
     assert "ORQ-I030" not in codes(result.findings)
 
 
+def test_a_codeowners_file_without_the_mcp_configuration_does_not_silence_the_notice() -> None:
+    """AC-1 of P-6 (mcp-or-plugins). expected_behavior_source: ADR-003 decision 8 (`.mcp.json` is
+    added to the list that ORQ-I030 shows "for every project, with or without a declaration") and
+    AC-1 ("lists .mcp.json among the paths when no CODEOWNERS file mentions it"): a file that
+    mentions every other path of the list leaves ORQ-I030 in place and the finding names
+    `.mcp.json`, so the new entry is part of the list. That the finding also leaves out the paths
+    that the file does mention is deliberately not pinned (see the head of this file)."""
+    env = Env(project=repo("uv_fastapi"), vcs=FakeVcs(RepoState.HAS_COMMITS, branch="main"))
+    env.project.write_atomic(path_of(".github/CODEOWNERS"), codeowners_mentioning("AGENTS.md"))
+
+    result = init_project(env.services(), YES)
+
+    notice = [finding for finding in result.findings if finding.code == "ORQ-I030"]
+    assert notice
+    assert all(finding.severity is Severity.INFO for finding in notice)
+    assert ".mcp.json" in notice_text(result)
+
+
 def test_the_codeowners_notice_of_an_upgrade_names_the_same_paths() -> None:
     """AC-8. expected_behavior_source: ADR-002 decision 11 (one notice, extended; `init`, `upgrade`
-    and `doctor` all raise it through `environment_findings`)."""
+    and `doctor` all raise it through `environment_findings`).
+
+    AC-1 of P-6 (mcp-or-plugins). expected_behavior_source: ADR-003 decision 8 (`.mcp.json` and
+    "the MCP configuration" join the one finding, so `upgrade` names them as `init` does)."""
     env = initialised()
 
     result = upgrade(env.services(), UpgradeOptions(check=True))
@@ -1063,3 +1114,4 @@ def test_the_codeowners_notice_of_an_upgrade_names_the_same_paths() -> None:
     text = notice_text(result)
     for path in NOTICE_PATHS:
         assert path in text, path
+    assert NOTICE_WORDS in text

@@ -1,0 +1,145 @@
+schema: orqlet.review-result/v1
+task: mcp-or-plugins
+phase: P-6
+role: architecture-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: c7bc34869606938c708d0acbe0f8047535244d3ed9caf43a5056bc1a98fd4a3c
+    design: fb6c0a6f61fac66ff595624f194201b4a0bdd04febea332964afcae06f8fce98
+    evidence_inputs: 4d0174c9c28ba3ea412ff656db5fbf17587cd3d7289ee9baae9eb077a20a901c
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 0087e36e1b60db29914fa72d98433c3d7fbac32a7464364de907ea08aefaef8c
+    reviewer_definition: 4163e77c515dce4c8168220a3dda8e273455f3b0dc97c09b4ccb3b7657368f10
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 31f4b6122b89310ac03d7630c9e3f96434f0cf36933383dc86c64b643b9c6520
+  merge_base: f76d775595a1f41ff1a0b97c499739e7c348b58e
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: d07a4aa80f9fdb8e5220c9ec8842a3d694df3ab29747a19229b13cd20b071990
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; it had no shell, so it ran no check and recomputed
+  no digest.
+- Quote digests were not computed, so each finding rests on reading and is an observation that never blocks.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the design-phase review notes of this task, so the reviewer was not fully context-clean
+  (the known gap of the harness2-fit ADR-002).
+- The reviewer ran in the same client as the Coder, so independence is I1, not I2.
+applicability:
+  examined:
+  - src/orqlet/application/usecases/render_all.py
+  - tests/unit/application/test_resources_composition.py
+  - tests/unit/application/test_resources_diagnose.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: tests
+  evidence: []
+  claim: '[minor] AC-1 says the notice is silent for init, upgrade and doctor; the silent case and the missing-.mcp.json
+    case are tested through init only, and the severity is asserted for init and doctor, not upgrade.'
+  suggested_action: Run both cases through upgrade and doctor, or accept coverage through the shared environment_findings.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: standards
+  evidence: []
+  claim: '[minor] The record shows the full suite on 3.14.9 and the new tests on 3.12.11, not all checks on 3.12.'
+  suggested_action: Run the full suite on 3.12 before merge or rely on the CI matrix.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: standards
+  evidence: []
+  claim: '[minor] The packet shows no approval evidence for the plan; the plan header says draft.'
+  suggested_action: A person confirms that the plan's pull request merged.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: tests
+  evidence: []
+  claim: AC-2 holds; the test file moves the inline owned tuple into a module constant and a helper and adds one
+    negative test, without weakening any expectation.
+  suggested_action: None.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: architecture
+  evidence: []
+  claim: The diff is cumulative; the three files of the P-6 list are present and no P-6 change falls outside them.
+  suggested_action: None.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: info
+  category: compatibility
+  evidence: []
+  claim: The text of ORQ-I030 and its path list change for every project, with or without a declaration, as ADR-003
+    decision 8 accepts.
+  suggested_action: None.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: info
+  category: docs
+  evidence: []
+  claim: The knowledge-impact record restates the candidates of P-5 and names nothing of P-6; the README still says
+    the MCP configuration is not built until P-8.
+  suggested_action: None for P-6; do not release between P-5 and P-8.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-8
+  kind: observation
+  severity: info
+  category: correctness
+  evidence: []
+  claim: _unowned_paths decides mentioned by substring, so any CODEOWNERS text that contains .mcp.json silences
+    the entry; unchanged and equal for AGENTS.md.
+  suggested_action: A later change could match whole path tokens.
+  confidence: low
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read
+    how: MANIFEST, diff.patch, plan, test record, knowledge-impact record and the snapshot of the changed files
+    result: pass
+  - what: re-run of ruff, mypy, import-linter and pytest
+    how: no shell
+    result: not-run
+  - what: packet and record digests recomputed
+    how: no shell; hashes not computed
+    result: not-run

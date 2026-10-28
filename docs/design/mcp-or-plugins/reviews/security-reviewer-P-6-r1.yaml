@@ -1,0 +1,134 @@
+schema: orqlet.review-result/v1
+task: mcp-or-plugins
+phase: P-6
+role: security-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: c7bc34869606938c708d0acbe0f8047535244d3ed9caf43a5056bc1a98fd4a3c
+    design: fb6c0a6f61fac66ff595624f194201b4a0bdd04febea332964afcae06f8fce98
+    evidence_inputs: 4d0174c9c28ba3ea412ff656db5fbf17587cd3d7289ee9baae9eb077a20a901c
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 0087e36e1b60db29914fa72d98433c3d7fbac32a7464364de907ea08aefaef8c
+    reviewer_definition: adb518646f16cabf596e57830f19b79e9c2de39442b9ab0dc1f19123d71dab2c
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: afe9351768296180710281371b0b2f7df0c4ee11afd7a2ced0ececf3de2debe4
+  merge_base: f76d775595a1f41ff1a0b97c499739e7c348b58e
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: 03556c914cc53a8d2d8bacb1ecc1d703d0e50d31ad2376f983d6098a398692df
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; it had no shell, so it ran no check and recomputed
+  no digest.
+- Quote digests were not computed, so each finding rests on reading and is an observation that never blocks.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the design-phase review notes of this task, so the reviewer was not fully context-clean
+  (the known gap of the harness2-fit ADR-002).
+- The reviewer ran in the same client as the Coder, so independence is I1, not I2.
+applicability:
+  examined:
+  - src/orqlet/application/usecases/render_all.py
+  - tests/unit/application/test_resources_composition.py
+  - tests/unit/application/test_resources_diagnose.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: '[minor] The notice is silenced by any occurrence of the string in any CODEOWNERS text, including a comment;
+    .cursor/mcp.json and .codex/config.toml depend on the substrings .cursor and .codex.'
+  suggested_action: State in the P-8 README that the notice is a substring hint, not a check of ownership.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: tests
+  evidence: []
+  claim: '[minor] The silent case is tested through init only although AC-1 names init, upgrade and doctor.'
+  suggested_action: Add the cases for upgrade and doctor or narrow AC-1.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: tests
+  evidence: []
+  claim: '[minor] The test record marks AC-2 as pass with the architecture reviewer as its check before that review
+    had a result.'
+  suggested_action: Record AC-2 as not run until the review exists.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: failure-handling
+  evidence: []
+  claim: Every size cap is applied after the whole file is read; doctor and sync now read the declaration and three
+    MCP files in every initialised project.
+  suggested_action: A bounded read in the port is a repository-wide choice for the person.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: The declaration is scanned as raw text only (carried from P-3).
+  suggested_action: Scan a re-serialisation or state the limit in the P-8 README.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: An undeclared entry whose name does not start with orqlet- is counted, not examined, by design.
+  suggested_action: Make sure the P-8 README names this case among the routes that Orqlet does not examine.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: info
+  category: tests
+  evidence: []
+  claim: The plan says all checks pass on Python 3.12; the record shows the full suite on 3.14.9 only.
+  suggested_action: Run the full suite on 3.12 in CI before merge.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read
+    how: MANIFEST, diff.patch, plan, test record, knowledge-impact record and the snapshot of the changed files
+    result: pass
+  - what: re-run of ruff, mypy, import-linter and pytest
+    how: no shell
+    result: not-run
+  - what: packet and record digests recomputed
+    how: no shell; hashes not computed
+    result: not-run
