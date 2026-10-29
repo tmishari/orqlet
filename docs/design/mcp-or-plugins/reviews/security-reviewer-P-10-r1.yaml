@@ -1,0 +1,157 @@
+schema: orqlet.review-result/v1
+task: mcp-or-plugins
+phase: P-10
+role: security-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 56ae386f93f174ff83aa5ee6d374fb0a16e224c7dda475ed48b239f46529cd81
+    design: fb6c0a6f61fac66ff595624f194201b4a0bdd04febea332964afcae06f8fce98
+    evidence_inputs: 8133d73f6c6cc5b2db839f603ea3a1befaadabb01ecf03e5fed2aeb4e7922359
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 0087e36e1b60db29914fa72d98433c3d7fbac32a7464364de907ea08aefaef8c
+    reviewer_definition: d4aae7298a966562e2bbb5ea222fa6898e03b5f9358d39c599ffaed78d8c2cb9
+    standards: d8fcc2fc2afba1ea19064aa6b45cdb1c83aaacafb5f36ada7f580b1976d2f889
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 2048aa38bf774054802dbdc203cdaee1749dfef414cc38c88c995be27f7d244b
+  merge_base: f76d775595a1f41ff1a0b97c499739e7c348b58e
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: f55870ff58dd4289e1f98b54d68741b0dc0c3d806a5a4068124642ce676d98e3
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; it had no shell, so it ran no check and recomputed
+  no digest.
+- Quote digests were not computed, so each finding rests on reading and is an observation that never blocks.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the design-phase review notes of this task, so the reviewer was not fully context-clean
+  (the known gap of the harness2-fit ADR-002).
+- The reviewer ran in the same client as the Coder, so independence is I1, not I2.
+- The packet diff is cumulative from the merge base, so the reviewer scoped the review to the file list of the phase.
+- The packet holds the earlier review records of this task, so the reviewer was not context-clean.
+- No output of the three commands, no journal and no backup of the upgrade was in the packet, so the reviewer could
+  not re-derive the claims about them.
+applicability:
+  examined:
+  - .orqlet/generated.lock.yaml
+  - .orqlet/workflow.lock
+  - .orqlet/resources.yaml
+  - .orqlet/proposals/.orqlet__versions.yaml.diff
+  - .claude/rules/orqlet-workflow.md
+  - .cursor/rules/orqlet-workflow.mdc
+  - .github/pull_request_template.md
+  - AGENTS.md
+  - docs/design/mcp-or-plugins/knowledge/P-10.yaml
+  - docs/design/mcp-or-plugins/tests/P-10.yaml
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: The 256 KiB cap is applied after the whole file is read, and doctor and sync now read the three MCP files
+    in every project; ADR-002 decision 8 accepts this.
+  suggested_action: A bounded read on the port in a later change.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: failure-handling
+  evidence: []
+  claim: _compare returns no finding when rendered_entry raises, so it fails open; this is unreachable today because
+    the loader refuses every combination that rendered_entry refuses.
+  suggested_action: Return an error finding for that branch or pin the invariant with a test.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: The guarantee that no byte of an MCP file reaches a backup has one exception, a pull-request template target
+    that names an MCP path; the README states it and the code does not guard it.
+  suggested_action: None now; a later change could refuse such a target.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: This change adds no tenant host, account name or private address; earlier committed files outside it still
+    name a real tenant host and a handle.
+  suggested_action: The person decides whether to redact them.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: tests
+  evidence: []
+  claim: The record scan does not match name@localhost or a private address and checks only .atlassian.net hosts;
+    the six records were reviewed by hand and hold none.
+  suggested_action: Optionally widen the patterns.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: non-blocking
+  category: tests
+  evidence: []
+  claim: The P-10 test record is self-reported, the exit code 0 of doctor and gate status is that of an assertion,
+    and AC-2 is marked pass before the review ran.
+  suggested_action: Record AC-2 as pending and note that the earlier upgrade has no preview record.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: 'Unknown: why the recorded seed hash of .orqlet/role-bindings.yaml changed while the file did not.'
+  suggested_action: Ask whether the re-record was on purpose.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-8
+  kind: observation
+  severity: info
+  category: standards
+  evidence: []
+  claim: 'Unknown: whether the plan was approved; the packet shows a draft plan header and a stale gate.'
+  suggested_action: The person confirms the merge of the plan.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read
+    how: MANIFEST, diff.patch, plan, test record, knowledge-impact record and the snapshot of the changed files
+    result: pass
+  - what: re-run of ruff, mypy, import-linter and pytest
+    how: no shell
+    result: not-run
+  - what: packet and record digests recomputed
+    how: no shell; hashes not computed
+    result: not-run

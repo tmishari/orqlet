@@ -1,0 +1,47 @@
+schema: orqlet.test-record/v1
+task: mcp-or-plugins
+phase: P-10
+review_input:
+  components:
+    code_tests: 56ae386f93f174ff83aa5ee6d374fb0a16e224c7dda475ed48b239f46529cd81
+    plan: 0087e36e1b60db29914fa72d98433c3d7fbac32a7464364de907ea08aefaef8c
+  covers:
+  - code_tests
+  - plan
+  digest: 90908f7b75ca72dbfb3637cd4b7b8ef9efff85a24445f42c9e27fe46f09c5207
+  merge_base: f76d775595a1f41ff1a0b97c499739e7c348b58e
+  schema: orqlet.review-input/v1
+verdict: PASS
+evidence_kind: claimed
+commands:
+- id: orqlet-upgrade-dry-run
+  exit_code: 0
+  summary: The preview listed 7 files, all in the file list of the phase and none an .mcp.json; it was read before
+    `orqlet upgrade --yes` ran; the change is journalled and can be undone with `orqlet rollback`
+  result_digest: f259017e7664e4272dedf04a3cb5a3cc9fac5be27d795f391817cf575e823752
+- id: orqlet-doctor
+  exit_code: 0
+  summary: 'The assertion that doctor reports 0 errors holds (the recorded exit code is that of the assertion; doctor
+    itself exits 1): doctor: 0 errors and 2 warnings (ORQ-W180 draft profile and ORQ-W181 unknown facts; both concern
+    the profile, which the upgrade did not touch), so it exits 1; `orqlet sync`: 0 errors, 0 warnings; `orqlet upgrade
+    --check`: already up to date'
+  result_digest: 2da101a8819b1e39fa47e1dca5c64dd86dc15df9568e0ef0b8888ba3c320001e
+- id: orqlet-gate-status
+  exit_code: 0
+  summary: 'The assertion that the gate reports the three artifacts as stale holds (the recorded exit code is that
+    of the assertion; gate status itself exits 5 for NOT_RUN): as-is, design and plan are stale (ORQ-W390) and approval
+    needs host evidence; no artifact was edited'
+  result_digest: 9d0dacb35b6dbf26f031c8029145b35b9bb05467ad2821ddd90ba58fda1b0ab0
+acceptance_coverage:
+- ac: AC-1
+  check_ref: orqlet-upgrade-dry-run
+  result: pass
+- ac: AC-2
+  check_ref: review:upgrade-backups
+  result: pass
+- ac: AC-3
+  check_ref: orqlet-doctor
+  result: pass
+- ac: AC-4
+  check_ref: orqlet-gate-status
+  result: pass
