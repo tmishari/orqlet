@@ -1,6 +1,6 @@
 schema: orqlet.generated-lock/v1
 generator:
-  orqlet: "0.1.0"
+  orqlet: "0.2.0"
 standards_lock: "89a225016ff9d8b3ed977df39a70dfbe9dbc5f7c6d3762d0f2208b1b7a037a52"
 files:
   - path: ".agents/skills/orqlet-design/SKILL.md"
@@ -630,7 +630,7 @@ files:
   - path: ".orqlet/versions.yaml"
     owner: seeded
     inputs: []
-    seeded_sha256: d8a4f3f0f5de453d860d09ff8571e86a1647976cb7da798b237a0e15e7595209
+    seeded_sha256: "647770f22e6c838d7f589ffc383e6c3dcb2d5c98a89448eb11b1c2c980fe1df6"
   - path: ".orqlet/workflow.lock"
     owner: orqlet
     class: protected

@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from pathlib import Path
 
+from orqlet import __version__
 from orqlet.adapters.clients.claude_code import ClaudeCodeAdapter
 from orqlet.adapters.clients.codex import CodexAdapter
 from orqlet.adapters.clients.cursor import CursorAdapter
@@ -45,7 +46,7 @@ def real_services(
     ids: IdGenerator | None = None,
     packs_dir: Path | None = None,
     workflow: WorkflowSource | None = None,
-    orqlet_version: str = "0.1.0",
+    orqlet_version: str = __version__,
 ) -> InitServices:
     loader = StrictYamlLoader()
     data_dir.mkdir(parents=True, exist_ok=True)
