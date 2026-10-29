@@ -55,7 +55,6 @@ from typing import Any
 
 import pytest
 import yaml
-from orqlet.adapters.render.mcp import render_mcp_file
 
 import orqlet.application.usecases.explain as explain_module
 import orqlet.application.usecases.init_project as init_module
@@ -63,6 +62,7 @@ from orqlet.adapters.clients.claude_code import ClaudeCodeAdapter
 from orqlet.adapters.clients.codex import CodexAdapter
 from orqlet.adapters.clients.cursor import CursorAdapter
 from orqlet.adapters.fs.yaml_loader import StrictYamlLoader
+from orqlet.adapters.render.mcp import render_mcp_file
 from orqlet.application.contracts.generated_lock import GeneratedLock, LockedFile
 from orqlet.application.contracts.integrations import Integrations
 from orqlet.application.contracts.loading import load_contract

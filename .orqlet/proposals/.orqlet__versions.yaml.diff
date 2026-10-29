@@ -1,7 +1,14 @@
 --- a/.orqlet/versions.yaml
 +++ b/.orqlet/versions.yaml
-@@ -6,9 +6,9 @@
-     - "0.1.0"
+@@ -1,14 +1,14 @@
+ schema: orqlet.versions/v1
+ policy_role: enforcement-baseline
+ cli:
+-  pinned: "0.1.0"
++  pinned: "0.2.0"
+   accepted:
+-    - "0.1.0"
++    - "0.2.0"
    denied: []
  workflow:
 -  version: "0.3.1"
