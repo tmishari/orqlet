@@ -1,0 +1,40 @@
+schema: orqlet.test-record/v1
+task: mcp-or-plugins
+phase: P-9
+review_input:
+  components:
+    code_tests: 6ec6d0dbaeb7cb8ab012ceac2512f3eccb07fa11e847362c2a3fb75a5a41fe20
+    plan: 0087e36e1b60db29914fa72d98433c3d7fbac32a7464364de907ea08aefaef8c
+  covers:
+  - code_tests
+  - plan
+  digest: 4e60e35b8023d95c8a6dae1a1bb8e4d56eb18e79ba7ff18c4bfbcac4447e9587
+  merge_base: f76d775595a1f41ff1a0b97c499739e7c348b58e
+  schema: orqlet.review-input/v1
+verdict: PASS
+evidence_kind: claimed
+commands:
+- id: ruff-check
+  exit_code: 0
+  summary: All checks passed!
+  result_digest: 5b196eb3a6acb50d3fa398d04ca284985cc1ffec870e940264b00780bfd2c971
+- id: ruff-format
+  exit_code: 0
+  summary: 526 files already formatted
+  result_digest: 87e7c8a1975617088ad2b0b8a3940da32070aa562346e1456dcd4b690972e552
+- id: pytest
+  exit_code: 0
+  summary: 7723 passed, 1 skipped in 796.27s (0:13:16) on Python 3.14.9; the full suite ran on Python 3.14 only;
+    the three README and record-scan test files (tests/unit/test_readme_integrations.py, tests/unit/test_readme_ci_snippet.py,
+    tests/unit/test_check_records_scan.py) also passed on Python 3.12.11, 3.13.5 and 3.15 (139 passed on each)
+  result_digest: e60bc0e2dd6711f0f2e2d5530fc3119c4b677d6facfbf73068281f87a065b639
+acceptance_coverage:
+- ac: AC-1
+  check_ref: review:check-records
+  result: pass
+- ac: AC-2
+  check_ref: security-reviewer
+  result: pass
+- ac: AC-3
+  check_ref: review:check-records
+  result: pass

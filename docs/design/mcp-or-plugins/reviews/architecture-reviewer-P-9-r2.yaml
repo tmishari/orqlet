@@ -1,0 +1,182 @@
+schema: orqlet.review-result/v1
+task: mcp-or-plugins
+phase: P-9
+role: architecture-reviewer
+round: 2
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 81811356cf5c9a2785fb78f63754787bc8101e556da2b86d8cf477ad27491543
+    design: fb6c0a6f61fac66ff595624f194201b4a0bdd04febea332964afcae06f8fce98
+    evidence_inputs: 64877b7ba0305cd352e6610693d8a7bcaf9128442e9b2a97d2a7260e90844ba1
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 0087e36e1b60db29914fa72d98433c3d7fbac32a7464364de907ea08aefaef8c
+    reviewer_definition: 4163e77c515dce4c8168220a3dda8e273455f3b0dc97c09b4ccb3b7657368f10
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 3d135d9338030dad66f5c748834588d606df05cd02952b9e1660b0e104a84a7b
+  merge_base: f76d775595a1f41ff1a0b97c499739e7c348b58e
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: d07a4aa80f9fdb8e5220c9ec8842a3d694df3ab29747a19229b13cd20b071990
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; it had no shell, so it ran no check and recomputed
+  no digest.
+- Quote digests were not computed, so each finding rests on reading and is an observation that never blocks.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the design-phase review notes of this task, so the reviewer was not fully context-clean
+  (the known gap of the harness2-fit ADR-002).
+- The reviewer ran in the same client as the Coder, so independence is I1, not I2.
+- The architecture proposal is not in the packet snapshot, so only its diff hunks were read.
+- The packet diff is cumulative from the merge base, so the reviewer scoped the review to the file list of the phase.
+- The packet holds the earlier review records of this task, so the reviewer was not context-clean.
+- The reviewer could not verify that the six checks were run or who ran them; the records are self-reported.
+applicability:
+  examined:
+  - README.md
+  - docs/design/mcp-or-plugins/evidence/checks/V-1-claude-code.md
+  - docs/design/mcp-or-plugins/evidence/checks/V-4-claude-code.md
+  - docs/design/mcp-or-plugins/evidence/checks/V-5-claude-code.md
+  - docs/design/mcp-or-plugins/evidence/checks/V-6-claude-code.md
+  - docs/design/mcp-or-plugins/evidence/checks/V-9-claude-code.md
+  - docs/design/mcp-or-plugins/evidence/checks/V-10-claude-code.md
+  - docs/design/mcp-or-plugins/evidence/web/claude-code-mcp-checks.md
+  - docs/design/mcp-or-plugins/knowledge/P-9.yaml
+  - docs/design/mcp-or-plugins/tests/P-9.yaml
+  - docs/design/mcp-or-plugins/reviews/architecture-reviewer-P-9-r1.yaml
+  - docs/design/mcp-or-plugins/reviews/security-reviewer-P-9-r1.yaml
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: docs
+  evidence: []
+  claim: The V-5 README bullet lists Linux, Windows and another operating-system user as not run, while the V-5
+    record also lists the world-readable fallback; the vendor text says macOS falls back to a mode 0600 credentials
+    file when the keychain rejects a write.
+  suggested_action: Add the fallback to the README not-run list of V-5.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: docs
+  evidence: []
+  claim: 'Two README sentences are broader than their records: a committed project settings file (the record ran
+    in a folder that is not a repository) and every parent folder (the record limits the range to the folders tried
+    and the home directory).'
+  suggested_action: Say a project settings file, and parent folders up to the home directory as observed.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: tests
+  evidence: []
+  claim: The test record marks AC-1, AC-2 and AC-3 as pass although their checks are reviews that had not returned;
+    the framework refuses a PASS record with a not-run criterion.
+  suggested_action: Record review-based criteria as pending or define what pass means for a review check.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: non-blocking
+  category: architecture
+  evidence: []
+  claim: The evidence file under evidence/web is outside the file list of P-9 and its header says no change by hand
+    although one apostrophe differs from the earlier copy.
+  suggested_action: Name the file in the completion note as an addition and soften the header.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: tests
+  evidence: []
+  claim: No test pins the claim that a file with a byte order mark turns validate integrations red (ORQ-E534).
+  suggested_action: Add a test in a later phase or accept the limit as documented.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: info
+  category: docs
+  evidence: []
+  claim: The V-4 record says the result is written in the considerations of the design, which the staged change
+    does not touch.
+  suggested_action: Point at the README and the record.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: info
+  category: tests
+  evidence: []
+  claim: ruff format reports 526 files in the P-9 record and 519 in the P-8 record; the difference is the seven
+    Markdown files that ruff now formats.
+  suggested_action: None.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-8
+  kind: observation
+  severity: non-blocking
+  category: architecture
+  evidence: []
+  claim: The packet cannot show who ran the six checks or that the cleanup steps happened; the records are self-attested.
+  suggested_action: The person states in the pull request who ran the checks and that the keychain items and folders
+    were removed.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-9
+  kind: observation
+  severity: info
+  category: docs
+  evidence: []
+  claim: The V-10 result opens the question whether the generated entry should set oauth.scopes; it lives only in
+    the record and not in the ledger.
+  suggested_action: Carry the decision to the completion note.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-10
+  kind: observation
+  severity: info
+  category: standards
+  evidence: []
+  claim: ORQLET-QA-001 asks for the full suite on every supported Python version; the record shows the full suite
+    on 3.14 and three test files on the other versions.
+  suggested_action: Treat CI on all four versions as the gate before merge.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read
+    how: MANIFEST, diff.patch, plan, test record, knowledge-impact record and the snapshot of the changed files
+    result: pass
+  - what: re-run of ruff, mypy, import-linter and pytest
+    how: no shell
+    result: not-run
+  - what: packet and record digests recomputed
+    how: no shell; hashes not computed
+    result: not-run

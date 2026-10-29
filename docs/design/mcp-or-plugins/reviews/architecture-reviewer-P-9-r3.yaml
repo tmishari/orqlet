@@ -1,0 +1,193 @@
+schema: orqlet.review-result/v1
+task: mcp-or-plugins
+phase: P-9
+role: architecture-reviewer
+round: 3
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 6ec6d0dbaeb7cb8ab012ceac2512f3eccb07fa11e847362c2a3fb75a5a41fe20
+    design: fb6c0a6f61fac66ff595624f194201b4a0bdd04febea332964afcae06f8fce98
+    evidence_inputs: 14d007a21e319a25c68ff0642dc1d2e36289e4b6a8729e077a63685ec0461d00
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 0087e36e1b60db29914fa72d98433c3d7fbac32a7464364de907ea08aefaef8c
+    reviewer_definition: 4163e77c515dce4c8168220a3dda8e273455f3b0dc97c09b4ccb3b7657368f10
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 00bdf2264a8dfc0e231e26253f6f00f8a8b6f6b57e4ce9359c460c91fa7e3e2c
+  merge_base: f76d775595a1f41ff1a0b97c499739e7c348b58e
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: d07a4aa80f9fdb8e5220c9ec8842a3d694df3ab29747a19229b13cd20b071990
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; it had no shell, so it ran no check and recomputed
+  no digest.
+- Quote digests were not computed, so each finding rests on reading and is an observation that never blocks.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the design-phase review notes of this task, so the reviewer was not fully context-clean
+  (the known gap of the harness2-fit ADR-002).
+- The reviewer ran in the same client as the Coder, so independence is I1, not I2.
+- The architecture proposal is not in the packet snapshot, so only its diff hunks were read.
+- The packet diff is cumulative from the merge base, so the reviewer scoped the review to the file list of the phase.
+- The packet holds the earlier review records of this task, so the reviewer was not context-clean.
+- The reviewer could not verify that the six checks were run, who ran them or that the cleanup happened; the records
+  are self-reported.
+applicability:
+  examined:
+  - README.md
+  - docs/design/mcp-or-plugins/evidence/checks/V-1-claude-code.md
+  - docs/design/mcp-or-plugins/evidence/checks/V-4-claude-code.md
+  - docs/design/mcp-or-plugins/evidence/checks/V-5-claude-code.md
+  - docs/design/mcp-or-plugins/evidence/checks/V-6-claude-code.md
+  - docs/design/mcp-or-plugins/evidence/checks/V-9-claude-code.md
+  - docs/design/mcp-or-plugins/evidence/checks/V-10-claude-code.md
+  - docs/design/mcp-or-plugins/evidence/web/claude-code-mcp-checks.md
+  - docs/design/mcp-or-plugins/knowledge/P-9.yaml
+  - docs/design/mcp-or-plugins/tests/P-9.yaml
+  - docs/design/mcp-or-plugins/reviews/architecture-reviewer-P-9-r1.yaml
+  - docs/design/mcp-or-plugins/reviews/architecture-reviewer-P-9-r2.yaml
+  - docs/design/mcp-or-plugins/reviews/security-reviewer-P-9-r1.yaml
+  - docs/design/mcp-or-plugins/reviews/security-reviewer-P-9-r2.yaml
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: docs
+  evidence: []
+  claim: The line Unknowns it answers copies the unknown numbers of ADR-004 for all clients, although the records
+    are Claude Code only and partly run, so it lists unknowns (for example of Cursor and Codex) that the record
+    cannot answer.
+  suggested_action: Rename it Unknowns it targets and say which stay open.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: architecture
+  evidence: []
+  claim: The vendor page copy is outside the file list of P-9, and its header says no change by hand although one
+    apostrophe differs from the earlier copy.
+  suggested_action: Name the file in the completion note and say the punctuation may differ.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: tests
+  evidence: []
+  claim: The test record marks the three review-based criteria as pass before the review returned; the earlier security
+    pass covers an older tree.
+  suggested_action: Record them as pending until the round 3 records exist.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: non-blocking
+  category: docs
+  evidence: []
+  claim: The knowledge entry K-16 says the public symbol compose was added, but it existed at the base and the change
+    adds a parameter (EC-9).
+  suggested_action: Reword K-16 to signature changed.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: non-blocking
+  category: docs
+  evidence: []
+  claim: The README infers that a file outside the repository adds entries there, but no V-6 step started the client
+    inside a repository with the file above its root.
+  suggested_action: Drop therefore or add a step.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: info
+  category: tests
+  evidence: []
+  claim: No test pins the claim that a file with a byte order mark turns validate integrations red.
+  suggested_action: Add a test in a later phase or keep the documented limit.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: info
+  category: docs
+  evidence: []
+  claim: The V-1 verdict says confirms the design while a client that connects without asking in claude -p bars
+    env-ref entries for Claude Code under ADR-004 decision 2.
+  suggested_action: State the consequence in the verdict.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-8
+  kind: observation
+  severity: non-blocking
+  category: architecture
+  evidence: []
+  claim: 'Unknown: who ran the six checks, whether the cleanup happened, and whether claude mcp login exists in
+    2.1.303; the packet cannot show them.'
+  suggested_action: The person who ran them states this in the pull request.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-9
+  kind: observation
+  severity: non-blocking
+  category: architecture
+  evidence: []
+  claim: 'Unknown: whether the plan was approved; the packet has no gate output and the plan header says draft.'
+  suggested_action: The person confirms the merge of the plan.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-10
+  kind: observation
+  severity: info
+  category: docs
+  evidence: []
+  claim: The decision whether the generated entry should set oauth.scopes lives only in the V-10 record, with no
+    ledger question and no plan item.
+  suggested_action: Add it to the completion note of P-10 or raise it as a question.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-11
+  kind: observation
+  severity: info
+  category: architecture
+  evidence: []
+  claim: The staged diff is cumulative from the merge base, so it holds the code of P-2 to P-8 outside the file
+    list of P-9; those phases have their own review records.
+  suggested_action: None.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read
+    how: MANIFEST, diff.patch, plan, test record, knowledge-impact record and the snapshot of the changed files
+    result: pass
+  - what: re-run of ruff, mypy, import-linter and pytest
+    how: no shell
+    result: not-run
+  - what: packet and record digests recomputed
+    how: no shell; hashes not computed
+    result: not-run

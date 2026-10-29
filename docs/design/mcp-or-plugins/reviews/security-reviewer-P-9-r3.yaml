@@ -1,0 +1,137 @@
+schema: orqlet.review-result/v1
+task: mcp-or-plugins
+phase: P-9
+role: security-reviewer
+round: 3
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 6ec6d0dbaeb7cb8ab012ceac2512f3eccb07fa11e847362c2a3fb75a5a41fe20
+    design: fb6c0a6f61fac66ff595624f194201b4a0bdd04febea332964afcae06f8fce98
+    evidence_inputs: 14d007a21e319a25c68ff0642dc1d2e36289e4b6a8729e077a63685ec0461d00
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 0087e36e1b60db29914fa72d98433c3d7fbac32a7464364de907ea08aefaef8c
+    reviewer_definition: adb518646f16cabf596e57830f19b79e9c2de39442b9ab0dc1f19123d71dab2c
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 3d33cd294bc9ea1eec4d80c306943209359b912109b242619e741742467fb8c8
+  merge_base: f76d775595a1f41ff1a0b97c499739e7c348b58e
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: 03556c914cc53a8d2d8bacb1ecc1d703d0e50d31ad2376f983d6098a398692df
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; it had no shell, so it ran no check and recomputed
+  no digest.
+- Quote digests were not computed, so each finding rests on reading and is an observation that never blocks.
+- The model that ran the reviewer is not observed.
+- The packet snapshot held the design-phase review notes of this task, so the reviewer was not fully context-clean
+  (the known gap of the harness2-fit ADR-002).
+- The reviewer ran in the same client as the Coder, so independence is I1, not I2.
+- The architecture proposal is not in the packet snapshot, so only its diff hunks were read.
+- The packet diff is cumulative from the merge base, so the reviewer scoped the review to the file list of the phase.
+- The packet holds the earlier review records of this task, so the reviewer was not context-clean.
+- The reviewer could not verify that the six checks were run, who ran them or that the cleanup happened; the records
+  are self-reported.
+applicability:
+  examined:
+  - README.md
+  - docs/design/mcp-or-plugins/evidence/checks/V-1-claude-code.md
+  - docs/design/mcp-or-plugins/evidence/checks/V-4-claude-code.md
+  - docs/design/mcp-or-plugins/evidence/checks/V-5-claude-code.md
+  - docs/design/mcp-or-plugins/evidence/checks/V-6-claude-code.md
+  - docs/design/mcp-or-plugins/evidence/checks/V-9-claude-code.md
+  - docs/design/mcp-or-plugins/evidence/checks/V-10-claude-code.md
+  - docs/design/mcp-or-plugins/evidence/web/claude-code-mcp-checks.md
+  - docs/design/mcp-or-plugins/knowledge/P-9.yaml
+  - docs/design/mcp-or-plugins/tests/P-9.yaml
+  - docs/design/mcp-or-plugins/reviews/architecture-reviewer-P-9-r1.yaml
+  - docs/design/mcp-or-plugins/reviews/architecture-reviewer-P-9-r2.yaml
+  - docs/design/mcp-or-plugins/reviews/security-reviewer-P-9-r1.yaml
+  - docs/design/mcp-or-plugins/reviews/security-reviewer-P-9-r2.yaml
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: tests
+  evidence: []
+  claim: The test record marks AC-1 to AC-3 as pass although the checks are reviews that had not run when it was
+    written.
+  suggested_action: Record them as pending until the review records exist.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: 'A nearer committed .mcp.json can replace an orqlet entry without the check seeing it: the V-6 record shows
+    that the file nearest the start folder won for a name and a repository file in a subfolder was read, while the
+    check reads only the root file and the README draws only the conclusion about files outside the repository.'
+  suggested_action: Say in the V-6 bullet and in the record verdict that a nearer file, inside the repository as
+    well, replaces the entry of the same name.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: docs
+  evidence: []
+  claim: 'Three small gaps: the V-5 address change was made in the stored configuration and not in a project file,
+    the V-1 verdict omits the env-ref consequence of the claude -p result, and the V-6 record writes every parent
+    folder.'
+  suggested_action: Name the gaps in the records.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: The snapshot holds a real tenant host and a personal handle in committed files of an earlier phase that
+    this change does not add and the record scan does not cover.
+  suggested_action: The person decides whether to redact them.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: The cleanup and canary statements of the records are self-reported and cannot be verified from the packet;
+    each record is marked partly run and none used a real account.
+  suggested_action: The person who ran the checks confirms the cleanup in the pull request.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read
+    how: MANIFEST, diff.patch, plan, test record, knowledge-impact record and the snapshot of the changed files
+    result: pass
+  - what: re-run of ruff, mypy, import-linter and pytest
+    how: no shell
+    result: not-run
+  - what: packet and record digests recomputed
+    how: no shell; hashes not computed
+    result: not-run

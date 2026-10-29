@@ -47,8 +47,9 @@ follow each client's published documentation; the tests check the files, not the
 Orqlet itself opens no connection and never reads a credential store. A page is read by the client's own web
 tool, as the developer, under the section "Looking things up" of the baseline. That text is advice
 to the agent, not a control, and no check has shown that a client honours it: each client reports
-the capability limit ORQ-L006 for it. A person records the checks of the design (V-1 to V-8, V-10 and V-11) with a
-test account before a claim about a client is made.
+the capability limit ORQ-L006 for it. A person records the checks of the design of team links and conventions (V-1 to V-8, V-10 and V-11)
+with a test account before a claim about a client is made; the MCP design has its own checks, in the
+section "Checks with a client".
 
 The full design is in
 [`docs/design/orqlet-architecture-proposal.md`](docs/design/orqlet-architecture-proposal.md); its
@@ -451,7 +452,7 @@ release enables it.
    not written again.
 3. **A file that exists.** Orqlet never rewrites a `.mcp.json` that the team already has, and
    `orqlet upgrade` never copies a byte of it into a proposal, a plan, a preview, the journal or a
-   backup; one case, named under "What this does and does not give", is the exception. When Orqlet
+   backup; one case, named under "What this does and does not give", is the exception to both. When Orqlet
    did not write the file, or the text that Orqlet would write has changed since it did, and the
    file differs from that text, `orqlet upgrade` offers a proposal that shows only the text that
    Orqlet wants. The proposal stays until you merge it by hand into your file. It comes back on
@@ -501,8 +502,9 @@ switch the check off. Orqlet cannot set or read the rules of the host.
 
 The standard of one credential for each user is met by what Orqlet generates only for Atlassian on
 Claude Code. GitHub, Miro, Cursor and Codex stay manual, and Orqlet has not verified them. No check
-with a test account has run yet, so this README claims nothing about how a client prompts for a
-sign-in, which entry wins when two have the same name, or where a client stores a token. A
+with a test account has run yet. Six checks of Claude Code ran in part, without an account, against
+a local server; the section "Checks with a client" below says what they showed, and this README
+claims nothing more than those records about prompts, precedence, storage or surfaces. A
 developer's own entry with the same name as an `orqlet-*` entry is not covered.
 
 - **Your own credential.** Sign in with your own account, or set your own variable, and keep the
@@ -555,6 +557,53 @@ Limits of the check:
 
 The check does not cover every MCP entry of a project: it compares the entries that the declaration
 names and every `orqlet-*` entry, and it counts the others.
+
+### Checks with a client
+
+The design plans six checks of Claude Code (V-1, V-4, V-5, V-6, V-9 and V-10). Their records are in
+`docs/design/mcp-or-plugins/evidence/checks/`. Each ran in part, on 2026-10-29, with Claude Code
+2.1.303 on macOS, an isolated configuration, no sign-in to a real service and a local server that
+the tester controlled. V-2, V-3, V-7 and V-8, and the halves for Codex and Cursor, have not run;
+the release that needs them runs them. What each of the six showed, and what it left open:
+
+- **V-1, approval.** `claude mcp list` does not connect to an entry of `.mcp.json` that nobody
+  approved, and a project settings file in a folder that was never trusted did not approve it (the
+  vendor says the same of a committed one). In the path observed, an approval written into the user settings by name, the client
+  connected to the new address without a new approval after the address or a header changed under the
+  same name. A `claude -p` run in a folder that was never trusted connected to the project entry with
+  no prompt. The dialog of an interactive session was not run, so this README does not say what that
+  dialog does; the check in the CI line above is the control that does not depend on it.
+- **V-4, same name.** The order observed is local scope, then project, then user. An entry in local
+  scope with the name of an `orqlet-*` entry replaced the project entry, and an entry in user scope
+  did not. The client printed a warning in `claude mcp list` when the scopes named different
+  addresses. The vendor says that the winning entry is used whole; a merge of fields was not
+  observed. The panel `/mcp` was not run.
+- **V-5, storage.** On macOS the sign-in is in the login keychain, in an item that is tied to the
+  configuration directory, under the server name and a hash; the configuration file held no token.
+  A stored sign-in was not sent after a change of the path, the port, a trailing slash or the
+  spelling of the host, so a pull request that points an entry at another server makes the user
+  sign in again there, which is not a protection. Not run: Linux, Windows, the file that the vendor
+  says the client uses when the keychain rejects a write, and another operating-system user.
+- **V-6, surfaces.** The terminal only, through `claude mcp list`. The client read `.mcp.json` in the
+  start folder and in the parent folders that were tried (up to three levels up, and the home
+  directory when it was a parent) and merged them. The file nearest the start folder won for a
+  name, and a symbolic link was followed. A file outside the repository therefore adds entries
+  there, and the check reads only the file at the project root. Not run: the IDE extension, the
+  desktop app, the cloud agent or web session and the review context.
+- **V-9, readers.** The client and `orqlet validate integrations` agree on comments and trailing
+  commas (both refuse), on an escaped letter in a key, on the key case of `mcpServers` and on keys
+  outside it. The client expands a variable after it decodes the text, so an escaped dollar sign
+  does not hide a reference, and the check reports it. They differ in two places: the client reads a
+  key or an entry name that appears twice (the last wins) and a byte order mark, and the check
+  refuses both (ORQ-E534). A file with a byte order mark works in the client and turns the check
+  red until the mark is removed. Not run: a session instead of the list, Cursor and Codex.
+- **V-10, scopes and unattended surfaces.** With nothing set, the client asked a local test server
+  for every scope that the server listed in its resource metadata, and with `oauth.scopes` on the
+  entry it asked for one. The entry that Orqlet generates does not set it. Not run: the consent of Atlassian and its
+  scope names, which account a cloud agent, a review context or CI uses, and the administrator
+  setting for API tokens in a test tenant. Until they run, this README keeps what the design says:
+  the entry carries the user's full permissions, and an unattended surface holds one identity that
+  serves everyone who triggers it unless it is the account of the user who started it.
 
 ### Finding codes of the MCP declaration
 

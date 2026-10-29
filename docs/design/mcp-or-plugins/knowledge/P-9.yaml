@@ -1,0 +1,248 @@
+schema: orqlet.knowledge-impact/v1
+task: mcp-or-plugins
+phase: P-9
+review_input:
+  components:
+    candidates: 19ac05e967fc0cb47c41dfcf39e8195958f37d9921560b837aeb21c9002b2142
+    code_tests: 6ec6d0dbaeb7cb8ab012ceac2512f3eccb07fa11e847362c2a3fb75a5a41fe20
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 0087e36e1b60db29914fa72d98433c3d7fbac32a7464364de907ea08aefaef8c
+    standards: 01e172950d0cdd0446229b7f7f85225df4dae51d3d4cf6d0691b22dbd761bfd3
+  covers:
+  - code_tests
+  - knowledge
+  - plan
+  - standards
+  - candidates
+  digest: 155fe3176fb2b61bd6357e998d32075b62be9e0ffb7224e6f327f32205bf498f
+  merge_base: f76d775595a1f41ff1a0b97c499739e7c348b58e
+  schema: orqlet.review-input/v1
+outcome: no-impact
+analysis:
+  command: orqlet knowledge impact
+  orqlet_version: 0.1.0
+  candidates_digest: 19ac05e967fc0cb47c41dfcf39e8195958f37d9921560b837aeb21c9002b2142
+  candidate_count: 19
+  input: pre-draft-tree
+  views:
+  - committed:HEAD
+  index_state: not-used
+entries:
+- id: K-1
+  candidate_ref: cand-201029722530
+  action: unaffected
+  scope: project
+  reason: EC-1 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/mcp-or-plugins/design/manifest.yaml
+    sha256: d50de7ef93fac490785abef1e1d943728dc6c1b0cecea840b43d433efd475b62
+- id: K-2
+  candidate_ref: cand-b5358be988b2
+  action: unaffected
+  scope: project
+  reason: EC-16 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/mcp-or-plugins/design/manifest.yaml
+    sha256: d50de7ef93fac490785abef1e1d943728dc6c1b0cecea840b43d433efd475b62
+- id: K-3
+  candidate_ref: cand-33b6b82bf167
+  action: unaffected
+  scope: project
+  reason: EC-2 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/mcp-or-plugins/design/manifest.yaml
+    sha256: d50de7ef93fac490785abef1e1d943728dc6c1b0cecea840b43d433efd475b62
+- id: K-4
+  candidate_ref: cand-9fa0814a6cb9
+  action: unaffected
+  scope: project
+  reason: EC-3 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/mcp-or-plugins/design/manifest.yaml
+    sha256: d50de7ef93fac490785abef1e1d943728dc6c1b0cecea840b43d433efd475b62
+- id: K-5
+  candidate_ref: cand-d0a63797e1bc
+  action: unaffected
+  scope: project
+  reason: EC-4 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/mcp-or-plugins/design/manifest.yaml
+    sha256: d50de7ef93fac490785abef1e1d943728dc6c1b0cecea840b43d433efd475b62
+- id: K-6
+  candidate_ref: cand-cee64e0e0d69
+  action: unaffected
+  scope: project
+  reason: EC-5 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/mcp-or-plugins/design/manifest.yaml
+    sha256: d50de7ef93fac490785abef1e1d943728dc6c1b0cecea840b43d433efd475b62
+- id: K-7
+  candidate_ref: cand-683657d94ca4
+  action: unaffected
+  scope: project
+  reason: EC-6 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/mcp-or-plugins/design/manifest.yaml
+    sha256: d50de7ef93fac490785abef1e1d943728dc6c1b0cecea840b43d433efd475b62
+- id: K-8
+  candidate_ref: cand-4a8f5a32b2d4
+  action: unaffected
+  scope: project
+  reason: EC-7 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/mcp-or-plugins/design/manifest.yaml
+    sha256: d50de7ef93fac490785abef1e1d943728dc6c1b0cecea840b43d433efd475b62
+- id: K-9
+  candidate_ref: cand-4b241aef0a3d
+  action: unaffected
+  scope: project
+  reason: EC-8 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/mcp-or-plugins/design/manifest.yaml
+    sha256: d50de7ef93fac490785abef1e1d943728dc6c1b0cecea840b43d433efd475b62
+- id: K-10
+  candidate_ref: cand-a51af2591937
+  action: unaffected
+  scope: project
+  reason: EC-9 is an expected change that the approved design declares and its ADR documents; no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/mcp-or-plugins/design/manifest.yaml
+    sha256: d50de7ef93fac490785abef1e1d943728dc6c1b0cecea840b43d433efd475b62
+- id: K-11
+  candidate_ref: cand-b871147d2ba7
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.adapters.render.mcp.render_mcp_file was added; the component view of the approved
+    design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/mcp-or-plugins/design/component.md
+    sha256: 3b430246f10e4e61f6edbbdf26b56a91c694ddc5cfd7b35a8545f5070fa5480f
+- id: K-12
+  candidate_ref: cand-fbb6c9b50fe8
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.application.contracts.integrations.Integrations.registered_for was added; the
+    component view of the approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/mcp-or-plugins/design/component.md
+    sha256: 3b430246f10e4e61f6edbbdf26b56a91c694ddc5cfd7b35a8545f5070fa5480f
+- id: K-13
+  candidate_ref: cand-c67b58a8b164
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.application.usecases.integrations_source.integrations_path was added; the component
+    view of the approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/mcp-or-plugins/design/component.md
+    sha256: 3b430246f10e4e61f6edbbdf26b56a91c694ddc5cfd7b35a8545f5070fa5480f
+- id: K-14
+  candidate_ref: cand-85db6ed9ec06
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.application.usecases.integrations_source.load_integrations was added; the component
+    view of the approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/mcp-or-plugins/design/component.md
+    sha256: 3b430246f10e4e61f6edbbdf26b56a91c694ddc5cfd7b35a8545f5070fa5480f
+- id: K-15
+  candidate_ref: cand-b132eda6b10a
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.application.usecases.integrations_source.parse_integrations was added; the component
+    view of the approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/mcp-or-plugins/design/component.md
+    sha256: 3b430246f10e4e61f6edbbdf26b56a91c694ddc5cfd7b35a8545f5070fa5480f
+- id: K-16
+  candidate_ref: cand-15373819f792
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.application.usecases.render_all.compose was added; the component view of the
+    approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/mcp-or-plugins/design/component.md
+    sha256: 3b430246f10e4e61f6edbbdf26b56a91c694ddc5cfd7b35a8545f5070fa5480f
+- id: K-17
+  candidate_ref: cand-7c3a9805e3f6
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.application.usecases.validate_integrations.integration_findings was added; the
+    component view of the approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/mcp-or-plugins/design/component.md
+    sha256: 3b430246f10e4e61f6edbbdf26b56a91c694ddc5cfd7b35a8545f5070fa5480f
+- id: K-18
+  candidate_ref: cand-7e1b06caff6e
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.application.usecases.validate_integrations.validate_integrations was added; the
+    component view of the approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/mcp-or-plugins/design/component.md
+    sha256: 3b430246f10e4e61f6edbbdf26b56a91c694ddc5cfd7b35a8545f5070fa5480f
+- id: K-19
+  candidate_ref: cand-49b81dda472b
+  action: unaffected
+  scope: project
+  reason: The public symbol orqlet.interface.cli.commands.validate.integrations_command was added; the component
+    view of the approved design lists it and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/mcp-or-plugins/design/component.md
+    sha256: 3b430246f10e4e61f6edbbdf26b56a91c694ddc5cfd7b35a8545f5070fa5480f
+no_impact:
+  category: already-documented
+  reason: 'The 19 candidates come from the cumulative diff of P-2 to P-5 and their behaviour is written in the ADRs,
+    the component view and the design manifest. P-9 itself changes documents and evidence files only (six check
+    records, a stored copy of a vendor page, the README): no code or test changed, no knowledge source is configured
+    and the plan''s knowledge_scope is empty, so no knowledge document exists that this phase could change.'
+  absence_record:
+    scopes_searched:
+    - .orqlet/knowledge.yaml sources
+    - the plan's knowledge_scope
+    views:
+    - committed:HEAD
+    revision: f76d775595a1f41ff1a0b97c499739e7c348b58e
+    method: orqlet knowledge impact on the staged tree; the project configures no knowledge sources and the plan's
+      knowledge_scope is empty, so no knowledge document exists that the phase could change.
+    index_state: not-used
+    candidates_found: 19
+  already_documented_refs:
+  - path: docs/design/mcp-or-plugins/design/adr-002-one-credential-per-user.md
+    sha256: dfc2221f7e015d9565c78a35ada20c69a3a00882509df452e75adcf5269ff47a
+  - path: docs/design/mcp-or-plugins/design/adr-003-build-order-and-seeded-files.md
+    sha256: fff08f70e25fe32c615195a65f195af66ae7199c0828bf36b1d419cabe18b538
+  - path: docs/design/mcp-or-plugins/design/adr-004-verify-client-behaviour-with-test-accounts.md
+    sha256: a05cf9e7ebb39254306f809d0245cc3d390344b61b1f3eb5801a3a29b8c05f78
+  - path: docs/design/mcp-or-plugins/design/component.md
+    sha256: 3b430246f10e4e61f6edbbdf26b56a91c694ddc5cfd7b35a8545f5070fa5480f
+  - path: docs/design/mcp-or-plugins/design/manifest.yaml
+    sha256: d50de7ef93fac490785abef1e1d943728dc6c1b0cecea840b43d433efd475b62
