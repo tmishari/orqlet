@@ -1,30 +1,32 @@
 # Orqlet
 
-Orqlet is a small command-line tool that sets up and maintains the AI-assistant structure of a
-repository, so that every developer's AI coding client starts from the same reviewed base. A client
-is an AI coding tool (an agent harness) that can run in a terminal, in an IDE or both. Orqlet
-supports three: **Claude Code**, **Codex** and **Cursor**.
+Orqlet is a command-line tool that sets up and maintains the AI-assistant structure of a repository,
+so that every developer's AI coding client starts from the same reviewed base. A *client* is an AI
+coding tool (an agent harness) that runs in a terminal, in an IDE or both. Orqlet supports three:
+**Claude Code**, **Codex** and **Cursor**.
 
 Orqlet never takes a prompt, never starts an agent and never calls a language model. Developers keep
-writing prompts in their own client. Orqlet writes the files that the client reads, checks that they have
-not drifted, and validates the documents that an agent produces.
+writing prompts in their own client. Orqlet writes the files that the client reads, checks that they
+have not drifted, and validates the documents that an agent produces.
 
-## Problems it fixes
+## What you get
 
-- **Every client needs its own setup.** Instructions, skills, rules and specialist agents are written
-  once and rendered for each client, so the three clients do not diverge.
-- **The setup is not shared or reviewed.** The structure lives in the repository and arrives through
-  an ordinary pull request. Edits the team made by hand are kept when the structure is upgraded.
-- **The setup drifts unnoticed.** `orqlet doctor` and `orqlet sync` report files that are missing,
-  edited, stale or unknown, and every change is journalled so `orqlet rollback` can undo it.
-- **Agents skip steps.** A fixed workflow (research, design, plan, implement, review) is shipped as
-  skills. Each skill stops at a person: an agent cannot approve its own design or plan.
-- **Agent output is not checked.** Validators read the AS-IS facts, design, plan, review, test and
-  knowledge-impact files an agent writes, and check evidence references, hashes and structure.
+| You want | Orqlet gives you | Commands |
+|---|---|---|
+| The same AI setup in three clients | Skills, specialist agents, rules, commands and an `AGENTS.md` block, written once and rendered for Claude Code, Codex and Cursor | `init`, `upgrade` |
+| A setup that a pull request reviews | Every file arrives in an ordinary pull request; a change is journalled and can be undone | `init`, `upgrade`, `rollback` |
+| To notice drift | A report of files that are missing, edited, stale or unknown | `sync`, `doctor`, `explain` |
+| To keep your own edits | Managed blocks in `AGENTS.md`, `CLAUDE.md` and the pull request template; seeded files that are yours after the first write; generated files that you can hand over | `release`, `upgrade` |
+| A profile of the project | The language, package manager, frameworks and conventions, each with its evidence, approved by a person | `profile` |
+| Agents that follow a process | Six workflow skills (onboard, research, design, plan, implement, review) and five specialist agents; each skill stops at a person | the skills in your client |
+| Agent output that is checked | Validators for the AS-IS facts, design, plan, review, test and knowledge records, and a gate status | `validate`, `gate`, `evidence`, `knowledge`, `review`, `standards` |
+| Team knowledge that agents read | A registry of links to API guidelines, tool documentation and team pages, with stored copies | `resources` |
+| Team conventions that CI checks | Branch naming and commit subjects, checked against the profile | `conventions check` |
+| One MCP sign-in per user | A declaration of MCP servers and the `.mcp.json` of Claude Code that follows from it, for Atlassian | `.orqlet/integrations.yaml`, `validate integrations` |
 
 ## Status
 
-Version 0.1.0. What is built and tested in this repository:
+Version 0.2.0. What is built and tested in this repository:
 
 - `init`, `upgrade`, `rollback`, `sync`, `doctor`, `explain`, `release` and `profile`;
 - the workflow skills, role definitions and rules for the three clients;
@@ -53,49 +55,7 @@ section "Checks with a client".
 
 The full design is in
 [`docs/design/orqlet-architecture-proposal.md`](docs/design/orqlet-architecture-proposal.md); its
-Section 22.0 says what is built.
-
-## What changed: team links and conventions
-
-This release adds a place for what a team knows and wants agents to read, and a check for two of
-its conventions. It writes no page content into the instructions: a rule or a skill names a
-link and its stored copy, and the client reads the page itself.
-
-- **A registry of links.** `.orqlet/resources.yaml` lists the team's links: API guidelines,
-  documentation of a tool, team pages. Each entry has an id, a title, a kind, an address that is
-  checked where it enters, a note that says why and when to read it, and `access: public` or
-  `login`. The commands are `orqlet resources add`, `update`, `remove`, `attach` and `list`, and
-  `orqlet validate resources` checks the file and its copies. A copy or summary of a page may be
-  kept at `docs/resources/<id>.md`; `attach` records its SHA-256 and time.
-- **What the clients get.** `orqlet upgrade` renders the registry: the catalogue skill
-  `orqlet-resources` for every entry, a path-scoped rule for an entry with `--path` (Claude Code
-  and Cursor; Codex has no per-path rules), and a skill `orqlet-tool-<id>` for an entry with
-  `--tool`. Every generated file is protected, and a value is written as quoted data after a fixed
-  label, never as free text.
-- **Conventions in the profile.** Seven conventions can be answered: branch model, branch
-  patterns, release flow, pull-request shape, merge strategy, required checks and reviewers.
-  `init` and `orqlet profile answer` take them (`none` means the team has no rule). The answers
-  appear in a second managed block of `AGENTS.md`, and `orqlet doctor` lists the unknown ones as
-  information (ORQ-I502), so its exit code does not change.
-- **A check for pull requests.** `orqlet conventions check` checks the branch name against the
-  patterns and, for `conventional-commits`, the commit subjects. The README section
-  "Checks for pull requests" has the CI step.
-- **Lookup rules for agents.** The baseline has a section "Looking things up", each of the four
-  phase skills has one step that applies it, the five roles are told to look nothing up, and
-  `orqlet evidence cite` refuses a page under `docs/design/*/evidence/web/` that holds a credential
-  shape. Each client reports the capability limit ORQ-L006: the lookup is requested, the opt-out
-  is not verified, and the rules are advice.
-
-To get it in a project that already uses Orqlet: install this version, then run
-`orqlet upgrade --check` and `orqlet upgrade`. It shows its plan first, and the plan holds an empty
-registry, the new baseline section, the skill steps and the role sentences. A profile that the new
-version rewrites gains five fields as unknown, and an older Orqlet refuses a profile that has them,
-so everyone who works on the project needs this version or a newer one.
-
-What this release does not do: Orqlet fetches no page and holds no login, and no check has shown
-that a client honours the lookup text, the path-scoped rules or the skills that the agent may
-start. Six of the eight conventions are recorded and told to agents, not enforced; the host
-enforces them, if the team sets it up.
+Section 22.0 records the build status of 2026-10-22, and the list above is current.
 
 ## Requirements
 
@@ -109,40 +69,241 @@ From a checkout of this repository:
 
 ```sh
 uv tool install .
-orqlet --version
+orqlet --version        # orqlet 0.2.0
+```
+
+From a Git revision (pin a commit or a tag, never a moving branch name, when a team installs it):
+
+```sh
+uv tool install "git+https://github.com/tmishari/orqlet@<commit-or-tag>"
 ```
 
 To run it once without installing: `uvx --from /path/to/orqlet orqlet --version`.
 
-## Use it in a project
+Install the version that the project pins: `.orqlet/versions.yaml` names it, and `orqlet doctor`
+warns about a skew (ORQ-W160).
 
-Run these in the project you want to set up. Every command that writes first shows a preview, and
-`--dry-run` writes nothing.
+## How it works
+
+Run `orqlet` in the root of a Git repository. Every command that writes shows its plan first
+(`release` asks first unless you pass `--yes`), and `--dry-run` writes nothing. A change is journalled, and `orqlet rollback <change id>` restores its
+files if nothing has touched them since. Orqlet is deterministic: the same inputs give the same
+bytes on every platform.
+
+The files that Orqlet writes have four kinds of owner. Check which kind a file is before you edit it:
+
+| Kind | Files | What you may do |
+|---|---|---|
+| **Protected** | the skills and agent definitions of the three clients, the workflow rule and the rules for registered links, `.claude/CLAUDE.md`, `.orqlet/workflow.lock`, and the managed blocks of `AGENTS.md` and `CLAUDE.md` | Change the source and run `orqlet upgrade`. A hand edit is reported by `sync` and `doctor` as ORQ-E150, which exits 5, so a CI step that runs `sync` fails until `upgrade` restores the file. |
+| **Generated** | the commands of Claude Code and Cursor, the rules rendered from the team's standards, `.orqlet/standards.lock.yaml`, `.orqlet/released.yaml`, and the block of the pull request template | `orqlet release <path> --reason "..."` hands a file to the team; protected files cannot be released (ORQ-E141). A hand edit stays as edited (ORQ-W152). |
+| **Managed block** | `AGENTS.md`, `CLAUDE.md`, `.github/pull_request_template.md`: the text between `<!-- orqlet:begin ... -->` and `<!-- orqlet:end ... -->` | The block is Orqlet's. The rest of the file is yours and is never touched. |
+| **Seeded** | `.orqlet/project-profile.yaml`, `versions.yaml`, `role-bindings.yaml`, `resources.yaml` and `knowledge.yaml`, the `.prompts/` folder and `.mcp.json` | Written once, then yours. When a newer release would write other text, `upgrade` shows the wanted text as a proposal in `.orqlet/proposals/` (the path with `/` written as `__`, for example `.orqlet__versions.yaml.diff`) and never overwrites your file. |
+
+`.orqlet/generated.lock.yaml` records what Orqlet wrote, `.orqlet/workflow.lock` pins the version of
+the workflow text, and `.orqlet/versions.yaml` pins the CLI and the workflow that the team accepts.
+
+## Start a new project
+
+The output below is shortened from a real run in a scratch folder. Orqlet needs a Git repository:
+in an empty folder, or a fresh scaffold, let `init` create it. In a non-empty folder add
+`--new-project` to confirm that it is a new project. Without a repository, and without `--git-init`,
+`init` stops with ORQ-E112 and writes nothing.
+
+**1. Preview, then write.** `--target-branch` names the branch that pull requests target and the
+branch of the new repository.
 
 ```sh
-orqlet init --dry-run           # see every file that would be written
-orqlet init --client cursor     # write them (repeat --client; the default is all three)
-orqlet doctor                   # what is missing, edited, stale or unknown
-orqlet profile answer repository.target_branch=main
-orqlet profile approve --reviewer "Your Name"
+mkdir shop && cd shop
+orqlet init --git-init --target-branch main --name shop --dry-run   # every file that would be written
+orqlet init --git-init --target-branch main --name shop --yes
+# Applied.
+# Change id: 5a35b48d-16c2-...  (undo it with: orqlet rollback 5a35b48d-16c2-...)
+# A Git repository was created. Nothing was committed.
+# Still unknown (answer with --answer KEY=VALUE or run init again):
+#   facts.python: Which language and version does this project use?
+#   facts.package_manager: Which package manager does this project use?
+#   project.kind: What kind of project is it?
+#   repository.branch_naming: Is there a branch naming rule?
+#   repository.commit_convention: Is there a commit message convention?
 ```
 
-`init` works for an existing project, a new one (`--git-init`, `--new-project`) or an empty
-directory. It writes the skills, agent definitions, commands and rules of the chosen clients, an
-`AGENTS.md` block, a pull request template, a seeded `.prompts/` folder for the team's standards and
-a `.orqlet/` folder with the project profile, versions, role bindings and lock files. Review the
-result in a normal pull request: merging it is the team's approval of the base.
+For the three clients `init` wrote 65 files: the skills and specialist agents, the rules and
+commands, `AGENTS.md`, a pull request template, a seeded `.prompts/` folder for the team's
+standards, and a `.orqlet/` folder with the project profile, the versions, the role bindings, the
+registry of links and the lock files. Choose clients with `--client` (repeat it; the default is all
+three). `--prompts-dir` moves the standards folder.
 
-Day to day:
+**2. Answer what is unknown, then approve the profile.** An empty folder has no evidence, so a
+person answers. An answer withdraws an earlier approval; approval is a person's act and is recorded
+with a name.
+
+```sh
+orqlet profile answer facts.python=3.12 facts.package_manager=uv project.kind=python-service \
+  repository.branch_naming='feature/*, fix/*' repository.commit_convention=conventional-commits --yes
+orqlet profile approve --reviewer "Ada Lovelace" --yes
+```
+
+`project.kind` takes `python-cli` or `python-service`; another value is ignored with ORQ-W060.
+Orqlet knows Python command-line applications and services today. In another stack it still writes
+the workflow, and the profile records that no scanner recognised a technology.
+
+**3. Check, commit and open the first pull request.** Merging it is the team's approval of the base.
+
+```sh
+orqlet doctor
+# 0 error(s), 0 warning(s), 3 note(s).
+# INFO    ORQ-I502 These conventions are not recorded yet: repository.branch_model, ...
+# INFO    ORQ-I030 Add these paths to CODEOWNERS (`<path> <owners>`) so that changes to ... are reviewed
+orqlet sync
+# 0 error(s), 0 warning(s), 4 note(s).
+git add -A && git commit -m "chore: add the Orqlet setup"
+```
+
+ORQ-I030 lists the paths that no CODEOWNERS file names. Add them, so that the standards, the
+registry of links, the generated agent files, the MCP configuration and the workflows are reviewed
+by their owners. After merging, start a new session in the client: a running session keeps the
+instructions it loaded. The next steps are "Team links and conventions", the workflow in
+"The workflow in the client", and the CI step in "Checks for pull requests".
+
+## Adopt it in an existing project
+
+The output below is shortened from a real run in a scratch Python service that already had an
+`AGENTS.md`, a `CLAUDE.md` and a pull request template. `init` reads the repository first, so the
+profile starts from evidence: the language from `pyproject.toml`, the framework from its
+dependencies, the kind of project.
+
+**1. Preview.** Nothing is written. Your files show as `update`; the generated ones as `create`.
+
+```sh
+orqlet init --client claude-code --client cursor --dry-run
+#   create .claude/rules/orqlet-workflow.md
+#   create .cursor/rules/orqlet-workflow.mdc
+#   update .github/pull_request_template.md
+#   create .orqlet/project-profile.yaml
+#   ...
+#   update AGENTS.md
+#   update CLAUDE.md
+# Still unknown (answer with --answer KEY=VALUE or run init again):
+#   facts.package_manager: Which package manager does this project use?
+#   repository.target_branch: Which branch do pull requests target?
+#   repository.branch_naming: Is there a branch naming rule?
+#   repository.commit_convention: Is there a commit message convention?
+```
+
+**2. Write, answering what the repository could not tell.**
+
+```sh
+orqlet init --client claude-code --client cursor \
+  --answer repository.target_branch=main --answer facts.package_manager=uv --yes
+```
+
+**3. See what happened to your files.** Your text stays; Orqlet adds a block with markers.
+
+```text
+AGENTS.md                       your team text, then <!-- orqlet:begin baseline workflow@0.3.3#... --> ... <!-- orqlet:end baseline -->
+CLAUDE.md                       "@AGENTS.md" and your line, then <!-- orqlet:begin claude-import --> @AGENTS.md <!-- orqlet:end claude-import -->
+.github/pull_request_template.md  your "## What changed", the Orqlet block, your "## How it was tested"
+.orqlet/project-profile.yaml    python ">=3.12" (evidence: pyproject.toml line 4), FastAPI (evidence: line 5), kind python-service
+```
+
+**4. Review and commit** as one pull request, and let the owners of `.orqlet/`, `.prompts/` and the
+generated folders review it. Then approve the profile (`orqlet profile approve --reviewer NAME`)
+and answer the conventions as the team decides (see "Team links and conventions").
+
+**5. Live with it.** A hand edit of a protected file is found and undone:
+
+```sh
+echo "my edit" >> .claude/rules/orqlet-workflow.md
+orqlet sync
+# 1 error(s), 0 warning(s), 3 note(s).
+# ERROR   ORQ-E150 .claude/rules/orqlet-workflow.md is protected and tampered. Restore it with `orqlet upgrade`; CI fails until then.
+orqlet upgrade --yes
+# Upgraded.   update .claude/rules/orqlet-workflow.md
+# ORQ-W096: .claude/rules/orqlet-workflow.md is protected and was changed. The upgrade restores it.
+```
+
+A file that you want to own is handed over, with a reason that is recorded in
+`.orqlet/released.yaml`:
+
+```sh
+orqlet release .claude/commands/orqlet-doctor.md --reason "we word it ourselves" --yes
+# Released. The file is now the team's.
+orqlet release .claude/rules/orqlet-workflow.md --reason x --yes
+# Refused. ORQ-E141: ... is protected and cannot be released.
+```
+
+**6. Declare an MCP server (optional).** In a project that uses Atlassian with Claude Code, write
+`.orqlet/integrations.yaml` (its fields are in the section "MCP servers, one credential per user"),
+then:
+
+```sh
+orqlet validate integrations
+# PASS: .orqlet/integrations.yaml
+# INFO    ORQ-I530 servers[0] uses sign-in: its entry gives the agent the user's full permissions and restricts nothing
+orqlet upgrade --yes
+#   create .mcp.json
+```
+
+## Upgrade a project that already uses Orqlet
+
+A new release of Orqlet may change the text of the skills, the rules and the baseline.
+
+```sh
+orqlet --version                 # the version that you installed
+orqlet doctor                    # ORQ-W160 when it differs from the version that the project pins
+orqlet upgrade --check           # "An upgrade is available. Nothing was written." and the files it would touch
+orqlet upgrade --dry-run         # the full plan; writes nothing
+orqlet upgrade --yes             # write it as one change; undo it with orqlet rollback <id>
+```
+
+What the upgrade does and does not touch:
+
+- Protected files are re-rendered, and a hand edit is undone. A generated file that you edited stays as edited; if the new release also changes it, you get a proposal and the warning ORQ-W080.
+- Managed blocks are replaced; the rest of the file stays.
+- A seeded file that you edited stays as edited. When the new release would write other text, the
+  wanted text is shown as a proposal, `.orqlet/proposals/<path with / written as __>.diff`, which you merge by hand.
+  The pins in `.orqlet/versions.yaml` arrive this way:
+
+  ```text
+   workflow:
+  -  version: "0.3.1"
+  -  digest: "5d6807e8..."
+  -  floor: "0.3.1"
+  +  version: "0.3.3"
+  +  digest: e77980e8...
+  +  floor: "0.3.3"
+  ```
+
+- An older Orqlet refuses a profile that holds fields it does not know, so once the profile was
+  written by a newer release (`profile answer`, `profile approve`, a merged proposal) everyone who
+  works on the project needs that version or a later one.
+- `--resume` finishes a change that was interrupted. `--allow-weaker` allows a downgrade and warns
+  (ORQ-W095). A pull request that lowers a pin or a floor should need two approvals
+  (`lowering_pin_or_floor_requires_approvals` in `.orqlet/versions.yaml`); Orqlet does not count
+  them, your code host does.
+
+After an upgrade, start a new session in the client.
+
+## Day to day
 
 ```sh
 orqlet sync        # check this checkout against the manifest; writes nothing
-orqlet doctor      # report drift; writes nothing
+orqlet doctor      # what is missing, edited, stale or unknown; writes nothing
+orqlet explain     # what is declared, what is generated, what Orqlet cannot see
+orqlet explain --path src/orders --phase design --role architect   # and the rules that apply there
+orqlet doctor --check-personal-names   # list personal skill and agent names against the reserved ones
 orqlet upgrade     # re-render from a newer release, keeping the team's edits
-orqlet rollback    # restore the files of one change, if nothing has touched them since
+orqlet rollback <change id>   # restore the files of one change
 ```
 
-After an upgrade, start a new session in the client: a running session keeps the instructions it loaded.
+`rollback` restores only when nothing has touched the files since. Otherwise it refuses and names
+them (ORQ-E133), so that a later change is never lost. Run `--json` on a command to get a machine
+readable result for a script.
+
+Exit codes: `0` ok, `1` the command found problems or warnings, `2` wrong options, `3` refused (invalid
+input or an unsafe state), `4` a question is open and there is no terminal to ask it, `5` a check
+found an error, or a validator ended `FAIL` or `NOT_RUN`, and `70` a bug in Orqlet. A check that did
+not run is `NOT_RUN`, never a pass.
 
 ## The workflow in the client
 
@@ -150,7 +311,7 @@ After `init`, the client offers these skills. Run them in order for a change tha
 
 | Skill | What it does | Writes |
 |---|---|---|
-| `orqlet-onboard` | Resolves what is still unknown in the project profile with you, from repository evidence | `.orqlet/project-profile.yaml` |
+| `orqlet-onboard` | Resolves what is still unknown in the project profile with you, from repository evidence, and registers links with your yes | `.orqlet/project-profile.yaml`, and `.orqlet/resources.yaml` and `docs/resources/<id>.md` |
 | `orqlet-research` | Records verified facts, unknowns and contradictions | `docs/design/<task>/as-is.md` |
 | `orqlet-design` | Records the design and its decisions | `docs/design/<task>/design/` |
 | `orqlet-plan` | Splits the design into phases with exact file operations | `docs/design/<task>/plan.yaml` |
@@ -158,20 +319,81 @@ After `init`, the client offers these skills. Run them in order for a change tha
 | `orqlet-review` | Starts the independent architecture and security reviews of the staged change on a read-only packet | review records |
 
 Each skill stops at a person: you accept the AS-IS file, and you approve the design and the plan by
-merging them. The skills start read-only subagents where the client has them (inventory, tracer,
-tester, architecture reviewer, security reviewer).
+merging them. The skills start subagents where the client has them: four read-only ones (an
+inventory researcher, a tracer, an architecture reviewer and a security reviewer) and a tester that
+writes the test files named in the plan. A review that runs in the same client as the author gets
+the independence class I1, and a change of class D3 needs I2, so `orqlet validate review` reports
+it as `NOT_RUN`: run the reviewers in another client (or a different model family, when
+`.orqlet/role-bindings.yaml` lists the families), or review it yourself.
 
-You can run the checks yourself:
+You can run the checks yourself. The outputs below are from this repository's own task folder:
 
 ```sh
 orqlet validate as-is docs/design/<task>/as-is.md
+# PASS: ...   90 unknown(s) (76 material), 15 contradiction(s), 154 fact(s)
 orqlet validate design docs/design/<task>/design/manifest.yaml
+# PASS: ...   Change class D3 (the scope triggers D3)
 orqlet validate plan docs/design/<task>/plan.yaml
-orqlet gate status <task>                 # are the artifacts still current?
-orqlet standards for --path src --phase design --role architect
+# PASS: ...   9 phase(s), 87 file operation(s)
+orqlet evidence hash docs/design/<task>/plan.yaml     # path#sha256 that an artifact must carry
+orqlet gate status <task> --phase P-1                  # are the artifacts still current?
+orqlet standards for --path src/orqlet/domain --phase implement --role tester
+# 9 rule(s) apply. applicable_rules_hash: ...
 ```
 
-## Example: links and conventions, from setup to a pull request check
+During a phase, the commands that tie the records to the change are:
+
+```sh
+orqlet knowledge impact <task> <phase>    # candidates that the change may leave out of date, and the binding of the record
+orqlet review prepare <task> <phase>      # export the staged snapshot, diff, plan and records for the reviewers
+orqlet validate test docs/design/<task>/tests/<phase>.yaml
+orqlet validate knowledge docs/design/<task>/knowledge/<phase>.yaml
+orqlet validate review docs/design/<task>/reviews/<role>-<phase>-r1.yaml
+orqlet evidence cite <file> 10-20         # an evidence entry for lines of a committed file
+```
+
+`validate` also checks the question ledger (`validate ledger`), the registry of links
+(`validate resources`) and the MCP declaration (`validate integrations`).
+
+## Team links and conventions
+
+A team keeps what it knows and wants agents to read in a registry of links, and records its
+conventions in the profile. Orqlet writes no page content into the instructions: a rule or a skill
+names a link and its stored copy, and the client reads the page itself.
+
+- **A registry of links.** `.orqlet/resources.yaml` lists the team's links: API guidelines,
+  documentation of a tool, team pages. Each entry has an id, a title, a kind, an address that is
+  checked where it enters, a note that says why and when to read it, and `access: public` or
+  `login`. The commands are `orqlet resources add`, `update`, `remove`, `attach` and `list`, and
+  `orqlet validate resources` checks the file and its copies. A copy or summary of a page may be
+  kept at `docs/resources/<id>.md`; `attach` records its SHA-256 and time.
+- **What the clients get.** `orqlet upgrade` renders the registry: the catalogue skill
+  `orqlet-resources` for every entry, a path-scoped rule for an entry with `--path` (Claude Code
+  and Cursor; Codex has no per-path rules), and a skill `orqlet-tool-<id>` for an entry with
+  `--tool`. Every generated file is protected, and a value is written as quoted data after a fixed
+  label, never as free text.
+- **Conventions in the profile.** Besides the branch naming rule and the commit convention, which
+  `init` asks first, seven conventions can be answered: branch model, branch patterns, release
+  flow, pull-request shape, merge strategy, required checks and reviewers.
+  `init` and `orqlet profile answer` take them (`none` means the team has no rule). The answers
+  appear in a second managed block of `AGENTS.md`, and `orqlet doctor` lists the unknown ones as
+  information (ORQ-I502), so its exit code does not change.
+- **A check for pull requests.** `orqlet conventions check` checks the branch name against the
+  patterns and, for `conventional-commits`, the commit subjects. The README section
+  "Checks for pull requests" has the CI step.
+- **Lookup rules for agents.** The baseline has a section "Looking things up", the skills
+  `orqlet-onboard`, `orqlet-research`, `orqlet-design` and `orqlet-implement` each have one step
+  that applies it, the five roles are told to look nothing up, and
+  `orqlet evidence cite` refuses a page under `docs/design/*/evidence/web/` that holds a credential
+  shape. Each client reports the capability limit ORQ-L006: the lookup is requested, the opt-out
+  is not verified, and the rules are advice.
+
+What this does not do: Orqlet fetches no page and holds no login, and no check has shown that a
+client honours the lookup text, the path-scoped rules or the skills that the agent may start. Six of
+the eight conventions are recorded and told to agents, not enforced; the host enforces them, if the
+team sets it up.
+
+### Example: links and conventions, from setup to a pull request check
 
 A team keeps a FastAPI service in `shop/`. The output below is shortened from a real run in a
 scratch repository.
@@ -279,159 +501,6 @@ orqlet upgrade --check
 give; the id never changes. After `orqlet resources remove <id>` and `orqlet upgrade` the generated
 files are gone. The stored copy stays, because it is the team's file: delete it yourself, or
 `doctor` names it (ORQ-I501) and `validate resources` fails for a copy that no entry names.
-
-## Commands
-
-| Command | Purpose |
-|---|---|
-| `init` | Set up the AI context of a project: existing, new or empty |
-| `upgrade` | Re-render the setup from this release without overwriting the team's edits |
-| `rollback` | Restore the files of one change |
-| `sync` | Check this checkout against the manifest (writes nothing) |
-| `doctor` | Report what is missing, edited, stale or unknown (writes nothing) |
-| `explain` | Show what is declared, what is generated and what Orqlet cannot see |
-| `release` | Take a file out of the manifest (protected files cannot be released) |
-| `profile` | Answer open facts and approve the project profile |
-| `standards` | Read the standards that apply to a path, phase and role |
-| `validate` | Check an artifact an agent wrote, the registry of links (`validate resources`) and the MCP declaration (`validate integrations`) |
-| `resources` | Register links to team resources (`add`, `update`, `remove`, `attach`, `list`) |
-| `conventions` | Check the branch name and the commit subjects against the profile (`check`) |
-| `gate` | Check what the workflow's gates would see |
-| `evidence` | Print the hashes and citations an artifact must carry |
-| `knowledge` | Knowledge that travels with the code |
-| `review` | Independent review of a staged change |
-
-Run `orqlet <command> --help` for the options.
-
-## Checks for pull requests
-
-Three offline commands can run in a CI job of your code host on every pull request. CI on the host
-is the check that decides; Orqlet builds no local hook.
-
-- `orqlet validate resources` checks `.orqlet/resources.yaml` and every stored copy under
-  `docs/resources/`: hashes, the two header lines, hidden text and credential shapes, and any file
-  that no entry names.
-- `orqlet conventions check` checks the branch name against the branch patterns of the profile and,
-  when the commit convention is `conventional-commits`, the subject of every commit of
-  `base..head`. The rules are read from the profile at the base revision, not from the pull
-  request, so a pull request cannot relax the rule that judges it; a change of the profile takes
-  effect after it is merged.
-- `orqlet upgrade --check` exits non-zero when a change of the registry, the profile or the MCP
-  declaration has not been rendered, or when a protected generated file was edited by hand.
-
-A project that holds `.orqlet/integrations.yaml` adds a fourth step, `orqlet validate integrations`;
-the section "MCP servers, one credential per user" has it.
-
-Add the step after the conventions are answered: `conventions check` is `NOT_RUN`, and exits 5,
-when nothing is configured, when the base cannot be found (a shallow clone), or when a Git command
-fails. Replace `<cli.pinned>` by the commit id (a tag can move) of the version that `cli.pinned` of
-`.orqlet/versions.yaml` names, written into the workflow file itself and not read from the pull
-request, and replace the action pins by the commits of releases you have reviewed. The runner must
-be able to read the Orqlet repository without a secret. Always pass `--base` in CI: without it the
-base comes from the target branch named in the working tree, which a pull request can change.
-
-```yaml
-name: orqlet-checks
-
-on:
-  pull_request:
-
-permissions:
-  contents: read
-
-jobs:
-  orqlet:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
-      - run: uv tool install "git+https://github.com/tmishari/orqlet@<cli.pinned>"
-      - run: orqlet validate resources
-      - run: orqlet conventions check --branch="$HEAD_REF" --base="origin/$BASE_REF"
-        env:
-          HEAD_REF: ${{ github.head_ref }}
-          BASE_REF: ${{ github.base_ref }}
-      - run: orqlet upgrade --check
-```
-
-The snippet uses `pull_request` and never `pull_request_target`, reads the contents only, keeps no
-credentials, has a timeout, passes the branch names through `env:` and has no `if:` on the job,
-because a skipped job counts as passed for a required status check. A pull request can still
-remove the step or change the workflow file, so the workflow file needs a reviewer of its own
-(for example a CODEOWNERS entry for `.github/workflows/`). Whether the step blocks a merge
-depends on a person making it a required status check on the host; Orqlet cannot set or read that.
-Do not pipe the output of `conventions check` into a job summary or another log command without
-escaping it: it shows branch and subject text escaped and cut at 100 characters, which bounds the
-size and is not a control.
-
-What is checked, and what is not:
-
-- Of the eight conventions in the profile (branch model, branch naming, commit convention,
-  pull-request shape, merge strategy, required checks, reviewers, release flow), two of the eight
-  conventions are checked by a tool: the branch name and, for `conventional-commits`, the commit
-  subjects. The other six are recorded and told to agents. A host can enforce some of them through
-  branch protection, which Orqlet cannot read, so confirm those settings there.
-- A subject that starts with `Merge ` is not checked, and a `Revert` subject has to have the shape
-  too. Under a squash merge the commit that lands has the pull-request title, and a squash-merge
-  title is outside the check, because the check never sees it.
-- Stored copies and registered links reach the instructions of three clients, so the pull request
-  that changes them must be reviewed. Reviewers read the raw diff of `docs/resources`: rendered
-  Markdown can hide text in HTML and in link definitions. Keep copies of pages behind a login, and
-  browser storage-state files, cookies and tokens, out of Git; `validate resources` refuses a copy
-  that has such a shape, but its scan is a list of known shapes and not a guarantee.
-- A path glob of a link cannot hold a space, `@`, a backtick or angle brackets, and a convention
-  answer cannot hold `@`, a link, markup or a backtick.
-
-### Finding codes of the registry, the conventions and the check
-
-| Code | Meaning |
-|---|---|
-| ORQ-E500, E501, E502 | The registry cannot be read safely, fails its contract (a file that the strict loader refuses is reported here too), or is above 256 KiB |
-| ORQ-E503 | `init` (run again) or `upgrade` refuses an invalid registry, or one that is missing while the lock records it |
-| ORQ-E504 | A stored copy is missing, or is not a regular file that can be read |
-| ORQ-E505 | A stored copy differs from the SHA-256 recorded for it |
-| ORQ-E506 | A stored copy fails its header, hidden-text or credential check, is not valid UTF-8 or is above 64 KiB |
-| ORQ-E507 | Reserved: a login copy that is not a summary is reported as ORQ-E501, because the contract refuses it |
-| ORQ-E508 | An item under `docs/resources` is not a regular `<id>.md` named by an entry that records a copy |
-| ORQ-E509 | An edit command is refused (also a skipped link at `init`, as a warning) |
-| ORQ-E510 | `resources attach` for an entry behind a login needs a terminal |
-| ORQ-E511 | `evidence cite` refuses a file under `docs/design/*/evidence/web/` with a credential shape, a hidden character or more than 256 KiB; the file is already in a local commit, so amend it before a push |
-| ORQ-E520, E521 | A branch name is not allowed by the patterns; a commit subject has the wrong shape |
-| ORQ-W500 | A stored copy is past its time-to-live (advice: a hand edit of the record can hide it) |
-| ORQ-I500 | An entry behind a login: its page text goes to the client's model vendor |
-| ORQ-I501 | A copy whose entry is gone (Orqlet never deletes a copy) |
-| ORQ-I502, I503 | Conventions that are not recorded; conventions that only the host can enforce |
-| ORQ-I504 | `init` registered no links and says how to add them |
-| ORQ-I520 | The branch check was skipped because the branch is the target branch |
-| ORQ-L006 | Lookups on the web are requested by the baseline; how to opt out; documented and not observed |
-
-What stays with the team:
-
-- A stored copy and a link are text that three clients read as guidance. The scans catch known
-  shapes (token prefixes, a JWT, a private-key block, user information in an address, an
-  authorization value, a `key=value` pair, the shape of a browser storage-state file) and not every
-  secret: a PGP armor header, a cookie value and a short password are outside them. Review is the
-  control.
-- The freshness of a copy is advice. The hash and the time are bookkeeping: one pull request can
-  change both the file and its record.
-- The `access` of an entry and the `form` of a copy are labels that the team declares. A login
-  site registered as `public` escapes the summary-only rule, and nothing tells a summary from a
-  pasted page.
-- A client that has no web tool, or whose tool is off, gets only what a stored copy holds.
-- Taking a managed block out of `AGENTS.md` leaves one blank line behind.
-- The guard of `evidence cite` runs when a file is cited and not before: a file under
-  `evidence/web/` that is never cited is never scanned, `evidence hash` is not guarded, no CI step
-  walks the folder, and a design cites its evidence as `path:lines` strings. A file with invalid
-  UTF-8 and nothing else wrong is cited.
-- A stored copy has a licence and a permission of its own; the registry does not record either. A
-  convention answer such as the reviewers reaches `AGENTS.md`, so do not put a personal name in it
-  that the team does not want in the repository.
-- Keep a browser profile that agents use signed in only to the team's sites, and keep profile
-  folders out of Git.
 
 ## MCP servers, one credential per user
 
@@ -626,6 +695,185 @@ the release that needs them runs them. What each of the six showed, and what it 
 | ORQ-I533 | There is no declaration and an MCP file could not be read, so nothing was checked in it |
 | ORQ-I534 | `orqlet upgrade` shows a proposal for an MCP file that exists; it shows only the text that Orqlet wants, and it comes back on every run until the file equals that text |
 
+## Commands
+
+| Command | Purpose |
+|---|---|
+| `init` | Set up the AI context of a project: existing, new or empty |
+| `upgrade` | Re-render the setup from this release without overwriting the team's edits |
+| `rollback` | Restore the files of one change |
+| `sync` | Check this checkout against the manifest (writes nothing) |
+| `doctor` | Report what is missing, edited, stale or unknown (writes nothing) |
+| `explain` | Show what is declared, what is generated and what Orqlet cannot see |
+| `release` | Take a file out of the manifest (protected files cannot be released) |
+| `profile` | Answer open facts and approve the project profile |
+| `standards` | Read the standards that apply to a path, phase and role |
+| `validate` | Check an artifact an agent wrote, the registry of links (`validate resources`) and the MCP declaration (`validate integrations`) |
+| `resources` | Register links to team resources (`add`, `update`, `remove`, `attach`, `list`) |
+| `conventions` | Check the branch name and the commit subjects against the profile (`check`) |
+| `gate` | Check what the workflow's gates would see |
+| `evidence` | Print the hashes and citations an artifact must carry |
+| `knowledge` | Knowledge that travels with the code |
+| `review` | Independent review of a staged change |
+
+Run `orqlet <command> --help` for the options. Every command takes `--root <directory>` (the project
+root; the default is `.`) and most take `--json`. A command that writes takes `--yes` (apply without
+asking) and, except `release`, `--dry-run` (show the plan, write nothing).
+
+### Options that matter
+
+| Command | Options |
+|---|---|
+| `init` | `--client` (repeat; default all three), `--answer KEY=VALUE`, `--target-branch`, `--git-init`, `--new-project`, `--name`, `--prompts-dir`, `--packs-dir` |
+| `upgrade` | `--check` (only report), `--resume` (finish an interrupted change), `--allow-weaker` (a downgrade; two approvals), `--packs-dir` |
+| `rollback <change id>` | `--allow-weaker`, `--project-id` (when the profile is gone) |
+| `sync`, `doctor` | `--check-personal-names` |
+| `explain` | `--path`, `--role`, `--phase`, `--packs-dir` |
+| `release <path>` | `--reason` (required, written to `.orqlet/released.yaml`); it has no `--dry-run`, and asks first unless you pass `--yes` |
+| `profile answer KEY=VALUE ...` | one or more pairs; changing a fact withdraws approval |
+| `profile approve` | `--reviewer NAME` (required) |
+| `resources add <url>` | `--id`, `--title`, `--kind` (`api-guidelines`, `tool-docs`, `team-docs`, `other`), `--note` (all required); `--access public\|login`, `--path` (repeat), `--tool`, `--version` |
+| `resources update <id>` | any of the fields above, and `--url`; the id never changes |
+| `resources attach <id>` | `--form copy\|summary` and `--ttl-days` (both required) |
+| `resources list` | `--uncovered` (technologies that no entry names) |
+| `conventions check` | `--branch`, `--base`, `--head` |
+| `standards for` | `--path`, `--role`, `--phase`, `--packs-dir` |
+| `validate <kind> [file]` | the kinds are `as-is`, `design`, `plan`, `ledger`, `resources`, `integrations`, `review`, `test` and `knowledge`; `as-is` also takes `--against`, `--fragments` and `--ledger`; `review` takes `--base` and `--head` |
+| `gate status [task]` | `--phase`, `--base`, `--head` |
+| `evidence cite <file> <lines>` | `--revision`; `evidence hash <files>...` |
+| `knowledge impact <task> <phase>` | `--base`, `--head` |
+| `review prepare <task> <phase>` | `--base`, `--head` (`staged`, `HEAD` or a commit id) |
+
+## Checks for pull requests
+
+Three offline commands can run in a CI job of your code host on every pull request. CI on the host
+is the check that decides; Orqlet builds no local hook.
+
+- `orqlet validate resources` checks `.orqlet/resources.yaml` and every stored copy under
+  `docs/resources/`: hashes, the two header lines, hidden text and credential shapes, and any file
+  that no entry names.
+- `orqlet conventions check` checks the branch name against the branch patterns of the profile and,
+  when the commit convention is `conventional-commits`, the subject of every commit of
+  `base..head`. The rules are read from the profile at the base revision, not from the pull
+  request, so a pull request cannot relax the rule that judges it; a change of the profile takes
+  effect after it is merged.
+- `orqlet upgrade --check` exits non-zero when a change of the registry, the profile or the MCP
+  declaration has not been rendered, or when a protected generated file was edited by hand.
+
+A project that holds `.orqlet/integrations.yaml` adds a fourth step, `orqlet validate integrations`;
+the section "MCP servers, one credential per user" has it.
+
+Add the step after the conventions are answered: `conventions check` is `NOT_RUN`, and exits 5,
+when nothing is configured, when the base cannot be found (a shallow clone), or when a Git command
+fails. Replace `<cli.pinned>` by the commit id (a tag can move) of the version that `cli.pinned` of
+`.orqlet/versions.yaml` names, written into the workflow file itself and not read from the pull
+request, and replace the action pins by the commits of releases you have reviewed. The runner must
+be able to read the Orqlet repository without a secret. Always pass `--base` in CI: without it the
+base comes from the target branch named in the working tree, which a pull request can change.
+
+```yaml
+name: orqlet-checks
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  orqlet:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+      - run: uv tool install "git+https://github.com/tmishari/orqlet@<cli.pinned>"
+      - run: orqlet validate resources
+      - run: orqlet conventions check --branch="$HEAD_REF" --base="origin/$BASE_REF"
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+          BASE_REF: ${{ github.base_ref }}
+      - run: orqlet upgrade --check
+```
+
+The snippet uses `pull_request` and never `pull_request_target`, reads the contents only, keeps no
+credentials, has a timeout, passes the branch names through `env:` and has no `if:` on the job,
+because a skipped job counts as passed for a required status check. A pull request can still
+remove the step or change the workflow file, so the workflow file needs a reviewer of its own
+(for example a CODEOWNERS entry for `.github/workflows/`). Whether the step blocks a merge
+depends on a person making it a required status check on the host; Orqlet cannot set or read that.
+Do not pipe the output of `conventions check` into a job summary or another log command without
+escaping it: it shows branch and subject text escaped and cut at 100 characters, which bounds the
+size and is not a control.
+
+What is checked, and what is not:
+
+- Of the eight conventions in the profile (branch model, branch naming, commit convention,
+  pull-request shape, merge strategy, required checks, reviewers, release flow), two of the eight
+  conventions are checked by a tool: the branch name and, for `conventional-commits`, the commit
+  subjects. The other six are recorded and told to agents. A host can enforce some of them through
+  branch protection, which Orqlet cannot read, so confirm those settings there.
+- A subject that starts with `Merge ` is not checked, and a `Revert` subject has to have the shape
+  too. Under a squash merge the commit that lands has the pull-request title, and a squash-merge
+  title is outside the check, because the check never sees it.
+- Stored copies and registered links reach the instructions of three clients, so the pull request
+  that changes them must be reviewed. Reviewers read the raw diff of `docs/resources`: rendered
+  Markdown can hide text in HTML and in link definitions. Keep copies of pages behind a login, and
+  browser storage-state files, cookies and tokens, out of Git; `validate resources` refuses a copy
+  that has such a shape, but its scan is a list of known shapes and not a guarantee.
+- A path glob of a link cannot hold a space, `@`, a backtick or angle brackets, and a convention
+  answer cannot hold `@`, a link, markup or a backtick.
+
+### Finding codes of the registry, the conventions and the check
+
+| Code | Meaning |
+|---|---|
+| ORQ-E500, E501, E502 | The registry cannot be read safely, fails its contract (a file that the strict loader refuses is reported here too), or is above 256 KiB |
+| ORQ-E503 | `init` (run again) or `upgrade` refuses an invalid registry, or one that is missing while the lock records it |
+| ORQ-E504 | A stored copy is missing, or is not a regular file that can be read |
+| ORQ-E505 | A stored copy differs from the SHA-256 recorded for it |
+| ORQ-E506 | A stored copy fails its header, hidden-text or credential check, is not valid UTF-8 or is above 64 KiB |
+| ORQ-E507 | Reserved: a login copy that is not a summary is reported as ORQ-E501, because the contract refuses it |
+| ORQ-E508 | An item under `docs/resources` is not a regular `<id>.md` named by an entry that records a copy |
+| ORQ-E509 | An edit command is refused (also a skipped link at `init`, as a warning) |
+| ORQ-E510 | `resources attach` for an entry behind a login needs a terminal |
+| ORQ-E511 | `evidence cite` refuses a file under `docs/design/*/evidence/web/` with a credential shape, a hidden character or more than 256 KiB; the file is already in a local commit, so amend it before a push |
+| ORQ-E520, E521 | A branch name is not allowed by the patterns; a commit subject has the wrong shape |
+| ORQ-W500 | A stored copy is past its time-to-live (advice: a hand edit of the record can hide it) |
+| ORQ-I500 | An entry behind a login: its page text goes to the client's model vendor |
+| ORQ-I501 | A copy whose entry is gone (Orqlet never deletes a copy) |
+| ORQ-I502, I503 | Conventions that are not recorded; conventions that only the host can enforce |
+| ORQ-I504 | `init` registered no links and says how to add them |
+| ORQ-I520 | The branch check was skipped because the branch is the target branch |
+| ORQ-L006 | Lookups on the web are requested by the baseline; how to opt out; documented and not observed |
+
+What stays with the team:
+
+- A stored copy and a link are text that three clients read as guidance. The scans catch known
+  shapes (token prefixes, a JWT, a private-key block, user information in an address, an
+  authorization value, a `key=value` pair, the shape of a browser storage-state file) and not every
+  secret: a PGP armor header, a cookie value and a short password are outside them. Review is the
+  control.
+- The freshness of a copy is advice. The hash and the time are bookkeeping: one pull request can
+  change both the file and its record.
+- The `access` of an entry and the `form` of a copy are labels that the team declares. A login
+  site registered as `public` escapes the summary-only rule, and nothing tells a summary from a
+  pasted page.
+- A client that has no web tool, or whose tool is off, gets only what a stored copy holds.
+- Taking a managed block out of `AGENTS.md` leaves one blank line behind.
+- The guard of `evidence cite` runs when a file is cited and not before: a file under
+  `evidence/web/` that is never cited is never scanned, `evidence hash` is not guarded, no CI step
+  walks the folder, and a design cites its evidence as `path:lines` strings. A file with invalid
+  UTF-8 and nothing else wrong is cited.
+- A stored copy has a licence and a permission of its own; the registry does not record either. A
+  convention answer such as the reviewers reaches `AGENTS.md`, so do not put a personal name in it
+  that the team does not want in the repository.
+- Keep a browser profile that agents use signed in only to the team's sites, and keep profile
+  folders out of Git.
+
 ## Development
 
 ```sh
@@ -639,7 +887,9 @@ uv run python tools/build_manifest.py --check
 ```
 
 These are the checks that CI runs. The code follows layered boundaries enforced by `import-linter`,
-and all output is deterministic: the same inputs give the same bytes on every platform.
+and all output is deterministic: the same inputs give the same bytes on every platform. A change
+that moves a generated file updates the golden files under `tests/golden/`; the command that
+regenerates them refuses to run in CI.
 
 ## License
 
