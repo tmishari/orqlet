@@ -1,9 +1,9 @@
 # Orqlet
 
 Orqlet is a command-line tool that sets up and maintains the AI-assistant structure of a repository,
-so that every developer's AI coding client starts from the same reviewed base. A *client* is an AI
-coding tool (an agent harness) that runs in a terminal, in an IDE or both. Orqlet supports three:
-**Claude Code**, **Codex** and **Cursor**.
+so that every developer's coding agent starts from the same reviewed base. Orqlet supports three
+coding agents, **Claude Code**, **Codex** and **Cursor**, and calls each one a *client*. Each runs in
+a terminal, in an editor or both.
 
 Orqlet never takes a prompt, never starts an agent and never calls a language model. Developers keep
 writing prompts in their own client. Orqlet writes the files that the client reads, checks that they
@@ -49,9 +49,11 @@ follow each client's published documentation; the tests check the files, not the
 Orqlet itself opens no connection and never reads a credential store. A page is read by the client's own web
 tool, as the developer, under the section "Looking things up" of the baseline. That text is advice
 to the agent, not a control, and no check has shown that a client honours it: each client reports
-the capability limit ORQ-L006 for it. A person records the checks of the design of team links and conventions (V-1 to V-8, V-10 and V-11)
-with a test account before a claim about a client is made; the MCP design has its own checks, in the
-section "Checks with a client".
+the capability limit ORQ-L006 for it. Two designs plan checks with a real client. The design of
+team links and conventions lists its checks in
+[ADR-005](docs/design/team-conventions-resources/design/adr-005-build-order-release-steps-and-checks-with-test-sessions.md);
+a person runs them with a test account before a claim about a client is made. The MCP design has
+its own checks, numbered separately, in the section "Checks with a client".
 
 The full design is in
 [`docs/design/orqlet-architecture-proposal.md`](docs/design/orqlet-architecture-proposal.md); its
@@ -372,9 +374,10 @@ names a link and its stored copy, and the client reads the page itself.
   and Cursor; Codex has no per-path rules), and a skill `orqlet-tool-<id>` for an entry with
   `--tool`. Every generated file is protected, and a value is written as quoted data after a fixed
   label, never as free text.
-- **Conventions in the profile.** Besides the branch naming rule and the commit convention, which
-  `init` asks first, seven conventions can be answered: branch model, branch patterns, release
-  flow, pull-request shape, merge strategy, required checks and reviewers.
+- **Conventions in the profile.** The profile holds eight conventions. `init` asks first for the
+  branch naming rule and the commit convention; the other six are the branch model, release flow,
+  pull-request shape, merge strategy, required checks and reviewers. Branch patterns are not a
+  ninth convention: they are the branch naming rule in the form that `conventions check` reads.
   `init` and `orqlet profile answer` take them (`none` means the team has no rule). The answers
   appear in a second managed block of `AGENTS.md`, and `orqlet doctor` lists the unknown ones as
   information (ORQ-I502), so its exit code does not change.
@@ -499,18 +502,19 @@ orqlet upgrade --check
 
 **7. Change or remove a link.** `orqlet resources update <id> --note '...'` changes the fields you
 give; the id never changes. After `orqlet resources remove <id>` and `orqlet upgrade` the generated
-files are gone. The stored copy stays, because it is the team's file: delete it yourself, or
+files are gone, and so are the folders that they leave empty. The stored copy stays, because it is the team's file: delete it yourself, or
 `doctor` names it (ORQ-I501) and `validate resources` fails for a copy that no entry names.
 
 ## MCP servers, one credential per user
 
 A team that uses Atlassian with Claude Code can have Orqlet write the MCP file of Claude Code from
-one declaration, so that every developer starts from the same entry and signs in with their own
+one declaration. Every developer then starts from the same entry and signs in with their own
 account. The sameness is checked on demand and not enforced: a file that someone edits by hand stays
-as edited until the check runs. This is the only combination that Orqlet generates. The declaration may name the address
-`https://mcp.atlassian.com/v2/mcp` with the mode `client-native-oauth` for `claude-code`; the loader
-refuses another combination for a server that is registered for a client (ORQ-E532) until a later
-release enables it.
+as edited until the check runs.
+
+This is the only combination that Orqlet generates: the address `https://mcp.atlassian.com/v2/mcp`
+with the mode `client-native-oauth` for `claude-code`. For a server that is registered for a client,
+the loader refuses any other combination (ORQ-E532) until a later release enables it.
 
 1. **Declare.** Write `.orqlet/integrations.yaml`. It names the server, its address, the sign-in
    mode and the clients. It holds no secret and no value of a variable. The JSON Schema that ships
@@ -519,15 +523,18 @@ release enables it.
    declared server that is registered for Claude Code, when Claude Code is enabled in the profile.
    The file is written once, and afterwards it belongs to the team. A file that the team deleted is
    not written again.
-3. **A file that exists.** Orqlet never rewrites a `.mcp.json` that the team already has, and
-   `orqlet upgrade` never copies a byte of it into a proposal, a plan, a preview, the journal or a
-   backup; one case, named under "What this does and does not give", is the exception to both. When Orqlet
-   did not write the file, or the text that Orqlet would write has changed since it did, and the
-   file differs from that text, `orqlet upgrade` offers a proposal that shows only the text that
-   Orqlet wants. The proposal stays until you merge it by hand into your file. It comes back on
-   every run until the file equals that text byte for byte, so a file that holds other servers
-   keeps the proposal until the team takes the file over (step 5). A file that Orqlet wrote and the
-   team then edited gets no proposal while the text that Orqlet would write is unchanged.
+3. **A file that exists.** Orqlet never rewrites a `.mcp.json` that the team already has.
+   - `orqlet upgrade` never copies a byte of it into a proposal, a plan, a preview, the journal or
+     a backup. One case is the exception to this and to the rule above; it is named under "What
+     this does and does not give".
+   - If Orqlet did not write the file, or the text that Orqlet would write has changed, and the
+     file differs from that text, `orqlet upgrade` offers a proposal. The proposal shows only the
+     text that Orqlet wants. It stays until you merge it by hand into your file.
+   - The proposal comes back on every run until the file equals that text byte for byte. A file
+     that holds other servers therefore keeps the proposal until the team takes the file over
+     (step 5).
+   - A file that Orqlet wrote and the team then edited gets no proposal, as long as the text that
+     Orqlet would write is unchanged.
 4. **Sign in.** Each developer opens `/mcp` in Claude Code and signs in with their own Atlassian
    account. No token is committed and no variable is set.
 5. **Take the file over.** A team that does not want the check can delete the declaration and
@@ -763,13 +770,19 @@ is the check that decides; Orqlet builds no local hook.
 A project that holds `.orqlet/integrations.yaml` adds a fourth step, `orqlet validate integrations`;
 the section "MCP servers, one credential per user" has it.
 
-Add the step after the conventions are answered: `conventions check` is `NOT_RUN`, and exits 5,
+Add the step after the conventions are answered. `conventions check` is `NOT_RUN`, and exits 5,
 when nothing is configured, when the base cannot be found (a shallow clone), or when a Git command
-fails. Replace `<cli.pinned>` by the commit id (a tag can move) of the version that `cli.pinned` of
-`.orqlet/versions.yaml` names, written into the workflow file itself and not read from the pull
-request, and replace the action pins by the commits of releases you have reviewed. The runner must
-be able to read the Orqlet repository without a secret. Always pass `--base` in CI: without it the
-base comes from the target branch named in the working tree, which a pull request can change.
+fails.
+
+Before you commit the snippet:
+
+- Replace `<cli.pinned>` by the commit id of the version that `cli.pinned` in
+  `.orqlet/versions.yaml` names. Use a commit id, because a tag can move. Write it into the workflow
+  file itself; never read it from the pull request.
+- Replace the action pins by the commits of releases that you have reviewed.
+- Make sure the runner can read the Orqlet repository without a secret.
+- Always pass `--base` in CI. Without it, the base comes from the target branch named in the
+  working tree, which a pull request can change.
 
 ```yaml
 name: orqlet-checks
@@ -893,4 +906,4 @@ regenerates them refuses to run in CI.
 
 ## License
 
-No license is declared in this repository yet.
+Proprietary. For internal use at Cisco only; no open-source license is granted.
