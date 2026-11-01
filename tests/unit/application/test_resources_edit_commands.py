@@ -79,6 +79,7 @@ from orqlet.adapters.render.emit import YamlWriter
 from orqlet.application.contracts.generated_lock import GeneratedLock, LockedFile
 from orqlet.application.contracts.loading import load_contract
 from orqlet.application.contracts.resources import Resource, Resources
+from orqlet.application.ports.filesystem import FileKind
 from orqlet.application.ports.vcs import RepoState
 from orqlet.application.usecases import resources_edit
 from orqlet.application.usecases.diagnose import doctor
@@ -1505,6 +1506,23 @@ def test_after_a_remove_an_upgrade_deletes_the_generated_files_and_doctor_is_cle
     assert [f for f in findings if f.severity is Severity.ERROR] == []
     assert "ORQ-E153" not in codes(findings)
     assert ALPHA_COPY in tree(env.project)  # the copy is the team's: no upgrade deletes it
+
+
+def test_after_a_remove_an_upgrade_leaves_no_empty_skill_folder() -> None:
+    """AC-2. expected_behavior_source: ADR-002 decision 7 ("the upgrade deletes the orphans and the
+    folders that they leave empty, and stops at the first folder that still holds something")."""
+    env = alpha_with_a_file()
+    attach(env)
+    plant_generated_file(env, GENERATED_FOR_ALPHA, b"a skill that an earlier render wrote\n")
+    remove_resource(services_of(env), "alpha", assume_yes=True, dry_run=False)
+
+    upgraded = upgrade(services_of(env), UpgradeOptions(assume_yes=True))
+
+    assert upgraded.status == "applied", upgraded.findings
+    skill_folder = CanonicalPath.parse(GENERATED_FOR_ALPHA).parent
+    assert skill_folder is not None
+    assert env.project.kind(skill_folder) is None
+    assert env.project.kind(CanonicalPath.parse(".claude/skills")) is FileKind.DIRECTORY
 
 
 def test_an_entry_can_be_added_again_after_it_was_removed() -> None:

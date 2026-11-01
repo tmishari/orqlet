@@ -688,12 +688,11 @@ def test_an_empty_file_with_the_reserved_prefix_is_still_an_error() -> None:
     assert [f.path for f in extra] == [".claude/rules/orqlet-empty.md"]
 
 
-def test_a_tool_skill_folder_that_an_upgrade_emptied_is_not_an_error() -> None:
-    """AC-5. expected_behavior_source: ADR-002 decision 7 ("`apply_plan` deletes files and not
-    folders, so the empty `orqlet-tool-<id>` folders stay, and `doctor` is changed to ignore a
-    reserved-prefix folder that holds no file ... a test covers remove, upgrade and doctor").
-    Nothing is rendered from the registry in phase P-3, so the test records the skill file by hand;
-    the registry names no tool, so the upgrade removes it as an orphan."""
+def test_an_upgrade_removes_the_tool_skill_folder_that_it_emptied() -> None:
+    """AC-5. expected_behavior_source: ADR-002 decision 7 ("the upgrade deletes the orphans and the
+    folders that they leave empty, and stops at the first folder that still holds something").
+    The test records the skill file by hand; the registry names no tool, so the upgrade removes it
+    as an orphan."""
     env = initialised()
     skill = ".claude/skills/orqlet-tool-x/SKILL.md"
     plant_generated_file(env, skill, b"a skill that an earlier render wrote\n")
@@ -703,8 +702,17 @@ def test_a_tool_skill_folder_that_an_upgrade_emptied_is_not_an_error() -> None:
 
     assert result.status == "applied"
     assert skill not in tree(env.project)
-    folder = path_of(".claude/skills/orqlet-tool-x")
-    assert env.project.kind(folder) is FileKind.DIRECTORY  # the premise: folders stay
+    assert env.project.kind(path_of(".claude/skills/orqlet-tool-x")) is None
+    assert env.project.kind(path_of(".claude/skills")) is FileKind.DIRECTORY
+    assert RESERVED_FOLDER not in codes(diagnose(env))
+
+
+def test_an_empty_tool_skill_folder_that_an_earlier_release_left_is_not_an_error() -> None:
+    """AC-5. expected_behavior_source: ADR-002 decision 7 ("`doctor` ignores a reserved-prefix
+    folder that holds no file, because an earlier release may have left one")."""
+    env = initialised()
+    env.project.make_dir(path_of(".claude/skills/orqlet-tool-x"))
+
     assert RESERVED_FOLDER not in codes(diagnose(env))
 
 
