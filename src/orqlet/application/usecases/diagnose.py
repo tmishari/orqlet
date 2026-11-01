@@ -214,7 +214,7 @@ def _extra_reserved_files(project: FileSystem, inst: Installation) -> list[Findi
             path = f"{directory}/{name}"
             if path not in listed and not any(item.startswith(f"{path}/") for item in listed):
                 if _holds_no_file(project, path):
-                    continue  # `apply_plan` removes files and not folders, so an empty one stays
+                    continue  # left by a release whose `apply_plan` removed files and not folders
                 found.append(
                     Finding(
                         "ORQ-E153",

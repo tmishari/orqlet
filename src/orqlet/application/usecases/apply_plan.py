@@ -21,6 +21,7 @@ from orqlet.application.ports.lock import ApplyLock
 from orqlet.domain.changeplan import ChangePlan, PlannedWrite
 from orqlet.domain.digest import sha256_hex
 from orqlet.domain.errors import OrqletError
+from orqlet.domain.paths import CanonicalPath
 
 
 class PlanStale(OrqletError):
@@ -67,6 +68,7 @@ def apply_plan(
         for write in ordered:
             if write.kind == "delete":
                 project.delete(write.path)
+                _remove_emptied_folders(project, write.path)
                 deleted.append(str(write.path))
             else:
                 assert write.content is not None
@@ -75,6 +77,20 @@ def apply_plan(
             journal.mark_done(change_id, str(write.path))
         journal.finish(change_id)
         return ApplyResult(change_id, tuple(written), tuple(deleted))
+
+
+def _remove_emptied_folders(project: FileSystem, deleted: CanonicalPath) -> None:
+    """Remove the folders above a deleted file that it left empty, nearest first.
+
+    A skill is a folder, so a removed skill would otherwise leave an empty folder that a client may
+    still list. The walk stops at the first folder that still holds something.
+    """
+    folder = deleted.parent
+    while folder is not None:
+        project.remove_empty_dir(folder)
+        if project.kind(folder) is not None:
+            return
+        folder = folder.parent
 
 
 def _verify_unchanged(project: FileSystem, writes: list[PlannedWrite]) -> None:
