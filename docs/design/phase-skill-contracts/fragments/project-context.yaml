@@ -1,0 +1,801 @@
+schema: orqlet.as-is-fragment/v1
+fragment_id: project-context
+base_revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+scope:
+  paths:
+  - src/orqlet/application/contracts/profile.py
+  - src/orqlet/application/contracts/knowledge_config.py
+  - src/orqlet/application/contracts/resources.py
+  - src/orqlet/application/contracts/artifact_header.py
+  - src/orqlet/application/contracts/common.py
+  - src/orqlet/application/contracts/plan.py
+  - src/orqlet/application/contracts/test_record.py
+  - src/orqlet/application/usecases/draft_profile.py
+  - src/orqlet/application/usecases/profile_edit.py
+  - src/orqlet/application/usecases/init_questions.py
+  - src/orqlet/application/usecases/init_project.py
+  - src/orqlet/application/usecases/discover.py
+  - src/orqlet/application/usecases/conventions_check.py
+  - src/orqlet/application/usecases/standards_for.py
+  - src/orqlet/application/usecases/explain.py
+  - src/orqlet/application/usecases/resources_view.py
+  - src/orqlet/application/usecases/knowledge_impact.py
+  - src/orqlet/application/usecases/gate_status.py
+  - src/orqlet/application/usecases/staleness.py
+  - src/orqlet/application/usecases/validation.py
+  - src/orqlet/application/usecases/evidence_cite.py
+  - src/orqlet/application/usecases/validate_records.py
+  - src/orqlet/application/usecases/review_prepare.py
+  - src/orqlet/application/usecases/binding_inputs.py
+  - src/orqlet/application/usecases/render_all.py
+  - src/orqlet/application/usecases/render_request.py
+  - src/orqlet/application/usecases/capabilities.py
+  - src/orqlet/application/usecases/validate_as_is.py
+  - src/orqlet/application/usecases/validate_plan.py
+  - src/orqlet/application/usecases/validate_design.py
+  - src/orqlet/application/usecases/validate_ledger.py
+  - src/orqlet/application/usecases/diagnose.py
+  - src/orqlet/domain/conventions.py
+  - src/orqlet/domain/knowledge.py
+  - src/orqlet/domain/evidence_artifacts.py
+  - src/orqlet/domain/binding.py
+  - src/orqlet/domain/resolver.py
+  - src/orqlet/adapters/scan/**
+  - src/orqlet/adapters/fs/journal.py
+  - src/orqlet/interface/cli/wiring.py
+  - src/orqlet/interface/cli/render_human.py
+  - src/orqlet/interface/cli/commands/*.py
+  - src/orqlet/workflow/templates/conventions-block.md
+  - src/orqlet/workflow/exempt.yaml
+  - src/orqlet/workflow/skills/orqlet-onboard/skill.md
+  - src/orqlet/workflow/skills/orqlet-research/skill.md
+  - .orqlet/*.yaml
+  - tests/unit/application/test_gate_status.py
+  - tests/unit/application/test_init_project.py
+  - tests/unit/render/test_clients_golden.py
+  request_ref: phase-skill-contracts
+facts:
+- id: A-1
+  kind: structure
+  statement: The orqlet.project-profile/v1 contract has the fields project, stack, profile, facts, repository,
+    structure, dependencies, auth_procedures, standards_sources, clients, orqlet, optional_components,
+    data_class, commands, technologies and capabilities. None of these fields names a location for task
+    documents or phase outputs.
+  evidence:
+  - path: src/orqlet/application/contracts/profile.py
+    lines: 155-172
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: c4391248f015f13beb54a3eca54af4d37bcd9bbd8be948c8f40332923ee22440
+- id: A-2
+  kind: interface
+  statement: '`commands` is a dict from an id to a CommandSpec of `argv` (tuple of strings), `cwd` (default
+    ''.'') and `source` (string). `structure` is a dict from a key to a FactValue.'
+  evidence:
+  - path: src/orqlet/application/contracts/profile.py
+    lines: 149-152
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 30ca9d6c6e4767eb569f02e45ed3a394784370745a21c93be0f1436a053a08c3
+  - path: src/orqlet/application/contracts/profile.py
+    lines: '162'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: c2a729c06116ebd208bd79805cf7be38c07fcd4e642bf257d1b4cbb7616a966b
+  - path: src/orqlet/application/contracts/profile.py
+    lines: '170'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 8885df58232734504575eba0d5da44665e81897f746ca7a0ca6707e67679ecfb
+- id: A-3
+  kind: interface
+  statement: A FactValue is either a value with evidence or with `answered_by`, or a null value with a
+    question. Evidence is path, line range and sha256.
+  evidence:
+  - path: src/orqlet/application/contracts/common.py
+    lines: 56-77
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: a090cf0d6d3433793cf834186687abb2b7c7b1a038f00c80884b33c282f3866f
+- id: A-4
+  kind: interface
+  statement: A Technology has kind, name, version, scope (default '.', the directory it belongs to), evidence
+    and source (scanner, maintainer or agent). A technology whose source is not maintainer must carry
+    evidence.
+  evidence:
+  - path: src/orqlet/application/contracts/profile.py
+    lines: 24-44
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 6cd60ecefd2ad0b2eac5ace650705d75ca7109a97419c4c1707bb4fd806ede5b
+- id: A-5
+  kind: flow
+  statement: draft_profile sets project, stack, profile meta (version 1, draft), facts, repository, dependencies,
+    technologies, standards_sources, clients and orqlet. It leaves structure, commands, capabilities,
+    data_class, auth_procedures and optional_components at their defaults.
+  evidence:
+  - path: src/orqlet/application/usecases/draft_profile.py
+    lines: 70-91
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: f3063042caccfcef11ec8e8ac3ef7741c6e00b7ea77cac0635ba59f05fae6f78
+- id: A-6
+  kind: flow
+  statement: In src, CommandSpec appears only in the profile contract and no use case constructs it. The
+    comments of plan.check_ref and of the tester record's CommandRun.id call these values 'a profile command
+    id'.
+  evidence:
+  - path: src/orqlet/application/contracts/profile.py
+    lines: 149-152
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 30ca9d6c6e4767eb569f02e45ed3a394784370745a21c93be0f1436a053a08c3
+  - path: src/orqlet/application/contracts/plan.py
+    lines: 28-32
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: cb0daa1b3c02261e154a2a7767fd0d38093f5536c61f0a8896d3fabcc77e3d61
+  - path: src/orqlet/application/contracts/test_record.py
+    lines: 17-21
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: c455bea9e6007edf6d85dce9ee8c11b49b031e19a23f36af06ae24b73ff5f8dc
+- id: A-7
+  kind: flow
+  statement: The only code that writes `structure` is apply_answers, which sets structure['test_runner']
+    from the answer key structure.test_runner. Init asks that question only when asks_stack holds, the
+    Python questions apply and the origin is a new project (empty, unborn or existing-no-code).
+  evidence:
+  - path: src/orqlet/application/usecases/init_questions.py
+    lines: 87-112
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 5253a50e82079e108b16e43e2cc3529b47496a546b224a1757f07e7321045991
+  - path: src/orqlet/application/usecases/init_questions.py
+    lines: 228-229
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 926d2fc15251fd1b1a2546c59a01d72130b6e500fae77bc951125bb95099d0c1
+- id: A-8
+  kind: interface
+  statement: '`orqlet profile answer KEY=VALUE` accepts only the 16 ANSWER_KEYS: facts.python, facts.package_manager,
+    facts.frameworks, project.kind, structure.test_runner, nine repository.* convention keys and technologies.
+    Any other key is refused with ORQ-E160.'
+  evidence:
+  - path: src/orqlet/application/usecases/init_questions.py
+    lines: 29-48
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 288cc0748a8afcdc9575c07e4237c85106697b71e7585e0c9118839dd8fc5336
+  - path: src/orqlet/application/usecases/profile_edit.py
+    lines: 48-54
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 04d0df394fb520ae0cf4e0f1ebbc619f09244617bfb94baa35f5bbdc91dcffde
+  - path: src/orqlet/interface/cli/commands/profile.py
+    lines: 77-84
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 7affdc3b72daec4e8af5a82a983791732c7b2902defc05add6be4302761c231c
+- id: A-9
+  kind: interface
+  statement: profile answer refuses facts.python and facts.package_manager with ORQ-E161 when the stored
+    fact already has evidence from files.
+  evidence:
+  - path: src/orqlet/application/usecases/profile_edit.py
+    lines: 55-65
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: dfa81ab50fd3cec49dca6b32b1af4b6db23b5ab757ac6b72bf8736b0c099d9f8
+- id: A-10
+  kind: flow
+  statement: The technologies answer is parsed as comma-separated [kind:]name[@version] entries and stored
+    with source 'maintainer'. No scope is set, so the scope defaults to '.'.
+  evidence:
+  - path: src/orqlet/application/usecases/init_questions.py
+    lines: 272-293
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: a373748fac9c37dbc9441466e8572f3ab41de9eb8a006447583accf07f2ab1cf
+  - path: src/orqlet/application/contracts/profile.py
+    lines: '36'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 77cfdeb04773c65c0cc234b7a3accec432032b2a44b857943d608aab6cf06a35
+- id: A-11
+  kind: flow
+  statement: PythonScanner returns language, facts (python, package_manager, frameworks), dependencies
+    and project kind. It produces nothing for commands or structure.
+  evidence:
+  - path: src/orqlet/adapters/scan/python_scanner.py
+    lines: 64-82
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: c24147ba9196dd3a7acf6d175d165ef8a6d170a40985b0f2415cf0fe8627d7f7
+- id: A-12
+  kind: structure
+  statement: 'Five technology scanners are wired: Python, Go, Rust, Node and Containers. Each records
+    a Technology''s scope as ''.'' for the root or as the sub-directory path.'
+  evidence:
+  - path: src/orqlet/interface/cli/wiring.py
+    lines: 63-71
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 4e8edcbafe7809e47622c4adb050bbb2a417a98f1d208c832cc6d4816dbbe02b
+  - path: src/orqlet/adapters/scan/technology_scanners.py
+    lines: 50-66
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: d23b66571d79e0988640fe54e78e2dfe94b9058a9d7718059f8e2e6d85e5ae75
+  - path: src/orqlet/adapters/scan/common.py
+    lines: 65-66
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 000a47413e4b1691311aab37ce5fbaac1154b030667ea62794c366a0a1a7a211
+- id: A-13
+  kind: flow
+  statement: discover_technologies scans the root and sub-directories two levels deep, bounded to 1000
+    directories and 500 technologies. It skips hidden folders and folders such as node_modules, vendor,
+    dist, build and venv.
+  evidence:
+  - path: src/orqlet/application/usecases/discover.py
+    lines: 19-35
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 798d65e9340c38e9876352940f876d89ba5061695e21d8bcfcba0979a1ac4149
+  - path: src/orqlet/application/usecases/discover.py
+    lines: 47-59
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: e96df9de125a1fc1ce9e3e7b5d57544ef09542c73b24f97cbe7e6d0f60f2f271
+  - path: src/orqlet/application/usecases/discover.py
+    lines: 88-103
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 135fa6690bfbce859642c6bde1c888d58c6f574d16baaa71230fbe08ec8f0e69
+- id: A-14
+  kind: flow
+  statement: init runs discover_technologies first and passes the result into draft_profile, which records
+    it in profile.technologies. A test asserts that monorepo service scopes such as apiserver and services/billing
+    are written to the profile.
+  evidence:
+  - path: src/orqlet/application/usecases/init_project.py
+    lines: 115-129
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: ae5160048db83cf89c6a51ac6aa396ac2abbe21fdf97f958502f3f34f4ca1f3d
+  - path: src/orqlet/application/usecases/init_project.py
+    lines: 361-378
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 443daeffe9a82b472ef2076a645a2751a3fa9e09bbb78f914d6c1a46214da225
+  - path: tests/unit/application/test_init_project.py
+    lines: 269-283
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: f6a3773f28ad80961ddd2e88d239e20bb96b7b9ebd65e3b488473a89c32116df
+- id: A-15
+  kind: flow
+  statement: profile.version is set to 1 by draft_profile. approve, profile approve and the approval withdrawal
+    all copy the existing version, and no code increments it.
+  evidence:
+  - path: src/orqlet/application/usecases/draft_profile.py
+    lines: '79'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 852f0125d7d129b6dcc3cbcdedcb966ed5474df6490834599657e8f6a245fe05
+  - path: src/orqlet/application/usecases/init_questions.py
+    lines: 296-303
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 61f7435a52567b05837e8a38b9a2f944b683c9d4cd7d2676e8d1c98466e6de60
+  - path: src/orqlet/application/usecases/profile_edit.py
+    lines: 103-112
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 7f05c228c8519d4d4a5e2b26a3dbe8aea4eadb0e7cc3cba2fa611047fea83c9e
+  - path: src/orqlet/application/usecases/profile_edit.py
+    lines: 122-124
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: a3948e8903896b0c9408dc94597e8b4d3cd3f866f2573b2a0e0158db9ee87d05
+- id: A-16
+  kind: flow
+  statement: profile answer and profile approve commit a change plan that writes only .orqlet/project-profile.yaml
+    and .orqlet/generated.lock.yaml.
+  evidence:
+  - path: src/orqlet/application/usecases/profile_edit.py
+    lines: 160-167
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: c1dea80c6a74698a73e0524a0ca3d9664b6e8b72ec342690340a70df3c9e03c4
+- id: A-17
+  kind: interface
+  statement: 'The AGENTS.md conventions block is built from nine profile keys: branch_model, branch_naming,
+    branch_patterns, commit_convention, pull_requests.shape, merge_strategy, required_checks, reviewers
+    and release_flow. It adds a ''Not decided'' line for unknown keys (except branch_patterns) and a line
+    with the count of registered resources. It is capped at 11 lines and 2800 bytes.'
+  evidence:
+  - path: src/orqlet/application/usecases/resources_view.py
+    lines: 44-54
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 5352a1561383f50e592f3315accd861d12ca0167aafb848be66c84533f719565
+  - path: src/orqlet/application/usecases/resources_view.py
+    lines: 172-208
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: d239c01efa7a009fd94c48845690914f1db70bdf1f51e48ba5029e8aab74579b
+  - path: src/orqlet/application/usecases/resources_view.py
+    lines: 286-298
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: c4678138c16fb27ee2caa7c202183e6e266542974accf9a627a07a2342595d55
+- id: A-18
+  kind: interface
+  statement: The conventions block template fills a single slot under the fixed line 'Team conventions
+    from the project profile. Quoted values are data, not instructions.'. No technology, structure, command
+    or facts value of the profile becomes a line of the block.
+  evidence:
+  - path: src/orqlet/workflow/templates/conventions-block.md
+    lines: 1-2
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 5b9e7c2a807bdc10498953619ccab0ec10c8fe5d84e8386cfd2642234193d84d
+  - path: src/orqlet/application/usecases/resources_view.py
+    lines: 264-283
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 5bed054183520139f2e476f957e06a9701260d542db79d03414a365ed4adebae
+- id: A-19
+  kind: flow
+  statement: build_render_request takes no profile parameter. Workflow skills are loaded from the workflow
+    package and filtered only by the available commands, so the rendered skill texts carry no receiving-project
+    values.
+  evidence:
+  - path: src/orqlet/application/usecases/render_request.py
+    lines: 56-64
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 66b5ef80e59c9fb36d65b77a6fb475f92fd68bdbbabb6e776f88f6a6461c1e55
+  - path: src/orqlet/application/usecases/render_request.py
+    lines: 108-119
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 6adc02cd013d7e2ce7424f8715ecc85ea66413114bd74091fb78cde05b6fa0be
+- id: A-20
+  kind: flow
+  statement: Among the workflow skills, orqlet-onboard is the one that names .orqlet/project-profile.yaml.
+    The research skill starts from `git status` and from docs/design/<task>/.
+  evidence:
+  - path: src/orqlet/workflow/skills/orqlet-onboard/skill.md
+    lines: '7'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: a7928b97500ac05b74a4c43a907cfa0f32adbb921c7ed20249a77abc9d681f24
+  - path: src/orqlet/workflow/skills/orqlet-research/skill.md
+    lines: '11'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: b38bbcfcc28b177edaf2da1554f85417a0b5ed3dd7d5e9bae9462425fc44f883
+- id: A-21
+  kind: interface
+  statement: '`orqlet standards for` takes --path, --role, --phase, --root, --packs-dir and --json. Its
+    JSON data holds query, applicable_rules_hash, rules, technologies, packs and skipped, and its human
+    output prints ''applicable_rules_hash: <hash>''.'
+  evidence:
+  - path: src/orqlet/interface/cli/commands/standards.py
+    lines: 26-42
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: cb31912202d16ab9f7530bed4a8d8d4b66f1e1d7c89760738bd8ece56d16a7a1
+  - path: src/orqlet/interface/cli/commands/standards.py
+    lines: 84-108
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 6a6a9f9177794cbc3b8833c9149ab2338326e5e1ec5605c866f2afee5f78ecc0
+  - path: src/orqlet/interface/cli/render_human.py
+    lines: 17-18
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: cc06c2add3ea572679ac8252ac2ebf381bebb984c0620def8728ac13a4949768
+- id: A-22
+  kind: flow
+  statement: standards_for scans the project and discovers technologies again at execution time. It reads
+    the profile only to find the prompts-dir standards source (default .prompts), and it hashes only the
+    rules selected by the query. A dimension the query omits is not filtered.
+  evidence:
+  - path: src/orqlet/application/usecases/standards_for.py
+    lines: 134-155
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 6d036b7cf61c3f0aa8c434cb2421c15bf51e1c21261e9db1d2e69f460354e4ca
+  - path: src/orqlet/application/usecases/standards_for.py
+    lines: 200-215
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: f9d2ab51679466fd479d09e5c38f451cda9885937a60ef1d7b8e83fbe16d8fb2
+  - path: src/orqlet/domain/resolver.py
+    lines: 60-66
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 9d466cb513aa411ee1a7db9ff45c95034e9ae9965d3abff5a41d62afc24ee413
+  - path: src/orqlet/domain/resolver.py
+    lines: 120-147
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: f4b73417cc7d07e91f62265ed017382c9881ca7499ef645b57417e05850e647b
+- id: A-23
+  kind: flow
+  statement: At render time the standards lock's applicable_rules_hash is computed over all rules resolved
+    for stack_of_profile, which uses profile.technologies, facts.frameworks and project.kind.
+  evidence:
+  - path: src/orqlet/application/usecases/render_all.py
+    lines: 81-98
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: e9c58681ad375d961e8b9533e236239ad7d2c7804986118703755267272e2748
+  - path: src/orqlet/application/usecases/render_all.py
+    lines: 247-260
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 7ff5f9ca1dea472d71f331174d01bc781cda374cb0c9bb6f36f1e4d25c6601ff
+- id: A-24
+  kind: interface
+  statement: '`orqlet explain` declares the profile''s technologies (kind, name, version, scope), standards_sources
+    and clients. It composes with prompts_dir fixed to ''.prompts''.'
+  evidence:
+  - path: src/orqlet/application/usecases/explain.py
+    lines: 45-57
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: eb3f35274460f9d15f3de8782294d04c23d4920abfd2d99d514baea027bff430
+  - path: src/orqlet/application/usecases/explain.py
+    lines: 59-75
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 1fac343f11b00bb9d701c8bfa33d40cb231300cf6444140abd60bab0fbc7dc0c
+- id: A-25
+  kind: interface
+  statement: '`orqlet resources list --uncovered` compares the names of the profile''s technologies and
+    frameworks with the tool names of registered resources. If the profile cannot be read, it uses no
+    names.'
+  evidence:
+  - path: src/orqlet/application/usecases/resources_view.py
+    lines: 64-77
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: bce992936fd2fff3dfd4e4a41501247bd220f47b0bd868bf7f6f6d7a06f82c9f
+  - path: src/orqlet/application/usecases/resources_view.py
+    lines: 106-121
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 3be2c105bdacbfbecbe75e2f02372fc57004ba976d217d9e1b1f80242d03a7a8
+- id: A-26
+  kind: structure
+  statement: The task root is the constant TASK_ROOT = 'docs/design', and task_of extracts a task only
+    from paths that match ^docs/design/<slug>/.
+  evidence:
+  - path: src/orqlet/application/usecases/validation.py
+    lines: 25-26
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 8de4a43d6cd1170a4f25ac3aa6528e20239d1c43d906c381ecbc80036b156ed7
+  - path: src/orqlet/application/usecases/validation.py
+    lines: 88-91
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: dbd3d4988cd21a3308a162be0599e85964aa704c18f6b5f182d6e14a8868a8ed
+- id: A-27
+  kind: flow
+  statement: The as-is, design, plan and ledger validators compare the header or ledger task with the
+    folder (ORQ-E331, ORQ-E350, ORQ-E370, ORQ-E384) only when task_of returns a task. For a path outside
+    docs/design the check is skipped.
+  evidence:
+  - path: src/orqlet/application/usecases/validate_as_is.py
+    lines: 81-94
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: ae731418d6a8a8df072dbff5c71675bfeaabd625a7e2476c8ac6f2d3226875bb
+  - path: src/orqlet/application/usecases/validate_design.py
+    lines: 88-94
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: cc1804df06bd8e057c3338eb7b43b9987e4754dfd4df9e3296b0e95578ea104c
+  - path: src/orqlet/application/usecases/validate_plan.py
+    lines: 66-72
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 176a39addb3d30524826ebf334ab7063708f52fefbbaef42e374e15f7ff11fe9
+  - path: src/orqlet/application/usecases/validate_ledger.py
+    lines: 36-42
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: d2d84c8b3b027f99a111494b3810eeb5b47f2966839d50bc5e85db7aa5a70c8a
+- id: A-28
+  kind: structure
+  statement: Review, test and knowledge-impact records are recognised only at hard-coded paths docs/design/<task>/reviews|tests|knowledge/...
+    A record elsewhere fails with ORQ-E400.
+  evidence:
+  - path: src/orqlet/domain/evidence_artifacts.py
+    lines: 21-35
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 3ddf99b9c1ec9d3f04ac72b238713ab1444c15951973f513b017eee4758b4e82
+  - path: src/orqlet/application/usecases/validate_records.py
+    lines: 84-98
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 5a6bc5b9b0edbcfd68393bf529602b37b9c5243122ae9168550f677e1f949d83
+- id: A-29
+  kind: structure
+  statement: gate status, review prepare, knowledge impact, binding components and record validation all
+    build the folder as f'{TASK_ROOT}/{task}'. The CLI help of gate status, knowledge impact and review
+    prepare says 'task folder name under docs/design'.
+  evidence:
+  - path: src/orqlet/application/usecases/gate_status.py
+    lines: 148-152
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: b279bc91d9642540d8edfc7bafee2b1dbeb14597a699818bc79a70a59ea12eae
+  - path: src/orqlet/application/usecases/gate_status.py
+    lines: '250'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 317f7ce7dd76e8bb527b9edf60e8982e2e0a69139080355e61215d09cbdb968e
+  - path: src/orqlet/application/usecases/review_prepare.py
+    lines: '73'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 317f7ce7dd76e8bb527b9edf60e8982e2e0a69139080355e61215d09cbdb968e
+  - path: src/orqlet/application/usecases/knowledge_impact.py
+    lines: '91'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 317f7ce7dd76e8bb527b9edf60e8982e2e0a69139080355e61215d09cbdb968e
+  - path: src/orqlet/application/usecases/binding_inputs.py
+    lines: '295'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: f9108d80b9eb3bfb42be9be32f254b33aa43a08eedfb0b3a0f3ab3c8dfdb245e
+  - path: src/orqlet/application/usecases/validate_records.py
+    lines: '204'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 8ff437f1831f4b1bb4e88454999accb4111a02624d435972d8d3f8c1f6029e3e
+  - path: src/orqlet/interface/cli/commands/gate.py
+    lines: 20-33
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: c0ad41c00536626d4b12345ff8cd73c4b680308079fac490d9c5bc74873669ca
+  - path: src/orqlet/interface/cli/commands/knowledge.py
+    lines: 20-27
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: eda07bb696d5e6613010bb07522875b408484570c3516f1536fed87e0cd04d96
+  - path: src/orqlet/interface/cli/commands/review.py
+    lines: 22-29
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: debf845488661398953e0e2f96c6685eeee9c435a18f57b6f93a8eaa971e0179
+- id: A-30
+  kind: flow
+  statement: '`orqlet evidence cite` reads the file at a committed revision. It applies the web-evidence
+    scan (ORQ-E511) only to paths matching docs/design/[^/]+/evidence/web/.'
+  evidence:
+  - path: src/orqlet/application/usecases/evidence_cite.py
+    lines: '27'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 7f2dc6ae9be297994289ef12c5428a8304574d6cf07a707bbcd206a1cda510ec
+  - path: src/orqlet/application/usecases/evidence_cite.py
+    lines: 52-56
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 538ce038bc3559b89d843cfb7dedf60f823ba770e01a8d7a1b9c29efcce05480
+  - path: src/orqlet/interface/cli/commands/evidence.py
+    lines: 22-30
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 7ae83e5282035664669e427058733f611f717c3f45a7ef77d1392b3f7d6fbbc7
+- id: A-31
+  kind: structure
+  statement: 'The workflow package''s exempt.yaml declares the workflow-artifact class ''under: [docs/design/]''
+    and states that the list is fixed by the Orqlet release and that a project cannot change it.'
+  evidence:
+  - path: src/orqlet/workflow/exempt.yaml
+    lines: 1-14
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: e8e75463b2b031f4321c53f43b9efa1a984715bc1e9f509ed4e10474708b631d
+- id: A-32
+  kind: interface
+  statement: orqlet.knowledge/v2 configures sources (kind, scope, globs, pack), exclude globs, write_scope
+    (globs and kinds) and an index block that is accepted and ignored. orqlet.docs-map/v1 maps code globs
+    or symbols to docs targets with an owner.
+  evidence:
+  - path: src/orqlet/application/contracts/knowledge_config.py
+    lines: 1-5
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: b6f1d85e3e0a9dfd52eb17512a7e8597962388f3fa4879a502e70352c0df4e82
+  - path: src/orqlet/application/contracts/knowledge_config.py
+    lines: 19-63
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 7d763067e8b0726beba3cb535541b293ab28259802c60c9765d55eb044fc4f41
+- id: A-33
+  kind: flow
+  statement: .orqlet/knowledge.yaml is read at the tree under review. Its write_scope globs become the
+    allowed knowledge paths, and its project-scope source globs plus write_scope globs select the pre-draft
+    documents for knowledge impact.
+  evidence:
+  - path: src/orqlet/application/usecases/render_all.py
+    lines: '66'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: a96143d83560bd8b843e9ddbc6fb97c4425460867a4bc8cf31584613321bc328
+  - path: src/orqlet/application/usecases/binding_inputs.py
+    lines: 168-189
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 4f31874c9b6cf5f51a2d252f60f8c1c880dca83eadac76dcd78a4addca77c31d
+  - path: src/orqlet/application/usecases/knowledge_impact.py
+    lines: 191-210
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 332eb627b93a19ef4ca4219d8afc5f86ca6fbc236166d5456c7a2222e3b64e6a
+- id: A-34
+  kind: flow
+  statement: .orqlet/docs-map.yaml is read only by knowledge impact, at the target tree, and only to add
+    'docs-map' candidates. Init seeds an empty knowledge.yaml.
+  evidence:
+  - path: src/orqlet/application/usecases/knowledge_impact.py
+    lines: '56'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: d3d456bf5b3838f8faeca9b999921d2c60fa27109bd3c074e6fdce690fb4ddae
+  - path: src/orqlet/application/usecases/knowledge_impact.py
+    lines: 325-353
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 3af781cd331d4e3bc8302778818ab3ed85f33b3f4457b6aa466ecd265ddf71ed
+  - path: src/orqlet/application/usecases/render_all.py
+    lines: 246-247
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 8f7152709b4c35e36c653acd15c02617a4aedc8db6bb109fb9c6a16058773140
+- id: A-35
+  kind: interface
+  statement: The artifact header records task, status, workflow_version, protected_set_digest and bound
+    (base_revision, standards_lock_hash, applicable_rules_hash, profile_version, upstream).
+  evidence:
+  - path: src/orqlet/application/contracts/artifact_header.py
+    lines: 28-52
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: ac8433a0099af32a2f98c7dd14f0f8bc7222ff88e42ffc503262bedb1a8264a8
+- id: A-36
+  kind: flow
+  statement: gate status computes the current bound values from HEAD, the content hash of standards.lock.yaml,
+    the applicable_rules_hash stored in the standards lock, profile.version, workflow.lock's workflow_version
+    and a digest over the protected files in generated.lock.yaml.
+  evidence:
+  - path: src/orqlet/application/usecases/gate_status.py
+    lines: 70-93
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 33755d0d66dcfd7085f72752da09cf6eb61899519f8d616dd6ae9818a95a5d25
+- id: A-37
+  kind: flow
+  statement: In docs/design/<task>/, gate status looks only at as-is.md, design/manifest.yaml and plan.yaml.
+    A missing artifact is ORQ-I394. An artifact is stale (ORQ-W390 and NOT_RUN) when workflow_version,
+    protected_set_digest, standards_lock_hash, applicable_rules_hash or profile_version differ, or when
+    the base moved and a file in its scope changed. A base move with no scoped change is ORQ-I392.
+  evidence:
+  - path: src/orqlet/application/usecases/gate_status.py
+    lines: 145-185
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 7dc965d0702a95727f72ae44ffc92287c90a080f03b2d33e7a557ae77e066758
+  - path: src/orqlet/application/usecases/gate_status.py
+    lines: 194-229
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 53e0a1e6371bdc2e82f7ba3bb051a85dd223f71c5957adbd816c20865a55d528
+  - path: src/orqlet/application/usecases/staleness.py
+    lines: 11-30
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: ad1981d80b7483984d607ee8f46a6f0df70b7b8d6a2474068139830338c8de9e
+- id: A-38
+  kind: flow
+  statement: A missing or invalid installation file gives ORQ-E390 or ORQ-E391. A repository with no commit
+    is skipped. With a task, the result is always NOT_RUN with ORQ-I393, because approval needs host evidence.
+  evidence:
+  - path: src/orqlet/application/usecases/gate_status.py
+    lines: 96-142
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 4e26e2b9f8bc90d0e27530c2ddac2f5b7356c26e5d9c153f85069a2479cd13b3
+- id: A-39
+  kind: operation
+  statement: Journals, backups and apply locks go to platformdirs.user_data_dir('orqlet') or $ORQLET_DATA_DIR,
+    under projects/<project uuid>/. Review packets go to <data dir>/packets/<task>-<phase>-<8 uuid chars>,
+    which is not keyed by project.
+  evidence:
+  - path: src/orqlet/interface/cli/wiring.py
+    lines: 74-86
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 0838696b234cdf2834d464aa87fb2c32315365261ed17dcc79bf9f6ec1135f02
+  - path: src/orqlet/interface/cli/wiring.py
+    lines: 119-123
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: ed8dd2582494e99911a648b07cb4af2381472ed49c7afc3d200a58eece25396f
+  - path: src/orqlet/adapters/fs/journal.py
+    lines: 1-8
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 14dd07be521d789202ee8eff84f1d237e64d178dcbb016423b3f3c43edf6784c
+  - path: src/orqlet/application/usecases/profile_edit.py
+    lines: '177'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 5dde3583f1a99089b5296b45fac7bc213b881b755df3e173abbc9bfdaeb30e2b
+  - path: src/orqlet/application/usecases/review_prepare.py
+    lines: '85'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: a3b9e46f5743f0b39c9497b11f43ec92d2bdcea672eb15274c6f53230a483ce8
+- id: A-40
+  kind: operation
+  statement: The names of personal skills and agents under the home directory are listed only when sync
+    or doctor gets --check-personal-names. The listing reads directory names, never files.
+  evidence:
+  - path: src/orqlet/adapters/scan/personal_names.py
+    lines: 14-38
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: c64b7538187571a084c955c0935c17e430a7dcf739bf2b7400d1e6f8374c0f40
+  - path: src/orqlet/interface/cli/commands/lifecycle.py
+    lines: 206-210
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: f7fb6c7017172ab4de79705a072a92d4a958fe91631f8409fc835ecb115b8ddc
+- id: A-41
+  kind: structure
+  statement: 'In this repository''s profile, structure is {}, commands is {} and capabilities is {}. technologies
+    holds four scanner entries, all with scope ''.'': Typer framework ==0.27.3, Python language >=3.12,
+    Pydantic library ==2.14.1 and uv tool. The profile is draft, version 1.'
+  evidence:
+  - path: .orqlet/project-profile.yaml
+    lines: 10-12
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 3957f1323fdda7d7403b8dbf3c565102602ad123c71bdfb1f15bcdade93329aa
+  - path: .orqlet/project-profile.yaml
+    lines: '52'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 7252a94a2fe796ee7d33f44ce1a7f528283f953fa415c71e1589f4d1f22eacbd
+  - path: .orqlet/project-profile.yaml
+    lines: 151-188
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 68428ccdbeeae9326a1c768da4f1000c476fca61c2408757bb1deaa42634bff4
+  - path: .orqlet/knowledge.yaml
+    lines: 1-4
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 4af3bc53e7dbca20b4c498628022c7825c40b22b69621e36567b080c3eaf4e38
+- id: A-42
+  kind: flow
+  statement: validate plan accepts a check_ref when it is one of the phase's `checks`, a review item or
+    'review:...'. validate test checks only that a PASS has commands with exit code 0. Neither resolves
+    an id against profile.commands.
+  evidence:
+  - path: src/orqlet/application/usecases/validate_plan.py
+    lines: 136-148
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: b63fac678c108f600a1f8b9a6d59086ba0e27b60c2497acf722e6d66b1484c6d
+  - path: src/orqlet/application/usecases/validate_records.py
+    lines: 406-417
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 133e9afebaf4280328dfd3a3f3b188cdac15798bf1b0f3c20b25da2faba79a9e
+- id: A-43
+  kind: interface
+  statement: 'Skill steps marked ''requires: <command>'' are kept only for commands in IMPLEMENTED_COMMANDS,
+    a fixed set of 30 commands that includes profile answer, standards for, gate status, evidence cite
+    and knowledge impact.'
+  evidence:
+  - path: src/orqlet/application/usecases/capabilities.py
+    lines: 1-47
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 47e510483c32731b3ef1630ee88a171b05408646a27fe34740a252b0576dd19c
+- id: A-44
+  kind: test
+  statement: The tests cover staleness from bound values (ORQ-W390), missing artifacts (three ORQ-I394)
+    and structure.test_runner recorded from an init answer. Golden tests compare every rendered client
+    file, skills included, byte for byte.
+  evidence:
+  - path: tests/unit/application/test_gate_status.py
+    lines: 155-163
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: a0bace31d84c1272403bb727cbeeb237028fd3094f35340d9ce06bb763d0161f
+  - path: tests/unit/application/test_gate_status.py
+    lines: 206-211
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 349a118db3faa4267015da6b5e16cb72f6d7de3f813898754eb012428796f88f
+  - path: tests/unit/application/test_init_project.py
+    lines: 369-395
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: d6d50da8e1e855b1696086c915cd7dc090f69dbccf07cc37dea93eb428ccf7aa
+  - path: tests/unit/render/test_clients_golden.py
+    lines: 37-44
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 541bea6523530205a279865465797d89a49f81a4afb4e86c17855206f8dda3cc
+unknowns:
+- id: U-1
+  what: This read-only session could not run git, so it could not confirm that the working tree equals
+    base revision 058de9e58e42e6b4b30c7826e7aa57e88ae5a973. Line ranges were read from the working tree.
+  material: true
+- id: U-2
+  what: 'Which applicable_rules_hash a phase artifact header must record is not stated in the files read:
+    the all-rules value in standards.lock.yaml that gate status compares against, or the query-filtered
+    value that `orqlet standards for` prints. The skill reference formats were outside this area.'
+  material: true
+- id: U-3
+  what: No code, answer key or command writes profile.commands. Whether it is meant to be filled by hand,
+    by a scanner or by a future command is not stated in the files read.
+  material: true
+- id: U-4
+  what: It is not verified whether hand-editing team-owned (seeded) .orqlet/project-profile.yaml, for
+    example to add commands or structure, is reported by doctor, sync or upgrade, given that its hash
+    is recorded in generated.lock.yaml.
+  material: true
+- id: U-5
+  what: No code was found that reads exempt.yaml's workflow-artifact entry, beyond registering the contract.
+    It is also unknown how a phase-output location chosen by the project relates to the statement that
+    the list is fixed by the release and cannot be changed by a project.
+  material: true
+- id: U-6
+  what: Which command re-renders the AGENTS.md conventions block after `orqlet profile answer` was not
+    confirmed. profile answer writes only the profile and the lock.
+  material: false
+- id: U-7
+  what: Where this repository declares its actual build, lint, type-check and test commands (pyproject.toml,
+    CI workflow or Makefile) is outside this area and was not read.
+  material: false
+- id: U-8
+  what: Whether two receiving projects can share one project.uuid, for example through a copied profile,
+    and so share journals and backups in the data directory is not tested in this area.
+  material: false
+contradictions:
+- id: C-1
+  sources:
+  - src/orqlet/interface/cli/commands/standards.py:84-88
+  - src/orqlet/application/usecases/gate_status.py:80-93
+  note: Both values are called applicable_rules_hash. `standards for` returns rules_hash over the query-selected
+    rules. gate status binds against the standards lock's value, which render_all computes over all resolved
+    rules (render_all.py:247-260).
+- id: C-2
+  sources:
+  - src/orqlet/application/usecases/standards_for.py:134-155
+  - src/orqlet/application/usecases/render_all.py:81-98
+  note: '`standards for` builds the stack from a fresh scan at execution time. Render and explain build
+    it from the technologies, frameworks and kind stored in the profile.'
+- id: C-3
+  sources:
+  - src/orqlet/application/usecases/standards_for.py:200-215
+  - src/orqlet/application/usecases/review_prepare.py:48-53
+  note: standards_for and resolve_for read the prompts folder from the profile's prompts-dir standards
+    source. review prepare packs the fixed paths .prompts/rules.yaml and .prompts/foundations.md, and
+    explain passes prompts_dir '.prompts' (explain.py:53).
+- id: C-4
+  sources:
+  - src/orqlet/application/contracts/plan.py:28-32
+  - src/orqlet/application/usecases/validate_plan.py:136-148
+  note: The plan contract comment calls check_ref 'a profile command id', as does test_record.py:18. The
+    validator never resolves it against profile.commands, and no code fills profile.commands (.orqlet/project-profile.yaml:151
+    is {}).

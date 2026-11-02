@@ -108,12 +108,7 @@ questions:
   - src/orqlet/application/usecases/validation.py
   blocks:
   - design
-  status: answered
-  answer:
-    value: Yes; make it configurable per receiving project.
-    answerer: user
-    time: '2026-11-02T09:40:00+02:00'
-    scope: task
+  status: superseded
 - id: Q-6
   key: a4599b4db97a895dfe0d930a719e823dbe4ba04f3a164bd74c98be59743190c6
   subject: Workflow sources in scope besides the four phase skills
@@ -158,6 +153,55 @@ questions:
     answerer: user
     time: '2026-11-02T09:40:00+02:00'
     scope: task
+- id: Q-8
+  key: 60cd280c6ffb88409cc46c5cb7665e7beab983b0d8e1733899dec2ba0e9d0c95
+  subject: How an installed skill file that a person edited locally is handled on upgrade
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: Installed SKILL.md and reference files are protected. `orqlet upgrade` restores an edited one and warns with ORQ-W096, and `orqlet doctor` reports it as ORQ-E150. Does this behaviour satisfy "local edits are detected and handled explicitly", or should a local edit to an installed skill survive an upgrade?
+  why: Q-3 limits the change to skill texts and references, so a different handling of edited skill files would need a ruling against Q-3 or another route.
+  options:
+  - Keep the current behaviour (restore with ORQ-W096, report with ORQ-E150) and state it in the skills
+  - A local edit to an installed skill must survive an upgrade
+  - Undecided; let Design propose with alternatives
+  evidence_refs:
+  - src/orqlet/domain/classify.py
+  - src/orqlet/application/usecases/upgrade.py
+  - src/orqlet/application/usecases/diagnose.py
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: Keep the current behaviour (restore with ORQ-W096, report with ORQ-E150) and state it in the skills.
+    answerer: user
+    time: '2026-11-02T10:25:00+02:00'
+    scope: task
+- id: Q-9
+  key: 6562c9a72d21c3c969f1601834409f53a59ede6cb449248fb8af89e85a5656cf
+  subject: Where phase outputs live after the ruling on conflict C-1
+  raised_by: architect
+  phase: design
+  category: requirement
+  text: The answer to Q-5 (a location chosen per receiving project) conflicts with Q-3, Q-4 and the validators that fix docs/design/<task>/ (C-1). Where do phase outputs live, and how do the skills treat the project's own task documentation?
+  why: The design cannot make the location configurable without changing contracts, validators and commands, which Q-3 and Q-4 exclude.
+  options:
+  - Keep phase outputs at docs/design/<task>/; the skills read the project's existing task documentation wherever it already lives
+  - Same, and make the location configurable in a separate follow-up task
+  - Make it configurable now, widening Q-3 and Q-4
+  evidence_refs:
+  - docs/design/phase-skill-contracts/as-is.md#U-7
+  - docs/design/phase-skill-contracts/as-is.md#C-1
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: Keep phase outputs at docs/design/<task>/. The skills read the project's existing task documentation wherever it already lives.
+    answerer: user
+    time: '2026-11-02T10:25:00+02:00'
+    scope: task
+  supersedes:
+  - Q-5
 conflicts:
 - id: C-1
   sources:
@@ -171,3 +215,8 @@ conflicts:
     claim: The validators fix the task root at docs/design and read the task name from that path.
   scope: task
   ruling_required_from: user
+  ruling:
+    governing_source: Q-3
+    rationale: Q-3, Q-4 and the fixed task root govern. Phase outputs stay at docs/design/<task>/ and the skills say so; the skills read the receiving project's own task documentation wherever it already lives. Q-9 records the changed answer and supersedes Q-5.
+    who: user
+    when: '2026-11-02T10:25:00+02:00'
