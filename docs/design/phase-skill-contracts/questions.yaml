@@ -1,0 +1,173 @@
+schema: orqlet.question-ledger/v1
+task: phase-skill-contracts
+questions:
+- id: Q-1
+  key: 3598b3db33666e916607fb505ed7b6ef598c52dfc671c8a7589aebfc90fa134f
+  subject: Task name for the research folder
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: What is the task name for docs/design/<task>/ (lowercase words joined by hyphens)?
+  why: Every artifact of the task lives in the folder that carries this name.
+  options:
+  - phase-skill-contracts
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: phase-skill-contracts
+    answerer: user
+    time: '2026-11-02T09:40:00+02:00'
+    scope: task
+- id: Q-2
+  key: 136220fa49cf6975d7ed27cdfa0d8bbcef8ff537208c5cd2e16439dbf547ec52
+  subject: How the phases and approvals proceed for this request
+  raised_by: researcher
+  phase: research
+  category: policy
+  text: The request ends with "implement, then report", while the baseline requires research, design, plan and implementation with a person approving the design and the plan. How should the work proceed?
+  why: The phase skills define approval as the merge of the design and plan pull requests, so the answer decides what this session may produce.
+  options:
+  - Follow the gated workflow; this session produces the AS-IS only
+  evidence_refs:
+  - AGENTS.md
+  - src/orqlet/workflow/skills/orqlet-design/skill.md
+  - src/orqlet/workflow/skills/orqlet-plan/skill.md
+  blocks:
+  - research
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Follow the gated workflow. This session produces the AS-IS only; the design and the plan each go through their pull request before implementation.
+    answerer: user
+    time: '2026-11-02T09:40:00+02:00'
+    scope: task
+- id: Q-3
+  key: e054d966b79f7b390a6c35070c06905dcd47209ac6d02b308b1372f602d3a560
+  subject: Kinds of change in scope
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: Which kinds of change are in scope - skill texts and references, artifact contracts with their schemas and validators, rendering and installation code?
+  why: The AS-IS contract has no field for inferences and the plan contract has no separate test-plan section, so some requested outputs would need a contract change unless they live in text only.
+  options:
+  - Skill texts and their reference files (src/orqlet/workflow/skills/**)
+  - Artifact contracts, JSON schemas and validators where a phase output needs a new field
+  - Rendering and installation code, if project context must reach installed skills in a new way
+  - Leave the boundary to the Design phase
+  evidence_refs:
+  - src/orqlet/workflow/skills/orqlet-research/references/as-is-format.md
+  - src/orqlet/workflow/skills/orqlet-plan/references/plan-format.md
+  blocks:
+  - research
+  - design
+  status: answered
+  answer:
+    value: Skill texts and their reference files only.
+    answerer: user
+    time: '2026-11-02T09:40:00+02:00'
+    scope: task
+- id: Q-4
+  key: a0d1fc7a8f49e524ec6be7a7d2285744d0d9173bf3a36bf0bb118c76fd169e78
+  subject: Whether the design may add CLI commands or options
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: May the design add a CLI subcommand or option to bring project context to the skills, or must it use only existing commands and files?
+  why: Project context reaches agents today through the AGENTS.md managed block, `orqlet standards for` and the project profile; skill bodies carry no project values.
+  options:
+  - Existing commands and files only
+  - An additive subcommand or option if a concrete gap needs it
+  - Undecided; let Design propose with alternatives
+  evidence_refs:
+  - src/orqlet/application/usecases/render_request.py
+  - src/orqlet/application/contracts/profile.py
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: Existing commands and files only.
+    answerer: user
+    time: '2026-11-02T09:40:00+02:00'
+    scope: task
+- id: Q-5
+  key: 65b5092e6e626c8318d5a887fd217c8d360fc92caf2992a0b84f32b636b5561f
+  subject: Whether a receiving project can choose the location of phase outputs
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: Phase outputs live at docs/design/<task>/. Should a receiving project be able to choose another location?
+  why: The request asks the skills to use the receiving project's existing locations for task documentation and phase outputs.
+  options:
+  - No; keep docs/design/<task>/ and state it in the skills
+  - Yes; make it configurable per receiving project
+  - Undecided; let Design decide
+  evidence_refs:
+  - src/orqlet/application/usecases/validation.py
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: Yes; make it configurable per receiving project.
+    answerer: user
+    time: '2026-11-02T09:40:00+02:00'
+    scope: task
+- id: Q-6
+  key: a4599b4db97a895dfe0d930a719e823dbe4ba04f3a164bd74c98be59743190c6
+  subject: Workflow sources in scope besides the four phase skills
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: Besides the four phase skills and their references, which workflow sources are in scope - the role prompts they start, the orqlet-review skill, the orqlet-onboard skill?
+  why: The four skills start the roles and the implement skill runs the review skill, so a contract change can reach them.
+  options:
+  - Only the four skills and their reference files
+  - Also the role prompts they start, where the contract requires it
+  - Also the orqlet-review skill, where the handoff requires it
+  - Also the orqlet-onboard skill
+  evidence_refs:
+  - src/orqlet/workflow/skills/orqlet-implement/skill.md
+  - src/orqlet/workflow/skills/orqlet-research/skill.md
+  blocks:
+  - research
+  - design
+  status: answered
+  answer:
+    value: The four skills with their references, and also the role prompts they start, the orqlet-review skill and the orqlet-onboard skill.
+    answerer: user
+    time: '2026-11-02T09:40:00+02:00'
+    scope: task
+- id: Q-7
+  key: 4d534dcff10755d5c19ce5a65327f16b3f96f75cac2dc3c12fd58a3b6292d0d1
+  subject: Whether this repository's own installed files are regenerated
+  raised_by: researcher
+  phase: research
+  category: requirement
+  text: Should this task also regenerate this repository's own installed files with `orqlet upgrade`?
+  why: An earlier task regenerated the repository's own Orqlet files in its last phase.
+  options:
+  - Yes, as the last plan phase
+  - No, only the CLI source, package and tests
+  blocks:
+  - plan
+  status: answered
+  answer:
+    value: Yes, as the last plan phase.
+    answerer: user
+    time: '2026-11-02T09:40:00+02:00'
+    scope: task
+conflicts:
+- id: C-1
+  sources:
+  - ref: Q-5
+    claim: A receiving project can choose the location of its phase outputs.
+  - ref: Q-3
+    claim: Only skill texts and their reference files change.
+  - ref: Q-4
+    claim: Only existing commands and files are used.
+  - ref: src/orqlet/application/usecases/validation.py:25-26
+    claim: The validators fix the task root at docs/design and read the task name from that path.
+  scope: task
+  ruling_required_from: user
