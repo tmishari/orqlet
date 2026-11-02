@@ -202,6 +202,49 @@ questions:
     scope: task
   supersedes:
   - Q-5
+- id: Q-10
+  key: 05c33555941ebf71b85307f42f2487ed4a26c7db9ca3f72094f920af0ce0aa28
+  subject: How the plan treats the open minor findings of the design review
+  raised_by: planner
+  phase: plan
+  category: policy
+  text: The design reviews left eleven minor findings open (F5-1 to F5-7 of the architecture reviewer, SEC5-1 to SEC5-4 of the security reviewer). Does the plan apply them, or plan the design as it merged?
+  why: Applying a finding in the plan would change what the approved design says without a new design approval.
+  options:
+  - Plan the design as merged and list the findings as open in the plan's self-check
+  - Revise the design first and approve it again
+  evidence_refs:
+  - docs/design/phase-skill-contracts/reviews/architecture-reviewer-design.md
+  - docs/design/phase-skill-contracts/reviews/security-reviewer-design.md
+  blocks:
+  - plan
+  status: answered
+  answer:
+    value: Plan the design as merged. The plan lists the eleven findings in its self-check as open and not applied, and a later design revision takes them up.
+    answerer: user
+    time: '2026-11-02T12:45:00+02:00'
+    scope: task
+- id: Q-11
+  key: 4ea21e769842b8cf03ad6e15e0d2beecb51b57408d65e64da0488096053fc1ac
+  subject: Whether the plan includes the session checks V-1 to V-3
+  raised_by: planner
+  phase: plan
+  category: test-expectation
+  text: ADR-005 decision 5 leaves the session checks V-1 to V-3 unverified until a person runs them in a client. Does the plan add a phase in which the person runs them, or list them under self_check.unverified?
+  why: Whether the clients load the new reference and follow the sections is documented, not observed (U-11); only a person in a client can observe it.
+  options:
+  - Add a last phase in which the person runs them and writes one record per check
+  - List them under self_check.unverified
+  evidence_refs:
+  - docs/design/phase-skill-contracts/design/adr-005-injection-unchanged-tests-and-version.md
+  blocks:
+  - plan
+  status: answered
+  answer:
+    value: Add a last phase in which the person runs them after the regeneration and writes one record per check under evidence/checks/. A check the person does not run is reported as not run.
+    answerer: user
+    time: '2026-11-02T12:45:00+02:00'
+    scope: task
 conflicts:
 - id: C-1
   sources:

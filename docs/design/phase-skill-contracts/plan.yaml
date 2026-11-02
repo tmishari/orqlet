@@ -1,0 +1,1466 @@
+schema: orqlet.implementation-plan/v1
+header:
+  schema: orqlet.artifact-header/v1
+  task: phase-skill-contracts
+  status: draft
+  workflow_version: 0.3.3
+  protected_set_digest: b9bc3a015f151dc01dba5e98ac65a6da163ead0a2cbf27f6c796e5605d9cca2c
+  bound:
+    base_revision: 66b58898b8d2f84bd90b2ee43c9057f6dd5bb1d1
+    standards_lock_hash: 89a225016ff9d8b3ed977df39a70dfbe9dbc5f7c6d3762d0f2208b1b7a037a52
+    applicable_rules_hash: 56502a0ec5eda3b13b4c9d97c7d4dfa41df82c86a206e36dd5d2d92aab299b97
+    profile_version: 1
+design_ref: docs/design/phase-skill-contracts/design/manifest.yaml#0c888b5784eea9b1beec09a044aef5b5c29a56f4c03af41b16aa9d8990c0ab20
+base_revision: 66b58898b8d2f84bd90b2ee43c9057f6dd5bb1d1
+knowledge_scope: []
+phases:
+- id: P-1
+  objective: >-
+    Prove the existing injection mechanisms with tests, before any workflow text changes (ADR-005 decision 1): two projects get the same
+    workflow files and nothing of each other, a repeated upgrade writes nothing, AGENTS.md team text survives, edited skills and references
+    are reported and restored, every rendered file parses and holds no unresolved template text, and what init writes equals the goldens.
+    No file of the workflow package changes in this phase.
+  depends_on: []
+  implements: []
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      Two projects initialised from two fixture repositories whose profiles differ in name, kind and technologies (for example uv_fastapi
+      and rust_cli), with the same three clients, no resource registry and distinct project uuids (SequentialIds with a different start for
+      each), receive byte-identical workflow SKILL.md, reference and role files. No such file written into one project contains the other
+      project's name, its uuid or a technology that only the other declares.
+    source: BC-6; A-59
+    check_ref: pytest
+  - id: AC-2
+    text: >-
+      After a workflow change that changes a skill body and a reference (not only the baseline), a first `orqlet upgrade` writes the changed
+      SKILL.md and reference, and a second `orqlet upgrade` right after it plans nothing and writes nothing.
+    source: BC-27; A-59
+    check_ref: pytest
+  - id: AC-3
+    text: >-
+      An upgrade over an AGENTS.md that holds team text before, between and after the managed blocks keeps that text byte-identical and
+      leaves exactly one copy of each managed block.
+    source: BC-28
+    check_ref: pytest
+  - id: AC-4
+    text: >-
+      With an installed SKILL.md and an installed reference edited by hand, `orqlet doctor` reports ORQ-E150 for each; the following
+      `orqlet upgrade` restores both files to the rendered bytes and reports ORQ-W096 for each.
+    source: BC-29
+    check_ref: pytest
+  - id: AC-5
+    text: >-
+      For the packaged request, the resources request and a request with one integration, every file that each client adapter renders parses
+      in its format: the front matter of a Markdown file with the strict YAML loader, a `.toml` file with tomllib, a `.yaml` or `.yml` file
+      with the strict YAML loader, a `.json` file with json. No rendered file contains `{{`, `}}`, `<!-- requires:` or `<!-- unless:`.
+    source: BC-30; U-12
+    check_ref: pytest
+  - id: AC-6
+    text: >-
+      On a project with no registered resources and no integration, the files that `orqlet init` writes for the three clients at the workflow
+      skill, reference and role paths equal the committed goldens byte for byte. The rule files, which the goldens take from SAMPLE_RULES,
+      are not compared.
+    source: BC-38
+    check_ref: pytest
+  - id: AC-7
+    text: >-
+      ChangedWorkflow keeps its current behaviour when no skill or reference change is asked for, so every existing test that uses it passes
+      without edit; the new option changes the named skill body and reference only.
+    source: A-59; ORQLET-TEST-001
+    check_ref: pytest
+  - id: AC-8
+    text: >-
+      The new tests use the fakes of tests/fakes and the support of tests/support, open no socket, and hold no credential; any command or
+      value in a fixture is an obvious placeholder.
+    source: ORQLET-TEST-001; ORQLET-SEC-003
+    check_ref: security-reviewer
+  - id: AC-9
+    text: >-
+      No file outside this phase's file operations changes, in particular no file under src/orqlet/, and `orqlet gate status
+      phase-skill-contracts --phase P-1 --head staged` reports no ORQ-E450, ORQ-E451 or ORQ-E453.
+    source: BC-33; ADR-005 decision 1
+    check_ref: gate-status-phase
+  checks:
+  - ruff-check
+  - ruff-format
+  - mypy
+  - import-linter
+  - pytest
+  - gate-status-phase
+  file_operations:
+  - op: modify
+    path: tests/fakes/workflow.py
+    why: >-
+      ChangedWorkflow gains an optional change of one skill body and one reference, so the upgrade tests change a skill and a reference and
+      not only the baseline and the PR template (A-59; component.md, Constraints for the plan). The default stays as it is.
+  - op: create
+    path: tests/unit/application/test_workflow_injection.py
+    why: >-
+      The injection tests of ADR-005 decision 1: two projects (BC-6), two upgrades in a row (BC-27), AGENTS.md team text (BC-28), edited
+      SKILL.md and reference (BC-29), and what init writes against the goldens (BC-38), on the fakes of tests/fakes (ORQLET-TEST-001).
+  - op: create
+    path: tests/unit/render/test_rendered_formats.py
+    why: >-
+      Every file each adapter renders parses in its format and holds no template braces or unrendered step markers (BC-30), for the
+      packaged request, the resources request and a request with one integration.
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every `uv run` command below may sync the environment from uv.lock and fetch packages when it is not in sync (warning list
+    of ADR-002 decision 6: fetches from the network). CI prepares it with `uv sync --locked --all-groups --python 3.12`
+    (.github/workflows/ci.yml:30 at 66b58898b8d2f84bd90b2ee43c9057f6dd5bb1d1, sha256 a64bb683ba1747d694ddaf4307800a7098f827da83c342ff86d1f2bbe9caf5b4),
+    also a network fetch. The implementer asks the person before the first run in a session.
+  - >-
+    ruff-check: `uv run ruff check .` (.github/workflows/ci.yml:31 at 66b58898b8d2f84bd90b2ee43c9057f6dd5bb1d1, sha256
+    714c305445d190e7afe318249169abaf2552f8041f6ccc7c8017495d58f47762; configuration pyproject.toml:38-60, sha256
+    8a2fd80847c2051b5cf82659fbf894e515d5bd210e2e28af490f56676a70a726).
+  - >-
+    ruff-format: `uv run ruff format --check .` (.github/workflows/ci.yml:32, sha256 4a6a56a502fd2d8330bc12debf940777d4aa923df5b2d3c524cbf5ac8d00a078;
+    configuration pyproject.toml:38-60, sha256 8a2fd80847c2051b5cf82659fbf894e515d5bd210e2e28af490f56676a70a726).
+  - >-
+    mypy: `uv run mypy` (.github/workflows/ci.yml:47, sha256 75f57430d5154f4df4619631e3b4eaec37adb06b46184fc6bda5faff21b4ea0f; configuration
+    pyproject.toml:62-67, sha256 3dee952ae0dcb1d883a3933b63a60b1ca77c0f2e76ba0b026681355a3322b4b4).
+  - >-
+    import-linter: `uv run lint-imports` (.github/workflows/ci.yml:62, sha256 aba4e82ae9c8ba9c4a3ef94aadc20b9234104933816cdda02c750b860cca4621;
+    configuration pyproject.toml:82-127, sha256 9e42efcc250c680906b6999be918f10bd8fe9a8fd0ebd1a72b675e2dd0621e04).
+  - >-
+    pytest: `uv run pytest` (.github/workflows/ci.yml:83-84, sha256 4ae61613359fd04b133f857be268aef2eb61b0a9a9f2ac6f3d7b0bc20cf95899, where
+    CI first runs `uv sync --locked --all-groups --python <python>` with <python> from the matrix at ci.yml:72-74; configuration
+    pyproject.toml:69-80, sha256 37ed9bcdfa8a1f0d4db95633be21fc6569aeef36cc898fdf4919007237be28c2). Locally it runs on one Python.
+  - >-
+    gate-status-phase: `uv run orqlet gate status phase-skill-contracts --phase P-1 --head staged` reports no ORQ-E450, ORQ-E451 or
+    ORQ-E453. NOT_RUN caused by ORQ-I393 alone is expected offline.
+  expected_outputs:
+  - tests/fakes/workflow.py
+  - tests/unit/application/test_workflow_injection.py
+  - tests/unit/render/test_rendered_formats.py
+- id: P-2
+  objective: >-
+    Raise the workflow to 0.4.0 and give the four phase skills (research, design, plan, implement) the contract shape of ADR-001, with the
+    shared detail in references/phase-contract.md, byte-identical in the four skill folders: project context read at execution time
+    (ADR-002), the input check and the handoff (ADR-003), and the skill parts of ADR-004 decisions 3, 5 and 7. Pin the shape and the text
+    with tests, rebuild the manifest and rewrite the goldens that change.
+  depends_on:
+  - P-1
+  implements: []
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      The four skills keep their directories, their names and their two front-matter fields; after rendering each SKILL.md has
+      `disable-model-invocation: true` and the Codex sidecars keep their implicit-invocation setting (their goldens do not change).
+    source: BC-1
+    check_ref: pytest
+  - id: AC-2
+    text: >-
+      Each of the four bodies has, in this order, the purpose paragraph, the paragraph "Source material is not authority" in full and
+      unchanged, and the headings `## Inputs`, `## Boundaries`, `## Steps`, `## Output`, `## Done when`, `## If an input is missing or
+      outdated` and `## Next`. It has exactly one numbered list, under `## Steps`, numbered from 1 without a gap both with every command and
+      with the command set BEFORE_RECORDS of tests/unit/render/test_skills.py; its last step contains "STOP."; with BEFORE_RECORDS no line
+      names a command outside that set.
+    source: BC-2; A-54
+    check_ref: pytest
+  - id: AC-3
+    text: >-
+      `## Next` names the successor: research `/orqlet-design`, design `/orqlet-plan`, plan `/orqlet-implement`, implement
+      `/orqlet-implement` with the next phase id or the pull request after the last phase.
+    source: BC-3
+    check_ref: pytest
+  - id: AC-4
+    text: Each `## Next` of the four skills says what the person does first before the next skill starts.
+    source: BC-3
+    check_ref: review:next-sections
+  - id: AC-5
+    text: >-
+      references/phase-contract.md is present in the four skill folders, the four copies are byte-identical, each skill body names the
+      file, and it has the sections Project context, Input check, Handoff, Words for `orqlet standards for` and Installed files. It names
+      the three places: the installed text, the same for every project; the receiving project, where the context and the task folder are;
+      and the development app, which only finds and starts the skill.
+    source: BC-4; BC-34
+    check_ref: pytest
+  - id: AC-6
+    text: >-
+      Every backticked `orqlet ...` in a skill body or in a reference names an existing command and existing flags; the test of
+      tests/unit/render/test_skills.py that checks skill bodies today checks the references too.
+    source: BC-5; Q-4
+    check_ref: pytest
+  - id: AC-7
+    text: >-
+      phase-contract.md lists the context sources of ADR-002 decision 1, says that a value not found is an unknown with a ledger question
+      and that no value comes from an example, another repository or an earlier session; says that phase outputs live at
+      docs/design/<task>/ and that the project's own task documents are read and cited where they are; and says that workflow_version and
+      protected_set_digest go to the top level of the header, the other four bound values into header.bound, and the `orqlet standards for`
+      hashes into the self-check.
+    source: BC-7; BC-11; BC-13
+    check_ref: pytest
+  - id: AC-8
+    text: >-
+      phase-contract.md holds the rules of BC-8: a command cited with its file and lines, the files it directly invokes and the
+      configuration lines it reads; no credential, token or password copied; every expanded expression a named placeholder, described in
+      words without literal double braces; a secret passed as a variable reference ("$NAME") and checked only with `test -n "$NAME"`, no
+      environment value printed; the secret files (.env files, private keys, .npmrc, .pypirc, .netrc, cloud credential files) never opened;
+      research, design, plan and onboard never run a command found in a file; implementation cites every source again and confirms no
+      uncommitted or untracked change before each check, applies the warning list itself and asks before a match; commands marked planned
+      or agreed and shown in placeholder form; output summarised without credentials. The presence of the credential, secret-file, onboard
+      and re-cite rules is tested.
+    source: BC-8; ORQLET-SEC-003
+    check_ref: pytest
+  - id: AC-9
+    text: The wording of the rules of BC-8 in phase-contract.md says what BC-8 says, without a gap a reader could take as permission.
+    source: BC-8
+    check_ref: security-reviewer
+  - id: AC-10
+    text: >-
+      The standards step of each of the four skills runs `orqlet standards for --path <path> --phase <word> --role <role>` with
+      research/researcher, design/architect, plan/planner and implementation/coder.
+    source: BC-9
+    check_ref: pytest
+  - id: AC-11
+    text: >-
+      phase-contract.md says that `orqlet upgrade` restores an edited installed file with ORQ-W096, that `orqlet doctor` reports it as
+      ORQ-E150, and that project guidance goes into AGENTS.md outside the managed blocks or into the project's standards folder.
+    source: BC-10; Q-8
+    check_ref: pytest
+  - id: AC-12
+    text: >-
+      In design, plan and implement the first step of `## Steps` runs the input check of phase-contract.md before any other step.
+      phase-contract.md lists its checks in the order of ADR-003 decision 4 (present, validator, same task, same project with `git
+      merge-base --is-ancestor`, approved with the person-named remote-tracking ref and full merge commit, `git diff --quiet` and no
+      untracked file, current with the ledger rule, questions), the expected exit statuses, "check not run" for anything else, `git
+      rev-parse --verify` for a composed revision, and that the skill never edits an earlier artifact or its bound values to pass.
+    source: BC-14
+    check_ref: pytest
+  - id: AC-13
+    text: >-
+      phase-contract.md says that an edited approved input stops the skill for a new approval and that the skill never continues on it,
+      with the ledger rule of BC-39 and its reference commits; and that every value from an artifact goes into a command as one
+      single-quoted argument, with paths after `--` in git commands, that a path or glob with a character outside letters, digits, `.`,
+      `_`, `-`, `/`, `*` and `?` stops the skill, and that no command is built from an artifact's free text.
+    source: BC-39; BC-40
+    check_ref: pytest
+  - id: AC-14
+    text: >-
+      For a stale input, phase-contract.md maps each cause to the invalidation matrix row of ADR-003 decision 6 with the details of BC-15:
+      the commits since the base with hash, signature status where the project signs, author, subject and files; trailer and author as
+      claims; planned work limited as BC-15 says; the upgrade row only when the header's workflow_version is older than the installed one;
+      continue only where the row keeps the approval valid and the person confirms.
+    source: BC-15
+    check_ref: pytest
+  - id: AC-15
+    text: >-
+      The plan and implement skills say that a NOT_RUN result of `orqlet gate status <task>` caused by ORQ-I393 alone is not a failure, and
+      that the checks of ADR-003 decision 4 decide everything else.
+    source: BC-16
+    check_ref: pytest
+  - id: AC-16
+    text: >-
+      The research skill records the person's acceptance (`header.status: approved`, a self-check entry quoting the person with the time,
+      `orqlet validate as-is` run again), says that an agent that changes an accepted AS-IS file sets it back to draft and asks again, and
+      runs the input check on an earlier AS-IS file it resumes.
+    source: BC-17; BC-37
+    check_ref: pytest
+  - id: AC-17
+    text: >-
+      phase-contract.md holds the table of ADR-003 decision 2, and each of the four skills says it starts from docs/design/<task>/ and the
+      ledger, not from the memory of an earlier session.
+    source: BC-18; BC-19
+    check_ref: pytest
+  - id: AC-18
+    text: In the plan skill, the step that writes acceptance criteria and checks comes before the step that writes file operations.
+    source: BC-22
+    check_ref: pytest
+  - id: AC-19
+    text: >-
+      The implement skill holds the steps of ADR-004 decision 5, including the re-cite before each check, "Design revision needed" and the
+      six-part report with planned or agreed commands; it still names `orqlet knowledge impact`, and with every command `/orqlet-review`.
+    source: BC-24; A-54
+    check_ref: pytest
+  - id: AC-20
+    text: >-
+      The design skill's reviewer step gives the inputs of ADR-004 decision 7, runs `orqlet evidence hash` on the design files when it starts
+      each reviewer and again when it saves the note, saves the reviewer's output unchanged with the author's responses in a separate
+      section, and starts a new round when a hash differs from the manifest's.
+    source: BC-25
+    check_ref: pytest
+  - id: AC-21
+    text: >-
+      Each of the four rendered bodies, with every command, is at most 70 lines and 900 words; phase-contract.md is at most 150 lines and
+      1,800 words.
+    source: BC-35
+    check_ref: pytest
+  - id: AC-22
+    text: >-
+      identity.json says workflow_version 0.4.0 with controls_level 3, releases.json is unchanged, and MANIFEST.json is rebuilt with
+      tools/build_manifest.py.
+    source: BC-31; ADR-005 decision 2; ORQLET-DET-002
+    check_ref: manifest
+  - id: AC-23
+    text: >-
+      The goldens of this phase are rewritten from the new output and every golden test passes against them; the tests of P-1 pass on the
+      new package without edit; tests/unit/test_workflow_lookup_text.py passes without edit, so the lookup steps keep their pinned phrases
+      and order.
+    source: BC-31; BC-38; A-55
+    check_ref: pytest
+  - id: AC-24
+    text: >-
+      No file outside this phase's file operations changes, and `orqlet gate status phase-skill-contracts --phase P-2 --head staged` reports
+      no ORQ-E450, ORQ-E451 or ORQ-E453.
+    source: BC-33
+    check_ref: gate-status-phase
+  checks:
+  - ruff-check
+  - ruff-format
+  - mypy
+  - import-linter
+  - schemas
+  - manifest
+  - pytest
+  - gate-status-phase
+  file_operations:
+  - op: modify
+    path: src/orqlet/workflow/identity.json
+    why: workflow_version 0.4.0, controls_level stays 3 (ADR-005 decision 2; ORQLET-DET-002).
+  - op: modify
+    path: src/orqlet/workflow/skills/orqlet-research/skill.md
+    why: >-
+      The contract shape (ADR-001), the standards words research/researcher (ADR-002 decision 7), the acceptance record and the input check
+      on a resumed AS-IS file (ADR-003 decisions 4 and 7), the research brief step (ADR-004 decision 1).
+  - op: modify
+    path: src/orqlet/workflow/skills/orqlet-design/skill.md
+    why: >-
+      The contract shape (ADR-001), the input check first (ADR-003 decision 4), the design brief step (ADR-004 decision 2) and the reviewer
+      step of ADR-004 decision 7.
+  - op: modify
+    path: src/orqlet/workflow/skills/orqlet-plan/skill.md
+    why: >-
+      The contract shape (ADR-001), the input check first (ADR-003 decision 4), the NOT_RUN rule (BC-16), and the test plan before the
+      implementation plan (ADR-004 decision 3).
+  - op: modify
+    path: src/orqlet/workflow/skills/orqlet-implement/skill.md
+    why: >-
+      The contract shape (ADR-001), the input check first (ADR-003 decision 4), the NOT_RUN rule (BC-16), and the steps and report of
+      ADR-004 decision 5.
+  - op: create
+    path: src/orqlet/workflow/skills/orqlet-research/references/phase-contract.md
+    why: The shared detail of the four phase skills (ADR-001 decision 3; ADR-002; ADR-003); byte-identical to the other three copies.
+  - op: create
+    path: src/orqlet/workflow/skills/orqlet-design/references/phase-contract.md
+    why: The shared detail of the four phase skills (ADR-001 decision 3; ADR-002; ADR-003); byte-identical to the other three copies.
+  - op: create
+    path: src/orqlet/workflow/skills/orqlet-plan/references/phase-contract.md
+    why: The shared detail of the four phase skills (ADR-001 decision 3; ADR-002; ADR-003); byte-identical to the other three copies.
+  - op: create
+    path: src/orqlet/workflow/skills/orqlet-implement/references/phase-contract.md
+    why: The shared detail of the four phase skills (ADR-001 decision 3; ADR-002; ADR-003); byte-identical to the other three copies.
+  - op: modify
+    path: src/orqlet/workflow/MANIFEST.json
+    why: Rebuilt with tools/build_manifest.py after the package change (ORQLET-DET-002).
+  - op: modify
+    path: tests/support/render.py
+    why: >-
+      SKILL_REFERENCES adds phase-contract.md to the four phase skills, so skill_files lists the new golden and installed files for the
+      golden and init tests.
+  - op: modify
+    path: tests/unit/render/test_skills.py
+    why: >-
+      The shipped references (lines 122-132), the YAML example test limited to the four format references (lines 239-256), the implement
+      step counts (lines 212-236), and the command-mention check extended to the references (BC-5).
+  - op: create
+    path: tests/unit/test_workflow_skill_contracts.py
+    why: >-
+      The shape and text of the skill bodies: BC-1, BC-2, BC-3, BC-9, BC-14 (first step), BC-16, BC-17, BC-19, BC-22 (step order), BC-24,
+      BC-25 (design skill), BC-35 and BC-37, for the four phase skills (ORQLET-TEST-001).
+  - op: create
+    path: tests/unit/test_workflow_phase_contract_text.py
+    why: >-
+      The text of phase-contract.md: BC-4, BC-7, BC-8 (presence), BC-10, BC-11, BC-13, BC-14 (order and commands), BC-15, BC-18, BC-34,
+      BC-35, BC-39 and BC-40 (ORQLET-TEST-001).
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-research/SKILL.md
+    why: Golden rewritten from the new render (A-56; BC-31).
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-design/SKILL.md
+    why: Golden rewritten from the new render (A-56; BC-31).
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-plan/SKILL.md
+    why: Golden rewritten from the new render (A-56; BC-31).
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-implement/SKILL.md
+    why: Golden rewritten from the new render (A-56; BC-31).
+  - op: create
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-research/references/phase-contract.md
+    why: Golden of the new reference (A-56; BC-31; BC-38).
+  - op: create
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-design/references/phase-contract.md
+    why: Golden of the new reference (A-56; BC-31; BC-38).
+  - op: create
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-plan/references/phase-contract.md
+    why: Golden of the new reference (A-56; BC-31; BC-38).
+  - op: create
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-implement/references/phase-contract.md
+    why: Golden of the new reference (A-56; BC-31; BC-38).
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-research/SKILL.md
+    why: Golden rewritten from the new render (A-56; BC-31).
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-design/SKILL.md
+    why: Golden rewritten from the new render (A-56; BC-31).
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-plan/SKILL.md
+    why: Golden rewritten from the new render (A-56; BC-31).
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-implement/SKILL.md
+    why: Golden rewritten from the new render (A-56; BC-31).
+  - op: create
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-research/references/phase-contract.md
+    why: Golden of the new reference (A-56; BC-31; BC-38).
+  - op: create
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-design/references/phase-contract.md
+    why: Golden of the new reference (A-56; BC-31; BC-38).
+  - op: create
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-plan/references/phase-contract.md
+    why: Golden of the new reference (A-56; BC-31; BC-38).
+  - op: create
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-implement/references/phase-contract.md
+    why: Golden of the new reference (A-56; BC-31; BC-38).
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-research/SKILL.md
+    why: Golden rewritten from the new render (A-56; BC-31).
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-design/SKILL.md
+    why: Golden rewritten from the new render (A-56; BC-31).
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-plan/SKILL.md
+    why: Golden rewritten from the new render (A-56; BC-31).
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-implement/SKILL.md
+    why: Golden rewritten from the new render (A-56; BC-31).
+  - op: create
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-research/references/phase-contract.md
+    why: Golden of the new reference (A-56; BC-31; BC-38).
+  - op: create
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-design/references/phase-contract.md
+    why: Golden of the new reference (A-56; BC-31; BC-38).
+  - op: create
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-plan/references/phase-contract.md
+    why: Golden of the new reference (A-56; BC-31; BC-38).
+  - op: create
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-implement/references/phase-contract.md
+    why: Golden of the new reference (A-56; BC-31; BC-38).
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/AGENTS.md
+    why: The baseline block marker carries workflow@0.4.0 (ADR-005 decision 2).
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/AGENTS.md
+    why: The baseline block marker carries workflow@0.4.0 (ADR-005 decision 2).
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/AGENTS.md
+    why: The baseline block marker carries workflow@0.4.0 (ADR-005 decision 2).
+  - op: modify
+    path: tests/golden/common/pr_template/existing-reconciled.md
+    why: The workflow block marker carries workflow@0.4.0 (ADR-005 decision 2).
+  - op: modify
+    path: tests/golden/common/pr_template/new-with-team.md
+    why: The workflow block marker carries workflow@0.4.0 (ADR-005 decision 2).
+  - op: modify
+    path: tests/golden/common/pr_template/new-workflow-only.md
+    why: The workflow block marker carries workflow@0.4.0 (ADR-005 decision 2).
+  - op: modify
+    path: tests/golden/common/resources/conventions-block.md
+    why: The conventions block marker carries workflow@0.4.0 (ADR-005 decision 2).
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every `uv run` command below may sync the environment from uv.lock and fetch packages when it is not in sync (warning list
+    of ADR-002 decision 6: fetches from the network). The implementer asks the person before the first run in a session.
+  - >-
+    Goldens are rewritten with `uv run pytest --update-golden` (tests/conftest.py:34-39 refuses it in CI); the diff is read before the
+    commit and holds only the golden files of this phase. MANIFEST.json is rewritten with `uv run python tools/build_manifest.py`
+    (tools/build_manifest.py:1-57, sha256 06a0bf036682fa31e4d132dc62d2b20679e674d55f1b039c96710f2325d46c62).
+  - >-
+    ruff-check: `uv run ruff check .` (.github/workflows/ci.yml:31 at 66b58898b8d2f84bd90b2ee43c9057f6dd5bb1d1, sha256
+    714c305445d190e7afe318249169abaf2552f8041f6ccc7c8017495d58f47762; pyproject.toml:38-60, sha256
+    8a2fd80847c2051b5cf82659fbf894e515d5bd210e2e28af490f56676a70a726).
+  - >-
+    ruff-format: `uv run ruff format --check .` (.github/workflows/ci.yml:32, sha256 4a6a56a502fd2d8330bc12debf940777d4aa923df5b2d3c524cbf5ac8d00a078;
+    pyproject.toml:38-60).
+  - >-
+    mypy: `uv run mypy` (.github/workflows/ci.yml:47, sha256 75f57430d5154f4df4619631e3b4eaec37adb06b46184fc6bda5faff21b4ea0f;
+    pyproject.toml:62-67, sha256 3dee952ae0dcb1d883a3933b63a60b1ca77c0f2e76ba0b026681355a3322b4b4).
+  - >-
+    import-linter: `uv run lint-imports` (.github/workflows/ci.yml:62, sha256 aba4e82ae9c8ba9c4a3ef94aadc20b9234104933816cdda02c750b860cca4621;
+    pyproject.toml:82-127, sha256 9e42efcc250c680906b6999be918f10bd8fe9a8fd0ebd1a72b675e2dd0621e04).
+  - >-
+    schemas: `uv run python tools/export_schemas.py --check` (.github/workflows/ci.yml:63, sha256
+    2f05795ed6483385f2a5a779c76da3329801ef8edb53d4e3d767a962419c4faf; tools/export_schemas.py:1-38, sha256
+    1d0cef2cfa78a583a9cc2428c250ee059866bee82f71abc2559bc87f90bc5509). No schema changes, so it passes unchanged.
+  - >-
+    manifest: `uv run python tools/build_manifest.py --check` (.github/workflows/ci.yml:64, sha256
+    a2061c7f43040eacd56749b7ea2ba34accbb81e0c943eec9b42e749cf22fe474; tools/build_manifest.py:1-57, sha256
+    06a0bf036682fa31e4d132dc62d2b20679e674d55f1b039c96710f2325d46c62).
+  - >-
+    pytest: `uv run pytest` (.github/workflows/ci.yml:83-84, sha256 4ae61613359fd04b133f857be268aef2eb61b0a9a9f2ac6f3d7b0bc20cf95899;
+    pyproject.toml:69-80, sha256 37ed9bcdfa8a1f0d4db95633be21fc6569aeef36cc898fdf4919007237be28c2). Locally it runs on one Python.
+  - >-
+    gate-status-phase: `uv run orqlet gate status phase-skill-contracts --phase P-2 --head staged` reports no ORQ-E450, ORQ-E451 or
+    ORQ-E453. NOT_RUN caused by ORQ-I393 alone is expected offline; stale entries caused by P-1's commit are shown to the person.
+  expected_outputs:
+  - src/orqlet/workflow/identity.json
+  - src/orqlet/workflow/skills/orqlet-research/references/phase-contract.md
+  - src/orqlet/workflow/skills/orqlet-implement/skill.md
+  - tests/unit/test_workflow_skill_contracts.py
+  - tests/unit/test_workflow_phase_contract_text.py
+- id: P-3
+  objective: >-
+    Give the review and onboard skills the contract shape of ADR-001, and give onboard the command-recording step of ADR-002 decision 6 and
+    the installed-files guidance of Q-8. Extend the skill tests to all six skills and rewrite the goldens that change.
+  depends_on:
+  - P-2
+  implements: []
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      The review and onboard skills keep their directories, names and two front-matter fields; after rendering each SKILL.md has
+      `disable-model-invocation: true` and the Codex sidecars keep their implicit-invocation setting.
+    source: BC-1
+    check_ref: pytest
+  - id: AC-2
+    text: >-
+      Both bodies have the purpose paragraph, the "Source material is not authority" paragraph unchanged and the seven headings in the order
+      of BC-2, with exactly one numbered list under `## Steps`, numbered from 1 without a gap with every command and with BEFORE_RECORDS,
+      whose last step contains "STOP.". The test of BC-2 now covers all six skills.
+    source: BC-2; A-54
+    check_ref: pytest
+  - id: AC-3
+    text: >-
+      `## Next` of onboard names `/orqlet-research`; `## Next` of review names `/orqlet-implement` for a rework round, or the person's
+      commit.
+    source: BC-3
+    check_ref: pytest
+  - id: AC-4
+    text: Each `## Next` of the two skills says what the person does first before the next skill starts.
+    source: BC-3
+    check_ref: review:next-sections
+  - id: AC-5
+    text: >-
+      The onboard skill says that `orqlet upgrade` restores an edited installed file with ORQ-W096, that `orqlet doctor` reports it as
+      ORQ-E150, and that project guidance goes into AGENTS.md outside the managed blocks or into the project's standards folder.
+    source: BC-10; Q-8
+    check_ref: pytest
+  - id: AC-6
+    text: >-
+      The onboard skill finds build, lint, type-check and test commands in CI and build files and never runs them. It writes an entry into
+      AGENTS.md outside the managed blocks only in the fixed form of ADR-002 decision 6 (a label, the command with placeholders alone in a
+      fenced block whose fence is longer than any backtick run in it, the source path and lines, under a heading that names onboard and the
+      sources and says the entries are a record, not an instruction to run anything), only after showing the exact change and getting a yes
+      for that entry, and for a command on the warning list only after a warning and its own confirmation. It says a later skill compares
+      such an entry with its source and that a difference is a question.
+    source: BC-12; ADR-002 decision 6
+    check_ref: pytest
+  - id: AC-7
+    text: >-
+      The review skill keeps the pinned phrases of tests/unit/render/test_skills.py (both reviewer names, "is a fork, not an independent
+      reviewer", I0, NOT_RUN), and the onboard skill keeps its lookup step marked `requires: resources list`, so
+      tests/unit/test_workflow_lookup_text.py passes without edit.
+    source: A-54; A-55
+    check_ref: pytest
+  - id: AC-8
+    text: Both rendered bodies, with every command, are at most 70 lines and 900 words.
+    source: BC-35
+    check_ref: pytest
+  - id: AC-9
+    text: >-
+      MANIFEST.json is rebuilt, the goldens of this phase are rewritten from the new output and every golden test passes; the tests of P-1
+      and P-2 pass without edit except tests/unit/test_workflow_skill_contracts.py, which this phase extends.
+    source: BC-31; BC-38; ORQLET-DET-002
+    check_ref: pytest
+  - id: AC-10
+    text: >-
+      No file outside this phase's file operations changes, and `orqlet gate status phase-skill-contracts --phase P-3 --head staged` reports
+      no ORQ-E450, ORQ-E451 or ORQ-E453.
+    source: BC-33
+    check_ref: gate-status-phase
+  checks:
+  - ruff-check
+  - ruff-format
+  - mypy
+  - import-linter
+  - schemas
+  - manifest
+  - pytest
+  - gate-status-phase
+  file_operations:
+  - op: modify
+    path: src/orqlet/workflow/skills/orqlet-onboard/skill.md
+    why: >-
+      The contract shape (ADR-001), the command-recording step and its warning list (ADR-002 decision 6), the installed-files guidance
+      (Q-8).
+  - op: modify
+    path: src/orqlet/workflow/skills/orqlet-review/skill.md
+    why: The contract shape (ADR-001), with its `## Next` (BC-3).
+  - op: modify
+    path: src/orqlet/workflow/MANIFEST.json
+    why: Rebuilt with tools/build_manifest.py after the package change (ORQLET-DET-002).
+  - op: modify
+    path: tests/unit/test_workflow_skill_contracts.py
+    why: The shape tests cover all six skills, and the onboard text of BC-10 and BC-12 is pinned (ORQLET-TEST-001).
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-onboard/SKILL.md
+    why: Golden rewritten from the new render (A-56; BC-31).
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-review/SKILL.md
+    why: Golden rewritten from the new render (A-56; BC-31).
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-onboard/SKILL.md
+    why: Golden rewritten from the new render (A-56; BC-31).
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-review/SKILL.md
+    why: Golden rewritten from the new render (A-56; BC-31).
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-onboard/SKILL.md
+    why: Golden rewritten from the new render (A-56; BC-31).
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-review/SKILL.md
+    why: Golden rewritten from the new render (A-56; BC-31).
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every `uv run` command below may sync the environment from uv.lock and fetch packages when it is not in sync (warning list
+    of ADR-002 decision 6: fetches from the network). The implementer asks the person before the first run in a session.
+  - >-
+    Goldens are rewritten with `uv run pytest --update-golden` (refused in CI by tests/conftest.py:34-39); the diff holds only the golden
+    files of this phase. MANIFEST.json is rewritten with `uv run python tools/build_manifest.py`.
+  - >-
+    ruff-check, ruff-format, mypy, import-linter, schemas, manifest and pytest: the commands and sources of the same checks in P-2
+    (.github/workflows/ci.yml:31, 32, 47, 62, 63, 64 and 83-84 at 66b58898b8d2f84bd90b2ee43c9057f6dd5bb1d1, with the configuration and tool
+    lines named there), cited again before each run.
+  - >-
+    gate-status-phase: `uv run orqlet gate status phase-skill-contracts --phase P-3 --head staged` reports no ORQ-E450, ORQ-E451 or
+    ORQ-E453. NOT_RUN caused by ORQ-I393 alone is expected offline; stale entries caused by this task's earlier commits are shown to the
+    person.
+  expected_outputs:
+  - src/orqlet/workflow/skills/orqlet-onboard/skill.md
+  - src/orqlet/workflow/skills/orqlet-review/skill.md
+  - tests/unit/test_workflow_skill_contracts.py
+- id: P-4
+  objective: >-
+    Sharpen the three format references that phase outputs follow: the research brief in as-is-format.md (ADR-004 decision 1), the design
+    brief in design-format.md (ADR-004 decision 2), and the test plan before the implementation plan in plan-format.md (ADR-004 decision 3,
+    ADR-002 decision 3). review-format.md does not change. Pin the formats with tests and rewrite the goldens that change.
+  depends_on:
+  - P-3
+  implements: []
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      as-is-format.md defines the research brief with the sections of ADR-004 decision 1, inferences I-n that name the fact ids they rest
+      on, and no recommendation.
+    source: BC-20; R-5
+    check_ref: pytest
+  - id: AC-2
+    text: >-
+      design-format.md defines the design brief at the top of component.md with the parts of ADR-004 decision 2, including behaviour by
+      interface kind for projects without a graphical interface, and says that a design contains no phase order and that an unresolved
+      consequential decision is a blocking ledger question.
+    source: BC-21; R-6
+    check_ref: pytest
+  - id: AC-3
+    text: >-
+      In the plan-format.md example, acceptance_criteria and checks come before file_operations. The format says that a criterion's source
+      is a BC-n, R-n or Q-n, or an A-n for a regression, never code; that each check has a completion entry with the command, every expanded
+      expression replaced by a placeholder, and its sources as `orqlet evidence cite` prints them (the defining lines, the files it directly
+      invokes and the configuration lines it reads); and that a command matching the warning list of ADR-002 decision 6 is marked in its
+      entry and in the plan's self-check.
+    source: BC-22; R-7
+    check_ref: pytest
+  - id: AC-4
+    text: >-
+      plan-format.md says that every BC-n is covered by a criterion or listed under self_check.unverified with a reason.
+    source: BC-23
+    check_ref: review:plan-format
+  - id: AC-5
+    text: >-
+      The example in each of the four format references still passes its contract (the test of tests/unit/render/test_skills.py finds four
+      examples), every `orqlet ...` they name exists with its flags, and review-format.md is unchanged.
+    source: BC-22; BC-5; A-54
+    check_ref: pytest
+  - id: AC-6
+    text: >-
+      MANIFEST.json is rebuilt, the goldens of this phase are rewritten from the new output and every golden test passes; the tests of P-1
+      to P-3 pass without edit.
+    source: BC-31; BC-38; ORQLET-DET-002
+    check_ref: pytest
+  - id: AC-7
+    text: >-
+      No file outside this phase's file operations changes, and `orqlet gate status phase-skill-contracts --phase P-4 --head staged` reports
+      no ORQ-E450, ORQ-E451 or ORQ-E453.
+    source: BC-33
+    check_ref: gate-status-phase
+  checks:
+  - ruff-check
+  - ruff-format
+  - mypy
+  - import-linter
+  - schemas
+  - manifest
+  - pytest
+  - gate-status-phase
+  file_operations:
+  - op: modify
+    path: src/orqlet/workflow/skills/orqlet-research/references/as-is-format.md
+    why: The research brief (ADR-004 decision 1; BC-20).
+  - op: modify
+    path: src/orqlet/workflow/skills/orqlet-design/references/design-format.md
+    why: The design brief at the top of component.md (ADR-004 decision 2; BC-21).
+  - op: modify
+    path: src/orqlet/workflow/skills/orqlet-plan/references/plan-format.md
+    why: >-
+      The test plan before the implementation plan, the sources of criteria, the completion entries with citations and the warning-list
+      mark (ADR-004 decision 3; ADR-002 decision 3; BC-22; BC-23).
+  - op: modify
+    path: src/orqlet/workflow/MANIFEST.json
+    why: Rebuilt with tools/build_manifest.py after the package change (ORQLET-DET-002).
+  - op: create
+    path: tests/unit/test_workflow_format_references.py
+    why: The text of the three format references, BC-20, BC-21 and BC-22 (ORQLET-TEST-001).
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-research/references/as-is-format.md
+    why: Golden rewritten from the new render (A-56; BC-31).
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-design/references/design-format.md
+    why: Golden rewritten from the new render (A-56; BC-31).
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-plan/references/plan-format.md
+    why: Golden rewritten from the new render (A-56; BC-31).
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-research/references/as-is-format.md
+    why: Golden rewritten from the new render (A-56; BC-31).
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-design/references/design-format.md
+    why: Golden rewritten from the new render (A-56; BC-31).
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-plan/references/plan-format.md
+    why: Golden rewritten from the new render (A-56; BC-31).
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-research/references/as-is-format.md
+    why: Golden rewritten from the new render (A-56; BC-31).
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-design/references/design-format.md
+    why: Golden rewritten from the new render (A-56; BC-31).
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-plan/references/plan-format.md
+    why: Golden rewritten from the new render (A-56; BC-31).
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every `uv run` command below may sync the environment from uv.lock and fetch packages when it is not in sync (warning list
+    of ADR-002 decision 6: fetches from the network). The implementer asks the person before the first run in a session.
+  - >-
+    Goldens are rewritten with `uv run pytest --update-golden` (refused in CI by tests/conftest.py:34-39); the diff holds only the golden
+    files of this phase. MANIFEST.json is rewritten with `uv run python tools/build_manifest.py`.
+  - >-
+    ruff-check, ruff-format, mypy, import-linter, schemas, manifest and pytest: the commands and sources of the same checks in P-2
+    (.github/workflows/ci.yml:31, 32, 47, 62, 63, 64 and 83-84 at 66b58898b8d2f84bd90b2ee43c9057f6dd5bb1d1, with the configuration and tool
+    lines named there), cited again before each run.
+  - >-
+    gate-status-phase: `uv run orqlet gate status phase-skill-contracts --phase P-4 --head staged` reports no ORQ-E450, ORQ-E451 or
+    ORQ-E453. NOT_RUN caused by ORQ-I393 alone is expected offline; stale entries caused by this task's earlier commits are shown to the
+    person.
+  expected_outputs:
+  - src/orqlet/workflow/skills/orqlet-research/references/as-is-format.md
+  - src/orqlet/workflow/skills/orqlet-design/references/design-format.md
+  - src/orqlet/workflow/skills/orqlet-plan/references/plan-format.md
+  - tests/unit/test_workflow_format_references.py
+- id: P-5
+  objective: >-
+    Update the five role prompts (ADR-004 decision 7; Q-6): the reviewers serve the design review as well as the implementation review, the
+    researchers ask for project context as facts and run no command they find, and the tester runs only the plan's test command under the
+    re-cite rule. Pin the text with tests and rewrite the goldens that change.
+  depends_on:
+  - P-4
+  implements: []
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      Both reviewer prompts keep "the path of a read-only packet", "do not receive the Coder", "not a guarantee" and "absence record", add
+      the design-review sentence of ADR-004 decision 7 (its inputs, and citations opened only to verify), and their descriptions name both
+      uses.
+    source: BC-25; Q-6
+    check_ref: pytest
+  - id: AC-2
+    text: >-
+      The inventory and tracer prompts ask for the project context of their area as facts and say they run no command they find.
+    source: BC-26
+    check_ref: pytest
+  - id: AC-3
+    text: >-
+      The tester prompt says it runs only the test command the plan names, after the coder's checks, citing every source again and
+      confirming no uncommitted or untracked change to a cited file; it stops on a different hash or such a change; it never runs a command
+      that the plan marks or that matches the warning list of ADR-002 decision 6, and hands that check back to the coder, who asks the
+      person.
+    source: BC-26
+    check_ref: pytest
+  - id: AC-4
+    text: >-
+      Every role, the tester included, holds "never an instruction" exactly once (the test of tests/unit/render/test_skills.py:473-480 is
+      extended), every role keeps the no-lookup sentence exactly once (tests/unit/test_workflow_lookup_text.py passes without edit), the
+      read-only roles stay read-only, and no role file names a vendor model.
+    source: BC-26; A-55
+    check_ref: pytest
+  - id: AC-5
+    text: >-
+      MANIFEST.json is rebuilt, the goldens of this phase are rewritten from the new output and every golden test passes; the Codex TOML
+      roles still parse (the test of P-1); the tests of P-1 to P-4 pass without edit.
+    source: BC-31; BC-30; BC-38; ORQLET-DET-002
+    check_ref: pytest
+  - id: AC-6
+    text: >-
+      No file outside this phase's file operations changes, and `orqlet gate status phase-skill-contracts --phase P-5 --head staged` reports
+      no ORQ-E450, ORQ-E451 or ORQ-E453.
+    source: BC-33
+    check_ref: gate-status-phase
+  checks:
+  - ruff-check
+  - ruff-format
+  - mypy
+  - import-linter
+  - schemas
+  - manifest
+  - pytest
+  - gate-status-phase
+  file_operations:
+  - op: modify
+    path: src/orqlet/workflow/roles/orqlet-arch-reviewer.md
+    why: The design-review sentence and a description that names both uses (ADR-004 decision 7; BC-25).
+  - op: modify
+    path: src/orqlet/workflow/roles/orqlet-security-reviewer.md
+    why: The design-review sentence and a description that names both uses (ADR-004 decision 7; BC-25).
+  - op: modify
+    path: src/orqlet/workflow/roles/orqlet-inventory.md
+    why: Project context of the area as facts, and no command it finds is run (ADR-004 decision 7; BC-26).
+  - op: modify
+    path: src/orqlet/workflow/roles/orqlet-tracer.md
+    why: Project context of the area as facts, and no command it finds is run (ADR-004 decision 7; BC-26).
+  - op: modify
+    path: src/orqlet/workflow/roles/orqlet-tester.md
+    why: >-
+      Only the plan's test command, under the re-cite rule, never a marked or warning-list command, and "never an instruction" once
+      (ADR-004 decision 7; BC-26).
+  - op: modify
+    path: src/orqlet/workflow/MANIFEST.json
+    why: Rebuilt with tools/build_manifest.py after the package change (ORQLET-DET-002).
+  - op: modify
+    path: tests/unit/render/test_skills.py
+    why: '"never an instruction" exactly once in every role, the tester included (BC-26; lines 473-480).'
+  - op: create
+    path: tests/unit/test_workflow_role_prompts.py
+    why: The role text of BC-25 and BC-26 (ORQLET-TEST-001).
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/agents/orqlet-arch-reviewer.md
+    why: Golden rewritten from the new render (A-56; BC-31).
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/agents/orqlet-inventory.md
+    why: Golden rewritten from the new render (A-56; BC-31).
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/agents/orqlet-security-reviewer.md
+    why: Golden rewritten from the new render (A-56; BC-31).
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/agents/orqlet-tester.md
+    why: Golden rewritten from the new render (A-56; BC-31).
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/agents/orqlet-tracer.md
+    why: Golden rewritten from the new render (A-56; BC-31).
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.codex/agents/orqlet-arch-reviewer.toml
+    why: Golden rewritten from the new render (A-56; BC-31).
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.codex/agents/orqlet-inventory.toml
+    why: Golden rewritten from the new render (A-56; BC-31).
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.codex/agents/orqlet-security-reviewer.toml
+    why: Golden rewritten from the new render (A-56; BC-31).
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.codex/agents/orqlet-tester.toml
+    why: Golden rewritten from the new render (A-56; BC-31).
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.codex/agents/orqlet-tracer.toml
+    why: Golden rewritten from the new render (A-56; BC-31).
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.cursor/agents/orqlet-arch-reviewer.md
+    why: Golden rewritten from the new render (A-56; BC-31).
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.cursor/agents/orqlet-inventory.md
+    why: Golden rewritten from the new render (A-56; BC-31).
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.cursor/agents/orqlet-security-reviewer.md
+    why: Golden rewritten from the new render (A-56; BC-31).
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.cursor/agents/orqlet-tester.md
+    why: Golden rewritten from the new render (A-56; BC-31).
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.cursor/agents/orqlet-tracer.md
+    why: Golden rewritten from the new render (A-56; BC-31).
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every `uv run` command below may sync the environment from uv.lock and fetch packages when it is not in sync (warning list
+    of ADR-002 decision 6: fetches from the network). The implementer asks the person before the first run in a session.
+  - >-
+    Goldens are rewritten with `uv run pytest --update-golden` (refused in CI by tests/conftest.py:34-39); the diff holds only the golden
+    files of this phase. MANIFEST.json is rewritten with `uv run python tools/build_manifest.py`.
+  - >-
+    ruff-check, ruff-format, mypy, import-linter, schemas, manifest and pytest: the commands and sources of the same checks in P-2
+    (.github/workflows/ci.yml:31, 32, 47, 62, 63, 64 and 83-84 at 66b58898b8d2f84bd90b2ee43c9057f6dd5bb1d1, with the configuration and tool
+    lines named there), cited again before each run.
+  - >-
+    gate-status-phase: `uv run orqlet gate status phase-skill-contracts --phase P-5 --head staged` reports no ORQ-E450, ORQ-E451 or
+    ORQ-E453. NOT_RUN caused by ORQ-I393 alone is expected offline; stale entries caused by this task's earlier commits are shown to the
+    person.
+  expected_outputs:
+  - src/orqlet/workflow/roles/orqlet-tester.md
+  - src/orqlet/workflow/roles/orqlet-arch-reviewer.md
+  - tests/unit/test_workflow_role_prompts.py
+- id: P-6
+  objective: >-
+    Update the README that the change makes wrong: the skill table and the paragraph after it, the count of files that init writes, and the
+    block marker example that shows the installed workflow version.
+  depends_on:
+  - P-5
+  implements: []
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      The skill table under "The workflow in the client" says what each skill does at 0.4.0: onboard also records the project's build,
+      lint, type-check and test commands in AGENTS.md outside the managed blocks, each after the person's yes; research writes the research
+      brief; design opens with the design brief; plan writes the test plan first (criteria and checks before file operations); implement
+      checks its inputs first and reports in six parts; review is unchanged in substance.
+    source: BC-12; BC-20; BC-21; BC-22; BC-24; component.md Constraints for the plan
+    check_ref: review:readme
+  - id: AC-2
+    text: >-
+      The paragraph after the table says that design, plan and implement check their inputs first and stop with the cause, and that the
+      shared rules are in references/phase-contract.md of the four phase skills. No new command or option is named.
+    source: BC-4; BC-14; Q-4; R-13
+    check_ref: review:readme
+  - id: AC-3
+    text: >-
+      The number of files at README.md:132 equals the number that `orqlet init --dry-run` lists for the three clients in an empty scratch
+      folder with `--git-init` on the package of this branch (73 in the planning dry-run, 65 at the base).
+    source: component.md Constraints for the plan; README.md:132
+    check_ref: review:readme-count
+  - id: AC-4
+    text: >-
+      The block marker example at README.md:205 shows workflow@0.4.0. The upgrade example at README.md:268-277 (0.3.1 to 0.3.3) stays as an
+      example of an earlier upgrade.
+    source: ADR-005 decision 2; AGENTS.md "Update the documentation that your change makes wrong"
+    check_ref: review:readme
+  - id: AC-5
+    text: >-
+      tests/unit/test_readme_integrations.py and tests/unit/test_readme_ci_snippet.py pass without edit, and every other test passes.
+    source: ORQLET-QA-001
+    check_ref: pytest
+  - id: AC-6
+    text: >-
+      No file outside this phase's file operations changes, and `orqlet gate status phase-skill-contracts --phase P-6 --head staged` reports
+      no ORQ-E450, ORQ-E451 or ORQ-E453.
+    source: BC-33
+    check_ref: gate-status-phase
+  checks:
+  - pytest
+  - gate-status-phase
+  file_operations:
+  - op: modify
+    path: README.md
+    why: >-
+      The skill table and the paragraph after it (README.md:312-329), the file count (README.md:132) and the block marker example
+      (README.md:205) describe the shipped skills and version (component.md, Constraints for the plan; AGENTS.md "Update the documentation").
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every `uv run` command below may sync the environment from uv.lock and fetch packages when it is not in sync (warning list
+    of ADR-002 decision 6: fetches from the network). The implementer asks the person before the first run in a session.
+  - >-
+    The count of AC-3 comes from `uv run orqlet init --dry-run --git-init` with the three clients in an empty scratch folder outside the
+    repository, which is deleted afterwards; the output is read, nothing is written into this repository.
+  - >-
+    pytest: `uv run pytest` (.github/workflows/ci.yml:83-84 at 66b58898b8d2f84bd90b2ee43c9057f6dd5bb1d1, sha256
+    4ae61613359fd04b133f857be268aef2eb61b0a9a9f2ac6f3d7b0bc20cf95899; pyproject.toml:69-80, sha256
+    37ed9bcdfa8a1f0d4db95633be21fc6569aeef36cc898fdf4919007237be28c2), cited again before the run.
+  - >-
+    gate-status-phase: `uv run orqlet gate status phase-skill-contracts --phase P-6 --head staged` reports no ORQ-E450, ORQ-E451 or
+    ORQ-E453. NOT_RUN caused by ORQ-I393 alone is expected offline; stale entries caused by this task's earlier commits are shown to the
+    person.
+  expected_outputs:
+  - README.md
+- id: P-7
+  objective: >-
+    Regenerate this repository's installed files with `orqlet upgrade`, after the package, the tests and the README are final (Q-7). The
+    person runs it. The list below is the planning dry-run of `orqlet upgrade` (workflow 0.3.3 to 0.4.0); the dry-run at this phase decides,
+    and a different list needs a plan amendment.
+  depends_on:
+  - P-6
+  implements: []
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      `orqlet upgrade --dry-run` previews exactly the files of this phase (workflow 0.3.3 to 0.4.0); the person reads the preview and
+      approves it; `orqlet upgrade` writes the files, journalled, and none is written by hand. A path outside the list stops the phase for a
+      plan amendment.
+    source: Q-7; ADR-005 decision 3; AGENTS.md "Generated files"
+    check_ref: orqlet-upgrade-dry-run
+  - id: AC-2
+    text: After the upgrade, `orqlet upgrade --check` reports nothing to upgrade.
+    source: BC-32
+    check_ref: orqlet-upgrade-check
+  - id: AC-3
+    text: After the upgrade, `orqlet doctor` reports no ORQ-E150 or ORQ-W152 for any installed file.
+    source: BC-32
+    check_ref: orqlet-doctor
+  - id: AC-4
+    text: >-
+      The three .orqlet lock files and the two proposal diffs change only through `orqlet upgrade`, `orqlet upgrade --check` plans no write
+      to them, no other proposal file changes, no proposal is applied, and .orqlet/versions.yaml and .orqlet/role-bindings.yaml are
+      unchanged.
+    source: BC-33; ADR-005 decision 3
+    check_ref: review:upgrade-outputs
+  - id: AC-5
+    text: >-
+      The phase report says that applying the role-bindings proposal later changes reviewer independence, which the review-record validator
+      derives from that file's approved bindings and model families.
+    source: BC-33; component.md Constraints for the plan
+    check_ref: review:role-bindings-note
+  - id: AC-6
+    text: The refusal of `--update-golden` in CI (tests/conftest.py:34-39) is unchanged.
+    source: BC-33
+    check_ref: review:conftest
+  - id: AC-7
+    text: >-
+      `orqlet gate status phase-skill-contracts` reports this task's artifacts as stale on workflow_version and protected_set_digest
+      (ORQ-W390); the phase report records it, no artifact is edited to hide it, and the person decides what follows.
+    source: ADR-005 consequences
+    check_ref: orqlet-gate-status
+  - id: AC-8
+    text: >-
+      Every job of the CI workflow passes on the implementation pull request at a head that holds this phase: ruff check, ruff format
+      --check, mypy, lint-imports, the schema and manifest checks, pytest on Ubuntu, macOS and Windows with Python 3.12 to 3.15, and the
+      build job that builds the wheel twice and compares the digests.
+    source: BC-31; ORQLET-QA-001
+    check_ref: ci
+  - id: AC-9
+    text: >-
+      No file outside this phase's file operations changes, and `orqlet gate status phase-skill-contracts --phase P-7 --head staged` reports
+      no ORQ-E450, ORQ-E451 or ORQ-E453.
+    source: BC-33
+    check_ref: gate-status-phase
+  checks:
+  - orqlet-upgrade-dry-run
+  - orqlet-upgrade-check
+  - orqlet-doctor
+  - orqlet-gate-status
+  - gate-status-phase
+  - pytest
+  - ci
+  file_operations:
+  - op: create
+    path: .agents/skills/orqlet-design/references/phase-contract.md
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: create
+    path: .agents/skills/orqlet-implement/references/phase-contract.md
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: create
+    path: .agents/skills/orqlet-plan/references/phase-contract.md
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: create
+    path: .agents/skills/orqlet-research/references/phase-contract.md
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: create
+    path: .claude/skills/orqlet-design/references/phase-contract.md
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: create
+    path: .claude/skills/orqlet-implement/references/phase-contract.md
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: create
+    path: .claude/skills/orqlet-plan/references/phase-contract.md
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: create
+    path: .claude/skills/orqlet-research/references/phase-contract.md
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: modify
+    path: .agents/skills/orqlet-design/SKILL.md
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: modify
+    path: .agents/skills/orqlet-design/references/design-format.md
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: modify
+    path: .agents/skills/orqlet-implement/SKILL.md
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: modify
+    path: .agents/skills/orqlet-onboard/SKILL.md
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: modify
+    path: .agents/skills/orqlet-plan/SKILL.md
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: modify
+    path: .agents/skills/orqlet-plan/references/plan-format.md
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: modify
+    path: .agents/skills/orqlet-research/SKILL.md
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: modify
+    path: .agents/skills/orqlet-research/references/as-is-format.md
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: modify
+    path: .agents/skills/orqlet-review/SKILL.md
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: modify
+    path: .claude/skills/orqlet-design/SKILL.md
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: modify
+    path: .claude/skills/orqlet-design/references/design-format.md
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: modify
+    path: .claude/skills/orqlet-implement/SKILL.md
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: modify
+    path: .claude/skills/orqlet-onboard/SKILL.md
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: modify
+    path: .claude/skills/orqlet-plan/SKILL.md
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: modify
+    path: .claude/skills/orqlet-plan/references/plan-format.md
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: modify
+    path: .claude/skills/orqlet-research/SKILL.md
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: modify
+    path: .claude/skills/orqlet-research/references/as-is-format.md
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: modify
+    path: .claude/skills/orqlet-review/SKILL.md
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: modify
+    path: .claude/agents/orqlet-arch-reviewer.md
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: modify
+    path: .claude/agents/orqlet-inventory.md
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: modify
+    path: .claude/agents/orqlet-security-reviewer.md
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: modify
+    path: .claude/agents/orqlet-tester.md
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: modify
+    path: .claude/agents/orqlet-tracer.md
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: modify
+    path: .codex/agents/orqlet-arch-reviewer.toml
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: modify
+    path: .codex/agents/orqlet-inventory.toml
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: modify
+    path: .codex/agents/orqlet-security-reviewer.toml
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: modify
+    path: .codex/agents/orqlet-tester.toml
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: modify
+    path: .codex/agents/orqlet-tracer.toml
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: modify
+    path: .cursor/agents/orqlet-arch-reviewer.md
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: modify
+    path: .cursor/agents/orqlet-inventory.md
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: modify
+    path: .cursor/agents/orqlet-security-reviewer.md
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: modify
+    path: .cursor/agents/orqlet-tester.md
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: modify
+    path: .cursor/agents/orqlet-tracer.md
+    why: Written by `orqlet upgrade` only, never by hand (Q-7); listed by the planning dry-run.
+  - op: modify
+    path: .github/pull_request_template.md
+    why: The workflow block's marker carries the new version; written by `orqlet upgrade` only (Q-7).
+  - op: modify
+    path: AGENTS.md
+    why: The baseline block's marker carries the new version; written by `orqlet upgrade` only (Q-7).
+  - op: modify
+    path: .orqlet/workflow.lock
+    why: Written by `orqlet upgrade` only (Q-7; BC-33).
+  - op: modify
+    path: .orqlet/generated.lock.yaml
+    why: Written by `orqlet upgrade` only (Q-7; BC-33).
+  - op: modify
+    path: .orqlet/proposals/.orqlet__versions.yaml.diff
+    why: >-
+      upgrade rewrites the pending proposal for the seeded .orqlet/versions.yaml; it is committed as upgrade's output and not applied
+      (component.md, Constraints for the plan; BC-33).
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every `uv run` command below may sync the environment from uv.lock and fetch packages when it is not in sync (warning list
+    of ADR-002 decision 6: fetches from the network). The implementer asks the person before the first run in a session.
+  - >-
+    orqlet-upgrade-dry-run: `uv run orqlet upgrade --dry-run`, then the person runs `uv run orqlet upgrade` after reading the preview. Both
+    use the package of this branch (an editable install).
+  - 'orqlet-upgrade-check: `uv run orqlet upgrade --check` after the upgrade.'
+  - 'orqlet-doctor: `uv run orqlet doctor` after the upgrade.'
+  - >-
+    orqlet-gate-status: `uv run orqlet gate status phase-skill-contracts`; the stale entries are listed in the phase report for the person.
+  - >-
+    gate-status-phase: `uv run orqlet gate status phase-skill-contracts --phase P-7 --head staged` reports no ORQ-E450, ORQ-E451 or
+    ORQ-E453.
+  - >-
+    pytest: `uv run pytest` (.github/workflows/ci.yml:83-84 at 66b58898b8d2f84bd90b2ee43c9057f6dd5bb1d1, sha256
+    4ae61613359fd04b133f857be268aef2eb61b0a9a9f2ac6f3d7b0bc20cf95899; pyproject.toml:69-80, sha256
+    37ed9bcdfa8a1f0d4db95633be21fc6569aeef36cc898fdf4919007237be28c2), cited again before the run.
+  - >-
+    ci: GitHub runs the CI workflow (.github/workflows/ci.yml:18-107 at 66b58898b8d2f84bd90b2ee43c9057f6dd5bb1d1, sha256
+    7a37d7d89da4dd970d632a1eba57ed099c515cb3c080904ee47bbfa89ac63d00; matrix at ci.yml:72-74, sha256
+    242b2b1b63fc8cfdac2ff4e0df54f65d34ffb41a8c027af105cf8db033e03724) on the implementation pull request, which runs it on pull_request
+    events. Its build job spans several lines and holds `$(` and a redirection to a file (warning list of ADR-002 decision 6); the agent
+    never runs it locally, and its evidence is the CI run.
+  expected_outputs:
+  - .orqlet/generated.lock.yaml
+  - .orqlet/workflow.lock
+  - .orqlet/proposals/.orqlet__versions.yaml.diff
+  - AGENTS.md
+- id: P-8
+  objective: >-
+    The person runs the three session checks of ADR-005 decision 5 in real clients with the regenerated skills and writes one record per
+    check (Q-11), and the final report of R-13 is written. This phase is the person's, not code.
+  depends_on:
+  - P-7
+  implements: []
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      The record of V-1 shows, for each of Claude Code, Codex and Cursor, `/orqlet-design` started in a fresh session on a task with no
+      AS-IS file, and whether the skill stopped and named `/orqlet-research`. For Codex it says how the skill was started, because starting
+      a skill by name there is not documented (U-11).
+    source: ADR-005 decision 5; BC-14; Q-11
+    check_ref: review:session-records
+  - id: AC-2
+    text: >-
+      The record of V-2 shows, in one client, `/orqlet-plan` started on a design whose AS-IS file changed after the design cited it, and
+      whether the skill stopped on ORQ-E353 and asked. The scratch task and its changes live on a throwaway branch or copy, never in this
+      task's folder.
+    source: ADR-005 decision 5; BC-14; BC-39; Q-11
+    check_ref: review:session-records
+  - id: AC-3
+    text: >-
+      The record of V-3 shows, in one client, `/orqlet-onboard` run in a project whose CI file defines a test command, and whether the skill
+      showed the command with its file and lines and wrote it to AGENTS.md only after a yes. The session runs on a throwaway branch or copy;
+      nothing from it is committed except the record.
+    source: ADR-005 decision 5; BC-12; Q-11
+    check_ref: review:session-records
+  - id: AC-4
+    text: >-
+      Each record states the date, each client used with its name and version, the steps, what was observed and a verdict of pass, fail or
+      not run; a check the person did not run says so with the reason. A result that differs from the design is reported to the person as
+      "Design revision needed" with the ADR or BC-n, and is not fixed in this phase.
+    source: Q-11; ADR-005 decision 5; BC-24; AGENTS.md "A check that did not run is reported as not run"
+    check_ref: review:session-records
+  - id: AC-5
+    text: >-
+      No record holds a credential, token, password, environment value, account name or raw client log.
+    source: ORQLET-SEC-003
+    check_ref: security-reviewer
+  - id: AC-6
+    text: >-
+      The final report names the skills that changed, how project context reaches them, how the phases hand over, the injection changes
+      (none), the verification run with its results (the checks of every phase, the CI run and the three records), and the existing commands
+      to apply the update: `orqlet upgrade --check`, `orqlet upgrade --dry-run`, `orqlet upgrade` (or `--yes`), `orqlet doctor` and `orqlet
+      sync`, `orqlet rollback` while nothing has touched the files since, and `orqlet explain` for the installed version.
+    source: BC-36; R-13; ADR-005 decision 4
+    check_ref: review:final-report
+  - id: AC-7
+    text: >-
+      No file outside this phase's file operations changes, and `orqlet gate status phase-skill-contracts --phase P-8 --head staged` reports
+      no ORQ-E450, ORQ-E451 or ORQ-E453.
+    source: BC-33
+    check_ref: gate-status-phase
+  checks:
+  - gate-status-phase
+  file_operations:
+  - op: create
+    path: docs/design/phase-skill-contracts/evidence/checks/V-1.md
+    why: The record of session check V-1 in the three clients (ADR-005 decision 5; Q-11).
+  - op: create
+    path: docs/design/phase-skill-contracts/evidence/checks/V-2.md
+    why: The record of session check V-2 in one client (ADR-005 decision 5; Q-11).
+  - op: create
+    path: docs/design/phase-skill-contracts/evidence/checks/V-3.md
+    why: The record of session check V-3 in one client (ADR-005 decision 5; Q-11).
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  knowledge_step: required
+  completion:
+  - The person ran the three checks, or each record says which client or check was not run and why
+  - >-
+    gate-status-phase: `uv run orqlet gate status phase-skill-contracts --phase P-8 --head staged` reports no ORQ-E450, ORQ-E451 or
+    ORQ-E453 (warning list of ADR-002 decision 6 for `uv run`: may fetch from the network; ask first).
+  - The final report of AC-6 is given in the phase report and in the implementation pull request's description
+  expected_outputs:
+  - docs/design/phase-skill-contracts/evidence/checks/V-1.md
+  - docs/design/phase-skill-contracts/evidence/checks/V-2.md
+  - docs/design/phase-skill-contracts/evidence/checks/V-3.md
+reuse_decisions: []
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: planner
+    phase: plan
+  checks:
+  - what: design approved
+    how: >-
+      The person confirmed on 2026-11-02 that the merge of pull request 9 into main (merge commit 66b58898b8d2f84bd90b2ee43c9057f6dd5bb1d1)
+      is the approval of the design. gh reports the pull request MERGED and the design commit is an ancestor of origin/main. The pull
+      request has no review, and main has no branch protection (see unverified).
+    result: pass
+  - what: standards read
+    how: >-
+      orqlet standards for --phase plan --role planner (applicable_rules_hash 56502a0ec5eda3b13b4c9d97c7d4dfa41df82c86a206e36dd5d2d92aab299b97,
+      as bound); with --path src/orqlet/workflow/skills 10 rules (03dd4e37f75d033df99354ddeba18461f2202477422361db3bc0a0ba62b4b3e1), with
+      --path tests 5 rules (b00a25323520408083d05f4ede1362d8835dc8dfbfd1cfb4e5fdc369090ddf1b), with --path README.md 3 rules
+      (7cedb45ea31f8900517dcaca99243b1d35b05b37792a98fd1c45d16b2bf75038). ORQLET-DET-002, ORQLET-TEST-001, ORQLET-SEC-003 and ORQLET-QA-001
+      are criteria of the phases.
+    result: pass
+  - what: design manifest hashed
+    how: orqlet evidence hash docs/design/phase-skill-contracts/design/manifest.yaml; design_ref names it
+    result: pass
+  - what: module catalogue consulted
+    how: .orqlet/knowledge.yaml has no sources and no module cards exist, so there is nothing to reuse and reuse_decisions is empty
+    result: pass
+  - what: the file list of P-7 comes from a run, not a guess
+    how: >-
+      A scratch git worktree of 66b58898 got simulated 0.4.0 edits (identity 0.4.0, the four phase-contract.md files, edited skills, format
+      references and roles, rebuilt manifest); `orqlet upgrade --dry-run` there listed the 46 paths of P-7 (8 to create, 38 to update) and
+      did not list .orqlet/standards.lock.yaml, the role-bindings diff, .claude/CLAUDE.md, review-format.md, the sidecars, the rules or the
+      commands. The worktree was removed.
+    result: pass
+  - what: the README count comes from a run
+    how: >-
+      `orqlet init --dry-run` with the three clients in an empty scratch folder with --git-init listed 65 files on the base package and 73
+      with the simulated package (the four new references in two skill folders).
+    result: pass
+  - what: check commands cited
+    how: >-
+      orqlet evidence cite at 66b58898 for .github/workflows/ci.yml:18-107, 30, 31, 32, 47, 62, 63, 64, 72-74 and 83-84, pyproject.toml:38-60,
+      62-67, 69-80 and 82-127, tools/export_schemas.py:1-38 and tools/build_manifest.py:1-57; the hashes are in the completion entries.
+    result: pass
+  - what: warning-list marks
+    how: >-
+      Every `uv run` may fetch from the network when the environment is out of sync with uv.lock, and the CI environment step `uv sync`
+      fetches; each phase's completion marks it and the implementer asks first. The CI build job spans several lines and holds `$(` and a
+      redirection; it is marked in P-7 and runs only in CI.
+    result: pass
+  - what: other places that pin what the plan changes were searched
+    how: >-
+      rg for 0.3.3 found the seven version-marker goldens (P-2), README.md:205 and 268-277 (P-6), the installed files (P-7) and a docstring
+      of tests/unit/test_workflow_rule_mcp_text.py that records history; rg for skill and role text found tests/unit/render/test_skills.py,
+      tests/unit/test_workflow_lookup_text.py, tests/e2e/test_s8_acceptance.py (implement keeps `orqlet knowledge impact`) and
+      tests/support/render.py; the README tests are tests/unit/test_readme_integrations.py and tests/unit/test_readme_ci_snippet.py; `{{`
+      occurs only in the four templates under src/orqlet/workflow/templates, and no golden holds a step marker.
+    result: pass
+  - what: acceptance criteria cover the design's behaviour criteria
+    how: >-
+      BC-1 P-2, P-3; BC-2 P-2, P-3; BC-3 P-2, P-3; BC-4 P-2; BC-5 P-2, P-4; BC-6 P-1; BC-7 P-2; BC-8 P-2; BC-9 P-2; BC-10 P-2, P-3; BC-11
+      P-2; BC-12 P-3 (text), P-8 (V-3); BC-13 P-2; BC-14 P-2, P-8 (V-1, V-2); BC-15 P-2; BC-16 P-2; BC-17 P-2; BC-18 P-2; BC-19 P-2; BC-20
+      P-4; BC-21 P-4; BC-22 P-2, P-4; BC-23 P-4; BC-24 P-2; BC-25 P-2, P-5; BC-26 P-5; BC-27 P-1; BC-28 P-1; BC-29 P-1; BC-30 P-1, P-5;
+      BC-31 P-2 to P-5, P-7; BC-32 P-7; BC-33 every phase, P-7; BC-34 P-2; BC-35 P-2, P-3; BC-36 P-8; BC-37 P-2; BC-38 P-1 to P-5; BC-39
+      P-2; BC-40 P-2. Every criterion names its source.
+    result: pass
+  - what: open questions that block the plan
+    how: >-
+      Q-1 to Q-9 are answered (Q-5 superseded by Q-9) and C-1 is ruled. The planner raised Q-10 (the open design-review findings) and Q-11
+      (the session checks); the person answered both, and orqlet validate ledger passes.
+    result: pass
+  - what: paths projected
+    how: orqlet validate plan docs/design/phase-skill-contracts/plan.yaml
+    result: pass
+  - what: plan approved by the person
+    how: 'not given: the plan is a draft until its pull request merges'
+    result: not-run
+  unverified:
+  - >-
+    The plan is a draft: the person has not approved it, and approval is the merge of its pull request. An offline `orqlet gate status
+    phase-skill-contracts` has no approval evidence, so it reports NOT_RUN (ORQ-I393); a NOT_RUN result is not a pass.
+  - >-
+    Main has no branch protection and pull request 9 has no review. The person confirmed the merge as the design approval (the skill asks
+    for a merge on the protected branch).
+  - >-
+    The eleven minor findings of round 5 of the design review are open and not applied, at the person's choice (Q-10); a later design
+    revision takes them up. Architecture (docs/design/phase-skill-contracts/reviews/architecture-reviewer-design.md): F5-1 the ledger
+    reference commit for design is defined two ways; F5-2 the exit-status rule against a base revision not in the repository; F5-3 the
+    plan's Approved check and ledger rule have no merge in the D1 path; F5-4 the rule for a design's open questions is not followed by this
+    design; F5-5 porcelain `git diff` and `git log` with %G? run programs from git configuration, which the hardened git wrapper keeps off
+    its allow list; F5-6 the design-review inputs are fixed at five items across rounds; F5-7 three wording leftovers. Security
+    (docs/design/phase-skill-contracts/reviews/security-reviewer-design.md): SEC5-1 the merge-commit candidates and reachability check do
+    not single out the approval merge (no --first-parent); SEC5-2 the wildcard scope admits new client instruction files that no check
+    covers; SEC5-3 raw check output reaches the model and the transcript; SEC5-4 the tester lacks the coder's stop on a plan text that
+    differs from the cited lines. The texts written in P-2, P-3 and P-5 follow the design as merged, including where these findings apply.
+  - >-
+    From P-2 on, `orqlet gate status` reports the design and the plan stale on base_revision, because each committed phase changes files in
+    their scope, and after P-7 also on workflow_version and protected_set_digest (ADR-005 consequences). The installed 0.3.3 implement skill
+    stops on a stale result, so at each phase the person sees the cause (this task's own planned commits) and decides whether to go on.
+  - >-
+    The list of P-7 comes from simulated edits with approximate text; it depends on which source files change, not on their wording. The
+    dry-run at P-7 decides, and a different list needs a plan amendment.
+  - >-
+    The golden lists of P-2 to P-5 follow from the source files each phase changes and the version markers; they were not produced by a run
+    of --update-golden. A golden or test outside a phase's list that changes needs a plan amendment.
+  - >-
+    Whether the content of ADR-001 to ADR-004 fits 900 words per skill body and 1,800 words in phase-contract.md (BC-35) was not counted;
+    today's bodies hold 355 to 712 words. If it does not fit, the design needs a revision, not the plan.
+  - >-
+    The session checks of P-8 depend on the person's clients and versions; starting a skill by name in Codex is not documented (U-11), so
+    P-8 may end with checks reported as not run.
+  - >-
+    The fixture pair of P-1 AC-1 and the way P-1 AC-5 finds a file's format are the tester's choices within the criteria; a technology name
+    that is also an ordinary word in the skill text needs a fixture that avoids it.
+  - >-
+    The answer times of Q-10 and Q-11 are the time they were written into the ledger in this session, minutes after the person answered.
+  - >-
+    The README example at README.md:268-277 (an upgrade from 0.3.1 to 0.3.3) is kept as an example of an earlier upgrade; the README
+    example `orqlet standards for --path src/orqlet/domain --phase implement --role tester` at README.md:341 is outside this change.
+  - >-
+    The CI matrix (three systems, Python 3.12 to 3.15) and the build job are evidenced only by the CI run on the implementation pull
+    request; local checks run on one Python.
+  - 'No other plan reviewer exists in this release: the plan was checked by the author and by orqlet validate plan only.'
