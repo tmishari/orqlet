@@ -1,0 +1,853 @@
+schema: orqlet.as-is-fragment/v1
+fragment_id: trace-inject-handoff
+base_revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+scope:
+  paths:
+  - src/orqlet/interface/cli/**
+  - src/orqlet/application/usecases/**
+  - src/orqlet/application/contracts/artifact_header.py
+  - src/orqlet/application/contracts/as_is.py
+  - src/orqlet/application/contracts/design_set.py
+  - src/orqlet/application/contracts/plan.py
+  - src/orqlet/application/ports/instruction_adapter.py
+  - src/orqlet/adapters/clients/*.py
+  - src/orqlet/adapters/render/skills.py
+  - src/orqlet/adapters/workflow_package.py
+  - src/orqlet/domain/changeplan.py
+  - src/orqlet/domain/classify.py
+  - src/orqlet/domain/binding.py
+  - src/orqlet/domain/evidence_artifacts.py
+  - src/orqlet/workflow/skills/**
+  - tests/**
+  request_ref: phase-skill-contracts
+facts:
+- id: A-1
+  kind: flow
+  statement: The commands `orqlet init` and `orqlet upgrade` are registered on the Typer app. `init_command`
+    builds the lifecycle services with `build_init_services` and calls `init_project`. `upgrade_command`
+    builds the same services and calls `upgrade`.
+  evidence:
+  - path: src/orqlet/interface/cli/app.py
+    lines: 36-37
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 71435c76a000aabd79632ebeb0b2f56232f9537e13dcacd8ad86bd628d724c15
+  - path: src/orqlet/interface/cli/commands/init.py
+    lines: 63-86
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 9783c43ae549b8b940db2220e72d9fcdbe0d6e308ef4f558726d2731bcee2c82
+  - path: src/orqlet/interface/cli/commands/lifecycle.py
+    lines: 80-106
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 7ac18168ba3940c75fbaa42c222f8a2b510105b6f37cef1ae0109afd548f5fac
+- id: A-2
+  kind: dependency
+  statement: '`build_init_services` is the only place that picks adapters. It wires `PackagedWorkflow()`
+    as the workflow source and a map from client id to `ClaudeCodeAdapter`, `CodexAdapter` and `CursorAdapter`.'
+  evidence:
+  - path: src/orqlet/interface/cli/wiring.py
+    lines: 100-118
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 9f8ae79109d541cb90d8f76a7ecade2303db74224c8938cfbd1674a345b43aa7
+- id: A-3
+  kind: structure
+  statement: '`PackagedWorkflow` reads the installed `orqlet.workflow` package data. `read_text` accepts
+    only paths listed in `MANIFEST.json` and does not compare the file hash. The comparison of files against
+    the manifest is a separate `problems()` call, and a unit test asserts that it returns no problems.'
+  evidence:
+  - path: src/orqlet/adapters/workflow_package.py
+    lines: 24-51
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 91100069fef91552ddb1804e8aa10357ebee6248e18c6b4eeeb028dbb5d07b3e
+  - path: tests/unit/test_manifest.py
+    lines: 36-43
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 2e7f41f547fd5de4de16bf38d029622c167bd3eb31c5a153334e4776bb364b29
+- id: A-4
+  kind: structure
+  statement: '`load_skills` takes one skill per `skills/<name>/skill.md`. The front matter must have `name`
+    and `description`, and `name` must equal the directory name. A malformed source raises `SourceError`.
+    Each `skills/<name>/references/*.md` file is attached as a reference.'
+  evidence:
+  - path: src/orqlet/application/usecases/workflow_sources.py
+    lines: 104-137
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 226f4c3774d9a87505f236679a5afda0be17d1cc49e7e8254580c25e8711afef
+- id: A-5
+  kind: flow
+  statement: 'The `<!-- requires: X -->` and `<!-- unless: X -->` markers are filtered by `render_steps`.
+    It drops a numbered step and its indented continuation when the condition fails, strips the marker
+    and renumbers the list. `load_skills` applies it to the skill body only; reference files are read
+    verbatim, without filtering.'
+  evidence:
+  - path: src/orqlet/application/usecases/workflow_sources.py
+    lines: 1-7
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 572c882c6e9ea72a030968a173696e0cae994985116711f444f313b35263d149
+  - path: src/orqlet/application/usecases/workflow_sources.py
+    lines: '24'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 9558cd6722c1c9303012e57a8272c86f0e643075bda3fcf87bbd2e964d281563
+  - path: src/orqlet/application/usecases/workflow_sources.py
+    lines: 61-75
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 3a45fc276ddd27573a6da026075a1b486eac71b08264e933b0f5913f4e89a05a
+  - path: src/orqlet/application/usecases/workflow_sources.py
+    lines: 122-127
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 4ef79cda77a89906370e79cf4513cb00ff0f34a440ebbee64bb0a3d237056d92
+- id: A-6
+  kind: interface
+  statement: The set of available commands passed to `load_skills` defaults to `IMPLEMENTED_COMMANDS`
+    in `build_render_request`. `compose` calls `build_render_request` without overriding it, so `init`
+    and `upgrade` always filter against `IMPLEMENTED_COMMANDS`.
+  evidence:
+  - path: src/orqlet/application/usecases/render_request.py
+    lines: 55-64
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: b6e159eff246324a5654efb39240ce4c155a4f12da107d3fcbb05a2147104385
+  - path: src/orqlet/application/usecases/render_request.py
+    lines: '108'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 22623573ce462011e9184345e6ea660723fcab83e8dba78b1a20d3ef75fd4f60
+  - path: src/orqlet/application/usecases/render_all.py
+    lines: 121-127
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 8e8525946831eb1a92831794cedbc469ff7a64467bca4eed3070cf512e826569
+- id: A-7
+  kind: test
+  statement: '`IMPLEMENTED_COMMANDS` is a fixed frozenset of 30 command names, and `PLANNED_COMMANDS`
+    is empty. One test asserts the set equals the commands the app registers. Another asserts every marker
+    in a packaged skill names a known command.'
+  evidence:
+  - path: src/orqlet/application/usecases/capabilities.py
+    lines: 10-47
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: e4e213d5653b2cc4820cc3323943637642eb8293eca6cc9fe9c8eed511c4cfd5
+  - path: tests/integration/test_validate_cli.py
+    lines: 208-209
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 6756c75fe84a0a393a2976772856a42896d11b24a9f2e99e89429528bfd9fad6
+  - path: tests/unit/render/test_skills.py
+    lines: 148-152
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: f4fa05a71c0f971dffdfad77070d94f855d777600f53a8c8c2893e52b208bdea
+- id: A-8
+  kind: test
+  statement: 'Tests cover the step filter: a missing command drops its step and continuation and the list
+    renumbers. They also check that the implement skill loses three steps and renumbers when rendered
+    against the command set from before the records slice.'
+  evidence:
+  - path: tests/unit/render/test_skills.py
+    lines: 72-78
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 6ad845d215c96bab75b6d700bab5300b4b2d6d2075e34a2af59aa60b2a8b2be8
+  - path: tests/unit/render/test_skills.py
+    lines: 212-221
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: d6b6af3c44d6fd601f6f0a0bea02720802f3c2b94ec78810d802cc5981148a92
+- id: A-9
+  kind: interface
+  statement: A `ClientSkill` carries name, description, rendered body, references, `inputs` and `agent_may_start`.
+    Its `inputs` are `(skills/<name>, workflow version, sha256 of the rendered body)`. `RenderRequest`
+    holds workflow version, baseline, rules, commands, skills, roles, conventions and integrations. No
+    project-profile field reaches the skill text.
+  evidence:
+  - path: src/orqlet/application/usecases/workflow_sources.py
+    lines: 128-136
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: f4343ca9dccb9f6fd85d33f6f9ad3d1889f4e9758d5c5f591248b54a20a7de6b
+  - path: src/orqlet/application/ports/instruction_adapter.py
+    lines: 61-69
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: f214c08af69182fec7c4dbf6278135a618f1bc38170c6c3d9eb94fff845ab1e1
+  - path: src/orqlet/application/ports/instruction_adapter.py
+    lines: 92-103
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: e6fc4971ea33c4a9a2fd6694c9dd8d35993757be538e69a00c093bbceb0934da
+- id: A-10
+  kind: flow
+  statement: '`compose` builds one render request, calls `render` on the adapter of each enabled client
+    and merges the rendered files with `merge_rendered`. Identical files at one path collapse into one,
+    and differing bytes raise `MergeError`. Each file then becomes a `Desired`.'
+  evidence:
+  - path: src/orqlet/application/usecases/render_all.py
+    lines: 117-134
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: da66d5e998dd1e4009331c0fcfbd7510fe5b43439f1a30673818c4a66a692c62
+  - path: src/orqlet/application/usecases/init_files.py
+    lines: 48-74
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 496afb75efec27c39fa95ee871179f8b1fb4dfbe57558c6ffc993dc339409bcd
+- id: A-11
+  kind: structure
+  statement: 'Claude Code skills go to `.claude/skills/<name>/`. Cursor and Codex skills go to `.agents/skills/<name>/`
+    with identical bytes. Codex also gets `agents/openai.yaml`, which sets `allow_implicit_invocation:
+    false`, for each skill that the agent may not start.'
+  evidence:
+  - path: src/orqlet/adapters/render/skills.py
+    lines: 22-44
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 1c9bd3dc5386183103fef51d88d0fc2832b7f995a25b24fa465e9ce73ec9e093
+  - path: src/orqlet/adapters/clients/claude_code.py
+    lines: 61-72
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 9ca4f96798261f895b06769ef5f28b7ef2d362d862d4bf51c0b6adcd74e8a55e
+  - path: src/orqlet/adapters/clients/cursor.py
+    lines: 45-57
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 65dbf78ae758796ac51570e8187cc413f39317bc6e3d5f75adc0ef3ab47180fb
+  - path: src/orqlet/adapters/clients/codex.py
+    lines: 51-67
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: c6e9e44a5df5307f5beeda08a692a5760757ea61cae0d7a4068f67d6804c0ef8
+- id: A-12
+  kind: structure
+  statement: 'A rendered `SKILL.md` contains front matter, then the generated notice, then the normalised
+    body. The front matter has `name`, `description`, and `disable-model-invocation: true` unless the
+    agent may start the skill. Every skill file and reference is written with owner `ORQLET` and class
+    `PROTECTED`, which a test asserts for all three adapters.'
+  evidence:
+  - path: src/orqlet/adapters/render/skills.py
+    lines: 47-76
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 55605e073fcd9cf5a4e2ccef75264b8a294e4f745a10895ad4028dec78c9e549
+  - path: tests/unit/render/test_skills.py
+    lines: 331-344
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 3f54f80733ad9db57ecc3973d13bbe07890a1ab9e96ec0606fa8069827989cf9
+- id: A-13
+  kind: flow
+  statement: When `.orqlet/generated.lock.yaml` already exists, `init_project` returns status `already-initialised`
+    with `ORQ-I010` and builds no plan. A second `init` therefore never re-injects skills. Unit and CLI
+    tests assert that a second run changes nothing and exits 0.
+  evidence:
+  - path: src/orqlet/application/usecases/init_project.py
+    lines: 101-112
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 7cf877b13516bd8523dab779b409f899e723aa01f35f4b6aeabe73d7847e350e
+  - path: tests/unit/application/test_init_project.py
+    lines: 184-192
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 2e9af2d6b1a70195df4ec5ad0754460e87bb9e34aa98681b1a1018822c142fa3
+  - path: tests/integration/test_init_cli.py
+    lines: 70-79
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 4130deb431547728f5fc74334a2eaeb635b113e589e0fabb85511b33eab96e13
+- id: A-14
+  kind: flow
+  statement: '`init` plans the composed files against an empty record list. `upgrade` plans them against
+    the records read back from the lock through `Installation.recorded`.'
+  evidence:
+  - path: src/orqlet/application/usecases/init_project.py
+    lines: 155-169
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: e33ae343476506c401c233f8aac14addbf26d87d22c2372bb592798800472d38
+  - path: src/orqlet/application/usecases/upgrade.py
+    lines: 119-138
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 81d1bd3a33dbcc82a9d9f772910710757ec19a40b42995b3349c261c5c69f0bb
+  - path: src/orqlet/application/usecases/installation.py
+    lines: 44-46
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: b2b757f9a4d9a64b2c9d38b3163ec05186d97f0000dcf5e66d7fe8d70e719157
+- id: A-15
+  kind: flow
+  statement: '`plan_changes` reads the current bytes of every wanted path, proposal path, recorded path
+    and the lock. A non-regular file raises `InitRefused` with `ORQ-E114`. It then calls `build_plan`
+    and adds the regenerated lock as the last write only when the lock''s bytes would differ.'
+  evidence:
+  - path: src/orqlet/application/usecases/render_all.py
+    lines: 356-382
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: dec48b6b5b18286adc20be4467e0af3b51df13f33ab4fcfb720bfb4e8f4a9553
+  - path: src/orqlet/domain/changeplan.py
+    lines: 133-147
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 6ec0848ccd482e458225cb73b322c2f4bf8adcec5f89d7ee915801df36262486
+- id: A-16
+  kind: flow
+  statement: 'Whether a whole file changes depends on its owner, its file class and three normalised SHA-256
+    values: `current` (disk), `recorded` (lock) and `new` (render). The recorded `inputs` tuple plays
+    no part in classification.'
+  evidence:
+  - path: src/orqlet/domain/classify.py
+    lines: 28-56
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 1df11fe7e7c2f32691368eab33f2b1026bd9bd1252d1cd1bbd30befa4f735b20
+  - path: src/orqlet/domain/changeplan.py
+    lines: 204-223
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 3d5be8e6f15dd82cc199827bb2c8d8199a4f9b8490b03eaa0f56da9c0a99dccf
+- id: A-17
+  kind: flow
+  statement: For every state except user-edit-only, conflict, name collision, seeded-keep and seeded-proposal,
+    `_record` stores a new record that carries the desired `inputs`. `lock_from_recorded` writes those
+    inputs and the rendered hash into each lock entry.
+  evidence:
+  - path: src/orqlet/domain/changeplan.py
+    lines: 393-417
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 4098fb391c3ab622ad0e176f10b25437d068d31216c0e2de715ae3d8e1fe50fa
+  - path: src/orqlet/application/usecases/init_files.py
+    lines: 77-102
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: c0e4b965a8bb2a0259fe54648cbadd5f927cb1ad8c38f68b9c60f66fca0cd9d1
+- id: A-18
+  kind: flow
+  statement: On a second `upgrade` with unchanged inputs, every item is up to date, the plan has no writes
+    and `upgrade` returns `up-to-date` (exit 0) before approval or apply. Tests assert that the tree is
+    unchanged, that a second plan over its own result is empty, and that rendering skills twice gives
+    identical bytes.
+  evidence:
+  - path: src/orqlet/application/usecases/upgrade.py
+    lines: 162-165
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 9274d9ebd1a0014624557850ee69d7f64e3cc48e2410fb4fc0b58855315e7af0
+  - path: src/orqlet/domain/changeplan.py
+    lines: 115-117
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: c7694b1a561cc54a652524e9fec74741821a59e4cc9d0f9a41ad7ff7e5b26f76
+  - path: src/orqlet/interface/cli/commands/lifecycle.py
+    lines: 113-120
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: aee21ff53e0eddf43c2e08db7f971efcc9fe6c213157fa86ef022bcb0271152e
+  - path: tests/unit/application/test_lifecycle.py
+    lines: 281-288
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 7c6136ff40eedddf105474487b096bebd6e5b23dc0bf53edf1080cb85ac71a4a
+  - path: tests/unit/domain/test_changeplan.py
+    lines: 71-86
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: a10b6e19a5dd528b994cda43b371611fa170f1675da499e82becfc50645bfcae
+  - path: tests/unit/render/test_skills.py
+    lines: 514-526
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: f511abb74f57177ffb2ac053814cf4b18ddde1e3ead2f7190d8f02603dd73c35
+- id: A-19
+  kind: flow
+  statement: A protected file is `TAMPERED` when it differs from both the recorded and the new hash, including
+    when it was deleted. `TAMPERED` maps to `Action.RESTORE`, which overwrites the file with the new render
+    and writes no proposal. `upgrade` adds warning `ORQ-W096` for each tampered item.
+  evidence:
+  - path: src/orqlet/domain/classify.py
+    lines: 44-50
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: d78d33f19a8378e3038009877261ad5c5f32b40557e9c1d74f5ac6c6f3cd7dbd
+  - path: src/orqlet/domain/changeplan.py
+    lines: 420-432
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 873ac016c122c22a28ac8ca6f0028a13eca849933e8deb1e6d98508e76812468
+  - path: src/orqlet/application/usecases/upgrade.py
+    lines: 322-332
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: ea3da8fc637fa7553f8348a3d27c3db65729321250ba8ce4216065b8c84548e7
+  - path: tests/unit/domain/test_classify.py
+    lines: 46-55
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: f7837e916f1117ab8b0ae8bff90e84d8033eb123dd5cd4379d460f4cf465b8cc
+  - path: tests/unit/domain/test_changeplan.py
+    lines: 133-141
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: fc4417f1fe846525ccb678611d0c1b01303ea243b07156d2874926c1646fdd9e
+  - path: tests/unit/application/test_lifecycle.py
+    lines: 348-356
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 619a10a1700e97bcabf926d958e78b42c2b4d441af07ba083c94da6630ce5f8d
+- id: A-20
+  kind: flow
+  statement: 'A non-protected generated file edited by the team is `USER_EDIT_ONLY` (left alone, old record
+    kept) when the render did not change. It is `CONFLICT` when the render changed: the live file is kept,
+    a diff goes to `.orqlet/proposals/`, and `ORQ-W080` makes `upgrade` exit 1.'
+  evidence:
+  - path: src/orqlet/domain/classify.py
+    lines: '50'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 3e01d5692ac4982831a67d62aa80c75ff856fc91d327b6c338241a6ae007e708
+  - path: src/orqlet/application/usecases/upgrade.py
+    lines: 140-148
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 491a9db4fc5cbd5564cf5fd6b890c72d0afe6a254981da8767e52abed9bd0bd5
+  - path: src/orqlet/interface/cli/commands/lifecycle.py
+    lines: 113-120
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: aee21ff53e0eddf43c2e08db7f971efcc9fe6c213157fa86ef022bcb0271152e
+  - path: tests/unit/domain/test_changeplan.py
+    lines: 99-121
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: cbdcb66391242a477d2523568cf731adff7570cd30d43fbfd5130a9eabbb53d5
+- id: A-21
+  kind: flow
+  statement: An unmanaged file that already holds a wanted path with other bytes is `NAME_COLLISION`.
+    It gets a STOP action plus a proposal, and nothing is recorded for it.
+  evidence:
+  - path: src/orqlet/domain/classify.py
+    lines: 53-56
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 306ad25e5e562405d395fc00d126777c739b700998b8e21c3ba9d1500da12803
+  - path: tests/unit/domain/test_changeplan.py
+    lines: 124-130
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: dec7f9e8aa3263287f6e73684df9862f654c2c9322e733f1559584eca80e146d
+- id: A-22
+  kind: flow
+  statement: A recorded whole file that is no longer rendered is deleted when untouched (`ORPHAN_REMOVE`),
+    and empty parent folders are then removed. It is kept and reported when edited (`ORPHAN_REPORT`).
+  evidence:
+  - path: src/orqlet/domain/changeplan.py
+    lines: 344-362
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 91cb52abc6efd59d3ba5ec77d3eb0adaed494e5de5fb7a0e8ab188d7202ac7a9
+  - path: src/orqlet/domain/classify.py
+    lines: 59-62
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 6b5bcf08a503151b89e8e85af4c5a8ce7d2775099facbdd99ee8fdf9037b5415
+  - path: src/orqlet/application/usecases/apply_plan.py
+    lines: 82-93
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: f22e86f815a5ffb4b341c341ab1a31e61501acf42d2bce52a50a030cb6989a36
+- id: A-23
+  kind: operation
+  statement: '`apply_plan` holds the apply lock and verifies every before-hash (raising `PlanStale` otherwise).
+    It backs up each existing file to the backup store in the user data directory, journals the change,
+    and writes or deletes in order with the manifest last.'
+  evidence:
+  - path: src/orqlet/application/usecases/apply_plan.py
+    lines: 39-108
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 92c5a1d3f22a0dd29d1c9087c7b3362987c3d8d21ddcfed0e934c36c42808ff6
+  - path: src/orqlet/interface/cli/wiring.py
+    lines: 74-79
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: e4725ea7e16dc19722bb08ffbd31d9a39c37f0e0f2976233b05855f6d097ffa6
+  - path: src/orqlet/interface/cli/wiring.py
+    lines: 119-123
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: ed8dd2582494e99911a648b07cb4af2381472ed49c7afc3d200a58eece25396f
+- id: A-24
+  kind: test
+  statement: A fault test kills an upgrade after each possible write. It asserts that `upgrade --resume`
+    converges to the same tree as an uninterrupted upgrade.
+  evidence:
+  - path: tests/unit/application/test_lifecycle.py
+    lines: 413-435
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 0847f2d622e2542964f882e57d2579c163b3cc991c573810d8d964fe2d806c6c
+- id: A-25
+  kind: operation
+  statement: Any `OrqletError` that escapes a command, such as `RenderRequestError` from a malformed skill
+    source or `MergeError`, is caught by `execute` and printed with a code from `code_for`. `PlanStale`
+    gets `ORQ-E135`, `NotInitialised` gets `ORQ-E130` and anything unmapped gets `ORQ-E100`, all with
+    exit 3. Other exceptions get `ORQ-E900` with exit 70.
+  evidence:
+  - path: src/orqlet/application/usecases/render_request.py
+    lines: 165-169
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 3d71bbcf5cf34a42490e0a4ed7940bf72908d0ab91e0fdeff7b8faf88ff8b93d
+  - path: src/orqlet/interface/cli/runner.py
+    lines: 28-51
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: f9df8dd75fc871ffbfdd5dd4c2aceef06974fd05c66a04adff84de41fc665397
+  - path: src/orqlet/interface/cli/errors.py
+    lines: 16-35
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 8130d3363293d6d0c2a56dcd47a72374ec3589f271c4f13023e06c095f331627
+  - path: src/orqlet/interface/cli/exit_codes.py
+    lines: 6-13
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 97f98f5b0f5262ac86f053a80e9878de0a660c34aafaf9f51f7d6655e736491f
+- id: A-26
+  kind: operation
+  statement: 'Exit codes for `init`: needs-input gives 4, refused or any error gives 3, `ORQ-W080` gives
+    1, otherwise 0. For `upgrade`: refused gives 3, needs-input gives 4, `available` or `ORQ-W080` gives
+    1, otherwise 0. Before planning, `upgrade` refuses on an unfinished change (`ORQ-E131`), a downgrade
+    (`ORQ-E120`) or missing packs (`ORQ-E121`).'
+  evidence:
+  - path: src/orqlet/interface/cli/commands/init.py
+    lines: 116-124
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 07cb9f7b7c68a2ed742e48fede07ec70c517bea8cf034adf5c8af2b25e23fcbd
+  - path: src/orqlet/interface/cli/commands/lifecycle.py
+    lines: 113-120
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: aee21ff53e0eddf43c2e08db7f971efcc9fe6c213157fa86ef022bcb0271152e
+  - path: src/orqlet/application/usecases/upgrade.py
+    lines: 70-104
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 6fddaa57376758f0e343d9e69f3a16e7c4c5da8822be78e4f7572f5414be7206
+- id: A-27
+  kind: operation
+  statement: '`doctor` reports an edited, missing or unreadable protected file as `ORQ-E150`, and an edited
+    non-protected file as `ORQ-W152`. `release` refuses a protected file with `ORQ-E141`. A parametrised
+    test covers an edited `.claude/skills/orqlet-research/SKILL.md`.'
+  evidence:
+  - path: src/orqlet/application/usecases/diagnose.py
+    lines: 165-197
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: fa2fa2add79272c5f93c3b03551c3a7adf8bea59aab2b5bd68aeca6ee4e09531
+  - path: src/orqlet/application/usecases/release.py
+    lines: 57-62
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 38c50c52197b0657339afe7e8cc292f6957cc330db6093757dca97a8a573c6ba
+  - path: tests/unit/application/test_lifecycle.py
+    lines: 118-139
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 89af5691fb4d2e6f6de0874c295dc9813a494266165af01cac969272a7f1c1ef
+- id: A-28
+  kind: interface
+  statement: The artifact header has `task`, an informational `status`, `workflow_version`, `protected_set_digest`,
+    `bound` and `specialists`. `bound` holds `base_revision`, `standards_lock_hash`, `applicable_rules_hash`,
+    `profile_version` and `upstream`. The header has no project-identity field.
+  evidence:
+  - path: src/orqlet/application/contracts/artifact_header.py
+    lines: 23-52
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 4c49fb081588172743571a746d795885bfd18a744acccaffb46c8069052e67e3
+- id: A-29
+  kind: interface
+  statement: Each of the AS-IS, design set and plan has a header. The AS-IS adds `base_revision` and `scope.request_ref`,
+    the task slug. The design set adds `as_is_ref` (`path#sha256`). The plan adds `design_ref` (`path#sha256`)
+    and `base_revision`.
+  evidence:
+  - path: src/orqlet/application/contracts/as_is.py
+    lines: 60-80
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: f55b75a9d8e4abe8a3dd92bb80fd477033d261419d775e85ef49a8a09107fc2d
+  - path: src/orqlet/application/contracts/design_set.py
+    lines: 131-134
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 0df355d1e39f149ed58c19bf4fd970107cbbfe52e7d102363f4740168b2c1add
+  - path: src/orqlet/application/contracts/plan.py
+    lines: 67-71
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 88cb0b99f37632bef2112c442f92b072b4792427128e456b589f3a196b74c8ea
+- id: A-30
+  kind: flow
+  statement: '`orqlet gate status` calls `gate_status` with the validate services and renders it through
+    `output_of`. PASS exits 0; FAIL and NOT_RUN both exit 5.'
+  evidence:
+  - path: src/orqlet/interface/cli/commands/gate.py
+    lines: 19-42
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 9e6cb5a67ed4d71970d22ce8deb4352a9b5a52c08351072b60dcd3ec6406ecd8
+  - path: src/orqlet/interface/cli/commands/validate.py
+    lines: 39-48
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 9d61d95633dd5d6239fbbba3aaea56b656f0124e0b850dfe3de6c7f98fc9c9cc
+- id: A-31
+  kind: flow
+  statement: '`current_bound` takes the HEAD commit, the content hash of the standards lock, its `applicable_rules_hash`,
+    the profile version, the workflow lock''s version, and a digest over the path and rendered hash of
+    every protected lock entry. A missing installation file gives `ORQ-E390` and an unparseable one `ORQ-E391`,
+    both with verdict FAIL.'
+  evidence:
+  - path: src/orqlet/application/usecases/gate_status.py
+    lines: 70-93
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 33755d0d66dcfd7085f72752da09cf6eb61899519f8d616dd6ae9818a95a5d25
+  - path: src/orqlet/application/usecases/gate_status.py
+    lines: 126-142
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 0a0644d788df5573aad244dd3ff9feec7ded842eaf9b2ed53089ea755e708168
+  - path: tests/unit/application/test_gate_status.py
+    lines: 129-135
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: b25c3ef3f327ea058761210c68f6251aeedd27c93c49b9e3d44b25c943f8b122
+- id: A-32
+  kind: flow
+  statement: When a task is given, `gate_status` always adds `ORQ-I393` and a not-run reason saying approval
+    needs host evidence. The best possible verdict for a task is therefore NOT_RUN.
+  evidence:
+  - path: src/orqlet/application/usecases/gate_status.py
+    lines: 110-123
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 45cce1f3332d7bec1eb2d88076d2090c1a5369aee22609548b5854cf4f4ffd48
+  - path: src/orqlet/application/usecases/validation.py
+    lines: 73-80
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 0c9296d481dc42f625bb4e4f236a5f3dcb3b7bf29ae86b4050da94ff3d283ed0
+  - path: tests/unit/application/test_gate_status.py
+    lines: 138-152
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 021738e11d144784aa3e83c4b86febe85f5d8b0f585d7d50649ebd30c60db007
+- id: A-33
+  kind: flow
+  statement: '`gate_status` looks only at the fixed paths `docs/design/<task>/as-is.md`, `design/manifest.yaml`
+    and `plan.yaml` in the working tree. Each missing file is info `ORQ-I394` with `found: false`, not
+    an error. It does not compare a header''s `task` with the task argument and does not check `as_is_ref`
+    or `design_ref`.'
+  evidence:
+  - path: src/orqlet/application/usecases/gate_status.py
+    lines: 145-185
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 7dc965d0702a95727f72ae44ffc92287c90a080f03b2d33e7a557ae77e066758
+  - path: tests/unit/application/test_gate_status.py
+    lines: 206-211
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 349a118db3faa4267015da6b5e16cb72f6d7de3f813898754eb012428796f88f
+- id: A-34
+  kind: flow
+  statement: An artifact is stale when its header's `workflow_version`, `protected_set_digest`, `standards_lock_hash`,
+    `applicable_rules_hash` or `profile_version` differs from the current value. Staleness gives warning
+    `ORQ-W390` and a not-run reason.
+  evidence:
+  - path: src/orqlet/application/usecases/gate_status.py
+    lines: 194-202
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 054c97f2e3aebda915b2a33841acaa2ccd93af1b739c71867ed0b86c0c5edff0
+  - path: tests/unit/application/test_gate_status.py
+    lines: 155-178
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 03d1f187e302d68500d17dcddcf95a38fbeaae2fc6701895c6d56eee39c6eda6
+- id: A-35
+  kind: flow
+  statement: When HEAD moved past the header's `base_revision`, `changed_in_scope` compares the two Git
+    trees over the artifact's scope globs, which are file-operation paths for a plan. A change makes `base_revision`
+    stale; no change is info `ORQ-I392`; an unknown revision is a not-run reason.
+  evidence:
+  - path: src/orqlet/application/usecases/gate_status.py
+    lines: 188-191
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 2c10cb471edf765d1a5174a8397a385e20d54ef63d13916c3e2c5e4a4dc95339
+  - path: src/orqlet/application/usecases/gate_status.py
+    lines: 205-229
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 8c3fca50642ec164a363a0a74aa586adfe7db73368bda904ee37ccb1c8397588
+  - path: src/orqlet/application/usecases/staleness.py
+    lines: 11-30
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: ad1981d80b7483984d607ee8f46a6f0df70b7b8d6a2474068139830338c8de9e
+  - path: tests/unit/application/test_gate_status.py
+    lines: 181-203
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 8aafcca025af7965c1600a4b004f2745e10b3c371f7955f2a2a672f99ebc0284
+- id: A-36
+  kind: dependency
+  statement: Skill files are PROTECTED lock entries with a rendered hash, and `protected_set_digest` covers
+    every such entry. A change to any rendered skill therefore changes the `protected_set_digest` that
+    existing artifact headers recorded.
+  evidence:
+  - path: src/orqlet/application/usecases/gate_status.py
+    lines: 70-77
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 02c727f331b6b5599015b32067b509ec3a82bc6986cbe4ce5a0b176b5b9b703a
+  - path: src/orqlet/adapters/render/skills.py
+    lines: 69-76
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 30f797ae42d9063f04b00d9af76cb4e7a4f2c62c65ce71e8e00b129dea8c495b
+- id: A-37
+  kind: flow
+  statement: With `--phase`, `gate_status` reads the plan and design from the tree under review (staged
+    or HEAD), not the working tree. An unknown phase gives `ORQ-E453`. A deviation or an additional change
+    on a watched surface gives `ORQ-E450` or `ORQ-E451`, saying a renewed design approval is needed.
+  evidence:
+  - path: src/orqlet/application/usecases/gate_status.py
+    lines: 232-280
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 27d81941491ad06b69c3008adfb571ff6b536470afdd2d6ec78897d634e1388b
+  - path: src/orqlet/application/usecases/binding_inputs.py
+    lines: 89-105
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 6e6ddd24c4c136fb585c95496671ea896c9b632af31aad941a65de5e528dba83
+- id: A-38
+  kind: flow
+  statement: '`validate as-is` fails with `ORQ-E330` when `base_revision` differs from `header.bound.base_revision`.
+    It fails with `ORQ-E331` when `header.task` or `scope.request_ref` differs from the task folder. With
+    `--against`, changed files in scope give `ORQ-W341` and NOT_RUN.'
+  evidence:
+  - path: src/orqlet/application/usecases/validate_as_is.py
+    lines: 74-94
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 9c74bb85cd9625375aa4d93387b82e215bd95fdc6c339fe85862c6f1eb176ae2
+  - path: src/orqlet/application/usecases/validate_as_is.py
+    lines: 284-298
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: f5a4bb4a9d51e3b92d5829eb1e9d0f06a877c3dc848402a6319efc9e6f15f644
+  - path: tests/unit/application/test_validate_as_is.py
+    lines: 121-127
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: b9d4f7bf0d888034fa1d1e8aed3ccb78ef4b2ed0bdfa9dcc62a16def2f7d2b61
+- id: A-39
+  kind: flow
+  statement: '`validate design` reports `ORQ-E350` when the header task differs from the task folder.
+    For `as_is_ref` it reports `ORQ-E351` for a malformed reference, `ORQ-E352` for a missing file and
+    `ORQ-E353` for a hash mismatch. It never loads the AS-IS as a contract, never checks the AS-IS task,
+    bound values or acceptance, and its docstring says approval is not checked.'
+  evidence:
+  - path: src/orqlet/application/usecases/validate_design.py
+    lines: 1-7
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 93d5b7f1ee29d870690776a9be1c270777587c50e0d901bea0d6d220805e9b20
+  - path: src/orqlet/application/usecases/validate_design.py
+    lines: 55-109
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: dc6fee1658b54d58d4dbcda3a7677cb172efc3ad1d1ad41aff6f0a9300e51f85
+  - path: tests/unit/application/test_validate_design.py
+    lines: 172-180
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 26277766237588d4654002c2acf614ea765203a3a1f21fdbadf5614dc0556bd2
+  - path: tests/unit/application/test_validate_design.py
+    lines: 256-259
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: d567a9617f912864840b5ad9d9eabb251d5d9bce2f5e2bdf7baee17d8bab3af2
+- id: A-40
+  kind: flow
+  statement: '`validate plan` reports `ORQ-E370` for a header/folder task mismatch. For `design_ref` it
+    uses the single code `ORQ-E371` for a malformed reference, a missing file and a hash mismatch, and
+    `ORQ-E372` for an unreadable design. It does not compare `design.header.task` with the plan''s task.
+    A base revision missing from the repository makes the projected-tree check not run. `ORQ-E378` fires
+    when the plan triggers a class above the design''s effective class.'
+  evidence:
+  - path: src/orqlet/application/usecases/validate_plan.py
+    lines: 59-113
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 409c78d4e238dd9abddf399e8f6e6cad84b1f0a77f2181c4022aa2cdaecc7fc3
+  - path: src/orqlet/application/usecases/validate_plan.py
+    lines: 186-208
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: afe8bae3fcfddf833c291cc2cc8c60b6062fe3c859728f8e0553a42e62771200
+  - path: src/orqlet/application/usecases/validate_plan.py
+    lines: 242-254
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 6719254e90fce459910d58adb830a862207430ef9566d9edfae9559c9ccbe37d
+  - path: tests/unit/application/test_validate_plan.py
+    lines: 108-118
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 206ebb1e21d8aa2a5858bb2c0f4e7ffabb5ec0e65ad647b8f044ada9dcca8a23
+  - path: tests/unit/application/test_validate_plan.py
+    lines: 240-244
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 55fbdee5abb8d33bc21c7300e985a9d697417af277250ad9c9a7cf189f2024f9
+- id: A-41
+  kind: flow
+  statement: '`review prepare` locates the tree under review and the merge base, then reads `plan.yaml`
+    and `design/manifest.yaml` of the named task from that tree. If either is missing the result is NOT_RUN
+    with no packet. An unknown phase is `ORQ-E440`, an existing packet folder `ORQ-E441` and a failed
+    write `ORQ-E442`. The AS-IS file, test record and knowledge record are copied into the packet when
+    present, without validation, and plan task or `design_ref` hash are not checked.'
+  evidence:
+  - path: src/orqlet/application/usecases/review_prepare.py
+    lines: 56-99
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 0bdc7b06253f45ed6b68b66784779f464ee34a1dea2cb6ee165e9ac348e014ad
+  - path: src/orqlet/application/usecases/review_prepare.py
+    lines: 134-143
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 9b18cdb2a0419f788f012a06decfee9f29616a51dfa8492a69ee0789ea024127
+  - path: src/orqlet/application/usecases/review_prepare.py
+    lines: 166-179
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 14e341233c8ef4950dcb42fb519a99a8e4b404d8ea3ae9bef38064cb4c07de53
+  - path: src/orqlet/application/usecases/binding_inputs.py
+    lines: 395-413
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: b213c6a64004593fefdf28a8fc88fcb14992d16383e5236d3df1cfb27ef09914
+  - path: tests/unit/application/test_review_prepare.py
+    lines: 138-155
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: e56c7ba9e02f042e575b41da0aac97ed767623b4428d0239609cae982bec85b6
+- id: A-42
+  kind: flow
+  statement: Evidence records must sit at `docs/design/<task>/reviews/<role>-<P-n>-r<n>.yaml`, `tests/<P-n>.yaml`
+    or `knowledge/<P-n>.yaml`. The record validators report `ORQ-E400` for another path and `ORQ-E401`
+    when the record's task or phase differs from its path. They recompute the binding; a stale component
+    gives `ORQ-W410` and NOT_RUN. The design component hashes the manifest, its artifacts and the AS-IS
+    file named in `as_is_ref`.
+  evidence:
+  - path: src/orqlet/domain/evidence_artifacts.py
+    lines: 22-35
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: c9228b14ff1c717f2ba2417ef014e309dce1b61f9121a8b8c61733c5332a9a52
+  - path: src/orqlet/application/usecases/validate_records.py
+    lines: 84-156
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: d6cde36f1b3395b6daf9f9b92590aa44484b640641ff921fe8da9bcf38664045
+  - path: src/orqlet/application/usecases/binding_inputs.py
+    lines: 323-343
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 710091caacae1b432c6221a17ca2282f0686309836312f6bd0d603f5a909fdc9
+  - path: src/orqlet/domain/binding.py
+    lines: 38-56
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 0eb484886bd17a4c930ee2f0a5a0dbc28fde3e6c74a9e2d9425a4d00183e1151
+- id: A-43
+  kind: structure
+  statement: Today the skills hand off as follows. Research copies the `bound` values printed by `gate
+    status` into the header. Design stops if the person has not accepted the AS-IS and records `as_is_ref`
+    with `evidence hash`. Plan asks the person to confirm the design PR merged. Implement runs `gate status
+    <task> --phase`, treats its NOT_RUN as unconfirmed approval, asks the person, and stops on anything
+    stale.
+  evidence:
+  - path: src/orqlet/workflow/skills/orqlet-research/skill.md
+    lines: '13'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: eafdc79809eccc6d27f0987b553edcd168b408cd816795ced1046cab24689815
+  - path: src/orqlet/workflow/skills/orqlet-design/skill.md
+    lines: '11'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: d0d373906c0e83970439a865a492780271d0338b6c26b4745e1fb7b988341971
+  - path: src/orqlet/workflow/skills/orqlet-design/skill.md
+    lines: '17'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: a39ab5939abeac5c308e0764045e66406b26d4e524ebfb219024959d194fc4f3
+  - path: src/orqlet/workflow/skills/orqlet-plan/skill.md
+    lines: '11'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 57948ba02d7542790a3f05ebbf8c59c53fcbca4149835f7692d49ebb92bbd4fb
+  - path: src/orqlet/workflow/skills/orqlet-implement/skill.md
+    lines: '11'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 6e8e4f86946d29567a48ad49b44d5abd13bcef3d81d9f0e6018098d9478551cf
+unknowns:
+- id: U-1
+  what: The request asks injection to preserve local edits, but installed SKILL.md files are PROTECTED
+    and an edited one is restored on upgrade with warning ORQ-W096. It is not stated whether local edits
+    to skill files are meant to survive, or only edits outside the managed files.
+  material: true
+- id: U-2
+  what: Which receiving-project facts the skills should carry is not stated (for example project name,
+    target branch, prompts_dir, enabled clients or stack). Today RenderRequest and ClientSkill pass no
+    profile data into skill text.
+  material: true
+- id: U-3
+  what: How a later phase should detect an artifact from another project is not stated. ArtifactHeader
+    has no project identifier, and nothing establishes whether workflow_version, protected_set_digest
+    or base_revision is enough to tell projects apart.
+  material: true
+- id: U-4
+  what: How an unapproved prerequisite should be detected is not stated. AS-IS acceptance has no recorded
+    form in the repository, and design or plan approval is host evidence that offline gate status never
+    has (always NOT_RUN).
+  material: true
+- id: U-5
+  what: No threshold for 'materially outdated' is defined. Gate status treats any mismatch in five header
+    components as stale, and a base_revision move only when files in scope changed. Whether a skill-only
+    release, which changes protected_set_digest and workflow_version, should count as material is not
+    decided.
+  material: true
+- id: U-6
+  what: No test was found that runs upgrade over a locally edited SKILL.md. The restore test uses `.claude/rules/orqlet-workflow.md`,
+    and the SKILL.md test covers only doctor and release.
+  material: false
+- id: U-7
+  what: Bound.upstream is declared in the artifact header, but a search found no use case that reads it.
+    Its intended role in handoff detection is not documented in the files read.
+  material: false
+- id: U-8
+  what: 'Not traced: the doctor drift computation, the `next_release()` test helper, and the validators
+    for the question ledger and knowledge impact.'
+  material: false
+contradictions:
+- id: C-1
+  sources:
+  - src/orqlet/workflow/skills/orqlet-plan/skill.md:17-17
+  - src/orqlet/application/usecases/gate_status.py:110-123
+  note: The plan skill tells the agent to run `orqlet gate status <task>` and says a NOT_RUN result is
+    not a pass, but gate status with a task always returns NOT_RUN offline. The implement skill (skill.md:11)
+    explains this and asks the person instead; the plan skill does not.
+- id: C-2
+  sources:
+  - src/orqlet/workflow/skills/orqlet-research/skill.md:13-13
+  - src/orqlet/application/contracts/artifact_header.py:45-52
+  note: The research skill says to copy gate status's `bound` values into the header. Gate status prints
+    workflow_version and protected_set_digest inside `bound` (gate_status.py:59-67), but the header keeps
+    those two at its top level, outside `header.bound`.

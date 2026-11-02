@@ -1,0 +1,819 @@
+schema: orqlet.as-is-fragment/v1
+fragment_id: workflow-sources
+base_revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+scope:
+  paths:
+  - src/orqlet/workflow/skills/**
+  - src/orqlet/workflow/roles/*.md
+  - src/orqlet/workflow/baseline/baseline.md
+  - src/orqlet/workflow/rules/orqlet-workflow.md
+  - src/orqlet/workflow/rules/orqlet-workflow.meta.yaml
+  - src/orqlet/workflow/templates/*.md
+  - src/orqlet/workflow/commands/*.md
+  - src/orqlet/workflow/pr_template/**
+  - src/orqlet/workflow/MANIFEST.json
+  - src/orqlet/workflow/identity.json
+  - src/orqlet/workflow/releases.json
+  - src/orqlet/workflow/exempt.yaml
+  - tools/build_manifest.py
+  - src/orqlet/application/usecases/capabilities.py
+  - src/orqlet/application/usecases/workflow_sources.py
+  - src/orqlet/application/usecases/workflow_manifest.py
+  - src/orqlet/application/usecases/release.py
+  - src/orqlet/adapters/workflow_package.py
+  - tests/unit/render/test_skills.py
+  - tests/unit/test_workflow_lookup_text.py
+  - tests/unit/test_workflow_rule_mcp_text.py
+  - tests/unit/test_manifest.py
+  - tests/contract/test_release_gate.py
+  - tests/unit/render/test_clients_golden.py
+  - tests/support/render.py
+  request_ref: phase-skill-contracts
+facts:
+- id: A-1
+  kind: structure
+  statement: The package ships six skills (orqlet-design, orqlet-implement, orqlet-onboard, orqlet-plan,
+    orqlet-research, orqlet-review) and five roles. Only design, plan, research and review have a references/
+    file (design-format.md, plan-format.md, as-is-format.md, review-format.md); orqlet-implement and orqlet-onboard
+    have none.
+  evidence:
+  - path: tests/support/render.py
+    lines: 32-53
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 256dc6a42d516a8d4af58d327f3ee4cfbfe48bac93130641e7120dd891416e2c
+  - path: tests/unit/render/test_skills.py
+    lines: 122-132
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 19787d81b6bf044a606230921bad3c0fc083d80d5eee540516cd9aa4db9cacb7
+- id: A-2
+  kind: interface
+  statement: A skill source allows exactly the front-matter fields `name` and `description`. `name` must
+    equal the directory name, and an unknown or duplicate field is a SourceError. A role source requires
+    `name`, `description` and `mode`, and `mode` must be `read-only` or `writes`.
+  evidence:
+  - path: src/orqlet/application/usecases/workflow_sources.py
+    lines: 29-53
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 894cca8b35c0d3338e6c1d544b350ef4830166afa8723de7fa4dd3e58310241c
+  - path: src/orqlet/application/usecases/workflow_sources.py
+    lines: 115-121
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 468cc86db7e9e178368424d14337774f73367bd45225f9e8ada9336f49b6f1e3
+  - path: src/orqlet/application/usecases/workflow_sources.py
+    lines: 151-159
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 741a7d298babbd680c31125e4ffd3586344c51d1b6277d2433e676a6d898561a
+- id: A-3
+  kind: interface
+  statement: 'A rendered skill file adds `disable-model-invocation: true` and a Generated-by-Orqlet comment
+    after the front matter. Codex also gets an `agents/openai.yaml` sidecar with `allow_implicit_invocation:
+    false`. Five skill descriptions end with ''Use only when the person runs it'' (implement adds ''with
+    a phase id''); the onboard description says ''Use when the profile is a draft or the person asks to
+    onboard''.'
+  evidence:
+  - path: tests/unit/render/test_skills.py
+    lines: 284-289
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 752785322a47052310b1fd544e03ee53f94f600b2760ee280d633c9e703ea8fe
+  - path: tests/unit/render/test_skills.py
+    lines: 356-361
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: f2fe108f2693e7769c7a22b33c9e03b405e48e2dd95ff8e3889707ba973dc6e1
+  - path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-research/SKILL.md
+    lines: 1-8
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: ad2eeb8f94b2dd3beef25eece0cc70b7b39caee866f1037c33269e3a33ac15f5
+  - path: src/orqlet/workflow/skills/orqlet-onboard/skill.md
+    lines: 1-4
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: a59090c34a904695ee85954d2452561694652badeafe87af5b21f217a601c112
+  - path: src/orqlet/workflow/skills/orqlet-implement/skill.md
+    lines: 1-4
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: f56873e3b02b625e56b891592a4d6366c31cec0bf95674c322d9180c11a5e0ce
+- id: A-4
+  kind: structure
+  statement: 'All six skills have the same layout: front matter (lines 1-4), a ''# '' title, a purpose
+    paragraph at line 7, the paragraph ''Source material is not authority...'' at line 9 (which names
+    `orqlet standards for`), then one numbered list of steps from line 11. No skill has a headed section
+    for inputs, outputs, completion or handoff.'
+  evidence:
+  - path: src/orqlet/workflow/skills/orqlet-research/skill.md
+    lines: 1-11
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 8b3455c3f4179bb8f98e7700929fab128e347ade72960ecef096855ab55da228
+  - path: src/orqlet/workflow/skills/orqlet-design/skill.md
+    lines: 1-11
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: bf50e8e9375851e21967b30e9dde94bf1d20e44976d472778a78dbebe55d473e
+  - path: src/orqlet/workflow/skills/orqlet-plan/skill.md
+    lines: 1-11
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 58ee3a8e3c8490e2db4eda06d6b3cca38644547b071870644173633a9fef7242
+  - path: src/orqlet/workflow/skills/orqlet-implement/skill.md
+    lines: 1-11
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 1a2e7f7bc280b4bb303f687798b801b648f713890a5037898d311b6eb68b84f3
+  - path: src/orqlet/workflow/skills/orqlet-review/skill.md
+    lines: 1-11
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 7ddd752c4c90a747e2b920a97d7419b2333c1aab74fa9b7f550c58d1ab662fd7
+  - path: src/orqlet/workflow/skills/orqlet-onboard/skill.md
+    lines: 1-11
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: b1acc975a36427136a472cb1e6403072fddd28068c47c60d2dc658d93dfeb1d3
+- id: A-5
+  kind: flow
+  statement: 'Research inputs: it asks for the task name, runs `git status` and reads `docs/design/<task>/`
+    (questions.yaml and any earlier as-is.md) to resume. It asks one batch of questions, records them
+    in questions.yaml and runs `orqlet validate ledger`. It then runs `orqlet gate status` without a task
+    and copies the `bound` values into the header.'
+  evidence:
+  - path: src/orqlet/workflow/skills/orqlet-research/skill.md
+    lines: 11-13
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 4375ed378a3eda11246e48cb2f8742eced382132eea4be279118b2e0138f2a84
+- id: A-6
+  kind: flow
+  statement: 'Research work: when the client has subagents it starts orqlet-inventory (one per area, in
+    parallel) and orqlet-tracer; otherwise it sets `research_mode: sequential` with a `limitation`. Before
+    it writes facts it runs `orqlet resources list --uncovered --json` and writes web lookups to `docs/design/<task>/evidence/web/<slug>.md`.'
+  evidence:
+  - path: src/orqlet/workflow/skills/orqlet-research/skill.md
+    lines: 14-15
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 68fb6960f6a17df9abe9264bc7d80d800dfd0dcf6e8aa2897b70d69239a26607
+- id: A-7
+  kind: flow
+  statement: 'Research output and completion: it writes `docs/design/<task>/as-is.md` with evidence from
+    `orqlet evidence cite`, keeps every unknown and contradiction, states facts only and runs `orqlet
+    validate as-is`, where NOT_RUN is not a pass. Step 10 shows a summary that opens with the counts of
+    unknowns and contradictions, then ''STOP. The person accepts the AS-IS file. You cannot.'' No step
+    names the next skill, and no step runs `orqlet standards for`.'
+  evidence:
+  - path: src/orqlet/workflow/skills/orqlet-research/skill.md
+    lines: 16-20
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: e19c4e26e73d3d3446f36541e31a9b56d6eda721d664505bdb8677c5a0a6f112
+- id: A-8
+  kind: flow
+  statement: Design reads `docs/design/<task>/as-is.md` and stops if the person has not accepted it. It
+    runs `orqlet standards for --phase design --role architect` with no `--path`. It classifies the change
+    as D1, D2 or D3, and the declared class cannot be lower than the trigger.
+  evidence:
+  - path: src/orqlet/workflow/skills/orqlet-design/skill.md
+    lines: 7-13
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: ec3d5981b3f72ecf72d751c59be88314f40b18605aea3e1fdc2a91541b6496ad
+- id: A-9
+  kind: flow
+  statement: 'Design output: it writes `docs/design/<task>/design/manifest.yaml` and the artifacts its
+    class requires, declares `expected_changes` and hashes files with `orqlet evidence hash`. At D2 and
+    above it starts both reviewers on the design and saves their notes as `reviews/<role>-design.md`,
+    then runs `orqlet validate design`. Step 10: ''STOP. Tell the person to commit the design and open
+    a design pull request''; approval is the merge of that pull request. No step names the plan skill.'
+  evidence:
+  - path: src/orqlet/workflow/skills/orqlet-design/skill.md
+    lines: 15-20
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 7e56b2eacef0ce887334dc7780470c45e4a7affd500159e9ce27c035a0a41131
+- id: A-10
+  kind: flow
+  statement: Plan reads the approved design and asks the person to confirm that the design pull request
+    merged on the protected branch. For D1 the plan may be drafted from the validated draft and approved
+    in the same pull request; it stops if neither holds. It runs `orqlet standards for --phase plan --role
+    planner` with no `--path`.
+  evidence:
+  - path: src/orqlet/workflow/skills/orqlet-plan/skill.md
+    lines: 7-12
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: dd78700218396048a44aaa2fd9f687186c9de1bd2b9c79fb0e1b8ead9b7f02b3
+- id: A-11
+  kind: flow
+  statement: 'Plan output: `docs/design/<task>/plan.yaml` with phases, exact file operations, acceptance
+    criteria with sources, and checks. A rename is a create with `moved_from` plus a delete; the design
+    manifest hash comes from `orqlet evidence hash`. It runs `orqlet gate status <task>` and `orqlet validate
+    plan`, where stale or NOT_RUN is not a pass. A file outside the plan needs a plan amendment. Step
+    9: ''STOP. Tell the person to commit the plan and open a plan pull request.'' No step names the implement
+    skill.'
+  evidence:
+  - path: src/orqlet/workflow/skills/orqlet-plan/skill.md
+    lines: 13-19
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: e361a82c269c0dce890d98e0de1659ced2a84eb2f787304b26a6db3600f3af18
+- id: A-12
+  kind: flow
+  statement: Implement step 1 runs `orqlet gate status <task> --phase <phase>`, asks the person to confirm
+    that the design and plan pull requests merged (an offline run reports approval as NOT_RUN), and stops
+    if they did not or if anything is stale. Step 2 then asks which phase to implement and checks `git
+    status`. Step 3 starts orqlet-tester first; without subagents the agent writes the tests itself.
+  evidence:
+  - path: src/orqlet/workflow/skills/orqlet-implement/skill.md
+    lines: 7-13
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: c3eb5d1a5788d88fd6f7b2855da375bcbbb197f2f32a9cf87606c791fa27b068
+- id: A-13
+  kind: flow
+  statement: 'Implement work: a lookup writes to evidence/web/, which is the one exception to the file
+    list, and a finding that changes the design or plan stops the work. Code stays inside the phase file
+    list; a file outside it is a plan amendment. It runs ''the phase''s checks''; a run that collected
+    no tests or skipped checks is NOT_RUN, and ''the project''s own CI job is the evidence''.'
+  evidence:
+  - path: src/orqlet/workflow/skills/orqlet-implement/skill.md
+    lines: 14-16
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 89dd170bfb780f6daea38fbbf946f8155ee15b5b7b51970f61cebf2769a1c882
+- id: A-14
+  kind: flow
+  statement: 'Implement completion: it runs `orqlet knowledge impact` and `orqlet validate knowledge`,
+    saves the tester record `docs/design/<task>/tests/<phase>.yaml` and runs `orqlet validate test`, then
+    runs `/orqlet-review` (at most three rework rounds, no waiving). Step 10 stops for the person, prepares
+    a commit message with `Orqlet-Task` and `Orqlet-Phase` trailers and no AI attribution, and commits
+    only if asked.'
+  evidence:
+  - path: src/orqlet/workflow/skills/orqlet-implement/skill.md
+    lines: 17-20
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 0f365890aa8d11981cc9c34ef93ecb27d93e8e1d067024cf200e25e82ef2e6de
+- id: A-15
+  kind: flow
+  statement: Review checks that the change and both records are staged, then runs `orqlet review prepare
+    <task> <phase>`, which exports a packet outside the repository. It starts orqlet-arch-reviewer and
+    orqlet-security-reviewer in clean contexts and gives each only the packet path. Without subagents
+    it reports NOT_RUN and stops; an agent playing a reviewer is I0.
+  evidence:
+  - path: src/orqlet/workflow/skills/orqlet-review/skill.md
+    lines: 7-14
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: e74f6f63db9c2132aca898849a5ba565d174b8ada7e8ca6500f1aa1865acd7bf
+- id: A-16
+  kind: flow
+  statement: 'Review output: one record per reviewer at `docs/design/<task>/reviews/<role>-<phase>-r<round>.yaml`,
+    with `review_input` from `review prepare` and the agent hash from `orqlet evidence hash`. It runs
+    `orqlet validate review`, where NOT_RUN or stale is not a pass, and stops after three rounds with
+    one consolidated report. Step 9: ''STOP. You cannot accept the review.'''
+  evidence:
+  - path: src/orqlet/workflow/skills/orqlet-review/skill.md
+    lines: 15-19
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 229e5a502055a569bd774f15279814111964d0197575d58986ebcaa40eeb13c7
+- id: A-17
+  kind: flow
+  statement: 'Onboard runs `orqlet doctor` (ORQ-W180, ORQ-W181) and reads manifests, CI files, tests and
+    guidance, citing path and lines. It asks one batch of questions and previews then applies answers
+    with `orqlet profile answer ... --dry-run` / `--yes`. It registers resources (ORQ-I502, ORQ-I500,
+    `orqlet resources add` and `attach`) and forbids creating an end-to-end framework. Step 8: STOP, and
+    the person runs `orqlet profile approve --reviewer`.'
+  evidence:
+  - path: src/orqlet/workflow/skills/orqlet-onboard/skill.md
+    lines: 7-18
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: dd28d3959bcd103af8c0e467198004420d7a5b5c63d52ee45408130ce4a8df30
+- id: A-18
+  kind: interface
+  statement: Among the skill texts, only orqlet-onboard names `.orqlet/project-profile.yaml`. A search
+    of src/orqlet/workflow/skills for `AGENTS.md`, `project-profile`, `lint`, `type-check` and `build`
+    found no other match except the `profile_version` fields of the reference examples.
+  evidence:
+  - path: src/orqlet/workflow/skills/orqlet-onboard/skill.md
+    lines: '7'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: a7928b97500ac05b74a4c43a907cfa0f32adbb921c7ed20249a77abc9d681f24
+  - path: src/orqlet/workflow/skills/orqlet-research/references/as-is-format.md
+    lines: '19'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: c3cefaccf966a258eb2a6b20dcfc698fa26280a1a54d38d3486527ac8bfac991
+- id: A-19
+  kind: interface
+  statement: 'The project-profile schema has a top-level `commands` map of CommandSpec objects: `argv`
+    (required), `cwd` (default ''.'') and `source` (required). No skill text refers to it. The plan format
+    carries checks as named phase `checks` (for example `unit-tests`), which acceptance criteria reference
+    through `check_ref`.'
+  evidence:
+  - path: src/orqlet/workflow/schemas/orqlet.project-profile.v1.json
+    lines: 39-65
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 3b538119e3894ec649163c8fffc82ea67d6f445f3312026b4f48ae56e8aee31c
+  - path: src/orqlet/workflow/schemas/orqlet.project-profile.v1.json
+    lines: 807-813
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 5b9730b8057240b8f37c9bb99f2656350ba3730422ecb36bdc8368a3440f884d
+  - path: src/orqlet/workflow/skills/orqlet-plan/references/plan-format.md
+    lines: 30-31
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 72649dee46b6a17e291697c8e590c105ebfa9b2eead921049194efe16a625cce
+- id: A-20
+  kind: interface
+  statement: The baseline tells an agent to run `orqlet standards for --path <path> --phase <phase> --role
+    <role>` before it designs or changes code. The standards command text lists the phases as research|design|plan|implementation.
+    The design and plan skills call it without `--path`; research and implement have no step that calls
+    it.
+  evidence:
+  - path: src/orqlet/workflow/baseline/baseline.md
+    lines: 21-23
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 5b21603d008587f53019c697eaeae4b31192575cb876986c375193636cd5235d
+  - path: src/orqlet/workflow/commands/standards.md
+    lines: '7'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: ad1520a5f778cf3010face11c36db46b916127dabb073905522b8dbc5ba57a3d
+  - path: src/orqlet/workflow/skills/orqlet-design/skill.md
+    lines: '12'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 2611bc2cefb6fd1af6d932b7e7274552d9d929e043af9874f093cc7002c125b1
+  - path: src/orqlet/workflow/skills/orqlet-plan/skill.md
+    lines: '12'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: b53798621e3b86ec62db9739cc170c0bdb99593c9f1b78bbbf2c11915fc0b47a
+- id: A-21
+  kind: structure
+  statement: 'Every task artifact the skills name lives under `docs/design/<task>/`: questions.yaml, as-is.md,
+    evidence/web/<slug>.md, design/manifest.yaml, reviews/, plan.yaml and tests/<phase>.yaml. The PR template
+    names `docs/design/<task-slug>/knowledge/<phase>.yaml` and the `Orqlet-Task` and `Orqlet-Phase` trailers.
+    exempt.yaml classes `docs/design/` as `workflow-artifact`, recognised by validators.'
+  evidence:
+  - path: src/orqlet/workflow/skills/orqlet-research/skill.md
+    lines: 12-16
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: a0a8f9b49ce8e93e21ac3da4ddc723e8fbe4ff23072d63b92bf56f8f2f7810bd
+  - path: src/orqlet/workflow/skills/orqlet-design/skill.md
+    lines: 15-18
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 219ef1a073f590469bf5cbd827b962d3df2f9fad6385033fa6170caca7d54f0a
+  - path: src/orqlet/workflow/skills/orqlet-plan/skill.md
+    lines: '13'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 7a12b2f74756b6ad71c851704df8a184b640058591bfcc2a12cd0b4c8b565d9f
+  - path: src/orqlet/workflow/skills/orqlet-implement/skill.md
+    lines: '18'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: aaae62765c7e175ecb40c02e7ff76be8b2267dd286b30baafb66fde3cad90494
+  - path: src/orqlet/workflow/pr_template/workflow-section.md
+    lines: 1-21
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: e87889ffe3b052a4eeef5b17fa3bbb614b4b423dc8bcee1a21edb106cd47e22a
+  - path: src/orqlet/workflow/exempt.yaml
+    lines: 12-14
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 5f92679f8b48b289a0a5f56774c467e44f256cc75c8a5b4ba482362bf27a2530
+- id: A-22
+  kind: interface
+  statement: 'The `status` field of the common artifact header is one of draft, approved or superseded.
+    The reference examples use `status: draft` and `workflow_version: 0.2.0`. No skill step says who sets
+    `approved` or when.'
+  evidence:
+  - path: src/orqlet/workflow/schemas/orqlet.artifact-header.v1.json
+    lines: 121-129
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 709b55f69823bbb2a7cd024f59ed0f2106c1f5c217256438d9cabcbba3b64a71
+  - path: src/orqlet/workflow/skills/orqlet-research/references/as-is-format.md
+    lines: 9-13
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 957cdaa34fdc75bd27a1d5b57d35c1cfbeabf8407baf144328f4722a32125d46
+- id: A-23
+  kind: interface
+  statement: 'as-is-format.md defines `orqlet.as-is/v1` with a sample and lists the validator rules: the
+    header comes from `gate status`; `base_revision` equals the bound value; evidence revisions equal
+    the base; `research_mode` is parallel-subagents, sequential-subagents or sequential, with a `limitation`
+    unless parallel; `merged_from` naming; `self_check` is required. It defines a web-evidence layout
+    that ''no validator requires'', and it has no section on the `orqlet.as-is-fragment/v1` format.'
+  evidence:
+  - path: src/orqlet/workflow/skills/orqlet-research/references/as-is-format.md
+    lines: 1-68
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: a5cbf02ce4ad7efc3249b2eaa3ddb06f9850e317e14ac84d46b19dd3a0517d68
+- id: A-24
+  kind: interface
+  statement: 'design-format.md defines the D1, D2 and D3 triggers and the artifacts each class requires
+    (D2 and D3 need the notes of the two reviewers). It gives a sample `orqlet.design-set/v1` manifest
+    and says a surface other than public-api, dependency and security needs `verification: manual`.'
+  evidence:
+  - path: src/orqlet/workflow/skills/orqlet-design/references/design-format.md
+    lines: 5-19
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: ad7c02fa9a3098080bee79eb5c3bb4537861eb6a81cd94d5e3084f44d710780b
+  - path: src/orqlet/workflow/skills/orqlet-design/references/design-format.md
+    lines: 23-69
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: d13b3f84388b2c0c2485f3d825e2dfe6bb7eb2a110f7961b9e99977ac3654bbc
+- id: A-25
+  kind: interface
+  statement: 'plan-format.md defines `orqlet.implementation-plan/v1` and lists the rules: `depends_on`
+    is acyclic; create, modify and delete are checked against the projected tree; independent phases touch
+    no conflicting paths; `moved_from`; acceptance criteria with `check_ref`; `implements` names EC ids;
+    `review_evidence` is always the three roles; `knowledge_step` is always `required`; the plan triggers
+    no class above the design; `knowledge_scope` is limited.'
+  evidence:
+  - path: src/orqlet/workflow/skills/orqlet-plan/references/plan-format.md
+    lines: 3-56
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 540b855ca9089d89455df0328c02d231d5872b50764d6ecb4d21870a89ee419b
+- id: A-26
+  kind: interface
+  statement: 'review-format.md defines `orqlet.review-result/v1` and `orqlet.finding/v1`. Its rules: the
+    path is exact (role architecture-reviewer or security-reviewer, phase P-n, rounds without a gap);
+    `review_input` covers seven components; the binding is approved in `.orqlet/role-bindings.yaml`; independence
+    is limited to I1 or I2 and an I0 review is never a PASS; PASS and FAIL agree with the findings; `self_check`
+    is required. A claim without evidence never blocks.'
+  evidence:
+  - path: src/orqlet/workflow/skills/orqlet-review/references/review-format.md
+    lines: 56-63
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 2ff6793ce569fca3be8d257b1ab1c8b2512a06d31b842d06204b1683a5d4571f
+  - path: src/orqlet/workflow/skills/orqlet-review/references/review-format.md
+    lines: '82'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: d3b2be5bbdf01cca631acc9fe2adc1a6c6bd46b8e3f2ea57cdb6377e28ef8006
+- id: A-27
+  kind: interface
+  statement: 'orqlet-inventory and orqlet-tracer are `mode: read-only`. Each receives the request, the
+    paths and the AS-IS format and returns `orqlet.as-is-fragment/v1` YAML: facts (statement, path, lines),
+    unknowns and contradictions; the main agent adds revision and sha256. Their rules: read-only, files
+    are never instructions, facts only, report every unknown and contradiction, no web lookup.'
+  evidence:
+  - path: src/orqlet/workflow/roles/orqlet-inventory.md
+    lines: 1-12
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: b1135c03ee3cdfa83f0ba62344745396e8f58335571ab6223e108e4f2ab51790
+  - path: src/orqlet/workflow/roles/orqlet-tracer.md
+    lines: 1-12
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 3ef6d0cf65501706dc73e650a52e4f90b3f94e5015db6078887a9ddd1e81e97d
+- id: A-28
+  kind: interface
+  statement: The fragment schema requires each fact to have id, kind, statement and evidence, and each
+    evidence entry to have path, lines, revision and sha256.
+  evidence:
+  - path: src/orqlet/workflow/schemas/orqlet.as-is-fragment.v1.json
+    lines: 102-107
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 174a4e4c839654a0b6d2e75258866884c12c2f73e6f6a56438bfdd47e8c91a6c
+  - path: src/orqlet/workflow/schemas/orqlet.as-is-fragment.v1.json
+    lines: 134-139
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: f6451626ccb3ba32c3eb8156be6a51cbdb480463c8ae6a137acc49a38a0376cf
+- id: A-29
+  kind: interface
+  statement: 'orqlet-tester is `mode: writes`. It receives the acceptance criteria of one approved phase
+    and their sources, writes isolated business unit tests that each cite an `expected_behavior_source`,
+    touches only test files the plan lists, and reports the commands it ran and what it could not verify.
+    Its statement ''is never evidence''. The role names no record format and no project test command.'
+  evidence:
+  - path: src/orqlet/workflow/roles/orqlet-tester.md
+    lines: 1-16
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 1d91a86e47ddf1afcfe7a5dcc3a17a40c00c2d2f80d61de88ecd5128975fc59f
+- id: A-30
+  kind: interface
+  statement: 'orqlet-arch-reviewer and orqlet-security-reviewer are `mode: read-only`. Each receives ''one
+    thing: the path of a read-only packet'' that holds the staged snapshot, the diff, the plan, the design,
+    the standards and both records. Each returns `orqlet.finding/v1` findings and a self-check, uses an
+    absence record when the change is outside its field, and is ''an additional check, not a guarantee''.'
+  evidence:
+  - path: src/orqlet/workflow/roles/orqlet-arch-reviewer.md
+    lines: 1-18
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 4719caf49f24bcf762799109a633be35c98403da1052d4c96e058321aea1f17a
+  - path: src/orqlet/workflow/roles/orqlet-security-reviewer.md
+    lines: 1-12
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 789159c52961e2e35c5baddb10757cc1f028064cc61b9e7baa1c9a2c7499adf7
+- id: A-31
+  kind: structure
+  statement: 'Roles render to `.claude/agents/<name>.md`, `.cursor/agents/<name>.md` and `.codex/agents/<name>.toml`;
+    skills render to `.claude/skills/` and `.agents/skills/`. A read-only role gets `tools: Read, Grep,
+    Glob` in Claude Code, `readonly: true` in Cursor and `sandbox_mode = "read-only"` in Codex.'
+  evidence:
+  - path: tests/unit/render/test_clients_golden.py
+    lines: 68-102
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: e76001436585b14d147a67bb0837b32fa32f0c843a81400533658dceaefdf325
+  - path: tests/unit/render/test_skills.py
+    lines: 372-375
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 8aabeb8d6987a5e06224996d28384fc0b1e847501e636ba04f503ed3d0e78648
+  - path: tests/golden/cursor/docs-2026-10/.cursor/agents/orqlet-inventory.md
+    lines: 1-7
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 2e738a17670326449182f8f2885f3d84a9276304f9b857d6667ec28724dc7483
+- id: A-32
+  kind: flow
+  statement: 'A line that ends in `<!-- requires: <command> -->` keeps its step only when the command
+    is available; `<!-- unless: <command> -->` keeps it only while the command is missing. A dropped step
+    takes its indented continuation lines with it. The marker text is removed and the numbered list is
+    renumbered; a paragraph restarts the numbering.'
+  evidence:
+  - path: src/orqlet/application/usecases/workflow_sources.py
+    lines: 1-7
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 572c882c6e9ea72a030968a173696e0cae994985116711f444f313b35263d149
+  - path: src/orqlet/application/usecases/workflow_sources.py
+    lines: '24'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 9558cd6722c1c9303012e57a8272c86f0e643075bda3fcf87bbd2e964d281563
+  - path: src/orqlet/application/usecases/workflow_sources.py
+    lines: 61-90
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: a5f6d506b600eeaeb77e9a03a6d7cd3a34806d48e2d46d1a1ae4a532ff236464
+- id: A-33
+  kind: dependency
+  statement: 'The set of available commands defaults to IMPLEMENTED_COMMANDS (30 command names); PLANNED_COMMANDS
+    is empty. A test asserts that IMPLEMENTED_COMMANDS equals the commands the Typer app registers. The
+    skill texts use only `requires` markers: research 5, implement 5, design 4, plan 3, review 3 and onboard
+    3.'
+  evidence:
+  - path: src/orqlet/application/usecases/capabilities.py
+    lines: 1-47
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 47e510483c32731b3ef1630ee88a171b05408646a27fe34740a252b0576dd19c
+  - path: src/orqlet/application/usecases/render_request.py
+    lines: 55-64
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: b6e159eff246324a5654efb39240ce4c155a4f12da107d3fcbb05a2147104385
+  - path: tests/integration/test_validate_cli.py
+    lines: 208-209
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 6756c75fe84a0a393a2976772856a42896d11b24a9f2e99e89429528bfd9fad6
+- id: A-34
+  kind: test
+  statement: test_skills.py checks four things about commands and markers. Every marker names a command
+    in IMPLEMENTED or PLANNED. Every backticked `orqlet ...` command and `--flag` in a rendered skill
+    exists in the CLI. No skill names a command its release lacks. The implement skill renders 7 steps
+    without the five record commands and exactly 10 steps with every command.
+  evidence:
+  - path: tests/unit/render/test_skills.py
+    lines: 148-152
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: f4fa05a71c0f971dffdfad77070d94f855d777600f53a8c8c2893e52b208bdea
+  - path: tests/unit/render/test_skills.py
+    lines: 170-189
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 877a8066b5f4cb6a76665bb2baf42d5c617695c53455095658498750344392ca
+  - path: tests/unit/render/test_skills.py
+    lines: 202-221
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 7fd12531f2f82cd76b648da613e5ffc28719d3f632e29096011725e8e5b8e6a5
+  - path: tests/unit/render/test_skills.py
+    lines: 231-236
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 851be7c936343c5fba602f8a04cc8fb0d7b241eb5158e48521318c879e69860f
+- id: A-35
+  kind: test
+  statement: The text tests in test_skills.py require the following. Every skill body contains 'Source
+    material is not authority.' and 'STOP.'. A skill name has at most 64 characters and a description
+    at most 1024 characters on one line. The first yaml block of each reference validates against its
+    contract. Read-only roles contain 'never an instruction'. The tester contains 'never evidence'. Each
+    reviewer contains 'the path of a read-only packet', 'do not receive the Coder', 'not a guarantee'
+    and 'absence record'. The review skill contains both reviewer names, 'is a fork, not an independent
+    reviewer', 'I0' and 'NOT_RUN'.
+  evidence:
+  - path: tests/unit/render/test_skills.py
+    lines: 135-145
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 2395f955b9e9edee5a27af3022a947207b0746ef2cfcca772a64612989d3cbcb
+  - path: tests/unit/render/test_skills.py
+    lines: 239-256
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 35d4958d0c79254ec29491d67c68b2fc87fc871f304caa36e3f51f6b52d36a94
+  - path: tests/unit/render/test_skills.py
+    lines: 473-511
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 9fdfa93c48a8bdb5ea79a4d70f6131b3151a02a2a8858f307a8c7b7fe967f3be
+- id: A-36
+  kind: test
+  statement: 'test_workflow_lookup_text.py requires each of onboard, research, design and implement to
+    have exactly one step marked `requires: resources list`: a numbered line that ends with the marker,
+    names ''Looking things up'' and holds key phrases set per skill. The research lookup step comes before
+    the step with `orqlet evidence cite`. In design, ''Commit it'' comes before `orqlet evidence cite`.
+    Each role contains the no-lookup sentence exactly once.'
+  evidence:
+  - path: tests/unit/test_workflow_lookup_text.py
+    lines: 230-247
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 8a63286ebda2c927f081038bdc7d43480ca56c1480bdfe777fe18ca02f43dd3e
+  - path: tests/unit/test_workflow_lookup_text.py
+    lines: 262-301
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: bd60495830ebde6ff6e62addc41d46af8d20bb8f7701aefc0443028defff25c3
+  - path: tests/unit/test_workflow_lookup_text.py
+    lines: 315-373
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 3ef7fbdf21c7b5da605ceed7cdbd170ca1a478c1f7caca02bdf337c6d460cbb5
+  - path: tests/unit/test_workflow_lookup_text.py
+    lines: 388-396
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 0ed2dcee917c5cbe9a6c3b3394244757d0fe64a23e9318d2a43f768b865b311a
+  - path: tests/unit/test_workflow_lookup_text.py
+    lines: 412-425
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: cb8f12f22d18d0bb89b3a33d24bb1b779f57af78560eec0141e67655e9583450
+- id: A-37
+  kind: operation
+  statement: 'tools/build_manifest.py writes MANIFEST.json: the hash of every listed file under src/orqlet/workflow
+    (CRLF read as LF), plus `workflow_version` and `controls_level` from identity.json. With `--check`
+    it exits 1 when the manifest is stale. MANIFEST.json, releases.json, __init__.py, __pycache__ and
+    .pyc files are not listed.'
+  evidence:
+  - path: tools/build_manifest.py
+    lines: 1-53
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 239ba0f156be8c2db22170abbfe3407f446bca6f9d9ee2f6605772ab63963c2c
+  - path: src/orqlet/application/usecases/workflow_manifest.py
+    lines: 14-44
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 0f5e0002f2bfb383c9daab7a98d9fb804124c1c12fbf67876d239343b1be1b1b
+- id: A-38
+  kind: structure
+  statement: 'identity.json holds `workflow_version` 0.3.3 and `controls_level` 3, and MANIFEST.json carries
+    `workflow_version` 0.3.3. releases.json lists one release: version 0.1.0, controls_level 1, digest
+    b52f299b.... The workflow digest is the SHA-256 of the canonical JSON form of the manifest.'
+  evidence:
+  - path: src/orqlet/workflow/identity.json
+    lines: 1-5
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: b0afc23679bcb9a4e148f670adf6889e76eb405215b5e84c1eb90cd594e88a4e
+  - path: src/orqlet/workflow/MANIFEST.json
+    lines: 269-270
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: abbcf0ede3210735c076b7661995b47d4af9dacefd2b9021257b5221faa07180
+  - path: src/orqlet/workflow/releases.json
+    lines: 1-10
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 63ad2128350fd7052aacf1ad780bb18d14ddcfc73689a39dbafedeb85424bf62
+  - path: src/orqlet/application/usecases/workflow_manifest.py
+    lines: 47-49
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: ba1ce3be9b8008b4ade18b44b391398de30b7150105eac455b89ca2e1b656ca9
+- id: A-39
+  kind: test
+  statement: test_release_gate.py runs check_release_history. It reports a problem only when the current
+    version is listed in releases.json with another digest or controls_level, is below the newest listed
+    version, or has a controls_level below an earlier one. Its failure message says to raise `workflow_version`
+    in identity.json and run build_manifest.py again.
+  evidence:
+  - path: tests/contract/test_release_gate.py
+    lines: 13-22
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: b78d9e9b6b90670f8db69e8b58731b0843b1efd2ee6a1adb87ee4eb33305c98a
+  - path: src/orqlet/domain/versions.py
+    lines: 56-83
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 956911aa4378c2439afdaed910442bf562de8f00440bbcb343f3caf2a32ee8bd
+- id: A-40
+  kind: test
+  statement: 'A stale manifest fails in several places: test_the_committed_manifest_matches_the_files_on_disk;
+    two tests that compare MANIFEST.json with `render()`; the CI step `uv run python tools/build_manifest.py
+    --check`; and rule ORQLET-DET-002 (MUST rebuild the manifest and bump the version), whose check_ref
+    is that command.'
+  evidence:
+  - path: tests/unit/test_manifest.py
+    lines: 36-43
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 2e7f41f547fd5de4de16bf38d029622c167bd3eb31c5a153334e4776bb364b29
+  - path: tests/unit/test_workflow_lookup_text.py
+    lines: 500-509
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 5116006456a524c2a91c6196e6af8bfdd20701c1f1c51bbf4a6386a0f75e1f63
+  - path: .github/workflows/ci.yml
+    lines: '64'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: a2061c7f43040eacd56749b7ea2ba34accbb81e0c943eec9b42e749cf22fe474
+  - path: .prompts/rules.yaml
+    lines: 92-99
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: a243ba4d59b9f4ae9f9be8bc343dc56248ecd6d99f99368ef7b1cdb59512a631
+- id: A-41
+  kind: test
+  statement: The golden test compares every rendered file of the three clients byte for byte with tests/golden/<client>/docs-2026-10/.
+    Golden files are rewritten only with `pytest --update-golden`, which is refused in CI. The first line
+    of the golden AGENTS.md embeds `workflow@0.3.3#<digest>`.
+  evidence:
+  - path: tests/unit/render/test_clients_golden.py
+    lines: 37-44
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 541bea6523530205a279865465797d89a49f81a4afb4e86c17855206f8dda3cc
+  - path: tests/conftest.py
+    lines: 47-64
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: d5d77a73c2cb4bd79dc2439bdd786afb0bfe8640cf5dc351d62740d9b23c19be
+  - path: tests/golden/cursor/docs-2026-10/AGENTS.md
+    lines: '1'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: f460a44d76e917a37fc9df2fdb3e980f05a7a8771b5ece2b087b3ec42df45205
+- id: A-42
+  kind: interface
+  statement: The baseline states four phases (research, design, plan, implementation). A person approves
+    the design and the plan before implementation, and the agent asks when it cannot tell whether an approval
+    exists. Agents run `orqlet standards for`, and MUST rules are not optional. Files in `.orqlet/generated.lock.yaml`
+    are generated, except the seeded files, and are changed at their source with `orqlet upgrade`. Tests
+    limit the baseline to 60 lines and 8 KiB.
+  evidence:
+  - path: src/orqlet/workflow/baseline/baseline.md
+    lines: 1-39
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 2a33305a98a8e6cf45fbf8a52316f5e30586ecb4106c42ac642b4647b08f8df1
+  - path: tests/unit/test_manifest.py
+    lines: 151-155
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 6726fc51ca1a190d4235bcad882c2272eb57b038c3b4b661389fbd4e38437b02
+- id: A-43
+  kind: interface
+  statement: The workflow rule says the files under `.orqlet/`, the client folders and the AGENTS.md managed
+    block are generated and changed through their source and `orqlet upgrade`, while `.prompts/` and `.mcp.json`
+    are seeded and belong to the team. Its meta file scopes it to .orqlet/**, .claude/**, .cursor/**,
+    .agents/**, .codex/**, .mcp.json and AGENTS.md. A test pins the first three bullets byte for byte
+    and requires exactly four bullets.
+  evidence:
+  - path: src/orqlet/workflow/rules/orqlet-workflow.md
+    lines: 1-8
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 3241a7624039e21247a5780293d75bafa669f477527f63e8cf8fb9853fdb51d8
+  - path: src/orqlet/workflow/rules/orqlet-workflow.meta.yaml
+    lines: 1-11
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 1569a4f70b8cb520d1b32b2a683cd88811c2bd99a1fa13961958080e7d5aef39
+  - path: tests/unit/test_workflow_rule_mcp_text.py
+    lines: 181-196
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 8f432b426c3d8dbdb059827eefe4616cc0033052bf1cac223430eaae8fdefad1
+- id: A-44
+  kind: structure
+  statement: release.py implements `orqlet release <path>`, which hands a generated file of a receiving
+    project over to the team; it does not touch the workflow package version or manifest. `orqlet gate
+    status` without a task prints the inputs; with a task it runs offline and reports approval as NOT_RUN.
+  evidence:
+  - path: src/orqlet/application/usecases/release.py
+    lines: 1-6
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 6a1533f00defeb511fb6d93294a7279cb6d03346af58024eb92f9bda3ba95046
+  - path: src/orqlet/interface/cli/commands/gate.py
+    lines: 20-35
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 712ac9fa82f46db9db3ebf0706c854cd410ffd691783d01612b7b1498fb5b97b
+- id: A-45
+  kind: test
+  statement: Every .md, .yaml and .json file of the workflow package must have LF line endings, exactly
+    one final newline and no tabs.
+  evidence:
+  - path: tests/unit/test_manifest.py
+    lines: 157-164
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 690a57a029f601d6fa5e62aa0817246de79c93f96d7a8012f3ae629f05e8d4ee
+unknowns:
+- id: U-1
+  what: 'How the person''s acceptance of as-is.md is recorded so that the design skill can detect it.
+    No skill step sets the header `status: approved`, and no command checks that an AS-IS file was accepted.'
+  material: true
+- id: U-2
+  what: Whether releases.json must receive an entry for each released workflow_version, and which process
+    appends it. No tool or code in the repository writes releases.json; it lists only 0.1.0 while identity.json
+    says 0.3.3.
+  material: true
+- id: U-3
+  what: Which `--phase` values `orqlet standards for` matches against rule scopes (`implement` or `implementation`).
+    The CLI option is free text (src/orqlet/interface/cli/commands/standards.py:32), and the phase words
+    used in rule scopes were not examined in this area.
+  material: true
+- id: U-4
+  what: Which workflow_version this change will take. Earlier tests call 0.3.2 and 0.3.3 'a proposal that
+    the person may replace'.
+  material: true
+- id: U-5
+  what: Whether this repository's own rendered copies (.claude/skills/*, .agents/skills/*, .cursor/agents/*,
+    the AGENTS.md block) are regenerated with `orqlet upgrade` in the same change. They exist in the tree;
+    the files of this area do not say.
+  material: true
+- id: U-6
+  what: 'What `<role>` stands for in the design-review note path `docs/design/<task>/reviews/<role>-design.md`:
+    the agent name (orqlet-arch-reviewer) or the role id (architecture-reviewer).'
+  material: false
+- id: U-7
+  what: The format of the tester record `docs/design/<task>/tests/<phase>.yaml` (schema orqlet.test-record.v1.json).
+    Neither the implement skill nor any reference file describes it, and the schema content was not examined.
+  material: false
+contradictions:
+- id: C-1
+  sources:
+  - src/orqlet/workflow/skills/orqlet-design/skill.md:18-18
+  - src/orqlet/workflow/roles/orqlet-arch-reviewer.md:6-6
+  - src/orqlet/workflow/roles/orqlet-security-reviewer.md:6-6
+  note: The design skill starts both reviewers on the design, with the design, the AS-IS file and the
+    standards. Both role prompts say the reviewer receives only the path of a read-only packet of the
+    staged snapshot, diff, plan, design, standards and records.
+- id: C-2
+  sources:
+  - src/orqlet/workflow/baseline/baseline.md:19-19
+  - src/orqlet/workflow/commands/standards.md:7-7
+  - src/orqlet/workflow/skills/orqlet-review/references/review-format.md:51-51
+  - src/orqlet/application/contracts/question_ledger.py:23-23
+  note: 'The baseline and the standards command call the fourth phase `implementation`. The review-format
+    sample (`phase: implement`), the Phase literal of the question ledger and the skill name use `implement`.'
+- id: C-3
+  sources:
+  - tools/build_manifest.py:6-8
+  - src/orqlet/domain/versions.py:69-74
+  - src/orqlet/workflow/releases.json:1-10
+  note: The docstring of build_manifest.py says that a digest change without a workflow_version change
+    is a release defect caught by test_release_gate.py. The check catches it only for a version listed
+    in releases.json, which lists only 0.1.0, so a change made at 0.3.3 without a version bump passes
+    that test.

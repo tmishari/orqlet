@@ -1,0 +1,809 @@
+schema: orqlet.as-is-fragment/v1
+fragment_id: render-adapters
+base_revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+scope:
+  paths:
+  - src/orqlet/adapters/render/**
+  - src/orqlet/adapters/clients/**
+  - src/orqlet/application/ports/instruction_adapter.py
+  - src/orqlet/application/ports/renderers.py
+  - src/orqlet/application/usecases/render_all.py
+  - src/orqlet/application/usecases/render_request.py
+  - src/orqlet/application/usecases/resources_view.py
+  - src/orqlet/application/usecases/workflow_sources.py
+  - src/orqlet/application/usecases/init_files.py
+  - src/orqlet/domain/blocks.py
+  - src/orqlet/domain/changeplan.py
+  - src/orqlet/domain/classify.py
+  - src/orqlet/workflow/templates/**
+  - tests/conftest.py
+  - tests/support/render.py
+  - tests/unit/render/**
+  - tests/golden/**
+  - tests/integration/test_golden_policy.py
+  request_ref: phase-skill-contracts
+facts:
+- id: A-1
+  kind: structure
+  statement: 'The Claude Code adapter renders, in this order: the AGENTS.md baseline block, the optional
+    conventions block, the bridge .claude/CLAUDE.md, the scoped rules, the commands, the skill files under
+    .claude/skills, the roles, and an optional seeded .mcp.json. It reports the limits ORQ-L001 and ORQ-L006.'
+  evidence:
+  - path: src/orqlet/adapters/clients/claude_code.py
+    lines: 58-72
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 300b636dbbaf6fa564b68eb415265c2de7c9c5af00cade8042aeadd960544ad0
+  - path: src/orqlet/adapters/clients/claude_code.py
+    lines: 31-43
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 8aa980389f6ba916ee6b57f37cabfb9e368954a28eea92e307eaba3d171a6f62
+- id: A-2
+  kind: structure
+  statement: The Cursor adapter renders the AGENTS.md baseline block, the optional conventions block,
+    the Cursor rules, the Cursor commands, the skill files under .agents/skills and the Cursor roles.
+    It reports ORQ-L001, adds ORQ-L004 when there are skills, and reports ORQ-L006. ORQ-L004 says that
+    Cursor also reads .claude/skills, so a skill may be listed twice. This is documented and not observed.
+  evidence:
+  - path: src/orqlet/adapters/clients/cursor.py
+    lines: 42-57
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 65ad1e75319b5e53ebf6080af3c8c1e9025e4ef1023831ae161183572d4fa30d
+  - path: src/orqlet/adapters/clients/cursor.py
+    lines: 16-25
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: e75c0516a112986e260d0d46a49eaf46abb0cac53387c4695b23ac3b745ded94
+- id: A-3
+  kind: structure
+  statement: The Codex adapter renders the AGENTS.md baseline block, the optional conventions block, the
+    skill files under .agents/skills, one agents/openai.yaml sidecar for each skill whose agent_may_start
+    is false, and the .codex/agents roles. It writes no rule files and no commands. It reports ORQ-L001
+    and ORQ-L006, adds ORQ-L002 when there are scoped rules and ORQ-L003 when there are commands, and
+    adds ORQ-L005 when there are skills.
+  evidence:
+  - path: src/orqlet/adapters/clients/codex.py
+    lines: 48-67
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 949e6a9174b72d81a654d0ef62a15f2cbd778c7dfd622dd0b7a93e373e1c4430
+  - path: src/orqlet/adapters/clients/codex.py
+    lines: 14-35
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 054adb37c6793f13c5307f8cf9666fb9b3808138dc28e105f96eac2e8b3a9cfd
+- id: A-4
+  kind: structure
+  statement: Claude Code skills are written to .claude/skills/<name>/SKILL.md. Cursor and Codex skills
+    are written to .agents/skills/<name>/SKILL.md, by the same function. Each reference is written to
+    <base>/<name>/references/<file>. A skill name must match [a-z0-9][a-z0-9-]*, otherwise the renderer
+    raises ValueError.
+  evidence:
+  - path: src/orqlet/adapters/render/skills.py
+    lines: 22-33
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: ee2ff2e021e6e03c379c39bafd6f0ea7b6d4e8f0fb1c2a00ef624088ad3ff675
+  - path: src/orqlet/adapters/render/skills.py
+    lines: 47-66
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 5336e13acdc04a0ffc24ce0d2451caf719a56ce4929ed7ccd8eae3aec36f096e
+- id: A-5
+  kind: interface
+  statement: A SKILL.md is a front-matter block (name, description, and disable-model-invocation true
+    when agent_may_start is false), written with plain_when_safe=True. The generated notice, a blank line
+    and the normalised body follow it. A reference file is the notice, a blank line and the normalised
+    text, with no front matter.
+  evidence:
+  - path: src/orqlet/adapters/render/skills.py
+    lines: 50-58
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: ff26c9135630b25a502ff773ba8a89828c51f0370529418fcf22e80ef5856839
+  - path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-research/SKILL.md
+    lines: 1-6
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 2001c826e213875d3c97768114cf9259836e6c9ea747fa141d632fd41c2f92ef
+- id: A-6
+  kind: interface
+  statement: 'The Codex sidecar .agents/skills/<name>/agents/openai.yaml is a ''# Generated by Orqlet...''
+    comment line followed by ''policy: allow_implicit_invocation: false''. Its inputs are (<name>-codex-policy,
+    ''1'', sha256 of the text).'
+  evidence:
+  - path: src/orqlet/adapters/render/skills.py
+    lines: 36-44
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 111349e881fb22bb8e259bd196b09503ae327ee134f2af8b97a32063a923dc70
+  - path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-plan/agents/openai.yaml
+    lines: 1-3
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 3d4e2ea197d16d91095d209a2a9feddb4d133f9bedab34e1b51c08d29567b838
+- id: A-7
+  kind: interface
+  statement: 'The skills module documents how invocation is restricted. Only the person starts a phase
+    skill: Claude Code and Cursor through disable-model-invocation, Codex through allow_implicit_invocation
+    false in the sidecar. A skill with agent_may_start true carries neither. ClientSkill.agent_may_start
+    defaults to False.'
+  evidence:
+  - path: src/orqlet/adapters/render/skills.py
+    lines: 1-8
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 8b2624c714cd0fa1dfde920225a752d390b185132f241dabff9d5d24618edf02
+  - path: src/orqlet/application/ports/instruction_adapter.py
+    lines: 60-69
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 9e875811409e2c44bb91b149460a2d22f743f194dc4b7986945c4d0e2c32aef1
+- id: A-8
+  kind: interface
+  statement: 'Roles are written to three places. Claude Code gets .claude/agents/<name>.md with name,
+    description, ''tools: Read, Grep, Glob'' when read-only, and ''model: inherit''. Cursor gets .cursor/agents/<name>.md
+    with name, description, ''model: inherit'' and a readonly boolean. Codex gets .codex/agents/<name>.toml
+    with a comment notice, name, description, sandbox_mode ''read-only'' when read-only, and developer_instructions
+    holding the normalised body.'
+  evidence:
+  - path: src/orqlet/adapters/render/roles.py
+    lines: 16-46
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 80a296f9cf9fffbf784644d2cb2e416cb7c30570376f8d9c8ebe91b85f0e8586
+  - path: tests/golden/codex/docs-2026-10/.codex/agents/orqlet-inventory.toml
+    lines: 1-5
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 3777008117fc6e865a59d0735fa8bf9143e34b1187cdf15d4b1360575a34d77f
+- id: A-9
+  kind: interface
+  statement: The Markdown role files (Claude Code and Cursor) are front matter written with plain_when_safe=True,
+    then the generated notice, a blank line and the normalised body. Every role file is OwnerMode.ORQLET
+    and FileClass.PROTECTED, and its inputs are the role's inputs.
+  evidence:
+  - path: src/orqlet/adapters/render/roles.py
+    lines: 49-61
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: f11a08b666120e6247f73ac9bf8e2a5ed1098f3ed653b5c11424383f2bb2cebe
+- id: A-10
+  kind: interface
+  statement: Scoped rules are written to .claude/rules/orqlet-<name>.md (front matter 'paths' list) and
+    .cursor/rules/orqlet-<name>.mdc (description, globs, alwaysApply false). Both are written without
+    plain_when_safe, so every string is quoted. A rule name that is not a slug, or a rule with no paths,
+    is refused. The file class comes from the rule. The inputs are the rule's inputs, or (name, '1', sha256
+    of the file) when it has none.
+  evidence:
+  - path: src/orqlet/adapters/render/rules.py
+    lines: 17-55
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: e31a7bcec5f0e38dc32d49e02b6e8789997469e6ee988ec45436dde618d53cbc
+  - path: tests/unit/render/test_emit.py
+    lines: 554-571
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 3ffab73ebabf2c2bf395273ca4af7348c5dda2b4409a7d1b7ffb568fda3847b9
+- id: A-11
+  kind: interface
+  statement: Commands are written to .claude/commands/orqlet-<name>.md (front matter with description
+    only, plain_when_safe=True) and .cursor/commands/orqlet-<name>.md (plain Markdown, no front matter).
+    Both are FileClass.GENERATED. The workflow package provides one command per commands/<name>.md, whose
+    front matter holds exactly a description.
+  evidence:
+  - path: src/orqlet/adapters/render/rules.py
+    lines: 58-92
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: b74d020c90d4c981ab4ae6cd675ca7d9117ce916b794721bd910df5914235299
+  - path: src/orqlet/application/usecases/render_request.py
+    lines: 172-203
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 3491a3a42feb315c24ead43f34de296480fb0f94f76a1c85107bb8f1f2b0b2e1
+- id: A-12
+  kind: interface
+  statement: The generated notice is the HTML comment '<!-- Generated by Orqlet. Do not edit by hand;
+    see .orqlet/generated.lock.yaml. -->'. It comes right after the front matter in skills, Markdown roles,
+    rules and commands, and is the first line of references and of the Claude bridge. The TOML roles and
+    the YAML sidecar use a '#' comment with the same words as their first line.
+  evidence:
+  - path: src/orqlet/adapters/render/instructions.py
+    lines: 12-14
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 09df44a97489084a22363998522ff260ebd480484a9b77769a7a238c219b651c
+  - path: src/orqlet/adapters/render/roles.py
+    lines: '17'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 1f5c48c97accddd4984695686d556b1185450165644a54b5363b0ed7f8b29407
+  - path: src/orqlet/adapters/render/skills.py
+    lines: '38'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 046e12efec31b6af70a86184d0dcb74436fedfcc1d94063a669c3408c7dbb891
+  - path: src/orqlet/adapters/render/rules.py
+    lines: 27-28
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: e405390a387119538a97cece3e5cfde075e76e2457af558ce44f830166e31b0f
+- id: A-13
+  kind: interface
+  statement: normalise_text turns CRLF and CR into LF, strips trailing line feeds and adds exactly one
+    final line feed. An empty text stays empty.
+  evidence:
+  - path: src/orqlet/adapters/render/emit.py
+    lines: 33-36
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: abf990d925133d3b489771a1c2c74b0cf8c2721059dfad7722bd8ad72d7c0a1a
+- id: A-14
+  kind: interface
+  statement: front_matter writes '---' lines around a block in which every string is quoted with json.dumps-based
+    quote() (quote_all=True). With plain_when_safe=True, a string stays bare when it matches the allow-list
+    [A-Za-z][A-Za-z0-9 ,.;()/_+=\'-]*, does not end with a space or an apostrophe, and is not a reserved
+    word such as true, no or null. Booleans and integers are always bare.
+  evidence:
+  - path: src/orqlet/adapters/render/emit.py
+    lines: 23-28
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: ed57c15cb1cdf1a75a3392c01d9353b5204908060ce63462315685cad1d61114
+  - path: src/orqlet/adapters/render/emit.py
+    lines: 39-43
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 9038b67971f15121a2c8a5ba437a251b44328378d84eda201502c6563a1f2110
+  - path: src/orqlet/adapters/render/emit.py
+    lines: 55-86
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 20bf845187b1b81e75186636fa5c37b4656088c6255c7a5ed292987baeeea196
+- id: A-15
+  kind: interface
+  statement: agents_block renders the baseline as the shared block 'baseline' of AGENTS.md. Its begin-marker
+    info is 'workflow@<workflow_version>#<sha256 of the normalised body>'. It is OwnerMode.SHARED_BLOCK
+    and FileClass.PROTECTED, its inputs are (block name, workflow version, digest), and its block field
+    holds the begin and end marker lines.
+  evidence:
+  - path: src/orqlet/adapters/render/instructions.py
+    lines: 21-52
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 4ea2ce960f0b2f408bfa9a41edf2903e35f3487e3c4b39d77f2f6a389ad3ae79
+  - path: tests/golden/claude-code/docs-2026-10/AGENTS.md
+    lines: '1'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: f460a44d76e917a37fc9df2fdb3e980f05a7a8771b5ece2b087b3ec42df45205
+- id: A-16
+  kind: interface
+  statement: render_block writes '<!-- orqlet:begin <name> <info> -->', the body lines, and '<!-- orqlet:end
+    <name> -->', each line ending with the file's newline. The module refuses to edit a file with duplicate,
+    nested or unbalanced markers, merge-conflict markers, or an unclosed code fence, and it keeps the
+    BOM and the CRLF or LF line endings.
+  evidence:
+  - path: src/orqlet/domain/blocks.py
+    lines: 1-15
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: adaeb351345ccbeba57f150d1fb35fb78ada0f35d147e6c59e6833fe4c6a0856
+  - path: src/orqlet/domain/blocks.py
+    lines: 104-108
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: f296223d9636cd9fc04283b4c092b6ca77215894f8171f69bf6d085754222acc
+- id: A-17
+  kind: flow
+  statement: to_desired sets insert_after_heading=False for every client-rendered file. set_blocks replaces
+    existing blocks in place and inserts the missing ones together. With insert_after_heading=False they
+    are appended at the end of the file and all other text is kept byte for byte.
+  evidence:
+  - path: src/orqlet/application/usecases/init_files.py
+    lines: 48-58
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 31614a377281a0e7df41411f81db443c67296ae6bdf67f8748bc60173443abe9
+  - path: src/orqlet/domain/blocks.py
+    lines: 124-146
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: ca9ff09c674d459ce23d5ce845c27a33114b2d3b66a6a88b3266a729a3e17eba
+  - path: src/orqlet/domain/blocks.py
+    lines: 194-208
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: d001b36e428254ccba539e07192715a9162e394a0d51b63a3cec3e0d6038f578
+- id: A-18
+  kind: test
+  statement: 'An existing AGENTS.md without markers keeps its text at the start and gains exactly one
+    baseline block. The domain test shows the same: a block is inserted into an existing file and the
+    rest is kept.'
+  evidence:
+  - path: tests/unit/application/test_init_project.py
+    lines: 461-469
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 6abfeb9f1cac91710663cab44b9fb5ffaed2a4c9f8dd59262ed9eb18054d9eb3
+  - path: tests/unit/domain/test_changeplan.py
+    lines: 169-176
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: ee59c6079ffcbd198734bd5fbddea6233c5eb2bef9c4f0bce82eba62320c39f5
+- id: A-19
+  kind: flow
+  statement: For shared blocks, build_plan parses the existing file. On any BlockError (bad markers, conflict
+    markers, open fence, non-UTF-8), every block of that file becomes STOP and nothing is written. Otherwise
+    each block is classified by comparing the hash of the current block text with the recorded hash and
+    the new hash, and only the CREATE, UPDATE or RESTORE blocks are applied.
+  evidence:
+  - path: src/orqlet/domain/changeplan.py
+    lines: 226-282
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 993acea2538ed257b74a01b9284c0afe41aaf0613b9d5a95b7da3a617774e808
+  - path: tests/unit/domain/test_changeplan.py
+    lines: 217-224
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: cff0ef8a75e664ceb3e55dd438aaacbe22a5185f5c6dae8181ebd8a07a9cddba
+- id: A-20
+  kind: flow
+  statement: classify reports local edits. A protected file or block whose current hash differs from both
+    the recorded and the new hash is TAMPERED, and the action is RESTORE. A non-protected edit with an
+    unchanged render is USER_EDIT_ONLY (NOOP). An edit together with a changed render is CONFLICT (STOP
+    plus a proposal). An unrecorded existing file with different bytes is NAME_COLLISION. Hashes read
+    CRLF as LF.
+  evidence:
+  - path: src/orqlet/domain/classify.py
+    lines: 28-56
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 1df11fe7e7c2f32691368eab33f2b1026bd9bd1252d1cd1bbd30befa4f735b20
+  - path: src/orqlet/domain/changeplan.py
+    lines: 150-152
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: fd003c40004c7fb53f0c8421740f82316fd0a5b6110cfa707833ba2abc01d6bf
+  - path: src/orqlet/domain/changeplan.py
+    lines: 420-432
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 873ac016c122c22a28ac8ca6f0028a13eca849933e8deb1e6d98508e76812468
+- id: A-21
+  kind: test
+  statement: A second build_plan over its own result is an empty plan with every action NOOP. A tampered
+    protected file is restored.
+  evidence:
+  - path: tests/unit/domain/test_changeplan.py
+    lines: 71-85
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: eb0bb46df55030dbe304364b138a6259c2bde368ab82b88dfb9e2f6f5d8f8c56
+  - path: tests/unit/domain/test_changeplan.py
+    lines: 133-141
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: fc4417f1fe846525ccb678611d0c1b01303ea243b07156d2874926c1646fdd9e
+- id: A-22
+  kind: flow
+  statement: merge_rendered keys each rendered file by (path, begin-marker line or None). Identical files
+    from several clients collapse into one. Two clients that render the same key with different bytes
+    raise MergeError 'clients render <path> differently'. The result is sorted by key.
+  evidence:
+  - path: src/orqlet/application/usecases/init_files.py
+    lines: 61-74
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 5b5532f39131d0508d757dca1d3f6466d16d7fbc4c02bc9ed52d64b0a6475d6d
+- id: A-23
+  kind: flow
+  statement: compose builds one RenderRequest and calls render on each client in clients. It turns every
+    capability limit into an INFO finding, merges all files with merge_rendered, and applies claude_entry_points
+    before converting them to Desired. upgrade passes the clients from profile.clients.enabled.
+  evidence:
+  - path: src/orqlet/application/usecases/render_all.py
+    lines: 117-144
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: ba88a596748126145a44486433512b30cb7fb9632f7c96ca5e6329697da5ab66
+  - path: src/orqlet/application/usecases/upgrade.py
+    lines: 119-135
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 1cfe4de153528b18b45801d34e204de1df7c5df40a83d41acb97ecd6d8de2244
+- id: A-24
+  kind: test
+  statement: The Cursor and Codex files merge into one set without a conflict, and Claude Code and the
+    .agents folder get byte-identical skill files at different paths.
+  evidence:
+  - path: tests/unit/render/test_skills.py
+    lines: 346-353
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: c6ac4e60d6133f65d45c0cf4ff584dc8a05bc05b3c0fed05ec5113ecca77509c
+  - path: tests/unit/render/test_skills.py
+    lines: 269-281
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 8f61d93792e93b7f58577aced0ac248fbc3e68c4ef4b1763978c828f6dede9ec
+- id: A-25
+  kind: flow
+  statement: The bridge .claude/CLAUDE.md is the notice followed by '@../AGENTS.md' (ORQLET, PROTECTED).
+    If the project already owns CLAUDE.md or .claude/CLAUDE.md (not recorded as Orqlet's, and not equal
+    to the bridge), the bridge is dropped. That file then gets a shared block 'claude-import' holding
+    '@AGENTS.md' or '@../AGENTS.md' instead.
+  evidence:
+  - path: src/orqlet/adapters/render/instructions.py
+    lines: 55-78
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 74308595052b6d8ce0e0b8ae32496fc9af0d358e567ea3b589fafcfe431c8541
+  - path: src/orqlet/application/usecases/render_all.py
+    lines: 297-328
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 3fa84cd2ec44492aadee1572233ffb088cc8bd0dfec888ada92bc4fe98e0408f
+- id: A-26
+  kind: flow
+  statement: 'conventions_view builds the lines of the conventions block from nine profile keys. Each
+    answer is written as a fixed label plus json.dumps of at most 160 characters. Unanswered keys go into
+    a ''Not decided: ... Ask the person; do not invent one.'' line, and a line naming the skill orqlet-resources
+    is added when the registry has entries. The block is capped at 11 lines and 2800 bytes. It returns
+    None when there is no answer and no resource.'
+  evidence:
+  - path: src/orqlet/application/usecases/resources_view.py
+    lines: 38-54
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 3238d22e3c11f485df315a0b25b939b117065d8c87f025535e90cab7ccefd3ee
+  - path: src/orqlet/application/usecases/resources_view.py
+    lines: 172-208
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: d239c01efa7a009fd94c48845690914f1db70bdf1f51e48ba5029e8aab74579b
+  - path: src/orqlet/application/usecases/resources_view.py
+    lines: 286-298
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: c4678138c16fb27ee2caa7c202183e6e266542974accf9a627a07a2342595d55
+- id: A-27
+  kind: flow
+  statement: build_render_request fills templates/conventions-block.md with the view's lines joined by
+    LF and splits the result back into lines. The adapter's conventions_block then writes them as the
+    PROTECTED shared block 'conventions' of AGENTS.md, with info 'workflow@<version>#<digest>'.
+  evidence:
+  - path: src/orqlet/application/usecases/render_request.py
+    lines: 156-162
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 27d7aac80c5b8ba6a4df7ce953a857f376d46425216d7ef8dd5c0b3904d55ef6
+  - path: src/orqlet/adapters/render/instructions.py
+    lines: 26-37
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 3e880e14996637ce6448e06dd63cb88d530f884c6ae5b435c86a627574e1e705
+  - path: src/orqlet/workflow/templates/conventions-block.md
+    lines: 1-2
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 5b9e7c2a807bdc10498953619ccab0ec10c8fe5d84e8386cfd2642234193d84d
+  - path: tests/golden/common/resources/conventions-block.md
+    lines: 1-7
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 358dd93e1573eda8262c79a970e2573289181e6f4901fa1581a9e38431039277
+- id: A-28
+  kind: flow
+  statement: _fill reads templates/<name>.md and raises RenderRequestError unless the text contains the
+    slot '{{lines}}' exactly once. It replaces the slot, ensures a final line feed, and returns the source
+    id templates/<name>. _from_template replaces the item's body and sets inputs to (templates/<name>,
+    workflow version, sha256 of the filled text).
+  evidence:
+  - path: src/orqlet/application/usecases/render_request.py
+    lines: '40'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 6e5f321568db570f723d86bccff4f1ed94e42c6447f3c2c816048d38ed58a4c3
+  - path: src/orqlet/application/usecases/render_request.py
+    lines: 122-136
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 44acd0f8580f0401158d1552c3bcb52d13b68415d8ec6aae991269efe88381e9
+- id: A-29
+  kind: flow
+  statement: The registry adds three kinds of item. Each entry with applies_to.paths gives a PROTECTED
+    scoped rule 'resource-<id>', filled from templates/resource-rule. Each entry with a tool gives a skill
+    'orqlet-tool-<id>' with agent_may_start true, filled from templates/tool-skill. A non-empty registry
+    gives one catalogue skill 'orqlet-resources' with agent_may_start true, filled from templates/catalogue-skill.
+    A name clash raises RenderRequestError.
+  evidence:
+  - path: src/orqlet/application/usecases/resources_view.py
+    lines: 125-169
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: a67a8e2b43d7cea5d46130df90a729c3f436000a6f3756ec53b8a5be5f563412
+  - path: src/orqlet/application/usecases/render_request.py
+    lines: 100-109
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 6f5c68cfd725c3dd97f56a66ef9112c4742d549024ab9f6774fe905bb362e73c
+  - path: src/orqlet/application/usecases/render_request.py
+    lines: 139-153
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: fde56284f0cb96a022ded28cb0edefc93ac423cc70e9c28ec8e90d41749bb6cc
+- id: A-30
+  kind: interface
+  statement: 'The data lines of the resource rules and tool skills are ''Label: <json.dumps(value)>''
+    lines (Title, Note, Kind, Access, Host, Address, plus Tool, Version and Copy fields when present).
+    The catalogue holds one ''Resource: <json object>'' line per entry, in id order.'
+  evidence:
+  - path: src/orqlet/application/usecases/resources_view.py
+    lines: 220-256
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 49955ffa278f9a2dace4872b9e4aa1eb45177f5932659a6125347215c040fb72
+  - path: src/orqlet/workflow/templates/tool-skill.md
+    lines: 1-10
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: ca91f0717853fbb8e9a82c63abdc6975dcd68e1c2281a11576dd5bb8fee6e5aa
+  - path: src/orqlet/workflow/templates/catalogue-skill.md
+    lines: 1-7
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 32984788116928c01621e7d2e2ad1092bf00e4b956ab0a689faa3b44071b2b06
+- id: A-31
+  kind: flow
+  statement: build_render_request takes the workflow source, the loader, the resolved rules, the resources
+    and the conventions view, and no profile. Workflow skill bodies are the package's skills/<name>/skill.md
+    text after render_steps. The profile reaches the render only through conventions_view, which feeds
+    the AGENTS.md conventions block. No value from .orqlet/project-profile.yaml is put into a SKILL.md
+    body.
+  evidence:
+  - path: src/orqlet/application/usecases/render_request.py
+    lines: 55-119
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: afb853f6337ff7508d20407f51f906e6702831bd906f4f6875a437b3d707ff52
+  - path: src/orqlet/application/usecases/workflow_sources.py
+    lines: 104-137
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 226f4c3774d9a87505f236679a5afda0be17d1cc49e7e8254580c25e8711afef
+  - path: src/orqlet/application/usecases/render_all.py
+    lines: 119-128
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: b3c8628233bf33adeaac640137bc9bac9c7bfe68145410b8ff54e9885598b1c2
+- id: A-32
+  kind: flow
+  statement: 'render_steps drops each step whose marker condition does not hold (''<!-- requires: X -->''
+    or ''<!-- unless: X -->'', checked against the available commands, by default IMPLEMENTED_COMMANDS).
+    It removes the markers and renumbers the list.'
+  evidence:
+  - path: src/orqlet/application/usecases/workflow_sources.py
+    lines: 1-7
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 572c882c6e9ea72a030968a173696e0cae994985116711f444f313b35263d149
+  - path: src/orqlet/application/usecases/workflow_sources.py
+    lines: '24'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 9558cd6722c1c9303012e57a8272c86f0e643075bda3fcf87bbd2e964d281563
+  - path: src/orqlet/application/usecases/workflow_sources.py
+    lines: 61-75
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 3a45fc276ddd27573a6da026075a1b486eac71b08264e933b0f5913f4e89a05a
+- id: A-33
+  kind: interface
+  statement: RenderedFile carries path (CanonicalPath), content bytes, owner (OwnerMode), file_class (FileClass
+    or None), inputs (a tuple of (id, version, sha256)), block (begin and end marker lines) and entry.
+    lock_from_recorded writes the inputs into the lock as LockInput(id, version, sha256), together with
+    rendered_sha256 or seeded_sha256 and the block markers.
+  evidence:
+  - path: src/orqlet/application/ports/instruction_adapter.py
+    lines: 13-27
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 50ea2ec900056645aa9dfc4a1b90d313c9bc366a2c666e6b9a668ac3af183167
+  - path: src/orqlet/application/usecases/init_files.py
+    lines: 77-102
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: c0e4b965a8bb2a0259fe54648cbadd5f927cb1ad8c38f68b9c60f66fca0cd9d1
+- id: A-34
+  kind: interface
+  statement: The inputs of a workflow skill are ('skills/<name>', workflow version, sha256 of the body
+    after render_steps), without the front matter or the notice. The inputs of a reference are ('skills/<name>/references/<file>',
+    the version taken from skill.inputs[0][1], sha256 of the full reference text including the notice).
+    The inputs of a role are ('roles/<name>', version, sha256 of the body).
+  evidence:
+  - path: src/orqlet/application/usecases/workflow_sources.py
+    lines: 122-135
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: e68637f03d7f00b73b0b675a207ac3740339fa086e51d8658b1fff89a9375f0e
+  - path: src/orqlet/adapters/render/skills.py
+    lines: 56-65
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 07da3bcec4a902d7bcddfe28d18c66816690768cdd3b1f9d0dfffdb839ea5026
+  - path: src/orqlet/application/usecases/workflow_sources.py
+    lines: 160-168
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 5eb8546b7338253b39b5b0a01f924be71c045233dfdfc7023a20a26cd1ec5d4a
+- id: A-35
+  kind: interface
+  statement: RenderRequest.client_version defaults to None, commented 'recorded when known; no floor is
+    assumed (spike S-21)'. build_render_request accepts a keyword client_version and copies it into the
+    request, but compose calls build_render_request without it. None of the three adapters' render methods
+    reads it. profile.clients.min_versions is a dict that draft_profile sets to None for each client.
+  evidence:
+  - path: src/orqlet/application/ports/instruction_adapter.py
+    lines: 91-103
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 0390e00202f941d274ca668ff003a306ffe11e0465a16d7a66584a6b92566416
+  - path: src/orqlet/application/usecases/render_request.py
+    lines: 55-64
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: b6e159eff246324a5654efb39240ce4c155a4f12da107d3fcbb05a2147104385
+  - path: src/orqlet/application/usecases/render_all.py
+    lines: 121-127
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 8e8525946831eb1a92831794cedbc469ff7a64467bca4eed3070cf512e826569
+  - path: src/orqlet/application/contracts/profile.py
+    lines: 135-137
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: c653f669b30d55df2a7aaed4d3068f02df2efc3a5a88309cc4a9c910ee8740f6
+  - path: src/orqlet/application/usecases/draft_profile.py
+    lines: '89'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: b54377dd2cc1c25806460de95cd4f7a17f6a54cc3c17ad36f34958550546692f
+- id: A-36
+  kind: structure
+  statement: 'Every rendered path is a CanonicalPath: relative to the repository root, with absolute paths,
+    ''.'' and ''..'' components, '':'' and backslash refused.'
+  evidence:
+  - path: src/orqlet/domain/paths.py
+    lines: 30-34
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 94064643c2d30724a151ac385fff913e6fe7d77f48a1f3470546530442e30e19
+  - path: src/orqlet/domain/paths.py
+    lines: 52-65
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: f902d08e82b583bc617d62d74731059f7c8a5008f0d2cac00629e395b5d8b123
+- id: A-37
+  kind: structure
+  statement: The .prompts seed files are OwnerMode.SEEDED with no file class and inputs (package path,
+    version, sha256). The pull-request template gets the blocks 'orqlet-workflow' (info 'workflow@<version>#<sha256>')
+    and 'team-template', inserted after the first heading. PackagedRenderers exposes both through the
+    FileRenderers port.
+  evidence:
+  - path: src/orqlet/adapters/render/prompts_seed.py
+    lines: 15-32
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 2384b288de77d399c766c69dbb0c8871f33be41f0855135acb35052e5fbb54a5
+  - path: src/orqlet/adapters/render/pr_template.py
+    lines: 17-41
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: e9ce5ddab99a3a1f41b82a964bcd83b9cf3074ccf07dcbd5e6e3b43efceec72d
+  - path: src/orqlet/adapters/render/renderers.py
+    lines: 11-19
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 7cec3d2b2b1d9fd0eb45c2fc5a4e4c49c119a1ab038d7d1a0ad38db8477a2cd7
+- id: A-38
+  kind: test
+  statement: test_clients_golden renders packaged_request() with each adapter and compares every rendered
+    file byte for byte with tests/golden/<client_id>/docs-2026-10/<path>. The files Cursor and Codex share
+    under .agents/skills therefore have one golden copy under each client. Further tests check that two
+    renders give identical bytes and that the baseline block is identical across the three clients.
+  evidence:
+  - path: tests/unit/render/test_clients_golden.py
+    lines: 33-65
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: f7a60106d8ab4933a6ea6fb33c5edfaf510e6596f8f9d8bb14004ce5a6e35f78
+- id: A-39
+  kind: test
+  statement: 'test_each_client_gets_only_the_files_it_reads pins the full list of paths for each client:
+    Claude Code (.claude/CLAUDE.md, agents, commands, rules, skills, AGENTS.md), Cursor (.agents/skills,
+    .cursor agents, commands and rules, AGENTS.md) and Codex (.agents/skills, the openai.yaml sidecars,
+    .codex/agents/*.toml, AGENTS.md).'
+  evidence:
+  - path: tests/unit/render/test_clients_golden.py
+    lines: 68-102
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: e76001436585b14d147a67bb0837b32fa32f0c843a81400533658dceaefdf325
+- id: A-40
+  kind: test
+  statement: packaged_request builds the request from PackagedWorkflow with SAMPLE_RULES, an empty registry
+    and no conventions. The support module names the six shipped skills (design, implement, onboard, plan,
+    research, review), their reference files and the five roles.
+  evidence:
+  - path: tests/support/render.py
+    lines: 29-62
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: c18a1d650a0f740d47c865b3fb9ba10af4317ecdfc8b13906f1f25d684c90d31
+  - path: tests/support/render.py
+    lines: 96-100
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: ba6fbfba138027c980a8e8c9cc81ad7f99603f0676aed84689e46bc820639ced
+- id: A-41
+  kind: test
+  statement: The golden fixture compares bytes with tests/golden/<relative> and fails when the file is
+    missing. With --update-golden it rewrites the file instead. pytest_configure refuses --update-golden
+    when CI or GITHUB_ACTIONS is set, and an integration test checks that refusal. The registry golden
+    files are under <client>/resources-2026-10/ and common/resources/.
+  evidence:
+  - path: tests/conftest.py
+    lines: 22-66
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 3e0a3017d8e792d4681fb18113be5b0483979d2da4676f42f6327186352816d9
+  - path: tests/integration/test_golden_policy.py
+    lines: 14-41
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: f161fb04a470a84c4e90f7cb7a0a8903cc255df26d02e89f2a2255d68f58d0dd
+  - path: tests/unit/render/test_resources_golden.py
+    lines: 170-216
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 1b0a97cd04064b4fe1f08918502656f1d67dd97e6032b2f2df0c600769623134
+- id: A-42
+  kind: test
+  statement: The only placeholder checks found are on the four shipped templates and inside _fill. A test
+    asserts each template has exactly one line '{{lines}}' and one '{{' and '}}', and _fill enforces one
+    slot at render time. These checks cover the templates, not the rendered files.
+  evidence:
+  - path: tests/unit/render/test_resources_golden.py
+    lines: 364-377
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 550c5c4f18aa93980a435c31d70713f66428646240ad78effcccf8c18753e58a
+  - path: src/orqlet/application/usecases/render_request.py
+    lines: 122-129
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: adbe6009262186201a48d273b9ce377361070af413f6c60a713bd855aa83c3f0
+- id: A-43
+  kind: test
+  statement: 'Format checks on the target apps: test_front_matter_views parses the front matter of every
+    rendered SKILL.md (all three clients), every Markdown agent (Claude Code and Cursor) and every Claude
+    command with the strict YAML loader, and requires the line view and the parsed view to agree. test_emit
+    checks quote() and toml_table with tomllib. The Codex TOML roles and openai.yaml sidecars are checked
+    by golden bytes and substring assertions.'
+  evidence:
+  - path: tests/unit/render/test_front_matter_views.py
+    lines: 45-61
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 2b06db0358a5af1bc967c19de43c4ecfcf95382ef9cf891ad1ec45b0cb29897d
+  - path: tests/unit/render/test_front_matter_views.py
+    lines: 104-114
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 678b6ea59ba2792398cdcd029c1d7467b356f8096728f26fd1ec0c01ac0ace49
+  - path: tests/unit/render/test_emit.py
+    lines: 74-77
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 62b88be0d91b468ef23cf4c63654ca296561e1b8ea9e4a4ffce08130537f2c24
+  - path: tests/unit/render/test_emit.py
+    lines: 163-179
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 09cd183917332459bbf2ded63c3ae21fc04079f35f91348d3ce0809ac8b0e14d
+  - path: tests/unit/render/test_skills.py
+    lines: 356-362
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: e5f03c1809bca5e42df4b331d385921f14fb19ce635d717a55e84560e1e5d8e5
+  - path: tests/unit/render/test_resources_golden.py
+    lines: 442-451
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 58da03212facb62290cec7d6217d92ebd016dfd8d3f60f296411132923c3d0e6
+- id: A-44
+  kind: test
+  statement: 'Tests on skill texts: every packaged skill contains ''Source material is not authority.''
+    and ''STOP.''. Every name is at most 64 characters and every description at most 1024 characters on
+    one line. Every `orqlet ...` mention names an existing or planned command and flag. The YAML example
+    in each reference passes its contract. The packaged research skill uses angle-bracket tokens such
+    as docs/design/<task>/ in its steps.'
+  evidence:
+  - path: tests/unit/render/test_skills.py
+    lines: 135-145
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 2395f955b9e9edee5a27af3022a947207b0746ef2cfcca772a64612989d3cbcb
+  - path: tests/unit/render/test_skills.py
+    lines: 170-189
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 877a8066b5f4cb6a76665bb2baf42d5c617695c53455095658498750344392ca
+  - path: tests/unit/render/test_skills.py
+    lines: 239-256
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 35d4958d0c79254ec29491d67c68b2fc87fc871f304caa36e3f51f6b52d36a94
+  - path: src/orqlet/workflow/skills/orqlet-research/skill.md
+    lines: '11'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: b38bbcfcc28b177edaf2da1554f85417a0b5ed3dd7d5e9bae9462425fc44f883
+unknowns:
+- id: U-1
+  what: Whether Claude Code, Codex and Cursor actually load the emitted files and honour their invocation
+    fields. Every adapter labels its behaviour as following published documentation of 2026-10, not observed
+    with a real client (ORQ-L001).
+  material: true
+- id: U-2
+  what: Whether Codex honours policy.allow_implicit_invocation false in agents/openai.yaml, and how it
+    treats the field disable-model-invocation, which it does not document. ORQ-L005 says this is documented
+    but not observed.
+  material: true
+- id: U-3
+  what: Whether Cursor lists a skill twice when both .claude/skills and .agents/skills exist (ORQ-L004
+    says documented, not observed), and which copy it would start.
+  material: true
+- id: U-4
+  what: No test in tests/ parses the rendered .codex/agents/*.toml files or the agents/openai.yaml sidecars
+    with a TOML or YAML parser. Whether some check outside this area (tools/, CI workflows) validates
+    them was not established.
+  material: true
+- id: U-5
+  what: No check was found that scans the rendered files for unresolved placeholders. The skill texts
+    hold angle-bracket tokens such as <task> that the agent is meant to fill. The repository does not
+    say whether the requirement 'no unresolved placeholders' covers such tokens.
+  material: true
+- id: U-6
+  what: How a change to a skill text is tied to MANIFEST.json and the workflow package version (ORQLET-DET-002),
+    and therefore to the version recorded in the inputs and in the AGENTS.md marker. tools/build_manifest.py
+    and the release process were outside this area.
+  material: true
+- id: U-7
+  what: What spike S-21 found and who would supply client_version or min_versions in a later release.
+    The spike document was not read.
+  material: false
+- id: U-8
+  what: Whether the Cursor rule 'globs' format is accepted. The Cursor ORQ-L001 message says it is unverified.
+  material: false
+contradictions:
+- id: C-1
+  sources:
+  - docs/design/orqlet-implementation/adr-005-deterministic-renderers-and-golden-tests.md:11-11
+  - src/orqlet/application/ports/instruction_adapter.py:112-117
+  note: 'ADR-005 describes a renderer as render(definition, client, client_version). The adapter port
+    is render(request: RenderRequest), with client_version as a field of the request that compose never
+    sets (render_all.py 121-127).'
+- id: C-2
+  sources:
+  - src/orqlet/adapters/render/emit.py:7-11
+  - tests/unit/render/test_front_matter_views.py:45-61
+  note: The emit docstring says the release tests check every generated file. The front-matter view test
+    covers only the skill, agent and Claude command path classes, not the rule files (which are written
+    fully quoted), the Codex TOML roles or the sidecars.
+- id: C-3
+  sources:
+  - src/orqlet/application/ports/instruction_adapter.py:60-66
+  - src/orqlet/application/usecases/resources_view.py:142-169
+  note: ClientSkill is documented as 'A workflow skill' named 'orqlet-<phase>'. The same type also carries
+    the resource skills orqlet-tool-<id> and orqlet-resources (agent_may_start true), and the shipped
+    set includes orqlet-onboard and orqlet-review.

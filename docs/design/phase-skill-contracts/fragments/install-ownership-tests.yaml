@@ -1,0 +1,939 @@
+schema: orqlet.as-is-fragment/v1
+fragment_id: install-ownership-tests
+base_revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+scope:
+  paths:
+  - src/orqlet/domain/ownership.py
+  - src/orqlet/domain/classify.py
+  - src/orqlet/domain/changeplan.py
+  - src/orqlet/domain/blocks.py
+  - src/orqlet/domain/versions.py
+  - src/orqlet/domain/digest.py
+  - src/orqlet/domain/paths.py
+  - src/orqlet/application/contracts/generated_lock.py
+  - src/orqlet/application/contracts/versions_file.py
+  - src/orqlet/application/contracts/workflow_package.py
+  - src/orqlet/application/ports/change_journal.py
+  - src/orqlet/application/ports/lock.py
+  - src/orqlet/application/usecases/apply_plan.py
+  - src/orqlet/application/usecases/upgrade.py
+  - src/orqlet/application/usecases/installation.py
+  - src/orqlet/application/usecases/init_files.py
+  - src/orqlet/application/usecases/init_state.py
+  - src/orqlet/application/usecases/init_project.py
+  - src/orqlet/application/usecases/render_all.py
+  - src/orqlet/application/usecases/draft_profile.py
+  - src/orqlet/application/usecases/diagnose.py
+  - src/orqlet/application/usecases/rollback.py
+  - src/orqlet/application/usecases/release.py
+  - src/orqlet/adapters/fs/**
+  - src/orqlet/interface/cli/wiring.py
+  - src/orqlet/interface/cli/errors.py
+  - .orqlet/generated.lock.yaml
+  - .orqlet/versions.yaml
+  - .orqlet/proposals/**
+  - tests/**
+  - .github/workflows/*
+  - pyproject.toml
+  request_ref: phase-skill-contracts
+facts:
+- id: A-1
+  kind: structure
+  statement: '`OwnerMode` has five values (orqlet, shared-block, shared-entry, seeded, user) and `FileClass`
+    has three (protected, generated, optional).'
+  evidence:
+  - path: src/orqlet/domain/ownership.py
+    lines: 6-17
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 326642e1474dca6f66703a27a714be18bebe058e3d0dc4fceeb87dc3fbc6486b
+- id: A-2
+  kind: flow
+  statement: '`classify` decides from three SHA-256 values: what is on disk now, what the lock recorded
+    and what the new render produces. A user-owned entry is always seeded-keep. If the disk equals the
+    render the file is up-to-date, and if the disk equals the record it is a safe-update. Otherwise a
+    protected file is tampered, and a generated one is user-edit-only when the render did not change or
+    conflict when it did.'
+  evidence:
+  - path: src/orqlet/domain/classify.py
+    lines: 14-50
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 796f2e1848c6cce18eeae845f2afd457e56716dcb5cca1d1e9c2509143ea15db
+- id: A-3
+  kind: flow
+  statement: Without a record, a missing file is new, an equal file is up-to-date and a different file
+    is a name-collision. A recorded file that is no longer rendered is orphan-remove when untouched and
+    orphan-report when edited. A seeded file deleted by the team stays seeded-keep and is never brought
+    back. It becomes up-to-date when the disk already equals the render, and seeded-proposal only when
+    the render differs from the record.
+  evidence:
+  - path: src/orqlet/domain/classify.py
+    lines: 53-78
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 7bac32ba0e9c646c4ec13529519b349fd6936548bba5ad15d5146f850ac60df4
+- id: A-4
+  kind: flow
+  statement: 'The plan maps states to actions: up-to-date, user-edit-only, orphan-report and seeded-keep
+    are noop; new is create; safe-update is update; tampered is restore; conflict and name-collision are
+    stop; orphan-remove is delete; seeded-proposal is propose.'
+  evidence:
+  - path: src/orqlet/domain/changeplan.py
+    lines: 45-52
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: f64e606a3aa0e15d431ea9391a8252811a7c6f23cff49199167bc9965bff81dc
+  - path: src/orqlet/domain/changeplan.py
+    lines: 420-432
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 873ac016c122c22a28ac8ca6f0028a13eca849933e8deb1e6d98508e76812468
+- id: A-5
+  kind: flow
+  statement: For a whole file, create, update and restore write the rendered bytes, while propose and
+    stop only write a proposal and leave the live file unchanged. Every item is then passed to `_record`.
+  evidence:
+  - path: src/orqlet/domain/changeplan.py
+    lines: 204-223
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 3d5be8e6f15dd82cc199827bb2c8d8199a4f9b8490b03eaa0f56da9c0a99dccf
+- id: A-6
+  kind: flow
+  statement: '`_record` keeps the previous lock entry (or none) for user-edit-only, conflict, name-collision,
+    seeded-keep and seeded-proposal. For every other state it records the normalised hash of the render,
+    the begin and end marker lines of a block, and the render''s inputs.'
+  evidence:
+  - path: src/orqlet/domain/changeplan.py
+    lines: 393-417
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 4098fb391c3ab622ad0e176f10b25437d068d31216c0e2de715ae3d8e1fe50fa
+- id: A-7
+  kind: flow
+  statement: A proposal is a unified diff written to `.orqlet/proposals/<path with / replaced by __>[.<block>].diff`;
+    names over 150 bytes are truncated and get a hash suffix. It is flagged `is_proposal` and written
+    only when it differs from the proposal already on disk. For the MCP file paths of the three clients
+    the diff is taken against nothing.
+  evidence:
+  - path: src/orqlet/domain/changeplan.py
+    lines: 31-38
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: d5785729d53b17e9786574bdd553dfc02ea9a0c345012107d698b5adb0e1246a
+  - path: src/orqlet/domain/changeplan.py
+    lines: 155-161
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 6eaa096b536034bdf006f69caedb6de5e5d6b7edd457cdf1dbd2112624db98c5
+  - path: src/orqlet/domain/changeplan.py
+    lines: 378-391
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: afff31f07d120614cf30fce59fadefe5a9e7d329e03d66d157fa60ca95b07765
+- id: A-8
+  kind: flow
+  statement: The hashes used for classification read CRLF as LF. `classify` receives only the three hashes,
+    so the recorded `inputs` play no part in deciding a write. The plan digest covers only the planned
+    writes (path, kind, before and after hashes, proposal and last flags).
+  evidence:
+  - path: src/orqlet/domain/changeplan.py
+    lines: 150-152
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: fd003c40004c7fb53f0c8421740f82316fd0a5b6110cfa707833ba2abc01d6bf
+  - path: src/orqlet/domain/changeplan.py
+    lines: 204-214
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: b08bf8fa89eda1c0a1c7532021d83273b7efec808f99b9399e99a39fce17ff07
+  - path: src/orqlet/domain/changeplan.py
+    lines: 123-131
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 3e0519530a53ae637e0bfe6f2bb885bfc0d0730c9cf6a1568c4c072dfcba9de0
+- id: A-9
+  kind: interface
+  statement: Schema `orqlet.generated-lock/v1` records `generator.orqlet`, an optional `standards_lock`
+    hash and `files`. Each file has a path, an owner, a class (aliased `class`), inputs (each with id,
+    version and sha256), and either `rendered_sha256` or `seeded_sha256`, plus block begin and end markers
+    or an entry. A validator requires `seeded_sha256` for seeded files, `rendered_sha256` for all others,
+    block markers for shared-block, an entry for shared-entry and a class for orqlet-owned files.
+  evidence:
+  - path: src/orqlet/application/contracts/generated_lock.py
+    lines: 13-58
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 1b8cacd4603c777512252066b541dbbb450c51962439692cd6ed63e4b0928dba
+- id: A-10
+  kind: flow
+  statement: '`lock_from_recorded` writes the entries sorted by (path, block name). It stores the hash
+    as `seeded_sha256` for seeded owners and `rendered_sha256` otherwise, and sets `generator.orqlet`
+    to the given CLI version. `recorded_from_lock` does the reverse and takes the block name from the
+    stored begin marker.'
+  evidence:
+  - path: src/orqlet/application/usecases/init_files.py
+    lines: 77-121
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 3fc962d9a930550c91d2e099da46a372f7c9cf9c448f3b891117bab237908db4
+- id: A-11
+  kind: flow
+  statement: '`plan_changes` reads the current bytes of every desired path, of their proposal paths, of
+    every recorded path and of `.orqlet/generated.lock.yaml`. A path that is not a regular file stops
+    it with ORQ-E114. It then builds the plan, renders a new lock from `recorded_after`, and adds that
+    lock as the last write only if its bytes differ. A plan with no writes is empty, and `upgrade` then
+    returns `up-to-date` without applying anything.'
+  evidence:
+  - path: src/orqlet/application/usecases/render_all.py
+    lines: '60'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 0497a6d687bb68044c770895f30e287498e926e2819f0f729318336e05de2d97
+  - path: src/orqlet/application/usecases/render_all.py
+    lines: 356-382
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: dec48b6b5b18286adc20be4467e0af3b51df13f33ab4fcfb720bfb4e8f4a9553
+  - path: src/orqlet/domain/changeplan.py
+    lines: 115-147
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 56a8799593577d9e514bc421605d779a708bd66dda3f1afb446eab8423c09bbc
+  - path: src/orqlet/application/usecases/upgrade.py
+    lines: 162-165
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 9274d9ebd1a0014624557850ee69d7f64e3cc48e2410fb4fc0b58855315e7af0
+- id: A-12
+  kind: structure
+  statement: In this repository's lock, the generator is orqlet 0.2.0. A skill file such as `.agents/skills/orqlet-design/SKILL.md`
+    is owner orqlet, class protected, with the input `skills/orqlet-design` at version 0.3.3. `AGENTS.md`
+    is a shared-block, protected entry whose begin marker carries `workflow@0.3.3#<sha256>`.
+  evidence:
+  - path: .orqlet/generated.lock.yaml
+    lines: 1-13
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: b74be60dd0b8b762fd8941466fd9235ee57a59f9e90fd81b6d33ca2606c9ecbe
+  - path: .orqlet/generated.lock.yaml
+    lines: 660-670
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 7c8e48473fb84f7dd8ff03ece96ea035ce2cad3ca10ff49acc180ade86c85231
+- id: A-13
+  kind: structure
+  statement: In the same lock, `.github/pull_request_template.md` is a shared-block of class generated
+    with the `orqlet-workflow` block markers. The `.orqlet/` profile, knowledge, resources, role-bindings
+    and versions files are seeded and record only `seeded_sha256`.
+  evidence:
+  - path: .orqlet/generated.lock.yaml
+    lines: 598-633
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: dd57a7f3b5bcc27c74bcbe66a1947797d277329b46fd37339590e472eb48ed2f
+- id: A-14
+  kind: structure
+  statement: '`.orqlet/proposals/` holds two files. `.orqlet__versions.yaml.diff` proposes pin 0.1.0 to
+    0.2.0 and workflow 0.3.1 to 0.3.3, and `.orqlet/versions.yaml` already pins 0.2.0 with workflow version
+    and floor 0.3.3.'
+  evidence:
+  - path: .orqlet/proposals/.orqlet__versions.yaml.diff
+    lines: 1-19
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: defbb0391b87c3e6b695a72e356012fb2e2809ec8587355951d95232df4042c9
+  - path: .orqlet/versions.yaml
+    lines: 1-14
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: c3741548111415b8a431d3a7d5f6effd2b886816aca804ff673578685f89ba50
+- id: A-15
+  kind: flow
+  statement: '`parse_blocks` recognises line-anchored `<!-- orqlet:begin <name> <info> -->` and `<!--
+    orqlet:end <name> -->` markers outside code fences. It raises `BlockError` on merge-conflict markers,
+    a block nested in another, a name that appears twice, an end with no matching begin, an unclosed code
+    fence or a block that is never closed. Non-UTF-8 content is also a `BlockError`.'
+  evidence:
+  - path: src/orqlet/domain/blocks.py
+    lines: 9-14
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: b09fd8f485e67b8257da9e58db7804fa7084390b05f56a42cf5503a71b39b63d
+  - path: src/orqlet/domain/blocks.py
+    lines: 46-97
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 242a2b7815f569935873992a5676bfe83831e5a83e323cf19a03319159456a79
+- id: A-16
+  kind: flow
+  statement: '`set_blocks` replaces existing blocks in place, working from the end of the file, and inserts
+    the missing ones together. Everything outside the replaced spans is kept, along with the file''s newline
+    style and BOM. `remove_block` cuts out only the block span. With `insert_after_heading=False`, new
+    blocks are appended at the end of the file.'
+  evidence:
+  - path: src/orqlet/domain/blocks.py
+    lines: 118-160
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: f58d39bd499727a98907c7f588adea65399bd83095fb323b6dd711ed50d1fa06
+  - path: src/orqlet/domain/blocks.py
+    lines: 194-208
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: d001b36e428254ccba539e07192715a9162e394a0d51b63a3cec3e0d6038f578
+- id: A-17
+  kind: flow
+  statement: '`to_desired` always sets `insert_after_heading=False` and carries the render''s inputs.
+    `merge_rendered` turns identical files from several clients into one and raises `MergeError` when
+    two clients render the same path or block with different bytes.'
+  evidence:
+  - path: src/orqlet/application/usecases/init_files.py
+    lines: 48-74
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 496afb75efec27c39fa95ee871179f8b1fb4dfbe57558c6ffc993dc339409bcd
+- id: A-18
+  kind: flow
+  statement: For a shared file, each block is classified on the hash of its own span from the begin marker
+    to the end marker, markers included. Text outside the blocks therefore does not affect the decision.
+    The file is written once, with all applied blocks, only when the resulting bytes differ.
+  evidence:
+  - path: src/orqlet/domain/blocks.py
+    lines: 37-43
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 94d860e53106b4342a631668e66d050aa2bac5f0858ac1f2b6d785accd5238fc
+  - path: src/orqlet/domain/changeplan.py
+    lines: 248-282
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 580041d7232ac875cdc602b7cce61f20088f6417669073d45a2ad1c5eb490697
+- id: A-19
+  kind: flow
+  statement: When a shared file cannot be parsed (`BlockError`), every desired block of that file becomes
+    a conflict with action stop and the error as its reason. No write and no proposal is planned, and
+    `recorded_after` gets no entry for those blocks.
+  evidence:
+  - path: src/orqlet/domain/changeplan.py
+    lines: 226-247
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 983dc7e8c7dca1563ad8fd42dc6cd28b215d4c8c32380642f07f5f806f9235b6
+- id: A-20
+  kind: flow
+  statement: A recorded whole file that is no longer rendered is deleted if untouched, or kept and still
+    recorded if edited. A recorded block that is no longer rendered is removed from its shared file if
+    untouched, and a file left with only whitespace is deleted. For stray blocks in a file that cannot
+    be parsed, the old records are kept.
+  evidence:
+  - path: src/orqlet/domain/changeplan.py
+    lines: 284-362
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 7bc31ff2d5c1ac9676c26f7f923b47d273e2085e83ebcdf0c216a617f0f6ab41
+- id: A-21
+  kind: flow
+  statement: '`upgrade` re-renders with the recorded entries, adds ORQ-W080 for each stop item (with its
+    reason), ORQ-W096 for each tampered protected file, ORQ-W090 when staged changes exist and ORQ-I534
+    for proposals on MCP files. After approval (`--yes` or a prompt) it applies the remaining writes with
+    command `upgrade`, and stop items stay unwritten.'
+  evidence:
+  - path: src/orqlet/application/usecases/upgrade.py
+    lines: 138-152
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 54d62b9ee5bc0b1c5cec0f52df314bba8713c84897b5e05bdf0550f2bcfbbbe2
+  - path: src/orqlet/application/usecases/upgrade.py
+    lines: 162-196
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 38b4dca36e8bc91335ffdbede3c8dd174c2136787938f4aefa9830e2b8461e27
+  - path: src/orqlet/application/usecases/upgrade.py
+    lines: 223-241
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: f540ef808b7556123cc53efafce7a35508941d9419345f4d926ae579c6397221
+  - path: src/orqlet/application/usecases/upgrade.py
+    lines: 322-332
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: ea3da8fc637fa7553f8348a3d27c3db65729321250ba8ce4216065b8c84548e7
+- id: A-22
+  kind: flow
+  statement: '`upgrade` refuses before planning when a journal is still open without `--resume` or `--check`
+    (ORQ-E131), on a downgrade or a release below the floor (ORQ-E120, or ORQ-W095 with `--allow-weaker`),
+    and when recorded packs are not supplied (ORQ-E121). A downgrade is a lower workflow version or a
+    lower `controls_level`. The workflow lock records version, digest and controls level.'
+  evidence:
+  - path: src/orqlet/application/usecases/upgrade.py
+    lines: 70-104
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 6fddaa57376758f0e343d9e69f3a16e7c4c5da8822be78e4f7572f5414be7206
+  - path: src/orqlet/application/usecases/upgrade.py
+    lines: 286-319
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 7ad5bb96325f00096eb5c282677f93e6683ad39f91b72810977c759310b37c6a
+  - path: src/orqlet/domain/versions.py
+    lines: 47-53
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 0ad0831e27b0c961763fb722444f70a9965b9eea388e5afdcacbcc216661e66b
+  - path: src/orqlet/application/contracts/workflow_package.py
+    lines: 76-82
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 6b2816973dbbd68022cc099079c6de72d2cdf0120d4549bcbefb33acde73dc7f
+  - path: src/orqlet/application/contracts/versions_file.py
+    lines: 12-35
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: bff48b37d91b0fa4db01f47a91fa0966ded3211b464d676708d5b5e66a59740a
+- id: A-23
+  kind: flow
+  statement: '`apply_plan` holds the apply lock and orders the writes so that the manifest comes last.
+    It verifies that every file still has its preview hash (`PlanStale` otherwise) and backs up every
+    file that exists before the change. It then marks earlier open journals superseded, starts a journal,
+    writes each file atomically or deletes it, marks each entry done and finishes the journal.'
+  evidence:
+  - path: src/orqlet/application/usecases/apply_plan.py
+    lines: 38-79
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 25a890b6300d3121aa7081db42a3b255f4599738786929210aaae26783fef9e4
+  - path: src/orqlet/application/usecases/apply_plan.py
+    lines: 96-108
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: da0613ca841ae12b2eeb102a21eb6f72ed0966353344fc8e7a241147816de065
+- id: A-24
+  kind: flow
+  statement: After deleting a file, `apply_plan` removes the parent folders the deletion left empty, nearest
+    first, and stops at the first folder that still holds something. The docstring says this exists so
+    that a removed skill does not leave an empty folder behind.
+  evidence:
+  - path: src/orqlet/application/usecases/apply_plan.py
+    lines: 82-93
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: f22e86f815a5ffb4b341c341ab1a31e61501acf42d2bce52a50a030cb6989a36
+- id: A-25
+  kind: structure
+  statement: The journal and backups live outside the repository, under `projects/<project-id>/upgrade/<change-id>.json`
+    and `projects/<project-id>/backups/<change-id>/<path>`. A journal record holds the command, the plan
+    digest, the time, its entries (with before and after hashes, a proposal flag and a done flag) and
+    a status of open, complete, superseded or rolled-back. `start` refuses a change id that already has
+    a journal.
+  evidence:
+  - path: src/orqlet/application/ports/change_journal.py
+    lines: 1-5
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 70aada7ba8c8e720fc86550b32c7833eb609545d5b18d28a44c6f5058228a673
+  - path: src/orqlet/application/ports/change_journal.py
+    lines: 20-37
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 3e558623666d5cdbba2fd99797a775cdbf82585eeaca0371592a3cbcf056b9fa
+  - path: src/orqlet/adapters/fs/journal.py
+    lines: 1-8
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 14dd07be521d789202ee8eff84f1d237e64d178dcbb016423b3f3c43edf6784c
+  - path: src/orqlet/adapters/fs/journal.py
+    lines: 22-74
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 9fa6caf50a1e1083b13532e9f79f50737a9ee97857fbc23110ea19d7a50f7161
+  - path: src/orqlet/adapters/fs/journal.py
+    lines: 92-111
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 0c624a77c18c4090031e80292d9c1bba09816bde1e00d0a9c4b4567a787c6a22
+- id: A-26
+  kind: operation
+  statement: The data directory is `ORQLET_DATA_DIR` or platformdirs `user_data_dir('orqlet')`. The journal,
+    the backups and `apply.lock` are created per project id. The project id is a new id generated at `init`,
+    stored as `profile.project.uuid`, and later commands look up their stores by it.
+  evidence:
+  - path: src/orqlet/interface/cli/wiring.py
+    lines: '43'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: c76bc9b536db4888d1ed13c489d1bbbd89a878242feb94448615c7815e804d03
+  - path: src/orqlet/interface/cli/wiring.py
+    lines: 74-79
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: e4725ea7e16dc19722bb08ffbd31d9a39c37f0e0f2976233b05855f6d097ffa6
+  - path: src/orqlet/interface/cli/wiring.py
+    lines: 119-123
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: ed8dd2582494e99911a648b07cb4af2381472ed49c7afc3d200a58eece25396f
+  - path: src/orqlet/application/usecases/init_project.py
+    lines: '372'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 318765537430e430c485390cce4425ddfcc647fa00232d17efae2d1a7fcc9e51
+  - path: src/orqlet/application/usecases/draft_profile.py
+    lines: 70-73
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 37f1de52f1008a175d5063093343431a30c0d207f2f9c7ba74d92a8ab281acf0
+  - path: src/orqlet/application/usecases/upgrade.py
+    lines: '68'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 35ec71b1ee1cef512cedde9c622c7d53c47073fa68c3cdb3108278b1215fcf97
+- id: A-27
+  kind: operation
+  statement: '`FileApplyLock` waits up to 10 seconds by default, raises `ApplyBusy` when the lock is still
+    taken and releases it in a `finally`. The CLI maps `PlanStale` to ORQ-E135, `JournalError` to ORQ-E136,
+    `ApplyBusy` to ORQ-E137 and `NotInitialised` to ORQ-E130.'
+  evidence:
+  - path: src/orqlet/adapters/fs/apply_lock.py
+    lines: 14-33
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 49f9393203318edf183f3a6684fe54b724cc6ca02b3bcfe3a98ac2499a6957e8
+  - path: src/orqlet/application/ports/lock.py
+    lines: 11-18
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 92a1764380d8c7506f9867453bd24c554b9374e6ee8b855ad53fd276e04ba435
+  - path: src/orqlet/interface/cli/errors.py
+    lines: 16-27
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 948f0a4fdb93a895b6fec656b3bd27eddb3f7d4894ce7146bba4d8a9b46524dd
+- id: A-28
+  kind: operation
+  statement: '`LocalFileSystem.write_atomic` writes a temporary file in the same folder, fsyncs it, keeps
+    the old file mode and replaces the target in one step. Every path component is checked so that no
+    link is followed. `delete` removes only regular files, and `remove_empty_dir` silently leaves a folder
+    that is not empty.'
+  evidence:
+  - path: src/orqlet/adapters/fs/local_fs.py
+    lines: 108-158
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 4758dec4dc83e612fcd7f5d3d996f761769a853168994035f0c29efdb418c6b7
+  - path: src/orqlet/adapters/fs/local_fs.py
+    lines: 168-181
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 7861033e57e3146c0c36aed4872e96bfcd2760a2f5a0faa1ca2879dfc5f1f8ae
+- id: A-29
+  kind: flow
+  statement: '`rollback` reverses only journal entries marked done, and only when the current hash equals
+    the entry''s after hash. Otherwise it refuses and names the files (ORQ-E133). Created files are deleted
+    and other files are restored from backup, with ORQ-E134 when a backup is missing and ORQ-E132 when
+    there is no journal. The undo goes through `apply_plan`, and the original change is then marked rolled-back.'
+  evidence:
+  - path: src/orqlet/application/usecases/rollback.py
+    lines: 48-104
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 7bbc6c040956111823ed02b801756ac985cfd819e5b8e605f54e8d7c2c35c5a1
+  - path: src/orqlet/application/usecases/rollback.py
+    lines: 116-147
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: b532e85f8461610ddf3fe111c146fa1d93ff493de8bd56c92bdbb04ebc67a519
+- id: A-30
+  kind: flow
+  statement: '`release` removes a path from the lock and records it with a reason in `.orqlet/released.yaml`,
+    which is itself recorded as orqlet/generated. It refuses protected files (ORQ-E141), seeded files
+    (ORQ-E142), paths not in the manifest (ORQ-E140) and an empty reason (ORQ-E143).'
+  evidence:
+  - path: src/orqlet/application/usecases/release.py
+    lines: 46-100
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 5645badb736fe7adcb6caa734554bfc73fd87c86a0459fda07b0918d49494bdd
+- id: A-31
+  kind: flow
+  statement: '`doctor` and `sync` measure drift for every recorded entry except seeded ones. Each entry
+    is missing, unreadable (its block cannot be parsed), up-to-date (the normalised hash equals the record),
+    tampered (protected) or edited. There is no per-file state for a file whose render would differ from
+    what is recorded.'
+  evidence:
+  - path: src/orqlet/application/usecases/diagnose.py
+    lines: '37'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 4991597cd0c97a5796146f154c9dab5d1495a9e7aa3676ed2631d4f9fdc4a0f4
+  - path: src/orqlet/application/usecases/diagnose.py
+    lines: 78-114
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: ab41ce823ab6535da4898d27c708c4ffced0f3ba6b23fa9d292217dba9eb4880
+- id: A-32
+  kind: flow
+  statement: 'Drift findings: a protected file that is tampered, missing or unreadable is ORQ-E150, otherwise
+    unreadable is ORQ-W153, missing is ORQ-W151 and edited is ORQ-W152, whose message says `upgrade` will
+    not overwrite it.'
+  evidence:
+  - path: src/orqlet/application/usecases/diagnose.py
+    lines: 165-197
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: fa2fa2add79272c5f93c3b03551c3a7adf8bea59aab2b5bd68aeca6ee4e09531
+- id: A-33
+  kind: flow
+  statement: In the managed client folders, a name starting with `orqlet-` that is not in the manifest
+    or the released list is ORQ-E153. A folder counts as listed when the manifest names a file below it,
+    and a folder with no file anywhere below it is ignored.
+  evidence:
+  - path: src/orqlet/application/usecases/diagnose.py
+    lines: 38-47
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 64cded7346010348e3ffd44861dc44504764bbc6193ef128dea5e80a7ceb4f9c
+  - path: src/orqlet/application/usecases/diagnose.py
+    lines: 200-247
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: b14dde714ecbd3277345e31c39276554559c7264ac72a3bb9b0866c90cc326fc
+- id: A-34
+  kind: flow
+  statement: Both commands also report open journals (ORQ-E170), version skew (ORQ-W160), a missing workflow
+    lock (ORQ-W164), the same version with another digest (ORQ-E161), an available upgrade (ORQ-W162),
+    a CLI older than the project (ORQ-W165), a release below the floor (ORQ-E163), a digest mismatch (ORQ-W166)
+    and standards-lock problems (ORQ-W190, ORQ-W191). Only `doctor` adds the profile, convention, resource
+    and released-file findings. Only `sync` adds ORQ-I201 and ORQ-I202.
+  evidence:
+  - path: src/orqlet/application/usecases/diagnose.py
+    lines: 118-162
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 0d86a4d1b7545902599316a5d2b0e92c6f0883c847045eaf0ccf54aee24d301f
+  - path: src/orqlet/application/usecases/diagnose.py
+    lines: 331-426
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: cb8abbd4ef959918052e25af81ec6632ba2942b98e0333754ba93ae87fb238c1
+- id: A-35
+  kind: flow
+  statement: '`init` returns `already-initialised` (ORQ-I010) and writes nothing when the lock already
+    exists. Otherwise it plans with an empty record list and applies with command `init`. `BlockError`,
+    `FileSystemError` and `PlanError` become a refusal with ORQ-E114.'
+  evidence:
+  - path: src/orqlet/application/usecases/init_project.py
+    lines: 101-112
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 7cf877b13516bd8523dab779b409f899e723aa01f35f4b6aeabe73d7847e350e
+  - path: src/orqlet/application/usecases/init_project.py
+    lines: '169'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: fb6f9d6c3e99ceee92303d68384e305e7d614575783ae679fd81a39a5a161521
+  - path: src/orqlet/application/usecases/init_project.py
+    lines: 215-226
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 38b8be9270b99477e9debe22b39f38aae7b66caad24ca227ffd4accb8fbb17f6
+- id: A-36
+  kind: test
+  statement: 'tests/unit/domain/test_changeplan.py covers the whole-file cases: a second plan over its
+    own result is empty with identical records; a team edit is left and keeps its old record; a conflict
+    writes only a proposal; an unmanaged file is a name collision with a proposal; a tampered protected
+    file is restored; seed clashes and newer seed text become proposals; CRLF is not a change; orphans
+    are removed only if untouched; the manifest is added last and only when it changes; an identical proposal
+    on disk is not rewritten.'
+  evidence:
+  - path: tests/unit/domain/test_changeplan.py
+    lines: 71-86
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: a10b6e19a5dd528b994cda43b371611fa170f1675da499e82becfc50645bfcae
+  - path: tests/unit/domain/test_changeplan.py
+    lines: 99-166
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 41b34df60f262cd8f84d7d514ae5b00c67c38b9768b145cf5affe0280682426f
+  - path: tests/unit/domain/test_changeplan.py
+    lines: 236-255
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 32a515472fa7c77fc9a8233747953f9af29be94de6adf749cc7045e8f7965b87
+  - path: tests/unit/domain/test_changeplan.py
+    lines: 277-286
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 924d43de24f0f75313a022f6499589e495feac9543dd1f301381e3df90e922ec
+  - path: tests/unit/domain/test_changeplan.py
+    lines: 303-310
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 9f76a48c7ad31b45fe7fd640d6eec71e00bcff410ad4ca5dcdeedaaac2c13b17
+- id: A-37
+  kind: test
+  statement: 'Block and classification tests cover: a block added to an existing AGENTS.md keeps the text
+    before it; an edited block conflicts while another block updates; broken markers and non-UTF-8 stop
+    with no write; an orphaned block is removed; recorded entries keep their markers and inputs; structural
+    marker errors; idempotent in-place replacement; CRLF preserved; a deleted protected file is tampered
+    while a deleted generated file is the team''s choice.'
+  evidence:
+  - path: tests/unit/domain/test_changeplan.py
+    lines: 169-176
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: ee59c6079ffcbd198734bd5fbddea6233c5eb2bef9c4f0bce82eba62320c39f5
+  - path: tests/unit/domain/test_changeplan.py
+    lines: 192-233
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 2a41103054ee9570675f9f757a116f8327afe649adfac39619375d566bd87386
+  - path: tests/unit/domain/test_changeplan.py
+    lines: 258-274
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 21c55dec3541fc4177e6d0ec7f66f022cae74588cbc0591d7cde85cbb27ca09b
+  - path: tests/unit/domain/test_changeplan.py
+    lines: 322-339
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 45e1c33c9c69b187fe57b1704904440cdb29de69e63ac719dd7251706886b67b
+  - path: tests/unit/domain/test_blocks.py
+    lines: 54-68
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 75fb4217515f770f6af0b3a5861d3151b17c5714da0e9d430a308471b9c41943
+  - path: tests/unit/domain/test_blocks.py
+    lines: 121-130
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 76e70ed744b7dd040f398cb6d642f9528eff4e6843fa11580173d6a268ec93f2
+  - path: tests/unit/domain/test_blocks.py
+    lines: 140-148
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: e327d242e90534f7e6724a4df953caed6841141d588a2e90a2622b997d196de8
+  - path: tests/unit/domain/test_classify.py
+    lines: 46-66
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 5de9a7df5eec9153494e6e29c4d1658b04dd109a54067d04155b1bccb475f3d8
+- id: A-38
+  kind: test
+  statement: 'tests/unit/application/test_lifecycle.py, on in-memory file systems, covers upgrade: an
+    unchanged release is up-to-date and the tree is unchanged; a new release updates files with the manifest
+    last; a team edit to the seeded knowledge file survives; seeded files change only as proposals; a
+    conflicting edit to the PR template is kept with ORQ-W080 and a proposal; a tampered protected rule
+    is restored with ORQ-W096.'
+  evidence:
+  - path: tests/unit/application/test_lifecycle.py
+    lines: 142-161
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: f37ae3ddbce73b832718805b37f9ae954d0b5ed43caf35a1baca430fadad82aa
+  - path: tests/unit/application/test_lifecycle.py
+    lines: 281-305
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 605f20c3ee0348f7e331e6fa7b6ef448362c2c0740845de8d1b92dfda4fec635
+  - path: tests/unit/application/test_lifecycle.py
+    lines: 318-356
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 452fb76c09e3a3e6b9d8b89b4379c978108e9e373952f050f05e0e1755aa3440
+- id: A-39
+  kind: test
+  statement: 'The same file covers doctor, release and rollback: edited protected rules, skills, references,
+    sidecars and roles are ORQ-E150 and cannot be released (ORQ-E141), while an edited generated rule
+    is ORQ-W152; missing protected files are errors; stray and reserved names are ORQ-E153; `sync` is
+    read-only; rollback of init restores a pre-existing AGENTS.md and refuses after later edits; a released
+    file is left alone by a later upgrade.'
+  evidence:
+  - path: tests/unit/application/test_lifecycle.py
+    lines: 103-139
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 2d27685f0a87bc4d6d9d21b8dde9e5ec25785f6bb8d27cb6768db69d53a24ab5
+  - path: tests/unit/application/test_lifecycle.py
+    lines: 184-209
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 871658415014aa9369f3270e76b0bf48063047834ea5cef5542f2e3d5198ca07
+  - path: tests/unit/application/test_lifecycle.py
+    lines: 243-251
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 3211d6db33a4732bd075ab4b59981db8a0f106abb9103e0af320e17541711cea
+  - path: tests/unit/application/test_lifecycle.py
+    lines: 456-481
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 39b2c8e84b1a74e919fda9dc29dd9fbffd5ba6147899d86e38a5666b143b2543
+  - path: tests/unit/application/test_lifecycle.py
+    lines: 576-607
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 1cefc6dc15273b474edf50535fed6065f091c6c163fb00559cc0b394985276d1
+- id: A-40
+  kind: test
+  statement: 'Interruption and concurrency tests: a crash after every write converges on re-run or `--resume`
+    (in memory and on real files); an open journal blocks a plain upgrade; a re-run supersedes the crashed
+    journal; backups keep the earlier AGENTS.md; a file changed between preview and apply raises `PlanStale`
+    and writes nothing; a second lock holder gets `ApplyBusy`; init under a held lock exits with ORQ-E137
+    and writes nothing.'
+  evidence:
+  - path: tests/unit/application/test_lifecycle.py
+    lines: 391-435
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 120df096da8db9514069a4fd900a20a628d5123a30be12d6a96f00b84929c86e
+  - path: tests/unit/application/test_init_project.py
+    lines: 619-635
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 8a0d9da63d085512390e7cd5586e382eb56ac53d06f38855c82a71def832c34d
+  - path: tests/unit/application/test_init_project.py
+    lines: 654-731
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 06a84283c8d93f15d403459bfae6e37b1dff33ca6a90ee82b366374ea92f88d9
+  - path: tests/fault/test_apply_kill_after_k.py
+    lines: 42-71
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 7c04d15c5764350e7bc04335bb74c9f9a83971c14e19395d90f07fcdf842adb4
+  - path: tests/fault/test_upgrade_resume.py
+    lines: 41-84
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 646c3599722467e2934ee7243e98a48823b2bdecd6a367c5752a331a7f687aea
+  - path: tests/integration/test_apply_lock.py
+    lines: 23-89
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: e3e7312c9139395b834d21bfc246f6bc07ca106acf643441b7c649d820f90b45
+- id: A-41
+  kind: test
+  statement: tests/unit/application/test_init_project.py checks that the lock lists every file init wrote
+    with the hash of what was written, and that the owners are orqlet, shared-block and seeded. It also
+    checks that a second init is `already-initialised` and changes nothing, that an existing AGENTS.md
+    keeps its text and gains exactly one baseline block, and that an existing `.prompts/README.md` is
+    kept with a proposal.
+  evidence:
+  - path: tests/unit/application/test_init_project.py
+    lines: 164-193
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 6531147402b3d6ff2ed032218594276d3c555edf44a1efcd1f1c8d9ab512cfe7
+  - path: tests/unit/application/test_init_project.py
+    lines: 461-469
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 6abfeb9f1cac91710663cab44b9fb5ffaed2a4c9f8dd59262ed9eb18054d9eb3
+  - path: tests/unit/application/test_init_project.py
+    lines: 498-508
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 6e8e120ed816df29c0d3c0516f423a4a4ccd9e8dd412f5dd3f02da6b0f629f8f
+- id: A-42
+  kind: test
+  statement: 'Real-file tests with Git: personal, local and ancestor files are untouched by init and upgrade;
+    an upgrade updates an untouched PR-template block, keeps an edited one with ORQ-W080 and a proposal,
+    and preserves the text outside; rollback of that upgrade restores the bytes; CLI doctor, release and
+    upgrade on an edited protected rule; an unchanged `upgrade --check` and `--yes` are up-to-date; a
+    team edit to a Cursor command survives with ORQ-W152; phase skills and roles exist for all three clients;
+    an upgrade removes the skill folder it emptied.'
+  evidence:
+  - path: tests/e2e/test_m1_acceptance.py
+    lines: 50-137
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 9235c768370542d9256d6eec1a90195bf11145e24e63bce9d5c7cc49cfda657d
+  - path: tests/integration/test_lifecycle_cli.py
+    lines: 84-103
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: b71051e37e1707ecd96fac76d6da5204a2fcd477963cfcb8d43f44db48300014
+  - path: tests/integration/test_lifecycle_cli.py
+    lines: 150-177
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: b46581fd10984612309b25badb37763bfc0dc3fa7b53a059de586b237d482e47
+  - path: tests/integration/test_lifecycle_cli.py
+    lines: 240-256
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: a4a82dd688bae1dac82e2a394cd8a6cc9ee935438572ce13c812c85f29e922a0
+  - path: tests/e2e/test_s8_acceptance.py
+    lines: 235-268
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: ead7713108b10480537d2a278627212ec996f5dc18368b9dc03f77fac6117bcd
+  - path: tests/unit/application/test_resources_diagnose.py
+    lines: 691-707
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 17be550d642bf9b142aeaabb62efdf1086f398cdb73c62eb5a116bbe49d6c382
+- id: A-43
+  kind: test
+  statement: Golden files are compared with the `golden` fixture in tests/conftest.py, which reads `tests/golden/<relative>`.
+    The `--update-golden` option rewrites them, and the option is refused when the `CI` or `GITHUB_ACTIONS`
+    variable is set, which tests/integration/test_golden_policy.py checks. Each adapter's `render(packaged_request())`
+    output is compared at `<client-id>/docs-2026-10/<path>`. Further tests check that rendering twice
+    gives identical bytes, that the baseline block is identical across clients and that each client gets
+    exactly its own files, and the four shipped templates are checked for exactly one `{{lines}}` slot.
+  evidence:
+  - path: tests/conftest.py
+    lines: 22-66
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 3e0a3017d8e792d4681fb18113be5b0483979d2da4676f42f6327186352816d9
+  - path: tests/integration/test_golden_policy.py
+    lines: 31-41
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 29ae521be198bf852a406e4c113014fbeefcdf9f6614b3a794ad771d6ce7c547
+  - path: tests/unit/render/test_clients_golden.py
+    lines: 33-52
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 009a71d03ffd2d9b1d2281d18acf9fedaf33f42194454cd4d1692b963b2c6a30
+  - path: tests/unit/render/test_clients_golden.py
+    lines: 60-102
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 84864c6efa763ab5aab6aa502a13ef774766fd1348d30ed4d52d44aef0bb2d9d
+  - path: tests/support/render.py
+    lines: 30-62
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: e51e3836e0f334dff9c10fe4a1d5644070600c8649206b09b74a23b1e4b3f1d4
+  - path: tests/support/render.py
+    lines: 96-100
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: ba6fbfba138027c980a8e8c9cc81ad7f99603f0676aed84689e46bc820639ced
+  - path: tests/unit/render/test_resources_golden.py
+    lines: 364-377
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 550c5c4f18aa93980a435c31d70713f66428646240ad78effcccf8c18753e58a
+- id: A-44
+  kind: test
+  statement: 'Test support: `Env` wires an in-memory project and a separate in-memory user-data store,
+    with stores keyed by project id and the label `demo`. `real_services` does the same with real folders
+    for a given root and data dir. `SequentialIds` gives predictable ids. `PinnedWorkflow` fixes the identity
+    at 0.1.0, and `ChangedWorkflow` changes only `baseline/baseline.md` and `pr_template/workflow-section.md`
+    and the identity.'
+  evidence:
+  - path: tests/support/init_env.py
+    lines: 40-88
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 743baedcad0dc934cf6d71df1d33060fceec33cc1f607e4df3fee37a58444e7c
+  - path: tests/support/real_env.py
+    lines: 41-89
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 2f40d5ef5d7a7c5a229599c6afcb5fa8ec5b2dcfccb1e990bc4e5e9d74b527d2
+  - path: tests/fakes/ids.py
+    lines: 6-14
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: efe8704b2a4f5d875af342aeb3ec5d1ad639768fd6bd1256c247dd10646f38d9
+  - path: tests/fakes/workflow.py
+    lines: 11-80
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 06b7b91be8cc0e988bb8eae0b755ebeb3ec2179468e06278e03dbfe3ab607c32
+- id: A-45
+  kind: operation
+  statement: CI runs `uv run ruff check .` and `uv run ruff format --check .`, then `uv run mypy`, then
+    `uv run lint-imports`, `tools/export_schemas.py --check` and `tools/build_manifest.py --check`, all
+    on Python 3.12. `uv run pytest` runs on ubuntu, macos and windows with Python 3.12, 3.13, 3.14 and
+    3.15, and the wheel is built twice and its digests compared.
+  evidence:
+  - path: .github/workflows/ci.yml
+    lines: 18-84
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 525041082bdc18cf57d85506db19c0fa9e4c6d26ad2e2b6a6673cf7e9e1bf9ca
+  - path: .github/workflows/ci.yml
+    lines: 86-107
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 0e5de1ca4049f644a492a439581e1a83c0b520f4211210ea3a26e3a1fe50dd47
+- id: A-46
+  kind: operation
+  statement: pyproject.toml requires Python 3.12 or later and pins ruff, mypy, import-linter, pytest,
+    pytest-socket and hypothesis as dev dependencies. It sets mypy `strict = true` over src, tests and
+    tools (excluding fixtures and golden), pytest `addopts = -ra --strict-markers --disable-socket` with
+    warnings as errors and the markers unit, contract, golden, integration, fault and e2e, and five import-linter
+    contracts (layers, two I/O bans, a workflow-package ban, client-adapter independence).
+  evidence:
+  - path: pyproject.toml
+    lines: '9'
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 9269166afe8e8458b22d293d85bef14655a2ebab927033773593124d1aa4b72a
+  - path: pyproject.toml
+    lines: 21-30
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 33bd486d8a753afe97cdb3d3758805b6dc3255fe2b899c8ef0639d325941aa27
+  - path: pyproject.toml
+    lines: 38-80
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 9c8c4dbf1f92fd1c92203d3e6fe203f92bea9913a9a23a67384ad14b64a43898
+  - path: pyproject.toml
+    lines: 82-127
+    revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    sha256: 9e42efcc250c680906b6999be918f10bd8fe9a8fd0ebd1a72b675e2dd0621e04
+unknowns:
+- id: U-1
+  what: No test was found that installs into two project roots with different project context (profile,
+    registry or conventions) and compares the results. Searches of tests/ for 'two projects', 'second
+    project', 'project_id' and 'projects/' found none. The fault tests use several roots copied from one
+    fixture, each with its own data dir, and SequentialIds gives each project the same first id.
+  material: true
+- id: U-2
+  what: No test was found that runs `upgrade` on an AGENTS.md holding team text outside the baseline block.
+    Team text is covered for init (test_init_project.py 461-469), for rollback (test_lifecycle.py 456-467)
+    and, for upgrade, only on the PR template (test_m1_acceptance.py 77-114).
+  material: true
+- id: U-3
+  what: What happens during upgrade when a file whose blocks are already in the lock has broken or duplicate
+    markers. The BlockError branch (changeplan.py 226-247) keeps no record for those blocks, so the rewritten
+    lock may drop the AGENTS.md entry. This was not run, and the only test (test_changeplan.py 217-224)
+    starts with no records.
+  material: true
+- id: U-4
+  what: Whether any command removes a proposal file under .orqlet/proposals/ after the change was merged
+    by hand. No delete path for proposals was found in changeplan.py, apply_plan.py or upgrade.py, and
+    this repository still holds the versions proposal whose content is already in .orqlet/versions.yaml.
+  material: true
+- id: U-5
+  what: Why .orqlet/proposals/.orqlet__role-bindings.yaml.diff has no non-empty line (a Grep for any character
+    found no match), and whether an empty proposal is expected output.
+  material: false
+- id: U-6
+  what: No test was found that checks generated or installed files for unresolved template placeholders.
+    The only check is that each shipped template has exactly one `{{lines}}` slot (test_resources_golden.py
+    364-377).
+  material: true
+- id: U-7
+  what: Whether an upgrade with an unchanged workflow but a different CLI version writes only the lock.
+    The lock records `generator.orqlet` (init_files.py 97-102) and is written whenever its bytes differ
+    (changeplan.py 133-147), and no test isolates this case.
+  material: true
+- id: U-8
+  what: Whether any test compares the files that init or upgrade actually write (after compose, plan and
+    apply) with the golden files. The golden tests compare only `adapter.render` output (test_clients_golden.py
+    37-44).
+  material: true
+- id: U-9
+  what: Which four phase skills the request means. The package ships six skills (orqlet-design, orqlet-implement,
+    orqlet-onboard, orqlet-plan, orqlet-research, orqlet-review; tests/support/render.py 32-39), and the
+    request does not name them.
+  material: true
+- id: U-10
+  what: Whether the checks in pyproject.toml and ci.yml pass at the base revision. None were run during
+    this read-only research.
+  material: false
+contradictions:
+- id: C-1
+  sources:
+  - src/orqlet/application/ports/change_journal.py:33-33
+  - src/orqlet/application/usecases/release.py:97-97
+  note: The journal port says the command is 'init', 'upgrade' or 'rollback', but release applies its
+    plan with command 'release'.
+- id: C-2
+  sources:
+  - src/orqlet/domain/changeplan.py:232-247
+  - src/orqlet/domain/changeplan.py:333-334
+  note: A BlockError on a file with desired blocks keeps no record for those blocks, while a BlockError
+    on a file with only stray recorded blocks keeps the old records. The two branches handle recorded
+    entries differently.
+- id: C-3
+  sources:
+  - .orqlet/proposals/.orqlet__versions.yaml.diff:7-19
+  - .orqlet/versions.yaml:1-14
+  note: The proposal still shows pin 0.1.0 to 0.2.0 and workflow 0.3.1 to 0.3.3 as pending, yet the live
+    versions file already holds the proposed values.

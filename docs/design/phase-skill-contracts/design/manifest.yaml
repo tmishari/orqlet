@@ -1,0 +1,224 @@
+schema: orqlet.design-set/v1
+header:
+  schema: orqlet.artifact-header/v1
+  task: phase-skill-contracts
+  status: draft
+  workflow_version: 0.3.3
+  protected_set_digest: b9bc3a015f151dc01dba5e98ac65a6da163ead0a2cbf27f6c796e5605d9cca2c
+  bound:
+    base_revision: e6fe500eb3ed03d043e27975d5fb24b08113cda0
+    standards_lock_hash: 89a225016ff9d8b3ed977df39a70dfbe9dbc5f7c6d3762d0f2208b1b7a037a52
+    applicable_rules_hash: 56502a0ec5eda3b13b4c9d97c7d4dfa41df82c86a206e36dd5d2d92aab299b97
+    profile_version: 1
+as_is_ref: docs/design/phase-skill-contracts/as-is.md#e1c968ac76ab29556a317fc45063c3f4e8849f627b8562b84549cba03189fd0f
+change_class:
+  trigger: D3
+  declared: D3
+  effective: D3
+scope:
+  paths:
+  - src/orqlet/workflow/skills/**
+  - src/orqlet/workflow/roles/**
+  - src/orqlet/workflow/identity.json
+  - src/orqlet/workflow/MANIFEST.json
+  - tests/**
+  - README.md
+  - AGENTS.md
+  - .github/pull_request_template.md
+  - .claude/CLAUDE.md
+  - .claude/agents/**
+  - .claude/commands/**
+  - .claude/rules/**
+  - .claude/skills/**
+  - .agents/skills/**
+  - .cursor/agents/**
+  - .cursor/commands/**
+  - .cursor/rules/**
+  - .codex/agents/**
+  - .orqlet/generated.lock.yaml
+  - .orqlet/workflow.lock
+  - .orqlet/standards.lock.yaml
+  - .orqlet/proposals/.orqlet__versions.yaml.diff
+  - .orqlet/proposals/.orqlet__role-bindings.yaml.diff
+  - docs/design/phase-skill-contracts/evidence/**
+  trust_boundaries:
+  - 'B-1 (existing, widened): repository text to the agent; the agent now also reads instruction files, CI and build files and task documents as evidence'
+  - 'B-2 (new): CI and build file text to AGENTS.md team text through orqlet-onboard, with the person''s yes per entry; later agent sessions load that text as instructions'
+extractor_config:
+  public_api:
+    packages:
+    - orqlet
+    mode: ast
+  dependency_manifests:
+  - pyproject.toml
+  lockfiles:
+  - uv.lock
+  security_globs:
+  - src/orqlet/*.py
+  - src/orqlet/domain/**
+  - src/orqlet/application/**
+  - src/orqlet/adapters/**
+  - src/orqlet/interface/**
+  - src/orqlet/workflow/**/*.py
+  - src/orqlet/workflow/baseline/**
+  - src/orqlet/workflow/commands/**
+  - src/orqlet/workflow/exempt.yaml
+  - src/orqlet/workflow/pr_template/**
+  - src/orqlet/workflow/releases.json
+  - src/orqlet/workflow/rules/**
+  - src/orqlet/workflow/schemas/**
+  - src/orqlet/workflow/seeds/**
+  - src/orqlet/workflow/templates/**
+  - tools/**
+  - .github/workflows/**
+  - .prompts/**
+  - .orqlet/project-profile.yaml
+  - .orqlet/resources.yaml
+  - .orqlet/role-bindings.yaml
+  - .orqlet/versions.yaml
+  - .orqlet/knowledge.yaml
+  - .claude/settings*.json
+  - .cursor/hooks.json
+  - .cursor/mcp.json
+  - .codex/config.toml
+  - .mcp.json
+  - pyproject.toml
+  - uv.lock
+expected_changes: []
+artifacts:
+- id: D-1
+  kind: c4-context
+  path: docs/design/phase-skill-contracts/design/context.md
+  covers: The three places (this CLI repository, the receiving project, the development app), the person, and what crosses each arrow
+  sha256: '8eb078df676b8829c563094c2a0b1e686df9bc747a7c6adb79a40062e0b88712'
+- id: D-2
+  kind: c4-container
+  path: docs/design/phase-skill-contracts/design/container.md
+  covers: The containers, which of them change (workflow package, tests, this repository's installed files, README) and which do not (code, commands, development app)
+  sha256: '5fb05c776abe38a3cf98756c0482a161a03a6bd420dde5a97dce0ef39f3db45f'
+- id: D-3
+  kind: c4-component
+  path: docs/design/phase-skill-contracts/design/component.md
+  covers: The design brief (summary, requirements R-1 to R-13, behaviour, responsibilities and interfaces, failures, acceptance criteria BC-1 to BC-40, decisions, unresolved decisions, constraints for the plan) and the component diagram of the skill texts
+  sha256: 'db23fcdc4c36016dafc810496908306d4c1b46306a20f245bc3287ed7d75cc27'
+- id: D-4
+  kind: data-flow
+  path: docs/design/phase-skill-contracts/design/data-flow.md
+  covers: 'Three flows: workflow package to a receiving project, project context to the agent at execution time, one phase to the next'
+  sha256: '322e216011039f126b8cba9e3add87515beef72a3df19b70c124c6011f528d18'
+- id: D-5
+  kind: sequence
+  path: docs/design/phase-skill-contracts/design/sequence.md
+  covers: 'Three interactions with failure paths: the input check in a fresh session, one implementation phase with a design revision, an upgrade over team text and a local edit'
+  sha256: '9886266e62cecb1451b3ec6c67d597c02945fbdb8ccec0c556617db8ec039396'
+- id: D-6
+  kind: adr
+  path: docs/design/phase-skill-contracts/design/adr-001-one-contract-shape-for-every-skill.md
+  covers: Seven fixed headings around one numbered list in every skill, one shared reference copied into the four phase skills, metadata and invocation kept
+  sha256: '463ca10ed881f3477e0ac52cf6177d651088d818dd34a790423f71dfa5e34959'
+- id: D-7
+  kind: adr
+  path: docs/design/phase-skill-contracts/design/adr-002-project-context-read-at-execution-time.md
+  covers: Context sources read when a skill runs, unknowns stay unknown, the rules for commands found in project files (credentials, secret files, citation by hash of the command and what it invokes, who runs what, artifact values in commands), fixed output location with the project's own task documents, installed files restored, onboard's commands in AGENTS.md as trust boundary B-2, the words for standards for
+  sha256: '215d11da36c8f7f3ea79ceb33a8bb6bd883bfda4c16dbaf9b020a8aacefa41fb'
+- id: D-8
+  kind: adr
+  path: docs/design/phase-skill-contracts/design/adr-003-handoffs-and-the-input-check.md
+  covers: The task folder as the handoff, what each output identifies, the header copy rule, the ordered input check with the merge-commit check of approved files, an edited approved input stops for a new approval, stale causes matched to the invalidation matrix, recording acceptance of the AS-IS file
+  sha256: '11add91bf06ab5a994e38ff07adc74a8c5333e6b71a92875a40a33b09706e665'
+- id: D-9
+  kind: adr
+  path: docs/design/phase-skill-contracts/design/adr-004-what-each-phase-produces.md
+  covers: Research brief, design brief with behaviour by interface kind and no sequencing, test plan before the checklist, implementation in small changes with a named design revision and a six-part report, review, onboard and role changes
+  sha256: 'e0210f380060e844a27ebb6ce7834642cb0a0c59bfd664fa0ad804891b4661e7'
+- id: D-10
+  kind: adr
+  path: docs/design/phase-skill-contracts/design/adr-005-injection-unchanged-tests-and-version.md
+  covers: No injection code change and the tests that prove each injection requirement, workflow 0.4.0, regeneration of this repository by upgrade, the existing commands to apply the update, session checks V-1 to V-3
+  sha256: 'ab6fbf67e835b0a2f36178750198f70fd5ca24e9969d86ae1350c7d9fbe3a2cb'
+considerations:
+  security:
+    state: affected
+    evidence_refs:
+    - src/orqlet/workflow/skills/orqlet-research/skill.md:9
+    - tests/unit/render/test_skills.py:135-138
+    - src/orqlet/workflow/baseline/baseline.md:32
+    - src/orqlet/application/usecases/gate_status.py:214-229
+    - src/orqlet/interface/cli/wiring.py:74-86
+    - src/orqlet/application/contracts/common.py:21
+    notes: 'Trust boundary B-1 widened and B-2 added (onboard writes commands into AGENTS.md team text with a yes per entry, in a fixed form, never running them). Credentials are never copied and expanded expressions become placeholders filled only from the person''s environment; secret files are never opened; a check''s lines, invoked files and configuration lines are cited by hash in the plan and again before each run; artifact values enter commands single-quoted, and unexpected characters stop the agent; secret values enter commands only as variable references and are never printed; implementation applies the warning list to each command itself, and the tester hands such a check back; other commands need the person''s yes and the report marks each planned or agreed; the person names the protected branch''s ref and each merge commit, and an edited approved artifact (a difference since its merge commit, ORQ-E353, ORQ-E371) or any change to a question answered at a reference commit stops for a new approval; each git check passes only on its expected exit status; other stale inputs continue only on a valid invalidation-matrix row with the person''s confirmation; no CI check in this release decides an approval. No Orqlet code, process, network or parser changes. Detail in docs/design/phase-skill-contracts/design/considerations.md'
+  compatibility:
+    state: affected
+    evidence_refs:
+    - src/orqlet/application/usecases/workflow_sources.py:104-137
+    - src/orqlet/application/usecases/gate_status.py:70-93
+    - tests/fixtures/packs/sample/rules/python.yaml:15
+    notes: Names, invocation, contracts, commands and locations are kept; four new protected reference files per skills folder (eight with both .claude/skills and .agents/skills); artifacts in flight become stale after an upgrade and the input check stops on them; the standards phase word is implementation; workflow 0.4.0. Detail in considerations.md
+  operations:
+    state: affected
+    evidence_refs:
+    - src/orqlet/application/usecases/upgrade.py:70-104
+    - src/orqlet/application/usecases/apply_plan.py:38-108
+    - .github/workflows/ci.yml:18-107
+    notes: Adopters apply the update with the existing upgrade, doctor and sync commands and can roll back; no new command, CI step or finding; agents run a few more commands per phase and stop on stale inputs with the cause; session checks V-1 to V-3 need a person. Detail in considerations.md
+standards_applied:
+- ORQLET-ARCH-001
+- ORQLET-ARCH-002
+- ORQLET-ARCH-003
+- ORQLET-DET-001
+- ORQLET-DET-002
+- ORQLET-DET-003
+- ORQLET-NOMODEL-001
+- ORQLET-QA-001
+- ORQLET-SAFE-001
+- ORQLET-SEC-001
+- ORQLET-SEC-002
+- ORQLET-SEC-003
+- ORQLET-TEST-001
+- ORQLET-TEST-002
+- ORQLET-STYLE-001
+reviews:
+- role: architecture-reviewer
+  note: docs/design/phase-skill-contracts/reviews/architecture-reviewer-design.md
+- role: security-reviewer
+  note: docs/design/phase-skill-contracts/reviews/security-reviewer-design.md
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architect
+    phase: design
+  checks:
+  - what: AS-IS accepted by the person
+    how: 'In this session the person wrote "I approve the reasarch" on 2026-11-02 when starting /orqlet-design (no time recorded). The AS-IS self_check, written by a second session, quotes "Yes, I accept it as it stands"; both sessions recorded the acceptance as a claim, and the person also confirmed this session as owner of the design. The AS-IS file is not changed by this design: its question list still names Q-8 as open because that text predates the answer, which the ledger records. The AS-IS header status is approved; the content is bound by as_is_ref and is confirmed by the merge of the design pull request (ADR-003 decision 7)'
+    result: pass
+  - what: blocking questions answered before the design
+    how: Q-8 and Q-9 answered by the person on 2026-11-02 at 10:25 and the conflict C-1 ruled (governing source Q-3); orqlet validate ledger docs/design/phase-skill-contracts/questions.yaml
+    result: pass
+  - what: standards read
+    how: orqlet standards for --phase design --role architect (15 rules, hash 56502a0ec5eda3b13b4c9d97c7d4dfa41df82c86a206e36dd5d2d92aab299b97); --path src/orqlet/workflow/skills (10 rules, hash 03dd4e37f75d033df99354ddeba18461f2202477422361db3bc0a0ba62b4b3e1); --path tests (5 rules, hash b00a25323520408083d05f4ede1362d8835dc8dfbfd1cfb4e5fdc369090ddf1b)
+    result: pass
+  - what: header copied from gate status
+    how: orqlet gate status phase-skill-contracts --json; workflow_version and protected_set_digest at the top level, the other four values in bound
+    result: pass
+  - what: every file the manifest names is hashed
+    how: orqlet evidence hash on the AS-IS file and every artifact
+    result: pass
+  - what: considerations.md is hashed (it has no artifact kind)
+    how: sha256 f2939364e05942d7fb14fba5db9635a6b0eb7b37300311a348d89380cbaa0220 from orqlet evidence hash
+    result: pass
+  - what: no expected change on a watched surface
+    how: Q-3 limits the change to skill texts, references and role prompts; the security globs cover every Python file under src/orqlet/, the workflow files outside skills, roles, identity.json and MANIFEST.json, tools/, .github/workflows/, .prompts/, the seeded .orqlet files (the scope holds only the two proposal diffs upgrade rewrites, .orqlet/proposals/.orqlet__versions.yaml.diff and .orqlet__role-bindings.yaml.diff; any other proposal file is outside the plan), the client permission, hook and MCP files the reviewers named, pyproject.toml and uv.lock, so a change there shows as ORQ-E451 at gate status --phase; of the installed files, the scope holds only those upgrade writes (every non-seeded path of .orqlet/generated.lock.yaml, and the two proposal diffs); checked with orqlet.domain.globs.glob_match that no scope path and no tracked file in scope matches a security glob
+    result: pass
+  - what: change class D3 because trust_boundaries is not empty
+    how: src/orqlet/domain/change_class.py:59-74; the context view, a real ADR and the two reviewer notes are present; implementation reviews need independence I2 (src/orqlet/domain/independence.py:57-59)
+    result: pass
+  - what: the design set validates
+    how: orqlet validate design docs/design/phase-skill-contracts/design/manifest.yaml printed PASS, change class D3 (the scope triggers D3)
+    result: pass
+  - what: independent design review by orqlet-arch-reviewer and orqlet-security-reviewer as typed subagents, each in its own context
+    how: 'Round 1 FAIL and FAIL (output not saved; the author''s summary is in the notes); round 2 FAIL and FAIL; round 3 architecture FAIL (F3-1 major), security PASS; round 4 architecture FAIL (F4-1 major), security PASS; round 5 on the files as revised after round 4, architecture PASS and security PASS, with no major finding; every round from round 2 on is recorded in the notes unchanged, with the sha256 of every reviewed file before and after the round; after round 5 only this self-check changed; the minor findings F5-1 to F5-7 and SEC5-1 to SEC5-4 are open, listed in the notes, and left to the review of the design pull request, as the person decided'
+    result: pass
+  unverified:
+  - How Claude Code, Codex and Cursor treat the new sections and the new reference is documented, not observed (U-11); session checks V-1 to V-3 of ADR-005 are not run.
+  - The design was written from the code and documents at the base revision e6fe500; none of the skill texts it describes exists yet.
+  - Eleven minor findings of review round 5 (F5-1 to F5-7, SEC5-1 to SEC5-4) are open and not applied; the notes under docs/design/phase-skill-contracts/reviews/ hold them unchanged.
