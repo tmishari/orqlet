@@ -245,6 +245,31 @@ questions:
     answerer: user
     time: '2026-11-02T12:45:00+02:00'
     scope: task
+- id: Q-12
+  key: e9f7913a62047880b92ff5ac84c33014f5a62065af0eb238e66588aa21e02b2e
+  subject: How BC-6 treats a technology named as a generic example in a shipped skill, reference or role text
+  raised_by: architecture-reviewer
+  phase: implement
+  category: requirement
+  text: The P-1 test of BC-6 counts a whole word, in its declared case, of a technology that only the other project declares as a leak, even in text the package ships the same to every project. ADR-002 decision 3 gives the example "a Python version", which P-2 would carry into phase-contract.md, and P-2 to P-5 may not edit the tests of P-1. Do the texts of P-2 to P-5 avoid those words, or does BC-6 tell a shared example from an injected project value?
+  why: Without an answer, a later phase that writes the example of ADR-002 fails the P-1 test and stops for a plan amendment.
+  options:
+  - Write generic examples, such as "a language version"; no skill, reference or role text names Python, Flask, pip, Rust, clap, SQLx, Tokio or Kafka as a word
+  - Change the P-1 test to count a technology word as a leak only when the packaged render of the same path does not already contain it
+  evidence_refs:
+  - docs/design/phase-skill-contracts/design/adr-002-project-context-read-at-execution-time.md
+  - tests/unit/application/test_workflow_injection.py
+  - docs/design/phase-skill-contracts/reviews/architecture-reviewer-P-1-r1.yaml
+  - docs/design/phase-skill-contracts/reviews/architecture-reviewer-P-1-r2.yaml
+  - docs/design/phase-skill-contracts/reviews/architecture-reviewer-P-1-r3.yaml
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: Write generic examples, such as "a language version". No skill, reference or role text of P-2 to P-5 names Python, Flask, pip, Rust, clap, SQLx, Tokio or Kafka as a word, and the P-1 test stays as it is. The person gave this answer in the P-1 session on 2026-11-02 (the minute was not recorded); the time below is when it was written here, at the start of P-2.
+    answerer: user
+    time: '2026-11-03T06:20:00+02:00'
+    scope: task
 conflicts:
 - id: C-1
   sources:
