@@ -38,9 +38,10 @@ SKILL_NAMES = (
     "orqlet-review",
 )
 SKILL_REFERENCES = {
-    "orqlet-design": ("design-format.md",),
-    "orqlet-plan": ("plan-format.md",),
-    "orqlet-research": ("as-is-format.md",),
+    "orqlet-design": ("design-format.md", "phase-contract.md"),
+    "orqlet-implement": ("phase-contract.md",),
+    "orqlet-plan": ("phase-contract.md", "plan-format.md"),
+    "orqlet-research": ("as-is-format.md", "phase-contract.md"),
     "orqlet-review": ("review-format.md",),
 }
 ROLE_NAMES = (

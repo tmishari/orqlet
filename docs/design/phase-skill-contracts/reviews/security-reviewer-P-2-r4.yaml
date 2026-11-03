@@ -1,0 +1,83 @@
+schema: orqlet.review-result/v1
+task: phase-skill-contracts
+phase: P-2
+role: security-reviewer
+round: 4
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 37998f69727a68fd020adf68f7f1679a5bcacae1c17e3caaf1d6d32c1e86657a
+    design: 9fd71b6184605ddfacbeeb871586f7c87c25dee2aab814fe8b62495b7cb29884
+    evidence_inputs: 1c0f83c8223891306850fa1989befdbf0bec67d8451d89a9ece2f19916271bf8
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: bad1acea6377b4a8962920848fbccf28e439fa50927b392a5170f5d919442e63
+    reviewer_definition: 705413867db1155a00f79180d242f6ab67595c42911c3db97a02e07271662bb3
+    standards: d8fcc2fc2afba1ea19064aa6b45cdb1c83aaacafb5f36ada7f580b1976d2f889
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: be6680d4c8d0b75b8b5198b693160d373d28dc702f1f552fb78d7925eb8f49a3
+  merge_base: c59a03a16a22984f53753f44fa06e479f33dd491
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: 96a3708f33698c2dbe55aeaede1b539524672c6b2ecfa294cb8bc426cb99a531
+  client: codex
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I2
+capability_limits:
+- Independent typed subagent received only the packet path in a fresh Codex context; advisory AI review.
+- The reviewer did not inspect every unchanged snapshot file or the tester record in full.
+- The packet omitted docs/design/orqlet-architecture-proposal.md; the reviewer did not examine it.
+- The coder binding is carried from earlier staged review records as Cursor; this session did not independently observe the coder client.
+applicability:
+  examined:
+  - diff.patch, changed paths
+  - changed workflow text and P-2 knowledge-impact record
+  - snapshot/src/orqlet/workflow/skills/orqlet-research/skill.md
+  - snapshot/src/orqlet/workflow/skills/orqlet-design/skill.md
+  - snapshot/src/orqlet/workflow/skills/orqlet-plan/skill.md
+  - snapshot/src/orqlet/workflow/skills/orqlet-implement/skill.md
+  - snapshot/src/orqlet/workflow/skills/orqlet-implement/references/phase-contract.md
+  - changed test files
+  conclusion: findings
+findings: []
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implementation
+    applicable_standards:
+    - ORQLET-SEC-003
+  checks:
+  - what: Security-relevant instructions and their tests
+    how: Read the four changed phase skills and shared phase-contract reference plus changed tests; reviewed command sources, approval, secret handling, secret-file access, artifact values and command execution.
+    result: pass
+  - what: Secrets in changed material
+    how: Searched the staged diff, changed workflow text and P-2 knowledge-impact draft for credential-like literals; found placeholders and policy text, no apparent credential values.
+    result: pass
+  - what: Knowledge disclosure
+    how: Read docs/design/phase-skill-contracts/knowledge/P-2.yaml; found task and design references without apparent private information.
+    result: pass
+  - what: Dependencies, runtime code, authentication and authorization
+    how: Reviewed changed paths in diff.patch; found workflow text, metadata, tests and records, with no dependency manifest or runtime Python source changes.
+    result: pass
+  - what: Review limits
+    how: Recorded the unchanged material and architecture proposal not examined.
+    result: pass
+  failures: []
+  unverified:
+  - Unchanged snapshot files and tester record were not reviewed in full.
+  - docs/design/orqlet-architecture-proposal.md was omitted from the packet.
+  - No web sources were used.

@@ -1,0 +1,139 @@
+schema: orqlet.test-record/v1
+task: phase-skill-contracts
+phase: P-2
+review_input:
+  components:
+    code_tests: 37998f69727a68fd020adf68f7f1679a5bcacae1c17e3caaf1d6d32c1e86657a
+    plan: bad1acea6377b4a8962920848fbccf28e439fa50927b392a5170f5d919442e63
+  covers:
+  - code_tests
+  - plan
+  digest: 70aaf85da3f43eef8052e252b9d0e4e4d65ef1dab0611273779c4817942e7c83
+  merge_base: c59a03a16a22984f53753f44fa06e479f33dd491
+  schema: orqlet.review-input/v1
+verdict: NOT_RUN
+evidence_kind: claimed
+commands:
+- id: ruff-check
+  exit_code: 0
+  summary: All checks passed!
+  result_digest: 5b196eb3a6acb50d3fa398d04ca284985cc1ffec870e940264b00780bfd2c971
+- id: ruff-format
+  exit_code: 0
+  summary: 549 files already formatted
+  result_digest: 6312fde1f7ca6f0d787399a0244f4e8699d4a2bd4248ab719f9ba9eea63dc7e3
+- id: mypy
+  exit_code: 0
+  summary: 'Success: no issues found in 350 source files'
+  result_digest: 7aac2db92946cc3742a3541e647555bd2f49c8a7edc1af8f027686df0dce06f9
+- id: import-linter
+  exit_code: 0
+  summary: 'Contracts: 5 kept, 0 broken.'
+  result_digest: a72c4b2dadcc1f98da5b9384d98e5c359b6be95fbf7a2ef0d10dc74f806cdfa7
+- id: schemas
+  exit_code: 0
+  summary: tools/export_schemas.py --check printed nothing and exited 0; no schema changed.
+  result_digest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+- id: manifest
+  exit_code: 0
+  summary: tools/build_manifest.py --check printed nothing and exited 0; MANIFEST.json matches the package with
+    identity.json at 0.4.0, controls_level 3, and releases.json unchanged.
+  result_digest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+- id: pytest
+  exit_code: 0
+  summary: 8034 passed, 1 skipped (junctions exist on Windows only) in 1010.71s on Python 3.12.11, one Python only; the
+    digest is of the last four lines of the captured output. The Tester ran as a general-purpose subagent given the
+    orqlet-tester role text, because the subagent tool of the Coder's session offers no orqlet-tester type (a start
+    with that type was rejected as invalid), although .cursor/agents/orqlet-tester.md is installed; it wrote
+    tests/unit/test_workflow_skill_contracts.py, tests/unit/test_workflow_phase_contract_text.py and the changes of
+    tests/support/render.py and tests/unit/render/test_skills.py before the skill texts were rewritten, and 219 of them
+    failed then. In rework round 2 the main agent added, before the text fix, the assertions for the round-1 review
+    findings (the person's values under the argument rule, files that hold secrets, showing a change by the phase,
+    the phase status stop on ORQ-E450, ORQ-E451 or ORQ-E453, the kept knowledge and command rules, the research
+    fragments); 10 of them failed then. In rework round 3 it added, again before the text fix, the assertions for the
+    round-2 findings (the character stop for every value, never asking for a secret, output summaries in reports and
+    records, the plan's comparison of an AGENTS.md entry with its source, the plan's confirmed stale result, the
+    design's other material unknowns, the kept CI-job sentence); 9 of them failed then. The goldens were rewritten with --update-golden and the diff holds only the
+    golden files of this phase; tests/unit/test_workflow_lookup_text.py and the P-1 tests are unedited.
+  result_digest: 0b8c7f3c981284d11a1baa71aa057eb917a0bb7fafadc3a590b74e1cef2c42d6
+- id: gate-status-phase
+  exit_code: 5
+  summary: NOT_RUN caused by ORQ-I393 (approval is host evidence that an offline run lacks), with ORQ-W390 for as-is,
+    design and plan on base_revision, caused by the P-1 commit c772617 that the person confirmed; no ORQ-E450,
+    ORQ-E451 or ORQ-E453 on the staged tree. The staged diff holds the 45 files of this phase, this task's knowledge
+    record, the round-1 and round-2 review records and the ledger with the new question Q-12, which the person asked
+    to commit in its own commit before this phase's commit.
+  result_digest: 16ca9adf82a69dba40dcf8e7c31b84611c8f46c91d486fdca164bf26e98f8a1a
+acceptance_coverage:
+- ac: AC-1
+  check_ref: pytest
+  result: pass
+- ac: AC-2
+  check_ref: pytest
+  result: pass
+- ac: AC-3
+  check_ref: pytest
+  result: pass
+- ac: AC-4
+  check_ref: review:next-sections
+  result: not-run
+- ac: AC-5
+  check_ref: pytest
+  result: pass
+- ac: AC-6
+  check_ref: pytest
+  result: pass
+- ac: AC-7
+  check_ref: pytest
+  result: pass
+- ac: AC-8
+  check_ref: pytest
+  result: pass
+- ac: AC-9
+  check_ref: security-reviewer
+  result: not-run
+- ac: AC-10
+  check_ref: pytest
+  result: pass
+- ac: AC-11
+  check_ref: pytest
+  result: pass
+- ac: AC-12
+  check_ref: pytest
+  result: pass
+- ac: AC-13
+  check_ref: pytest
+  result: pass
+- ac: AC-14
+  check_ref: pytest
+  result: pass
+- ac: AC-15
+  check_ref: pytest
+  result: pass
+- ac: AC-16
+  check_ref: pytest
+  result: pass
+- ac: AC-17
+  check_ref: pytest
+  result: pass
+- ac: AC-18
+  check_ref: pytest
+  result: pass
+- ac: AC-19
+  check_ref: pytest
+  result: pass
+- ac: AC-20
+  check_ref: pytest
+  result: pass
+- ac: AC-21
+  check_ref: pytest
+  result: pass
+- ac: AC-22
+  check_ref: manifest
+  result: pass
+- ac: AC-23
+  check_ref: pytest
+  result: pass
+- ac: AC-24
+  check_ref: gate-status-phase
+  result: pass

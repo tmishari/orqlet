@@ -1,0 +1,63 @@
+schema: orqlet.knowledge-impact/v1
+task: phase-skill-contracts
+phase: P-2
+review_input:
+  components:
+    candidates: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    code_tests: 37998f69727a68fd020adf68f7f1679a5bcacae1c17e3caaf1d6d32c1e86657a
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: bad1acea6377b4a8962920848fbccf28e439fa50927b392a5170f5d919442e63
+    standards: d8fcc2fc2afba1ea19064aa6b45cdb1c83aaacafb5f36ada7f580b1976d2f889
+  covers:
+  - code_tests
+  - knowledge
+  - plan
+  - standards
+  - candidates
+  digest: 997edb3ae63aec91d3880a4df4a72221872a8bc3f9cc4421e21acda5f90e1b28
+  merge_base: c59a03a16a22984f53753f44fa06e479f33dd491
+  schema: orqlet.review-input/v1
+outcome: no-impact
+analysis:
+  command: orqlet knowledge impact
+  orqlet_version: 0.2.0
+  candidates_digest: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+  candidate_count: 0
+  input: pre-draft-tree
+  views:
+  - staged
+  index_state: not-used
+no_impact:
+  category: already-documented
+  reason: The phase changes the shipped texts of the research, design, plan and implement skills, adds their shared
+    reference phase-contract.md and raises the workflow to 0.4.0. What the texts now say is the approved design of
+    this task (component.md BC-1 to BC-5, BC-7 to BC-11, BC-13 to BC-19, BC-22, BC-24, BC-25, BC-31, BC-34, BC-35,
+    BC-37 to BC-40 and ADR-001 to ADR-005), referenced
+    below by hash. No knowledge document exists that the phase could change, because no knowledge sources are
+    configured and the plan's knowledge_scope is empty. The README, which describes the shipped skills and the
+    version, is changed in its own planned phase P-6, not here.
+  absence_record:
+    scopes_searched:
+    - .orqlet/knowledge.yaml sources
+    - the plan's knowledge_scope
+    views:
+    - staged
+    revision: c59a03a16a22984f53753f44fa06e479f33dd491
+    method: orqlet knowledge impact phase-skill-contracts P-2 --head staged; it found no candidate (ORQ-I400, no
+      knowledge sources are configured), and the plan's knowledge_scope is empty, so no knowledge document exists
+      that the phase could change.
+    index_state: not-used
+    candidates_found: 0
+  already_documented_refs:
+  - path: docs/design/phase-skill-contracts/design/component.md
+    sha256: db23fcdc4c36016dafc810496908306d4c1b46306a20f245bc3287ed7d75cc27
+  - path: docs/design/phase-skill-contracts/design/adr-001-one-contract-shape-for-every-skill.md
+    sha256: 463ca10ed881f3477e0ac52cf6177d651088d818dd34a790423f71dfa5e34959
+  - path: docs/design/phase-skill-contracts/design/adr-002-project-context-read-at-execution-time.md
+    sha256: 215d11da36c8f7f3ea79ceb33a8bb6bd883bfda4c16dbaf9b020a8aacefa41fb
+  - path: docs/design/phase-skill-contracts/design/adr-003-handoffs-and-the-input-check.md
+    sha256: 11add91bf06ab5a994e38ff07adc74a8c5333e6b71a92875a40a33b09706e665
+  - path: docs/design/phase-skill-contracts/design/adr-004-what-each-phase-produces.md
+    sha256: e0210f380060e844a27ebb6ce7834642cb0a0c59bfd664fa0ad804891b4661e7
+  - path: docs/design/phase-skill-contracts/design/adr-005-injection-unchanged-tests-and-version.md
+    sha256: ab6fbf67e835b0a2f36178750198f70fd5ca24e9969d86ae1350c7d9fbe3a2cb
