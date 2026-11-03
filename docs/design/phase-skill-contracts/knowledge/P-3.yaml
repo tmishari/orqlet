@@ -1,0 +1,57 @@
+schema: orqlet.knowledge-impact/v1
+task: phase-skill-contracts
+phase: P-3
+review_input:
+  components:
+    candidates: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    code_tests: 0a58285b165589660a545d70e07d8571beabc847ecf09bcea9da9c9b8186043a
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: bad1acea6377b4a8962920848fbccf28e439fa50927b392a5170f5d919442e63
+    standards: d8fcc2fc2afba1ea19064aa6b45cdb1c83aaacafb5f36ada7f580b1976d2f889
+  covers:
+  - code_tests
+  - knowledge
+  - plan
+  - standards
+  - candidates
+  digest: a30ad09239e6b6246520f388c3b43e24b10819226c6a50ef7cd67b55d5f8020e
+  merge_base: c59a03a16a22984f53753f44fa06e479f33dd491
+  schema: orqlet.review-input/v1
+outcome: no-impact
+analysis:
+  command: orqlet knowledge impact
+  orqlet_version: 0.2.0
+  candidates_digest: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+  candidate_count: 0
+  input: pre-draft-tree
+  views:
+  - staged
+  index_state: not-used
+no_impact:
+  category: already-documented
+  reason: The phase changes the shipped texts of the onboard and review skills. They now have the contract shape, and
+    onboard states the installed-files guidance, that it never runs a command found in a project file, and how it
+    records the project's commands in AGENTS.md. What the texts
+    now say is the approved design of this task (component.md BC-1, BC-2, BC-3, BC-10, BC-12 and BC-35, ADR-001 and
+    ADR-002), referenced below by hash. No knowledge document exists that the phase could change, because no knowledge
+    sources are configured and the plan's knowledge_scope is empty. The README, which describes the shipped skills, is
+    changed in its own planned phase P-6, not here.
+  absence_record:
+    scopes_searched:
+    - .orqlet/knowledge.yaml sources
+    - the plan's knowledge_scope
+    views:
+    - staged
+    revision: c59a03a16a22984f53753f44fa06e479f33dd491
+    method: orqlet knowledge impact phase-skill-contracts P-3 --head staged; it found no candidate (ORQ-I400, no
+      knowledge sources are configured), and the plan's knowledge_scope is empty, so no knowledge document exists
+      that the phase could change.
+    index_state: not-used
+    candidates_found: 0
+  already_documented_refs:
+  - path: docs/design/phase-skill-contracts/design/component.md
+    sha256: db23fcdc4c36016dafc810496908306d4c1b46306a20f245bc3287ed7d75cc27
+  - path: docs/design/phase-skill-contracts/design/adr-001-one-contract-shape-for-every-skill.md
+    sha256: 463ca10ed881f3477e0ac52cf6177d651088d818dd34a790423f71dfa5e34959
+  - path: docs/design/phase-skill-contracts/design/adr-002-project-context-read-at-execution-time.md
+    sha256: 215d11da36c8f7f3ea79ceb33a8bb6bd883bfda4c16dbaf9b020a8aacefa41fb

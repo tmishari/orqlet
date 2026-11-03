@@ -1,19 +1,30 @@
-"""The contract shape and the text of the four phase skills (task phase-skill-contracts, phase P-2).
+"""The contract shape and the text of the six skills (task phase-skill-contracts, phases P-2, P-3).
 
 Every test cites its `expected_behavior_source`: BC-n are the behaviour criteria of
 docs/design/phase-skill-contracts/design/component.md, ADR-001 to ADR-005 are the files
 `adr-00n-*.md` in the same folder, Q-n are the questions of
-docs/design/phase-skill-contracts/questions.yaml, A-n are the facts of
-docs/design/phase-skill-contracts/as-is.md and AC-n are the acceptance criteria of phase P-2 in
-docs/design/phase-skill-contracts/plan.yaml. The text of references/phase-contract.md is pinned in
-tests/unit/test_workflow_phase_contract_text.py; the list of references, the step counts of
-implement and the command-mention check over every reference are in
-tests/unit/render/test_skills.py.
+docs/design/phase-skill-contracts/questions.yaml and A-n are the facts of
+docs/design/phase-skill-contracts/as-is.md. AC-n alone is an acceptance criterion of phase P-2 in
+docs/design/phase-skill-contracts/plan.yaml and "P-3 AC-n" one of phase P-3; a test that P-3
+widened from the four phase skills to all six names both. The text of references/phase-contract.md
+is pinned in tests/unit/test_workflow_phase_contract_text.py; the list of references, the step
+counts of implement, the command-mention check over every reference and the review skill's
+reviewer names, "is a fork, not an independent reviewer", I0 and NOT_RUN are in
+tests/unit/render/test_skills.py; the onboard lookup step is in
+tests/unit/test_workflow_lookup_text.py. P-3 AC-7 keeps those two files unedited, so their pins are
+not repeated here.
 
-HOW THESE TESTS WERE WRITTEN. The Tester of P-2 wrote them before the Coder rewrote the skill
-texts, from the criteria, the ADRs and the interface decision that the Coder gave: the four titles,
-the seven headings, the backticked standards commands and the key phrases pinned below. They are
-expected to fail until the texts exist. The tests of BC-1 describe what exists and pass at once.
+HOW THESE TESTS WERE WRITTEN. The Tester of P-2 wrote the tests of the four phase skills before the
+Coder rewrote their texts, from the criteria, the ADRs and the interface decision that the Coder
+gave: the four titles, the seven headings, the backticked standards commands and the key phrases
+pinned below. The Tester of P-3 wrote the tests of onboard and review in the same way, before the
+Coder rewrote those two texts, from the criteria of P-3, BC-1, BC-2, BC-3, BC-10, BC-12 and BC-35,
+ADR-001 decisions 1, 3 and 5, ADR-002 decisions 3, 5 and 6, Q-8, Q-12 and the interface that the
+Coder gave for P-3: the two titles (unchanged), onboard's own trigger, the phrases of both
+`## Next` sections, of onboard's `## Boundaries` and of its command-recording step. Each test was
+expected to fail until its text existed. The tests of BC-1 describe what exists and pass at once,
+and so do those that today's onboard and review texts already meet: the STOP step, no lacking
+command with BEFORE_RECORDS, no shared reference, the size and Q-12.
 
 Choices:
 - A body is the rendered body (front matter removed), rendered with every command
@@ -23,14 +34,23 @@ Choices:
 - A step is a numbered line with its indented continuation lines. A phrase is looked for with every
   run of white space as one space, so it may be re-wrapped; its letter case is pinned.
 - Size: lines are `len(body.splitlines())` and words are `len(body.split())`.
-- Q-12 is pinned for the texts of this phase: the four skill sources name none of the technology
+- Q-12 is pinned for the texts of P-2 and P-3: the six skill sources name none of the technology
   words that the P-1 test of BC-6 counts as a leak.
+- Onboard's command-recording step is the first step that contains "type-check"; its phrases are
+  looked for in that step only.
+- Onboard and review carry no references/phase-contract.md (ADR-001 decision 3), so onboard states
+  the secret-file and credential rules of ADR-002 decision 3 in its own `## Boundaries`.
 
 Deliberately NOT pinned (the design leaves it open, or a phrase would only copy a file):
 - the wording around the pinned phrases and the order of the bullets of a section;
-- the number of steps of research, design and plan (implement: tests/unit/render/test_skills.py);
-- whether `## Next` says what the person does first (AC-4 is a review item);
-- the version of the workflow, and anything in onboard and review (phase P-3).
+- the number of steps of research, design, plan, onboard and review (implement:
+  tests/unit/render/test_skills.py);
+- whether `## Next` says what the person does first (AC-4 of P-2 and of P-3 are review items);
+- the version of the workflow;
+- the review skill's `## Boundaries`, `## Output`, `## Done when` and `## If an input is missing or
+  outdated` (no criterion names their words), onboard's `## Inputs`, `## Output`, `## Done when`
+  and `## If an input is missing or outdated` beyond their place in the shape, and the steps of
+  onboard and review other than onboard's command-recording step and the last step.
 """
 
 from __future__ import annotations
@@ -55,6 +75,8 @@ WORKFLOW = PackagedWorkflow()
 EVERY_COMMAND = IMPLEMENTED_COMMANDS | PLANNED_COMMANDS
 RELEASES = {"every-command": EVERY_COMMAND, "before-records": BEFORE_RECORDS}
 PHASE_SKILLS = ("orqlet-research", "orqlet-design", "orqlet-plan", "orqlet-implement")
+SKILLS_WITHOUT_CONTRACT = ("orqlet-onboard", "orqlet-review")
+ALL_SKILLS = PHASE_SKILLS + SKILLS_WITHOUT_CONTRACT
 # The skills whose first step is the input check of their inputs (BC-14).
 CHECKED_SKILLS = ("orqlet-design", "orqlet-plan", "orqlet-implement")
 CONTRACT = "references/phase-contract.md"
@@ -131,27 +153,34 @@ def codex_files() -> dict[str, str]:
     return {str(f.path): f.content.decode("utf-8") for f in rendered}
 
 
-@pytest.mark.parametrize("skill", PHASE_SKILLS)
+TRIGGERS = {
+    **dict.fromkeys(ALL_SKILLS, "Use only when the person runs it"),
+    "orqlet-onboard": "Use when the profile is a draft or the person asks to onboard",
+}
+
+
+@pytest.mark.parametrize("skill", ALL_SKILLS)
 def test_bc1_each_skill_keeps_its_name_and_only_its_two_front_matter_fields(skill: str) -> None:
-    """AC-1. expected_behavior_source: BC-1 ("keeps its directory, its `name`, its two front-matter
-    fields") and ADR-001 decision 1 (the `description` is one line and keeps "Use only when the
-    person runs it")."""
+    """AC-1; P-3 AC-1. expected_behavior_source: BC-1 ("Each of the six skills keeps its
+    directory, its `name`, its two front-matter fields") and ADR-001 decision 1 (the `description`
+    is one line and keeps "Use only when the person runs it"; "onboard keeps its own trigger",
+    which the interface of P-3 names)."""
     path = f"skills/{skill}/skill.md"
     fields, _ = parse_source(path, source_of(skill), required=("name", "description"))
 
     assert set(fields) == {"name", "description"}
     assert fields["name"] == skill
     assert "\n" not in skills_for(EVERY_COMMAND)[skill].description
-    assert "Use only when the person runs it" in fields["description"]
+    assert TRIGGERS[skill] in fields["description"]
 
 
-@pytest.mark.parametrize("skill", PHASE_SKILLS)
+@pytest.mark.parametrize("skill", ALL_SKILLS)
 def test_bc1_each_rendered_skill_file_names_itself_and_cannot_be_started_by_the_model(
     skill: str,
 ) -> None:
-    """AC-1. expected_behavior_source: BC-1 ("after rendering, `disable-model-invocation: true` in
-    each `SKILL.md`") and ADR-001 decision 1 (the renderers add the same client fields as today,
-    A-21), for the Claude Code folder and the agents folder."""
+    """AC-1; P-3 AC-1. expected_behavior_source: BC-1 ("after rendering,
+    `disable-model-invocation: true` in each `SKILL.md`") and ADR-001 decision 1 (the renderers
+    add the same client fields as today, A-21), for the Claude Code folder and the agents folder."""
     client_skill = next(s for s in packaged_request().skills if s.name == skill)
 
     for files in (claude_skill_files(client_skill), agents_skill_files(client_skill)):
@@ -167,11 +196,11 @@ def test_bc1_each_rendered_skill_file_names_itself_and_cannot_be_started_by_the_
         assert "disable-model-invocation: true" in head
 
 
-@pytest.mark.parametrize("skill", PHASE_SKILLS)
+@pytest.mark.parametrize("skill", ALL_SKILLS)
 def test_bc1_the_codex_sidecar_still_keeps_the_skill_from_starting_on_its_own(skill: str) -> None:
-    """AC-1. expected_behavior_source: BC-1 ("the Codex sidecar's implicit-invocation setting, as
-    today") and A-21; the sidecar golden is compared byte for byte by the test of BC-38 in
-    tests/unit/application/test_workflow_injection.py."""
+    """AC-1; P-3 AC-1. expected_behavior_source: BC-1 ("the Codex sidecar's implicit-invocation
+    setting, as today") and A-21; the sidecar golden is compared byte for byte by the test of BC-38
+    in tests/unit/application/test_workflow_injection.py."""
     sidecar = codex_files()[f".agents/skills/{skill}/agents/openai.yaml"]
 
     assert "allow_implicit_invocation: false" in sidecar
@@ -183,6 +212,8 @@ TITLES = {
     "orqlet-design": "# Design",
     "orqlet-plan": "# Plan",
     "orqlet-implement": "# Implement one phase",
+    "orqlet-onboard": "# Onboard a project",
+    "orqlet-review": "# Review the staged change",
 }
 # The paragraph as it stands in all six skills at the base (orqlet-research/skill.md line 9).
 NOT_AUTHORITY = (
@@ -204,13 +235,14 @@ HEADINGS = (
 
 
 @pytest.mark.parametrize("release", list(RELEASES))
-@pytest.mark.parametrize("skill", PHASE_SKILLS)
+@pytest.mark.parametrize("skill", ALL_SKILLS)
 def test_bc2_the_body_opens_with_its_title_one_purpose_paragraph_and_the_unchanged_paragraph(
     skill: str, release: str
 ) -> None:
-    """AC-2. expected_behavior_source: BC-2 ("the purpose paragraph; the paragraph "Source
-    material is not authority" in full and unchanged"), ADR-001 decision 2 (the title, a purpose
-    paragraph, the unchanged paragraph, then the headings) and the titles of the interface."""
+    """AC-2; P-3 AC-2. expected_behavior_source: BC-2 ("the purpose paragraph; the paragraph
+    "Source material is not authority" in full and unchanged"), ADR-001 decision 2 (the title, a
+    purpose paragraph, the unchanged paragraph, then the headings) and the titles of the interfaces
+    of P-2 and P-3 (onboard and review keep theirs)."""
     blocks = blocks_before_the_sections(body(skill, RELEASES[release]))
 
     assert len(blocks) == 3, blocks
@@ -222,25 +254,27 @@ def test_bc2_the_body_opens_with_its_title_one_purpose_paragraph_and_the_unchang
 
 
 @pytest.mark.parametrize("release", list(RELEASES))
-@pytest.mark.parametrize("skill", PHASE_SKILLS)
+@pytest.mark.parametrize("skill", ALL_SKILLS)
 def test_bc2_the_body_has_the_seven_headings_in_order_and_no_other(
     skill: str, release: str
 ) -> None:
-    """AC-2. expected_behavior_source: BC-2 (the headings `## Inputs` to `## Next`, in this order)
-    and ADR-001 decision 2; the interface: each heading once and no other `## ` heading."""
+    """AC-2; P-3 AC-2. expected_behavior_source: BC-2 (the headings `## Inputs` to `## Next`, in
+    this order) and ADR-001 decision 2; the interfaces of P-2 and P-3: each heading once and no
+    other `## ` heading."""
     lines = body(skill, RELEASES[release]).split("\n")
 
     assert [line for line in lines if line.startswith("## ")] == list(HEADINGS)
 
 
 @pytest.mark.parametrize("release", list(RELEASES))
-@pytest.mark.parametrize("skill", PHASE_SKILLS)
+@pytest.mark.parametrize("skill", ALL_SKILLS)
 def test_bc2_every_numbered_line_is_in_one_list_under_steps_numbered_from_one(
     skill: str, release: str
 ) -> None:
-    """AC-2. expected_behavior_source: BC-2 ("exactly one numbered list, under `## Steps` ...
-    numbered from 1 without a gap both with every command present and with the command set
-    `BEFORE_RECORDS`") and ADR-001 decision 2 (`## Steps` holds the only numbered list)."""
+    """AC-2; P-3 AC-2. expected_behavior_source: BC-2 ("exactly one numbered list, under
+    `## Steps` ... numbered from 1 without a gap both with every command present and with the
+    command set `BEFORE_RECORDS`") and ADR-001 decision 2 (`## Steps` holds the only numbered
+    list)."""
     lines = body(skill, RELEASES[release]).split("\n")
     assert "## Steps" in lines
     assert "## Output" in lines
@@ -256,21 +290,21 @@ def test_bc2_every_numbered_line_is_in_one_list_under_steps_numbered_from_one(
 
 
 @pytest.mark.parametrize("release", list(RELEASES))
-@pytest.mark.parametrize("skill", PHASE_SKILLS)
+@pytest.mark.parametrize("skill", ALL_SKILLS)
 def test_bc2_the_last_step_stops_for_the_person(skill: str, release: str) -> None:
-    """AC-2. expected_behavior_source: BC-2 ("Its last step contains "STOP."") and ADR-001
-    decision 2 (`## Steps` ends with the STOP step)."""
+    """AC-2; P-3 AC-2. expected_behavior_source: BC-2 ("Its last step contains "STOP."") and
+    ADR-001 decision 2 (`## Steps` ends with the STOP step)."""
     steps = numbered_items(body(skill, RELEASES[release]))
 
     assert steps
     assert "STOP." in steps[-1]
 
 
-@pytest.mark.parametrize("skill", PHASE_SKILLS)
+@pytest.mark.parametrize("skill", ALL_SKILLS)
 def test_bc2_before_the_records_no_line_names_a_command_that_the_release_lacks(skill: str) -> None:
-    """AC-2. expected_behavior_source: BC-2 ("With `BEFORE_RECORDS`, no line names a command
-    outside that set") and ADR-001 decision 2 (a line anywhere in the body that names a command
-    which an earlier release lacks carries the same `requires` marker as a step)."""
+    """AC-2; P-3 AC-2. expected_behavior_source: BC-2 ("With `BEFORE_RECORDS`, no line names a
+    command outside that set") and ADR-001 decision 2 (a line anywhere in the body that names a
+    command which an earlier release lacks carries the same `requires` marker as a step)."""
     text = squash(body(skill, BEFORE_RECORDS))
     lacking = sorted(EVERY_COMMAND - BEFORE_RECORDS)
 
@@ -286,12 +320,25 @@ def test_bc4_each_body_names_the_shared_reference(skill: str, release: str) -> N
     assert CONTRACT in squash(body(skill, RELEASES[release]))
 
 
+@pytest.mark.parametrize("release", list(RELEASES))
+@pytest.mark.parametrize("skill", SKILLS_WITHOUT_CONTRACT)
+def test_onboard_and_review_do_not_name_the_reference_they_do_not_carry(
+    skill: str, release: str
+) -> None:
+    """P-3 AC-2. expected_behavior_source: ADR-001 decision 3 ("Onboard and review do not carry
+    it: onboard is the step that collects project context, and a reviewer receives a packet") and
+    the interface of P-3 (neither body names `references/phase-contract.md`)."""
+    assert CONTRACT not in squash(body(skill, RELEASES[release]))
+
+
 # --- BC-3: what comes next -----------------------------------------------------------------------
 NEXT_PHRASES: dict[str, tuple[str, ...]] = {
     "orqlet-research": ("/orqlet-design",),
     "orqlet-design": ("/orqlet-plan",),
     "orqlet-plan": ("/orqlet-implement",),
     "orqlet-implement": ("/orqlet-implement", "next phase id", "pull request"),
+    "orqlet-onboard": ("/orqlet-research",),
+    "orqlet-review": ("/orqlet-implement", "rework round", "commits"),
 }
 
 
@@ -304,9 +351,11 @@ NEXT_PHRASES: dict[str, tuple[str, ...]] = {
     ],
 )
 def test_bc3_next_names_the_successor(skill: str, phrase: str) -> None:
-    """AC-3. expected_behavior_source: BC-3 (research `/orqlet-design`, design `/orqlet-plan`, plan
-    `/orqlet-implement`, implement `/orqlet-implement` with the next phase id, or the pull request
-    after the last phase) and ADR-001 decision 5 (the successor as a slash command)."""
+    """AC-3; P-3 AC-3. expected_behavior_source: BC-3 (onboard `/orqlet-research`, research
+    `/orqlet-design`, design `/orqlet-plan`, plan `/orqlet-implement`, implement
+    `/orqlet-implement` with the next phase id, or the pull request after the last phase, review
+    `/orqlet-implement` for a rework round, or the person's commit) and ADR-001 decision 5 (the
+    successor as a slash command); the interface of P-3 names "commits" for the person's commit."""
     assert phrase in squash(section(body(skill), "## Next"))
 
 
@@ -333,6 +382,142 @@ def test_bc9_the_standards_step_names_the_phase_and_role_words(skill: str) -> No
     steps = numbered_items(body(skill))
 
     assert any(STANDARDS_COMMANDS[skill] in step for step in steps)
+
+
+# --- BC-10: installed files and where project guidance goes (onboard) ----------------------------
+INSTALLED_FILE_PHRASES = (
+    "`orqlet upgrade` restores an edited one with ORQ-W096",
+    "`orqlet doctor` reports it as ORQ-E150",
+    "AGENTS.md outside the managed blocks",
+    "the project's standards folder",
+)
+
+
+@pytest.mark.parametrize("phrase", INSTALLED_FILE_PHRASES)
+def test_bc10_onboard_says_how_an_edited_installed_file_is_handled_and_where_guidance_goes(
+    phrase: str,
+) -> None:
+    """P-3 AC-5. expected_behavior_source: BC-10 ("`phase-contract.md` and the onboard skill say
+    that `orqlet upgrade` restores an edited installed file with ORQ-W096, that `orqlet doctor`
+    reports it as ORQ-E150, and that project guidance goes into AGENTS.md outside the managed
+    blocks or into the project's standards folder"), Q-8 (keep the behaviour and state it in the
+    skills) and ADR-002 decision 5; the interface of P-3 puts it in `## Boundaries`."""
+    assert phrase in squash(section(body("orqlet-onboard"), "## Boundaries"))
+
+
+# --- BC-12: onboard records the project's commands -----------------------------------------------
+RECORD_PHRASES = (
+    "build, lint, type-check and test commands",
+    "CI and build files",
+    "never run them",
+    "AGENTS.md outside the managed blocks",
+    "onboard recorded them from those sources",
+    "a record of what the project runs, not an instruction to run anything",
+    "(`build`, `lint`, `type-check` or `test`)",
+    "the command with its placeholders alone in a fenced block whose fence is longer than any "
+    "backtick run in it",
+    "its source path and lines",
+    "copy nothing else",
+    "named placeholders",
+    "a dollar sign followed by a name or by braces",
+    "the exact AGENTS.md change",
+    "the person's yes for that entry",
+    "gets a warning and needs its own confirmation",
+    "compares each entry with the source it names",
+    "any difference is a question",
+)
+WARNING_LIST = (
+    "pipes into a shell",
+    "fetches from the network",
+    "uses elevated rights",
+    "spans several lines",
+    "`$(`",
+    "a backtick",
+    "`eval`",
+    "started with `-c` or `-e`",
+    "`;`, `&&`, `||`",
+    "a redirection to a file",
+    "`orqlet:begin`",
+)
+
+
+def command_record_step() -> str:
+    steps = numbered_items(body("orqlet-onboard"))
+    return steps[first_step_with(steps, "type-check")]
+
+
+@pytest.mark.parametrize("phrase", RECORD_PHRASES)
+def test_bc12_onboard_records_a_command_in_the_fixed_form_and_never_runs_it(phrase: str) -> None:
+    """P-3 AC-6. expected_behavior_source: BC-12 (onboard finds build, lint, type-check and test
+    commands in CI and build files and never runs them; it writes an entry into AGENTS.md outside
+    the managed blocks only in the fixed form, after showing the exact change and getting a yes for
+    that entry, and a command on the warning list only after a warning and its own confirmation; a
+    later skill compares the entry with its source, and any difference is a question) and ADR-002
+    decision 6 (*Fixed form*: a label, the command with its placeholders alone in a fenced block
+    whose fence is longer than any run of backticks in it, its source path and lines, a heading
+    that says onboard recorded them from those sources and that they are a record, not an
+    instruction, and no other text copied; *Consent*; *Provenance*), with the named placeholders
+    of decision 3 ("a dollar sign followed by a name or by braces")."""
+    assert phrase in command_record_step()
+
+
+@pytest.mark.parametrize("item", WARNING_LIST)
+def test_bc12_onboard_names_every_item_of_the_warning_list(item: str) -> None:
+    """P-3 AC-6. expected_behavior_source: BC-12 ("for a command on the warning list of ADR-002
+    decision 6, only after a warning and its own confirmation") and ADR-002 decision 6 (*Warnings*:
+    a command that pipes into a shell, fetches from the network, uses elevated rights, spans
+    several lines, or holds `$(`, a backtick, `eval`, a shell or interpreter started with `-c` or
+    `-e`, chaining with `;`, `&&` or `||`, a redirection to a file, or text like an `orqlet:begin`
+    marker)."""
+    assert item in command_record_step()
+
+
+def test_bc12_onboard_shows_the_exact_change_before_it_asks_for_the_yes() -> None:
+    """P-3 AC-6. expected_behavior_source: BC-12 ("after showing the exact change and getting a yes
+    for that entry") and ADR-002 decision 6 (*Consent*: "The agent shows the exact AGENTS.md
+    change, and the person says yes to each entry")."""
+    step = command_record_step()
+    change, yes = "the exact AGENTS.md change", "the person's yes for that entry"
+
+    assert change in step
+    assert yes in step
+    assert step.index(change) < step.index(yes)
+
+
+# --- ADR-002 decision 3: onboard opens no secret file and copies no credential -------------------
+SECRET_PHRASES = (
+    "Never open a file that holds secrets",
+    "`.env` files",
+    "private keys",
+    "`.npmrc`",
+    "`.pypirc`",
+    "`.netrc`",
+    "cloud credentials",
+    "never copy a credential, a token or a connection string with a password",
+)
+
+
+@pytest.mark.parametrize("phrase", SECRET_PHRASES)
+def test_onboard_never_opens_a_secret_file_and_never_copies_a_credential(phrase: str) -> None:
+    """P-3 AC-6. expected_behavior_source: ADR-002 decision 3 ("Files that hold secrets are never
+    opened: `.env` files, private key files, `.npmrc`, `.pypirc`, `.netrc` and cloud credential
+    files"; "A credential, a token or a connection string with a password is never copied"), which
+    binds onboard as it reads CI and build files and records commands with the placeholders of
+    decision 3 (decision 6); onboard carries no phase-contract.md, where the phase skills find the
+    rule (ADR-001 decision 3). The interface of P-3 puts it in `## Boundaries`. Rework round 2
+    pins the whole credential sentence (security review of P-3, round 1, F-1)."""
+    assert phrase in squash(section(body("orqlet-onboard"), "## Boundaries"))
+
+
+def test_onboard_boundaries_say_it_never_runs_a_command_found_in_a_project_file() -> None:
+    """P-3 AC-6. expected_behavior_source: ADR-002 decision 3 (*Who runs what*: "Research, design,
+    plan and onboard never run a command found in a project file. They record it.") and ADR-001
+    decision 2 (phase boundaries are stated in `## Boundaries`); onboard carries no
+    phase-contract.md, where the phase skills find the rule (ADR-001 decision 3). Added in rework
+    round 2 (architecture review of P-3, round 1, F-1)."""
+    boundaries = squash(section(body("orqlet-onboard"), "## Boundaries"))
+
+    assert "Never run a command found in a project file; record it." in boundaries
 
 
 # --- BC-14, BC-37: the input check comes first ---------------------------------------------------
@@ -589,22 +774,23 @@ def test_bc25_the_design_review_step_gives_the_inputs_hashes_twice_and_keeps_the
 
 
 # --- BC-35: the size of a body -------------------------------------------------------------------
-@pytest.mark.parametrize("skill", PHASE_SKILLS)
+@pytest.mark.parametrize("skill", ALL_SKILLS)
 def test_bc35_each_body_with_every_command_fits_70_lines_and_900_words(skill: str) -> None:
-    """AC-21. expected_behavior_source: BC-35 ("Every rendered skill body is at most 70 lines and
-    900 words") and ADR-001 decision 2 (a rendered body is at most 70 lines)."""
+    """AC-21; P-3 AC-8. expected_behavior_source: BC-35 ("Every rendered skill body is at most 70
+    lines and 900 words") and ADR-001 decision 2 (a rendered body is at most 70 lines)."""
     text = body(skill)
 
     assert len(text.splitlines()) <= 70
     assert len(text.split()) <= 900
 
 
-# --- Q-12: no technology word in the texts of this phase -----------------------------------------
-@pytest.mark.parametrize("skill", PHASE_SKILLS)
+# --- Q-12: no technology word in the texts of P-2 and P-3 ----------------------------------------
+@pytest.mark.parametrize("skill", ALL_SKILLS)
 def test_q12_no_skill_source_names_a_technology_that_the_injection_test_counts(skill: str) -> None:
-    """AC-23. expected_behavior_source: Q-12 ("No skill, reference or role text of P-2 to P-5 names
-    Python, Flask, pip, Rust, clap, SQLx, Tokio or Kafka as a word, and the P-1 test stays as it
-    is") and AC-23 (the tests of P-1 pass on the new package without edit)."""
+    """AC-23; P-3 AC-9. expected_behavior_source: Q-12 ("No skill, reference or role text of P-2
+    to P-5 names Python, Flask, pip, Rust, clap, SQLx, Tokio or Kafka as a word, and the P-1 test
+    stays as it is"), AC-23 and P-3 AC-9 (the tests of P-1 pass on the new package without
+    edit)."""
     source = source_of(skill)
 
     assert [word for word in TECHNOLOGY_WORDS if names_word(source, word)] == []

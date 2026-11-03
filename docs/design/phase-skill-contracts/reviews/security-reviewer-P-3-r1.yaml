@@ -1,0 +1,174 @@
+schema: orqlet.review-result/v1
+task: phase-skill-contracts
+phase: P-3
+role: security-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: fe3f24bf99323e57c827b1873e1249cdad821fafe9b052b94f1316809f6f008a
+    design: 9fd71b6184605ddfacbeeb871586f7c87c25dee2aab814fe8b62495b7cb29884
+    evidence_inputs: e92ed6b85997c832cc4b9d5d79ed0f1d49fcaff01289540027da7533b5cc4401
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: bad1acea6377b4a8962920848fbccf28e439fa50927b392a5170f5d919442e63
+    reviewer_definition: d4aae7298a966562e2bbb5ea222fa6898e03b5f9358d39c599ffaed78d8c2cb9
+    standards: d8fcc2fc2afba1ea19064aa6b45cdb1c83aaacafb5f36ada7f580b1976d2f889
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: b03e7d29267d8e8fab5fbd144494c40c5678a9038b9452140589c238e5165c62
+  merge_base: c59a03a16a22984f53753f44fa06e479f33dd491
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: f55870ff58dd4289e1f98b54d68741b0dc0c3d806a5a4068124642ce676d98e3
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran as the typed orqlet-security-reviewer subagent of Cursor, in a fresh context, with the packet path
+  only. It had no shell, so it ran no command and read files only.
+- It computed no quote digests. The main agent hashed the quotes on committed lines with `orqlet evidence cite` at
+  9b978bd87f50619107c002d8608b495cb6027a6f and left the quotes on staged files as path and line references in the
+  claims; the absence record cites the packet's staged tree caa5a04191c734a49f588a3b5b17643f5a1c3ff8.
+- The reviewer cited the ADR-002 sentence "A credential, a token or a connection string with a password is never
+  copied." as line 27; it stands on line 28, which the main agent cited instead.
+- The reviewer's severity minor is recorded as non-blocking for the finding and info for the observation, and its
+  categories secrets and injection as security, the nearest values of orqlet.finding/v1.
+- The model that ran the reviewer is not observed.
+- The reviewer ran in the same client as the Coder, so this review is I1; this D3 task needs I2, which a review in
+  another client must supply.
+- This review is an additional check, not a guarantee.
+applicability:
+  examined:
+  - src/orqlet/workflow/skills/orqlet-onboard/skill.md
+  - src/orqlet/workflow/skills/orqlet-review/skill.md
+  - src/orqlet/workflow/MANIFEST.json
+  - tests/unit/test_workflow_skill_contracts.py
+  - tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-onboard/SKILL.md
+  - tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-review/SKILL.md
+  - tests/golden/codex/docs-2026-10/.agents/skills/orqlet-onboard/SKILL.md
+  - tests/golden/codex/docs-2026-10/.agents/skills/orqlet-review/SKILL.md
+  - tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-onboard/SKILL.md
+  - tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-review/SKILL.md
+  - src/orqlet/workflow/skills/orqlet-plan/references/phase-contract.md
+  - src/orqlet/workflow/skills/orqlet-plan/skill.md
+  - src/orqlet/domain/blocks.py
+  - docs/design/phase-skill-contracts/design/adr-002-project-context-read-at-execution-time.md
+  - docs/design/phase-skill-contracts/knowledge/P-3.yaml
+  - docs/design/phase-skill-contracts/tests/P-3.yaml
+  - diff.patch
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: security
+  rule_ref: ORQLET-SEC-003; ADR-002 decision 3
+  evidence:
+  - kind: quote
+    path: src/orqlet/workflow/skills/orqlet-plan/references/phase-contract.md
+    lines: '26'
+    revision: 9b978bd87f50619107c002d8608b495cb6027a6f
+    quote_sha256: 78600f5337c0e6d48fb509e319c39023eab98771cb033b86a37427f1841d2597
+  - kind: quote
+    path: docs/design/phase-skill-contracts/design/adr-002-project-context-read-at-execution-time.md
+    lines: '28'
+    revision: 9b978bd87f50619107c002d8608b495cb6027a6f
+    quote_sha256: e6f176f057d6171ac8c0117ecf73593b95416193b8e7eb0dcc92aa1315056347
+  - kind: absence
+    searched:
+    - src/orqlet/workflow/skills/orqlet-onboard/skill.md
+    method: Searched the staged onboard text for "connection string" and "token" - 0 matches. Staged line 19 says
+      "Never open a file that holds secrets (`.env` files, private keys, `.npmrc`, `.pypirc`, `.netrc`, cloud
+      credentials), and never copy a credential." and staged line 30 says "A credential and every expression the CI
+      system or the shell expands ... become named placeholders; say so." SECRET_PHRASES in
+      tests/unit/test_workflow_skill_contracts.py pins "never copy a credential" only.
+    revision: caa5a04191c734a49f588a3b5b17643f5a1c3ff8
+  claim: Onboard's credential rule is narrower than ADR-002 decision 3 and phase-contract.md, which also name a token and
+    a connection string with a password. Onboard carries no phase-contract.md, so its own text is the only rule it has.
+    A literal connection string with a service-container password is common in CI test steps; a reader could treat it
+    as test configuration rather than a credential and copy it into AGENTS.md, which every later session loads and
+    sends to the model vendor. Not blocking - "credential" arguably covers it, the person sees the exact AGENTS.md
+    change before each entry is written, and the value was already in the repository.
+  suggested_action: In onboard's Boundaries, write "never copy a credential, a token or a connection string with a
+    password", and add that phrase to SECRET_PHRASES.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: security
+  evidence:
+  - kind: quote
+    path: src/orqlet/domain/blocks.py
+    lines: 26-27
+    revision: 9b978bd87f50619107c002d8608b495cb6027a6f
+    quote_sha256: 4bd89931a1dd78010f3a1115eeb1cf6fc5f3a2376a361b31735833e1786449b8
+  - kind: quote
+    path: src/orqlet/domain/blocks.py
+    lines: 70-73
+    revision: 9b978bd87f50619107c002d8608b495cb6027a6f
+    quote_sha256: 46b59ed34c8e7f1dcc792ee3559159ca1bfe2d52826e5493ae7f9157abc15767
+  claim: Onboard writes the source path and lines into AGENTS.md outside the code fence (staged line 30, "... alone in a
+    fenced block whose fence is longer than any backtick run in it, and its source path and lines; copy nothing
+    else."). No character rule applies to them - the argument rule of BC-40 covers values placed in commands, and the
+    warning list covers the command only - and file names are controlled by contributors. Marker injection is
+    unlikely, because the parser matches a marker only as a whole line outside a fence, and an unclosed fence makes
+    upgrade refuse the file. This follows ADR-002 decision 6 as written, so it is not a deviation from the design.
+  suggested_action: Optional, in a later design revision - hold the source path to the character set of BC-40, or warn
+    when it falls outside it.
+  confidence: low
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implementation
+    applicable_standards:
+    - ORQLET-SEC-003
+  checks:
+  - what: Onboard command-recording text against ADR-002 decisions 3 and 6, BC-8 and BC-12
+    how: Read side by side; the warning list matches ADR-002 decision 6 item for item; the fixed form, the yes per
+      entry, the placeholder rule and "never run them" are present; the secret-file list matches BC-8 (see F-1).
+    result: pass
+  - what: Provenance on the receiving side
+    how: The plan skill (step 3, from P-2) compares an entry with the source it names and cites both.
+    result: pass
+  - what: Review skill independence and write boundaries
+    how: Compared the staged text with the base hunk in diff.patch; the fork sentence and the I0 rule are kept; the
+      new Boundaries limit writes to docs/design/<task>/reviews/, pass reviewers the packet path only and forbid
+      waiving a finding or accepting the review; a stale packet leads to a new round; committing stays the person's.
+    result: pass
+  - what: Marker and fence handling for AGENTS.md entries
+    how: Read src/orqlet/domain/blocks.py (see F-2).
+    result: pass
+  - what: Secrets and private data in the diff and the records
+    how: Searched diff.patch for /Users/, /home/, the local user name, common token prefixes, URLs with a password,
+      password= and api_key=; the only hits are earlier review records that describe their own scans; read
+      knowledge/P-3.yaml and tests/P-3.yaml.
+    result: pass
+  - what: Tests, goldens, manifest and watched surfaces
+    how: The tests are text assertions on the packaged workflow with no fixtures, network, sockets, subprocesses,
+      environment reads or credentials; the six goldens are plain renders; MANIFEST.json changes digests and the
+      version only; no dependency manifest, src/orqlet/**/*.py or CI file is in the diff.
+    result: pass
+  - what: Quote digests, MANIFEST hashes, golden byte equality, pytest and the manifest check
+    how: Not run, because the reviewer had no shell; the tester's record claims them.
+    result: not-run
+  unverified:
+  - Which files P-3 stages, as opposed to what P-1 and P-2 committed, comes from the tester record and the plan; it was
+    not confirmed with git by the reviewer.
+  - The P-1 and P-2 parts of the diff were not reviewed again.
+  - How clients behave with the new text (session V-3).

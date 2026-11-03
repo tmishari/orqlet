@@ -231,7 +231,7 @@
     },
     {
       "path": "skills/orqlet-onboard/skill.md",
-      "sha256": "3a4e50fdeca166b1aa5770793383f8b77c2a1e7424bc30b457a26abc5ba10b69"
+      "sha256": "e2b20bfe9ab7667310149a57400e88c29b48ed7f8bebc673862d6745d221a7b4"
     },
     {
       "path": "skills/orqlet-plan/references/phase-contract.md",
@@ -263,7 +263,7 @@
     },
     {
       "path": "skills/orqlet-review/skill.md",
-      "sha256": "500b602fa13312d3f54ce73148aa75d99aaf267cdb43eaa4a1bd6d1b1cc876e6"
+      "sha256": "64e6f9e0c2189945837a680313fb34715eaaf26efcc8e61ce7ff7a523d40b1b3"
     },
     {
       "path": "templates/catalogue-skill.md",

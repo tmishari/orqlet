@@ -1,0 +1,183 @@
+schema: orqlet.review-result/v1
+task: phase-skill-contracts
+phase: P-3
+role: security-reviewer
+round: 2
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 0a58285b165589660a545d70e07d8571beabc847ecf09bcea9da9c9b8186043a
+    design: 9fd71b6184605ddfacbeeb871586f7c87c25dee2aab814fe8b62495b7cb29884
+    evidence_inputs: 0910da335c68802e807c8c0062221a95eae81fe53304bd1d68af476d6cc64ec9
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: bad1acea6377b4a8962920848fbccf28e439fa50927b392a5170f5d919442e63
+    reviewer_definition: d4aae7298a966562e2bbb5ea222fa6898e03b5f9358d39c599ffaed78d8c2cb9
+    standards: d8fcc2fc2afba1ea19064aa6b45cdb1c83aaacafb5f36ada7f580b1976d2f889
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 31d68d96496978e981a98ae683e028a9e7a6a7acd648c249a616262e9c4bb81f
+  merge_base: c59a03a16a22984f53753f44fa06e479f33dd491
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: f55870ff58dd4289e1f98b54d68741b0dc0c3d806a5a4068124642ce676d98e3
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran as the typed orqlet-security-reviewer subagent of Cursor, in a fresh context, with the path of
+  packet phase-skill-contracts-P-3-1f15ed33 only. Its shell was refused, so it ran no command and read files only.
+- Its first reply gave a summary without the findings block; the main agent asked it to repeat the block without new
+  review, and recorded the second reply here.
+- It computed no quote digests. The main agent hashed the quotes on committed lines with `orqlet evidence cite` at
+  9b978bd87f50619107c002d8608b495cb6027a6f (the reviewer had named the merge base for ADR-002, which this phase does
+  not change), and the absence record cites the packet's staged tree 71d08a47ea9dccec00895c799c87427a292d632d.
+- The model that ran the reviewer is not observed.
+- The reviewer ran in the same client as the Coder, so this review is I1; this D3 task needs I2, which a review in
+  another client must supply.
+- This review is an additional check, not a guarantee.
+applicability:
+  examined:
+  - src/orqlet/workflow/skills/orqlet-onboard/skill.md
+  - src/orqlet/workflow/skills/orqlet-review/skill.md
+  - src/orqlet/workflow/MANIFEST.json
+  - src/orqlet/workflow/skills/orqlet-plan/references/phase-contract.md
+  - src/orqlet/workflow/baseline/baseline.md
+  - tests/unit/test_workflow_skill_contracts.py
+  - tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-onboard/SKILL.md
+  - tests/golden/codex/docs-2026-10/.agents/skills/orqlet-onboard/SKILL.md
+  - tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-onboard/SKILL.md
+  - tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-review/SKILL.md
+  - docs/design/phase-skill-contracts/design/component.md
+  - docs/design/phase-skill-contracts/design/adr-002-project-context-read-at-execution-time.md
+  - docs/design/phase-skill-contracts/reviews/security-reviewer-P-3-r1.yaml
+  - docs/design/phase-skill-contracts/knowledge/P-3.yaml
+  - docs/design/phase-skill-contracts/tests/P-3.yaml
+  - diff.patch
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: info
+  category: security
+  rule_ref: ORQLET-SEC-003; ADR-002 decision 3
+  evidence:
+  - kind: quote
+    path: docs/design/phase-skill-contracts/design/adr-002-project-context-read-at-execution-time.md
+    lines: '28'
+    revision: 9b978bd87f50619107c002d8608b495cb6027a6f
+    quote_sha256: e6f176f057d6171ac8c0117ecf73593b95416193b8e7eb0dcc92aa1315056347
+  - kind: quote
+    path: src/orqlet/workflow/skills/orqlet-plan/references/phase-contract.md
+    lines: '26'
+    revision: 9b978bd87f50619107c002d8608b495cb6027a6f
+    quote_sha256: 78600f5337c0e6d48fb509e319c39023eab98771cb033b86a37427f1841d2597
+  - kind: absence
+    searched:
+    - src/orqlet/workflow/skills/orqlet-onboard/skill.md
+    method: >-
+      Read the staged file in full and searched for "secret", "ask ... for a secret" and "type a secret". The only hit
+      is line 19, the secret-file and credential bullet, which says nothing about asking. Onboard asks the person
+      questions in steps 3 and 5.
+    revision: 71d08a47ea9dccec00895c799c87427a292d632d
+  claim: >-
+    ADR-002 decision 3 says "The agent never asks the person to type a secret into the conversation.", and the four
+    phase skills get "Never ask the person for a secret." from phase-contract.md, which onboard does not carry
+    (ADR-001 decision 3). Onboard's Boundaries now repeat the secret-file and copy rules but not this one. BC-8 puts
+    the sentence in phase-contract.md only and BC-12 does not name it, so P-3 AC-6 is met as written. The risk is
+    small, because onboard writes placeholders and never fills or runs them, so it has no use for a secret's value;
+    the baseline's "Never ask for, read, copy, save or print a password, cookie, token, session value or
+    storage-state file." stands in its section on looking things up. Onboard is still the skill that asks the person
+    a batch of questions about the project, and it alone lacks the general rule.
+  suggested_action: >-
+    Optional. Add "and never ask the person for a secret" to onboard's credential bullet and to SECRET_PHRASES. The
+    body is close to BC-35's 900-word limit, so this may need shorter text elsewhere or a later revision of BC-12.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implementation
+    applicable_standards:
+    - ORQLET-SEC-003
+  checks:
+  - what: Round-1 security finding F-1 (the credential sentence narrower than ADR-002)
+    how: >-
+      Onboard's staged line 19 now matches ADR-002 line 28 and phase-contract.md line 26; SECRET_PHRASES in the test
+      pins the whole sentence.
+    result: pass
+  - what: Onboard command recording (step 6) against ADR-002 decision 6, BC-12 and phase-contract.md
+    how: >-
+      Compared item by item - the fixed form (label, a fence longer than any backtick run, source path and lines,
+      copy nothing else), the heading wording, a yes per entry after the exact change is shown, the provenance
+      sentence and all 13 warning-list items. The placeholder rule is described in words, with no literal double
+      braces.
+    result: pass
+  - what: Never running a command found in a project file
+    how: Onboard's Boundaries line 18 and step 6 both say it; the new test pins it.
+    result: pass
+  - what: Safeguards kept from the base text
+    how: >-
+      No deployment permission inferred from a login or a connection; single-quoted values, and a new value asked for
+      when one holds a quote; the ORQ-I500 notice for login entries; profile approval stays with the person.
+    result: pass
+  - what: Review skill independence and write limits
+    how: >-
+      The fork sentence and the I0 rule are kept; Boundaries allow writes only under docs/design/<task>/reviews/, give
+      reviewers the packet path only and forbid waiving a finding or accepting the review; a stale packet leads to a
+      new round. Nothing weakens independence.
+    result: pass
+  - what: Front matter and automatic start
+    how: >-
+      The onboard description is one line; the goldens carry disable-model-invocation true; no Codex sidecar is in
+      the diff, and the test asserts allow_implicit_invocation false.
+    result: pass
+  - what: Tests
+    how: >-
+      tests/unit/test_workflow_skill_contracts.py checks the text of the packaged workflow only; it opens no network
+      connection, starts no subprocess, reads no environment variable and holds no credential.
+    result: pass
+  - what: Goldens
+    how: >-
+      The Claude Code onboard golden equals the source with the requires markers removed and the generated header
+      added; the Cursor review golden matches up to Boundaries; the new lines appear in all three onboard goldens.
+      Not every byte was compared.
+    result: pass
+  - what: MANIFEST.json
+    how: Only the onboard and review digests change for P-3; the reviewer did not recompute the digests.
+    result: not-run
+  - what: Secrets and private data in diff.patch, knowledge/P-3.yaml and tests/P-3.yaml
+    how: >-
+      Searched for home-directory paths, the local user name, common cloud, source-host and payment key prefixes, JWT
+      shapes, private-key blocks, URLs with a password, and password, api_key and secret assignments; the only
+      matches are earlier review records describing their own scans. Both P-3 records read in full.
+    result: pass
+  - what: Dependencies, CI and runtime code
+    how: The diff's file list holds no pyproject, uv.lock, CI workflow or src/orqlet Python file.
+    result: pass
+  - what: Placeholder coverage for other expansion forms
+    how: >-
+      "A dollar sign followed by a name or by braces" does not name forms such as $(var) macros or %VAR%; $(var)
+      still triggers the warning list, and these are variable references, not secret values. Not a finding.
+    result: pass
+  - what: Quote digests, pytest, the manifest check and gate status
+    how: Not run, because the shell was refused; the tester record claims these results.
+    result: not-run
+  unverified:
+  - Which files P-3 stages, as opposed to what P-1 and P-2 committed, comes from the plan and the tester record; the
+    reviewer did not confirm it with git.
+  - The P-1 and P-2 parts of the diff were not reviewed again.
+  - How clients behave with the new onboard text (session check V-3 of P-8).
