@@ -1,0 +1,198 @@
+schema: orqlet.review-result/v1
+task: phase-skill-contracts
+phase: P-4
+role: security-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 08a38711275c45b437c0c443427ab0afb3eff30a94e218adf09579f3b368dd94
+    design: 9fd71b6184605ddfacbeeb871586f7c87c25dee2aab814fe8b62495b7cb29884
+    evidence_inputs: 76dbe30860eb76cec2a93abead244861bc09ce5e4308d68cedb17a95c6c0d38a
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: bad1acea6377b4a8962920848fbccf28e439fa50927b392a5170f5d919442e63
+    reviewer_definition: d4aae7298a966562e2bbb5ea222fa6898e03b5f9358d39c599ffaed78d8c2cb9
+    standards: d8fcc2fc2afba1ea19064aa6b45cdb1c83aaacafb5f36ada7f580b1976d2f889
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 7ef3046e33bf68b1cb874e52974fdf15a3e40f1fde4ee926c5fe4a43b567ecd4
+  merge_base: c59a03a16a22984f53753f44fa06e479f33dd491
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: f55870ff58dd4289e1f98b54d68741b0dc0c3d806a5a4068124642ce676d98e3
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran as the typed orqlet-security-reviewer subagent of Cursor, in a fresh context, with the packet path
+  only. Its shell was refused, so it ran no command and read files only.
+- It computed no quote digests. The main agent hashed the quotes on committed lines with `orqlet evidence cite` at
+  495b0f193ee5db4cf7a045206d48007879fde50a, where every cited line has the same text as at the revision the reviewer
+  named, and left the quotes on staged files as path and line references in the claims.
+- The reviewer could not read the staged tree id from the packet and named the merge base in its absence record. The
+  searched as-is-format.md exists only in the staged change, so the main agent recorded the packet's staged tree
+  7c9acaeb2b39c59d2b597d8ce8ca334f3ef26d41 instead.
+- The model that ran the reviewer is not observed.
+- The reviewer ran in the same client as the Coder, so this review is I1; this D3 task needs I2, which a review in
+  another client must supply.
+- This review is an additional check, not a guarantee.
+applicability:
+  examined:
+  - diff.patch (P-4 parts; file list of the whole diff)
+  - src/orqlet/workflow/skills/orqlet-research/references/as-is-format.md
+  - src/orqlet/workflow/skills/orqlet-design/references/design-format.md
+  - src/orqlet/workflow/skills/orqlet-plan/references/plan-format.md
+  - src/orqlet/workflow/skills/orqlet-plan/references/phase-contract.md
+  - src/orqlet/workflow/skills/orqlet-research/skill.md
+  - src/orqlet/workflow/skills/orqlet-plan/skill.md
+  - src/orqlet/workflow/MANIFEST.json
+  - src/orqlet/application/usecases/validate_as_is.py
+  - src/orqlet/workflow/baseline/baseline.md
+  - tests/unit/test_workflow_format_references.py
+  - the nine as-is-format.md, design-format.md and plan-format.md goldens
+  - docs/design/phase-skill-contracts/design/component.md
+  - docs/design/phase-skill-contracts/design/adr-004-what-each-phase-produces.md
+  - docs/design/phase-skill-contracts/knowledge/P-4.yaml
+  - docs/design/phase-skill-contracts/tests/P-4.yaml
+  - context/standards/rules.yaml
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: security
+  rule_ref: ORQLET-SEC-003
+  evidence:
+  - kind: quote
+    path: docs/design/phase-skill-contracts/design/adr-004-what-each-phase-produces.md
+    lines: '16'
+    revision: 495b0f193ee5db4cf7a045206d48007879fde50a
+    quote_sha256: 1f1d83c33b04e564cd62b27cfd3c405c5d95fcccc3ec51ff83f0ca271df5bd67
+  - kind: quote
+    path: src/orqlet/workflow/skills/orqlet-research/skill.md
+    lines: '27'
+    revision: 495b0f193ee5db4cf7a045206d48007879fde50a
+    quote_sha256: 0bfb16f8f4be52e64cced52bbe63970b9d57d9a9e14f5ba23feffdbcab1267f0
+  - kind: quote
+    path: src/orqlet/application/usecases/validate_as_is.py
+    lines: 174-181
+    revision: 495b0f193ee5db4cf7a045206d48007879fde50a
+    quote_sha256: 70f7c7f32fdfece1f3ed6cccbdf34e60e6e2d75b554cf642b4aef88336196c39
+  - kind: absence
+    searched:
+    - src/orqlet/workflow/skills/orqlet-research/references/as-is-format.md
+    - src/orqlet/workflow/skills/orqlet-research/skill.md
+    - src/orqlet/application/usecases/validate_as_is.py
+    method: >-
+      Read the staged as-is-format.md and research skill.md in full. Searched src/orqlet/workflow/**/*.md for
+      credential, secret, token, password, private and internal. Neither the research brief section nor the research
+      skill has a hit. The closest rule is phase-contract.md line 26, which sits under "### Commands found in project
+      files" (line 23). validate_as_is.py imports no scanner and checks the body only with prescriptive_hits.
+    revision: 7c9acaeb2b39c59d2b597d8ce8ca334f3ef26d41
+  claim: >-
+    Staged as-is-format.md line 55 asks for the Request section as "what the person asked for, in their words". That
+    invites a verbatim copy of the request into docs/design/<task>/as-is.md, which is committed. ADR-004 decision 1
+    names the section only ("Request"), and research step 2 says "Restate the request in one sentence". Nothing in the
+    brief section or the research skill keeps a credential, token or connection string out of the quote, and
+    `orqlet validate as-is` checks the body only for advice-like words, so a pasted secret would be committed
+    unnoticed. General rules lower the risk - phase-contract.md line 26 ("Never copy a credential, a token or a
+    connection string with a password"), scoped by its heading to commands found in project files, and baseline.md
+    line 12 ("Never put secrets in code, logs or messages").
+  suggested_action: >-
+    Write "what the person asked for, restated" (as ADR-004 and research step 2 say), or add "without a credential,
+    token or other secret value, which becomes a named placeholder". BC-35's word limits do not cover as-is-format.md.
+    Rewrite the three goldens, rebuild MANIFEST.json, and optionally pin the sentence in
+    tests/unit/test_workflow_format_references.py.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: security
+  rule_ref: ORQLET-SEC-003; ADR-002 decision 3
+  evidence:
+  - kind: quote
+    path: src/orqlet/workflow/skills/orqlet-plan/references/phase-contract.md
+    lines: '26'
+    revision: 495b0f193ee5db4cf7a045206d48007879fde50a
+    quote_sha256: 78600f5337c0e6d48fb509e319c39023eab98771cb033b86a37427f1841d2597
+  claim: >-
+    Staged plan-format.md line 10 says the completion entry "gives the command as the project defines it", with only
+    expressions that the CI system or the shell expands replaced by placeholders. A credential written literally in a
+    CI line is not such an expression. The plan skill names phase-contract.md at lines 15 and 31, and phase-contract.md
+    line 26 forbids copying a credential, so the plan path is covered and BC-22 is met as written. The format
+    reference alone is narrower than the contract. This is the same pattern as P-3 F-1.
+  suggested_action: Optional. Add "and copies no credential" to the completion bullet of plan-format.md.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implementation
+    applicable_standards:
+    - ORQLET-SEC-001
+    - ORQLET-SEC-002
+    - ORQLET-SEC-003
+  checks:
+  - what: Secrets and private data in the P-4 diff, knowledge/P-4.yaml and tests/P-4.yaml
+    how: >-
+      Searched diff.patch for /Users/, the local user name, AWS, GitHub, Stripe, Google and Slack key prefixes, JWT
+      shapes, private-key blocks, URLs with user and password, and password, api_key, secret or token assignments. The
+      only hits are earlier review records that describe their own scans. Both P-4 records were read in full and hold
+      no private value.
+    result: pass
+  - what: Placeholders in the plan-format example
+    how: >-
+      The revision and the sha256 values are runs of b and a. The command uses <matrix.suite>. There are no literal
+      double braces and no real host or key.
+    result: pass
+  - what: Warning-list mark
+    how: >-
+      The example marks its check in its own entry and in the self-check. phase-contract.md line 29 still has the
+      implementer apply the list itself "marked or not", so a missing mark opens no gap.
+    result: pass
+  - what: New test file (ORQLET-SEC-001, ORQLET-SEC-002)
+    how: >-
+      test_workflow_format_references.py reads packaged text through PackagedWorkflow and parses YAML with
+      StrictYamlLoader. It has no socket, subprocess, environment read or file write. Its regexes run on small trusted
+      text, and names_id escapes its input.
+    result: pass
+  - what: Integrity of the new briefs
+    how: >-
+      The research brief is inside as-is.md, which as_is_ref covers by hash. The design brief is in component.md, which
+      the manifest hashes.
+    result: pass
+  - what: Goldens match the source
+    how: >-
+      The three Claude Code golden hunks were compared line by line with the source hunks. The Codex and Cursor goldens
+      were checked for three distinctive new lines, present once in each of the nine. Not every byte was compared.
+    result: pass
+  - what: Dependencies, CI and runtime code
+    how: The diff's file list holds no pyproject.toml, uv.lock, CI workflow or src/orqlet Python file.
+    result: pass
+  - what: Extra command run by the Tester
+    how: >-
+      The test record says the Tester also ran `git status --short`. It is read-only and was not found in a project
+      file, so it is a process note, not a security finding.
+    result: pass
+  - what: MANIFEST.json digests, quote digests, pytest, the manifest check and gate status
+    how: Not run, because the shell was refused. The test record claims these results (evidence_kind claimed).
+    result: not-run
+  unverified:
+  - Which files P-4 stages, as opposed to what P-1 to P-3 committed, comes from the plan, the test record and the diff
+    headers. It was not confirmed with git by the reviewer.
+  - The P-1 to P-3 parts of the diff were not reviewed again.

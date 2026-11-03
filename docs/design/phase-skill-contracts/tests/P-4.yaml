@@ -1,0 +1,84 @@
+schema: orqlet.test-record/v1
+task: phase-skill-contracts
+phase: P-4
+review_input:
+  components:
+    code_tests: 08a38711275c45b437c0c443427ab0afb3eff30a94e218adf09579f3b368dd94
+    plan: bad1acea6377b4a8962920848fbccf28e439fa50927b392a5170f5d919442e63
+  covers:
+  - code_tests
+  - plan
+  digest: 33cd4d14fe0f25abcac13d9fb4bd7a4158b52c25619eb3f9e9f4d2f68bc0dc20
+  merge_base: c59a03a16a22984f53753f44fa06e479f33dd491
+  schema: orqlet.review-input/v1
+verdict: NOT_RUN
+evidence_kind: claimed
+commands:
+- id: ruff-check
+  exit_code: 0
+  summary: All checks passed!
+  result_digest: 5b196eb3a6acb50d3fa398d04ca284985cc1ffec870e940264b00780bfd2c971
+- id: ruff-format
+  exit_code: 0
+  summary: 550 files already formatted
+  result_digest: 808ea1e3dd9018d92bad38ab6abeb5825d158203499a1987a77a9ef2d5c35258
+- id: mypy
+  exit_code: 0
+  summary: 'Success: no issues found in 351 source files'
+  result_digest: 70ced0fa58a9c5cdc054b02c96eb21e3709dc2c7fc6eb24b5179a92c6b7d3e16
+- id: import-linter
+  exit_code: 0
+  summary: 'Contracts: 5 kept, 0 broken.'
+  result_digest: a72c4b2dadcc1f98da5b9384d98e5c359b6be95fbf7a2ef0d10dc74f806cdfa7
+- id: schemas
+  exit_code: 0
+  summary: tools/export_schemas.py --check printed nothing and exited 0; no schema changed.
+  result_digest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+- id: manifest
+  exit_code: 0
+  summary: tools/build_manifest.py --check printed nothing and exited 0; MANIFEST.json, rebuilt with
+    tools/build_manifest.py after the three references changed, matches the package.
+  result_digest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+- id: pytest
+  exit_code: 0
+  summary: 8165 passed, 1 skipped (junctions exist on Windows only) in 874.42s on Python 3.12.11, one Python only; the
+    digest is of the last four lines of the captured output. The Tester ran as the typed orqlet-tester subagent of the
+    Coder's client, with the task, the criteria, their sources and the interface that the Coder gave, and wrote
+    tests/unit/test_workflow_format_references.py (23 tests, 53 cases) before the three references changed; 49 cases
+    failed then and 4 passed (the three Q-12 cases and the check that every criterion source of the old plan example
+    is an id). It asked four questions; the Coder answered them before any implementation existed, and the Tester
+    tightened its warning-mark test to the mark in the marked check's own completion entry, which still failed
+    (49 failed, 4 passed). Besides the commands it was given, it ran git status --short, read-only. After the change
+    all 53 cases pass. The goldens were rewritten with --update-golden and the diff holds only the nine as-is-format.md,
+    design-format.md and plan-format.md goldens; review-format.md and its goldens and the tests of P-1 to P-3 are
+    unedited.
+  result_digest: 935a0ffff7e91a8e25febe130b45fdc3ca3b29a56cb8bdccc92476bff1a71a62
+- id: gate-status-phase
+  exit_code: 5
+  summary: NOT_RUN caused by ORQ-I393 (approval is host evidence that an offline run lacks), with ORQ-W390 for as-is,
+    design and plan on base_revision, caused by this task's commits c772617 (P-1), 6a87ebb (Q-12), 9b978bd (P-2) and
+    495b0f1 (P-3), which the person confirmed at the start of P-4; no ORQ-E450, ORQ-E451 or ORQ-E453 on the staged
+    tree. The staged diff holds the 14 files of this phase's file operations.
+  result_digest: 16ca9adf82a69dba40dcf8e7c31b84611c8f46c91d486fdca164bf26e98f8a1a
+acceptance_coverage:
+- ac: AC-1
+  check_ref: pytest
+  result: pass
+- ac: AC-2
+  check_ref: pytest
+  result: pass
+- ac: AC-3
+  check_ref: pytest
+  result: pass
+- ac: AC-4
+  check_ref: review:plan-format
+  result: not-run
+- ac: AC-5
+  check_ref: pytest
+  result: pass
+- ac: AC-6
+  check_ref: pytest
+  result: pass
+- ac: AC-7
+  check_ref: gate-status-phase
+  result: pass

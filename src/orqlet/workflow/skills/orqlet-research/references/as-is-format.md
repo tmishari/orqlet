@@ -1,6 +1,6 @@
 # The AS-IS file
 
-`docs/design/<task>/as-is.md` is a Markdown file whose YAML front matter is the AS-IS artifact. The text after the front matter is not validated except for advice-like words; keep it empty or keep it a plain restatement of the facts.
+`docs/design/<task>/as-is.md` is a Markdown file. Its YAML front matter is the AS-IS artifact: the facts, the unknowns and the contradictions. The text after the front matter is the research brief.
 
 There is no field for proposals, opinions, refactoring or future architecture, and the validator rejects one. Unknowns and contradictions do not count against `size_budget` and may not be dropped.
 
@@ -47,6 +47,25 @@ Rules the validator checks:
 - `research_mode` is `parallel-subagents`, `sequential-subagents` or `sequential`. Any mode other than parallel needs a `limitation` text.
 - `merged_from` names fragment entries as `<fragment-id>/<entry-id>`.
 - `self_check` is required. A `pass` check says how it was made.
+
+## The research brief
+
+The brief follows the front matter. It has these sections, each a `## ` heading, in this order:
+
+1. Request: what the person asked for, in their words.
+2. Scope: what the research covered and what it left out.
+3. Existing capabilities and behaviour: what the code in the scope does today, including the capabilities that already exist and can be reused.
+4. Inferences: conclusions drawn from the facts.
+5. Open questions: what is still unknown or contradictory, each with its `question_ref`.
+6. Inputs for design: the facts, unknowns and contradictions that design starts from.
+
+Each statement names the fact ids it rests on, such as (A-3, A-7). An inference has its own id `I-n`, names the facts it rests on and says what would confirm it:
+
+```
+- I-1 The report is built once per request, not once per file (A-4, A-9). A trace of one request with two files would confirm it.
+```
+
+The brief recommends nothing: no proposal, preference or next step for the change. `orqlet validate as-is` reports ORQ-W338 when the text after the front matter reads as advice. The facts stay in the front matter, and the validator does not check the brief's sections, so an AS-IS file with an empty body stays valid. The brief is inside `as-is.md`, so the design's `as_is_ref` covers it by hash.
 
 ## Evidence from the web
 
