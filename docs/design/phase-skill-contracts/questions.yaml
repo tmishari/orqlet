@@ -270,6 +270,30 @@ questions:
     answerer: user
     time: '2026-11-03T06:20:00+02:00'
     scope: task
+- id: Q-13
+  key: f446b651661a05dcf41cfcddb58230fa80080fb08575609932c5174eab4597f9
+  subject: A property test outside every phase file list that fails in the full pytest run of a phase
+  raised_by: coder
+  phase: implement
+  category: test-expectation
+  text: The first full pytest run of P-5 failed test_generated_entries_without_a_reference_give_an_empty_tuple in tests/unit/domain/test_mcp_credentials_properties.py, a property test of the mcp-or-plugins task that no phase of this plan lists. Its strategy removed bearer_token_env_var from the top-level keys only, while referenced_variables reads that key at every depth, and Hypothesis generated a nested entry that holds it. The plan says that a test outside a phase's list that changes needs a plan amendment. Is the strategy fixed on this branch, and how?
+  why: The failing example is saved in the local Hypothesis database, so every later local pytest run of this task replays it and fails, and P-5 cannot pass its pytest check.
+  options:
+  - Fix the strategy in its own test-only commit on this branch, separate from P-5, then run pytest again and continue P-5
+  - Record pytest as FAIL for P-5 and fix the test in a separate pull request
+  - Stop P-5
+  evidence_refs:
+  - tests/unit/domain/test_mcp_credentials_properties.py
+  - src/orqlet/domain/mcp_credentials.py
+  - docs/design/phase-skill-contracts/plan.yaml
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: Fix the strategy in its own test-only commit on this branch, separate from P-5, then run pytest again and continue P-5. The fix is commit 43c21cf, which applies the same key filter to the nested dictionaries; the full pytest run after it passed. The person gave this answer in the P-5 session on 2026-11-03 (the minute was not recorded); the time below is when it was written here, after the P-5 architecture review asked for the record (finding F-1 of round 1).
+    answerer: user
+    time: '2026-11-03T19:45:00+02:00'
+    scope: task
 conflicts:
 - id: C-1
   sources:
