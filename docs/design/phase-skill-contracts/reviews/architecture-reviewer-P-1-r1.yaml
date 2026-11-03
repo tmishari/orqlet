@@ -1,0 +1,124 @@
+schema: orqlet.review-result/v1
+task: phase-skill-contracts
+phase: P-1
+role: architecture-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 12d050c0f88a28a0db7b0957a194c3317a347900c199e96360150cdcee4f401b
+    design: 9fd71b6184605ddfacbeeb871586f7c87c25dee2aab814fe8b62495b7cb29884
+    evidence_inputs: a38a11ceefa6cd9b77dc8bf2d78fbca17a486bf1c9ac8046fb4e91d45039b530
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: bad1acea6377b4a8962920848fbccf28e439fa50927b392a5170f5d919442e63
+    reviewer_definition: 5730eadbb534996a4181219f53b86eac676d230727ab1c065afd01a43d5740b6
+    standards: d8fcc2fc2afba1ea19064aa6b45cdb1c83aaacafb5f36ada7f580b1976d2f889
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 34c7008c0cee08a7eb62e5e5ec851c72fbd938aec6ad0a41299dbdad3bea536e
+  merge_base: c59a03a16a22984f53753f44fa06e479f33dd491
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: b420177b9e6104e277c852b5a36dfede59382df5458d0196b30138e780d5fe13
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; its shell was refused, so it ran no check and
+  recomputed no digest.
+- Quote digests were not computed, so the two quote-based findings are recorded as observations.
+- The model that ran the reviewer is not observed.
+- The reviewer ran in the same client as the Coder, so this review is I1; this D3 task needs I2, which a review in
+  another client must supply.
+applicability:
+  examined:
+  - tests/fakes/workflow.py
+  - tests/unit/application/test_workflow_injection.py
+  - tests/unit/render/test_rendered_formats.py
+  - docs/design/phase-skill-contracts/tests/P-1.yaml
+  - docs/design/phase-skill-contracts/knowledge/P-1.yaml
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: tests
+  evidence:
+  - kind: absence
+    searched:
+    - tests/unit/application/test_workflow_injection.py
+    - tests/support/render.py
+    method: searched for 'openai', 'sidecar' and 'agents/openai' in the staged snapshot; read skill_files
+      (tests/support/render.py:56-62), which lists only SKILL.md and references
+    revision: c59a03a16a22984f53753f44fa06e479f33dd491
+  claim: The Codex adapter writes agents/openai.yaml into each workflow skill folder
+    (src/orqlet/adapters/render/skills.py:36-44, clients/codex.py:62), a golden for it exists, and data-flow.md:14
+    lists it among the skill files a project receives. The init-against-goldens test (BC-38) and the two-project
+    byte-identity test (BC-6) leave it out; the rendered-format test does parse it.
+  suggested_action: Add the workflow skills' agents/openai.yaml to the Codex file set of those tests only, or have
+    the person confirm that "skill paths" in AC-6 means SKILL.md and references only.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: compatibility
+  evidence: []
+  claim: The AC-1 test treats a whole word, in declared case, of a technology only the other project declares as a
+    leak. ADR-002 decision 3 (adr-002 line 28), which P-2 writes into phase-contract.md, says "such as a Python
+    version"; carried over, it fails the test in the rust_cli project (test_workflow_injection.py:135-137), and P-2
+    AC-23 forbids editing P-1's tests. No skill or role source names these technologies at this revision.
+  suggested_action: Before P-2, record that skill, reference and role texts must not use Python, Flask, pip, Rust,
+    clap, SQLx, Tokio or Kafka as words, so P-2 writes "a language version" or similar; or have the person decide
+    how BC-6 treats generic examples.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: tests
+  evidence: []
+  claim: The tester's record marks AC-9 pass on gate-status-phase alone. Gate status checks watched surfaces only
+    (expected_change.py:79-97), not the phase file list, which is the first half of AC-9; that half holds because
+    this review read diff.patch.
+  suggested_action: Say in the record or the phase report that the file-list half of AC-9 rests on the diff.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+  checks:
+  - what: packet read
+    how: MANIFEST base c59a03a1, diff.patch, the context files (plan P-1, design manifest, test record, knowledge
+      impact, rules.yaml, foundations.md) and snapshot sources
+    result: pass
+  - what: file list and boundaries
+    how: diff paths against P-1 file_operations, the evidence-path patterns and the design's security_globs
+    result: pass
+  - what: acceptance criteria AC-1 to AC-7
+    how: read each test against the plan, component.md BC-6, BC-27 to BC-30, BC-38 and ADR-005 decision 1
+    result: pass
+  - what: standards
+    how: TEST-001, SEC-003, DET-001 and STYLE-001 against the diff
+    result: pass
+  - what: tests executed
+    how: not run; the Shell tool is refused in this session
+    result: not-run
+  - what: hashes and review_input digests
+    how: not recomputed
+    result: not-run

@@ -1,0 +1,47 @@
+schema: orqlet.knowledge-impact/v1
+task: phase-skill-contracts
+phase: P-1
+review_input:
+  components:
+    candidates: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    code_tests: 947224fd45736faf5fa7882c0f08fc7fd943844e5166686bc096029ecedfaa86
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: bad1acea6377b4a8962920848fbccf28e439fa50927b392a5170f5d919442e63
+    standards: d8fcc2fc2afba1ea19064aa6b45cdb1c83aaacafb5f36ada7f580b1976d2f889
+  covers:
+  - code_tests
+  - knowledge
+  - plan
+  - standards
+  - candidates
+  digest: 6b3d3f54db161f41374fe76569051fe3c3eb0131cf516bd67d5f06c19ceee834
+  merge_base: c59a03a16a22984f53753f44fa06e479f33dd491
+  schema: orqlet.review-input/v1
+outcome: no-impact
+analysis:
+  command: orqlet knowledge impact
+  orqlet_version: 0.2.0
+  candidates_digest: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+  candidate_count: 0
+  input: pre-draft-tree
+  views:
+  - staged
+  index_state: not-used
+no_impact:
+  category: test-only
+  reason: The phase changes test files only (two new test modules and an optional SkillChange in the test fake
+    tests/fakes/workflow.py); no file under src/orqlet/ changes, and the behaviour the tests prove is the existing
+    injection that ADR-005 decision 1 and the behaviour criteria BC-1, BC-6, BC-27 to BC-30 and BC-38 of
+    component.md already describe.
+  absence_record:
+    scopes_searched:
+    - .orqlet/knowledge.yaml sources
+    - the plan's knowledge_scope
+    views:
+    - staged
+    revision: c59a03a16a22984f53753f44fa06e479f33dd491
+    method: orqlet knowledge impact phase-skill-contracts P-1 --head staged; it found no candidate (ORQ-I400, no
+      knowledge sources are configured), and the plan's knowledge_scope is empty, so no knowledge document exists
+      that the phase could change.
+    index_state: not-used
+    candidates_found: 0
