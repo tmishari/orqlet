@@ -1,0 +1,57 @@
+schema: orqlet.test-record/v1
+task: phase-skill-contracts
+phase: P-8
+review_input:
+  components:
+    code_tests: 542087c7497810543c3219db98ee8aed1c5bb96d09bd1c7aab0b830d105a7c16
+    plan: bad1acea6377b4a8962920848fbccf28e439fa50927b392a5170f5d919442e63
+  covers:
+  - code_tests
+  - plan
+  digest: b22d4bb9f6fe67246c49a5deb7d8aec66443b321dd4affa8516d3fcd3195b8c0
+  merge_base: a595f44cd97beffb9c4e144ce37fb4f0141c878f
+  schema: orqlet.review-input/v1
+verdict: NOT_RUN
+evidence_kind: claimed
+commands:
+- id: gate-status-phase
+  exit_code: 5
+  summary: >-
+    `uv run orqlet gate status phase-skill-contracts --phase P-8 --head staged` with only V-1.md, V-2.md and V-3.md
+    staged: NOT_RUN, with ORQ-W390 for as-is, design and plan on workflow_version, protected_set_digest and
+    base_revision, and ORQ-I393; no ORQ-E450, ORQ-E451 or ORQ-E453. At the start of P-8 the person confirmed each
+    cause against the invalidation matrix: the commits of P-1 to P-7, the ledger commits Q-12 to Q-17, the test fix
+    43c21cf (Q-13), the plan commit e7388da, and the P-7 upgrade for workflow_version and protected_set_digest. The
+    same output came again with the knowledge and test records and the ledger staged; the digest is of the captured
+    output. The gate checks only watched surfaces for ORQ-E450 and ORQ-E451, so the first clause of AC-7 rests on the
+    staged listing: the index held only the phase's three records, its knowledge and test records, and the ledger
+    entry Q-18, which is outside P-8's file operations, is staged so that the review snapshot holds it, and goes into
+    its own ledger commit before the phase commit. The Tester ran first, as the typed orqlet-tester
+    subagent, read-only and with no command, after the records were written (Q-18). It found that no criterion needs a
+    test the plan does not list, and that its scan of the records found no credential, token, password, environment
+    value, account name, home-folder path or raw log. Its gaps (when the person chose, the source of the client
+    versions, the tools allowed, the Cursor options, why V-2 used the copy's own task, one unsourced sentence and a
+    quote of the sign-in error) were fixed in the records before this run.
+  result_digest: daa84841ccd310ae0aa1d4c7cdeafc66b829d6dccd18d77077f80054a311b493
+acceptance_coverage:
+- ac: AC-1
+  check_ref: review:session-records
+  result: not-run
+- ac: AC-2
+  check_ref: review:session-records
+  result: not-run
+- ac: AC-3
+  check_ref: review:session-records
+  result: not-run
+- ac: AC-4
+  check_ref: review:session-records
+  result: not-run
+- ac: AC-5
+  check_ref: security-reviewer
+  result: not-run
+- ac: AC-6
+  check_ref: review:final-report
+  result: not-run
+- ac: AC-7
+  check_ref: gate-status-phase
+  result: pass

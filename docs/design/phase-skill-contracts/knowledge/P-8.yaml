@@ -1,0 +1,57 @@
+schema: orqlet.knowledge-impact/v1
+task: phase-skill-contracts
+phase: P-8
+review_input:
+  components:
+    candidates: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    code_tests: 542087c7497810543c3219db98ee8aed1c5bb96d09bd1c7aab0b830d105a7c16
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: bad1acea6377b4a8962920848fbccf28e439fa50927b392a5170f5d919442e63
+    standards: 20b2417f8fe79a6b504d5edb6aa5876a9d7ae7a5a78a128d2d5e210ff3b835a9
+  covers:
+  - code_tests
+  - knowledge
+  - plan
+  - standards
+  - candidates
+  digest: 7696a39d4d7aa984495e582597f662d969d30766ec75210bd4be85979c777601
+  merge_base: a595f44cd97beffb9c4e144ce37fb4f0141c878f
+  schema: orqlet.review-input/v1
+outcome: no-impact
+analysis:
+  command: orqlet knowledge impact
+  orqlet_version: 0.2.0
+  candidates_digest: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+  candidate_count: 0
+  input: pre-draft-tree
+  views:
+  - staged
+  index_state: not-used
+no_impact:
+  category: behaviour-unchanged
+  reason: The phase adds only the three session-check records V-1.md, V-2.md and V-3.md under the task's
+    evidence/checks/ folder, and all three say NOT RUN, because no client session could start (Q-18). The ledger
+    entry Q-18 is staged with them so that the review snapshot holds it, and goes into its own ledger commit. The
+    phase changes no code, test, skill, reference, role, installed file or document, so no behaviour that a knowledge document could
+    describe changed. The records keep the session checks of ADR-005 decision 5 unverified, as the approved design
+    leaves them, and no document claims that they were observed. No knowledge document exists that the phase could
+    change, because no knowledge sources are configured and the plan's knowledge_scope is empty.
+  absence_record:
+    scopes_searched:
+    - .orqlet/knowledge.yaml sources
+    - the plan's knowledge_scope
+    - README.md
+    - AGENTS.md
+    - .github/pull_request_template.md
+    - .prompts/README.md, .prompts/foundations.md and .prompts/rules.yaml
+    views:
+    - staged
+    revision: cec2d261c801e6cc26ed5bb3822c1b843a339ddd
+    method: orqlet knowledge impact phase-skill-contracts P-8 --head staged; it found no candidate (ORQ-I400, no
+      knowledge sources are configured), and the plan's knowledge_scope is empty. The other files were searched in
+      the staged tree, whose id `git write-tree` printed with the three records staged, for "session check",
+      "evidence/checks", V-1, V-2, V-3, "observed", "unverified", U-11, ORQ-E353 and ORQ-I394. The only V-n matches
+      are README.md lines 643-680, which describe the checks of the mcp-or-plugins task, not of this task; no file
+      says that the session checks of this task were run or observed.
+    index_state: not-used
+    candidates_found: 0

@@ -1,0 +1,266 @@
+schema: orqlet.review-result/v1
+task: phase-skill-contracts
+phase: P-8
+role: architecture-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 542087c7497810543c3219db98ee8aed1c5bb96d09bd1c7aab0b830d105a7c16
+    design: 9fd71b6184605ddfacbeeb871586f7c87c25dee2aab814fe8b62495b7cb29884
+    evidence_inputs: 319d6f30a3b2d519e0ec2dd44127316c9cad995c3fc2e1c1be67fb5f0d5aad08
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: bad1acea6377b4a8962920848fbccf28e439fa50927b392a5170f5d919442e63
+    reviewer_definition: 6ce838ea71280ef545f87a85c2922b4bd9a2740713521c2dd24ed4768ead4be9
+    standards: 20b2417f8fe79a6b504d5edb6aa5876a9d7ae7a5a78a128d2d5e210ff3b835a9
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 8d8cc123f37d78b73d16636243c38977caf37e7da7dc5bc933dd005e04973955
+  merge_base: a595f44cd97beffb9c4e144ce37fb4f0141c878f
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: bb870c5236ad9b2cb5f0f6b0f8568baf499d9bd1727a18254303b9b1e797e7f4
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran as the typed orqlet-arch-reviewer subagent of Cursor, in a fresh context, with the path of packet
+  phase-skill-contracts-P-8-7c3ba3b5 only. It ran in read-only mode, ran no command and read files only.
+- It computed no quote digests and gave absence records only. It named the merge base in its absence records; because
+  it searched the packet's staged files, the main agent recorded the packet's staged tree
+  e0bdc67692312c9b72664b882f14453eb0e56d80 instead.
+- The reviewer returned findings and a self-check but no applicability block; the examined list below is compiled by
+  the main agent from the files the reviewer names in its evidence and self-check.
+- Since PR 11 merged into main, the packet's merge base is a595f44, so its diff holds only P-8's staged change (the
+  three records, the knowledge and test records and the ledger entry Q-18), not the earlier phases.
+- The client sessions in the throwaway clone, the person's approvals and the gate result are claims of the records; the
+  reviewer did not run them.
+- The model that ran the reviewer is not observed.
+- The reviewer ran in the same client as the Coder, so this review is I1; this D3 task needs I2, which a review in
+  another client must supply.
+- This review is an additional check, not a guarantee.
+applicability:
+  examined:
+  - context/plan.yaml, phase P-8
+  - context/test-record.yaml
+  - context/knowledge-impact.yaml
+  - diff.patch
+  - docs/design/phase-skill-contracts/evidence/checks/V-1.md, V-2.md and V-3.md
+  - docs/design/phase-skill-contracts/questions.yaml (Q-11 and Q-18)
+  - docs/design/phase-skill-contracts/design/adr-005-injection-unchanged-tests-and-version.md
+  - docs/design/phase-skill-contracts/tests/P-2.yaml
+  - src/orqlet/application/usecases/gate_status.py
+  - src/orqlet/workflow/skills/orqlet-plan/references/phase-contract.md
+  - README.md
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: architecture
+  evidence:
+  - kind: absence
+    searched:
+    - docs/design/phase-skill-contracts/plan.yaml
+    - docs/design/phase-skill-contracts/questions.yaml
+    - diff.patch
+    method: >-
+      Read P-8's entry (plan.yaml lines 1262-1343), the answer to Q-11 (questions.yaml line 244), Q-18 (lines
+      393-418) and the three staged records. Looked for a plan amendment, or a change to P-8's objective, that names
+      the agent as the one who runs the checks or writes the records. None exists; only Q-18 records the change.
+    revision: e0bdc67692312c9b72664b882f14453eb0e56d80
+  claim: >-
+    P-8's objective (plan.yaml lines 1264-1265) and the answer to Q-11 (questions.yaml line 244) say that the person
+    runs the session checks and writes one record per check. The staged records were written by the agent, which also
+    attempted the checks itself, headless in print mode (V-1.md lines 7 and 23-24). The person's decision is a new
+    ledger question, Q-18, not a plan amendment, and each record says "Plan amendment: none requested". Because Q-18 is
+    a new question, the ledger rule (phase-contract.md line 51) does not stop on it, although in substance it changes
+    what Q-11 answered. ADR-005 decision 5 (line 40) describes V-1 to V-3 as checks "a person runs in a client"; a
+    headless print-mode run would not have been that check, even if it had started. The outcome is not affected:
+    nothing ran, and Q-11 itself allows "reported as not run".
+  suggested_action: >-
+    List this as a deviation in the P-8 report and in the pull request description: who wrote the records, that the
+    agent attempted the checks headless under Q-18, and that Q-11's "the person runs them" is still unmet. Leave the
+    records as they are. If V-1 to V-3 are run later, either a person runs them in an interactive client session, or
+    the person decides and records whether a headless run counts as the ADR-005 check.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: architecture
+  evidence:
+  - kind: absence
+    searched:
+    - diff.patch
+    - docs/design/phase-skill-contracts/tests/P-8.yaml
+    - src/orqlet/application/usecases/gate_status.py
+    method: >-
+      Compared the paths in the diff with P-8's file operations (plan.yaml lines 1319-1328). Read the gate's blocking
+      codes (gate_status.py line 232: ORQ-E450 and ORQ-E451 apply only to watched surfaces) and the P-2 test record
+      (tests/P-2.yaml lines 63-65) as precedent.
+    revision: e0bdc67692312c9b72664b882f14453eb0e56d80
+  claim: >-
+    The test record marks AC-7 as pass. The staged index that the gate ran on also holds questions.yaml (Q-18), which
+    is outside P-8's file operations, and the record says so itself (tests/P-8.yaml lines 26-29). The gate does not
+    check this file. AC-7's first clause holds for the phase commit only if Q-18 is committed separately first, as the
+    record says and as P-2 did with Q-12. The knowledge and test records are outputs of implement steps 7 and 8, so
+    they are not a scope problem.
+  suggested_action: >-
+    Commit Q-18 in its own ledger commit before the phase commit. Then confirm that the phase commit holds only the
+    three records and the P-8 knowledge, test and review records. In the report, state that AC-7 holds for the phase
+    commit on that condition.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: docs
+  evidence:
+  - kind: absence
+    searched:
+    - diff.patch
+    - context/test-record.yaml
+    - context/knowledge-impact.yaml
+    method: >-
+      Looked for the final report of AC-6 (plan.yaml lines 1303-1310). The completion entry (line 1339) places it in
+      the phase report and the pull request description, and the packet holds neither.
+    revision: e0bdc67692312c9b72664b882f14453eb0e56d80
+  claim: >-
+    AC-6, the final report of R-13, cannot be checked from the packet. The test record correctly lists it as not-run.
+  suggested_action: >-
+    The report should state that V-1 to V-3 are NOT RUN, with their reasons, not passed; that the CI run for P-7 AC-8
+    counts as evidence only once it has run on the implementation pull request; that the design findings F5-1 to F5-7
+    and SEC5-1 to SEC5-4 and the items deferred under Q-15 to Q-17 are still open; that there are no injection
+    changes; and the commands of ADR-005 decision 4 for applying the update. The reviewer of the pull request checks
+    the report against AC-6.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: docs
+  evidence:
+  - kind: absence
+    searched:
+    - README.md
+    method: >-
+      Read README.md lines 323-326, which describe the input check, and searched the README for "observed". Lines 482
+      and 868 mark client behaviour that nobody observed as "documented, not observed"; lines 323-326 carry no such
+      mark.
+    revision: e0bdc67692312c9b72664b882f14453eb0e56d80
+  claim: >-
+    The README says, as a fact about the clients, that design, plan and implement check their inputs and stop when a
+    check fails. V-1 and V-2, which would have observed this, did not run. The knowledge record's statement that no
+    file says the checks were run or observed is literally true. The README is outside P-8's file list, so P-8 cannot
+    change it, and does not need to.
+  suggested_action: >-
+    Make no change in P-8. If the person wants the README to follow its own "documented, not observed" convention
+    here, record a ledger question for a later task, as Q-16 did, or say it in the pull request description.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: tests
+  evidence:
+  - kind: absence
+    searched:
+    - docs/design/phase-skill-contracts/evidence/checks/V-2.md
+    - src/orqlet/workflow/skills/orqlet-plan/references/phase-contract.md
+    method: >-
+      Traced V-2's setup, an uncommitted edit of as-is.md (V-2.md line 17), through the input-check steps at
+      phase-contract.md lines 44-52.
+    revision: e0bdc67692312c9b72664b882f14453eb0e56d80
+  claim: >-
+    The setup prepared for V-2 cannot isolate ORQ-E353 for a later run. The record already names the ORQ-W390 overlap
+    (V-2.md line 25). There is a second overlap: the edit already fails step 5, "Approved" (`git diff --quiet
+    '<merge>' -- <approved files>` must exit 0, line 50), before step 6, "Current" (line 51). The validator in step 2
+    also prints ORQ-E353 first. A skill that stops at step 5 is hard to judge against "stops on ORQ-E353 and asks".
+  suggested_action: >-
+    No change in P-8. Whoever runs V-2 later records which input-check step the skill named, and whether it named
+    ORQ-E353. The design revision that takes up F5-1 to F5-7 can define what counts as a pass.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implementation
+    acceptance_criteria:
+    - P-8 AC-1 through AC-7
+  checks:
+  - what: the change implements the phase inside its file list
+    how: >-
+      The three records are P-8's file operations. The knowledge and test records come from implement steps 7 and 8.
+      Q-18 is outside the list and disclosed (F-2). No code, package, skill, role or installed file is in the diff.
+    result: pass
+  - what: the design's boundaries hold (ADR-005 decision 5)
+    how: >-
+      All three records say NOT RUN and claim no observation, so V-1 to V-3 stay unverified, as the design leaves
+      them. No record reports "Design revision needed", correctly, because nothing was observed.
+    result: pass
+  - what: AC-1 to AC-3, the behaviour in the clients
+    how: >-
+      Not observed; each record gives its reason (sign-in expired, client not signed in, Codex not installed). V-2's
+      scratch change was made in the copy only (V-2.md line 10), which meets the intent of "never in this task's
+      folder".
+    result: not-run
+  - what: AC-4, the form of the records
+    how: >-
+      Each record gives the date, the clients and versions (used or planned), the steps, what was observed, the verdict
+      and the reason, and says that the person did not run it.
+    result: pass
+  - what: AC-5, no secrets in the records
+    how: >-
+      A reading scan found only /tmp paths, client versions, commit ids and one error line with no credential. The
+      security reviewer decides this criterion.
+    result: pass
+  - what: AC-6, the final report
+    how: Not in the packet (F-3).
+    result: not-run
+  - what: AC-7, scope and gate result
+    how: >-
+      Holds on the condition in F-2. The gate result is a claim. Its digest, daa84841…, equals P-7's; that is
+      plausible because the stale-input message (gate_status.py line 183) names neither the phase nor the head, but
+      the reviewer did not verify it.
+    result: pass
+  - what: the ledger rule
+    how: The diff of questions.yaml only adds lines (Q-18). No answered question, conflict or ruling changed.
+    result: pass
+  - what: the knowledge-impact record
+    how: >-
+      The no-impact category and reason match the diff. The README match at lines 643-680 belongs to the
+      mcp-or-plugins task, as the record says. Its absence record names a tree staged before Q-18; the files it
+      searched are unchanged by the later staging.
+    result: pass
+  - what: the test record and the tests
+    how: >-
+      P-8 lists no test file. The tester ran after the records were written, as the record states; there was no test
+      to write first. evidence_kind is "claimed", which is accurate.
+    result: pass
+  - what: the standards
+    how: >-
+      ORQLET-SEC-003 is met (see AC-5). ORQLET-NOMODEL-001 does not apply, because Orqlet's code did not change and the
+      agent, not Orqlet, started the clients. ORQLET-QA-001 depends on the CI run on the pull request (P-7 AC-8).
+    result: pass
+  unverified:
+  - The packet does not record which plan merge commit P-8's input check accepted; "the plan commit e7388da" appears
+    only as a stale cause, so the plan approval was not verified.
+  - The clone at /tmp/orqlet-v-checks, the client runs and the person's approvals are claims.
+  - Whether the client options were safe (`--force`, `--permission-mode dontAsk`, `uv run orqlet` allowed) is outside
+    this role's field and left to the security reviewer.
+  - No command was run and no quote digest computed.

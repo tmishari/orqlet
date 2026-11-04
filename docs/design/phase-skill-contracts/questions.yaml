@@ -390,6 +390,32 @@ questions:
     answerer: user
     time: '2026-11-04T10:37:00+02:00'
     scope: task
+- id: Q-18
+  key: fc96bcc593dee18b70be17e888f552b5944cb81b5ac3a7a38226d639a20ce58e
+  subject: Who runs the session checks V-1 to V-3 of P-8 and writes their records
+  raised_by: coder
+  phase: implement
+  category: policy
+  text: P-8 says that the person runs the three session checks of ADR-005 decision 5 in real clients and writes one record per check (Q-11), and the person said at the start of P-8 that they would write the records themselves. When P-8 started the records did not exist, and the person asked the agent to finish the plan. Who runs the checks and writes the records?
+  why: A record of a session nobody ran would be false evidence, and the plan names the person as the one who runs the checks.
+  options:
+  - The agent runs them headless in the throwaway clone with Claude Code and Cursor, shows each command first, records Codex as not run because it is not installed, relays the onboard question to the person for the yes, and the records say that the agent ran them
+  - The person runs them and writes the records; the agent waits
+  - The agent writes all three records as not run with the reason; P-8 closes, but the checks stay unverified
+  evidence_refs:
+  - docs/design/phase-skill-contracts/plan.yaml
+  - docs/design/phase-skill-contracts/design/adr-005-injection-unchanged-tests-and-version.md
+  - docs/design/phase-skill-contracts/evidence/checks/V-1.md
+  - docs/design/phase-skill-contracts/evidence/checks/V-2.md
+  - docs/design/phase-skill-contracts/evidence/checks/V-3.md
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: The agent runs them headless in the throwaway clone, as the first option says, and the person approved each command. Claude Code stopped before the model ran because its sign-in had expired, and Cursor's command-line client was not signed in. The person then chose not to sign in now and to record every client as not run, with the reason. The agent wrote V-1.md, V-2.md and V-3.md, and each says NOT RUN and that the person did not run the check. The person gave this answer in the P-8 session on 2026-11-04 (the minute was not recorded); the time below is when it was written here.
+    answerer: user
+    time: '2026-11-04T11:45:00+02:00'
+    scope: task
 conflicts:
 - id: C-1
   sources:

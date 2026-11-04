@@ -1,0 +1,159 @@
+schema: orqlet.review-result/v1
+task: phase-skill-contracts
+phase: P-8
+role: security-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 542087c7497810543c3219db98ee8aed1c5bb96d09bd1c7aab0b830d105a7c16
+    design: 9fd71b6184605ddfacbeeb871586f7c87c25dee2aab814fe8b62495b7cb29884
+    evidence_inputs: 319d6f30a3b2d519e0ec2dd44127316c9cad995c3fc2e1c1be67fb5f0d5aad08
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: bad1acea6377b4a8962920848fbccf28e439fa50927b392a5170f5d919442e63
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: 20b2417f8fe79a6b504d5edb6aa5876a9d7ae7a5a78a128d2d5e210ff3b835a9
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: b44ffa1ac199a39e7e29807f0baea2db4b9c6eb086f4e9308dd11bbb10852e95
+  merge_base: a595f44cd97beffb9c4e144ce37fb4f0141c878f
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran as the typed orqlet-security-reviewer subagent of Cursor, in a fresh context, with the path of packet
+  phase-skill-contracts-P-8-7c3ba3b5 only. Its shell call to list the packet was refused in its read-only mode, so it
+  ran no command and read files only.
+- It could not read the packet's MANIFEST.json, a single line of about 136 KB, so the staged tree id there was not read;
+  its searches ran on the packet's staged snapshot files. The packet's staged tree is
+  e0bdc67692312c9b72664b882f14453eb0e56d80.
+- Both findings are observations without evidence; it computed no quote digests.
+- Since PR 11 merged into main, the packet's merge base is a595f44, so its diff holds only P-8's staged change.
+- It did not consult the web, as the role forbids, so what the client options `--force`, `--trust` and
+  `--permission-mode dontAsk` allow is not verified.
+- The throwaway clone and the raw client output in /tmp are outside the packet and were not examined.
+- The model that ran the reviewer is not observed.
+- The reviewer ran in the same client as the Coder, so this review is I1; this D3 task needs I2, which a review in
+  another client must supply.
+- This review is an additional check, not a guarantee.
+applicability:
+  examined:
+  - MANIFEST.json (only by count searches)
+  - diff.patch
+  - context/plan.yaml
+  - context/test-record.yaml
+  - context/knowledge-impact.yaml
+  - context/standards/rules.yaml
+  - docs/design/phase-skill-contracts/evidence/checks/V-1.md, V-2.md and V-3.md
+  - docs/design/phase-skill-contracts/questions.yaml (Q-18)
+  - docs/design/phase-skill-contracts/reviews/security-reviewer-P-7-r1.yaml
+  - src/orqlet/application/contracts/finding.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: info
+  category: security
+  rule_ref: plan P-8 AC-2, AC-3; ORQLET-SEC-001 (spirit); AGENTS.md baseline "Handle failures explicitly"
+  evidence: []
+  claim: >-
+    No session ran, so nothing was exposed. But the records also serve as the procedure for any later re-run, and the
+    safety measures they describe are weaker than their wording. (a) V-1 step 4 starts Cursor with `--trust --force
+    --sandbox enabled` and says itself that the client documentation for these options "was not checked", so what they
+    allow is unknown. (b) V-1 step 3 runs Claude Code with `--permission-mode dontAsk` and allows `uv run orqlet`; the
+    record notes that this includes commands that write. (c) "Its push address was disabled ... so nothing could reach
+    this repository from it" says more than the measure delivers: a disabled push address stops only a plain `git push`
+    to that remote, and an agent with a shell can still push to an explicit address or change the remote. (d) Step 6
+    detects writes with `git status --short`, which does not list ignored files or anything written outside the copy,
+    such as orqlet's journal in the user's data folder. V-3 plans a session with file edits allowed on purpose, so this
+    gap would matter there.
+  suggested_action: >-
+    Nothing to change for this phase. If V-1 to V-3 are run again, read the client documentation for the permission
+    options and record what they allow; run without a remote in the copy, or say that only the default push target is
+    blocked; detect writes with `git status --short --ignored` and say that writes outside the copy are not detected.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: security
+  rule_ref: plan P-8 AC-5; ORQLET-SEC-003
+  evidence: []
+  claim: >-
+    The records keep raw client output and client-side detail out of the repository, as AC-5 requires. V-1 says the raw
+    output "stays outside both repositories", but neither V-1 nor Q-18 says where that output is kept, or whether it and
+    the throwaway clone at /tmp/orqlet-v-checks were deleted. What AC-5 keeps out of the records (client session
+    metadata, sign-in errors) may still be on local disk. This is outside the staged change and was not examined.
+  suggested_action: >-
+    When P-8 closes, the person deletes the captured client output and /tmp/orqlet-v-checks, or the phase report says
+    where they are kept.
+  confidence: low
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implementation
+    applicable_standards:
+    - ORQLET-SEC-003
+  checks:
+  - what: AC-5, no credential, token, password, environment value, account name, home-folder path or raw log in the records
+    how: >-
+      Searched the three staged records, case-insensitively, for /Users/, /home/, ~/, Windows user paths, e-mail
+      shapes, AWS, GitHub and Stripe key prefixes, JWT shapes, private-key blocks, Bearer, cookie, session id, provider
+      API-key variable names, `export NAME=` and `$NAME` references, password, secret, token and api key. Searched all
+      of diff.patch (which also covers Q-18, knowledge/P-8.yaml and tests/P-8.yaml) for /Users/, /home/, the local user
+      name, e-mail shapes, key prefixes, JWT, private keys, Bearer, provider names, request, org and uuid ids. Hits were
+      only the records' own checklist lines and the phrase "zero input and output tokens", a usage count. The only path
+      is /tmp/orqlet-v-checks, with no user name in it. The one quoted client line holds no secret; the 403 is given as
+      a summary. No account or provider name appears.
+    result: pass
+  - what: Snapshot equals diff
+    how: >-
+      Read the snapshot's V-1.md and Q-18 and compared them with the diff's post-image; they are the same. V-2.md and
+      V-3.md were checked only on their checklist lines.
+    result: pass
+  - what: Write set
+    how: >-
+      The diff touches six files: three records, the knowledge and test records, and questions.yaml (Q-18 only, which
+      the test record says is staged for the snapshot and gets its own ledger commit). No code, test, skill, role,
+      installed file, CI file, dependency or lock file changes.
+    result: pass
+  - what: Code-level risks (authentication, injection, parsing, file system, process, dependencies, logging)
+    how: No source, test or dependency file is in the diff, so none applies.
+    result: pass
+  - what: Hardcoded credentials (CodeGuard rule)
+    how: Applied because committed text is treated as public; covered by the AC-5 search above. Nothing found.
+    result: pass
+  - what: Certificates and cryptography (CodeGuard rules)
+    how: >-
+      Applied to look for certificate data and weak algorithms. There is no certificate data; every digest in the diff
+      is a 64-hex SHA-256 and every revision a 40-hex git id.
+    result: pass
+  - what: Knowledge drafts disclose nothing private
+    how: knowledge/P-8.yaml holds digests, a revision id, repository file names and search terms only.
+    result: pass
+  - what: gate status, client sessions and the commands in the records
+    how: Not run; the reviewer has no shell, and the results are claimed in the test record (evidence_kind claimed).
+    result: not-run
+  unverified:
+  - The packet's staged tree id in MANIFEST.json, which could not be read.
+  - Whether the throwaway clone and the raw client output still exist on disk (F-2).
+  - What the Cursor `--force` and `--trust` options and the Claude Code `dontAsk` mode allow (F-1).
+  - No quote digests were computed, so F-1 and F-2 are observations.
