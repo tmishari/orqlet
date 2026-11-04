@@ -341,6 +341,30 @@ questions:
     answerer: user
     time: '2026-11-04T09:29:00+02:00'
     scope: task
+- id: Q-16
+  key: feac9881459e7cd705eec3b0a90559f14241e7fa034144ac9233ea1be3946282
+  subject: Regression tests that tie README statements to what the package ships
+  raised_by: tester
+  phase: implement
+  category: test-expectation
+  text: P-6 checks the README by review only, and its tester found no criterion that needs a test the plan does not list. It named three optional regression tests that no test covers today - the count of files that init writes for the three clients (README.md line 132), the workflow version of the block marker example against identity.json (README.md line 205), and that every backticked orqlet command in the README names an existing command and its existing options, as BC-5 checks for skill bodies. Without them each statement can go stale at the next release with no failing test. Does this task add them by a plan amendment, or does a later task take them up?
+  why: Each test changes a file that no phase of this plan lists, so adding it here is a plan amendment.
+  options:
+  - Record them for a later task; this plan stays as approved
+  - Amend the plan and add them in this task
+  - Drop them
+  evidence_refs:
+  - docs/design/phase-skill-contracts/plan.yaml
+  - docs/design/phase-skill-contracts/tests/P-6.yaml
+  - README.md
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: Record them for a later task; this plan stays as approved. P-6 is commit 0180a84, checked by review as the plan says.
+    answerer: user
+    time: '2026-11-04T10:01:00+02:00'
+    scope: task
 conflicts:
 - id: C-1
   sources:
