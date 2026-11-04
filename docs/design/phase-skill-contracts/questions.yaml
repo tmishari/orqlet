@@ -294,6 +294,53 @@ questions:
     answerer: user
     time: '2026-11-03T19:45:00+02:00'
     scope: task
+- id: Q-14
+  key: f35d50084c87338800f4e7174bd12dbfe4c68bade50e47c6d7f825d1ef198348
+  subject: How a phase treats a non-blocking security finding whose fix goes beyond the phase acceptance criteria but stays inside its file list
+  raised_by: security-reviewer
+  phase: implement
+  category: policy
+  text: Security review round 1 of P-5 found that the inventory and tracer roles lacked the credential and secret-file rules of the implement skill's phase-contract.md (lines 26 and 27), and that the tester lacked its quoting, placeholder, secret and output-summary rules (lines 26, 31 and 37). BC-26 does not ask for these rules, so P-5 met its criteria, but the three role files are in P-5's file list. Does P-5 add the rules in a rework round, or are they recorded for the design revision?
+  why: The rules widen the role texts beyond the acceptance criteria that the person approved, although ADR-002 decision 3 already states them and the files are inside the file list.
+  options:
+  - Add the rules to the three roles in P-5's own files as rework round 2, tests first, then redo the records and reviews
+  - Record the gaps for the design revision that takes up the open design findings
+  evidence_refs:
+  - docs/design/phase-skill-contracts/reviews/security-reviewer-P-5-r1.yaml
+  - docs/design/phase-skill-contracts/reviews/architecture-reviewer-P-5-r2.yaml
+  - docs/design/phase-skill-contracts/design/adr-002-project-context-read-at-execution-time.md
+  - src/orqlet/workflow/skills/orqlet-implement/references/phase-contract.md
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: Add the rules to the three roles in P-5's own files as rework round 2, tests first, then redo the records and reviews. The rules are in commit 08e8a16; both round 2 reviews passed. The person gave this answer in the P-5 session on 2026-11-03 (the minute was not recorded); the time below is when it was written here, after the P-5 architecture review asked for the record (finding F-1 of round 2).
+    answerer: user
+    time: '2026-11-04T09:29:00+02:00'
+    scope: task
+- id: Q-15
+  key: 721634dcc57c6f008d352e047affcd1982b70c495caace151392197f826028cd
+  subject: How P-5 treats the two non-blocking security gaps left after its review round 2
+  raised_by: security-reviewer
+  phase: implement
+  category: policy
+  text: After rework round 2 of P-5 two non-blocking gaps remain. The tester, the one role with full tools, carries no rule against opening files that hold secrets (phase-contract.md line 27). Neither reviewer prompt says how to report a credential that it finds without reproducing it, while the design skill saves each design-review note unchanged and commits it. Neither BC-25 nor BC-26 asks for these rules. Does P-5 add them in a last rework round, or are they recorded for the design revision?
+  why: A third rework round is the last that the implement skill allows, and the rules would again widen the role texts beyond the acceptance criteria.
+  options:
+  - Accept P-5 as it is and record both gaps for the design revision, together with SEC5-3
+  - Add the secret-file rule to the tester and the no-reproduce rule to both reviewers in rework round 3
+  evidence_refs:
+  - docs/design/phase-skill-contracts/reviews/security-reviewer-P-5-r2.yaml
+  - docs/design/phase-skill-contracts/reviews/security-reviewer-design.md
+  - docs/design/phase-skill-contracts/plan.yaml
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: Accept P-5 as it is and record both gaps for the design revision, together with SEC5-3; P-5 is commit 08e8a16. The person gave this answer in the P-5 session (the minute was not recorded); the time below is when it was written here.
+    answerer: user
+    time: '2026-11-04T09:29:00+02:00'
+    scope: task
 conflicts:
 - id: C-1
   sources:
