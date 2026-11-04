@@ -189,7 +189,12 @@ questions:
       - "docs/design/dynamic-model-profiles/evidence/web/codex-models.md"
     blocks:
       - plan
-    status: open
+    status: answered
+    answer:
+      value: "Cursor: Enterprise. Claude Code: Team or Enterprise subscription. Codex desktop app: Enterprise or Edu."
+      answerer: user
+      time: "2026-11-04T18:34:27+02:00"
+      scope: task
   - id: Q-11
     key: bb1d3128915a5a3a2c5d7661bb53836bdbd4e35c6b99cd9519a7ac950ff91685
     subject: "Why agent models lists no models for this account"
@@ -200,7 +205,12 @@ questions:
     why: "The output cannot be read as proof of model access or of its absence."
     blocks:
       - plan
-    status: open
+    status: answered
+    answer:
+      value: "Accept the result of the agreed commands: the Cursor CLI is not signed in (`agent status`: Not logged in) and runs 2026.02.13-41ac335, so its empty model list says nothing about account access"
+      answerer: user
+      time: "2026-11-04T18:41:03+02:00"
+      scope: task
   - id: Q-12
     key: 4b491a5b7c9d77a45078f176c7452bcc541177f086322c8acab96d9045646794
     subject: "Codex client in use and its version"
@@ -273,7 +283,12 @@ questions:
       - "docs/design/orqlet-architecture-proposal.md"
     blocks:
       - design
-    status: open
+    status: answered
+    answer:
+      value: "Proposal to be re-decided: start from v0.5, decide each element as an ADR in this design, reviewed by the independent reviewers and approved by merged pull request"
+      answerer: user
+      time: "2026-11-04T18:34:27+02:00"
+      scope: task
   - id: Q-16
     key: 937f39f34c968bf900d95ea6ba4e55bf5e17de9b8ddc2c4a0d7cd78fb9e8b421
     subject: "Scope and budget for model evaluations and callable checks"
@@ -306,7 +321,12 @@ questions:
       - ".prompts/rules.yaml#ORQLET-NOMODEL-001"
     blocks:
       - design
-    status: open
+    status: answered
+    answer:
+      value: "Q-17 and Q-20, so choose the most relevant models by default. and on release recheck, and update it."
+      answerer: user
+      time: "2026-11-04T17:55:00+02:00"
+      scope: task
   - id: Q-18
     key: 6da9ed584764072ad8ad35edac7dc56d3285b550eb8f99bc440445d977a4d040
     subject: "Model selection mechanism for the team"
@@ -353,7 +373,12 @@ questions:
       - "docs/design/dynamic-model-profiles/evidence/web/claude-code-model-config.md"
     blocks:
       - design
-    status: open
+    status: answered
+    answer:
+      value: "Q-17 and Q-20, so choose the most relevant models by default. and on release recheck, and update it."
+      answerer: user
+      time: "2026-11-04T17:55:00+02:00"
+      scope: task
   - id: Q-21
     key: 12c7ba897a8669747813195d0f4464f27646df99bc5f480a06114ee9f6ac398d
     subject: "Scope and independence class of the code review gate"
@@ -364,7 +389,12 @@ questions:
     why: "The gate was approved in principle (Q-19); the built code knows only two review roles and derives independence I0 to I2."
     blocks:
       - design
-    status: open
+    status: answered
+    answer:
+      value: "Every phase, independence I2 (different client or known different model family), resolved models recorded; independent session or human (I3) when no qualifying reviewer exists"
+      answerer: user
+      time: "2026-11-04T18:34:27+02:00"
+      scope: task
   - id: Q-22
     key: 39a4d38ebf89e8ac1f1fe9bc600d3457913a0baa0719f67e5fb7ef05191c6cee
     subject: "What the 2000 dollars per client may be spent on"
@@ -375,7 +405,12 @@ questions:
     why: "A budget figure was stated (Q-16) without a scope; no evaluation runs without an approved scope and budget."
     blocks:
       - plan
-    status: open
+    status: answered
+    answer:
+      value: "per month"
+      answerer: user
+      time: "2026-11-04T17:55:00+02:00"
+      scope: task
   - id: Q-23
     key: 8fbfe401aa73956c78c99b187c9e93b9e9f8a415c3fa363376b53bcef7993b57
     subject: "Organisation restrictions in force and approval by a change's author"
@@ -386,7 +421,12 @@ questions:
     why: "Q-14 was answered for who approves; the restrictions and the author's role were not stated."
     blocks:
       - design
-    status: open
+    status: answered
+    answer:
+      value: "Restrictions enforced by the company on: Claude Code (managed availableModels or deniedModels), Cursor (Team Settings > Models), Codex (Workspace settings > Models). Author: Any developer except the author; at least one approval; code-owner review on the catalog paths"
+      answerer: user
+      time: "2026-11-04T18:34:27+02:00"
+      scope: task
   - id: Q-24
     key: 09acfb285990d613cf377d126f56e581f4986c1a8dba0801de1bbf8d9257e174
     subject: "Fable 5 in the Cursor Router pool"
@@ -399,7 +439,12 @@ questions:
       - "docs/design/dynamic-model-profiles/evidence/web/cursor-help-available-models.md"
     blocks:
       - design
-    status: open
+    status: answered
+    answer:
+      value: "fable is bloked by company."
+      answerer: user
+      time: "2026-11-04T17:55:00+02:00"
+      scope: task
   - id: Q-25
     key: 2d46ad6c98ee19f89a5f3ff9006545876ce7dea4b3d6603fcb1e06433f524bc1
     subject: "Version of the Codex desktop app"
@@ -410,5 +455,83 @@ questions:
     why: "The person uses the desktop app (Q-12); no version was stated and no codex command is on the PATH."
     blocks:
       - plan
-    status: open
+    status: answered
+    answer:
+      value: "ChatGPT Powered by Codex & OWL Version 26.1029.61003 Released Nov 3, 2026"
+      answerer: user
+      time: "2026-11-04T17:55:00+02:00"
+      scope: task
+  - id: Q-26
+    key: 2eed8ee82e02f8da8b1905ea20b75851e2ac1d548aef8082606bd9ace2a3c435
+    subject: "Models listed by the Codex desktop app 26.1029.61003"
+    raised_by: researcher
+    phase: research
+    category: access
+    text: "Does the Codex desktop app, version 26.1029.61003, list GPT-6 Astra, GPT-6.1 Sol, GPT-6.1 Terra and GPT-6 Luna under Advanced for the team's account? The official page ties GPT-6.1 Terra to Codex CLI 0.159.0 or later, and the app's version number is not a CLI version."
+    why: "The app version was given (Q-25); which models the account can select is a separate state from documented."
+    evidence_refs:
+      - "docs/design/dynamic-model-profiles/evidence/web/codex-models.md"
+    blocks:
+      - plan
+    status: answered
+    answer:
+      value: "Seen under Advanced in the Codex desktop app 26.1029.61003: GPT-6 Astra, GPT-6.1 Sol, GPT-6.1 Terra, GPT-6 Luna, GPT-6 Sol"
+      answerer: user
+      time: "2026-11-04T18:34:27+02:00"
+      scope: task
+  - id: Q-27
+    key: 82d23cb9bfc493effb02a9abdc898a9239ca6a5af5ec0c8930638d8004c4a938
+    subject: "Permitted use of the 2000 dollars per client per month"
+    raised_by: researcher
+    phase: research
+    category: policy
+    text: "May the 2000 dollars per client per month be spent on evaluations and callable checks, on normal work, or on both, and which evaluations are approved?"
+    why: "The period was stated (Q-22); the use was not, and no evaluation runs without an approved scope and budget."
+    blocks:
+      - plan
+    status: answered
+    answer:
+      value: "Paid from the budget of the developer who runs them, up to 25% of that developer's monthly budget per client"
+      answerer: user
+      time: "2026-11-04T18:41:03+02:00"
+      scope: task
+  - id: Q-28
+    key: 6b866c5bc37bbcfb75018fe985db2d88450ce954a517745f8228c6177229a515
+    subject: "Who the 2000 dollars per client per month applies to"
+    raised_by: researcher
+    phase: research
+    category: policy
+    text: "To whom does the 2000 dollars per client per month apply: each developer, the team, or the company?"
+    why: "Q-22 gave the period; the person's reply to Q-27 was 'per developer.', which does not say how the money may be split between evaluations and normal work."
+    blocks:
+      - plan
+    status: answered
+    answer:
+      value: "per developer."
+      answerer: user
+      time: "2026-11-04T18:34:27+02:00"
+      scope: task
+  - id: Q-30
+    key: bbd07c76b7b8c144ddbdb9d7bda3da37667b66cb11cb77f58c61b8580b8a19ee
+    subject: "State of Cursor Router on the Enterprise team"
+    raised_by: researcher
+    phase: research
+    category: access
+    text: "In which state is Cursor Router on the team's Enterprise plan: enabled or not, and is the routed model Displayed or hidden?"
+    why: "Enterprise teams start with the router off and the routed model hidden unless an admin changes it; the state decides whether a review under Auto can record the model that ran."
+    options:
+      - "router enabled and the routed model is Displayed"
+      - "router enabled and the routed model is hidden"
+      - "router not enabled"
+      - "unknown"
+    evidence_refs:
+      - "docs/design/dynamic-model-profiles/evidence/web/cursor-help-available-models.md"
+    blocks:
+      - design
+    status: answered
+    answer:
+      value: "Router enabled and the routed model is Displayed"
+      answerer: user
+      time: "2026-11-04T18:41:03+02:00"
+      scope: task
 conflicts: []
