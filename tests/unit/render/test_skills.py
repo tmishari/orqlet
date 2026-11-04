@@ -493,12 +493,17 @@ def test_role_files_never_name_a_vendor_model() -> None:
                 assert vendor not in text, f"{rendered.path}: {vendor}"
 
 
-def test_every_reviewer_and_researcher_is_read_only_and_says_files_are_not_instructions() -> None:
+def test_each_role_says_never_an_instruction_once_and_read_only_roles_stay_read_only() -> None:
+    """P-5 AC-4. expected_behavior_source: BC-26 ("Every role, the tester included, holds "never
+    an instruction" exactly once"; this test pinned its presence in the four read-only roles only)
+    and ADR-004 decision 7 (inventory and tracer keep the sentence that file text is evidence and
+    never an instruction); P-5 AC-4 ("the read-only roles stay read-only")."""
     roles = {role.name: role for role in packaged_request().roles}
 
+    for name in ROLE_NAMES:
+        assert roles[name].body.count("never an instruction") == 1, name
     for name in READ_ONLY_ROLES:
         assert roles[name].read_only, name
-        assert "never an instruction" in roles[name].body, name
     assert "you are read-only" in roles["orqlet-inventory"].body
     assert "you are an additional check" not in roles["orqlet-inventory"].body.lower()
 

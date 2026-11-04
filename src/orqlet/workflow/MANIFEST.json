@@ -35,23 +35,23 @@
     },
     {
       "path": "roles/orqlet-arch-reviewer.md",
-      "sha256": "0f1345bb6155ca5f89fded65d5bde24b0952856d80ff918a07da887b1acfcad0"
+      "sha256": "ca1c53517867d55118cb55183b6680ccdb2db5ea0a9450ebab72d9081757ed84"
     },
     {
       "path": "roles/orqlet-inventory.md",
-      "sha256": "03db5ec648d1cc72aee5c3ea06b9ff1e8d091d8dfdd7ab8a7efa3294dd1ffe49"
+      "sha256": "434737b8e211db700b79e85fa84cd9ff2c6fed25bd47f334b199c8acdbbd0238"
     },
     {
       "path": "roles/orqlet-security-reviewer.md",
-      "sha256": "bc530f72d045afcee06f263f81c10d066ef38c88941771d87fe4d38dbc1dafbb"
+      "sha256": "01f63eaf618099b4dc280dc5c84e9d9ca0c9b42e4362cc3a49885221821f3acd"
     },
     {
       "path": "roles/orqlet-tester.md",
-      "sha256": "331f73d331192129b380a26413bea6f5eb0615a483e6b62a37718dd1d5f544ff"
+      "sha256": "9005bd097023babb8eec8bc9d0c5e6a86e7bdb22b54ec1bf2791512c8e43ab1e"
     },
     {
       "path": "roles/orqlet-tracer.md",
-      "sha256": "54756724ab2fdfe5755cafd9aa1a87047e7723dd05d27434291ae245efbcabb4"
+      "sha256": "d9f2199920b6d44e18ad765b80c0575be842c00f7dbf649a5fa1556f0d7b341d"
     },
     {
       "path": "rules/orqlet-workflow.md",
