@@ -31,3 +31,9 @@ Excerpts are verbatim from the text the tool returned.
 21. Subagent effort - "On the main conversation's model, a subagent or teammate with no `effort` of its own runs at the level you pick in the session or set with `--effort`. On another model, that level doesn't apply. To pick a subagent's level, set `effort` in its definition."
 22. Observability - "The check also covers a `model` set in subagent frontmatter. The stderr warning is suppressed for `--output-format json` and `stream-json`; read the actual model from the `modelUsage` field of the result message instead."
 23. Haiku 5.5 - "On the Anthropic API, Haiku 5.5 runs with the 1M context window on every plan, with no `[1m]` suffix to select. Its model ID is `claude-haiku-5-5`."
+24. Default value - "| `default` | Special value that clears any model override and reverts to the runtime default for your account. Not itself a model alias |"
+25. Account-type default - "- Pro, Max, Ultra, Team, Enterprise, and Anthropic API: defaults to Opus 5.5"
+26. Organisation default - "When an admin has set an organization default model, `default` resolves to that model instead of the account-type default above."
+27. opusplan - "| `opusplan` | Special mode that uses `opus` during plan mode, then switches to `sonnet` for execution |" and "The `opusplan` model alias provides an automated hybrid approach:" and "- In execution mode: automatically switches to `sonnet` for code generation and implementation"
+28. Auto mode classifier - "- Auto mode classifier: when the allowlist excludes the default classifier model, classifier requests that would use that model run on the session model, or an Opus model in Fable sessions."
+29. Alias list (a reading of the whole alias table, not a quotation) - the table lists `default`, `best`, `fable`, `sonnet`, `opus`, `haiku`, `sonnet[1m]`, `opus[1m]` and `opusplan` and no alias named `auto`.

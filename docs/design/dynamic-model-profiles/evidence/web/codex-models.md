@@ -6,7 +6,7 @@ Tool: WebFetch (Cursor)
 Processed: unknown (the tool returns the page as Markdown and does not say whether a model processed it)
 Data class: public
 
-Excerpts are verbatim from the text the tool returned.
+Excerpts are verbatim from the text the tool returned. The same page text was returned by a second fetch of https://learn.chatgpt.com/docs/models.md.
 
 1. Recommended models - "Astra suits the most demanding workflows. GPT-6.1 Sol offers near-Astra performance at a lower cost than Astra. GPT-6.1 Terra is a fast, efficient choice for writing, visual understanding, and computer use. Luna suits focused, repeatable tasks."
 2. Terra requirement - "GPT-6.1 Terra requires Codex CLI 0.159.0 or later. To use it, run `codex -m gpt-6.1-terra`."
@@ -23,3 +23,7 @@ Excerpts are verbatim from the text the tool returned.
 13. Availability varies - "Advanced controls are illustrative; available options and defaults vary by plan, client, workspace settings, and rollout."
 14. Default model key - "To specify a model, add a `model` entry to your configuration file." followed by "model = \"gpt-6.1-sol\""
 15. Custom provider - "For a custom model provider or gateway, use a compatible Responses API endpoint."
+16. Default Power setting - "In the ChatGPT desktop app and ChatGPT Work on the web, start with the default Power setting available to your account. Move toward Smarter for deeper reasoning or Faster for faster, lower-cost work. Open Advanced to choose a specific model, reasoning effort, or speed."
+17. Power presets - "The six Power presets shown are Luna High, GPT-6 Sol Light (selected in this example), GPT-6 Sol Medium, Astra Light, Astra Medium, and Astra Extra High. Some paid plans omit Astra Extra High."
+18. Recommended model - "If you don’t specify a model, the ChatGPT desktop app, Codex CLI, or IDE extension uses a recommended model."
+19. Router absence (a reading of the whole page text, not a quotation) - the page text names no automatic per-task model router and no model or mode named Auto.
