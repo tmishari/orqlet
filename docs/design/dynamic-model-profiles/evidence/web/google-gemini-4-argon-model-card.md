@@ -6,7 +6,7 @@ Tool: WebFetch (Cursor)
 Processed: unknown (the tool returns the page as Markdown and does not say whether a model processed it)
 Data class: public
 
-Excerpts are verbatim from the text the tool returned. The page at https://ai.google.dev/gemini-api/docs/models/gemini-4-argon was requested twice as a fetch and timed out; it was not read.
+Excerpts are verbatim from the text the tool returned. Two fetches of Gemini API pages, https://ai.google.dev/gemini-api/docs/models and https://ai.google.dev/gemini-api/docs/models/gemini-4-argon, each timed out once; neither page was read.
 
 1. Publication - "Published 13 October 2026"
 2. Description - "Gemini 4 Argon delivers frontier performance to help in complex workflows across real-world software engineering, enterprise knowledge work like legal and finance, and cybersecurity defense."
