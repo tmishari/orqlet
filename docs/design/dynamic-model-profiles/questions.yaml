@@ -1,0 +1,290 @@
+schema: orqlet.question-ledger/v1
+task: dynamic-model-profiles
+questions:
+  - id: Q-1
+    key: 6bb8f40c2272c596e49621d6115dbe5bf2845a9c4f0d57fbaf3cf6c182a3fc8a
+    subject: "Branch for the research files"
+    raised_by: researcher
+    phase: research
+    category: requirement
+    text: "Which branch should the research files go on, given a clean working tree on main and the branch convention <task>-<phase>?"
+    why: "Branch naming for task work is recorded in AGENTS.md; the tree was clean on main."
+    options:
+      - "create dynamic-model-profiles-research from main"
+      - "stay on main"
+      - "something else"
+    status: answered
+    answer:
+      value: "Create dynamic-model-profiles-research from main now (convention)."
+      answerer: user
+      time: "2026-11-04T16:22:58+02:00"
+      scope: task
+  - id: Q-2
+    key: a5e22d05ec8538e792f4118ed69b2822fc1ce40aae72b4046b98014647bc5c6e
+    subject: "Permission for public official page lookups"
+    raised_by: researcher
+    phase: research
+    category: policy
+    text: "May research read public official vendor pages (Cursor, OpenAI/Codex, Anthropic Claude Code, xAI, Google) with the ordinary fetch and search tools and save each page as an evidence file?"
+    why: "No resources are registered (orqlet resources list is empty), so the baseline's lookup order allows only official documentation pages."
+    options:
+      - "public official pages only"
+      - "public pages plus signed-in pages the person names"
+      - "no lookups"
+    status: answered
+    answer:
+      value: "Yes: public official pages only."
+      answerer: user
+      time: "2026-11-04T16:22:58+02:00"
+      scope: task
+  - id: Q-3
+    key: 4bf0a04522e0c6a0bdbba35732e14b3732b69807668007decd554867a350686e
+    subject: "Treatment of model candidates without a stored research copy"
+    raised_by: researcher
+    phase: research
+    category: requirement
+    text: "No stored copy of the 2 November 2026 research behind GPT-6 Astra, GPT-6.1 Sol, GPT-6 Luna, Gemini 4 Argon, Composer 2.5 and Haiku 5.5 exists in the repository or in past chats. How should research treat these names?"
+    why: "Research must not confirm a model name from memory."
+    options:
+      - "candidates marked unverified until an official page confirms each"
+      - "the person supplies a stored copy"
+      - "research only models that official pages confirm and list the rest as unknowns"
+    status: answered
+    answer:
+      value: "Research only models that official pages confirm; list the rest as unknowns."
+      answerer: user
+      time: "2026-11-04T16:22:58+02:00"
+      scope: task
+  - id: Q-4
+    key: 527eb41cbb073779150823da4330c6ab7a9a6b0adf7105e5a59b25f6102669b8
+    subject: "Clients in scope and account access"
+    raised_by: researcher
+    phase: research
+    category: access
+    text: "Which clients are in scope and have an account the person can call today?"
+    why: "Account eligibility is a separate state from documented, approved, callable-verified and evaluated."
+    options:
+      - "Cursor"
+      - "Codex"
+      - "Claude Code"
+      - "not sure which models each account can call"
+    blocks:
+      - plan
+    status: answered
+    answer:
+      value: "Cursor, Codex and Claude Code are in scope. No plan type, organisation type or per-model access was given; the option 'not sure which models each account can call' was not selected."
+      answerer: user
+      time: "2026-11-04T16:22:58+02:00"
+      scope: task
+  - id: Q-5
+    key: 20c524bb8db7aab68cbb264485b15af29c1686e0595f196dadf1e71fe7f2d14e
+    subject: "Permission for local version and model-listing commands"
+    raised_by: researcher
+    phase: research
+    category: policy
+    text: "May research run the read-only commands claude --version, codex --version, agent --version, agent models and codex debug models --bundled, whose authentication, network and cost behaviour the proposal records as unverified (spike S-30)?"
+    why: "Any command not found in a project file runs only after the person has seen it, its source and its reason."
+    options:
+      - "version probes only"
+      - "version probes and the model-listing commands"
+      - "neither"
+    evidence_refs:
+      - "docs/design/orqlet-architecture-proposal.md#14.2"
+    status: answered
+    answer:
+      value: "Version probes and the model-listing commands; the person accepts the unverified behaviour."
+      answerer: user
+      time: "2026-11-04T16:22:58+02:00"
+      scope: task
+  - id: Q-6
+    key: 52c4641662f0dde66c2780c453cac0a426fc6836f95de6b7dd02788485f66f4c
+    subject: "Provider and data restrictions for this repository"
+    raised_by: researcher
+    phase: research
+    category: policy
+    text: "Does any restriction decide which vendors may receive this repository's content (for example xAI for Grok or Google for Gemini)?"
+    why: "Data restrictions are one of the inputs to eligible-model selection."
+    options:
+      - "no restriction: all four vendors acceptable"
+      - "some vendors or models excluded"
+      - "unknown"
+    status: answered
+    answer:
+      value: "No restriction: all four vendors are acceptable for this repository."
+      answerer: user
+      time: "2026-11-04T16:22:58+02:00"
+      scope: task
+  - id: Q-7
+    key: 5ceee974e55fc3f2245ff732a7d0e10d6b021e3822be3d7d3c70897e45aeeb6b
+    subject: "Scope of the Fable exclusion"
+    raised_by: researcher
+    phase: research
+    category: policy
+    text: "The proposal infers, unverified, that the person's 'Fable' is Claude Code's fable alias. Which does the exclusion cover?"
+    why: "The exclusion is recorded only as prose in the proposal (section 14.3 and 24.1)."
+    options:
+      - "that Claude Code alias only"
+      - "that alias and any model named Fable in any client"
+      - "something else"
+    evidence_refs:
+      - "docs/design/orqlet-architecture-proposal.md#14.3"
+    status: answered
+    answer:
+      value: "That Claude Code alias only."
+      answerer: user
+      time: "2026-11-04T16:22:58+02:00"
+      scope: task
+  - id: Q-8
+    key: d1b75850decd742f6762f48847e82b7da47fac2161b679691d872e5a24d844b0
+    subject: "Refresh cadence for the model catalog and rankings"
+    raised_by: researcher
+    phase: research
+    category: requirement
+    text: "How often should the model catalog and rankings be re-checked? Research creates no automation either way."
+    why: "New releases do not by themselves establish approval or better quality."
+    options:
+      - "manual only"
+      - "on every Orqlet release"
+      - "monthly"
+      - "quarterly"
+      - "when a vendor retires or announces a model"
+    status: answered
+    answer:
+      value: "On every Orqlet release."
+      answerer: user
+      time: "2026-11-04T16:22:58+02:00"
+      scope: task
+  - id: Q-9
+    key: 667fec39c8ec012bba2294ccd9860ec8a33d4c57758b799618f73356e509c38a
+    subject: "Reopening Q-07 on the Code Reviewer gate"
+    raised_by: researcher
+    phase: research
+    category: policy
+    text: "Q-07 records the Code Reviewer as a provided capability and not a required gate, and no orqlet-code-reviewer role ships. Should design reopen Q-07?"
+    why: "The person calls code review an explicit responsibility; the proposal's Q-07 answer is option (1)."
+    options:
+      - "yes: reopen in design"
+      - "no: keep as provided capability"
+      - "undecided: raise as a design decision"
+    evidence_refs:
+      - "docs/design/orqlet-architecture-proposal.md#25.1"
+    blocks:
+      - design
+    status: answered
+    answer:
+      value: "Yes: reopen Q-07 in design (code review may become a gate)."
+      answerer: user
+      time: "2026-11-04T16:22:58+02:00"
+      scope: task
+  - id: Q-10
+    key: 621af570ec6d92be100f8b57f9790c999b88d04aa1547e6bacf453c6f61e27e1
+    subject: "Plan, organisation type and per-model access of the three accounts"
+    raised_by: researcher
+    phase: research
+    category: access
+    text: "Which plan and organisation type does each of the Cursor, Codex and Claude Code accounts have, and which of the candidate models can each account call?"
+    why: "Cursor Router needs Teams or Enterprise, third-party models in Cursor need Premium or above, Codex model access follows plan and administrator enablement, and Claude Code alias targets depend on the provider; none is known for these accounts."
+    evidence_refs:
+      - "docs/design/dynamic-model-profiles/evidence/web/cursor-router.md"
+      - "docs/design/dynamic-model-profiles/evidence/web/codex-models.md"
+    blocks:
+      - plan
+    status: open
+  - id: Q-11
+    key: bb1d3128915a5a3a2c5d7661bb53836bdbd4e35c6b99cd9519a7ac950ff91685
+    subject: "Why agent models lists no models for this account"
+    raised_by: researcher
+    phase: research
+    category: access
+    text: "The command agent models printed 'No models available for this account.' with exit status 0 (agent version 2026.02.13-41ac335). Is the Cursor CLI signed in, is it out of date, or does the plan not include models there?"
+    why: "The output cannot be read as proof of model access or of its absence."
+    blocks:
+      - plan
+    status: open
+  - id: Q-12
+    key: 4b491a5b7c9d77a45078f176c7452bcc541177f086322c8acab96d9045646794
+    subject: "Codex client in use and its version"
+    raised_by: researcher
+    phase: research
+    category: missing-configuration
+    text: "No codex command is on the PATH. Which Codex client (desktop app, IDE extension or CLI) does the team use, and at which version?"
+    why: "GPT-6.1 Terra needs Codex CLI 0.159.0 or later, and codex debug models --bundled could not be run."
+    blocks:
+      - plan
+    status: open
+  - id: Q-13
+    key: f8b5eaca1f8d4e6bfa6b2187233bc647d8aa5676ad630ba7d905459b2a68e8f9
+    subject: "Reach of the Fable exclusion across aliases and model IDs"
+    raised_by: researcher
+    phase: research
+    category: policy
+    text: "The exclusion covers the fable alias only (Q-7). Claude Code's best alias resolves to the fable model where Fable is available, and Fable can be selected by full model ID. Does the exclusion also cover the best alias and explicit Fable IDs?"
+    why: "An alias-only exclusion leaves two other ways to reach the same model."
+    options:
+      - "alias fable only"
+      - "fable and best"
+      - "fable, best and all Fable model IDs"
+    evidence_refs:
+      - "docs/design/dynamic-model-profiles/evidence/web/claude-code-model-config.md"
+    blocks:
+      - design
+    status: open
+  - id: Q-14
+    key: 185d4930363111ac428e9bbae51fb225a473f302e37e175aa3c486dba3b6edb1
+    subject: "Owner of the approved model catalog and organisation restrictions in force"
+    raised_by: researcher
+    phase: research
+    category: policy
+    text: "Who approves models for the team's catalog, and are organisation model restrictions in force for any client (Claude Code availableModels, Cursor team model blocks or Router settings, Codex workspace enablement)?"
+    why: "No model-policy file and no approved catalog exist in the repository; the proposal lists model approvals and organisation-approved routes as pending."
+    evidence_refs:
+      - "docs/design/orqlet-architecture-proposal.md#0.6.5"
+    blocks:
+      - design
+    status: open
+  - id: Q-15
+    key: 436dfc01d04402ec461cdfca7d8dec561dfdd75fa4d8b9e8208a40f5de37d84c
+    subject: "Standing of proposal v0.5 sections 10.3 and 14.9 for this task"
+    raised_by: researcher
+    phase: research
+    category: policy
+    text: "Should design treat proposal v0.5 sections 10.3 (roles and tier hints) and 14.9 (per-role profiles and governed refresh) as an approved basis, as proposals, or as input only?"
+    why: "The proposal says the person approved v0.5 in conversation, that no gate has evidence of it, and that section 14.9 has never been independently reviewed."
+    options:
+      - "approved basis"
+      - "proposal to be re-decided"
+      - "input only"
+    evidence_refs:
+      - "docs/design/orqlet-architecture-proposal.md"
+    blocks:
+      - design
+    status: open
+  - id: Q-16
+    key: 937f39f34c968bf900d95ea6ba4e55bf5e17de9b8ddc2c4a0d7cd78fb9e8b421
+    subject: "Scope and budget for model evaluations and callable checks"
+    raised_by: researcher
+    phase: research
+    category: policy
+    text: "Is any scope and budget approved for paid evaluations or budgeted callable checks of candidate models?"
+    why: "Without an approved scope and budget every evaluation and callable check is NOT_RUN."
+    blocks:
+      - plan
+    status: open
+  - id: Q-17
+    key: 0db640ddb715c4a01beda77747334d63d4cf932c2e2051a5cb03aef993eabaf1
+    subject: "Meaning of dynamic selection under the IDE-first boundary"
+    raised_by: researcher
+    phase: research
+    category: requirement
+    text: "ORQLET-NOMODEL-001 says Orqlet never calls a model, takes a prompt or starts an agent, and proposal 14.9.1 says there is no selection at run time. Should 'dynamic selection' be read as selection applied when generated files are refreshed plus the IDE agent's own choice at run time, or does it ask for a change to that boundary?"
+    why: "The person asked to be consulted before any change to the boundary."
+    options:
+      - "refresh-time selection plus the IDE agent's own run-time choice"
+      - "a change to the boundary"
+      - "undecided"
+    evidence_refs:
+      - ".prompts/rules.yaml#ORQLET-NOMODEL-001"
+    blocks:
+      - design
+    status: open
+conflicts: []
