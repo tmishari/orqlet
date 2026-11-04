@@ -20,3 +20,4 @@ Excerpts are verbatim from the saved page text.
 10. Defaults keys - "| `agents.default_subagent_model` | string | No | Set the default model for spawned agents. |"
 11. Explicit spawn wins - "Explicit spawn values override `agents.default_subagent_model` and `agents.default_subagent_reasoning_effort`."
 12. Example agent - "model = \"gpt-6-luna\"" with "model_reasoning_effort = \"high\"" for a read-only explorer, and "model = \"gpt-6.1-sol\"" with "model_reasoning_effort = \"medium\"" for another agent.
+13. Skills - "Skills inherit from the parent, and a custom agent can disable individual skills with `skills.config`."
