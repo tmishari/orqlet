@@ -1,0 +1,71 @@
+schema: orqlet.test-record/v1
+task: phase-skill-contracts
+phase: P-6
+review_input:
+  components:
+    code_tests: 16ce33af280364280f9160e17b2e2fbacb6c4abfe98efc11e765ad96cf076a56
+    plan: bad1acea6377b4a8962920848fbccf28e439fa50927b392a5170f5d919442e63
+  covers:
+  - code_tests
+  - plan
+  digest: 834e731e939e9ca22d266981f1922ef3583ffcae5a8b2d061d9de2d04b6f2ede
+  merge_base: c59a03a16a22984f53753f44fa06e479f33dd491
+  schema: orqlet.review-input/v1
+verdict: NOT_RUN
+evidence_kind: claimed
+commands:
+- id: init-dry-run-count
+  exit_code: 0
+  summary: >-
+    The count of AC-3, from the plan's completion entry: `orqlet init --client claude-code --client cursor --client
+    codex --dry-run --git-init --target-branch main` with this branch's package (uv run --project), in an empty
+    scratch folder outside the repository that was empty afterwards and was then deleted. It printed "Preview only.
+    Nothing was written." and 73 create lines, 8 more than the 65 at the base; the 8 are the copies of
+    references/phase-contract.md under .agents/skills and .claude/skills for research, design, plan and implement.
+    A first run without --target-branch stopped with exit status 4 and ORQ-E113 (git setup needs a target branch),
+    and wrote nothing. The digest is of the captured output of the second run.
+  result_digest: e41ea59f5fe69b1aaf700dfc59a6883fb81e439d4286b81239a48f9b83ffef91
+- id: pytest
+  exit_code: 0
+  summary: >-
+    8208 passed, 1 skipped (junctions exist on Windows only) in 842.97s on Python 3.12.11, one Python only, on the
+    staged tree with the README change; the digest is of the last four lines of the captured output.
+    tests/unit/test_readme_integrations.py and tests/unit/test_readme_ci_snippet.py are unedited and pass; a narrower
+    run of the two files also passed (107 cases). P-6 lists no test file. The Tester ran first, as the typed
+    orqlet-tester subagent, read-only and with no command, and found that the two README tests pin only the Status
+    section, the MCP section, the Commands table, the five CI-snippet phrases and the one yaml block, none of which
+    P-6 changes, and that no criterion of P-6 needs a test that the plan does not list. It named three optional
+    regression tests (the count of files that init writes, the block marker version against identity.json, and the
+    orqlet commands that the README names), each a plan amendment that the person decides. The Coder ran pytest after
+    citing again .github/workflows/ci.yml lines 83-84 (4ae61613) and pyproject.toml lines 69-80 (37ed9bcd), with no
+    commit since the plan's base, no difference and no untracked file.
+  result_digest: 6d897caf5a1418d68cce556c1bf077faaa736e8ea202ee25c23f3194377dbf1d
+- id: gate-status-phase
+  exit_code: 5
+  summary: >-
+    NOT_RUN caused by ORQ-I393 (approval is host evidence that an offline run lacks), with ORQ-W390 for as-is, design
+    and plan on base_revision, caused by this task's commits c772617 (P-1), 6a87ebb (Q-12), 9b978bd (P-2), 495b0f1
+    (P-3), 7f20277 (P-4) and 08e8a16 (P-5), and the separate commits 43c21cf (test fix), 1a8a4c8 (Q-13) and 0a17dbf
+    (Q-14 and Q-15), which the person accepted at the start of P-6; no ORQ-E450, ORQ-E451 or ORQ-E453 on the staged
+    tree, which then held only README.md, the one file of this phase's file operations. The same result came again
+    with the knowledge and test records staged.
+  result_digest: 16ca9adf82a69dba40dcf8e7c31b84611c8f46c91d486fdca164bf26e98f8a1a
+acceptance_coverage:
+- ac: AC-1
+  check_ref: review:readme
+  result: not-run
+- ac: AC-2
+  check_ref: review:readme
+  result: not-run
+- ac: AC-3
+  check_ref: review:readme-count
+  result: not-run
+- ac: AC-4
+  check_ref: review:readme
+  result: not-run
+- ac: AC-5
+  check_ref: pytest
+  result: pass
+- ac: AC-6
+  check_ref: gate-status-phase
+  result: pass

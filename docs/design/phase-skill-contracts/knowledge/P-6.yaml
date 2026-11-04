@@ -1,0 +1,66 @@
+schema: orqlet.knowledge-impact/v1
+task: phase-skill-contracts
+phase: P-6
+review_input:
+  components:
+    candidates: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    code_tests: 16ce33af280364280f9160e17b2e2fbacb6c4abfe98efc11e765ad96cf076a56
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: bad1acea6377b4a8962920848fbccf28e439fa50927b392a5170f5d919442e63
+    standards: d8fcc2fc2afba1ea19064aa6b45cdb1c83aaacafb5f36ada7f580b1976d2f889
+  covers:
+  - code_tests
+  - knowledge
+  - plan
+  - standards
+  - candidates
+  digest: 1308cc6f31c97d0ee18866aad9be7aca353a2832f1adb5bf489c50e0053d1a7a
+  merge_base: c59a03a16a22984f53753f44fa06e479f33dd491
+  schema: orqlet.review-input/v1
+outcome: no-impact
+analysis:
+  command: orqlet knowledge impact
+  orqlet_version: 0.2.0
+  candidates_digest: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+  candidate_count: 0
+  input: pre-draft-tree
+  views:
+  - staged
+  index_state: not-used
+no_impact:
+  category: already-documented
+  reason: The phase is itself the documentation update that the change needs. It changes only README.md - the skill
+    table under "The workflow in the client" and the paragraph after it, the count of files that init writes (73,
+    from `orqlet init --dry-run --git-init` with the three clients in an empty scratch folder outside the repository,
+    65 at the base; the eight new files are the copies of references/phase-contract.md) and the block marker example
+    (workflow@0.4.0). What the README now says is the approved design of this task (component.md BC-4, BC-12, BC-14
+    and BC-20 to BC-24 and its constraints for the plan, ADR-003 decision 4, ADR-004 and ADR-005 decision 2),
+    referenced below by hash. No knowledge document exists that the phase could change, because no knowledge sources
+    are configured and the plan's knowledge_scope is empty.
+  absence_record:
+    scopes_searched:
+    - .orqlet/knowledge.yaml sources
+    - the plan's knowledge_scope
+    - AGENTS.md
+    - .github/pull_request_template.md
+    views:
+    - staged
+    revision: c59a03a16a22984f53753f44fa06e479f33dd491
+    method: orqlet knowledge impact phase-skill-contracts P-6 --head staged; it found no candidate (ORQ-I400, no
+      knowledge sources are configured), and the plan's knowledge_scope is empty. AGENTS.md and
+      .github/pull_request_template.md are the other tracked Markdown files outside the task folders, the workflow
+      package, the goldens, the test fixtures and the installed client folders; neither describes the skill table,
+      the count of files that init writes or a block marker example. The workflow version that each holds
+      (workflow@0.3.3, AGENTS.md line 1 and .github/pull_request_template.md line 1) is in its managed block marker,
+      which phase P-7 regenerates with orqlet upgrade.
+    index_state: not-used
+    candidates_found: 0
+  already_documented_refs:
+  - path: docs/design/phase-skill-contracts/design/component.md
+    sha256: db23fcdc4c36016dafc810496908306d4c1b46306a20f245bc3287ed7d75cc27
+  - path: docs/design/phase-skill-contracts/design/adr-003-handoffs-and-the-input-check.md
+    sha256: 11add91bf06ab5a994e38ff07adc74a8c5333e6b71a92875a40a33b09706e665
+  - path: docs/design/phase-skill-contracts/design/adr-004-what-each-phase-produces.md
+    sha256: e0210f380060e844a27ebb6ce7834642cb0a0c59bfd664fa0ad804891b4661e7
+  - path: docs/design/phase-skill-contracts/design/adr-005-injection-unchanged-tests-and-version.md
+    sha256: ab6fbf67e835b0a2f36178750198f70fd5ca24e9969d86ae1350c7d9fbe3a2cb

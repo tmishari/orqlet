@@ -1,0 +1,193 @@
+schema: orqlet.review-result/v1
+task: phase-skill-contracts
+phase: P-6
+role: security-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 16ce33af280364280f9160e17b2e2fbacb6c4abfe98efc11e765ad96cf076a56
+    design: 9fd71b6184605ddfacbeeb871586f7c87c25dee2aab814fe8b62495b7cb29884
+    evidence_inputs: c60d3d982895799f5eecd0569027cd072618cd8b14d2fac22e29c79ed97962e2
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: bad1acea6377b4a8962920848fbccf28e439fa50927b392a5170f5d919442e63
+    reviewer_definition: 4f7f6800b8439bd11123eb8069e455734a0b6e31c730ae871b9f0a8c0828be13
+    standards: d8fcc2fc2afba1ea19064aa6b45cdb1c83aaacafb5f36ada7f580b1976d2f889
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: ff8ff368a74babd54edf78323181a4ef0611bf92a11573b1d4c1807132fede38
+  merge_base: c59a03a16a22984f53753f44fa06e479f33dd491
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: f55870ff58dd4289e1f98b54d68741b0dc0c3d806a5a4068124642ce676d98e3
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran as the typed orqlet-security-reviewer subagent of Cursor, in a fresh context, with the path of packet
+  phase-skill-contracts-P-6-49465cb4 only. It had no shell, so it ran no command and read files only.
+- It ran with the installed role text of workflow 0.3.3 (`.cursor/agents/orqlet-security-reviewer.md`, whose sha256 is
+  the definition_sha256 above); phase P-7 regenerates the installed files.
+- It computed no quote digests and gave absence records only. The main agent added the committed lines of the onboard
+  skill and of the implement skill's phase-contract.md that the findings compare with, hashed with `orqlet evidence
+  cite` at 0a17dbfbf2d64448a2360cf5fe500aa1a5a332ab after checking that they read the same in the staged tree. The
+  reviewer could not read the staged tree id from the packet and named the merge base; because it searched staged
+  files, the main agent recorded the packet's staged tree 3cf8bc78eda26f32d7e535b74fff7d39234e1883 instead.
+- Some packet files were left out as over the packet limits; README.md, the P-6 records, the onboard skill and
+  phase-contract.md are not among them.
+- On the reviewer's unverified point about `uv run`, the main agent notes that the person approved `uv run` for this
+  implementation session before its first run, at the start of P-1; the P-6 test record does not repeat that.
+- The model that ran the reviewer is not observed.
+- The reviewer ran in the same client as the Coder, so this review is I1; this D3 task needs I2, which a review in
+  another client must supply.
+- This review is an additional check, not a guarantee.
+applicability:
+  examined:
+  - diff.patch (the three README hunks, knowledge/P-6.yaml and tests/P-6.yaml, and the added lines of the whole diff)
+  - README.md
+  - context/plan.yaml, phases P-6 and P-8
+  - src/orqlet/workflow/skills/orqlet-onboard/skill.md
+  - src/orqlet/workflow/skills/orqlet-implement/references/phase-contract.md
+  - tests/unit/test_readme_ci_snippet.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: info
+  category: security
+  rule_ref: ORQLET-SEC-002; ADR-002 decision 6; BC-12
+  evidence:
+  - kind: quote
+    path: src/orqlet/workflow/skills/orqlet-onboard/skill.md
+    lines: 30-31
+    revision: 0a17dbfbf2d64448a2360cf5fe500aa1a5a332ab
+    quote_sha256: 69b252758c474017033eb57311332e2e3fb3dc0481852232968ef1d622785906
+  - kind: absence
+    searched:
+    - README.md
+    method: >-
+      Searched the staged README for "record, not an instruction", "warning", "AGENTS.md" and "confirmation". The
+      onboard row (line 316) says that onboard records each command in AGENTS.md "after your yes"; no README line says
+      that an entry is written as a record, not an instruction to run anything, or that a command on the warning list
+      gets its own warning and confirmation.
+    revision: 3cf8bc78eda26f32d7e535b74fff7d39234e1883
+  claim: >-
+    The onboard row now tells adopters that onboard writes the project's CI and build commands into AGENTS.md, which
+    the README calls "the block ... that every client reads" (line 467), so these entries reach every agent session.
+    The README already warns about what reaches AGENTS.md through a convention answer (lines 888-890) and says nothing
+    like that for the new command entries: a person who reads only the README does not learn that the entries are
+    framed as a record, not an instruction, or that a risky command gets a separate warning. The control holds - the
+    skill shows the exact change and asks for a yes per entry - so the risk is low; the README is not wrong, it leaves
+    out context that helps the person give an informed yes.
+  suggested_action: >-
+    Optional, the person's choice - add half a sentence to the onboard row, for example "as a record, not an
+    instruction; a risky command gets its own warning", or leave it, since P-6 AC-1 does not ask for it.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: security
+  rule_ref: AGENTS.md baseline "A check that did not run is reported as not run"; ADR-005 decision 5
+  evidence:
+  - kind: quote
+    path: src/orqlet/workflow/skills/orqlet-implement/references/phase-contract.md
+    lines: 39-54
+    revision: 0a17dbfbf2d64448a2360cf5fe500aa1a5a332ab
+    quote_sha256: 15e2943cf6ec324a6ed98d2e0d01daa38369f5e910bb08cf886c5d3002dc0e4e
+  - kind: absence
+    searched:
+    - README.md, section "The workflow in the client"
+    - context/plan.yaml, phase P-8
+    method: >-
+      Read the section in full. Lines 324-326 say that design, plan and implement check their inputs first and that "A
+      check that fails stops the skill, which names the cause and what resolves it"; the section does not say that this
+      is an instruction to the agent rather than a check that Orqlet runs. The README's caveat that "no check has shown
+      that a client honours ... the skills that the agent may start" (lines 398-400) sits in the links section only.
+      P-8's session checks V-1 and V-2 have not run yet.
+    revision: 3cf8bc78eda26f32d7e535b74fff7d39234e1883
+  claim: >-
+    The input check is a safety control: it stops work on an unapproved or edited approved input (BC-14, BC-39). The
+    README states as fact that a failed check stops the skill, while the stop is skill text that the agent may or may
+    not follow, and the session checks that would show whether real clients follow it (V-1, V-2) are still to come. A
+    reader may rely on the stop as a guarantee. The validators and `orqlet gate status` are the parts that do not
+    depend on the agent. The wording matches the README's existing style ("Each skill stops at a person"), so this is
+    not a new kind of claim.
+  suggested_action: >-
+    None for this phase, or at most "the skills tell the agent to ...". Revisit the sentence when the P-8 records
+    exist; if V-1 or V-2 fails, say so in the README.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implementation
+    applicable_standards:
+    - ORQLET-SEC-001
+    - ORQLET-SEC-002
+    - ORQLET-SEC-003
+  checks:
+  - what: The P-6 part of the diff
+    how: >-
+      Read the three README hunks in full (line 132, 65 to 73 files; line 205, the marker becomes workflow@0.4.0; lines
+      313-329, the skill table and the paragraph after it), knowledge/P-6.yaml and tests/P-6.yaml, and compared them
+      with plan P-6 AC-1 to AC-4.
+    result: pass
+  - what: Hardcoded credentials (CodeGuard rule)
+    how: >-
+      Applied because committed docs and records count as public. Searched every added line of diff.patch for AWS,
+      Stripe, Google, GitHub and Slack key prefixes, JWT shapes, private-key blocks, URLs with a user and password,
+      password, secret, token or api_key assignments and e-mail addresses - no hits.
+    result: pass
+  - what: Private data in the knowledge and test drafts
+    how: >-
+      Searched the added lines for /Users/, the local user name, /home/ and Windows user paths; the only hits are
+      earlier review records that describe their own scans. The P-6 records hold commit ids, SHA-256 digests, counts,
+      timings and a Python version; the scratch folder of the init dry-run is not named.
+    result: pass
+  - what: Certificates and cryptography (CodeGuard rules)
+    how: >-
+      Applied to check for embedded certificate data and weak algorithms. There is no certificate data, no read of a
+      certificate file and no cryptographic code; every digest is a 64-hex SHA-256 (ORQLET-SEC-003).
+    result: pass
+  - what: README statements against the shipped skill text
+    how: >-
+      "never runs them" and "after your yes" match onboard skill.md lines 18 and 30-31, and the input-check paragraph
+      matches phase-contract.md lines 39-54. No README sentence is weaker than the skill in a way a reader could take
+      as permission.
+    result: pass
+  - what: Injection and unsafe parsing
+    how: >-
+      The README hunks add no command, option, URL or yaml block. The README tests read the MCP section and the single
+      yaml block through StrictYamlLoader (test_readme_ci_snippet.py line 118), and P-6 touches neither. The
+      orqlet:begin text at line 205 sits in a text fence of an unmanaged file and was already there; only the version
+      changed.
+    result: pass
+  - what: Dependencies, CI, tools and runtime code in P-6
+    how: The P-6 file operations and hunks hold no pyproject.toml, uv.lock, .github, tools or src/ file.
+    result: pass
+  - what: pytest, gate status, manifest and quote digests
+    how: Not run, because the reviewer had no shell; the test record claims these results (evidence_kind claimed).
+    result: not-run
+  unverified:
+  - That the staged change holds only README.md and the two P-6 records comes from the test record; the reviewer did
+    not confirm it with git.
+  - >-
+    The test record does not say whether the person was asked before the first `uv run` of the P-6 session, which the
+    plan's completion entry requires because `uv run` may fetch from the network; the reviewer cannot tell whether it
+    happened.
+  - The P-1 to P-5 parts of the diff were not reviewed again.

@@ -129,7 +129,7 @@ orqlet init --git-init --target-branch main --name shop --yes
 #   repository.commit_convention: Is there a commit message convention?
 ```
 
-For the three clients `init` wrote 65 files: the skills and specialist agents, the rules and
+For the three clients `init` wrote 73 files: the skills and specialist agents, the rules and
 commands, `AGENTS.md`, a pull request template, a seeded `.prompts/` folder for the team's
 standards, and a `.orqlet/` folder with the project profile, the versions, the role bindings, the
 registry of links and the lock files. Choose clients with `--client` (repeat it; the default is all
@@ -202,7 +202,7 @@ orqlet init --client claude-code --client cursor \
 **3. See what happened to your files.** Your text stays; Orqlet adds a block with markers.
 
 ```text
-AGENTS.md                       your team text, then <!-- orqlet:begin baseline workflow@0.3.3#... --> ... <!-- orqlet:end baseline -->
+AGENTS.md                       your team text, then <!-- orqlet:begin baseline workflow@0.4.0#... --> ... <!-- orqlet:end baseline -->
 CLAUDE.md                       "@AGENTS.md" and your line, then <!-- orqlet:begin claude-import --> @AGENTS.md <!-- orqlet:end claude-import -->
 .github/pull_request_template.md  your "## What changed", the Orqlet block, your "## How it was tested"
 .orqlet/project-profile.yaml    python ">=3.12" (evidence: pyproject.toml line 4), FastAPI (evidence: line 5), kind python-service
@@ -313,15 +313,19 @@ After `init`, the client offers these skills. Run them in order for a change tha
 
 | Skill | What it does | Writes |
 |---|---|---|
-| `orqlet-onboard` | Resolves what is still unknown in the project profile with you, from repository evidence, and registers links with your yes | `.orqlet/project-profile.yaml`, and `.orqlet/resources.yaml` and `docs/resources/<id>.md` |
-| `orqlet-research` | Records verified facts, unknowns and contradictions | `docs/design/<task>/as-is.md` |
-| `orqlet-design` | Records the design and its decisions | `docs/design/<task>/design/` |
-| `orqlet-plan` | Splits the design into phases with exact file operations | `docs/design/<task>/plan.yaml` |
-| `orqlet-implement` | Builds one approved phase inside its file list, tests first, with the knowledge step | code, tests, records |
+| `orqlet-onboard` | Resolves what is still unknown in the project profile with you, from repository evidence, and registers links with your yes. It also finds the project's build, lint, type-check and test commands in the CI and build files, never runs them, and records each in `AGENTS.md` outside the managed blocks after your yes | `.orqlet/project-profile.yaml`, `.orqlet/resources.yaml` and `docs/resources/<id>.md`, and entries in `AGENTS.md` |
+| `orqlet-research` | Records verified facts, unknowns and contradictions, and a research brief in which each statement names its facts | `docs/design/<task>/as-is.md` |
+| `orqlet-design` | Records the design and its decisions; `component.md` opens with the design brief | `docs/design/<task>/design/` |
+| `orqlet-plan` | Splits the design into phases. For each phase it writes the test plan first, the acceptance criteria and the checks, and then the exact file operations | `docs/design/<task>/plan.yaml` |
+| `orqlet-implement` | Checks its inputs first, then builds one approved phase inside its file list, tests first, with the knowledge step. It reports the files changed, the checks run, the checks not run, the acceptance coverage, the deviations and what remains uncertain | code, tests, records |
 | `orqlet-review` | Starts the independent architecture and security reviews of the staged change on a read-only packet | review records |
 
 Each skill stops at a person: you accept the AS-IS file, and you approve the design and the plan by
-merging them. The skills start subagents where the client has them: four read-only ones (an
+merging them. Design, plan and implement check their inputs first: that the earlier output is
+there, belongs to this task, is approved and is still current. A check that fails stops the skill,
+which names the cause and what resolves it. The rules that the four phase skills share are in
+`references/phase-contract.md`, the same file in each of research, design, plan and implement.
+The skills start subagents where the client has them: four read-only ones (an
 inventory researcher, a tracer, an architecture reviewer and a security reviewer) and a tester that
 writes the test files named in the plan. A review that runs in the same client as the author gets
 the independence class I1, and a change of class D3 needs I2, so `orqlet validate review` reports
