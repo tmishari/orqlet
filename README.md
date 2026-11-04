@@ -26,7 +26,7 @@ have not drifted, and validates the documents that an agent produces.
 
 ## Status
 
-Version 0.2.0. What is built and tested in this repository:
+Version 0.3.0. What is built and tested in this repository:
 
 - `init`, `upgrade`, `rollback`, `sync`, `doctor`, `explain`, `release` and `profile`;
 - the workflow skills, role definitions and rules for the three clients;
@@ -71,7 +71,7 @@ From a checkout of this repository:
 
 ```sh
 uv tool install .
-orqlet --version        # orqlet 0.2.0
+orqlet --version        # orqlet 0.3.0
 ```
 
 From a Git revision (pin a commit or a tag, never a moving branch name, when a team installs it):
