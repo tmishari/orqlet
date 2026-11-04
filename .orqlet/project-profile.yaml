@@ -9,7 +9,9 @@ stack:
   capability_limits: []
 profile:
   version: 1
-  status: draft
+  status: approved
+  reviewed_by: "Timur Misharin"
+  reviewed_at: "2026-11-04T10:57:22.147873+00:00"
 facts:
   python:
     value: ">=3.12"
@@ -37,18 +39,40 @@ repository:
     answered_by: maintainer
     remote: origin
   branch_naming:
+    value: "Task work: the task name, a hyphen and the phase, in kebab-case (research, design, plan, implement); other work: a short kebab-case name"
     evidence: []
-    question: "Is there a branch naming rule?"
+    answered_by: maintainer
   commit_convention:
+    value: "Imperative sentence subject without a type prefix; a body that says why; trailer Orqlet-Task, plus Orqlet-Phase on a phase commit; no AI attribution trailer"
     evidence: []
-    question: "Is there a commit message convention?"
+    answered_by: maintainer
+  branch_model:
+    value: github-flow
+    evidence: []
+    answered_by: maintainer
+  release_flow:
+    value: "A release-X.Y.Z branch, merged into main by pull request; no tags"
+    evidence: []
+    answered_by: maintainer
+  branch_patterns:
+    value: "*-research, *-design, *-plan, *-implement, fix-*, release-*"
+    evidence: []
+    answered_by: maintainer
   pull_requests:
     template:
       targets:
         - ".github/pull_request_template.md"
       status: team-template-unknown
-    reviewers: unknown
-    merge_strategy: unknown
+    reviewers: tmishari
+    merge_strategy: squash
+    shape:
+      value: "One pull request per task phase (research, design, plan, implement); the title says what it does; the description fills the Orqlet workflow template"
+      evidence: []
+      answered_by: maintainer
+    required_checks:
+      value: "lint, types, architecture, tests, build"
+      evidence: []
+      answered_by: maintainer
 structure: {}
 dependencies:
   declared:
