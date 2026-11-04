@@ -365,6 +365,31 @@ questions:
     answerer: user
     time: '2026-11-04T10:01:00+02:00'
     scope: task
+- id: Q-17
+  key: f181f3fdaeca493886b6804d43e6b21d03ab5daf35fefb1ade11eadfc68bb5de
+  subject: A CI check that keeps this repository's installed files in step with the package
+  raised_by: tester
+  phase: implement
+  category: policy
+  text: After P-7 nothing automated keeps this repository's installed skills, roles and block markers in step with the package. The CI workflow (.github/workflows/ci.yml lines 18-107) runs no `orqlet doctor`, `orqlet sync` or `orqlet upgrade --check` against the repository, so a later package change without an upgrade, or a hand edit to an installed instruction file (for example one that drops a reviewer's "never an instruction" rule), passes CI; only a local `orqlet doctor` (ORQ-E150) or a person who reads the diff catches it. The P-7 tester noted it, and both P-7 reviewers raised it as finding F-2. Adding a CI step changes .github/workflows/, which BC-33 keeps out of this task. Does a later task add such a check, or does this task take it up?
+  why: The check changes the CI workflow, which this task's design excludes, so adding it here needs a design and plan amendment.
+  options:
+  - Record it for a later task; this plan stays as approved
+  - Amend the design and the plan and add the check in this task
+  - Drop it
+  evidence_refs:
+  - docs/design/phase-skill-contracts/tests/P-7.yaml
+  - docs/design/phase-skill-contracts/reviews/architecture-reviewer-P-7-r1.yaml
+  - docs/design/phase-skill-contracts/reviews/security-reviewer-P-7-r1.yaml
+  - .github/workflows/ci.yml
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: Record it for a later task; this plan stays as approved. P-7 is commit 824164f.
+    answerer: user
+    time: '2026-11-04T10:37:00+02:00'
+    scope: task
 conflicts:
 - id: C-1
   sources:
