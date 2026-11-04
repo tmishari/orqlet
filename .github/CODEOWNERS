@@ -1,0 +1,10 @@
+/.prompts/ @tmishari
+.orqlet/** @tmishari
+docs/resources/** @tmishari
+.github/workflows/** @tmishari
+AGENTS.md @tmishari
+.claude/** @tmishari
+.cursor/** @tmishari
+.agents/** @tmishari
+.codex/** @tmishari
+.mcp.json @tmishari

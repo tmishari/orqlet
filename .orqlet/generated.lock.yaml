@@ -677,7 +677,7 @@ files:
   - path: ".orqlet/project-profile.yaml"
     owner: seeded
     inputs: []
-    seeded_sha256: c2971d71bc8ca1dcd2f5070dc81044320d86f6dd8dbc9f6d991357cdb0d859ba
+    seeded_sha256: "0d0de4026cf0df10ef0909846e22e7f8c085c0546b6038dab46767d1a11aa603"
   - path: ".orqlet/resources.yaml"
     owner: seeded
     inputs: []
