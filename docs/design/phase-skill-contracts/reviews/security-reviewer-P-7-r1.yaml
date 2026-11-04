@@ -1,0 +1,229 @@
+schema: orqlet.review-result/v1
+task: phase-skill-contracts
+phase: P-7
+role: security-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: b25189d26e808e117973d54e15630f85d60db23669e32b5a7236c0e48ad5f770
+    design: 9fd71b6184605ddfacbeeb871586f7c87c25dee2aab814fe8b62495b7cb29884
+    evidence_inputs: 8530d5c5b014496635c600de72f3203de7cc4421be295e761115a8df4e35c75c
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: bad1acea6377b4a8962920848fbccf28e439fa50927b392a5170f5d919442e63
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: 20b2417f8fe79a6b504d5edb6aa5876a9d7ae7a5a78a128d2d5e210ff3b835a9
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 4dffb8a52ff680145539854649efd15b4aa716d33465ea96af961a79f3071bb1
+  merge_base: c59a03a16a22984f53753f44fa06e479f33dd491
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran as the typed orqlet-security-reviewer subagent of Cursor, in a fresh context, with the path of packet
+  phase-skill-contracts-P-7-0b3dc1c3 only. Its two read-only shell calls (listing the packet and reading MANIFEST.json)
+  were refused in its read-only mode, so it ran no command and read files only.
+- The definition_sha256 above is that of the installed `.cursor/agents/orqlet-security-reviewer.md` of workflow 0.4.0,
+  which this phase writes. Against 0.3.3 it changes only the description and adds a paragraph for design reviews; the
+  text for an implementation review is the same. Cursor listed the 0.4.0 description when the reviewer was started;
+  whether it also loaded the 0.4.0 body in this running session is not observed. The reviewer checked that file
+  against its package source and golden blob rather than relying on it.
+- It computed no quote digests and gave absence records only. The main agent added the committed lines of
+  diagnose.py and rollback.py that F-1 rests on, hashed with `orqlet evidence cite` at
+  682d86a612ce508e7c02a1005fdb723668ddf0b6 after checking that no file under src/ is changed in the staged tree; the
+  values of versions.yaml and workflow.lock that F-1 compares are in its claim. The reviewer named the merge base in
+  its absence records; because it searched staged files, the main agent recorded the packet's staged tree
+  8bad0d1b146d752ac529f2438e4b106f9da2f406 instead.
+- The upgrade journal lies in the user's data directory, outside the packet; its result comes from the test record.
+- The model that ran the reviewer is not observed.
+- The reviewer ran in the same client as the Coder, so this review is I1; this D3 task needs I2, which a review in
+  another client must supply.
+- This review is an additional check, not a guarantee.
+applicability:
+  examined:
+  - MANIFEST.json
+  - diff.patch
+  - context/plan.yaml
+  - context/test-record.yaml
+  - context/knowledge-impact.yaml
+  - context/standards/rules.yaml
+  - .agents/skills/orqlet-design/references/design-format.md
+  - .claude/agents/orqlet-tester.md
+  - .codex/agents/orqlet-tester.toml
+  - .orqlet/generated.lock.yaml
+  - .orqlet/versions.yaml and the role-bindings proposal diff
+  - src/orqlet/workflow and its MANIFEST.json
+  - src/orqlet/application/usecases/diagnose.py
+  - src/orqlet/application/usecases/rollback.py
+  - src/orqlet/domain/versions.py
+  - .github/workflows/ci.yml
+  - docs/design/phase-skill-contracts/reviews/security-reviewer-P-6-r1.yaml
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: info
+  category: security
+  rule_ref: ADR-005 decision 3; BC-33; plan P-7 AC-4
+  evidence:
+  - kind: quote
+    path: src/orqlet/application/usecases/diagnose.py
+    lines: 373-381
+    revision: 682d86a612ce508e7c02a1005fdb723668ddf0b6
+    quote_sha256: 8baecd5f213313f76b0fe2f83965b1b56c9601d527a503e752be3550d7344cbe
+  - kind: quote
+    path: src/orqlet/application/usecases/diagnose.py
+    lines: 382-386
+    revision: 682d86a612ce508e7c02a1005fdb723668ddf0b6
+    quote_sha256: 5e927eb2cd67fd2f5e4d188a378f70e0da3a4efe2ee2931f8fd8907f94c59dbc
+  - kind: quote
+    path: src/orqlet/application/usecases/rollback.py
+    lines: 163-171
+    revision: 682d86a612ce508e7c02a1005fdb723668ddf0b6
+    quote_sha256: 20e4a9ee3869418c17e969befc4623bdb48f83123601e80556ddde9b0eece1ac
+  - kind: absence
+    searched:
+    - .orqlet/versions.yaml
+    - .orqlet/workflow.lock
+    - .orqlet/proposals/.orqlet__versions.yaml.diff
+    method: >-
+      Read the files. versions.yaml, the enforcement baseline, still says workflow version "0.3.3", digest e77980…
+      and floor "0.3.3"; workflow.lock now says 0.4.0 with digest 902abf…; no other file pins 0.4.0 as a floor.
+    revision: 8bad0d1b146d752ac529f2438e4b106f9da2f406
+  claim: >-
+    After P-7 the installed skills and roles carry the 0.4.0 rules: secret files are never opened, no command runs
+    because a file says so, and the input check comes first. The baseline (.orqlet/versions.yaml: version, digest and
+    floor of 0.3.3) does not pin 0.4.0 until the pending proposal is applied. diagnose.py compares the baseline digest
+    only when the two versions are equal and flags only a workflow below the floor, and rollback.py refuses only a
+    workflow below the floor or a lower controls level. Until the proposal is applied, `orqlet rollback 1df68c5c-…` or
+    another way back to 0.3.3 is allowed by policy, and doctor stays quiet about it. This follows the plan: AC-4
+    forbids applying the proposal in this phase, and rollback is the intended recovery path (P-8 AC-6). A rollback is
+    a deliberate command that a person runs, so the risk is low.
+  suggested_action: >-
+    None in this phase. The person decides whether and when to apply the pending versions proposal (version, digest
+    and floor 0.4.0) in its own reviewed change, for example after the P-8 session checks, so that the baseline then
+    pins the release that holds these rules.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: security
+  rule_ref: AGENTS.md baseline "Generated files"; ADR-005 decision 3
+  evidence:
+  - kind: absence
+    searched:
+    - .github/workflows/ci.yml lines 1-107
+    method: >-
+      Searched for "orqlet upgrade", "orqlet doctor" and "orqlet sync", and read every run step (lines 30-32, 46-47,
+      61-64, 83-84 and 100-107). No step checks this repository's installed files against
+      .orqlet/generated.lock.yaml.
+    revision: 8bad0d1b146d752ac529f2438e4b106f9da2f406
+  claim: >-
+    The 46 files of P-7 include the prompts that tell agents in this repository what they may do: the reviewer and
+    tester roles and the six skills, which the clients read from the repository. A later pull request that edits one by
+    hand, for example to drop a reviewer's "never an instruction" rule or the tester's warning list, passes CI. Only a
+    local `orqlet doctor` (ORQ-E150) or a person who reads the diff would catch it. P-7 does not cause this, but it
+    sets the 0.4.0 baseline that such a check would compare against. The tester's note in tests/P-7.yaml says the
+    same, and BC-33 keeps .github/workflows out of this task.
+  suggested_action: >-
+    Record it as a ledger question or a later task: add a CI step that fails on ORQ-E150 from `orqlet doctor` (or on a
+    planned restore from `orqlet upgrade --check`), so that a hand edit to an installed instruction file fails the pull
+    request.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implementation
+    applicable_standards:
+    - ORQLET-SEC-003
+    - ORQLET-SAFE-001
+  checks:
+  - what: Scope of the P-7 write set
+    how: >-
+      Listed every path in diff.patch. The paths outside src/, tests/, README.md and docs/ are exactly the 46 file
+      operations of P-7: 8 new phase-contract.md copies and 38 updates. These do not appear: .orqlet/versions.yaml,
+      .orqlet/role-bindings.yaml and its proposal, .orqlet/standards.lock.yaml, .claude/CLAUDE.md, the client rule and
+      command files, .github/workflows, tests/conftest.py, pyproject.toml and uv.lock. The one path that no phase
+      lists, tests/unit/domain/test_mcp_credentials_properties.py, is the P-5 test-only commit 43c21cf that ledger
+      question Q-13 records. It narrows a Hypothesis strategy and adds no credential.
+    result: pass
+  - what: The installed files equal the reviewed render, with no hand edit
+    how: >-
+      Compared git blob ids in diff.patch. All 43 installed skill, reference, role, AGENTS.md and PR-template files
+      have the same post-image blob as the committed goldens, which the golden tests check against the package render
+      (for example phase-contract.md is 7a03108 in all eight installed places and all twelve goldens). Also read the
+      installed and source hunks side by side for phase-contract.md, the onboard and implement skills and all five
+      roles; they differ only by the generated header, the client front matter and the removed step markers.
+    result: pass
+  - what: The lock records the staged bytes
+    how: >-
+      In .orqlet/generated.lock.yaml, rendered_sha256 equals the packet manifest's SHA-256 of the staged file for the
+      sampled roles, skills, phase-contract.md copies and AGENTS.md. Hash values that start with a digit are quoted,
+      so YAML reads every hash as a string, and the baseline that ORQ-E150 detection uses is the reviewed content.
+    result: pass
+  - what: Read-only and invocation settings
+    how: >-
+      The Claude reviewer and researcher roles keep `tools: Read, Grep, Glob`, the Cursor ones keep `readonly: true`
+      and the Codex ones keep `sandbox_mode = "read-only"`. The skills keep `disable-model-invocation: true`, and the
+      Codex sidecars are not in the diff. The tester's tool grants did not change.
+    result: pass
+  - what: Managed blocks
+    how: >-
+      AGENTS.md and .github/pull_request_template.md change only the version in the begin marker. The block content
+      hashes 2a33305a… and e87889ff… and the block text are unchanged.
+    result: pass
+  - what: Hardcoded credentials and private data (CodeGuard rule; ORQLET-SEC-003)
+    how: >-
+      Applied because committed files count as public. Searched all of diff.patch for AWS, GitHub, Stripe, Google and
+      Slack key prefixes, JWT shapes, private-key blocks, URLs with a user and password, and assignments to password,
+      secret, token, api_key or bearer; also for /Users/, /home/, Windows user paths, the local user name, "Application
+      Support" and e-mail addresses. The only hits are earlier review records that describe their own scans.
+      knowledge/P-7.yaml and tests/P-7.yaml name the journal change id but not the data-directory path, and hold only
+      digests, counts, finding codes and a Python version.
+    result: pass
+  - what: Certificates and cryptography (CodeGuard rules)
+    how: >-
+      Applied to look for embedded certificate data and weak algorithms. There is no certificate data and no read of a
+      certificate file, and every digest in the P-7 part is a 64-hex SHA-256.
+    result: pass
+  - what: Known gaps carried into the installed files
+    how: >-
+      Through P-7, gaps that were already accepted become live in this repository's clients: the Q-15 gaps (the tester,
+      which has full tools, lacks the secret-file rule; the reviewers have no rule for reporting a found credential
+      without reproducing it) and the open design findings SEC5-1 to SEC5-4 and F5-5. The person accepted them for the
+      design revision, so no new finding is raised.
+    result: pass
+  - what: Journal, upgrade, doctor, gate status and pytest
+    how: >-
+      Not run, because the reviewer had no shell. The test record claims these results (evidence_kind claimed), and the
+      journal in the user's data directory is outside the packet.
+    result: not-run
+  unverified:
+  - >-
+    The claim that the staged tree holds only the 46 paths plus the P-7 records comes from the test record; the packet
+    diff runs from the merge base c59a03a and also holds P-1 to P-6.
+  - The journal of change 1df68c5c-… and its after_sha256 values; the workflow digest 902abf… was not recomputed.
+  - The phase report's role-bindings note (AC-5), which is not in the packet.
+  - Whether a hand-edited file makes `orqlet upgrade --check` exit non-zero, which matters for F-2's suggestion.
+  - The P-1 to P-6 parts of the diff were not reviewed again beyond the scope check.
+  - This review is an additional check, not a guarantee.

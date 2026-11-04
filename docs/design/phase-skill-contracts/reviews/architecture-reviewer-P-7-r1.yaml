@@ -1,0 +1,208 @@
+schema: orqlet.review-result/v1
+task: phase-skill-contracts
+phase: P-7
+role: architecture-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: b25189d26e808e117973d54e15630f85d60db23669e32b5a7236c0e48ad5f770
+    design: 9fd71b6184605ddfacbeeb871586f7c87c25dee2aab814fe8b62495b7cb29884
+    evidence_inputs: 8530d5c5b014496635c600de72f3203de7cc4421be295e761115a8df4e35c75c
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: bad1acea6377b4a8962920848fbccf28e439fa50927b392a5170f5d919442e63
+    reviewer_definition: 6ce838ea71280ef545f87a85c2922b4bd9a2740713521c2dd24ed4768ead4be9
+    standards: 20b2417f8fe79a6b504d5edb6aa5876a9d7ae7a5a78a128d2d5e210ff3b835a9
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 37ba36a2ca70f3b750835ff82ba702152350eec1d52d81a42c5d65dbfeb1c30d
+  merge_base: c59a03a16a22984f53753f44fa06e479f33dd491
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: bb870c5236ad9b2cb5f0f6b0f8568baf499d9bd1727a18254303b9b1e797e7f4
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran as the typed orqlet-arch-reviewer subagent of Cursor, in a fresh context, with the path of packet
+  phase-skill-contracts-P-7-0b3dc1c3 only. Its two read-only shell calls (listing the packet and reading MANIFEST.json)
+  were refused in its read-only mode, so it ran no command and read files only.
+- The definition_sha256 above is that of the installed `.cursor/agents/orqlet-arch-reviewer.md` of workflow 0.4.0,
+  which this phase writes. Against 0.3.3 it changes only the description and adds a paragraph for design reviews; the
+  text for an implementation review is the same. Cursor listed the 0.4.0 description when the reviewer was started;
+  whether it also loaded the 0.4.0 body in this running session is not observed.
+- It computed no quote digests and gave absence records only. The main agent added the committed lines of the plan
+  that F-3 rests on, hashed with `orqlet evidence cite` at 682d86a612ce508e7c02a1005fdb723668ddf0b6 after checking
+  that plan.yaml is unchanged in the staged tree. The reviewer named the merge base in its absence records; because it
+  searched staged files, the main agent recorded the packet's staged tree 8bad0d1b146d752ac529f2438e4b106f9da2f406
+  instead.
+- The packet's diff runs from the merge base to the staged tree, so it also holds P-1 to P-6 and the ledger commits;
+  the reviewer judged scope by assigning each path to a phase and did not isolate the staged change with git.
+- It did not run upgrade, doctor, the gate or pytest; AC-2, AC-3 and the gate results rest on the test record's claims,
+  corroborated by installed files that equal both the goldens and the lock's rendered hashes.
+- The model that ran the reviewer is not observed.
+- The reviewer ran in the same client as the Coder, so this review is I1; this D3 task needs I2, which a review in
+  another client must supply.
+- This review is an additional check, not a guarantee.
+applicability:
+  examined:
+  - MANIFEST.json
+  - context/plan.yaml, phase P-7 and the self-check
+  - context/test-record.yaml
+  - context/knowledge-impact.yaml
+  - context/design-manifest.yaml
+  - context/standards/rules.yaml
+  - diff.patch
+  - .orqlet/versions.yaml, .orqlet/workflow.lock, .orqlet/resources.yaml and both proposal diffs
+  - src/orqlet/workflow/identity.json
+  - tests/conftest.py
+  - tests/integration/test_golden_policy.py
+  - tests/unit/test_check_records_scan.py
+  - docs/design/phase-skill-contracts/design/adr-005-injection-unchanged-tests-and-version.md
+  - .github/workflows/
+  - docs/design/phase-skill-contracts/reviews/architecture-reviewer-P-6-r1.yaml
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: info
+  category: tests
+  evidence:
+  - kind: absence
+    searched:
+    - docs/design/phase-skill-contracts/tests/P-7.yaml
+    - docs/design/phase-skill-contracts/knowledge/P-7.yaml
+    - docs/design/phase-skill-contracts/plan.yaml
+    method: >-
+      Searched the packet's context records and diff.patch for "role-bindings" and "independence". Only the plan's AC-4
+      and AC-5 text and the design manifest matched. The phase report is not part of the packet.
+    revision: 8bad0d1b146d752ac529f2438e4b106f9da2f406
+  claim: >-
+    AC-5 (the phase report says that applying the role-bindings proposal later changes reviewer independence) cannot be
+    checked from the packet. The test record correctly lists it as not-run.
+  suggested_action: >-
+    State it in the P-7 phase report and the pull request description: applying
+    .orqlet/proposals/.orqlet__role-bindings.yaml.diff changes the approved bindings and model families from which
+    `orqlet validate review` derives independence.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: architecture
+  evidence:
+  - kind: absence
+    searched:
+    - .github/workflows/**
+    - docs/design/phase-skill-contracts/questions.yaml
+    method: >-
+      Searched the CI workflow steps (ci.yml lines 30-100) for "orqlet upgrade", "orqlet doctor" and "orqlet sync" and
+      found none. Read Q-12 to Q-16 of the ledger; none records this gap.
+    revision: 8bad0d1b146d752ac529f2438e4b106f9da2f406
+  claim: >-
+    After P-7, nothing automated keeps this repository's installed files in step with the package. A later package
+    change without an upgrade passes CI. The only record of this is the tester's sentence in tests/P-7.yaml. BC-33
+    rightly keeps .github/workflows/ out of this task.
+  suggested_action: >-
+    If the person wants it tracked, record it as a ledger question for a later task, as Q-16 did for the README tests.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: compatibility
+  evidence:
+  - kind: quote
+    path: docs/design/phase-skill-contracts/plan.yaml
+    lines: 1440-1442
+    revision: 682d86a612ce508e7c02a1005fdb723668ddf0b6
+    quote_sha256: b1ae24332c99cc665494adb0090b9a2058b2dc1e4f1b01953ff2f3a11066e028
+  - kind: absence
+    searched:
+    - docs/design/phase-skill-contracts/plan.yaml
+    method: >-
+      Read the plan's self_check.unverified for how phases after P-7 meet the 0.4.0 input check. The only entry
+      (plan.yaml lines 1440-1442) describes the installed 0.3.3 implement skill.
+    revision: 8bad0d1b146d752ac529f2438e4b106f9da2f406
+  claim: >-
+    P-8 runs under the 0.4.0 skills this phase installs. Their input check asks for the person-named protected ref and
+    both merge commits and applies the ledger rule. Their stale matrix does not count commits that touch questions.yaml,
+    or the Q-13 test-only commit, as planned work. The ledger diff since c59a03a only adds Q-12 to Q-16 (no removed
+    line), so the ledger rule is expected to hold. The Q-13 commit falls under the "Other commits in scope" row.
+  suggested_action: >-
+    In the P-8 session, show the person these causes and their matrix rows before continuing. No change to P-7 is
+    needed.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implementation
+    acceptance_criteria:
+    - P-7 AC-1 through AC-9
+  checks:
+  - what: AC-1 dry-run list equals the file operations, upgrade-written
+    how: >-
+      The diff's installed paths are 13 under .agents/skills, 13 under .claude/skills, 5 each of .claude, .codex and
+      .cursor agents, the PR template, AGENTS.md and 3 under .orqlet, which equals the 46 operations. The 8 new files
+      are the phase-contract.md copies. Every blob equals its golden, and the sampled lock rendered_sha256 values equal
+      the snapshot. The person's preview approval and the journal are claims.
+    result: pass
+  - what: AC-2 upgrade --check, AC-3 doctor
+    how: >-
+      These rest on the test record's claims. Installed bytes matching both the goldens and the lock corroborate them.
+    result: not-run
+  - what: AC-4 upgrade outputs
+    how: >-
+      Only generated.lock.yaml, workflow.lock and the versions proposal changed under .orqlet/. versions.yaml,
+      role-bindings.yaml, standards.lock.yaml and the role-bindings proposal are not in the diff, and no proposal was
+      applied.
+    result: pass
+  - what: AC-5 role-bindings note
+    how: The phase report is not in the packet (F-1).
+    result: not-run
+  - what: AC-6 conftest refusal
+    how: conftest.py is not in the diff; lines 34-39 refuse in CI; test_golden_policy.py pins it.
+    result: pass
+  - what: AC-7 artifacts stale, none edited
+    how: >-
+      No as-is.md, design/ or plan.yaml change is in the diff. The ORQ-W390 output is a claim. ADR-005 consequences
+      line 48 foresees it.
+    result: pass
+  - what: AC-8 CI
+    how: This is evidenced only by the CI run on the pull request.
+    result: not-run
+  - what: AC-9 scope
+    how: >-
+      Every path in the diff maps to a phase's operations, a task record, the ledger, or the Q-13 test fix. P-7's share
+      is the 46 paths plus knowledge/P-7.yaml and tests/P-7.yaml. The gate result is a claim.
+    result: pass
+  - what: knowledge-impact record
+    how: >-
+      The no-impact reason is accurate. The README, component.md and ADR-005 hashes match the snapshot. The block
+      content hashes are unchanged.
+    result: pass
+  - what: standards ORQLET-SEC-003, ORQLET-QA-001, ORQLET-DET-001
+    how: >-
+      No secret is in the regenerated files. QA-001 waits for CI (AC-8). The goldens are unchanged in P-7.
+    result: pass
+  unverified:
+  - >-
+    P-7's staged delta was not isolated from earlier phases: the packet's diff runs from c59a03a to the staged tree, and
+    the reviewer attributed paths by phase.
+  - The workflow_digest 902abfd… was not recomputed.
+  - This review is an additional check, not a guarantee.
