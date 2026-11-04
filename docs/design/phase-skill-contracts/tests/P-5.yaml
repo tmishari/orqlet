@@ -1,0 +1,89 @@
+schema: orqlet.test-record/v1
+task: phase-skill-contracts
+phase: P-5
+review_input:
+  components:
+    code_tests: 5252915bb215e18f9df21488e5a058ad3c03ca6b59b706269f7ce239735eb091
+    plan: bad1acea6377b4a8962920848fbccf28e439fa50927b392a5170f5d919442e63
+  covers:
+  - code_tests
+  - plan
+  digest: 7c00651ecea4ffc439a05b0f7cfc975ec7cb6fcca3f9c61fc7916642a178553e
+  merge_base: c59a03a16a22984f53753f44fa06e479f33dd491
+  schema: orqlet.review-input/v1
+verdict: NOT_RUN
+evidence_kind: claimed
+commands:
+- id: ruff-check
+  exit_code: 0
+  summary: All checks passed!
+  result_digest: 5b196eb3a6acb50d3fa398d04ca284985cc1ffec870e940264b00780bfd2c971
+- id: ruff-format
+  exit_code: 0
+  summary: 551 files already formatted
+  result_digest: dae974f6ceb0e9020fa20d0db8cfddaebe6d85164923358cd088e9db57b848e7
+- id: mypy
+  exit_code: 0
+  summary: 'Success: no issues found in 352 source files'
+  result_digest: e2aaa895ba0bf5e57df40e2897c4a13c940328ba53b9ff6f50de1e264259bf9e
+- id: import-linter
+  exit_code: 0
+  summary: 'Contracts: 5 kept, 0 broken.'
+  result_digest: a72c4b2dadcc1f98da5b9384d98e5c359b6be95fbf7a2ef0d10dc74f806cdfa7
+- id: schemas
+  exit_code: 0
+  summary: tools/export_schemas.py --check printed nothing and exited 0; no schema changed.
+  result_digest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+- id: manifest
+  exit_code: 0
+  summary: tools/build_manifest.py --check printed nothing and exited 0; MANIFEST.json, rebuilt with
+    tools/build_manifest.py after the five roles changed, matches the package.
+  result_digest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+- id: pytest
+  exit_code: 0
+  summary: >-
+    8208 passed, 1 skipped (junctions exist on Windows only) in 942.18s on Python 3.12.11, one Python only, on the
+    staged tree of rework round 2; the digest is of the last four lines of the output. Round 2 fixes findings F-1 and
+    F-2 of security review round 1 at the person's choice: the researchers now carry the credential and secret-file
+    rules, and the tester the quoting, placeholder, secret and output-summary rules, of the implement skill's
+    phase-contract.md lines 26, 27, 31 and 37. The Tester, the typed orqlet-tester subagent, wrote the tests first in
+    both rounds and asked three questions in round 1 and four in round 2, which the Coder answered from the sources.
+    Its round 2 run of the role tests gave 12 failed and 76 passed, exit status 1, every failure a round 2 case; its
+    first round 1 run was piped through tail, which hid the exit status. All 43 cases of
+    tests/unit/test_workflow_role_prompts.py and the extended never-an-instruction test of test_skills.py now pass.
+    Not pinned and not carried by the tester role: the line 26 rule that a non-secret value comes only from the
+    person or the cited lines. The goldens were rewritten with --update-golden and only the fifteen role goldens of
+    this phase changed; the tests of P-1 to P-4 are unedited. The first full run of round 1 failed one case outside
+    the phase (1 failed, 8195 passed), test_generated_entries_without_a_reference_give_an_empty_tuple, whose strategy
+    let a nested dictionary hold bearer_token_env_var; at the person's choice that strategy was fixed in the separate
+    commit 43c21cf, and the choice recorded as Q-13 in 1a8a4c8.
+  result_digest: b822dbcfa4de39cdf496016c070a141437783a46c2f6be73774cc0191e4bf245
+- id: gate-status-phase
+  exit_code: 5
+  summary: >-
+    NOT_RUN caused by ORQ-I393 (approval is host evidence that an offline run lacks), with ORQ-W390 for as-is, design
+    and plan on base_revision, caused by this task's commits c772617 (P-1), 6a87ebb (Q-12), 9b978bd (P-2), 495b0f1
+    (P-3) and 7f20277 (P-4), which the person confirmed at the start of P-5, and the separate commits 43c21cf (test
+    fix) and 1a8a4c8 (Q-13), both at the person's choice; no ORQ-E450, ORQ-E451 or ORQ-E453 on the staged tree of
+    rework round 2. The staged diff holds the 23 files of this phase's file operations, the knowledge record, the
+    test record and the two review records of round 1.
+  result_digest: 16ca9adf82a69dba40dcf8e7c31b84611c8f46c91d486fdca164bf26e98f8a1a
+acceptance_coverage:
+- ac: AC-1
+  check_ref: pytest
+  result: pass
+- ac: AC-2
+  check_ref: pytest
+  result: pass
+- ac: AC-3
+  check_ref: pytest
+  result: pass
+- ac: AC-4
+  check_ref: pytest
+  result: pass
+- ac: AC-5
+  check_ref: pytest
+  result: pass
+- ac: AC-6
+  check_ref: gate-status-phase
+  result: pass

@@ -1,0 +1,219 @@
+schema: orqlet.review-result/v1
+task: phase-skill-contracts
+phase: P-3
+role: architecture-reviewer
+round: 2
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 0a58285b165589660a545d70e07d8571beabc847ecf09bcea9da9c9b8186043a
+    design: 9fd71b6184605ddfacbeeb871586f7c87c25dee2aab814fe8b62495b7cb29884
+    evidence_inputs: 0910da335c68802e807c8c0062221a95eae81fe53304bd1d68af476d6cc64ec9
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: bad1acea6377b4a8962920848fbccf28e439fa50927b392a5170f5d919442e63
+    reviewer_definition: 5730eadbb534996a4181219f53b86eac676d230727ab1c065afd01a43d5740b6
+    standards: d8fcc2fc2afba1ea19064aa6b45cdb1c83aaacafb5f36ada7f580b1976d2f889
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: e05f12e13dc8a9429079bf8b7c691f60d56c0c02e5529d390ed0b013f304ebdb
+  merge_base: c59a03a16a22984f53753f44fa06e479f33dd491
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: b420177b9e6104e277c852b5a36dfede59382df5458d0196b30138e780d5fe13
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran as the typed orqlet-arch-reviewer subagent of Cursor, in a fresh context, with the path of packet
+  phase-skill-contracts-P-3-1f15ed33 only. Its shell was refused, so it ran no command and read files only.
+- Its first two replies gave a summary without the findings. The main agent asked it to repeat them, without new
+  review; one of those requests was blocked by a usage filter, and the third reply listed them in plain text, which
+  the main agent recorded here. In that reply the reviewer corrected its own ADR-001 citation from lines 27-28 to
+  lines 27 and 29.
+- It computed no quote digests. The main agent hashed the quotes on committed lines with `orqlet evidence cite` at
+  9b978bd87f50619107c002d8608b495cb6027a6f, and left the quotes on staged files as path, line and text in the claims;
+  those staged files are in the packet's tree 71d08a47ea9dccec00895c799c87427a292d632d.
+- The reviewer could not separate P-3's change from the P-1 and P-2 commits in the packet's diff. The main agent
+  checked with `git diff --cached --name-only HEAD`, which lists the ten files of the phase's file operations, the
+  knowledge and tester records and the two round-1 review records only; the reviewer did not see that check.
+- The model that ran the reviewer is not observed.
+- The reviewer ran in the same client as the Coder, so this review is I1; this D3 task needs I2, which a review in
+  another client must supply.
+- This review is an additional check, not a guarantee.
+applicability:
+  examined:
+  - context/plan.yaml, phase P-3
+  - context/design-manifest.yaml
+  - context/test-record.yaml
+  - context/knowledge-impact.yaml
+  - docs/design/phase-skill-contracts/design/component.md
+  - docs/design/phase-skill-contracts/design/adr-001-one-contract-shape-for-every-skill.md
+  - docs/design/phase-skill-contracts/design/adr-002-project-context-read-at-execution-time.md
+  - docs/design/phase-skill-contracts/design/adr-004-what-each-phase-produces.md
+  - docs/design/phase-skill-contracts/reviews/architecture-reviewer-P-3-r1.yaml
+  - docs/design/phase-skill-contracts/reviews/security-reviewer-P-3-r1.yaml
+  - src/orqlet/workflow/skills/orqlet-onboard/skill.md
+  - src/orqlet/workflow/skills/orqlet-review/skill.md
+  - src/orqlet/workflow/MANIFEST.json
+  - src/orqlet/application/usecases/validate_records.py
+  - src/orqlet/application/usecases/diagnose.py
+  - tests/unit/test_workflow_skill_contracts.py
+  - tests/unit/render/test_skills.py
+  - tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-onboard/SKILL.md
+  - tests/golden/codex/docs-2026-10/.agents/skills/orqlet-onboard/SKILL.md
+  - tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-review/SKILL.md
+  - tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-review/SKILL.md
+  - .orqlet/knowledge.yaml
+  - README.md
+  - diff.patch
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: info
+  category: correctness
+  evidence:
+  - kind: quote
+    path: src/orqlet/application/usecases/validate_records.py
+    lines: 195-196
+    revision: 9b978bd87f50619107c002d8608b495cb6027a6f
+    quote_sha256: 07bff2e2e8fbe643b32dbe4732c8034475b51c237056eb7f8ea5ce74d4fe6195
+  - kind: quote
+    path: docs/design/phase-skill-contracts/design/adr-004-what-each-phase-produces.md
+    lines: '48'
+    revision: 9b978bd87f50619107c002d8608b495cb6027a6f
+    quote_sha256: d727003bdc70f135bc7fd6f1e0d9b707308c5d79e80ea396c97f5e37490a2451
+  claim: >-
+    The `## Next` of the review skill (staged line 52) has two branches, "With a blocking finding, the person runs
+    `/orqlet-implement` with the same phase id for a rework round. Otherwise the person accepts the review and commits
+    the phase." The second branch also covers a review that step 4 (staged line 28) reports as NOT_RUN, a stale
+    record, and a review whose independence class is below what the change class needs; `orqlet validate review`
+    reports independence_claimed and independence_derived as data, with no error for a class that is too low. This
+    follows BC-3 and ADR-004 decision 6 as written ("its next step is a rework round in implement or the person's
+    commit"), and `## Output` gives the person each verdict with its independence class, so it is not a deviation
+    from the design.
+  suggested_action: >-
+    None for P-3. A later design revision could make the commit branch depend on every record passing validation at
+    the independence class the change class needs.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: architecture
+  evidence:
+  - kind: quote
+    path: docs/design/phase-skill-contracts/design/adr-001-one-contract-shape-for-every-skill.md
+    lines: '27'
+    revision: 9b978bd87f50619107c002d8608b495cb6027a6f
+    quote_sha256: 53bc998dfeb98d654487d68521f81b2f7c370e2316962839fa3f39cf4ed7d0cb
+  - kind: quote
+    path: docs/design/phase-skill-contracts/design/adr-001-one-contract-shape-for-every-skill.md
+    lines: '29'
+    revision: 9b978bd87f50619107c002d8608b495cb6027a6f
+    quote_sha256: aa9ae62279c6353a005ae3db11a92f656ad8f88a1919f92683ef8391b50d310d
+  - kind: quote
+    path: src/orqlet/application/usecases/diagnose.py
+    lines: '285'
+    revision: 9b978bd87f50619107c002d8608b495cb6027a6f
+    quote_sha256: 5a9b61b695c6d8a4ae3139cfa8184fd3fb6dcf7da1ef77551644e2a67f5843fb
+  - kind: quote
+    path: src/orqlet/application/usecases/diagnose.py
+    lines: '434'
+    revision: 9b978bd87f50619107c002d8608b495cb6027a6f
+    quote_sha256: 98310bf9fe4cafbde05b5fd43731967fc5cafc9ceee2d7aa3d696505246f4933
+  - kind: quote
+    path: src/orqlet/application/usecases/diagnose.py
+    lines: '444'
+    revision: 9b978bd87f50619107c002d8608b495cb6027a6f
+    quote_sha256: e87c242cac031e2dc059a3962aec75e0a51f84cd1d05f8298546a198d17e9a3b
+  claim: >-
+    The `## If an input is missing or outdated` section of onboard (staged line 47) says "`orqlet doctor` reports an
+    error: show it and stop; never repair the profile by hand." The design gives no content for this section in a
+    skill without phase-contract.md (ADR-001 decision 3: "Onboard and review do not carry it"), so the rule was chosen
+    in implementation. Doctor's errors include ORQ-E150, ORQ-E153, ORQ-E161, ORQ-E163, ORQ-E170 and ORQ-E505, while
+    the profile's own findings ORQ-W180 and ORQ-W181 are warnings, so onboard also stops on errors that do not concern
+    the profile, such as ORQ-E505 (a stored copy differs). Stopping is the conservative choice, and nothing in BC-12
+    or in P-3's criteria conflicts with it.
+  suggested_action: None for P-3. Recorded so the person knows the rule comes from the implementation, not the design.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implementation
+    acceptance_criteria:
+    - P-3 AC-1 through AC-10
+  checks:
+  - what: AC-1, front matter and invocation
+    how: >-
+      Both sources have name and description only; the rendered goldens add disable-model-invocation true; the Codex
+      onboard sidecar holds only allow_implicit_invocation false; the BC-1 tests cover all six skills.
+    result: pass
+  - what: AC-2, the shape
+    how: >-
+      Read both staged sources against ADR-001 decision 2; the tests for title, paragraphs, headings, numbering and
+      STOP run over all six skills with every command and with BEFORE_RECORDS.
+    result: pass
+  - what: AC-3 and AC-4, the Next sections
+    how: Onboard's and review's `## Next` read against BC-3; the review item AC-4 judged as met for both (see F-1).
+    result: pass
+  - what: AC-5, installed files
+    how: Onboard's Boundaries against BC-10 and ADR-002 decision 5; pinned by the test.
+    result: pass
+  - what: AC-6, command recording
+    how: >-
+      Onboard step 6 compared item by item with ADR-002 decision 6 (fixed form, warnings, consent, provenance) and
+      decision 3 (placeholders, credentials, secret files); the plan skill's provenance test exists.
+    result: pass
+  - what: Round-1 findings
+    how: >-
+      Architecture F-1 is fixed (the never-run rule in onboard's Boundaries, pinned by a new test); security F-1 is
+      fixed (the whole credential sentence, pinned in SECRET_PHRASES); round-1 F-3 (the Output bullet marked
+      resources add) is unchanged and has no effect today.
+    result: pass
+  - what: AC-7, kept pins
+    how: >-
+      The phrases pinned by tests/unit/render/test_skills.py are in the review body; onboard step 5 keeps its
+      resources list marker; tests/unit/test_workflow_lookup_text.py is not in the diff.
+    result: pass
+  - what: AC-8, size
+    how: Hand count of the rendered onboard body, 47 lines and about 894 words; review is well under.
+    result: pass
+  - what: AC-9, manifest and goldens
+    how: >-
+      The MANIFEST.json hashes of onboard and review equal the packet's snapshot hashes; the Claude Code and Codex
+      onboard goldens and the Claude Code and Cursor review goldens equal the rendered source.
+    result: pass
+  - what: Knowledge record
+    how: >-
+      Its three already_documented_refs hashes equal the design manifest's; .orqlet/knowledge.yaml has no sources;
+      the plan's knowledge_scope is empty; the README that describes onboard is P-6's change.
+    result: pass
+  - what: Standards ORQLET-DET-001, ORQLET-DET-002, ORQLET-TEST-001, ORQLET-SEC-003, ORQLET-STYLE-001 and the CodeGuard rules
+    how: >-
+      Manifest rebuilt; goldens rewritten (by claim); the tests are text assertions with no network, fixtures or
+      credentials; the change holds no credential, certificate or cryptographic algorithm, and its digests are SHA-256.
+    result: pass
+  - what: AC-10, scope and gate status; pytest, ruff, mypy and the manifest check
+    how: Not run by the reviewer, whose shell was refused; the results are the tester record's claims.
+    result: not-run
+  unverified:
+  - Which files P-3 stages, as opposed to what P-1 and P-2 committed; the reviewer relied on the tester record.
+  - Whether P-3 weakened a P-2 assertion in tests/unit/test_workflow_skill_contracts.py cannot be seen in the
+    cumulative diff; the staged file still covers every P-2 criterion it names.
+  - The P-1 and P-2 parts of the diff, and every golden byte for byte, were not reviewed again.

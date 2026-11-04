@@ -1,0 +1,106 @@
+schema: orqlet.review-result/v1
+task: phase-skill-contracts
+phase: P-1
+role: security-reviewer
+round: 3
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 947224fd45736faf5fa7882c0f08fc7fd943844e5166686bc096029ecedfaa86
+    design: 9fd71b6184605ddfacbeeb871586f7c87c25dee2aab814fe8b62495b7cb29884
+    evidence_inputs: 30582566d1491ab01cf4fefe3f5374eb0c6e832d8c0c0563880b70de6a503aec
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: bad1acea6377b4a8962920848fbccf28e439fa50927b392a5170f5d919442e63
+    reviewer_definition: 705413867db1155a00f79180d242f6ab67595c42911c3db97a02e07271662bb3
+    standards: d8fcc2fc2afba1ea19064aa6b45cdb1c83aaacafb5f36ada7f580b1976d2f889
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 1c2694f9193b6f69188c18a0467a97c08e80fc603a9788f2587ededd9dd63767
+  merge_base: c59a03a16a22984f53753f44fa06e479f33dd491
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: 96a3708f33698c2dbe55aeaede1b539524672c6b2ecfa294cb8bc426cb99a531
+  client: codex
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I2
+capability_limits:
+- Independent typed subagent /root/security_review_p1_r3 received only the packet path in a fresh Codex context.
+  This is an advisory AI review.
+- Coder binding is carried from the staged round-2 records (Cursor); the coder session was not independently
+  observed. I2 follows from the recorded different clients.
+- The reviewer did not separately report its model identifier.
+- Runtime tests and the tester record command results were not independently reproduced.
+- docs/design/orqlet-architecture-proposal.md was omitted by packet limits and not examined.
+applicability:
+  conclusion: no-impact
+  absence_record:
+    kind: absence
+    revision: a4db09b23ee69c529c639f4aa4d5ad8b42560676
+    searched:
+    - diff.patch — all nine changed paths
+    - tests/fakes/workflow.py
+    - tests/unit/application/test_workflow_injection.py
+    - tests/unit/render/test_rendered_formats.py
+    - docs/design/phase-skill-contracts/knowledge/P-1.yaml
+    - docs/design/phase-skill-contracts/tests/P-1.yaml
+    - docs/design/phase-skill-contracts/reviews/*-P-1-r*.yaml
+    - Referenced fakes, support code, fixtures, YAML loader and MCP renderer
+    method: Read the changed files, inspected imports and security-sensitive calls, scanned the diff and referenced
+      fixtures for credential patterns, and verified all 959 packet file hashes. No production code, dependency,
+      authentication, authorization or logging changes. Project writes use MemoryFileSystem and Git uses FakeVcs.
+      Parsing uses StrictYamlLoader, tomllib and json; regex input is escaped. No credentials or private information
+      found in added records. The public Atlassian address is rendered as configuration data without a network
+      request.
+  examined:
+  - tests/fakes/workflow.py
+  - tests/unit/application/test_workflow_injection.py
+  - tests/unit/render/test_rendered_formats.py
+  - docs/design/phase-skill-contracts/knowledge/P-1.yaml
+  - docs/design/phase-skill-contracts/tests/P-1.yaml
+  - docs/design/phase-skill-contracts/reviews/architecture-reviewer-P-1-r1.yaml
+  - docs/design/phase-skill-contracts/reviews/architecture-reviewer-P-1-r2.yaml
+  - docs/design/phase-skill-contracts/reviews/security-reviewer-P-1-r1.yaml
+  - docs/design/phase-skill-contracts/reviews/security-reviewer-P-1-r2.yaml
+findings: []
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implementation
+    acceptance_criteria:
+    - P-1 AC-8
+    applicable_standards:
+    - ORQLET-SEC-003
+    - ORQLET-TEST-001
+  checks:
+  - what: Packet integrity
+    how: Recomputed SHA-256 for every MANIFEST.json file entry; all matched.
+    result: pass
+  - what: Secrets, injection, parsing, file/process/network access and data exposure
+    how: Static review of changed files and referenced support paths using CodeGuard guidance.
+    result: pass
+  - what: Knowledge disclosure
+    how: Read the no-impact record; zero candidates and no knowledge drafts.
+    result: pass
+  - what: Runtime verification
+    how: Tests were not executed during this read-only review.
+    result: not-run
+  failures: []
+  questions: []
+  unverified:
+  - The tester's recorded command results were not independently reproduced.
+  - docs/design/orqlet-architecture-proposal.md was omitted from the packet and not examined.
+  - This is an additional static check, not a security guarantee.

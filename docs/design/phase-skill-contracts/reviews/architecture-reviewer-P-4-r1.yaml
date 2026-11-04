@@ -1,0 +1,316 @@
+schema: orqlet.review-result/v1
+task: phase-skill-contracts
+phase: P-4
+role: architecture-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 08a38711275c45b437c0c443427ab0afb3eff30a94e218adf09579f3b368dd94
+    design: 9fd71b6184605ddfacbeeb871586f7c87c25dee2aab814fe8b62495b7cb29884
+    evidence_inputs: 76dbe30860eb76cec2a93abead244861bc09ce5e4308d68cedb17a95c6c0d38a
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: bad1acea6377b4a8962920848fbccf28e439fa50927b392a5170f5d919442e63
+    reviewer_definition: 5730eadbb534996a4181219f53b86eac676d230727ab1c065afd01a43d5740b6
+    standards: d8fcc2fc2afba1ea19064aa6b45cdb1c83aaacafb5f36ada7f580b1976d2f889
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 8f96ee3186e3933e9b25f54c721677e17e944fde286bd0b16a36a78183dca559
+  merge_base: c59a03a16a22984f53753f44fa06e479f33dd491
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: b420177b9e6104e277c852b5a36dfede59382df5458d0196b30138e780d5fe13
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran as the typed orqlet-arch-reviewer subagent of Cursor, in a fresh context, with the packet path only.
+  Its shell was refused, so it ran no command and read files only.
+- Its findings reached the main agent only as a summary. Two follow-up requests to the reviewer were blocked by the
+  client, so the main agent took the evidence, claims and self-check from the reviewer's own saved transcript.
+- It computed no quote digests. The main agent hashed the quotes on committed lines with `orqlet evidence cite` at
+  495b0f193ee5db4cf7a045206d48007879fde50a, where every cited line has the same text as at the revision the reviewer
+  named, and left the quotes on staged files as path and line references in the claims. The absence record cites the
+  packet's staged tree 7c9acaeb2b39c59d2b597d8ce8ca334f3ef26d41.
+- The reviewer cited ADR-004 decision 1 as line 17; it stands on line 16, which the main agent cited instead.
+- The model that ran the reviewer is not observed.
+- The reviewer ran in the same client as the Coder, so this review is I1; this D3 task needs I2, which a review in
+  another client must supply.
+- This review is an additional check, not a guarantee.
+applicability:
+  examined:
+  - context/plan.yaml, phase P-4
+  - context/design-manifest.yaml
+  - context/test-record.yaml
+  - context/knowledge-impact.yaml
+  - context/standards/rules.yaml
+  - docs/design/phase-skill-contracts/design/component.md
+  - docs/design/phase-skill-contracts/design/adr-002-project-context-read-at-execution-time.md
+  - docs/design/phase-skill-contracts/design/adr-004-what-each-phase-produces.md
+  - src/orqlet/workflow/skills/orqlet-research/references/as-is-format.md
+  - src/orqlet/workflow/skills/orqlet-design/references/design-format.md
+  - src/orqlet/workflow/skills/orqlet-plan/references/plan-format.md
+  - src/orqlet/workflow/skills/orqlet-research/skill.md
+  - src/orqlet/workflow/skills/orqlet-research/references/phase-contract.md
+  - src/orqlet/workflow/skills/orqlet-design/skill.md
+  - src/orqlet/workflow/skills/orqlet-plan/skill.md
+  - src/orqlet/workflow/MANIFEST.json
+  - src/orqlet/application/contracts/as_is.py
+  - src/orqlet/application/contracts/question_ledger.py
+  - src/orqlet/application/contracts/self_check.py
+  - src/orqlet/application/usecases/validate_as_is.py
+  - src/orqlet/application/usecases/validate_design.py
+  - src/orqlet/domain/change_class.py
+  - tests/unit/test_workflow_format_references.py
+  - tests/unit/workflow/test_skills.py
+  - tests/golden/codex/docs-2026-10/.agents/skills/orqlet-research/references/as-is-format.md
+  - tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-design/references/design-format.md
+  - tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-plan/references/plan-format.md
+  - README.md
+  - AGENTS.md
+  - diff.patch
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: correctness
+  evidence:
+  - kind: quote
+    path: src/orqlet/application/contracts/as_is.py
+    lines: 53-57
+    revision: 495b0f193ee5db4cf7a045206d48007879fde50a
+    quote_sha256: 1a8eb8af92a5925a85cffd6046bbb9096c6dfd80aa49e98f13f80bb35c525cc3
+  - kind: quote
+    path: src/orqlet/application/contracts/as_is.py
+    lines: '49'
+    revision: 495b0f193ee5db4cf7a045206d48007879fde50a
+    quote_sha256: 0cbe303fb69238be731d7cea061191d75946cad65a35580c90def70ebeb7fefc
+  - kind: quote
+    path: src/orqlet/application/contracts/question_ledger.py
+    lines: '75'
+    revision: 495b0f193ee5db4cf7a045206d48007879fde50a
+    quote_sha256: 5773dbafe242a08afbacfdf9f95f325c1d136cccca5f5323b0716d455d4a7ba6
+  - kind: quote
+    path: src/orqlet/application/contracts/question_ledger.py
+    lines: '87'
+    revision: 495b0f193ee5db4cf7a045206d48007879fde50a
+    quote_sha256: 9351475703fed798f9e3e64d3da61f8958d28b877bfca9b25f8c1e0dce23cc35
+  - kind: quote
+    path: docs/design/phase-skill-contracts/design/adr-004-what-each-phase-produces.md
+    lines: '16'
+    revision: 495b0f193ee5db4cf7a045206d48007879fde50a
+    quote_sha256: 1f1d83c33b04e564cd62b27cfd3c405c5d95fcccc3ec51ff83f0ca271df5bd67
+  - kind: quote
+    path: src/orqlet/workflow/skills/orqlet-research/skill.md
+    lines: '40'
+    revision: 495b0f193ee5db4cf7a045206d48007879fde50a
+    quote_sha256: 8b06c4ddf2aa309ee772d3f5f5d8642fc62119356f34b0552897769e161a8c18
+  - kind: quote
+    path: src/orqlet/workflow/skills/orqlet-research/references/phase-contract.md
+    lines: '72'
+    revision: 495b0f193ee5db4cf7a045206d48007879fde50a
+    quote_sha256: e46084bb5b8bca1bcddf0fa49561cca720bfd8da2049256f4479a997006cf2f5
+  claim: >-
+    Item 5 of the research brief (staged as-is-format.md line 59, "5. Open questions: what is still unknown or
+    contradictory, each with its `question_ref`.") says that every open item, unknown or contradictory, carries a
+    `question_ref`. The contracts disagree. A Contradiction has no `question_ref` field, the ledger keeps conflicts in
+    a separate `conflicts` list, and `Unknown.question_ref` is optional and defaults to None. A researcher who follows
+    the text would look for, or make up, a `question_ref` for every contradiction and every unknown. ADR-004 decision 1
+    names the section "Open questions" only, and the research skill's Output and the Handoff table of
+    phase-contract.md read it more narrowly, as the unknowns with their `question_ref` and the brief's open questions.
+  suggested_action: >-
+    Reword item 5 to fit the contracts, for example "Open questions: what is still unknown or contradictory; an unknown
+    with its `question_ref` where it has one, a contradiction with its sources." The opening words "Open questions:"
+    stay, so the P-4 tests still pass. Then rebuild MANIFEST.json and the three as-is-format.md goldens.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: docs
+  evidence:
+  - kind: quote
+    path: docs/design/phase-skill-contracts/design/adr-004-what-each-phase-produces.md
+    lines: '29'
+    revision: 495b0f193ee5db4cf7a045206d48007879fde50a
+    quote_sha256: 9785af7d1853cd0b864f995a84cdade76b672b7cb54f8b037de604e68cf699b6
+  claim: >-
+    The completion rule (staged plan-format.md line 10) says each source is cited with path, lines, revision and
+    sha256. The example entry (staged line 50) gives a revision only for the defining lines `.ci/pipeline.yml:40`; the
+    cited Makefile and test.cfg lines carry a sha256 but no revision. A reader can take the first revision as shared,
+    and this task's own plan writes its entries the same way, so the risk is small. The P-4 test pins only the word
+    "sha256".
+  suggested_action: >-
+    Either add the revision to each cited source in the example, or say in line 10 that one revision stands for every
+    source of an entry.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: docs
+  evidence:
+  - kind: quote
+    path: docs/design/phase-skill-contracts/design/adr-004-what-each-phase-produces.md
+    lines: '29'
+    revision: 495b0f193ee5db4cf7a045206d48007879fde50a
+    quote_sha256: 9785af7d1853cd0b864f995a84cdade76b672b7cb54f8b037de604e68cf699b6
+  - kind: quote
+    path: src/orqlet/application/contracts/self_check.py
+    lines: '42'
+    revision: 495b0f193ee5db4cf7a045206d48007879fde50a
+    quote_sha256: 5d012f0bd0781f39f419a2199987a6ca752202932b4df624cb5c544de8a1fa6f
+  claim: >-
+    A BC that a review checks can be covered by a criterion whose `check_ref` is `review:<item>` (staged plan-format.md
+    line 9, "Its `check_ref` names one of the phase's checks or a review item.", and line 71). The example instead
+    lists BC-4 under `self_check.unverified` with "left to the review" as the reason (staged line 61). BC-23 allows
+    this, but it teaches planners to take reviewable behaviour out of acceptance coverage.
+  suggested_action: >-
+    Give BC-4 an unverified reason that no check or review can cover, or show it as a criterion with
+    `check_ref: review:<item>`.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: docs
+  evidence:
+  - kind: quote
+    path: src/orqlet/workflow/skills/orqlet-plan/skill.md
+    lines: '32'
+    revision: 495b0f193ee5db4cf7a045206d48007879fde50a
+    quote_sha256: cf5eeb88788640d791d8d4b0de14b45c2df314195d4dc40c44b20a268d829ee1
+  - kind: quote
+    path: docs/design/phase-skill-contracts/design/adr-004-what-each-phase-produces.md
+    lines: '30'
+    revision: 495b0f193ee5db4cf7a045206d48007879fde50a
+    quote_sha256: cae963f925626bd37052920e8d72d5e023c682ed8813e0517a917b857a794971
+  claim: >-
+    The checklist section of the reference (staged plan-format.md line 17, "After the test plan come the file
+    operations with their exact paths and why each one changes, `depends_on`, and the `completion` entries.") leaves
+    out "the modules affected", which both the plan skill's step 4 and ADR-004 decision 4 include. The skill body
+    carries the item, so the two shipped texts differ but nothing is lost. P-4's objective does not name ADR-004
+    decision 4, so this is not a deviation from the phase.
+  suggested_action: None for P-4. A later edit can align the reference with the skill's step 4.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: architecture
+  evidence:
+  - kind: quote
+    path: src/orqlet/domain/change_class.py
+    lines: 132-154
+    revision: 495b0f193ee5db4cf7a045206d48007879fde50a
+    quote_sha256: 17b264d547cfc301c4d3caaf9521dda32d8587acca816c131e6a0e550e71dd24
+  - kind: quote
+    path: docs/design/phase-skill-contracts/design/adr-004-what-each-phase-produces.md
+    lines: '68'
+    revision: 495b0f193ee5db4cf7a045206d48007879fde50a
+    quote_sha256: 63b0b554c7bea1af3a7d304c48c7be56a238548afceaef7ead8a8129adfe37a6
+  - kind: quote
+    path: src/orqlet/workflow/skills/orqlet-design/skill.md
+    lines: '30'
+    revision: 495b0f193ee5db4cf7a045206d48007879fde50a
+    quote_sha256: d316493f238634a65b6ae262ed2ed9fbd8e22ae6a93c05f1baf5a266ed247c42
+  claim: >-
+    The validator requires an artifact of kind `c4-component` for every class, at any path; it does not require a
+    file named `component.md`. The reference (staged design-format.md line 23, "`component.md`, which every class
+    requires, opens with the design brief.") follows ADR-004 and the design skill, so it matches the approved design.
+    A design set whose component view has another name would leave the brief's location open.
+  suggested_action: None for P-4. A later design revision could say "the component view (`component.md`)".
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implementation
+    acceptance_criteria:
+    - P-4 AC-1 through AC-7
+  checks:
+  - what: AC-1 (BC-20), the research brief
+    how: >-
+      Read staged as-is-format.md lines 1-68 against ADR-004 decision 1. The six sections are in order, statements
+      name their fact ids, and an inference has an I-n id, its facts and what would confirm it. The brief recommends
+      nothing. ORQ-W338 is the body lint at validate_as_is.py lines 174-181, and test_workflow_format_references.py
+      pins each element (see F-1).
+    result: pass
+  - what: AC-2 (BC-21), the design brief
+    how: >-
+      Read design-format.md lines 21-37 against ADR-004 decision 2. The nine parts are in order, behaviour is listed by
+      interface kind with the sentence for projects without a graphical interface, ADRs compare alternatives, and there
+      is no phase order. ORQ-E367 is confirmed at validate_design.py lines 257-258 (see F-5).
+    result: pass
+  - what: AC-3 (BC-22), the test plan
+    how: >-
+      Read plan-format.md lines 5-17 and the example (lines 36-61) against ADR-004 decision 3 and ADR-002 decision 3.
+      Criteria and checks come before file_operations, and sources are BC-n, R-n, Q-n or A-n, never code. Each check
+      has a completion entry with a placeholder and its cited sources. The warning mark is in the entry and the
+      self-check, and the warning list exists at line 33 of the plan skill's phase-contract.md (see F-2).
+    result: pass
+  - what: AC-4 (BC-23), review item review:plan-format
+    how: >-
+      plan-format.md line 13 holds the rule, and `unverified` is a SelfCheck field (self_check.py line 42). The test
+      record lists this item as not run; the reviewer judges it met (see F-3).
+    result: pass
+  - what: AC-5, examples and command mentions
+    how: >-
+      test_skills.py lines 257-279 load all four format examples with the strict loader against their contracts and
+      assert that four are found; lines 194-201 check every backticked orqlet command in the references. The three
+      references name validate as-is, validate design, evidence cite, validate plan and gate status. review-format.md
+      has no diff entry, and its MANIFEST hash equals the snapshot's. The test results are the tester's claims.
+    result: pass
+  - what: AC-6, manifest and goldens
+    how: >-
+      The MANIFEST.json hashes of the three references equal the packet manifest's snapshot hashes. Three golden hunks
+      (Codex as-is-format, Cursor design-format, Claude Code plan-format) were compared to the source; only the
+      generated header differs. The other six goldens were checked only for the new phrases.
+    result: pass
+  - what: AC-7 and BC-33, watched surfaces
+    how: >-
+      The cumulative diff touches no Python module under src/orqlet, nothing under tools/, .github/workflows/ or
+      .prompts/, and neither pyproject.toml nor uv.lock. The reviewer did not run gate status.
+    result: not-run
+  - what: Tests are meaningful
+    how: >-
+      The tests pin each criterion's phrases, section order and item counts, and check the parsed example - criterion
+      sources, a regression next to new behaviour, one completion entry per check, and the warning mark
+      cross-referenced to the self-check. The inference example is tied to the real advice lint, and Q-12 is covered.
+      Test-first is claimed (49 of 53 cases failed before the change). Importing helpers from other test modules has
+      precedent (tests/unit/domain/test_conventions.py line 39).
+    result: pass
+  - what: Knowledge record
+    how: >-
+      The three already_documented_refs hashes equal the design manifest's D-3, D-9 and D-7. README.md and AGENTS.md
+      hold none of the searched terms, and every other match is in a task folder.
+    result: pass
+  - what: Standards ORQLET-DET-001, ORQLET-DET-002, ORQLET-TEST-001, ORQLET-SEC-003, ORQLET-STYLE-001 and the CodeGuard rules
+    how: >-
+      The manifest is rebuilt; the goldens were rewritten (by claim); the tests are text tests with no network access;
+      the example uses obvious placeholders; the change holds no credential, certificate or cryptographic algorithm,
+      and its digests are SHA-256.
+    result: pass
+  - what: ruff, mypy, import-linter, schemas, manifest check, pytest
+    how: Not run by the reviewer, whose shell was refused; the results are the tester record's claims.
+    result: not-run
+  unverified:
+  - Which files P-4 stages, as opposed to what P-1 to P-3 committed; the diff is cumulative from the merge base, so the
+    reviewer relied on the tester record's statement that the staged diff holds the phase's 14 files.
+  - That P-4 left the tests of P-1 to P-3 unedited.
+  - Six of the nine goldens, byte for byte.

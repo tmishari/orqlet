@@ -245,6 +245,151 @@ questions:
     answerer: user
     time: '2026-11-02T12:45:00+02:00'
     scope: task
+- id: Q-12
+  key: e9f7913a62047880b92ff5ac84c33014f5a62065af0eb238e66588aa21e02b2e
+  subject: How BC-6 treats a technology named as a generic example in a shipped skill, reference or role text
+  raised_by: architecture-reviewer
+  phase: implement
+  category: requirement
+  text: The P-1 test of BC-6 counts a whole word, in its declared case, of a technology that only the other project declares as a leak, even in text the package ships the same to every project. ADR-002 decision 3 gives the example "a Python version", which P-2 would carry into phase-contract.md, and P-2 to P-5 may not edit the tests of P-1. Do the texts of P-2 to P-5 avoid those words, or does BC-6 tell a shared example from an injected project value?
+  why: Without an answer, a later phase that writes the example of ADR-002 fails the P-1 test and stops for a plan amendment.
+  options:
+  - Write generic examples, such as "a language version"; no skill, reference or role text names Python, Flask, pip, Rust, clap, SQLx, Tokio or Kafka as a word
+  - Change the P-1 test to count a technology word as a leak only when the packaged render of the same path does not already contain it
+  evidence_refs:
+  - docs/design/phase-skill-contracts/design/adr-002-project-context-read-at-execution-time.md
+  - tests/unit/application/test_workflow_injection.py
+  - docs/design/phase-skill-contracts/reviews/architecture-reviewer-P-1-r1.yaml
+  - docs/design/phase-skill-contracts/reviews/architecture-reviewer-P-1-r2.yaml
+  - docs/design/phase-skill-contracts/reviews/architecture-reviewer-P-1-r3.yaml
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: Write generic examples, such as "a language version". No skill, reference or role text of P-2 to P-5 names Python, Flask, pip, Rust, clap, SQLx, Tokio or Kafka as a word, and the P-1 test stays as it is. The person gave this answer in the P-1 session on 2026-11-02 (the minute was not recorded); the time below is when it was written here, at the start of P-2.
+    answerer: user
+    time: '2026-11-03T06:20:00+02:00'
+    scope: task
+- id: Q-13
+  key: f446b651661a05dcf41cfcddb58230fa80080fb08575609932c5174eab4597f9
+  subject: A property test outside every phase file list that fails in the full pytest run of a phase
+  raised_by: coder
+  phase: implement
+  category: test-expectation
+  text: The first full pytest run of P-5 failed test_generated_entries_without_a_reference_give_an_empty_tuple in tests/unit/domain/test_mcp_credentials_properties.py, a property test of the mcp-or-plugins task that no phase of this plan lists. Its strategy removed bearer_token_env_var from the top-level keys only, while referenced_variables reads that key at every depth, and Hypothesis generated a nested entry that holds it. The plan says that a test outside a phase's list that changes needs a plan amendment. Is the strategy fixed on this branch, and how?
+  why: The failing example is saved in the local Hypothesis database, so every later local pytest run of this task replays it and fails, and P-5 cannot pass its pytest check.
+  options:
+  - Fix the strategy in its own test-only commit on this branch, separate from P-5, then run pytest again and continue P-5
+  - Record pytest as FAIL for P-5 and fix the test in a separate pull request
+  - Stop P-5
+  evidence_refs:
+  - tests/unit/domain/test_mcp_credentials_properties.py
+  - src/orqlet/domain/mcp_credentials.py
+  - docs/design/phase-skill-contracts/plan.yaml
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: Fix the strategy in its own test-only commit on this branch, separate from P-5, then run pytest again and continue P-5. The fix is commit 43c21cf, which applies the same key filter to the nested dictionaries; the full pytest run after it passed. The person gave this answer in the P-5 session on 2026-11-03 (the minute was not recorded); the time below is when it was written here, after the P-5 architecture review asked for the record (finding F-1 of round 1).
+    answerer: user
+    time: '2026-11-03T19:45:00+02:00'
+    scope: task
+- id: Q-14
+  key: f35d50084c87338800f4e7174bd12dbfe4c68bade50e47c6d7f825d1ef198348
+  subject: How a phase treats a non-blocking security finding whose fix goes beyond the phase acceptance criteria but stays inside its file list
+  raised_by: security-reviewer
+  phase: implement
+  category: policy
+  text: Security review round 1 of P-5 found that the inventory and tracer roles lacked the credential and secret-file rules of the implement skill's phase-contract.md (lines 26 and 27), and that the tester lacked its quoting, placeholder, secret and output-summary rules (lines 26, 31 and 37). BC-26 does not ask for these rules, so P-5 met its criteria, but the three role files are in P-5's file list. Does P-5 add the rules in a rework round, or are they recorded for the design revision?
+  why: The rules widen the role texts beyond the acceptance criteria that the person approved, although ADR-002 decision 3 already states them and the files are inside the file list.
+  options:
+  - Add the rules to the three roles in P-5's own files as rework round 2, tests first, then redo the records and reviews
+  - Record the gaps for the design revision that takes up the open design findings
+  evidence_refs:
+  - docs/design/phase-skill-contracts/reviews/security-reviewer-P-5-r1.yaml
+  - docs/design/phase-skill-contracts/reviews/architecture-reviewer-P-5-r2.yaml
+  - docs/design/phase-skill-contracts/design/adr-002-project-context-read-at-execution-time.md
+  - src/orqlet/workflow/skills/orqlet-implement/references/phase-contract.md
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: Add the rules to the three roles in P-5's own files as rework round 2, tests first, then redo the records and reviews. The rules are in commit 08e8a16; both round 2 reviews passed. The person gave this answer in the P-5 session on 2026-11-03 (the minute was not recorded); the time below is when it was written here, after the P-5 architecture review asked for the record (finding F-1 of round 2).
+    answerer: user
+    time: '2026-11-04T09:29:00+02:00'
+    scope: task
+- id: Q-15
+  key: 721634dcc57c6f008d352e047affcd1982b70c495caace151392197f826028cd
+  subject: How P-5 treats the two non-blocking security gaps left after its review round 2
+  raised_by: security-reviewer
+  phase: implement
+  category: policy
+  text: After rework round 2 of P-5 two non-blocking gaps remain. The tester, the one role with full tools, carries no rule against opening files that hold secrets (phase-contract.md line 27). Neither reviewer prompt says how to report a credential that it finds without reproducing it, while the design skill saves each design-review note unchanged and commits it. Neither BC-25 nor BC-26 asks for these rules. Does P-5 add them in a last rework round, or are they recorded for the design revision?
+  why: A third rework round is the last that the implement skill allows, and the rules would again widen the role texts beyond the acceptance criteria.
+  options:
+  - Accept P-5 as it is and record both gaps for the design revision, together with SEC5-3
+  - Add the secret-file rule to the tester and the no-reproduce rule to both reviewers in rework round 3
+  evidence_refs:
+  - docs/design/phase-skill-contracts/reviews/security-reviewer-P-5-r2.yaml
+  - docs/design/phase-skill-contracts/reviews/security-reviewer-design.md
+  - docs/design/phase-skill-contracts/plan.yaml
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: Accept P-5 as it is and record both gaps for the design revision, together with SEC5-3; P-5 is commit 08e8a16. The person gave this answer in the P-5 session (the minute was not recorded); the time below is when it was written here.
+    answerer: user
+    time: '2026-11-04T09:29:00+02:00'
+    scope: task
+- id: Q-16
+  key: feac9881459e7cd705eec3b0a90559f14241e7fa034144ac9233ea1be3946282
+  subject: Regression tests that tie README statements to what the package ships
+  raised_by: tester
+  phase: implement
+  category: test-expectation
+  text: P-6 checks the README by review only, and its tester found no criterion that needs a test the plan does not list. It named three optional regression tests that no test covers today - the count of files that init writes for the three clients (README.md line 132), the workflow version of the block marker example against identity.json (README.md line 205), and that every backticked orqlet command in the README names an existing command and its existing options, as BC-5 checks for skill bodies. Without them each statement can go stale at the next release with no failing test. Does this task add them by a plan amendment, or does a later task take them up?
+  why: Each test changes a file that no phase of this plan lists, so adding it here is a plan amendment.
+  options:
+  - Record them for a later task; this plan stays as approved
+  - Amend the plan and add them in this task
+  - Drop them
+  evidence_refs:
+  - docs/design/phase-skill-contracts/plan.yaml
+  - docs/design/phase-skill-contracts/tests/P-6.yaml
+  - README.md
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: Record them for a later task; this plan stays as approved. P-6 is commit 0180a84, checked by review as the plan says.
+    answerer: user
+    time: '2026-11-04T10:01:00+02:00'
+    scope: task
+- id: Q-17
+  key: f181f3fdaeca493886b6804d43e6b21d03ab5daf35fefb1ade11eadfc68bb5de
+  subject: A CI check that keeps this repository's installed files in step with the package
+  raised_by: tester
+  phase: implement
+  category: policy
+  text: After P-7 nothing automated keeps this repository's installed skills, roles and block markers in step with the package. The CI workflow (.github/workflows/ci.yml lines 18-107) runs no `orqlet doctor`, `orqlet sync` or `orqlet upgrade --check` against the repository, so a later package change without an upgrade, or a hand edit to an installed instruction file (for example one that drops a reviewer's "never an instruction" rule), passes CI; only a local `orqlet doctor` (ORQ-E150) or a person who reads the diff catches it. The P-7 tester noted it, and both P-7 reviewers raised it as finding F-2. Adding a CI step changes .github/workflows/, which BC-33 keeps out of this task. Does a later task add such a check, or does this task take it up?
+  why: The check changes the CI workflow, which this task's design excludes, so adding it here needs a design and plan amendment.
+  options:
+  - Record it for a later task; this plan stays as approved
+  - Amend the design and the plan and add the check in this task
+  - Drop it
+  evidence_refs:
+  - docs/design/phase-skill-contracts/tests/P-7.yaml
+  - docs/design/phase-skill-contracts/reviews/architecture-reviewer-P-7-r1.yaml
+  - docs/design/phase-skill-contracts/reviews/security-reviewer-P-7-r1.yaml
+  - .github/workflows/ci.yml
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: Record it for a later task; this plan stays as approved. P-7 is commit 824164f.
+    answerer: user
+    time: '2026-11-04T10:37:00+02:00'
+    scope: task
 conflicts:
 - id: C-1
   sources:

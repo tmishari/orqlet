@@ -1,0 +1,221 @@
+schema: orqlet.review-result/v1
+task: phase-skill-contracts
+phase: P-5
+role: security-reviewer
+round: 2
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 5252915bb215e18f9df21488e5a058ad3c03ca6b59b706269f7ce239735eb091
+    design: 9fd71b6184605ddfacbeeb871586f7c87c25dee2aab814fe8b62495b7cb29884
+    evidence_inputs: a0a8c2fcc19d39f25f2e9186959c9517c925a8b3e5209007b63b6426112d4841
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: bad1acea6377b4a8962920848fbccf28e439fa50927b392a5170f5d919442e63
+    reviewer_definition: 4f7f6800b8439bd11123eb8069e455734a0b6e31c730ae871b9f0a8c0828be13
+    standards: d8fcc2fc2afba1ea19064aa6b45cdb1c83aaacafb5f36ada7f580b1976d2f889
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 55555e279808c7b776dbc4d2101e175d652f0b8e25ace9f661c58ff0f5bc5038
+  merge_base: c59a03a16a22984f53753f44fa06e479f33dd491
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: f55870ff58dd4289e1f98b54d68741b0dc0c3d806a5a4068124642ce676d98e3
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran as the typed orqlet-security-reviewer subagent of Cursor, in a fresh context, with the path of packet
+  phase-skill-contracts-P-5-7038d914 only. It had no shell, so it ran no command and read files only.
+- It ran with the installed role text of workflow 0.3.3 (`.cursor/agents/orqlet-security-reviewer.md`, whose sha256 is
+  the definition_sha256 above), not with the P-5 text under review; phase P-7 regenerates the installed files.
+- It computed no quote digests. The main agent hashed the quotes on committed lines with `orqlet evidence cite` at
+  1a8a4c8ec99c1efdcc6ff70c05e7f09a9987817b, after checking that each cited range reads the same in the staged tree,
+  and left the quotes on staged-only lines as path and line references in the claims. It added line 27 of the
+  implement skill's phase-contract.md, which the F-2 claim names, as a quote. The reviewer could not read the staged
+  tree id from the packet; the absence record cites the packet's staged tree
+  cb9a2d9aa235014f1f253dcde33eb6d95ab1b816.
+- This record is from the second run of round 2. A first run on packet phase-skill-contracts-P-5-355d2bb8 became stale
+  when the person corrected knowledge/P-5.yaml after it (the README range 323-325 became 323-326). That run also
+  passed, with a non-blocking finding that this run does not repeat - the tester, the one role with full tools,
+  carries no rule against opening files that hold secrets, and no record says that leaving it out was a choice -
+  which the main agent confirmed by searching the staged tester for .env, npmrc, netrc and private key with no hit.
+  The person chose to record it for the design revision (Q-15).
+- The packet's diff runs from the merge base to the staged tree, so it also holds P-1 to P-4, 43c21cf and the ledger
+  commits; the reviewer did not review those parts again.
+- The model that ran the reviewer is not observed.
+- The reviewer ran in the same client as the Coder, so this review is I1; this D3 task needs I2, which a review in
+  another client must supply.
+- This review is an additional check, not a guarantee.
+applicability:
+  examined:
+  - diff.patch
+  - src/orqlet/workflow/roles/orqlet-arch-reviewer.md
+  - src/orqlet/workflow/roles/orqlet-security-reviewer.md
+  - src/orqlet/workflow/roles/orqlet-inventory.md
+  - src/orqlet/workflow/roles/orqlet-tracer.md
+  - src/orqlet/workflow/roles/orqlet-tester.md
+  - the fifteen role goldens under tests/golden/
+  - src/orqlet/workflow/skills/orqlet-design/skill.md
+  - src/orqlet/workflow/skills/orqlet-review/skill.md
+  - src/orqlet/workflow/skills/orqlet-review/references/review-format.md
+  - src/orqlet/workflow/skills/orqlet-implement/references/phase-contract.md
+  - src/orqlet/application/usecases/
+  - src/orqlet/interface/cli/commands/evidence.py
+  - tests/unit/test_workflow_role_prompts.py
+  - tests/unit/render/test_skills.py
+  - docs/design/phase-skill-contracts/knowledge/P-5.yaml
+  - docs/design/phase-skill-contracts/tests/P-5.yaml
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: security
+  rule_ref: ORQLET-SEC-003; ADR-002 decision 3
+  evidence:
+  - kind: quote
+    path: src/orqlet/workflow/skills/orqlet-design/skill.md
+    lines: '33'
+    revision: 1a8a4c8ec99c1efdcc6ff70c05e7f09a9987817b
+    quote_sha256: cf6f97d4354229f1ea0cf8937eca354cbef7db389e780c488b9b9a209df20f1d
+  - kind: absence
+    searched:
+    - src/orqlet/workflow/roles/orqlet-security-reviewer.md
+    - src/orqlet/workflow/roles/orqlet-arch-reviewer.md
+    - src/orqlet/workflow/skills/orqlet-review/skill.md
+    - src/orqlet/workflow/skills/orqlet-review/references/review-format.md
+    - src/orqlet/application/usecases/
+    method: >-
+      Read both staged reviewer roles in full. Searched the review skill and review-format.md, ignoring case, for
+      credential, secret, redact, unchanged and quote; only the quote-digest lines match (skill.md line 29,
+      review-format.md line 75). Listed the use cases that mention credential, secret or redact (validate_resources,
+      validate_integrations, upgrade, resources_edit, integrations_source, evidence_cite and conventions_check); none
+      of them validates a review record or a design note.
+    revision: cb9a2d9aa235014f1f253dcde33eb6d95ab1b816
+  claim: >-
+    From P-5 on, both reviewer prompts also serve the design review, where there is no packet and the reviewer opens
+    "a file that the design cites" (staged security-reviewer.md line 10, arch-reviewer.md line 16). The design skill
+    saves each reviewer's output "unchanged" as docs/design/<task>/reviews/<role>-design.md, which is committed with
+    the design (design skill line 33), so the main agent may not redact a design note. The security reviewer is told
+    to look for "secrets in code, tests, fixtures or knowledge text" (staged line 8), so finding a credential is an
+    expected result, yet neither reviewer prompt nor review-format.md says how to report one without reproducing it,
+    and no validator scans review records or design notes. Quote evidence carries only a digest, which lowers the
+    risk, but claim and suggested_action are free text. Since round 2 the researchers and the tester carry a no-copy
+    rule, so the reviewers are the only shipped roles that read repository files and write committed text without
+    one. The same gap already existed for implementation review records. BC-25 does not ask for such a rule, so P-5
+    meets its criteria; the gap is in the design.
+  suggested_action: >-
+    Ask the person to choose. (a) Amend the plan against BC-25 - add one sentence to both reviewer prompts, such as
+    "Report a credential that you find by its path, its lines and its kind; never reproduce its value, even in part,
+    in a claim, a quote or an action", pin it in tests/unit/test_workflow_role_prompts.py, rewrite the six reviewer
+    goldens and rebuild MANIFEST.json. (b) Record it together with SEC5-3 for the design revision.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: security
+  rule_ref: ADR-002 decision 3; BC-8
+  evidence:
+  - kind: quote
+    path: tests/golden/claude-code/docs-2026-10/.claude/agents/orqlet-inventory.md
+    lines: '4'
+    revision: 1a8a4c8ec99c1efdcc6ff70c05e7f09a9987817b
+    quote_sha256: 5b942889501abd443ddb7eeebc92cb8c9d7c834cca26c03c9c5395d444ebe627
+  - kind: quote
+    path: src/orqlet/workflow/skills/orqlet-implement/references/phase-contract.md
+    lines: '27'
+    revision: 1a8a4c8ec99c1efdcc6ff70c05e7f09a9987817b
+    quote_sha256: 520709b63435603216d3e6e3b91730a09d64c891d0f4a00997f2087d400a8494
+  claim: >-
+    The researchers' rule "Never open a file that holds secrets" (staged inventory.md and tracer.md, line 12) covers
+    opening a file. In Claude Code the researchers also have Grep (`tools: Read, Grep, Glob`), and a content search
+    over the area returns matching lines of a tracked `.npmrc` or `.netrc` without opening it. The no-copy rule keeps
+    the value out of the fragment, but the value still reaches the subagent's context and the client's transcript.
+    The wording is the same as line 27 of phase-contract.md (BC-8), so this is a design wording point and not a
+    deviation of P-5. The reviewer did not examine whether each client's search tool skips git-ignored files, which
+    would cover a typical `.env`.
+  suggested_action: At the design revision, change "open" to "open, read or search" in BC-8 and in every copy.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implementation
+    applicable_standards:
+    - ORQLET-SEC-001
+    - ORQLET-SEC-002
+    - ORQLET-SEC-003
+  checks:
+  - what: Round 1 F-1 and F-2 are fixed
+    how: >-
+      Compared the staged inventory, tracer and tester text with lines 26, 27, 29, 31, 33 and 37 of the implement
+      skill's phase-contract.md. The researchers now carry the no-copy, placeholder and secret-file rules. The tester
+      now carries single quoting with the character rule, `"$NAME"` with `test -n`, no printing and no asking for a
+      secret, no command built from free text, and an output summary; the old "what they printed" is gone. Lines
+      265-369 of test_workflow_role_prompts.py pin each rule.
+    result: pass
+  - what: Round 1 F-3 (SEC5-4)
+    how: >-
+      Unchanged - the tester still does not stop on a plan text that differs from the cited lines. It stays open by
+      the person's choice (Q-10) and is recorded at lines 75-78 of the test module's docstring.
+    result: pass
+  - what: Hardcoded credentials (CodeGuard rule) and private data
+    how: >-
+      Searched all of diff.patch for AWS, GitHub, Stripe, Google and Slack key prefixes, JWT shapes, private-key
+      blocks, addresses with a user and password, and password, secret, token or api_key assignments - no hits.
+      Searched for /Users/, the local user name and /home/; the only hits are earlier review records that describe
+      their own scans. knowledge/P-5.yaml and tests/P-5.yaml hold only commit ids, hashes, counts and timings, and
+      `<API_TOKEN>` is the only token-like text, a placeholder. The rule applies because the change ships agent text
+      that governs how agents handle credentials.
+    result: pass
+  - what: Certificates and cryptography (CodeGuard rules)
+    how: >-
+      The P-5 change holds no certificate data, no certificate file read and no cryptographic code; every digest in
+      MANIFEST.json and the records is a 64-hex SHA-256, as ORQLET-SEC-003 requires.
+    result: pass
+  - what: Read-only roles stay read-only; goldens match the source; Codex TOML escaping
+    how: >-
+      In the 15 role goldens the read-only roles keep `tools: Read, Grep, Glob` (Claude Code), `readonly: true`
+      (Cursor) and `sandbox_mode = "read-only"` (Codex), and the tester's front matter is unchanged. Each golden hunk
+      matches its source hunk. In TOML, `"$NAME"` is escaped as `\"$NAME\"`, and backticks and `$(` are literal in
+      basic strings.
+    result: pass
+  - what: Argument injection through the tester's values
+    how: >-
+      `orqlet evidence cite` takes FILE and LINES and the options --revision, --root and --json (evidence.py lines
+      21-30), and the path goes through CanonicalPath.parse. The character rule rules out `=`, so a value with a
+      leading dash can only cause a usage error or a hash that differs from the plan's, which stops the work. Git
+      paths come after `--`.
+    result: pass
+  - what: New and changed tests
+    how: >-
+      test_workflow_role_prompts.py and the test_skills.py change read the packaged text through PackagedWorkflow and
+      load_roles; they open no socket, start no process, read no environment and write no file.
+    result: pass
+  - what: Dependencies, CI and runtime code
+    how: The diff's file list holds no pyproject.toml, uv.lock, .github/workflows, tools or Python file under src/orqlet.
+    result: pass
+  - what: MANIFEST.json digests, quote digests, pytest, the manifest check and gate status
+    how: Not run, because the reviewer had no shell; the test record claims these results (evidence_kind claimed).
+    result: not-run
+  unverified:
+  - That P-5 stages exactly the 23 files of its file operations plus its records comes from the test record and the
+    plan; the reviewer did not confirm it with git.
+  - The P-1 to P-4 parts of the diff were not reviewed again.
+  - Whether each client loads AGENTS.md into a subagent (U-11), and whether its search tool skips git-ignored files
+    (F-2).

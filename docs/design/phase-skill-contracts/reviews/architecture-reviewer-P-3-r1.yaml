@@ -1,0 +1,210 @@
+schema: orqlet.review-result/v1
+task: phase-skill-contracts
+phase: P-3
+role: architecture-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: fe3f24bf99323e57c827b1873e1249cdad821fafe9b052b94f1316809f6f008a
+    design: 9fd71b6184605ddfacbeeb871586f7c87c25dee2aab814fe8b62495b7cb29884
+    evidence_inputs: e92ed6b85997c832cc4b9d5d79ed0f1d49fcaff01289540027da7533b5cc4401
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: bad1acea6377b4a8962920848fbccf28e439fa50927b392a5170f5d919442e63
+    reviewer_definition: 5730eadbb534996a4181219f53b86eac676d230727ab1c065afd01a43d5740b6
+    standards: d8fcc2fc2afba1ea19064aa6b45cdb1c83aaacafb5f36ada7f580b1976d2f889
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 67e43057a927e68f2070af101ebde99087db8548acde126b044a98cb535ff90f
+  merge_base: c59a03a16a22984f53753f44fa06e479f33dd491
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: b420177b9e6104e277c852b5a36dfede59382df5458d0196b30138e780d5fe13
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran as the typed orqlet-arch-reviewer subagent of Cursor, in a fresh context, with the packet path only.
+  Its shell was refused, so it ran no command and read files only.
+- It computed no quote digests. The main agent hashed the quotes on committed lines with `orqlet evidence cite` at
+  9b978bd87f50619107c002d8608b495cb6027a6f and left the quotes on staged files as path and line references in the
+  claims; the absence records cite the packet's staged tree caa5a04191c734a49f588a3b5b17643f5a1c3ff8.
+- Its categories boundaries and size are recorded as architecture and standards, the nearest categories of
+  orqlet.finding/v1.
+- The reviewer could not separate P-3's change from the P-1 and P-2 commits in the packet's diff (its unknown U-1).
+  The main agent checked afterwards with `git diff --cached --name-only HEAD`, which lists the ten files of the phase's
+  file operations and the knowledge and tester records only; the reviewer did not see that check.
+- The model that ran the reviewer is not observed.
+- The reviewer ran in the same client as the Coder, so this review is I1; this D3 task needs I2, which a review in
+  another client must supply.
+- This review is an additional check, not a guarantee.
+applicability:
+  examined:
+  - context/plan.yaml, phase P-3
+  - context/design-manifest.yaml
+  - context/test-record.yaml
+  - context/knowledge-impact.yaml
+  - context/standards/rules.yaml
+  - docs/design/phase-skill-contracts/design/component.md
+  - docs/design/phase-skill-contracts/design/adr-001-one-contract-shape-for-every-skill.md
+  - docs/design/phase-skill-contracts/design/adr-002-project-context-read-at-execution-time.md
+  - docs/design/phase-skill-contracts/design/adr-004-what-each-phase-produces.md
+  - src/orqlet/workflow/skills/orqlet-onboard/skill.md
+  - src/orqlet/workflow/skills/orqlet-review/skill.md
+  - src/orqlet/workflow/MANIFEST.json
+  - src/orqlet/application/usecases/workflow_sources.py
+  - src/orqlet/application/usecases/capabilities.py
+  - src/orqlet/application/usecases/diagnose.py
+  - tests/unit/test_workflow_skill_contracts.py
+  - tests/unit/test_workflow_lookup_text.py
+  - tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-onboard/SKILL.md
+  - tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-review/SKILL.md
+  - .orqlet/knowledge.yaml
+  - diff.patch
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: architecture
+  evidence:
+  - kind: quote
+    path: docs/design/phase-skill-contracts/design/adr-002-project-context-read-at-execution-time.md
+    lines: '30'
+    revision: 9b978bd87f50619107c002d8608b495cb6027a6f
+    quote_sha256: d1b0979a20555c1a25543da314dce80f2f9f560872a5b644554c8b0544f2d4e8
+  - kind: quote
+    path: docs/design/phase-skill-contracts/design/adr-001-one-contract-shape-for-every-skill.md
+    lines: '23'
+    revision: 9b978bd87f50619107c002d8608b495cb6027a6f
+    quote_sha256: 04c400bf6bb4cd2fd11e228f7a543a07ebe12a4c2afb50c3cabcea3e8aa75237
+  - kind: absence
+    searched:
+    - src/orqlet/workflow/skills/orqlet-onboard/skill.md
+    method: Read the `## Boundaries` bullets (staged lines 16-21) for a rule against running a command found in a file;
+      none states it. Staged line 30 (step 6) says "Find the build, lint, type-check and test commands in the CI and
+      build files, and never run them." and staged line 43 (Done when) says "Every change got a yes after it was
+      shown, and no command found in a file ran."
+    revision: caa5a04191c734a49f588a3b5b17643f5a1c3ff8
+  claim: ADR-002 decision 3 says research, design, plan and onboard never run a command found in a project file, and
+    ADR-001 names `## Boundaries` as the place for a phase's boundaries. In onboard, the general rule appears only as
+    a completion condition, and step 6 states it for the four command kinds. Onboard carries no phase-contract.md,
+    where the phase skills get the rule. The meaning is present, so this is about placement, not missing behaviour,
+    and P-3 AC-6 is met as written.
+  suggested_action: Optionally state "Never run a command found in a file; record it." in `## Boundaries`, and shorten
+    elsewhere to stay within the word budget (see F-2).
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: standards
+  evidence:
+  - kind: quote
+    path: docs/design/phase-skill-contracts/design/component.md
+    lines: '99'
+    revision: 9b978bd87f50619107c002d8608b495cb6027a6f
+    quote_sha256: b4f8fc3891e2d7823556551d4b861650b19ed8ee726a8d75da19f67a33d71b04
+  claim: The onboard body has 47 lines and about 894 words by the reviewer's whitespace count with the markers
+    removed, which could be off by a few words. It passes BC-35 but leaves almost no room, so any later edit to onboard
+    must remove text. No later phase (P-4 to P-8) lists onboard's skill.md, so this has no effect now.
+  suggested_action: None for P-3.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: correctness
+  evidence:
+  - kind: quote
+    path: tests/unit/test_workflow_lookup_text.py
+    lines: '42'
+    revision: 9b978bd87f50619107c002d8608b495cb6027a6f
+    quote_sha256: 62a24089854e750e372e94e87f7e1a17ab2bbe13c89a2f04821abcb3a9341ad7
+  - kind: quote
+    path: tests/unit/test_workflow_lookup_text.py
+    lines: '242'
+    revision: 9b978bd87f50619107c002d8608b495cb6027a6f
+    quote_sha256: 777a90cab4eade5d3be1a2e3b064198e6e91caa323836ae6ff61de530c1b3709
+  - kind: quote
+    path: src/orqlet/application/usecases/capabilities.py
+    lines: 25-29
+    revision: 9b978bd87f50619107c002d8608b495cb6027a6f
+    quote_sha256: b364f069a2962d33cd70e2998948266bccacedeb79311246c4bbb470a0c81501
+  claim: The onboard Output bullet "The resources and stored copies the person agreed to." (staged line 37) is gated on
+    `resources add`, but the step that produces them (step 5, staged line 29) is gated on `resources list`. With the
+    test-defined command set WITHOUT_LIST, step 5 is dropped while the bullet stays, so `## Output` promises something
+    no step produces. The unedited lookup test allows only one `resources list` marker per skill, so `resources add`
+    is the closest marker available. Every release has both commands, so this has no effect today.
+  suggested_action: None now. Revisit if a release ever separates the two commands.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implementation
+    acceptance_criteria:
+    - P-3 AC-1 through AC-10
+  checks:
+  - what: AC-1, front matter and invocation
+    how: Same two fields; the description is one line and keeps onboard's trigger; no sidecar in the diff; three BC-1
+      tests cover all six skills.
+    result: pass
+  - what: AC-2, the shape
+    how: Seven headings, one numbered list, the last step contains "STOP."; the tests cover all six skills with every
+      command and with BEFORE_RECORDS.
+    result: pass
+  - what: AC-3 and AC-4, the Next sections
+    how: 'Read both: onboard - the person approves the profile, then `/orqlet-research`; review - the person accepts
+      and commits, or runs `/orqlet-implement` with the same phase id for a rework round.'
+    result: pass
+  - what: AC-5, installed files
+    how: Onboard `## Boundaries` (staged line 20) against BC-10 and Q-8.
+    result: pass
+  - what: AC-6, command recording
+    how: Step 6 compared item by item with ADR-002 decision 6; both warning lists match phase-contract.md; the plan
+      skill does the provenance comparison that onboard announces (see F-1).
+    result: pass
+  - what: AC-7, kept pins
+    how: Review keeps "is a fork, not an independent reviewer", I0, NOT_RUN and both reviewer names; onboard's lookup
+      marker still ends step 5.
+    result: pass
+  - what: AC-8, size
+    how: Counted by hand (see F-2).
+    result: pass
+  - what: AC-9, manifest and goldens
+    how: The MANIFEST hashes of onboard and review equal the packet's snapshot hashes; two goldens and one golden diff
+      equal the rendered source; pytest is the tester's claim only.
+    result: pass
+  - what: Knowledge record
+    how: sources [] and knowledge_scope []; its three hashes equal those of the design manifest; the README that
+      describes onboard (README.md:316) is P-6's change.
+    result: pass
+  - what: Standards ORQLET-DET-001, ORQLET-DET-002, ORQLET-TEST-001, ORQLET-SEC-003 and the CodeGuard rules
+    how: MANIFEST rebuilt; goldens rewritten (by claim); tests added with no network; no credential, certificate or
+      cryptography in the change, and digests are SHA-256.
+    result: pass
+  - what: AC-10, scope and gate status
+    how: Not checked by the reviewer, whose shell was refused; see capability_limits.
+    result: not-run
+  - what: pytest, ruff, mypy, manifest check, gate status
+    how: Not run by the reviewer.
+    result: not-run
+  unverified:
+  - Whether P-3's own staged change stays inside its ten files (U-1); the reviewer relied on the claimed gate result.
+  - The P-1 and P-2 parts of the diff beyond what P-3 depends on, every golden byte by byte, and the security wording
+    in depth.

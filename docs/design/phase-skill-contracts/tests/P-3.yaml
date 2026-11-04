@@ -1,0 +1,93 @@
+schema: orqlet.test-record/v1
+task: phase-skill-contracts
+phase: P-3
+review_input:
+  components:
+    code_tests: 0a58285b165589660a545d70e07d8571beabc847ecf09bcea9da9c9b8186043a
+    plan: bad1acea6377b4a8962920848fbccf28e439fa50927b392a5170f5d919442e63
+  covers:
+  - code_tests
+  - plan
+  digest: fad0dc2a392552804779d2e31ce29897002ce1ca35969f99e729a2f04cc46dd1
+  merge_base: c59a03a16a22984f53753f44fa06e479f33dd491
+  schema: orqlet.review-input/v1
+verdict: NOT_RUN
+evidence_kind: claimed
+commands:
+- id: ruff-check
+  exit_code: 0
+  summary: All checks passed!
+  result_digest: 5b196eb3a6acb50d3fa398d04ca284985cc1ffec870e940264b00780bfd2c971
+- id: ruff-format
+  exit_code: 0
+  summary: 549 files already formatted
+  result_digest: 6312fde1f7ca6f0d787399a0244f4e8699d4a2bd4248ab719f9ba9eea63dc7e3
+- id: mypy
+  exit_code: 0
+  summary: 'Success: no issues found in 350 source files'
+  result_digest: 7aac2db92946cc3742a3541e647555bd2f49c8a7edc1af8f027686df0dce06f9
+- id: import-linter
+  exit_code: 0
+  summary: 'Contracts: 5 kept, 0 broken.'
+  result_digest: a72c4b2dadcc1f98da5b9384d98e5c359b6be95fbf7a2ef0d10dc74f806cdfa7
+- id: schemas
+  exit_code: 0
+  summary: tools/export_schemas.py --check printed nothing and exited 0; no schema changed.
+  result_digest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+- id: manifest
+  exit_code: 0
+  summary: tools/build_manifest.py --check printed nothing and exited 0; MANIFEST.json, rebuilt with
+    tools/build_manifest.py after the two skill texts changed, matches the package.
+  result_digest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+- id: pytest
+  exit_code: 0
+  summary: 8112 passed, 1 skipped (junctions exist on Windows only) in 1221.08s on Python 3.12.11, one Python only; the
+    digest is of the last four lines of the captured output. The Tester ran as the typed orqlet-tester subagent of the
+    Coder's client, with the task, the criteria and the interface that the Coder gave, and wrote the P-3 tests of
+    tests/unit/test_workflow_skill_contracts.py before the onboard and review texts were rewritten; 57 onboard and
+    review cases failed then and all 137 P-2 cases still passed. Besides the commands it was given, it ran head and cat
+    on the onboard and review goldens and git status --short, all read-only. In rework round 2 the Coder, not the
+    Tester, added two assertions from the round-1 findings before changing the onboard text, and both failed first
+    (2 failed, 213 passed). They pin the whole credential sentence (security F-1) and the never-run sentence in
+    Boundaries (architecture F-1). The goldens were rewritten with --update-golden and the diff holds only the six
+    onboard and review SKILL.md goldens; tests/unit/render/test_skills.py, tests/unit/test_workflow_lookup_text.py,
+    tests/unit/test_workflow_phase_contract_text.py and the P-1 tests are unedited.
+  result_digest: ff0d3f60d8d061ecab8f1e5a616a71063b0cc3fc91b069a559c213a7382524f5
+- id: gate-status-phase
+  exit_code: 5
+  summary: NOT_RUN caused by ORQ-I393 (approval is host evidence that an offline run lacks), with ORQ-W390 for as-is,
+    design and plan on base_revision, caused by this task's commits c772617 (P-1), 6a87ebb (Q-12) and 9b978bd (P-2),
+    which the person confirmed at the start of P-3; no ORQ-E450, ORQ-E451 or ORQ-E453 on the staged tree. The staged
+    diff holds the 10 files of this phase and this task's knowledge record.
+  result_digest: 16ca9adf82a69dba40dcf8e7c31b84611c8f46c91d486fdca164bf26e98f8a1a
+acceptance_coverage:
+- ac: AC-1
+  check_ref: pytest
+  result: pass
+- ac: AC-2
+  check_ref: pytest
+  result: pass
+- ac: AC-3
+  check_ref: pytest
+  result: pass
+- ac: AC-4
+  check_ref: review:next-sections
+  result: not-run
+- ac: AC-5
+  check_ref: pytest
+  result: pass
+- ac: AC-6
+  check_ref: pytest
+  result: pass
+- ac: AC-7
+  check_ref: pytest
+  result: pass
+- ac: AC-8
+  check_ref: pytest
+  result: pass
+- ac: AC-9
+  check_ref: pytest
+  result: pass
+- ac: AC-10
+  check_ref: gate-status-phase
+  result: pass

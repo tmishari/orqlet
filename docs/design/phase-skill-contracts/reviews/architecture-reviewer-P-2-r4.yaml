@@ -1,0 +1,116 @@
+schema: orqlet.review-result/v1
+task: phase-skill-contracts
+phase: P-2
+role: architecture-reviewer
+round: 4
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 37998f69727a68fd020adf68f7f1679a5bcacae1c17e3caaf1d6d32c1e86657a
+    design: 9fd71b6184605ddfacbeeb871586f7c87c25dee2aab814fe8b62495b7cb29884
+    evidence_inputs: 1c0f83c8223891306850fa1989befdbf0bec67d8451d89a9ece2f19916271bf8
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: bad1acea6377b4a8962920848fbccf28e439fa50927b392a5170f5d919442e63
+    reviewer_definition: a09b08f420b4ce4800d0c383066551186056ba59d5f0f24f555bbf7c53f81c62
+    standards: d8fcc2fc2afba1ea19064aa6b45cdb1c83aaacafb5f36ada7f580b1976d2f889
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: deb0e02c4d479615783c2aee0d9aa00fa294b12a4355b2320f9699e16a3909e0
+  merge_base: c59a03a16a22984f53753f44fa06e479f33dd491
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: 9518a0fd1554c50d7c6d2983f5d2087292b10b8b20c7b9c0ddfb6aa3d814a2fb
+  client: codex
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I2
+capability_limits:
+- Independent typed subagent received only the packet path in a fresh Codex context; advisory AI review.
+- The reviewer ran no tests and did no web lookup.
+- The packet omitted docs/design/orqlet-architecture-proposal.md; the reviewer did not examine it.
+- The coder binding is carried from earlier staged review records as Cursor; this session did not independently observe the coder client.
+applicability:
+  examined:
+  - context/design-manifest.yaml
+  - context/plan.yaml, phase P-2
+  - context/test-record.yaml
+  - context/knowledge-impact.yaml
+  - context/standards/rules.yaml
+  - snapshot/src/orqlet/workflow/skills/orqlet-research/skill.md
+  - snapshot/src/orqlet/workflow/skills/orqlet-design/skill.md
+  - snapshot/src/orqlet/workflow/skills/orqlet-plan/skill.md
+  - snapshot/src/orqlet/workflow/skills/orqlet-implement/skill.md
+  - snapshot/src/orqlet/workflow/skills/orqlet-implement/references/phase-contract.md
+  - snapshot/tests/unit/test_workflow_skill_contracts.py
+  - snapshot/tests/unit/test_workflow_phase_contract_text.py
+  - snapshot/src/orqlet/adapters/git/git_runner.py
+  - diff.patch
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: correctness
+  evidence:
+  - kind: quote
+    path: docs/design/phase-skill-contracts/design/adr-003-handoffs-and-the-input-check.md
+    lines: 39-41
+    revision: c59a03a16a22984f53753f44fa06e479f33dd491
+    quote_sha256: 882a316551dd2e27b9a5a31313bd44832c77574463e75e45036525f05f2da2b1
+  - kind: absence
+    searched:
+    - src/orqlet/workflow/skills/orqlet-implement/references/phase-contract.md
+    - tests/unit/test_workflow_phase_contract_text.py
+    method: Read the staged contract lines 37, 41 and 48-50 and searched the focused text tests for an assertion that the composed parent is replaced by Git's printed full hex id. The text states a character rule for artifact-derived values and a composed parent revision but does not state how the two instructions interact; the tests pin those instructions separately, not their interaction.
+    revision: 142b9bf27d192a3580215b810442e83521dfdea0
+  claim: The Approved check needs the merge's first parent, while the character rule applies to values derived from artifacts. The text does not say whether the agent must use the full parent hex id printed by Git or compose a revision such as `<merge>^1`. Applying the character rule to the composed form makes the check stop, although the parent hex id would avoid that. This leaves an avoidable ambiguity in the input-check workflow.
+  suggested_action: Clarify that the agent uses the full parent hex id printed by Git, or state the composed-revision exception explicitly.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: tests
+  evidence:
+  - kind: absence
+    searched:
+    - tests/unit/test_workflow_phase_contract_text.py
+    - tests/unit/test_workflow_skill_contracts.py
+    method: Read the tests and searched for an assertion pinning the design reference commit for the ledger comparison. The contract names the reference, but no corresponding assertion was found.
+    revision: 142b9bf27d192a3580215b810442e83521dfdea0
+  claim: The test suite has substantial text and render coverage, but does not pin which commit is used as the design ledger reference. A future wording change could break that part of AC-13 without failing these tests. The reviewer found no current mismatch with the packet's criteria.
+  suggested_action: Add a focused assertion in a later test revision.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implementation
+  checks:
+  - what: P-2 plan scope and staged diff
+    how: Read the packet plan operations and compared them with the staged diff.
+    result: pass
+  - what: Acceptance criteria and tests
+    how: Read the four Next sections and the two changed unit test modules; no tests were run.
+    result: pass
+  - what: Knowledge-impact record
+    how: Read the staged record; did not rerun the knowledge command or independently verify design-file hashes.
+    result: pass
+  failures: []
+  unverified:
+  - The omitted architecture proposal and design artifacts absent from the packet.
+  - Actual full-suite execution, CI matrix, gate status or security review.
+  - Whether the ledger and task evidence files were committed separately.

@@ -1,0 +1,293 @@
+schema: orqlet.review-result/v1
+task: phase-skill-contracts
+phase: P-2
+role: architecture-reviewer
+round: 2
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 37716c5caa73633ac68de7562f10e69f57e4a0dd34e047634211fb863f6128a8
+    design: 9fd71b6184605ddfacbeeb871586f7c87c25dee2aab814fe8b62495b7cb29884
+    evidence_inputs: 9356d8d3abe818713eca613a53a423f79914df80d503dfce504a6b76a436029e
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: bad1acea6377b4a8962920848fbccf28e439fa50927b392a5170f5d919442e63
+    reviewer_definition: 5730eadbb534996a4181219f53b86eac676d230727ab1c065afd01a43d5740b6
+    standards: d8fcc2fc2afba1ea19064aa6b45cdb1c83aaacafb5f36ada7f580b1976d2f889
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 5750227a529878a9aa3d6c1bec930d9a179583d1c4fe91120f5bfa469fcd8214
+  merge_base: c59a03a16a22984f53753f44fa06e479f33dd491
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: b420177b9e6104e277c852b5a36dfede59382df5458d0196b30138e780d5fe13
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer had a shell and used it read-only. Tests, ruff and mypy ran against the packet snapshot with bytecode,
+  pytest and mypy caches off; the packet fingerprint was the same before and after.
+- It ran `git write-tree` twice to compare the index with the packet tree; the tree object already existed and no
+  file under .git is newer than the packet.
+- It did not run `orqlet gate status`, because it could not confirm the command writes nothing, or `uv run`, which may
+  sync and fetch. It looked nothing up on the web.
+- The model that ran the reviewer is not observed.
+- The reviewer ran in the same client as the Coder, so this review is I1; this D3 task needs I2, which a review in
+  another client must supply.
+- The reviewer hashed the quoted text only, and quotes on staged files cite the packet's staged tree
+  60522134c620fe3de978790f7230085a0518ad76, which `orqlet evidence cite` cannot resolve. The main agent kept the
+  quotes on committed lines, each hashed again with `orqlet evidence cite` at c772617d8d68e70eab016a142178f86c259ef67a,
+  and left the staged quotes as path and line references in the claims.
+- docs/design/orqlet-architecture-proposal.md was left out of the packet and not examined.
+- This review is an additional check, not a guarantee.
+applicability:
+  examined:
+  - src/orqlet/workflow/skills/orqlet-research/skill.md
+  - src/orqlet/workflow/skills/orqlet-design/skill.md
+  - src/orqlet/workflow/skills/orqlet-plan/skill.md
+  - src/orqlet/workflow/skills/orqlet-implement/skill.md
+  - src/orqlet/workflow/skills/orqlet-research/references/phase-contract.md
+  - src/orqlet/workflow/MANIFEST.json
+  - src/orqlet/workflow/identity.json
+  - src/orqlet/application/usecases/workflow_sources.py
+  - src/orqlet/application/usecases/gate_status.py
+  - tools/build_manifest.py
+  - tests/unit/test_workflow_skill_contracts.py
+  - tests/unit/test_workflow_phase_contract_text.py
+  - tests/unit/render/test_skills.py
+  - tests/support/render.py
+  - tests/conftest.py
+  - docs/design/phase-skill-contracts/design/component.md
+  - docs/design/phase-skill-contracts/design/sequence.md
+  - docs/design/phase-skill-contracts/knowledge/P-2.yaml
+  - docs/design/phase-skill-contracts/tests/P-2.yaml
+  - docs/design/phase-skill-contracts/reviews/architecture-reviewer-P-2-r1.yaml
+  - docs/design/phase-skill-contracts/reviews/security-reviewer-P-2-r1.yaml
+  - .orqlet/knowledge.yaml
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: architecture
+  evidence:
+  - kind: quote
+    path: docs/design/phase-skill-contracts/design/adr-002-project-context-read-at-execution-time.md
+    lines: '60'
+    revision: c772617d8d68e70eab016a142178f86c259ef67a
+    quote_sha256: df5b2ba18eedad068495e69929b58bd483581717300082f23791d899898d9b7c
+  - kind: quote
+    path: docs/design/phase-skill-contracts/plan.yaml
+    lines: '564'
+    revision: c772617d8d68e70eab016a142178f86c259ef67a
+    quote_sha256: feb95b24aa29910a35d87f23ac0162a8f4734561ae2b5b85567491ca729fbc9f
+  - kind: absence
+    searched:
+    - src/orqlet/workflow/skills/orqlet-research/**
+    - src/orqlet/workflow/skills/orqlet-design/**
+    - src/orqlet/workflow/skills/orqlet-plan/**
+    - src/orqlet/workflow/skills/orqlet-implement/**
+    method: grep -i "compar" over the four phase skills and their references in the packet snapshot; the only hits
+      are design skill.md lines 30-31 (ADR alternatives, the expected_changes comparison), which are unrelated.
+    revision: 60522134c620fe3de978790f7230085a0518ad76
+  claim: phase-contract.md (line 25) names AGENTS.md team text as a source of commands but leaves out the provenance
+    control of trust boundary B-2 (ADR-002 decision 6). That control says a later skill compares an onboard-recorded
+    entry with the source it names, cites both, and treats any difference as a question. ADR-001 decision 3 puts
+    ADR-002 into this reference, and the later skills (plan, implement) read only this reference. The plan places the
+    sentence only in the onboard skill (P-3 AC-6), and no later phase edits phase-contract.md. So the control never
+    reaches the skill that acts on the entry, and a plan could cite AGENTS.md lines alone as a check's source.
+  suggested_action: 'Ask the person whether to add one sentence to "Source" in phase-contract.md in a P-2 rework round,
+    or through a plan amendment or ledger question before P-3. For example: "An entry that onboard recorded in
+    AGENTS.md: compare it with the source it names and cite both; a difference is a question." The file is at 1,799 of
+    1,800 words, so trim elsewhere.'
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: finding
+  severity: non-blocking
+  category: correctness
+  evidence:
+  - kind: quote
+    path: docs/design/phase-skill-contracts/design/sequence.md
+    lines: '53'
+    revision: c772617d8d68e70eab016a142178f86c259ef67a
+    quote_sha256: f789664336dff94b30d3dc7f855200df8e81f536835950a96299e43420b05327
+  claim: Plan step 1 (through the reference, phase-contract.md line 58 "Continue only where the row keeps the approval
+    valid and the person confirms") may continue on a stale design when the person confirms a valid matrix row, as
+    sequence 1 shows. Step 7 (plan skill.md line 35) runs `orqlet gate status <task>` again, and the ORQ-W390 is still
+    there, because bound values are never changed. Step 7 then says "A stale result is not a pass" and "Fix every
+    error". The plan skill can therefore not finish on an input that the matrix and the person accepted.
+  suggested_action: 'Reword step 7, for example: "A stale result is not a pass unless step 1 matched it to a valid row
+    and the person confirmed." The plan body has 704 of 900 words.'
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: finding
+  severity: non-blocking
+  category: architecture
+  evidence:
+  - kind: quote
+    path: docs/design/phase-skill-contracts/design/adr-003-handoffs-and-the-input-check.md
+    lines: '63'
+    revision: c772617d8d68e70eab016a142178f86c259ef67a
+    quote_sha256: 02fbfd166e19de178bb8f7c50146fe97139206ff1422ce0ff2d782208374e78e
+  - kind: absence
+    searched:
+    - src/orqlet/workflow/skills/orqlet-design/skill.md
+    - src/orqlet/workflow/skills/orqlet-design/references/design-format.md
+    method: grep -i "unknown" in the packet snapshot; no match in either file.
+    revision: 60522134c620fe3de978790f7230085a0518ad76
+  claim: The reference (phase-contract.md line 52) keeps the narrowing half of ADR-003 decision 4's Questions check
+    (only an unknown with an open, blocking question_ref counts) but drops the half that balances it, that design
+    addresses every other material unknown. Neither the design skill nor its format reference says this, so a design
+    agent may read the narrowing as leave to ignore the other unknowns. BC-14 does not list the clause, so no
+    criterion fails.
+  suggested_action: Add the clause to the design skill, for example in Boundaries or step 5. Its body has 842 of 900
+    words. The reference has no room left (1,799 of 1,800).
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: correctness
+  claim: As staged, the P-2 commit holds both plan operation files and questions.yaml (Q-12; tests/P-2.yaml line 60).
+    Under the matrix this phase ships (phase-contract.md lines 60 and 62), a commit touching questions.yaml is never
+    planned work. Under 0.4.0 texts, a later stale check would therefore judge it as another commit on plan operation
+    paths (impact review) or as a cause it cannot match (stop and ask). The P-1 commit did not touch questions.yaml.
+    Q-12 itself is a new question, so the ledger rule accepts it. In this task the installed 0.3.3 implement skill
+    stops on any stale result anyway, so the effect shows from the P-8 session on.
+  suggested_action: Commit the ledger change on its own, since questions.yaml is in no scope, or tell the person what to
+    expect at later stale checks.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: correctness
+  evidence:
+  - kind: quote
+    path: src/orqlet/workflow/skills/orqlet-implement/skill.md
+    lines: '16'
+    revision: c772617d8d68e70eab016a142178f86c259ef67a
+    quote_sha256: a41d7562ab65ced346e8d12c43876daf86238dc9c4532e13cf00e64103f43f71
+  - kind: absence
+    searched:
+    - src/orqlet/workflow/skills/**
+    method: grep -i "CI job|your statement" in the packet snapshot; no match.
+    revision: 60522134c620fe3de978790f7230085a0518ad76
+  claim: Round-1 architecture F-4 named two dropped safeguards. The knowledge clause is restored; the sentence "The
+    project's own CI job is the evidence; your statement is not." is still gone. R-2 asks to keep useful behaviour, and
+    no BC removes it. The six-part report and "Done when" cover it only in part.
+  suggested_action: Let the person decide whether to keep it. The implement body has 895 of 900 words, so keeping it
+    needs trimming.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: info
+  category: tests
+  evidence:
+  - kind: quote
+    path: .cursor/agents/orqlet-tester.md
+    lines: '2'
+    revision: c772617d8d68e70eab016a142178f86c259ef67a
+    quote_sha256: af2747accd1abb57213a77a777f53635386239c83dceeec292b7e0659b355e6b
+  claim: The repository installs a typed Cursor tester agent, and the reviewer's session lists orqlet-tester as
+    available. The tester's record (tests/P-2.yaml line 46) does not say why the Coder's session could not use it. The
+    fallback it chose (a general-purpose agent given the role text) is disclosed, and the Coder's added rework
+    assertions are disclosed too.
+  suggested_action: Record the reason, such as the client version or mode, or use the typed agent in the next phase.
+  confidence: low
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implementation
+    acceptance_criteria:
+    - P-2 AC-1 through AC-24
+  checks:
+  - what: Packet integrity
+    how: Recomputed all 983 packet hashes; diff.patch equals git diff c59a03a 60522134 byte for byte; the staged tree
+      equals the packet tree.
+    result: pass
+  - what: Design inputs bound
+    how: sha256 of 11 design files, the AS-IS file and the plan match the manifest and design_ref.
+    result: pass
+  - what: Inside the file list
+    how: Compared 45 operations with the staged names and statuses; the 5 extra files are records under
+      docs/design/<task>/ (the workflow-artifact class); no security-glob path changed (see F-4).
+    result: pass
+  - what: ADR-001, BC-1 to BC-5, BC-34, BC-35
+    how: Read and rendered the four bodies from the snapshot; 52-55 lines, 704-895 words; reference 92 lines, 1,799
+      words; four copies identical; implement has 10 steps with every command and 7 with BEFORE_RECORDS.
+    result: pass
+  - what: ADR-002 (BC-7, BC-8, BC-10, BC-11, BC-40)
+    how: Compared clause by clause; the gap is F-1.
+    result: pass
+  - what: ADR-003 (BC-13 to BC-19, BC-37, BC-39)
+    how: Compared check order, exit statuses, ledger rule, matrix rows and the handoff table; the gaps are F-2 and F-3.
+    result: pass
+  - what: ADR-004 decisions 3, 5, 7 (BC-22, BC-24, BC-25)
+    how: Read the plan step order, the implement steps and report, and the design reviewer step; see F-5.
+    result: pass
+  - what: AC-4, what the person does first in Next
+    how: 'Read all four sections: accept and commit; merge; merge; commit.'
+    result: pass
+  - what: Round-1 findings
+    how: Architecture F-1, F-2, F-3, F-5, F-6 and F-8, and security F-1 to F-4, are fixed in the text; the knowledge
+      half of architecture F-4 is restored (see F-5).
+    result: pass
+  - what: Whether the BC-8 wording leaves a gap (AC-9)
+    how: The security reviewer's item.
+    result: not-run
+  - what: requires markers
+    how: Read render_steps; a marked continuation line drops only itself and the indented lines after it.
+    result: pass
+  - what: ORQLET-DET-002
+    how: 70 manifest entries match their files; build_manifest.py --check exit 0; identity 0.4.0 with controls_level 3;
+      releases.json not changed.
+    result: pass
+  - what: ORQLET-DET-001
+    how: Golden tests pass; the marker goldens change only the version; no absolute paths or timestamps.
+    result: pass
+  - what: Tests run against the snapshot
+    how: 10 files (P-2 text tests, test_skills, lookup text, three golden suites, the two P-1 suites, release gate);
+      557 passed.
+    result: pass
+  - what: ruff check, ruff format --check and mypy (strict)
+    how: On the 4 changed Python files, with caches off.
+    result: pass
+  - what: ORQLET-SEC-003 and the credential, certificate and crypto rules
+    how: Added lines scanned for AWS, GitHub, Stripe, Google and JWT patterns, private keys, certificate blocks, URLs
+      with credentials, MD5/SHA-1 and absolute paths; none found. "$NAME" and <API_TOKEN> are obvious placeholders; no
+      certificate data to verify.
+    result: pass
+  - what: Knowledge record
+    how: 6 sha256 references match; sources []; plan knowledge_scope []; the BC list matches what the P-2 texts say;
+      README deferred to P-6 as planned; no document written only to satisfy the rule.
+    result: pass
+  - what: Tester's record
+    how: File counts, the golden scope and the unedited P-1 and lookup tests checked; see F-6.
+    result: pass
+  - what: Full suite, lint-imports, export_schemas --check, gate status --phase P-2 --head staged (AC-24), CI matrix,
+      sessions V-1 to V-3
+    how: Not run by the reviewer.
+    result: not-run
+  unverified:
+  - '"219 failed first" and "8027 passed" cannot be reproduced from the packet.'
+  - Not examined - ADR-005, considerations.md, context.md, container.md, data-flow.md, sequence.md after line 110,
+    as-is.md, orqlet-architecture-proposal.md (left out of the packet), the P-1 source in the diff (only its tests were
+    run), test_skills.py outside lines 120-319, the onboard, review and role texts, the standards lock and foundations.

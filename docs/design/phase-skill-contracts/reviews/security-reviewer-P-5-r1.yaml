@@ -1,0 +1,284 @@
+schema: orqlet.review-result/v1
+task: phase-skill-contracts
+phase: P-5
+role: security-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: c8a6dee81e4f21eaa7460e6073baf13274b33096031e6046ea15f59ded8ada8e
+    design: 9fd71b6184605ddfacbeeb871586f7c87c25dee2aab814fe8b62495b7cb29884
+    evidence_inputs: ec43d77009376adea3684d0d8fcd310a61f08f4833629525db82f3ac235d28a6
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: bad1acea6377b4a8962920848fbccf28e439fa50927b392a5170f5d919442e63
+    reviewer_definition: 4f7f6800b8439bd11123eb8069e455734a0b6e31c730ae871b9f0a8c0828be13
+    standards: d8fcc2fc2afba1ea19064aa6b45cdb1c83aaacafb5f36ada7f580b1976d2f889
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: d2763f62236e25d6c4948782177ec193a4c6418638cfd4a1f51f688f5f7a534e
+  merge_base: c59a03a16a22984f53753f44fa06e479f33dd491
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: f55870ff58dd4289e1f98b54d68741b0dc0c3d806a5a4068124642ce676d98e3
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran as the typed orqlet-security-reviewer subagent of Cursor, in a fresh context, with the packet path
+  only. Its shell was refused, so it ran no command and read files only.
+- It ran with the installed role text of workflow 0.3.3 (`.cursor/agents/orqlet-security-reviewer.md`, whose sha256 is
+  the definition_sha256 above), not with the P-5 text under review; phase P-7 regenerates the installed files.
+- It computed no quote digests and gave absence records only. The main agent added the committed lines of the
+  implement skill's phase-contract.md that the claims name as quotes, hashed with `orqlet evidence cite` at
+  43c21cfc8f4683b9586e7960a3d61cf6182f8050, and left the quotes on staged files as path and line references in the
+  claims.
+- The reviewer could not read the staged tree id from the packet and named the merge base in its absence records. The
+  searched role files exist in this form only in the staged change, so the main agent recorded the packet's staged
+  tree 5d65989e37840d6d0c4242c8586e4e7d24f23d8b instead.
+- The model that ran the reviewer is not observed.
+- The reviewer ran in the same client as the Coder, so this review is I1; this D3 task needs I2, which a review in
+  another client must supply.
+- This review is an additional check, not a guarantee.
+applicability:
+  examined:
+  - diff.patch (the P-5 parts, the file list of the whole diff and the 43c21cf hunk)
+  - src/orqlet/workflow/roles/orqlet-inventory.md
+  - src/orqlet/workflow/roles/orqlet-tracer.md
+  - src/orqlet/workflow/roles/orqlet-tester.md
+  - src/orqlet/workflow/skills/orqlet-research/skill.md
+  - src/orqlet/workflow/skills/orqlet-implement/skill.md
+  - src/orqlet/workflow/skills/orqlet-research/references/phase-contract.md
+  - src/orqlet/workflow/skills/orqlet-research/references/as-is-format.md
+  - src/orqlet/application/usecases/evidence_cite.py
+  - src/orqlet/application/usecases/validate_as_is.py
+  - docs/design/phase-skill-contracts/design/manifest.yaml
+  - docs/design/phase-skill-contracts/design/component.md
+  - docs/design/phase-skill-contracts/design/considerations.md
+  - docs/design/phase-skill-contracts/design/adr-002-project-context-read-at-execution-time.md
+  - docs/design/phase-skill-contracts/design/adr-004-what-each-phase-produces.md
+  - docs/design/phase-skill-contracts/reviews/security-reviewer-design.md
+  - docs/design/phase-skill-contracts/reviews/security-reviewer-P-4-r1.yaml
+  - docs/design/phase-skill-contracts/knowledge/P-5.yaml
+  - docs/design/phase-skill-contracts/tests/P-5.yaml
+  - context/plan.yaml (P-5)
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: security
+  rule_ref: ORQLET-SEC-003; ADR-002 decision 3
+  evidence:
+  - kind: quote
+    path: src/orqlet/workflow/skills/orqlet-implement/references/phase-contract.md
+    lines: '26'
+    revision: 43c21cfc8f4683b9586e7960a3d61cf6182f8050
+    quote_sha256: 78600f5337c0e6d48fb509e319c39023eab98771cb033b86a37427f1841d2597
+  - kind: quote
+    path: src/orqlet/workflow/skills/orqlet-implement/references/phase-contract.md
+    lines: '27'
+    revision: 43c21cfc8f4683b9586e7960a3d61cf6182f8050
+    quote_sha256: 520709b63435603216d3e6e3b91730a09d64c891d0f4a00997f2087d400a8494
+  - kind: absence
+    searched:
+    - src/orqlet/workflow/roles/orqlet-inventory.md
+    - src/orqlet/workflow/roles/orqlet-tracer.md
+    - src/orqlet/workflow/skills/orqlet-research/references/as-is-format.md
+    - src/orqlet/workflow/skills/orqlet-research/skill.md
+    - src/orqlet/application/usecases/validate_as_is.py
+    - src/orqlet/application/usecases/evidence_cite.py
+    method: >-
+      Read both staged roles and the research skill in full. Searched as-is-format.md for credential, secret, token,
+      password, .env, placeholder, private, key, .npmrc and .netrc; the only hits are the web-evidence lines about
+      "Data class" (81, 87). validate_as_is.py checks a fact statement only for word count and advice-like words
+      (lines 154, 167). evidence_cite.py scans for credentials only under docs/design/<task>/evidence/web/ (lines 27,
+      89-111).
+    revision: 5d65989e37840d6d0c4242c8586e4e7d24f23d8b
+  claim: >-
+    Line 8 of both staged researcher roles (inventory.md and tracer.md) now asks the role to report "the commands that
+    CI and build files define" and the instruction files as facts. These subagents receive only the area's paths, the
+    request and the AS-IS format (line 6 of each role; research skill line 30). Neither role, and not as-is-format.md,
+    carries the rules that phase-contract.md lines 26-27 give the main agent - copy no credential, turn every expanded
+    expression into a named placeholder, and never open .env files, private keys, .npmrc, .pypirc, .netrc or cloud
+    credential files. A CI line with a literal token, or a tracked .npmrc in the area, can therefore be quoted word
+    for word into a fragment's statement. That text reaches the main conversation, and a fragment the agent keeps is
+    committed under docs/design/<task>/ (research skill line 20). No code check scans fact statements or fragments.
+    Three things lower the risk - the main agent has the rule when it writes as-is.md, a fact from an untracked file
+    cannot be cited, and the baseline's "Never put secrets in code, logs or messages" applies where the client loads
+    AGENTS.md into a subagent, which is not observed (U-11). BC-26 does not ask for these rules, so the phase meets
+    its criteria; the gap is in the design.
+  suggested_action: >-
+    Ask the person to choose. (a) A plan amendment against BC-26 - add one sentence to both researcher prompts, such
+    as "Copy no credential: write an expression that the CI system or the shell expands, or a secret value, as a
+    named placeholder, and open no file that holds secrets (.env files, private keys, .npmrc, .pypirc, .netrc, cloud
+    credential files)"; pin it in tests/unit/test_workflow_role_prompts.py, rewrite the six goldens and rebuild
+    MANIFEST.json. (b) Record it for the design revision that takes up the open round-5 findings. With either option,
+    the research skill could also say that the main agent applies the credential rule of phase-contract.md to a
+    fragment before it keeps it.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: finding
+  severity: non-blocking
+  category: security
+  rule_ref: ORQLET-SEC-003; ADR-002 decision 3
+  evidence:
+  - kind: quote
+    path: src/orqlet/workflow/skills/orqlet-implement/references/phase-contract.md
+    lines: '26'
+    revision: 43c21cfc8f4683b9586e7960a3d61cf6182f8050
+    quote_sha256: 78600f5337c0e6d48fb509e319c39023eab98771cb033b86a37427f1841d2597
+  - kind: quote
+    path: src/orqlet/workflow/skills/orqlet-implement/references/phase-contract.md
+    lines: '31'
+    revision: 43c21cfc8f4683b9586e7960a3d61cf6182f8050
+    quote_sha256: 9fb09074a18573be5cfc2a9cf5e489555f45b0ada0ba6a74f30037c923ec6b24
+  - kind: quote
+    path: src/orqlet/workflow/skills/orqlet-implement/references/phase-contract.md
+    lines: '37'
+    revision: 43c21cfc8f4683b9586e7960a3d61cf6182f8050
+    quote_sha256: a4b146f648d2e758ae59f0b5009c5420969cc35361d4f2c972755305ef77b24c
+  - kind: absence
+    searched:
+    - src/orqlet/workflow/roles/orqlet-tester.md
+    - tests/unit/test_workflow_role_prompts.py
+    - src/orqlet/workflow/skills/orqlet-implement/skill.md
+    method: >-
+      Read the staged tester.md in full and searched it for single-quoted, quote, "$NAME", test -n, environment,
+      placeholder, secret and credential; none appears. test_workflow_role_prompts.py line 230 states that "the tester
+      carries no references/phase-contract.md". Implement skill line 31 starts the tester at step 3, before the
+      Coder's checks at step 6 (line 34).
+    revision: 5d65989e37840d6d0c4242c8586e4e7d24f23d8b
+  claim: >-
+    From this phase on, the tester is the one role that runs a command found in a CI file. It builds `orqlet evidence
+    cite` and `git diff --quiet HEAD -- <cited files>` from the plan's completion entries (tester.md line 14). Its
+    prompt copies the warning list of phase-contract.md line 33 but none of the rules next to it in that file - an
+    artifact value goes into a command single-quoted and a path with an unexpected character stops the work (line
+    37); a placeholder is filled only from the person's environment, a secret goes in as "$NAME" and is checked only
+    with `test -n`, no environment value is printed and no secret is asked for (line 26); output is summarised
+    without credentials (line 31). Line 16, which this phase did not change, still asks the tester to report "what
+    they printed". The tester starts at implement step 3, before the Coder's own checks, so it cannot rely on the
+    Coder having applied those rules. The warning list already catches the most dangerous parts of a built command
+    (`$(`, a backtick, `;`, `&&`, `||`, a redirection), and the person approves the plan. What remains is a tester
+    that asks for a secret, prints an environment value, or puts raw output holding a credential into its report.
+    ADR-002 line 42 says the tester "applies the same checks"; BC-26 names only the re-cite, the working-tree check
+    and the warning list, and the phase meets BC-26.
+  suggested_action: >-
+    Same choice as F-1. Either add to the tester prompt "Put every value from the plan into a command as one
+    single-quoted argument, and stop on a path with any character other than letters, digits, `.`, `_`, `-`, `/`,
+    `*` or `?`. Pass a secret only as "$NAME" and check it only with `test -n "$NAME"`. Never print an environment
+    value or ask for a secret. Report output as a summary without credentials.", pin it in
+    test_workflow_role_prompts.py and change line 16 to "a summary of what they printed"; or record it together with
+    SEC5-3 for the design revision.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: security
+  rule_ref: ADR-002 decision 3; SEC5-4
+  evidence:
+  - kind: quote
+    path: src/orqlet/workflow/skills/orqlet-implement/references/phase-contract.md
+    lines: '29'
+    revision: 43c21cfc8f4683b9586e7960a3d61cf6182f8050
+    quote_sha256: 4e01ea537bccd14541c1a4cb8472fd2ac4ae2df8bd11c7ce16c8a4298b93ff90
+  claim: >-
+    Open design finding SEC5-4 now shows as a disagreement between two shipped texts. phase-contract.md line 29 says
+    "The tester does the same" as implementation, and implementation also stops on "a plan text that differs from
+    the cited lines beyond placeholders"; tester.md line 14 stops only on a different hash or a change in the working
+    tree. The test file records the choice (test_workflow_role_prompts.py lines 50-52), and the plan's unverified
+    list keeps SEC5-4 open by the person's choice (Q-10).
+  suggested_action: None for this phase. When the design pull request takes up SEC5-4, change both texts.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: security
+  claim: >-
+    tests/P-5.yaml records that the Tester piped its first pytest run through tail, which hid the exit status. The
+    plan marks every `uv run` as matching the warning list, because it may fetch from the network (the P-5
+    completion entries). The installed tester was still the 0.3.3 text, since P-7 regenerates the installed files,
+    so the new rule did not yet apply; under the new text the tester would hand that run back to the Coder. A pipe
+    into a program other than a shell is not on the warning list; only "Run only the test command that the plan
+    names" rules it out. The record states both facts openly.
+  suggested_action: None. Process note.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implementation
+    applicable_standards:
+    - ORQLET-SEC-001
+    - ORQLET-SEC-002
+    - ORQLET-SEC-003
+  checks:
+  - what: Secrets and private data in the P-5 changes and records (the CodeGuard rule on hardcoded credentials)
+    how: >-
+      Searched all of diff.patch for AWS, GitHub, Stripe, Google and Slack key prefixes, JWT shapes, private-key
+      blocks and URLs with a user and password - no hits. Searched for /Users/, the local user name, and password,
+      api_key, secret or token assignments; the only hits are earlier review records that describe their own scans.
+      Read knowledge/P-5.yaml and tests/P-5.yaml in full; they hold only commit ids, a Python version and timings.
+      The rule applies because the change ships agent text that governs how agents handle credentials; F-1 and F-2
+      are where that text could still let one be copied.
+    result: pass
+  - what: Certificates and cryptography (the CodeGuard rules on certificates and algorithms)
+    how: The P-5 change holds no certificate data, no certificate file read and no cryptographic code.
+    result: pass
+  - what: Read-only roles stay read-only in every client
+    how: >-
+      In the 15 role goldens the four read-only roles keep `tools: Read, Grep, Glob` (Claude Code), `readonly: true`
+      (Cursor) and `sandbox_mode = "read-only"` (Codex); the tester's front matter is unchanged.
+    result: pass
+  - what: Goldens match the source, and the Codex TOML escaping is right
+    how: >-
+      Compared the Claude Code and Cursor hunks, and the Codex description and developer_instructions lines, with the
+      five source hunks, line by line. The new tester text, with its backticks, `$(`, `;`, `&&`, `||` and quotes,
+      sits in TOML basic strings with escaped quotes and line breaks; TOML does not interpret `$(` or backticks.
+    result: pass
+  - what: Warning list and resistance to instructions hidden in files
+    how: >-
+      The tester's warning list matches phase-contract.md line 33 and ADR-002 decision 6 in substance; "never an
+      instruction" stays exactly once in every role; the new design-review sentence lets a reviewer open a cited
+      file only to verify the citation.
+    result: pass
+  - what: New and changed tests
+    how: >-
+      test_workflow_role_prompts.py and the test_skills.py change read packaged text through PackagedWorkflow and
+      load_roles; they open no socket, start no subprocess, read no environment and write no file.
+    result: pass
+  - what: Dependencies, CI and runtime code
+    how: The diff's file list holds no pyproject.toml, uv.lock, .github/workflows, tools or src/orqlet Python file.
+    result: pass
+  - what: Separate commit 43c21cf, outside this phase
+    how: >-
+      It narrows a property-test strategy so that no nested key is bearer_token_env_var, which matches the test's
+      premise; no production credential code changes.
+    result: pass
+  - what: MANIFEST.json digests, quote digests, pytest, the manifest check and gate status
+    how: Not run, because the shell was refused; the test record claims these results (evidence_kind claimed).
+    result: not-run
+  unverified:
+  - Which files P-5 stages, as opposed to what P-1 to P-4 committed, comes from the plan, the test record and the diff
+    headers; it was not confirmed with git by the reviewer.
+  - The P-1 to P-4 parts of the diff were not reviewed again.
+  - Whether each client loads AGENTS.md into a subagent (U-11), which decides how much the baseline lowers the risk in
+    F-1 and F-2.
+  - Whether the positive property tests for bearer_token_env_var at depth still exist; the reviewer read only the
+    43c21cf hunk.

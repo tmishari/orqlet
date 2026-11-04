@@ -20,6 +20,24 @@ The effective class is the maximum of what the scope triggers and what you decla
 
 Diagrams are Mermaid blocks. An ADR has the sections Context, Decision, Consequences and Rejected alternatives.
 
+## The design brief
+
+`component.md`, which every class requires, opens with the design brief. The manifest holds the hash of `component.md`, so the brief is approved with the design. The brief has these parts, in this order:
+
+1. The summary, with the recommended approach.
+2. The requirements `R-n`, restated from the request, each with its source.
+3. The behaviour, as observable input and result at the project's interfaces, for each kind the project has: command line (arguments, output, exit status), library API (calls, results, errors), network API (requests, responses), messages and events, files and data written, scheduled jobs, logs and metrics, and a user interface when there is one. A project without a graphical interface states its behaviour at the other kinds.
+4. The responsibilities and interfaces.
+5. The failures, each with its trigger, observable result and recovery.
+6. The acceptance criteria `BC-n`, each with its source: a requirement `R-n`, a question `Q-n`, an AS-IS entry (`A-n`, `U-n`, `C-n`), an ADR decision or a standard's id.
+7. The decisions, each pointing to its ADR.
+8. The unresolved decisions.
+9. The constraints that the plan must respect.
+
+Each ADR compares the real alternatives, and its Consequences name the trade-offs of the choice. A consequential decision that the design cannot make is a ledger question that blocks design: `orqlet validate design` reports ORQ-E367 while it is open.
+
+A design contains no phase order: no phase list, build order or task list. An ordering that must hold is a constraint with its reason, and the plan sequences it.
+
 ## The manifest
 
 ```yaml

@@ -1,4 +1,4 @@
-<!-- orqlet:begin orqlet-workflow workflow@0.3.3#e87889ffe3b052a4eeef5b17fa3bbb614b4b423dc8bcee1a21edb106cd47e22a -->
+<!-- orqlet:begin orqlet-workflow workflow@0.4.0#e87889ffe3b052a4eeef5b17fa3bbb614b4b423dc8bcee1a21edb106cd47e22a -->
 ## Orqlet workflow
 
 Orqlet-Task: <task-slug>

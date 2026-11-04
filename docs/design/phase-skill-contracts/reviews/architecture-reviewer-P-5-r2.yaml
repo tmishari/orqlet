@@ -1,0 +1,244 @@
+schema: orqlet.review-result/v1
+task: phase-skill-contracts
+phase: P-5
+role: architecture-reviewer
+round: 2
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 5252915bb215e18f9df21488e5a058ad3c03ca6b59b706269f7ce239735eb091
+    design: 9fd71b6184605ddfacbeeb871586f7c87c25dee2aab814fe8b62495b7cb29884
+    evidence_inputs: a0a8c2fcc19d39f25f2e9186959c9517c925a8b3e5209007b63b6426112d4841
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: bad1acea6377b4a8962920848fbccf28e439fa50927b392a5170f5d919442e63
+    reviewer_definition: 4aaf2f43cccc95ed6f28a53dcd6bc21de709920bdbf69eef98927c490a56e5a3
+    standards: d8fcc2fc2afba1ea19064aa6b45cdb1c83aaacafb5f36ada7f580b1976d2f889
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 6d6d8f3b7df43a6516f4088ae70bb2c4acb953237f8a5d189368aeb48c512d34
+  merge_base: c59a03a16a22984f53753f44fa06e479f33dd491
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: b420177b9e6104e277c852b5a36dfede59382df5458d0196b30138e780d5fe13
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran as the typed orqlet-arch-reviewer subagent of Cursor, in a fresh context, with the path of packet
+  phase-skill-contracts-P-5-7038d914 only. It ran no command and read files only.
+- It ran with the installed role text of workflow 0.3.3 (`.cursor/agents/orqlet-arch-reviewer.md`, whose sha256 is the
+  definition_sha256 above), not with the P-5 text under review; phase P-7 regenerates the installed files.
+- It computed no quote digests. The main agent hashed the quotes on committed lines with `orqlet evidence cite` at
+  1a8a4c8ec99c1efdcc6ff70c05e7f09a9987817b, after checking that each cited range reads the same in the staged tree,
+  and left the quotes on staged-only lines as path and line references in the claims. The reviewer cited ADR-002
+  lines 28-29, 42, 46 and 48 as one entry; the main agent records them as four quotes. The absence record cites the
+  packet's staged tree cb9a2d9aa235014f1f253dcde33eb6d95ab1b816, because it searched staged files.
+- This record is from the second run of round 2. A first run on packet phase-skill-contracts-P-5-355d2bb8 became stale
+  when the person corrected knowledge/P-5.yaml after it (the README range 323-325 became 323-326). That run also
+  passed; its observations that this run does not repeat were that the
+  tester's list of inputs does not name the plan's completion entry of the test command, and that no test checks the
+  `orqlet` commands that the role texts name.
+- The packet's diff runs from the merge base to the staged tree, so it also holds P-1 to P-4, 43c21cf and the ledger
+  commits; the reviewer separated P-5 by the plan's file list and the test record, and did not inspect the index.
+- The model that ran the reviewer is not observed.
+- The reviewer ran in the same client as the Coder, so this review is I1; this D3 task needs I2, which a review in
+  another client must supply.
+- This review is an additional check, not a guarantee.
+applicability:
+  examined:
+  - context/plan.yaml, phase P-5
+  - context/design-manifest.yaml
+  - context/test-record.yaml
+  - context/knowledge-impact.yaml
+  - docs/design/phase-skill-contracts/design/adr-002-project-context-read-at-execution-time.md
+  - docs/design/phase-skill-contracts/design/adr-004-what-each-phase-produces.md
+  - docs/design/phase-skill-contracts/questions.yaml
+  - src/orqlet/workflow/roles/orqlet-arch-reviewer.md
+  - src/orqlet/workflow/roles/orqlet-security-reviewer.md
+  - src/orqlet/workflow/roles/orqlet-inventory.md
+  - src/orqlet/workflow/roles/orqlet-tracer.md
+  - src/orqlet/workflow/roles/orqlet-tester.md
+  - the fifteen role goldens under tests/golden/
+  - tests/unit/test_workflow_role_prompts.py
+  - tests/unit/render/test_skills.py
+  - src/orqlet/workflow/skills/orqlet-design/skill.md
+  - src/orqlet/workflow/skills/orqlet-implement/references/phase-contract.md
+  - src/orqlet/domain/blocks.py
+  - README.md
+  - diff.patch
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: info
+  category: architecture
+  evidence:
+  - kind: quote
+    path: docs/design/phase-skill-contracts/plan.yaml
+    lines: 855-864
+    revision: 1a8a4c8ec99c1efdcc6ff70c05e7f09a9987817b
+    quote_sha256: abf4254f5f7e83bb5ccb7d80bf134e97ec5ea7da7f60f8c9db106b65677a3ef2
+  - kind: quote
+    path: docs/design/phase-skill-contracts/design/adr-002-project-context-read-at-execution-time.md
+    lines: 28-29
+    revision: 1a8a4c8ec99c1efdcc6ff70c05e7f09a9987817b
+    quote_sha256: d503c4ec82564e605617069e2f629e03003ff465d820755cb2e2d2ef4aa60be3
+  - kind: quote
+    path: docs/design/phase-skill-contracts/design/adr-002-project-context-read-at-execution-time.md
+    lines: '42'
+    revision: 1a8a4c8ec99c1efdcc6ff70c05e7f09a9987817b
+    quote_sha256: fd27a0e19b0752924ff1905bfe4f1b89985ae193fbdf2f217955ea521b190b19
+  - kind: quote
+    path: docs/design/phase-skill-contracts/design/adr-002-project-context-read-at-execution-time.md
+    lines: '46'
+    revision: 1a8a4c8ec99c1efdcc6ff70c05e7f09a9987817b
+    quote_sha256: f36fbffd67900de36b207eeec6d4939366f0359627d63b792a42b0f588f76149
+  - kind: quote
+    path: docs/design/phase-skill-contracts/design/adr-002-project-context-read-at-execution-time.md
+    lines: '48'
+    revision: 1a8a4c8ec99c1efdcc6ff70c05e7f09a9987817b
+    quote_sha256: 2b103550d5149afc139b0e921e5e4ffa32ca7cc1d89364f3ce4be8b993339e1b
+  - kind: absence
+    searched:
+    - docs/design/phase-skill-contracts/questions.yaml
+    - docs/design/phase-skill-contracts/plan.yaml
+    method: >-
+      Read the ledger hunk of diff.patch, which adds only Q-12 and Q-13, and compared the plan digest in the round 1
+      review records, the knowledge record and the test record (bad1acea in all three). No ledger entry or plan
+      amendment records the round 2 widening.
+    revision: cb9a2d9aa235014f1f253dcde33eb6d95ab1b816
+  claim: >-
+    In rework round 2 the researchers gained the rules on credentials and secret files, and the tester the rules on
+    single-quoted values, placeholders, secrets and output summaries. These go beyond P-5 AC-2 and AC-3 and beyond
+    the stated reasons of the three file operations (plan.yaml lines 856, 859 and 862-864 cite only BC-26 and ADR-004
+    decision 7). The text follows the approved design (ADR-002 lines 28-29, 46 and 48, and line 42, "The tester
+    applies the same checks"). The files are inside the file list and the plan is unchanged, so the plan's amendment
+    rule, which covers files outside a list, does not apply. The person's choice is recorded only as a claim in the
+    staged test record (tests/P-5.yaml lines 46-49) and in the module docstring of
+    tests/unit/test_workflow_role_prompts.py (lines 31-53); Q-13 shows that the team records a comparable choice in
+    the ledger.
+  suggested_action: >-
+    List the round 2 additions under the deviations of the P-5 phase report as additions beyond BC-26 made at the
+    person's choice, citing ADR-002 decision 3. Optionally add a ledger entry, as Q-13 does. No change to the text is
+    needed.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: correctness
+  evidence:
+  - kind: quote
+    path: src/orqlet/workflow/skills/orqlet-implement/references/phase-contract.md
+    lines: '26'
+    revision: 1a8a4c8ec99c1efdcc6ff70c05e7f09a9987817b
+    quote_sha256: 78600f5337c0e6d48fb509e319c39023eab98771cb033b86a37427f1841d2597
+  - kind: quote
+    path: src/orqlet/workflow/skills/orqlet-implement/references/phase-contract.md
+    lines: '29'
+    revision: 1a8a4c8ec99c1efdcc6ff70c05e7f09a9987817b
+    quote_sha256: 4e01ea537bccd14541c1a4cb8472fd2ac4ae2df8bd11c7ce16c8a4298b93ff90
+  - kind: quote
+    path: src/orqlet/workflow/skills/orqlet-implement/references/phase-contract.md
+    lines: '37'
+    revision: 1a8a4c8ec99c1efdcc6ff70c05e7f09a9987817b
+    quote_sha256: a4b146f648d2e758ae59f0b5009c5420969cc35361d4f2c972755305ef77b24c
+  claim: >-
+    In phase-contract.md the Coder's rule that the plan's checks run "as the cited lines hold them" (line 29) stands
+    apart from the rule that a value going into a command is single-quoted and passes the character rule (line 37).
+    In the staged tester (orqlet-tester.md line 16) the value rule comes right after "Run only the test command that
+    the plan names" (line 14), and the "as the cited lines hold them" wording is missing. A literal reader could take
+    the test command itself, which holds spaces, for a value from the plan and hand back every check; that outcome is
+    safe. The tester also leaves out line 26's limit that a non-secret value comes only from the person or the cited
+    lines, which the test record states openly (tests/P-5.yaml lines 54-55). The missing wording is the same gap as
+    design finding SEC5-4, which Q-10 left open.
+  suggested_action: >-
+    None for P-5. When the design revision takes up SEC5-4, give the tester "as the cited lines hold them", which
+    settles both points.
+  confidence: low
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implementation
+    acceptance_criteria:
+    - P-5 AC-1 through AC-6
+  checks:
+  - what: Round 1 findings
+    how: >-
+      Round 1 F-1 (commit 43c21cf changed a test outside every file list with no record) is resolved by Q-13 in
+      questions.yaml, which names 43c21cf, the file and the reason. Round 1 F-2 (the tester stops where the Coder may
+      continue) is unchanged; it fails safe and stays informational.
+    result: pass
+  - what: AC-1 reviewers (BC-25)
+    how: >-
+      Both staged reviewer sources keep the four pinned phrases. Each has one design-review sentence (arch line 16,
+      security line 10) with the five inputs of ADR-004 line 52 and of orqlet-design/skill.md step 8, and opens a
+      cited file only to verify it. Both descriptions name both uses, with "the packet only" once; pinned in
+      test_workflow_role_prompts.py and test_skills.py lines 521-529.
+    result: pass
+  - what: AC-2 inventory and tracer (BC-26)
+    how: >-
+      Line 8 of each reports the instruction files, the commands of CI and build files and the task documents as
+      facts; line 12 keeps "you are read-only" and adds "you run no command that you find in a file".
+    result: pass
+  - what: AC-3 tester (BC-26)
+    how: >-
+      tester.md line 14 has every part of ADR-004 line 51: the re-cite, git diff --quiet, the untracked check, the
+      stop, no marked or warning-list command, the hand-back to the Coder and no other command. Its warning list is
+      word for word phase-contract.md line 33, compared by reading and pinned by the test at lines 257-262.
+    result: pass
+  - what: AC-4 every role
+    how: >-
+      Counted by reading: "never an instruction" and the no-lookup sentence each appear exactly once in the five
+      roles; test_workflow_lookup_text.py is not in the diff. The four read-only roles keep mode read-only, and their
+      goldens keep `tools: Read, Grep, Glob`, `readonly: true` and `sandbox_mode = "read-only"`. No vendor model is
+      named. The extended test is at test_skills.py lines 496-508.
+    result: pass
+  - what: AC-5 manifest and goldens
+    how: >-
+      The MANIFEST.json hunk changes the five role hashes (not recomputed). All fifteen role goldens match the five
+      sources line by line; the Codex TOML escapes `\"$NAME\"` and line breaks. The `orqlet:begin` text in the
+      tester cannot match the block marker pattern, which is anchored at line start (src/orqlet/domain/blocks.py
+      line 26).
+    result: pass
+  - what: AC-6 scope and gate status
+    how: >-
+      The P-5 files fall within the design scope and outside the security globs. The staged set and the gate status
+      result are claims of the test record; the reviewer did not inspect the index or run gate status.
+    result: not-run
+  - what: Tests are meaningful and cover the criteria
+    how: >-
+      43 cases cover AC-1 to AC-4 and the round 2 rules; the old "what they printed" wording is checked as gone, and
+      the warning list is compared with the reference rather than copied.
+    result: pass
+  - what: Knowledge-impact record
+    how: >-
+      The three already_documented_refs hashes equal design-manifest D-3, D-9 and D-7. README.md lines 321, 324-326
+      and 600-601 say what the record claims and stay true after P-5. The absence record names c59a03a, which is
+      right because README.md, AGENTS.md and the PR template are not in the diff. The no-impact outcome is supported.
+    result: pass
+  - what: Standards ORQLET-ARCH-003, ORQLET-DET-001, ORQLET-DET-002, ORQLET-TEST-001, ORQLET-NOMODEL-001, ORQLET-STYLE-001
+    how: >-
+      The workflow package stays data, with no Python change under src/orqlet; the goldens hold no timestamp or
+      absolute path; the manifest rebuild is claimed; the new tests read package data only; no model is named.
+    result: pass
+  unverified:
+  - The test record's command outputs are claims; the reviewer ran none of them.
+  - Quote digests and the MANIFEST.json sha256 values were not computed by the reviewer.
+  - The staged index was not inspected directly.
+  - The security aspects of the round 2 text were left to the security reviewer.

@@ -120,14 +120,18 @@ def test_a_malformed_source_is_a_release_defect(text: str) -> None:
 
 # --- what the package ships ---------------------------------------------------------------------
 def test_the_package_ships_the_expected_skills_roles_and_references() -> None:
+    """phase-skill-contracts P-2, AC-5. expected_behavior_source: ADR-001 decision 3 (research,
+    design, plan and implement each carry `references/phase-contract.md`; onboard and review do
+    not) and BC-4. References are attached in path order."""
     request = packaged_request()
 
     assert tuple(s.name for s in request.skills) == SKILL_NAMES
     assert tuple(r.name for r in request.roles) == ROLE_NAMES
     assert {s.name: [n for n, _ in s.references] for s in request.skills if s.references} == {
-        "orqlet-design": ["design-format.md"],
-        "orqlet-plan": ["plan-format.md"],
-        "orqlet-research": ["as-is-format.md"],
+        "orqlet-design": ["design-format.md", "phase-contract.md"],
+        "orqlet-implement": ["phase-contract.md"],
+        "orqlet-plan": ["phase-contract.md", "plan-format.md"],
+        "orqlet-research": ["as-is-format.md", "phase-contract.md"],
         "orqlet-review": ["review-format.md"],
     }
 
@@ -167,26 +171,34 @@ def mentioned_commands(text: str) -> Iterator[tuple[str, list[str]]]:
         yield " ".join(words[:2]), flags
 
 
+def assert_only_known_commands(where: str, text: str) -> None:
+    for command, flags in mentioned_commands(text):
+        known = [
+            c
+            for c in IMPLEMENTED_COMMANDS | PLANNED_COMMANDS
+            if c == command or c.startswith(command + " ")
+        ]
+        candidates = [
+            c
+            for c in IMPLEMENTED_COMMANDS
+            if c == command or command.startswith(c + " ") or c.startswith(command + " ")
+        ]
+        assert known or candidates, f"{where}: `orqlet {command}`"
+        full = next((c for c in IMPLEMENTED_COMMANDS if command.startswith(c)), None)
+        if full is None:
+            continue  # a planned command: its flags are checked when it exists
+        for flag in flags:
+            assert flag in command_options(full) | {"--help"}, f"{where}: {full} {flag}"
+
+
 def test_skills_only_mention_commands_and_flags_that_exist_or_are_planned() -> None:
-    complete = request_with(EVERY_COMMAND).skills
-    for skill in complete:
-        for command, flags in mentioned_commands(skill.body):
-            known = [
-                c
-                for c in IMPLEMENTED_COMMANDS | PLANNED_COMMANDS
-                if c == command or c.startswith(command + " ")
-            ]
-            candidates = [
-                c
-                for c in IMPLEMENTED_COMMANDS
-                if c == command or command.startswith(c + " ") or c.startswith(command + " ")
-            ]
-            assert known or candidates, f"{skill.name}: `orqlet {command}`"
-            full = next((c for c in IMPLEMENTED_COMMANDS if command.startswith(c)), None)
-            if full is None:
-                continue  # a planned command: its flags are checked when it exists
-            for flag in flags:
-                assert flag in command_options(full) | {"--help"}, f"{skill.name}: {full} {flag}"
+    """phase-skill-contracts P-2, AC-6. expected_behavior_source: BC-5 ("Every backticked
+    `orqlet ...` in a skill body or a reference names an existing command and existing flags") and
+    Q-4 (existing commands only): every body and, from this phase on, every reference."""
+    for skill in request_with(EVERY_COMMAND).skills:
+        assert_only_known_commands(skill.name, skill.body)
+        for name, text in skill.references:
+            assert_only_known_commands(f"{skill.name}/references/{name}", text)
 
 
 # The commands that existed before the evidence records of slice S9.
@@ -210,6 +222,9 @@ def test_a_skill_never_names_a_command_that_the_release_it_is_rendered_for_lacks
 
 
 def test_before_the_records_exist_the_implement_skill_drops_the_steps_that_need_them() -> None:
+    """phase-skill-contracts P-2, AC-2. expected_behavior_source: ADR-001 consequences (each step
+    count takes the new count, and the rule stays: numbering from 1 without a gap) and the
+    interface that the Coder gave (7 steps with BEFORE_RECORDS)."""
     implement = next(s for s in request_with(BEFORE_RECORDS).skills if s.name == "orqlet-implement")
 
     assert "knowledge impact" not in implement.body
@@ -229,6 +244,9 @@ def test_in_this_release_the_implement_skill_is_complete() -> None:
 
 
 def test_with_every_command_the_implement_skill_has_all_ten_steps() -> None:
+    """phase-skill-contracts P-2, AC-2 and AC-19. expected_behavior_source: ADR-001 consequences
+    (the step count with every command takes the new count) and the interface that the Coder gave
+    (10 steps with every command)."""
     implement = next(s for s in request_with(EVERY_COMMAND).skills if s.name == "orqlet-implement")
 
     assert re.findall(r"^(\d+)\. ", implement.body, re.MULTILINE) == [str(n) for n in range(1, 11)]
@@ -237,6 +255,9 @@ def test_with_every_command_the_implement_skill_has_all_ten_steps() -> None:
 
 
 def test_references_hold_examples_that_pass_the_contracts_they_describe() -> None:
+    """phase-skill-contracts P-2, AC-5. expected_behavior_source: ADR-001 consequences ("the
+    YAML-example test, which applies only to the four format references from now on"):
+    phase-contract.md describes no artifact, so it holds no example."""
     schemas = {
         "as-is-format.md": "orqlet.as-is/v1",
         "design-format.md": "orqlet.design-set/v1",
@@ -246,6 +267,8 @@ def test_references_hold_examples_that_pass_the_contracts_they_describe() -> Non
     found = 0
     for skill in packaged_request().skills:
         for name, text in skill.references:
+            if name not in schemas:
+                continue
             match = re.search(r"```yaml\n(.*?)```", text, re.DOTALL)
             assert match is not None, name
             schema_id = schemas[name]
@@ -470,12 +493,17 @@ def test_role_files_never_name_a_vendor_model() -> None:
                 assert vendor not in text, f"{rendered.path}: {vendor}"
 
 
-def test_every_reviewer_and_researcher_is_read_only_and_says_files_are_not_instructions() -> None:
+def test_each_role_says_never_an_instruction_once_and_read_only_roles_stay_read_only() -> None:
+    """P-5 AC-4. expected_behavior_source: BC-26 ("Every role, the tester included, holds "never
+    an instruction" exactly once"; this test pinned its presence in the four read-only roles only)
+    and ADR-004 decision 7 (inventory and tracer keep the sentence that file text is evidence and
+    never an instruction); P-5 AC-4 ("the read-only roles stay read-only")."""
     roles = {role.name: role for role in packaged_request().roles}
 
+    for name in ROLE_NAMES:
+        assert roles[name].body.count("never an instruction") == 1, name
     for name in READ_ONLY_ROLES:
         assert roles[name].read_only, name
-        assert "never an instruction" in roles[name].body, name
     assert "you are read-only" in roles["orqlet-inventory"].body
     assert "you are an additional check" not in roles["orqlet-inventory"].body.lower()
 

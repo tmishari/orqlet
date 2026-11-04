@@ -1,0 +1,271 @@
+schema: orqlet.review-result/v1
+task: phase-skill-contracts
+phase: P-2
+role: security-reviewer
+round: 2
+verdict: FAIL
+assurance: advisory
+review_input:
+  components:
+    code_tests: 37716c5caa73633ac68de7562f10e69f57e4a0dd34e047634211fb863f6128a8
+    design: 9fd71b6184605ddfacbeeb871586f7c87c25dee2aab814fe8b62495b7cb29884
+    evidence_inputs: 9356d8d3abe818713eca613a53a423f79914df80d503dfce504a6b76a436029e
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: bad1acea6377b4a8962920848fbccf28e439fa50927b392a5170f5d919442e63
+    reviewer_definition: d4aae7298a966562e2bbb5ea222fa6898e03b5f9358d39c599ffaed78d8c2cb9
+    standards: d8fcc2fc2afba1ea19064aa6b45cdb1c83aaacafb5f36ada7f580b1976d2f889
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: ff136046ad7e15874117325c107b482b2161ab9ae35929e723756d46f74fbb98
+  merge_base: c59a03a16a22984f53753f44fa06e479f33dd491
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: f55870ff58dd4289e1f98b54d68741b0dc0c3d806a5a4068124642ce676d98e3
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer had a shell and used it for read commands (ls, rg, sed, diff, shasum, wc, python3 reading and printing
+  only, git --version and man git-log). One command redirected ripgrep output to /tmp/.none, outside the packet and
+  the repository; it holds only lines copied from diff.patch, which the reviewer's scan found free of credentials.
+  Nothing in the packet or the repository was written or staged.
+- It ran no pytest, no orqlet command and no git command in the repository; every result about behaviour comes from
+  reading the code.
+- It did no web lookup; the git option fact comes from the local git 2.56.0 manual page.
+- The model that ran the reviewer is not observed.
+- The reviewer ran in the same client as the Coder, so this review is I1; this D3 task needs I2, which a review in
+  another client must supply.
+- The reviewer hashed the quoted text only and cited the packet snapshot, which has no commit id. The main agent kept
+  the quotes on committed lines, each hashed again with `orqlet evidence cite` at
+  c772617d8d68e70eab016a142178f86c259ef67a, and left the staged quotes as path and line references in the claims.
+- This review is an additional check, not a guarantee.
+applicability:
+  examined:
+  - src/orqlet/workflow/skills/orqlet-research/references/phase-contract.md
+  - src/orqlet/workflow/skills/orqlet-research/skill.md
+  - src/orqlet/workflow/skills/orqlet-design/skill.md
+  - src/orqlet/workflow/skills/orqlet-plan/skill.md
+  - src/orqlet/workflow/skills/orqlet-implement/skill.md
+  - src/orqlet/workflow/MANIFEST.json
+  - src/orqlet/workflow/identity.json
+  - docs/design/phase-skill-contracts/design/component.md
+  - docs/design/phase-skill-contracts/design/adr-002-project-context-read-at-execution-time.md
+  - docs/design/phase-skill-contracts/design/adr-003-handoffs-and-the-input-check.md
+  - docs/design/phase-skill-contracts/reviews/security-reviewer-design.md
+  - docs/design/phase-skill-contracts/reviews/security-reviewer-P-2-r1.yaml
+  - docs/design/phase-skill-contracts/knowledge/P-2.yaml
+  - docs/design/phase-skill-contracts/tests/P-2.yaml
+  - docs/design/phase-skill-contracts/questions.yaml
+  - tests/unit/test_workflow_phase_contract_text.py
+  - tests/unit/test_workflow_skill_contracts.py
+  - tests/unit/application/test_workflow_injection.py
+  - tests/unit/render/test_rendered_formats.py
+  - tests/support/init_env.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: blocking
+  category: security
+  rule_ref: P-2 AC-9; BC-8; BC-40; ADR-002 decision 3; ADR-003 decision 4
+  evidence:
+  - kind: quote
+    path: docs/design/phase-skill-contracts/design/component.md
+    lines: '107'
+    revision: c772617d8d68e70eab016a142178f86c259ef67a
+    quote_sha256: 021aeb327ab9c62dd128f396021c021e5d30cd61bfa00f8fbd0835c0e9600383
+  - kind: quote
+    path: docs/design/phase-skill-contracts/design/adr-002-project-context-read-at-execution-time.md
+    lines: '28'
+    revision: c772617d8d68e70eab016a142178f86c259ef67a
+    quote_sha256: e6f176f057d6171ac8c0117ecf73593b95416193b8e7eb0dcc92aa1315056347
+  - kind: quote
+    path: docs/design/phase-skill-contracts/design/adr-003-handoffs-and-the-input-check.md
+    lines: '41'
+    revision: c772617d8d68e70eab016a142178f86c259ef67a
+    quote_sha256: 84ccf6db13102f7b9d44d5dd9af053c52e60f6053191b6d538f89fe682db146c
+  - kind: quote
+    path: docs/design/phase-skill-contracts/reviews/security-reviewer-design.md
+    lines: '256'
+    revision: c772617d8d68e70eab016a142178f86c259ef67a
+    quote_sha256: 446c7c79561647e43d9d4ecd04a2934af85c866f13a6845ae211733fa6132f29
+  - kind: absence
+    searched:
+    - src/orqlet/workflow/skills/orqlet-research/references/phase-contract.md
+    - src/orqlet/workflow/skills/orqlet-design/references/phase-contract.md
+    - src/orqlet/workflow/skills/orqlet-plan/references/phase-contract.md
+    - src/orqlet/workflow/skills/orqlet-implement/references/phase-contract.md
+    - src/orqlet/workflow/skills/orqlet-research/skill.md
+    - src/orqlet/workflow/skills/orqlet-design/skill.md
+    - src/orqlet/workflow/skills/orqlet-plan/skill.md
+    - src/orqlet/workflow/skills/orqlet-implement/skill.md
+    method: rg -i for 'character', 'single quote', 'single-quot', 'starts with' and 'leading' in the packet snapshot,
+      and a read of phase-contract.md lines 23-50. The only character rule is line 37, and it names "a path or glob".
+    revision: 60522134c620fe3de978790f7230085a0518ad76
+  claim: The round-1 fix put the person's values under the single-quote rule but not under the character rule. In
+    phase-contract.md the character stop applies only to "a path or glob" (line 37). So three kinds of value need
+    only single quotes - a non-secret value that fills a placeholder (line 26), taken from the person or from cited CI
+    lines that any contributor can change; the remote-tracking ref the person names (line 48); and any other non-path
+    value from an artifact. ADR-002 decision 3 requires such a value to pass the character rule (line 28). ADR-003
+    decision 4 requires a stop on any other character for every artifact value (line 41). The design-stage security
+    review closed SEC3-3 on exactly that ADR-002 sentence. BC-8 refers to "the argument rule of BC-40"; the BC-40 text
+    limits the character rule to paths and globs, while both ADRs do not, so the design disagrees with itself here.
+    Single quotes fail when a value holds a single quote, and on Windows cmd.exe they do not quote at all. A ref that
+    starts with `--` is read as an option; the local git 2.56.0 manual lists `git log --output=<file>`, so the
+    candidate-listing command could write a file. Mitigations - cited lines are bound by hash and approved in the plan
+    pull request, and the person supplies the ref. A reader can still take line 37 as permission to pass such values
+    with quoting only, so AC-9 fails.
+  suggested_action: 'Widen the stop in line 37 to every value: "A value with anything but letters, digits, `.`, `_`,
+    `-`, `/`, `*` or `?` stops the skill: ask." It is shorter, and it also stops `--output=...`, because `=` is not an
+    allowed character. Add the phrase to ARGUMENT_RULES in tests/unit/test_workflow_phase_contract_text.py. If the
+    person holds that BC-40 limits the rule to paths and globs, record a ledger question instead, because BC-40
+    disagrees with ADR-002 and ADR-003.'
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: security
+  rule_ref: P-2 AC-9; BC-8
+  claim: The source rule (phase-contract.md line 25) requires citing "the configuration lines it reads". .npmrc,
+    .pypirc and .netrc are configuration files that package tools read, and the secret-file rule (line 27) forbids
+    opening them. The text does not say which rule wins when a planned check reads one of them. The absolute "Never"
+    makes the safe reading the likely one. BC-8 and ADR-002 have the same structure, so this is a design-level
+    ambiguity, not a deviation of this phase.
+  suggested_action: In a later revision, say in line 25 that a file that holds secrets is cited by path only and never
+    opened.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: finding
+  severity: non-blocking
+  category: security
+  rule_ref: P-2 AC-9; BC-8
+  evidence:
+  - kind: quote
+    path: docs/design/phase-skill-contracts/design/component.md
+    lines: '107'
+    revision: c772617d8d68e70eab016a142178f86c259ef67a
+    quote_sha256: 021aeb327ab9c62dd128f396021c021e5d30cd61bfa00f8fbd0835c0e9600383
+  - kind: quote
+    path: docs/design/phase-skill-contracts/reviews/security-reviewer-design.md
+    lines: '124'
+    revision: c772617d8d68e70eab016a142178f86c259ef67a
+    quote_sha256: 61071ca668122a1f2bff2690d3d9eb66062c6a0d77ffa77ab9c3710a44a7d890
+  claim: BC-8 says a secret is never asked for. phase-contract.md (line 26) follows ADR-002's narrower wording, "Never
+    ask the person to type a secret". An agent reading it literally could ask the person to paste a token or to share
+    the file that holds it. Pasting is the case the design-stage review named. The no-print and secret-file rules still
+    limit what reaches the transcript.
+  suggested_action: Write "Never ask the person for a secret" (one word shorter) and update the pinned phrase in
+    COMMAND_RULES in a rework round.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: security
+  rule_ref: BC-8; ADR-002 decision 3
+  evidence:
+  - kind: quote
+    path: docs/design/phase-skill-contracts/design/adr-002-project-context-read-at-execution-time.md
+    lines: '48'
+    revision: c772617d8d68e70eab016a142178f86c259ef67a
+    quote_sha256: 2b103550d5149afc139b0e921e5e4ffa32ca7cc1d89364f3ce4be8b993339e1b
+  - kind: quote
+    path: docs/design/phase-skill-contracts/design/component.md
+    lines: '114'
+    revision: c772617d8d68e70eab016a142178f86c259ef67a
+    quote_sha256: 2f2a7a4ac9f1b427299cc10fb8492a1b986cdd078b02f7d7d5a1adbb8a771ca7
+  claim: The output rule (phase-contract.md line 31) covers reports only. BC-8 does not limit it, and ADR-002 says
+    "reports and records". The tester's, knowledge and review records therefore have no explicit summary rule. "Never
+    copy a credential" (line 26) is unconditional and still applies, so what remains is raw, credential-free output in
+    a record.
+  suggested_action: When the word budget allows, write "Output goes into reports and records as a summary, ...".
+  confidence: low
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implementation
+    acceptance_criteria:
+    - P-2 AC-9
+  checks:
+  - what: Packet complete and consistent
+    how: Listed the packet and read the manifest header (base c59a03a, staged tree 60522134, one file omitted,
+      docs/design/orqlet-architecture-proposal.md); the context copies of the test and knowledge records are
+      byte-identical to tests/P-2.yaml and knowledge/P-2.yaml.
+    result: pass
+  - what: The four phase-contract.md copies are identical and match MANIFEST.json; identity.json is 0.4.0
+    how: shasum -a 256 gives 85e3d836... for all four copies; all 70 manifest entries match the snapshot; identity.json
+      says workflow_version 0.4.0 with controls_level 3.
+    result: pass
+  - what: Goldens equal the sources and keep disable-model-invocation
+    how: Compared the 12 golden SKILL.md files with their sources after normalising for the front matter, the
+      generated header and the removed requires markers; all equal and all carry disable-model-invocation true. The 12
+      golden phase-contract.md files share one hash, the source plus the generated header.
+    result: pass
+  - what: AC-9, BC-8 compared clause by clause with phase-contract.md, ADR-002 decision 3 and ADR-003 decision 4
+    how: Read side by side; every other clause is present; F-1 blocks; F-3 is a narrower wording.
+    result: fail
+  - what: Round-1 findings F-1 to F-5
+    how: Re-read the cited lines. F-1 - the quoting half is fixed, the character half is open (F-1 here). F-2, F-3 and
+      F-4 fixed (F-4 by implement skill.md line 28). F-5 unchanged and design-level.
+    result: fail
+  - what: Option and command injection through values
+    how: Merge commits must be full hex ids and base_revision is validated hex before any git command; paths go after
+      --. The person-named ref and non-path values have no character rule (F-1).
+    result: fail
+  - what: Hardcoded credentials (codeguard-1-hardcoded-credentials) on every added line
+    how: rg over every added line for AWS, Stripe, Google and GitHub key prefixes, JWTs, BEGIN blocks, URLs with a
+      password, and password, secret, token and api_key assignments; none found.
+    result: pass
+  - what: Certificates (codeguard-1-digital-certificates)
+    how: Same scan; no PEM block and no certificate file or loader in the change.
+    result: pass
+  - what: Cryptographic algorithms (codeguard-1-crypto-algorithms)
+    how: rg for md5, sha1, des, 3des, rc4 and blowfish; one hit, a record stating that MD5 and SHA-1 are not used; all
+      digests are SHA-256.
+    result: pass
+  - what: Private data in the knowledge draft, the ledger and review records
+    how: rg for /Users/, /home/, the local user name and e-mail addresses in added lines; none. Read knowledge/P-2.yaml
+      (a no-impact outcome, no drafts) and Q-12.
+    result: pass
+  - what: Hidden or bidirectional Unicode, and literal double braces, in the added text
+    how: Python unicodedata scan of added lines; no format, control or private-use characters. rg for {{ and }} in the
+      shipped texts; none.
+    result: pass
+  - what: File, process and network access in tests and fakes
+    how: Read the imports and searched for subprocess, socket, eval, open and write calls; the tests read packaged
+      workflow files only; the fakes use MemoryFileSystem and FakeVcs.
+    result: pass
+  - what: Dependency and watched-surface changes
+    how: The diff's file list has no pyproject.toml, uv.lock, .github/, tools/, client config or src/**/*.py change.
+    result: pass
+  - what: Skill bodies do not loosen the shared rules
+    how: Read all four bodies.
+    result: pass
+  - what: Test suite, orqlet commands and gate status
+    how: Not run; the tester's record is evidence_kind claimed.
+    result: not-run
+  - what: Read-only discipline
+    how: One shell command wrote /tmp/.none outside the packet and the repository (see capability limits).
+    result: fail
+  unverified:
+  - Not examined - context/as-is.md, context/design-manifest.yaml, standards.lock.yaml, adr-001, adr-004, adr-005,
+    sequence.md, architecture-reviewer-P-2-r1.yaml, the P-1 review records (pattern scans only), the onboard, review
+    and role texts, the Codex sidecar goldens, the README and the omitted architecture proposal.
+  - How the orqlet CLI parses a positional path that starts with '-', and how each client and shell (cmd.exe,
+    PowerShell) treats the quoting rules in practice (sessions V-1 to V-3).

@@ -117,12 +117,15 @@ _entry_keys = st.sampled_from(
 _entries = st.dictionaries(_entry_keys, _json_values, max_size=5)
 
 _NO_DOLLAR = st.text(alphabet=st.characters(exclude_categories=["Cs"], exclude_characters="$"))
+# `referenced_variables` reads `bearer_token_env_var` at every depth, so no level may hold it.
+_keys_without_the_holder = _NO_DOLLAR.filter(lambda key: key != "bearer_token_env_var")
 _entries_without_a_reference = st.dictionaries(
-    _NO_DOLLAR.filter(lambda key: key != "bearer_token_env_var"),
+    _keys_without_the_holder,
     st.recursive(
         st.none() | st.booleans() | st.integers() | _NO_DOLLAR,
         lambda children: (
-            st.lists(children, max_size=3) | st.dictionaries(_NO_DOLLAR, children, max_size=3)
+            st.lists(children, max_size=3)
+            | st.dictionaries(_keys_without_the_holder, children, max_size=3)
         ),
         max_leaves=8,
     ),

@@ -1,0 +1,75 @@
+schema: orqlet.test-record/v1
+task: phase-skill-contracts
+phase: P-1
+review_input:
+  components:
+    code_tests: 947224fd45736faf5fa7882c0f08fc7fd943844e5166686bc096029ecedfaa86
+    plan: bad1acea6377b4a8962920848fbccf28e439fa50927b392a5170f5d919442e63
+  covers:
+  - code_tests
+  - plan
+  digest: 33b41182555a0ed6dfd58f35404c4de83f059a988fa376b3fc330a3b018aeeb9
+  merge_base: c59a03a16a22984f53753f44fa06e479f33dd491
+  schema: orqlet.review-input/v1
+verdict: NOT_RUN
+evidence_kind: claimed
+commands:
+- id: ruff-check
+  exit_code: 0
+  summary: All checks passed!
+  result_digest: 25f326e22c6432fe8d9cb53763a5ba90eb40292202e859de3428a71489e9f494
+- id: ruff-format
+  exit_code: 0
+  summary: 543 files already formatted
+  result_digest: d60dde4b83e856e4859dca64dcef9c4695e06c369996bc4ef14441094bd395e3
+- id: mypy
+  exit_code: 0
+  summary: 'Success: no issues found in 348 source files'
+  result_digest: a02c11ec329de082179796014c19652b002212f5775272db3d02cdf8442e9ad3
+- id: import-linter
+  exit_code: 0
+  summary: 'Contracts: 5 kept, 0 broken.'
+  result_digest: ac9e7621e65ea7f8c9a97ae43c307340bf3fe41caa4e25c2200b3f10314efb91
+- id: pytest
+  exit_code: 0
+  summary: 7763 passed, 1 skipped (junctions exist on Windows only) in 964.46s on Python 3.12.11, one Python only; the
+    digest is of the last lines that were captured, not of the whole output. The 38 new tests were written by the
+    Tester before the SkillChange option existed. Rework round 2 (architecture finding F-1 of round 1) added the Codex
+    sidecar agents/openai.yaml of each workflow skill to the paths of the AC-1 and AC-6 tests; the count of tests is
+    unchanged because the paths are compared inside existing tests.
+  result_digest: 3f63ea88bd087adcd1bfa34cb33a3dfc4324a41cb6d7c517a57520ea15ef84ac
+- id: gate-status-phase
+  exit_code: 5
+  summary: NOT_RUN caused by ORQ-I393 alone (approval is host evidence that an offline run lacks), with ORQ-I392 for
+    as-is, design and plan; no ORQ-E450, ORQ-E451 or ORQ-E453 on the staged tree. Gate status checks watched surfaces,
+    not the phase file list; the file-list half of AC-9 rests on the staged diff, which holds only the three listed
+    files and this task's records.
+  result_digest: 9b8b0c6062afb959b41b638f8ec47a3bf47cb3a589aa2e41ca739d0e61e0ea71
+acceptance_coverage:
+- ac: AC-1
+  check_ref: pytest
+  result: pass
+- ac: AC-2
+  check_ref: pytest
+  result: pass
+- ac: AC-3
+  check_ref: pytest
+  result: pass
+- ac: AC-4
+  check_ref: pytest
+  result: pass
+- ac: AC-5
+  check_ref: pytest
+  result: pass
+- ac: AC-6
+  check_ref: pytest
+  result: pass
+- ac: AC-7
+  check_ref: pytest
+  result: pass
+- ac: AC-8
+  check_ref: security-reviewer
+  result: not-run
+- ac: AC-9
+  check_ref: gate-status-phase
+  result: pass

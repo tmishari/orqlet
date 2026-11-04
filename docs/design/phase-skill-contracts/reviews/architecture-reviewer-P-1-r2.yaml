@@ -1,0 +1,115 @@
+schema: orqlet.review-result/v1
+task: phase-skill-contracts
+phase: P-1
+role: architecture-reviewer
+round: 2
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 947224fd45736faf5fa7882c0f08fc7fd943844e5166686bc096029ecedfaa86
+    design: 9fd71b6184605ddfacbeeb871586f7c87c25dee2aab814fe8b62495b7cb29884
+    evidence_inputs: 30582566d1491ab01cf4fefe3f5374eb0c6e832d8c0c0563880b70de6a503aec
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: bad1acea6377b4a8962920848fbccf28e439fa50927b392a5170f5d919442e63
+    reviewer_definition: 5730eadbb534996a4181219f53b86eac676d230727ab1c065afd01a43d5740b6
+    standards: d8fcc2fc2afba1ea19064aa6b45cdb1c83aaacafb5f36ada7f580b1976d2f889
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 87333543e8f5e7c7e48d855847697cb1e1ba5583820ffea6b06389beabefd51c
+  merge_base: c59a03a16a22984f53753f44fa06e479f33dd491
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: b420177b9e6104e277c852b5a36dfede59382df5458d0196b30138e780d5fe13
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; its shell was refused, so it ran no check and
+  recomputed no digest.
+- Quote digests were not computed, so the finding rests on its absence record and the quoted lines are named in the
+  claim.
+- The model that ran the reviewer is not observed.
+- The reviewer ran in the same client as the Coder, so this review is I1; this D3 task needs I2, which a review in
+  another client must supply.
+- The reviewer did not read the existing tests that use ChangedWorkflow (lifecycle, fault and e2e); it confirmed
+  that the diff does not touch them.
+applicability:
+  examined:
+  - tests/fakes/workflow.py
+  - tests/unit/application/test_workflow_injection.py
+  - tests/unit/render/test_rendered_formats.py
+  - docs/design/phase-skill-contracts/tests/P-1.yaml
+  - docs/design/phase-skill-contracts/knowledge/P-1.yaml
+  - docs/design/phase-skill-contracts/reviews/architecture-reviewer-P-1-r1.yaml
+  - docs/design/phase-skill-contracts/reviews/security-reviewer-P-1-r1.yaml
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: compatibility
+  evidence:
+  - kind: absence
+    searched:
+    - docs/design/phase-skill-contracts/questions.yaml
+    - docs/design/phase-skill-contracts/plan.yaml
+    - docs/design/phase-skill-contracts/tests/P-1.yaml
+    method: searched for a response to round-1 F-2 or a stated wording constraint for P-2 to P-5 (rg "F-2|technolog|Q-1[0-9]");
+      only Q-10 and Q-11 exist, neither about it
+    revision: c59a03a16a22984f53753f44fa06e479f33dd491
+  claim: The BC-6 leak test counts a technology that only the other project declares as a leak even in text the
+    package ships identically to every project; it passes because the fixtures avoid the uv and Typer that shipped
+    references already name (test_workflow_injection.py:19-22; design-format.md:44, as-is-format.md:28). Every skill,
+    reference and role text must therefore avoid Python, pip, Flask, Rust, clap, SQLx, Tokio and Kafka, and no plan or
+    ledger entry tells the writers of P-2 to P-5. ADR-002 decision 3 (adr-002 line 28) says "such as a Python
+    version"; carried over, it fails the in-beta case, and P-2 AC-23, P-3 AC-9, P-4 AC-6 and P-5 AC-5 forbid editing
+    P-1's tests.
+  suggested_action: Before P-1 is committed, have the person choose either (a) count a technology word as a leak
+    only when the packaged render of the same path does not already contain it, inside P-1's own test, or (b) keep
+    the test and record the word list as a ledger constraint for P-2 to P-5, so P-2 writes "a language version".
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+  checks:
+  - what: packet read
+    how: diff.patch (7 files), the context files, snapshot sources and goldens; MANIFEST.json by search only
+    result: pass
+  - what: file list and boundaries
+    how: diff headers against P-1 file_operations and the evidence-path patterns; nothing under src/
+    result: pass
+  - what: round-1 findings
+    how: F-1 (Codex sidecar now in the AC-1 and AC-6 paths, goldens exist for all six) and F-3 (the record states the
+      file-list half of AC-9) resolved; F-2 carried forward as F-1
+    result: pass
+  - what: acceptance criteria AC-1 to AC-7
+    how: read each test against the plan, BC-6, BC-27 to BC-30, BC-38 and ADR-005 decision 1
+    result: pass
+  - what: golden safety
+    how: the AC-6 test only reads goldens; .gitattributes marks tests/golden/** -text
+    result: pass
+  - what: knowledge impact
+    how: .orqlet/knowledge.yaml has sources [] and the plan has knowledge_scope [], so no-impact test-only is accurate
+    result: pass
+  - what: tests, linters, gate status
+    how: shell refused in this session
+    result: not-run
+  - what: review_input and quote digests
+    how: not recomputed
+    result: not-run

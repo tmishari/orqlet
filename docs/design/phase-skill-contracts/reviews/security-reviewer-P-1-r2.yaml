@@ -1,0 +1,108 @@
+schema: orqlet.review-result/v1
+task: phase-skill-contracts
+phase: P-1
+role: security-reviewer
+round: 2
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 947224fd45736faf5fa7882c0f08fc7fd943844e5166686bc096029ecedfaa86
+    design: 9fd71b6184605ddfacbeeb871586f7c87c25dee2aab814fe8b62495b7cb29884
+    evidence_inputs: 30582566d1491ab01cf4fefe3f5374eb0c6e832d8c0c0563880b70de6a503aec
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: bad1acea6377b4a8962920848fbccf28e439fa50927b392a5170f5d919442e63
+    reviewer_definition: d4aae7298a966562e2bbb5ea222fa6898e03b5f9358d39c599ffaed78d8c2cb9
+    standards: d8fcc2fc2afba1ea19064aa6b45cdb1c83aaacafb5f36ada7f580b1976d2f889
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 27755cf9a4dea4fbb2cd861d0b8e73765a1c5cc1069e79bbc150a3f1a29e1e90
+  merge_base: c59a03a16a22984f53753f44fa06e479f33dd491
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: f55870ff58dd4289e1f98b54d68741b0dc0c3d806a5a4068124642ce676d98e3
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer's tools are read-only by advice, not by enforcement; its shell was refused, so it ran no check and
+  saw no socket refused at runtime.
+- Quote digests were not computed, so the citations are file and line references and absence records.
+- The model that ran the reviewer is not observed.
+- The reviewer ran in the same client as the Coder, so this review is I1; this D3 task needs I2, which a review in
+  another client must supply.
+applicability:
+  examined:
+  - tests/fakes/workflow.py
+  - tests/unit/application/test_workflow_injection.py
+  - tests/unit/render/test_rendered_formats.py
+  - docs/design/phase-skill-contracts/tests/P-1.yaml
+  - docs/design/phase-skill-contracts/knowledge/P-1.yaml
+  - docs/design/phase-skill-contracts/reviews/architecture-reviewer-P-1-r1.yaml
+  - docs/design/phase-skill-contracts/reviews/security-reviewer-P-1-r1.yaml
+  - tests/fixtures/contracts/valid/orqlet.integrations.v1.yaml
+  - tests/fixtures/repos/rust_cli/Cargo.toml
+  - tests/fixtures/repos/pip_flask/requirements.txt
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: info
+  category: security
+  rule_ref: ORQLET-SEC-003
+  evidence: []
+  claim: tests/unit/render/test_rendered_formats.py:61 sets ENABLED_ADDRESS to the real public vendor address
+    https://mcp.atlassian.com/v2/mcp where AC-8 asks for obvious placeholders. It is not a credential; it is the only
+    address the closed table enables (src/orqlet/domain/mcp_credentials.py:21-25), so a placeholder would render no
+    .mcp.json. The auth mode is client-native OAuth with no secret, the rendered entry holds only type and url, no
+    request reaches the address (rendering builds strings; the suite runs with --disable-socket, pyproject.toml:71),
+    and twelve other test and golden files hold the same address.
+  suggested_action: Nothing is required. If AC-8's "obvious placeholder" is meant to cover addresses too, record in
+    the phase report that the closed-table address is the stated exception.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet read
+    how: MANIFEST.json, diff.patch, context/plan.yaml (P-1), test record, knowledge impact, rules.yaml and the snapshot
+      copies of the three changed test files
+    result: pass
+  - what: diff scope and dependencies
+    how: seven diff headers; no src/, pyproject.toml or uv.lock
+    result: pass
+  - what: secrets, keys and certificates
+    how: rg over diff.patch and tests/fixtures/repos for credential, key, certificate and token patterns and local
+      paths; only the words "secret" and "secrets scan" in the round-1 review record matched
+    result: pass
+  - what: digest algorithms
+    how: sha256_hex only; no MD5, SHA-1 or hashlib use in the diff
+    result: pass
+  - what: network, file system and process access
+    how: no socket, http, urllib or requests import; MemoryFileSystem and FakeVcs only; no write, subprocess or
+      environment access in the diff; the golden fixture is not used
+    result: pass
+  - what: parsing and injection
+    how: StrictYamlLoader, tomllib and json; names_word escapes its input; SkillChange paths must be in base.paths()
+    result: pass
+  - what: AC-8
+    how: fakes and support code used, no socket path, no credential; placeholders except the closed-table address
+    result: pass
+  - what: checks run by the reviewer
+    how: shell refused in this read-only session
+    result: not-run

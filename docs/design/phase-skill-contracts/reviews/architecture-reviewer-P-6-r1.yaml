@@ -1,0 +1,192 @@
+schema: orqlet.review-result/v1
+task: phase-skill-contracts
+phase: P-6
+role: architecture-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 16ce33af280364280f9160e17b2e2fbacb6c4abfe98efc11e765ad96cf076a56
+    design: 9fd71b6184605ddfacbeeb871586f7c87c25dee2aab814fe8b62495b7cb29884
+    evidence_inputs: c60d3d982895799f5eecd0569027cd072618cd8b14d2fac22e29c79ed97962e2
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: bad1acea6377b4a8962920848fbccf28e439fa50927b392a5170f5d919442e63
+    reviewer_definition: 4aaf2f43cccc95ed6f28a53dcd6bc21de709920bdbf69eef98927c490a56e5a3
+    standards: d8fcc2fc2afba1ea19064aa6b45cdb1c83aaacafb5f36ada7f580b1976d2f889
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 7d0aacf606ff9b613a4a723280cc07947e167c197b49b2b991fe3509b899409b
+  merge_base: c59a03a16a22984f53753f44fa06e479f33dd491
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: b420177b9e6104e277c852b5a36dfede59382df5458d0196b30138e780d5fe13
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran as the typed orqlet-arch-reviewer subagent of Cursor, in a fresh context, with the path of packet
+  phase-skill-contracts-P-6-49465cb4 only. It had no shell, so it ran no command and read files only.
+- It ran with the installed role text of workflow 0.3.3 (`.cursor/agents/orqlet-arch-reviewer.md`, whose sha256 is the
+  definition_sha256 above); phase P-7 regenerates the installed files.
+- It computed no quote digests and gave absence records only. The main agent added the committed line of the tester
+  role that F-1 compares with, hashed with `orqlet evidence cite` at 0a17dbfbf2d64448a2360cf5fe500aa1a5a332ab after
+  checking that it reads the same in the staged tree. The reviewer named the merge base in its absence records;
+  because it searched staged files, the main agent recorded the packet's staged tree
+  3cf8bc78eda26f32d7e535b74fff7d39234e1883 instead.
+- The packet's diff runs from the merge base to the staged tree, so it also holds P-1 to P-5 and the ledger commits;
+  the reviewer judged scope by assigning each path to a phase and did not isolate the staged change with git.
+- It did not run init or pytest; AC-3 is checked by a cross-check of the new package files, the goldens and
+  considerations.md line 43, and AC-5 rests on the test record's claim.
+- The model that ran the reviewer is not observed.
+- The reviewer ran in the same client as the Coder, so this review is I1; this D3 task needs I2, which a review in
+  another client must supply.
+- This review is an additional check, not a guarantee.
+applicability:
+  examined:
+  - context/plan.yaml, phase P-6
+  - context/design-manifest.yaml
+  - context/test-record.yaml
+  - context/knowledge-impact.yaml
+  - context/standards/rules.yaml
+  - README.md
+  - the six skill bodies under src/orqlet/workflow/skills/
+  - src/orqlet/workflow/skills/orqlet-implement/references/phase-contract.md
+  - src/orqlet/workflow/roles/orqlet-tester.md
+  - docs/design/phase-skill-contracts/design/considerations.md
+  - the golden folders under tests/golden/
+  - .prompts/README.md
+  - .prompts/foundations.md
+  - diff.patch
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: info
+  category: docs
+  evidence:
+  - kind: quote
+    path: src/orqlet/workflow/roles/orqlet-tester.md
+    lines: '14'
+    revision: 0a17dbfbf2d64448a2360cf5fe500aa1a5a332ab
+    quote_sha256: db54d66fcbdad35593114e45ff1e680815e2d84c445b3496575b55bce8f21fd0
+  - kind: absence
+    searched:
+    - README.md
+    method: >-
+      Searched the staged README for "tester"; only lines 329-330 ("a tester that writes the test files named in the
+      plan") and 346 mention it.
+    revision: 3cf8bc78eda26f32d7e535b74fff7d39234e1883
+  claim: >-
+    Since P-5 the tester also runs the plan's test command after citing every source again (orqlet-tester.md line 14).
+    The README's tester sentence is still true but no longer complete. The P-5 knowledge record said that P-6 rewrites
+    that paragraph; P-6 added the input-check sentences to it and left the tester sentence as it was. No P-6 criterion
+    asks for it.
+  suggested_action: None needed for P-6. If the person wants it, add it to a later README change or the design revision.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: tests
+  evidence:
+  - kind: absence
+    searched:
+    - docs/design/phase-skill-contracts/tests/P-6.yaml
+    method: >-
+      Read lines 40-41 ("with no commit since the plan's base") against the gate-status entry of the same record, which
+      lists nine commits since the base; searched the diff headers for .github/workflows/ci.yml and pyproject.toml and
+      found neither.
+    revision: 3cf8bc78eda26f32d7e535b74fff7d39234e1883
+  claim: >-
+    Read literally, the pytest summary says that there is no commit since the plan's base, which contradicts the
+    gate-status entry of the same record. The intended meaning is that no commit since the plan's base touches the
+    cited files; the packet supports that from c59a03a on, and the reviewer did not examine the range from 66b58898 to
+    c59a03a.
+  suggested_action: Reword it as "no commit since the plan's base touches the cited files" if the records are written again.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: docs
+  evidence:
+  - kind: absence
+    searched:
+    - '*.md'
+    - .github/**/*.md
+    - docs/**/*.md
+    - .prompts/**/*.md
+    method: >-
+      Listed the snapshot's Markdown files outside the excluded folders and found AGENTS.md,
+      .github/pull_request_template.md, .prompts/README.md and .prompts/foundations.md; searched the two .prompts
+      files for a skill name, workflow@, a version or a file count and found none.
+    revision: 3cf8bc78eda26f32d7e535b74fff7d39234e1883
+  claim: >-
+    The absence record of knowledge/P-6.yaml says that AGENTS.md and the pull request template are the other tracked
+    Markdown files outside the excluded folders; it leaves out .prompts/README.md and .prompts/foundations.md. Neither
+    describes what P-6 changed, so the no-impact outcome holds.
+  suggested_action: Name the .prompts/ folder among the scopes searched, or among the exclusions, the next time the record is written.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implementation
+    acceptance_criteria:
+    - P-6 AC-1 through AC-6
+  checks:
+  - what: AC-1 skill table
+    how: >-
+      Each row matches its skill body - onboard step 6, research step 7, design step 5, plan steps 3 and 4, implement
+      step 1 and its six-part output; the review row is unchanged.
+    result: pass
+  - what: AC-2 paragraph
+    how: >-
+      It matches the input-check section of phase-contract.md ("say which check failed ... and what resolves it") and
+      names no command or option.
+    result: pass
+  - what: AC-3 file count
+    how: >-
+      The only new package files are the four phase-contract.md copies, with no deletions; Claude Code renders
+      .claude/skills and Codex and Cursor share .agents/skills (per the goldens); considerations.md line 43 says "eight
+      when both ... are rendered"; 65 + 8 = 73. The reviewer did not run init.
+    result: pass
+  - what: AC-4 block marker
+    how: Line 205 shows workflow@0.4.0, which matches identity.json; the 0.3.1 to 0.3.3 example at lines 270-277 is kept.
+    result: pass
+  - what: AC-5 pytest
+    how: >-
+      Neither README test file is in the diff, and both pin sections that P-6 does not touch; the pytest result is a
+      claim of the test record.
+    result: not-run
+  - what: AC-6 scope
+    how: >-
+      Every path in the diff belongs to a phase's file list, a task record, the ledger or the test fix of Q-13;
+      README.md is in P-6's list only. The gate-status result is a claim.
+    result: pass
+  - what: Knowledge-impact record
+    how: >-
+      The four design hashes match design-manifest.yaml; AGENTS.md line 1 and the pull request template's line 1 still
+      carry workflow@0.3.3; the ledger diff only adds Q-12 to Q-15 (see F-3 for the Markdown list).
+    result: pass
+  - what: Standards ORQLET-SEC-003, ORQLET-NOMODEL-001, ORQLET-QA-001
+    how: The three rules have no scope, as the plan's self-check says; no secret is in the change.
+    result: pass
+  unverified:
+  - P-6's staged change on its own; the diff covers P-1 to P-6 together.
+  - The commit range from 66b58898 to c59a03a.
+  - The CI matrix, init and pytest, which the reviewer did not run.

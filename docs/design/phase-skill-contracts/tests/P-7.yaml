@@ -1,0 +1,100 @@
+schema: orqlet.test-record/v1
+task: phase-skill-contracts
+phase: P-7
+review_input:
+  components:
+    code_tests: b25189d26e808e117973d54e15630f85d60db23669e32b5a7236c0e48ad5f770
+    plan: bad1acea6377b4a8962920848fbccf28e439fa50927b392a5170f5d919442e63
+  covers:
+  - code_tests
+  - plan
+  digest: b57c80a4d25b00825615ca61330c00de4550fedd86a57794461dcb41c2101734
+  merge_base: c59a03a16a22984f53753f44fa06e479f33dd491
+  schema: orqlet.review-input/v1
+verdict: NOT_RUN
+evidence_kind: claimed
+commands:
+- id: orqlet-upgrade-dry-run
+  exit_code: 0
+  summary: >-
+    `uv run orqlet upgrade --dry-run` on the clean tree at 682d86a printed "Preview only. Nothing was written." and
+    "Workflow 0.3.3 -> 0.4.0" with 8 create and 38 update lines; compared by script, the 46 paths and their operations
+    equal the plan's 46 file operations of P-7, with none extra and none missing. The person read the preview and ran
+    `uv run orqlet upgrade` in their own terminal. Its journal, change 1df68c5c-a0bd-4080-a099-4858fe0983e5 below the
+    user's data directory, has status complete and 46 entries, all done, whose paths equal the 46 changed paths of the
+    tree, and every file's content equals the entry's after_sha256, so no file was edited after the upgrade wrote it.
+    The one proposal entry is .orqlet/proposals/.orqlet__versions.yaml.diff. The digest is of the dry-run output.
+  result_digest: 5590c40680c5f5765863b468561e744dc82fef61636c0101eb590bd98ca7b5c5
+- id: orqlet-upgrade-check
+  exit_code: 0
+  summary: >-
+    `uv run orqlet upgrade --check` after the upgrade printed "Already up to date." and "Workflow 0.4.0 -> 0.4.0",
+    then the client notes ORQ-L001 to ORQ-L006 and ORQ-I031, ORQ-I020 and ORQ-I030, the same notes as the dry-run.
+  result_digest: 205a8423671df105b0fb02a9e6efb5c69d08f882253f0160e9cb67a28775e389
+- id: orqlet-doctor
+  exit_code: 1
+  summary: >-
+    `uv run orqlet doctor` after the upgrade reported 0 errors, 2 warnings and 4 notes, with no ORQ-E150 and no
+    ORQ-W152. The exit status 1 comes from the two warnings, which concern the project profile, not an installed
+    file: ORQ-W180 (the profile is a draft) and ORQ-W181 (repository.branch_naming and repository.commit_convention
+    are unknown). .orqlet/project-profile.yaml is not among the changed files. The notes are ORQ-I502, ORQ-I200,
+    ORQ-I020 and ORQ-I030; client versions are reported as not run.
+  result_digest: 71d84267fe4fde01f70c6b1d14c7b03c47378249cce2b1fbdc15fbc5798aa742
+- id: orqlet-gate-status
+  exit_code: 5
+  summary: >-
+    `uv run orqlet gate status phase-skill-contracts` after the upgrade: NOT_RUN, with ORQ-W390 for as-is, design and
+    plan on workflow_version, protected_set_digest and base_revision, and ORQ-I393 (approval is host evidence that an
+    offline run lacks). workflow_version and protected_set_digest are new since P-6 and are caused by this upgrade, as
+    ADR-005 foresees; base_revision is caused by this task's earlier commits. No artifact was edited to hide them.
+  result_digest: daa84841ccd310ae0aa1d4c7cdeafc66b829d6dccd18d77077f80054a311b493
+- id: gate-status-phase
+  exit_code: 5
+  summary: >-
+    `uv run orqlet gate status phase-skill-contracts --phase P-7 --head staged` with the 46 upgraded files staged:
+    the same output as the task gate, with no ORQ-E450, ORQ-E451 or ORQ-E453. The staged tree held only the 46 paths
+    of this phase's file operations. The same result came again with the knowledge and test records staged.
+  result_digest: daa84841ccd310ae0aa1d4c7cdeafc66b829d6dccd18d77077f80054a311b493
+- id: pytest
+  exit_code: 0
+  summary: >-
+    8208 passed, 1 skipped (junctions exist on Windows only) in 872.92s on Python 3.12.11, one Python only, on the
+    staged tree with the 46 upgraded files and the knowledge record; the digest is of the last four lines of the
+    captured output. P-7 lists no test file. The Tester ran first, as the typed orqlet-tester subagent, read-only and
+    with no command, and found that no test reads this repository's installed files (every CLI call in the tests
+    passes --root with a temporary or fixture path, and the wheel holds only src/orqlet), so the upgrade puts no test
+    at risk, and that no criterion of P-7 needs a test that the plan does not list. It noted that after P-7 nothing
+    automated keeps the installed files in step with the package, because CI runs no `orqlet upgrade --check` or
+    `orqlet doctor` against this repository; adding a CI step would change .github/workflows/, which BC-33 forbids in
+    this task. The Coder ran pytest after citing again .github/workflows/ci.yml lines 83-84 (4ae61613) and
+    pyproject.toml lines 69-80 (37ed9bcd) at 682d86a, with no commit to either file since the plan's base, neither
+    staged, no unstaged difference and no untracked file.
+  result_digest: 7b5c2b08a82cd2f3c49c38c554e20a01a366bd9fa87cc5b0328d206efb512e8a
+acceptance_coverage:
+- ac: AC-1
+  check_ref: orqlet-upgrade-dry-run
+  result: pass
+- ac: AC-2
+  check_ref: orqlet-upgrade-check
+  result: pass
+- ac: AC-3
+  check_ref: orqlet-doctor
+  result: pass
+- ac: AC-4
+  check_ref: review:upgrade-outputs
+  result: not-run
+- ac: AC-5
+  check_ref: review:role-bindings-note
+  result: not-run
+- ac: AC-6
+  check_ref: review:conftest
+  result: not-run
+- ac: AC-7
+  check_ref: orqlet-gate-status
+  result: pass
+- ac: AC-8
+  check_ref: ci
+  result: not-run
+- ac: AC-9
+  check_ref: gate-status-phase
+  result: pass
