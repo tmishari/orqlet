@@ -567,7 +567,12 @@ questions:
       - "docs/design/dynamic-model-profiles/evidence/web/github-required-reviews-and-codeowners.md"
     blocks:
       - plan
-    status: open
+    status: answered
+    answer:
+      value: "No second owner. Only @tmishari is a code owner of these paths (src/orqlet/workflow/seeds/**, .github/CODEOWNERS, src/orqlet/** and tests/**, besides .orqlet/**, which is already owned). The person chose this option after the request named no handle; Q-23's approval rule then cannot be met for a change that @tmishari authors, and the person accepts that."
+      answerer: user
+      time: "2026-11-05T10:57:00+02:00"
+      scope: task
   - id: Q-33
     key: 908b76813581ef27a93d4f4d2ef369047b174fd8fd27701cd4926580acc65ae7
     subject: "Reach of the Fable exclusion in generated files and validators"
@@ -583,7 +588,12 @@ questions:
       - "docs/design/dynamic-model-profiles/as-is.md#I-4"
     blocks:
       - plan
-    status: open
+    status: answered
+    answer:
+      value: "Confirm: the exclusion covers all Fable models and the best alias."
+      answerer: user
+      time: "2026-11-05T10:50:00+02:00"
+      scope: task
   - id: Q-34
     key: 14171f6632b02a33cce75252f1b20cab26ab977004fc18c05fc94da133ff09a2
     subject: "Branch protection and code-owner review on the protected branch"
@@ -639,5 +649,10 @@ questions:
       - "docs/design/dynamic-model-profiles/design/adr-006-code-review-gate-and-new-roles.md"
     blocks:
       - plan
-    status: open
+    status: answered
+    answer:
+      value: "No. The fallback for a NOT_RUN code review is another client or a human code-owner review, not a fresh session of the same client."
+      answerer: user
+      time: "2026-11-05T10:50:00+02:00"
+      scope: task
 conflicts: []
