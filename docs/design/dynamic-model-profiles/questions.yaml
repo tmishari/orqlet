@@ -534,4 +534,110 @@ questions:
       answerer: user
       time: "2026-11-04T18:41:03+02:00"
       scope: task
+  - id: Q-31
+    key: 80cc78f6cd9e667e2ab56a2091396dcce415524b4291413f2be7395c702e2d0a
+    subject: "Acceptance of the squash-merged AS-IS whose base revision is not in main's history"
+    raised_by: architect
+    phase: design
+    category: policy
+    text: "The input check 'same project' failed: git merge-base --is-ancestor 0a280480edf5543b1907805a402c3ada930cf045 HEAD exits 1, because the AS-IS binds to a commit of the research branch and pull request 15 was squash-merged as b7b113c. The task folder on main is identical to the research branch tip 2b00b06 and no file of the AS-IS scope changed between 0a28048 and HEAD. Does the person accept b7b113c as the approved AS-IS?"
+    why: "The skill stops on a failed input check and says never to edit the AS-IS or its bound values to pass it."
+    options:
+      - "proceed: b7b113c is the approved AS-IS; leave the AS-IS untouched and bind the design to the current HEAD"
+      - "stop: refresh the AS-IS on main first"
+      - "stop and do nothing further"
+    blocks:
+      - design
+    status: answered
+    answer:
+      value: "Proceed: the person confirmed that b7b113c, the squash merge of pull request 15, is the approved AS-IS. The AS-IS stays untouched and the design binds to the current HEAD."
+      answerer: user
+      time: "2026-11-04T18:55:00+02:00"
+      scope: task
+  - id: Q-32
+    key: 5e4d878b0404df538a1648aee970d5142e6443cfd4287e8ddee1d4db8fd69e46
+    subject: "Second code owner for the model catalog paths"
+    raised_by: architect
+    phase: design
+    category: policy
+    text: "Q-23 requires approval by any developer except the author, at least one approval and a code-owner review on the catalog paths. .github/CODEOWNERS lists only @tmishari for .orqlet/** (which already covers .orqlet/model-policy.yaml) and for the other owned paths, and has no entry for any other path: not for src/orqlet/workflow/seeds/**, for .github/CODEOWNERS itself, for anything else under src/orqlet/** (the workflow package, the validators, the renderers, the matching and independence rules) or for tests/** (the guard tests), so the human code-owner review that the design names as the fallback covers no source-code change today. Who besides @tmishari is a code owner of these paths, so that a change authored by @tmishari can be approved? Owners need write access to the repository, and the last matching pattern of the file decides the owner."
+    why: "With a single code owner, a change authored by that owner has no eligible code-owner approver, and the design relies on the host to enforce the approval rule (ADR-004)."
+    evidence_refs:
+      - ".github/CODEOWNERS"
+      - "docs/design/dynamic-model-profiles/evidence/web/github-required-reviews-and-codeowners.md"
+    blocks:
+      - plan
+    status: open
+  - id: Q-33
+    key: 908b76813581ef27a93d4f4d2ef369047b174fd8fd27701cd4926580acc65ae7
+    subject: "Reach of the Fable exclusion in generated files and validators"
+    raised_by: architect
+    phase: design
+    category: policy
+    text: "Q-7 says the exclusion covers the Claude Code fable alias only, and Q-13 and Q-24 say Fable is not available and is blocked by the company. The design (ADR-005) excludes every Fable model by identity: the aliases fable and best, every Fable model ID and Cursor's Fable entries are never rendered, never resolved and are errors when they appear as an observed model. Does the person confirm this reach?"
+    why: "An alias-only exclusion leaves the best alias and explicit Fable IDs as other paths to the same model (AS-IS I-4, I-11); Q-7 and Q-13 can be read two ways."
+    options:
+      - "confirm: all Fable models and the best alias"
+      - "alias fable only, as Q-7 reads literally"
+    evidence_refs:
+      - "docs/design/dynamic-model-profiles/as-is.md#I-4"
+    blocks:
+      - plan
+    status: open
+  - id: Q-34
+    key: 14171f6632b02a33cce75252f1b20cab26ab977004fc18c05fc94da133ff09a2
+    subject: "Branch protection and code-owner review on the protected branch"
+    raised_by: architect
+    phase: design
+    category: access
+    text: "Does the protected branch of this repository require at least one approving review and a code-owner review, and does the rule apply to the catalog paths? Is stale-approval dismissal enabled, is approval of the most recent reviewable push required, and can administrators bypass the rules? Which branch's CODEOWNERS file does the host apply to a pull request that edits it? The repository holds no file that says so, and the design relies on these settings for the human review that stands in for an AI reviewer when none qualifies (class I3)."
+    why: "Host rules are not readable in the repository (AS-IS U-15); without them a NOT_RUN review has no human fallback that anything enforces."
+    evidence_refs:
+      - "docs/design/dynamic-model-profiles/evidence/web/github-required-reviews-and-codeowners.md"
+    blocks:
+      - implement
+    status: open
+  - id: Q-35
+    key: 3ed1622a40cd8b697ca029a9c4ee82a47ee5cdfe2d92d86f1f5b00ea818f1593
+    subject: "Cursor model IDs for the starting catalog"
+    raised_by: architect
+    phase: design
+    category: missing-configuration
+    text: "Which Cursor model IDs do Grok 4.7, Claude Sonnet 5.5, Claude Haiku 5.5, Composer 2.5, Gemini 4 Argon and the other starting candidates have in the team's Cursor accounts? agent models printed 'No models available for this account.' because the CLI is not signed in (Q-11), and no fetched page states these IDs."
+    why: "A route without a known ID cannot be rendered as a pin; it stays a missing-candidate and the role keeps its automatic selection (ADR-003). This does not block the design or the plan."
+    evidence_refs:
+      - "docs/design/dynamic-model-profiles/as-is.md#U-25"
+    status: open
+  - id: Q-36
+    key: 03ae6dccd2bfb39f03fcbf76e93777aa0fb4e1bb994cd5664ebbdb22738ef023
+    subject: "A CI check that blocks a merge when a gated review is NOT_RUN"
+    raised_by: architect
+    phase: design
+    category: policy
+    text: "Today a review below its minimum independence reports NOT_RUN (exit status 5) and the CI workflow runs no orqlet validate, gate or review command, so nothing turns a NOT_RUN code, architecture or security review into a blocked merge, and nothing runs orqlet validate model-policy on the repository's own policy (the exclusion check, the approval-field check and the drift check). Does the person want a required CI check for either, in this change or later, or are the procedural rules plus the host's required reviews enough?"
+    why: "The design says the gate reports NOT_RUN and does not claim it blocks; a blocking check would be a CI change (D3) and is a decision for the person."
+    options:
+      - "procedural rule plus the host's required reviews only"
+      - "add a required CI check in this change"
+      - "add it later, as its own task"
+    evidence_refs:
+      - ".github/workflows/ci.yml"
+      - "docs/design/dynamic-model-profiles/as-is.md#A-44"
+    status: open
+  - id: Q-37
+    key: 2fafce05a2c26b0671f9e3c64653fb7cc121cfb6c587663cafa4647c98470afc
+    subject: "Whether an independent session of the same client satisfies the code review gate"
+    raised_by: architect
+    phase: design
+    category: policy
+    text: "Q-21 says 'independent session or human (I3) when no qualifying reviewer exists'. The design reads 'independent session' as a session in another client, because a new session of the same client is derived as I1 and the gate needs I2. Does the person mean that a fresh independent session of the same client may satisfy the gate when no I2 reviewer exists?"
+    why: "The design narrowed Q-21 here without asking; the answer decides whether the fallback for a NOT_RUN code review is another client or a human only, or also a fresh session of the same client."
+    options:
+      - "no: another client or a human code-owner review only (the design's reading)"
+      - "yes: a fresh independent session of the same client also satisfies the gate"
+    evidence_refs:
+      - "docs/design/dynamic-model-profiles/design/adr-006-code-review-gate-and-new-roles.md"
+    blocks:
+      - plan
+    status: open
 conflicts: []
