@@ -16,7 +16,7 @@ class MinimumCapability(Contract):
 
 
 class Binding(Contract):
-    role: Literal["architecture-reviewer", "security-reviewer"]
+    role: Literal["architecture-reviewer", "security-reviewer", "code-reviewer"]
     id: str
     clients: tuple[Literal["claude-code", "codex", "cursor"], ...]
     minimum_capability: MinimumCapability | None = None

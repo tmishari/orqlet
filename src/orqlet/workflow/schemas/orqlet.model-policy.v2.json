@@ -1,0 +1,645 @@
+{
+  "$defs": {
+    "Approval": {
+      "additionalProperties": false,
+      "properties": {
+        "approval_ref": {
+          "anyOf": [
+            {
+              "maxLength": 400,
+              "minLength": 1,
+              "pattern": "^[\\x20-\\x7e]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Approval Ref"
+        },
+        "approved_by": {
+          "anyOf": [
+            {
+              "maxLength": 400,
+              "minLength": 1,
+              "pattern": "^[\\x20-\\x7e]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Approved By"
+        },
+        "state": {
+          "enum": [
+            "proposed",
+            "approved",
+            "disabled",
+            "retired"
+          ],
+          "title": "State",
+          "type": "string"
+        }
+      },
+      "required": [
+        "state"
+      ],
+      "title": "Approval",
+      "type": "object"
+    },
+    "Assignment": {
+      "additionalProperties": false,
+      "properties": {
+        "client": {
+          "anyOf": [
+            {
+              "enum": [
+                "claude-code",
+                "codex",
+                "cursor"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Client"
+        },
+        "effort": {
+          "anyOf": [
+            {
+              "enum": [
+                "low",
+                "medium",
+                "high",
+                "xhigh",
+                "max"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effort"
+        },
+        "mode": {
+          "enum": [
+            "automatic",
+            "manual",
+            "automatic-with-fallbacks"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "model": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9._:/@+-]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Model"
+        },
+        "profile": {
+          "anyOf": [
+            {
+              "enum": [
+                "quality",
+                "engineering",
+                "economy"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Profile"
+        },
+        "target": {
+          "$ref": "#/$defs/Target"
+        },
+        "task": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Task"
+        }
+      },
+      "required": [
+        "target",
+        "mode"
+      ],
+      "title": "Assignment",
+      "type": "object"
+    },
+    "ClientModels": {
+      "additionalProperties": false,
+      "description": "The ordered catalog ids a profile offers one client.",
+      "properties": {
+        "client": {
+          "enum": [
+            "claude-code",
+            "codex",
+            "cursor"
+          ],
+          "title": "Client",
+          "type": "string"
+        },
+        "models": {
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9._:/@+-]+$",
+            "type": "string"
+          },
+          "title": "Models",
+          "type": "array"
+        }
+      },
+      "required": [
+        "client",
+        "models"
+      ],
+      "title": "ClientModels",
+      "type": "object"
+    },
+    "Documented": {
+      "additionalProperties": false,
+      "properties": {
+        "date": {
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "title": "Date",
+          "type": "string"
+        },
+        "evidence": {
+          "title": "Evidence",
+          "type": "string"
+        }
+      },
+      "required": [
+        "evidence",
+        "date"
+      ],
+      "title": "Documented",
+      "type": "object"
+    },
+    "Evaluated": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Evidence"
+        },
+        "state": {
+          "enum": [
+            "none",
+            "evidenced"
+          ],
+          "title": "State",
+          "type": "string"
+        }
+      },
+      "required": [
+        "state"
+      ],
+      "title": "Evaluated",
+      "type": "object"
+    },
+    "Exclusion": {
+      "additionalProperties": false,
+      "properties": {
+        "aliases": {
+          "default": [],
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9._:/@+-]+$",
+            "type": "string"
+          },
+          "title": "Aliases",
+          "type": "array"
+        },
+        "family_tags": {
+          "default": [],
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9._:/@+-]+$",
+            "type": "string"
+          },
+          "title": "Family Tags",
+          "type": "array"
+        },
+        "id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9._:/@+-]+$",
+          "title": "Id",
+          "type": "string"
+        },
+        "id_patterns": {
+          "default": [],
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9._:/@+*?-]+$",
+            "type": "string"
+          },
+          "title": "Id Patterns",
+          "type": "array"
+        },
+        "reason": {
+          "maxLength": 400,
+          "minLength": 1,
+          "pattern": "^[\\x20-\\x7e]+$",
+          "title": "Reason",
+          "type": "string"
+        },
+        "source": {
+          "maxLength": 400,
+          "minLength": 1,
+          "pattern": "^[\\x20-\\x7e]+$",
+          "title": "Source",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "reason",
+        "source"
+      ],
+      "title": "Exclusion",
+      "type": "object"
+    },
+    "ListPrice": {
+      "additionalProperties": false,
+      "properties": {
+        "input_per_million_usd": {
+          "maxLength": 32,
+          "pattern": "^[0-9]+(\\.[0-9]+)?$",
+          "title": "Input Per Million Usd",
+          "type": "string"
+        },
+        "output_per_million_usd": {
+          "maxLength": 32,
+          "pattern": "^[0-9]+(\\.[0-9]+)?$",
+          "title": "Output Per Million Usd",
+          "type": "string"
+        },
+        "source": {
+          "title": "Source",
+          "type": "string"
+        }
+      },
+      "required": [
+        "input_per_million_usd",
+        "output_per_million_usd",
+        "source"
+      ],
+      "title": "ListPrice",
+      "type": "object"
+    },
+    "ModelEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "approval": {
+          "$ref": "#/$defs/Approval"
+        },
+        "callable": {
+          "enum": [
+            "not-run",
+            "verified"
+          ],
+          "title": "Callable",
+          "type": "string"
+        },
+        "documented": {
+          "$ref": "#/$defs/Documented"
+        },
+        "evaluated": {
+          "$ref": "#/$defs/Evaluated"
+        },
+        "family": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9._:/@+-]+$",
+          "title": "Family",
+          "type": "string"
+        },
+        "id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9._:/@+-]+$",
+          "title": "Id",
+          "type": "string"
+        },
+        "list_price": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ListPrice"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "routes": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Route"
+          },
+          "title": "Routes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "family",
+        "approval",
+        "documented",
+        "callable",
+        "evaluated"
+      ],
+      "title": "ModelEntry",
+      "type": "object"
+    },
+    "Profile": {
+      "additionalProperties": false,
+      "properties": {
+        "candidates": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ClientModels"
+          },
+          "title": "Candidates",
+          "type": "array"
+        },
+        "capability": {
+          "maxLength": 400,
+          "minLength": 1,
+          "pattern": "^[\\x20-\\x7e]+$",
+          "title": "Capability",
+          "type": "string"
+        },
+        "escalation": {
+          "anyOf": [
+            {
+              "enum": [
+                "quality",
+                "engineering",
+                "economy"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Escalation"
+        },
+        "fallbacks": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ClientModels"
+          },
+          "title": "Fallbacks",
+          "type": "array"
+        },
+        "id": {
+          "enum": [
+            "quality",
+            "engineering",
+            "economy"
+          ],
+          "title": "Id",
+          "type": "string"
+        },
+        "mode": {
+          "enum": [
+            "automatic",
+            "manual",
+            "automatic-with-fallbacks"
+          ],
+          "title": "Mode",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "capability",
+        "mode"
+      ],
+      "title": "Profile",
+      "type": "object"
+    },
+    "Route": {
+      "additionalProperties": false,
+      "properties": {
+        "access": {
+          "default": "unknown",
+          "enum": [
+            "unknown",
+            "confirmed",
+            "blocked"
+          ],
+          "title": "Access",
+          "type": "string"
+        },
+        "also_known_as": {
+          "default": [],
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9._:/@+-]+$",
+            "type": "string"
+          },
+          "maxItems": 8,
+          "title": "Also Known As",
+          "type": "array"
+        },
+        "client": {
+          "enum": [
+            "claude-code",
+            "codex",
+            "cursor"
+          ],
+          "title": "Client",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "id",
+            "alias"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9._:/@+-]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        },
+        "resolves_to": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9._:/@+-]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Resolves To"
+        },
+        "retires_on": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retires On"
+        }
+      },
+      "required": [
+        "client",
+        "kind"
+      ],
+      "title": "Route",
+      "type": "object"
+    },
+    "Target": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "role",
+            "skill"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "maxLength": 64,
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "name"
+      ],
+      "title": "Target",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "assignments": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Assignment"
+      },
+      "title": "Assignments",
+      "type": "array"
+    },
+    "excluded": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Exclusion"
+      },
+      "title": "Excluded",
+      "type": "array"
+    },
+    "models": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/ModelEntry"
+      },
+      "title": "Models",
+      "type": "array"
+    },
+    "policy_version": {
+      "minimum": 1,
+      "title": "Policy Version",
+      "type": "integer"
+    },
+    "profiles": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Profile"
+      },
+      "title": "Profiles",
+      "type": "array"
+    },
+    "reviewed_for_release": {
+      "maxLength": 32,
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$",
+      "title": "Reviewed For Release",
+      "type": "string"
+    },
+    "schema": {
+      "const": "orqlet.model-policy/v2",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "policy_version",
+    "reviewed_for_release"
+  ],
+  "title": "ModelPolicy",
+  "type": "object"
+}

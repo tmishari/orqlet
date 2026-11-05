@@ -47,18 +47,46 @@
           "type": "string"
         },
         "client": {
-          "minLength": 1,
+          "enum": [
+            "claude-code",
+            "codex",
+            "cursor"
+          ],
           "title": "Client",
           "type": "string"
+        },
+        "context": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Context"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "definition_sha256": {
           "pattern": "^[0-9a-f]{64}$",
           "title": "Definition Sha256",
           "type": "string"
         },
+        "identity_source": {
+          "default": "unknown",
+          "enum": [
+            "client-reported",
+            "person-observed",
+            "unknown"
+          ],
+          "title": "Identity Source",
+          "type": "string"
+        },
         "model_observed": {
           "anyOf": [
             {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9 ._:/@+\\-\\[\\]=,]+$",
               "type": "string"
             },
             {
@@ -71,6 +99,9 @@
         "model_requested": {
           "anyOf": [
             {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9 ._:/@+\\-\\[\\]=,]+$",
               "type": "string"
             },
             {
@@ -79,6 +110,25 @@
           ],
           "default": null,
           "title": "Model Requested"
+        },
+        "selection_source": {
+          "anyOf": [
+            {
+              "enum": [
+                "task-override",
+                "role-assignment",
+                "profile-assignment",
+                "automatic",
+                "explicit-fallback"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Selection Source"
         }
       },
       "required": [
@@ -215,13 +265,30 @@
       "additionalProperties": false,
       "properties": {
         "client": {
-          "minLength": 1,
+          "enum": [
+            "claude-code",
+            "codex",
+            "cursor"
+          ],
           "title": "Client",
+          "type": "string"
+        },
+        "identity_source": {
+          "default": "unknown",
+          "enum": [
+            "client-reported",
+            "person-observed",
+            "unknown"
+          ],
+          "title": "Identity Source",
           "type": "string"
         },
         "model_observed": {
           "anyOf": [
             {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9 ._:/@+\\-\\[\\]=,]+$",
               "type": "string"
             },
             {
@@ -234,6 +301,9 @@
         "model_requested": {
           "anyOf": [
             {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9 ._:/@+\\-\\[\\]=,]+$",
               "type": "string"
             },
             {
@@ -248,6 +318,27 @@
         "client"
       ],
       "title": "CoderBinding",
+      "type": "object"
+    },
+    "Context": {
+      "additionalProperties": false,
+      "description": "The reviewer's attestation of a fresh session that read the packet and nothing else.",
+      "properties": {
+        "fresh": {
+          "title": "Fresh",
+          "type": "boolean"
+        },
+        "input": {
+          "const": "packet-only",
+          "title": "Input",
+          "type": "string"
+        }
+      },
+      "required": [
+        "fresh",
+        "input"
+      ],
+      "title": "Context",
       "type": "object"
     },
     "Finding": {
@@ -575,7 +666,8 @@
     "role": {
       "enum": [
         "architecture-reviewer",
-        "security-reviewer"
+        "security-reviewer",
+        "code-reviewer"
       ],
       "title": "Role",
       "type": "string"

@@ -307,7 +307,8 @@
             "enum": [
               "architecture-reviewer",
               "security-reviewer",
-              "tester"
+              "tester",
+              "code-reviewer"
             ],
             "type": "string"
           },
