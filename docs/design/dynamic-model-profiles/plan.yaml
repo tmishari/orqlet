@@ -1,0 +1,2432 @@
+schema: orqlet.implementation-plan/v1
+header:
+  schema: orqlet.artifact-header/v1
+  task: dynamic-model-profiles
+  status: draft
+  workflow_version: 0.4.0
+  protected_set_digest: b5d119f17890b8d7602c906b3325af7db4ef3d74fb31b8d697cdeeebfbb4be2d
+  bound:
+    base_revision: 4aa05f2fa1e267d34824e166bb60abbc1aa75849
+    standards_lock_hash: 89a225016ff9d8b3ed977df39a70dfbe9dbc5f7c6d3762d0f2208b1b7a037a52
+    applicable_rules_hash: 56502a0ec5eda3b13b4c9d97c7d4dfa41df82c86a206e36dd5d2d92aab299b97
+    profile_version: 1
+design_ref: docs/design/dynamic-model-profiles/design/manifest.yaml#bf6f5a347d2ce68eacffeaf7792653804124c7bd47ccc2917b8e13060d374a2c
+base_revision: 4aa05f2fa1e267d34824e166bb60abbc1aa75849
+knowledge_scope: []
+phases:
+- id: P-1
+  objective: >-
+    Replace the model-policy v1 contract by v2 and make the contract changes of EC-1 to EC-5, as contracts only: the constrained model
+    strings, the `code-reviewer` role, the closed client set, the optional identity and freshness fields of a record, and the plan-level
+    rule on `review_evidence` by workflow version. The JSON schemas are regenerated and the manifest follows them. No use case reads
+    these contracts yet, so no behaviour changes for any project.
+  depends_on: []
+  implements: [EC-1, EC-2, EC-3, EC-4, EC-5]
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      `ModelPolicy` has the schema id `orqlet.model-policy/v2` and exactly the top-level keys `schema`, `policy_version` (an integer from 1),
+      `reviewed_for_release` (a `major.minor.patch` string), `models`, `excluded`, `profiles` and `assignments`; an unknown key at any level
+      is refused. A model has `id` and `family` (both `ModelRef`), `approval` (`state`: `proposed`, `approved`, `disabled` or `retired`;
+      `approved_by` and `approval_ref`, each text or null), `documented` (`evidence`, a repository path, and `date`), `callable` (`not-run`
+      or `verified`), `evaluated` (`state`: `none` or `evidenced`; `evidence`: a repository path, required when evidenced), `list_price`
+      (null, or `input_per_million_usd` and `output_per_million_usd` as decimal strings such as `3` or `0.25`, and `source`, a repository
+      path) and `routes`. A fixture that sets every field loads and round-trips.
+    source: EC-1; ADR-002 decision 3; BC-11
+    check_ref: pytest
+  - id: AC-2
+    text: >-
+      A route has `client` (`claude-code`, `codex` or `cursor`), `kind` (`id` or `alias`), `name` (`ModelRef` or null), `resolves_to`
+      (`ModelRef` or null), `also_known_as` (at most 8 `ModelRef`), `access` (`unknown`, `confirmed` or `blocked`) and `retires_on` (a date
+      or null). A route of kind `alias` must carry `resolves_to` and a route of kind `id` must not. An exclusion has `id`, `reason` and
+      `source` (policy text), and the lists `aliases` (`ModelRef`), `id_patterns` (fnmatch-style patterns of 1 to 128 characters from
+      `A-Za-z0-9._:/@+*?-`, never regular expressions) and `family_tags` (`ModelRef`), at least one of them not empty.
+    source: BC-28; BC-9; ADR-005 decision 1
+    check_ref: pytest
+  - id: AC-3
+    text: >-
+      A profile has `id` (`quality`, `engineering` or `economy`, each at most once), `capability` (policy text), `mode` (`automatic`,
+      `manual` or `automatic-with-fallbacks`), `candidates` and `fallbacks` (each a list of `{client, models}` objects, one per client, with
+      `models` an ordered list of catalog ids) and `escalation` (a profile id or null). An assignment has `target` (`{kind: role|skill,
+      name: a slug}`), `task` (a slug or null), `client` (a client id or null), exactly one of `profile` (a profile id) and `model` (a catalog
+      id), `mode` and `effort` (`low`, `medium`, `high`, `xhigh`, `max` or null). No map of the contract is keyed by free text.
+    source: ADR-002 decision 3; ADR-001 decision 3; C-1
+    check_ref: pytest
+  - id: AC-4
+    text: >-
+      `ModelRef` is a constrained string over `A-Za-z0-9._:/@+-` of 1 to 128 characters. `RecordedModel` is a constrained string over
+      letters, digits, the space and `. _ : / @ + - [ ] = ,` of 1 to 128 characters. `PolicyText` is printable ASCII of 1 to 400 characters.
+      Each is refused when it breaks its pattern or its length and is never truncated; none has a custom validator message. For each of ten
+      breaking strings (a line break, a quote, a backtick, `;`, `$`, a non-ASCII letter, a bracket in a `ModelRef`, 129 characters), the text
+      that `load_contract` raises does not contain the string.
+    source: BC-32; C-1; ORQLET-SEC-002; ORQLET-SEC-003
+    check_ref: pytest
+  - id: AC-5
+    text: >-
+      `ReviewResult.role` admits `code-reviewer`. `agent.client` and `coder_binding.client` are exactly `claude-code`, `codex` or `cursor`.
+      `model_requested` and `model_observed` are `RecordedModel` or null. `agent` and `coder_binding` gain `identity_source`
+      (`client-reported`, `person-observed` or `unknown`; absent means unknown). `agent` gains `context` (`fresh`: a boolean, `input`:
+      `packet-only`) and `selection_source` (`task-override`, `role-assignment`, `profile-assignment`, `automatic` or `explicit-fallback`).
+      All new fields are optional in the schema, so a record without them loads as before. `Binding.role` of `RoleBindings` admits
+      `code-reviewer`.
+    source: EC-3; EC-5; BC-16; BC-42; ADR-007 decisions 2 and 4
+    check_ref: pytest
+  - id: AC-6
+    text: >-
+      A phase accepts `review_evidence` that is exactly the three roles of today or those three plus `code-reviewer`, each once, and refuses
+      every other set. A plan whose `header.workflow_version` is 0.5.0 or higher (compared as `Version` values) must hold the four roles in
+      every phase; a plan below it must hold exactly the three. A version that is not `major.minor.patch` is refused. The plan of this task
+      (workflow_version 0.4.0, three roles) still loads.
+    source: EC-4; BC-15; ADR-006 decision 3
+    check_ref: pytest
+  - id: AC-7
+    text: >-
+      Every `docs/design/**/reviews/*.yaml` of the repository (112 files at the base revision) loads with the new `ReviewResult`, and the
+      distinct client values among them lie inside the closed set; every `docs/design/*/plan.yaml` loads with the new `ImplementationPlan`.
+      A file that fails is reported by its path, so the check of ADR-007 decision 2 and of C-7 is a test and not a promise.
+    source: BC-20; BC-42; C-7; ADR-007 decision 2
+    check_ref: pytest
+  - id: AC-8
+    text: >-
+      `tools/export_schemas.py` has rewritten `orqlet.model-policy.v2.json`, `orqlet.review-result.v1.json`, `orqlet.role-bindings.v1.json`
+      and `orqlet.implementation-plan.v1.json`; `orqlet.model-policy.v1.json` and its fixture are deleted and `CONTRACTS` holds no v1 key; no
+      other schema file changes; `MANIFEST.json` is rebuilt to follow the schema files, with `workflow_version` still 0.4.0 because the
+      bump belongs to the one rebuild of P-13.
+    source: EC-2; C-2; ORQLET-DET-002; ORQLET-DET-003
+    check_ref: schema-check
+  - id: AC-9
+    text: >-
+      `pyproject.toml` and `uv.lock` are in no file operation of this phase, and the existing test that holds the runtime dependencies to an
+      exact list with no model SDK passes. No file outside this phase's operations changes, and `orqlet gate status dynamic-model-profiles
+      --phase P-1 --head staged` reports no ORQ-E450, ORQ-E451 or ORQ-E453.
+    source: BC-25; C-6; plan rule on phase file lists
+    check_ref: gate-status-phase
+  checks:
+  - ruff-check
+  - ruff-format
+  - mypy
+  - import-linter
+  - pytest
+  - schema-check
+  - manifest-check
+  - gate-status-phase
+  file_operations:
+  - op: modify
+    path: src/orqlet/application/contracts/common.py
+    why: Adds the constrained `ModelRef`, `RecordedModel` and `PolicyText` types and the closed `ClientId` set, next to the other shared types.
+  - op: modify
+    path: src/orqlet/application/contracts/model_policy.py
+    why: Replaces the v1 classes by the v2 contract of ADR-002 with the spellings of AC-1 to AC-3.
+  - op: modify
+    path: src/orqlet/application/contracts/__init__.py
+    why: The registry key `orqlet.model-policy/v1` becomes `orqlet.model-policy/v2`.
+  - op: modify
+    path: src/orqlet/application/contracts/review_result.py
+    why: Role `code-reviewer`, the closed client set, `RecordedModel`, `identity_source`, `context` and `selection_source` (AC-5).
+  - op: modify
+    path: src/orqlet/application/contracts/role_bindings.py
+    why: The field `Binding.role` admits `code-reviewer`.
+  - op: modify
+    path: src/orqlet/application/contracts/plan.py
+    why: The per-phase set of three or four roles and the plan-level rule by `header.workflow_version` (AC-6).
+  - op: delete
+    path: src/orqlet/workflow/schemas/orqlet.model-policy.v1.json
+    why: The v1 schema goes away with its contract (no reader of v1 exists).
+  - op: create
+    path: src/orqlet/workflow/schemas/orqlet.model-policy.v2.json
+    why: Written by tools/export_schemas.py from the v2 contract.
+  - op: modify
+    path: src/orqlet/workflow/schemas/orqlet.review-result.v1.json
+    why: Regenerated from the changed contract.
+  - op: modify
+    path: src/orqlet/workflow/schemas/orqlet.role-bindings.v1.json
+    why: Regenerated from the changed contract.
+  - op: modify
+    path: src/orqlet/workflow/schemas/orqlet.implementation-plan.v1.json
+    why: Regenerated from the changed contract.
+  - op: modify
+    path: src/orqlet/workflow/MANIFEST.json
+    why: Rebuilt with tools/build_manifest.py because the schema files are workflow package files; the version stays 0.4.0 until P-13.
+  - op: delete
+    path: tests/fixtures/contracts/valid/orqlet.model-policy.v1.yaml
+    why: The fixture of the v1 contract; the contract test derives the fixture name from the registry key.
+  - op: create
+    path: tests/fixtures/contracts/valid/orqlet.model-policy.v2.yaml
+    why: The valid v2 fixture that the contract tests load, with every field set.
+  - op: create
+    path: tests/unit/application/test_model_policy_contract.py
+    why: AC-1 to AC-4, with no value of a refused string in the raised text.
+  - op: create
+    path: tests/unit/application/test_review_contract_additions.py
+    why: AC-5 for the review-result and role-bindings contracts.
+  - op: create
+    path: tests/unit/application/test_plan_review_evidence_by_version.py
+    why: AC-6 for the plan contract.
+  - op: create
+    path: tests/unit/test_existing_records_and_plans_stay_valid.py
+    why: AC-7, the check of every existing review record and plan against the new contracts.
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every `uv run` command below may sync the environment from uv.lock and fetch packages when it is not in sync (warning
+    list: fetches from the network). CI prepares it with `uv sync --locked --all-groups --python <PYTHON_VERSION>` (.github/workflows/ci.yml:83
+    at 4aa05f2fa1e267d34824e166bb60abbc1aa75849, sha256 52312ac6cff90b70c545b03abc54177d6f21fe8507c465fe7e82945eb025e696; AGENTS.md:65-68,
+    sha256 846060bc874dec797873d20f9d6b3298f6b04b7c14b0d2ca251a682ef471aeca, which says the same command with the placeholder
+    <PYTHON_VERSION> for the matrix expression of ci.yml:72-74, sha256 242b2b1b63fc8cfdac2ff4e0df54f65d34ffb41a8c027af105cf8db033e03724).
+    The implementer asks the person before the first run in a session.
+  - >-
+    Regeneration, run by the implementer after the person's yes: `uv run python tools/export_schemas.py`, then `uv run python
+    tools/build_manifest.py` (tools/export_schemas.py:1-38, sha256 1d0cef2cfa78a583a9cc2428c250ee059866bee82f71abc2559bc87f90bc5509;
+    tools/build_manifest.py:1-57, sha256 06a0bf036682fa31e4d132dc62d2b20679e674d55f1b039c96710f2325d46c62).
+  - >-
+    ruff-check: `uv run ruff check .` (.github/workflows/ci.yml:31 at 4aa05f2fa1e267d34824e166bb60abbc1aa75849, sha256
+    714c305445d190e7afe318249169abaf2552f8041f6ccc7c8017495d58f47762; AGENTS.md:47-50, sha256
+    067c53622629ccfb9e313ebff05ea775b4b9df36db1c091b74f1f1dc86423530; configuration pyproject.toml:38-60, sha256
+    8a2fd80847c2051b5cf82659fbf894e515d5bd210e2e28af490f56676a70a726).
+  - >-
+    ruff-format: `uv run ruff format --check .` (ci.yml:32, sha256 4a6a56a502fd2d8330bc12debf940777d4aa923df5b2d3c524cbf5ac8d00a078;
+    AGENTS.md:53-56, sha256 8126234061d2da27788ac0fc2d7bd556aaf15d09544948b1925a5534dc962233; pyproject.toml:38-60, sha256
+    8a2fd80847c2051b5cf82659fbf894e515d5bd210e2e28af490f56676a70a726).
+  - >-
+    mypy: `uv run mypy` (ci.yml:47, sha256 75f57430d5154f4df4619631e3b4eaec37adb06b46184fc6bda5faff21b4ea0f; AGENTS.md:59-62, sha256
+    7fe7fdd930a5e824723b1a7999200bd236becfcc5fe984e76fdd418009255039; pyproject.toml:62-67, sha256
+    3dee952ae0dcb1d883a3933b63a60b1ca77c0f2e76ba0b026681355a3322b4b4).
+  - >-
+    import-linter: `uv run lint-imports` (ci.yml:62, sha256 aba4e82ae9c8ba9c4a3ef94aadc20b9234104933816cdda02c750b860cca4621; pyproject.toml:82-127,
+    sha256 9e42efcc250c680906b6999be918f10bd8fe9a8fd0ebd1a72b675e2dd0621e04). The architecture job of CI runs it; onboard did not record it
+    in AGENTS.md, so it is cited from the CI file only.
+  - >-
+    pytest: `uv run pytest` (ci.yml:84, sha256 7c910167a75b4b3f8dfad8fc42652fdd9eff338194d3979df24740ab50924b81; AGENTS.md:71-74, sha256
+    c560d01599d3004756e624e106c7fdb37d1ebc840106224073081c64110dd2eb; configuration pyproject.toml:69-80, sha256
+    37ed9bcdfa8a1f0d4db95633be21fc6569aeef36cc898fdf4919007237be28c2). Locally it runs on one Python; the matrix runs only in CI.
+  - >-
+    schema-check: `uv run python tools/export_schemas.py --check` (ci.yml:63, sha256 2f05795ed6483385f2a5a779c76da3329801ef8edb53d4e3d767a962419c4faf;
+    it runs tools/export_schemas.py:1-38, sha256 1d0cef2cfa78a583a9cc2428c250ee059866bee82f71abc2559bc87f90bc5509).
+  - >-
+    manifest-check: `uv run python tools/build_manifest.py --check` (ci.yml:64, sha256 a2061c7f43040eacd56749b7ea2ba34accbb81e0c943eec9b42e749cf22fe474;
+    it runs tools/build_manifest.py:1-57, sha256 06a0bf036682fa31e4d132dc62d2b20679e674d55f1b039c96710f2325d46c62).
+  - >-
+    gate-status-phase: `uv run orqlet gate status dynamic-model-profiles --phase P-1 --head staged` reports no ORQ-E450, ORQ-E451 or ORQ-E453.
+    NOT_RUN caused by ORQ-I393 alone is expected offline; an ORQ-W390 caused by this task's own earlier commits is shown to the person.
+  expected_outputs:
+  - src/orqlet/application/contracts/model_policy.py
+  - src/orqlet/workflow/schemas/orqlet.model-policy.v2.json
+  - tests/fixtures/contracts/valid/orqlet.model-policy.v2.yaml
+- id: P-2
+  objective: >-
+    Read the model policy through the FileSystem port and through a git tree with one strict parser: the size limit, the strict YAML
+    rules, the contract, a credential scan that adds the vendor key shapes, and findings that never print a value of the file. The
+    loader returns four states (absent, loaded, invalid, deleted) that every later phase reads. Nothing renders or validates yet.
+  depends_on:
+  - P-1
+  implements: [EC-1]
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      `load_model_policy` reads `.orqlet/model-policy.yaml` of the working tree through the `FileSystem` port and returns one of four
+      states: absent (no file and no seeded row for it in `.orqlet/generated.lock.yaml`), loaded (the v2 contract), invalid (findings) and
+      deleted (no file, and the lock records the path with owner `seeded`). A lock that cannot be read is not proof of a deletion, so the
+      state is absent. A file that is a directory, a link or not a regular file is invalid.
+    source: BC-39; ADR-005 decision 2; ADR-002 decision 1
+    check_ref: pytest
+  - id: AC-2
+    text: >-
+      `read_model_policy_at(services, tree)` reads the same path from a git tree through `vcs.read_at` and returns absent, loaded or
+      invalid with the same parser, so the same bytes give the same state from both entry points. It never reads the working tree, and
+      `load_model_policy` never calls the VCS port; the fakes record every call and the test asserts both.
+    source: ADR-007 decision 10; BC-23; BC-44
+    check_ref: pytest
+  - id: AC-3
+    text: >-
+      A file above 256 KiB, a duplicate key, an anchor or alias, a document nested too deep and an invalid byte sequence each give the
+      finding ORQ-E540. A file that breaks the contract gives ORQ-E541 with the field path and the rule only. A file whose `schema` is
+      `orqlet.model-policy/v1` gives ORQ-E541 with the fixed text "a v1 file; migrate" and no other content of the file.
+    source: BC-32; BC-37; ADR-002 consequences; ORQLET-SEC-002
+    check_ref: pytest
+  - id: AC-4
+    text: >-
+      The credential scan of `domain/model_policy_scan.py` reports every rule of `find_literal_credentials` plus the shapes `sk-`, `xai-`
+      and `AIza` followed by key-length text, and each hit is the finding ORQ-E542 with the rule name and the line number only. The
+      fixtures assemble each shape from fragments at run time, so no key-shaped literal is committed. `find_literal_credentials` itself
+      is unchanged and the existing MCP credential tests pass without edit.
+    source: BC-32; ADR-002 decision 3; ORQLET-SEC-003
+    check_ref: pytest
+  - id: AC-5
+    text: >-
+      For a policy that holds a unique marker string in each free-text field, in each model field and in a refused field, no finding of
+      the loader contains a marker, a key of the file or a value of the file. A finding holds a code, a fixed text, a field path made of
+      contract field names and a line number, nothing else.
+    source: BC-32; C-1; ORQLET-SEC-002
+    check_ref: pytest
+  - id: AC-6
+    text: >-
+      The loader and the scan add no import of a file, process or network module to the application layer and no third-party import to
+      the domain; `uv run lint-imports` passes; `pyproject.toml` and `uv.lock` are unchanged.
+    source: BC-25; C-1; C-6
+    check_ref: import-linter
+  - id: AC-7
+    text: >-
+      No file outside this phase's operations changes, and `orqlet gate status dynamic-model-profiles --phase P-2 --head staged` reports
+      no ORQ-E450, ORQ-E451 or ORQ-E453.
+    source: plan rule on phase file lists
+    check_ref: gate-status-phase
+  checks:
+  - ruff-check
+  - ruff-format
+  - mypy
+  - import-linter
+  - pytest
+  - gate-status-phase
+  file_operations:
+  - op: create
+    path: src/orqlet/domain/model_policy_scan.py
+    why: Pure function that adds the three vendor key shapes to the existing credential scan, for the policy file only.
+  - op: create
+    path: src/orqlet/application/usecases/model_policy_source.py
+    why: The loader with its two entry points and four states, following the shape of integrations_source.py.
+  - op: create
+    path: tests/unit/domain/test_model_policy_scan.py
+    why: AC-4 on the pure scan.
+  - op: create
+    path: tests/unit/application/test_model_policy_source.py
+    why: AC-1 to AC-3 and AC-5 on the memory file system and the fake VCS.
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every `uv run` command below may sync the environment from uv.lock and fetch packages when it is not in sync (warning
+    list: fetches from the network); the sources and the placeholder are those of the environment entry of P-1. The implementer asks the
+    person before the first run in a session.
+  - >-
+    ruff-check: `uv run ruff check .` (.github/workflows/ci.yml:31 at 4aa05f2fa1e267d34824e166bb60abbc1aa75849, sha256
+    714c305445d190e7afe318249169abaf2552f8041f6ccc7c8017495d58f47762; AGENTS.md:47-50, sha256
+    067c53622629ccfb9e313ebff05ea775b4b9df36db1c091b74f1f1dc86423530; configuration pyproject.toml:38-60, sha256
+    8a2fd80847c2051b5cf82659fbf894e515d5bd210e2e28af490f56676a70a726).
+  - >-
+    ruff-format: `uv run ruff format --check .` (ci.yml:32, sha256 4a6a56a502fd2d8330bc12debf940777d4aa923df5b2d3c524cbf5ac8d00a078;
+    AGENTS.md:53-56, sha256 8126234061d2da27788ac0fc2d7bd556aaf15d09544948b1925a5534dc962233; pyproject.toml:38-60, sha256
+    8a2fd80847c2051b5cf82659fbf894e515d5bd210e2e28af490f56676a70a726).
+  - >-
+    mypy: `uv run mypy` (ci.yml:47, sha256 75f57430d5154f4df4619631e3b4eaec37adb06b46184fc6bda5faff21b4ea0f; AGENTS.md:59-62, sha256
+    7fe7fdd930a5e824723b1a7999200bd236becfcc5fe984e76fdd418009255039; pyproject.toml:62-67, sha256
+    3dee952ae0dcb1d883a3933b63a60b1ca77c0f2e76ba0b026681355a3322b4b4).
+  - >-
+    import-linter: `uv run lint-imports` (ci.yml:62, sha256 aba4e82ae9c8ba9c4a3ef94aadc20b9234104933816cdda02c750b860cca4621; pyproject.toml:82-127,
+    sha256 9e42efcc250c680906b6999be918f10bd8fe9a8fd0ebd1a72b675e2dd0621e04). Cited from the CI file only; onboard did not record it.
+  - >-
+    pytest: `uv run pytest` (ci.yml:84, sha256 7c910167a75b4b3f8dfad8fc42652fdd9eff338194d3979df24740ab50924b81; AGENTS.md:71-74, sha256
+    c560d01599d3004756e624e106c7fdb37d1ebc840106224073081c64110dd2eb; configuration pyproject.toml:69-80, sha256
+    37ed9bcdfa8a1f0d4db95633be21fc6569aeef36cc898fdf4919007237be28c2). Locally it runs on one Python; the matrix runs only in CI.
+  - >-
+    gate-status-phase: `uv run orqlet gate status dynamic-model-profiles --phase P-2 --head staged` reports no ORQ-E450, ORQ-E451 or ORQ-E453.
+    NOT_RUN caused by ORQ-I393 alone is expected offline; an ORQ-W390 caused by this task's own earlier commits is shown to the person.
+  expected_outputs:
+  - src/orqlet/application/usecases/model_policy_source.py
+  - src/orqlet/domain/model_policy_scan.py
+- id: P-3
+  objective: >-
+    Write the one matching rule of ADR-005 as pure domain functions: the normalisation, the identity and family tests, the broader and
+    fail-safe exclusion test, and the check for two entries that claim the same name. Every later phase that compares two model strings
+    (the resolver, the validators, the review records) calls these functions and nothing else.
+  depends_on:
+  - P-2
+  implements: [EC-1]
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      `normalise` applies NFKC, case folding and trimming, treats `-`, `_`, `.` and the space as one separator, removes a provider prefix
+      of the closed table (`anthropic/`, `openai/`, `google/`, `xai/`) and removes any bracketed option list. The table is a data table of
+      the domain module. A suffix such as `-xhigh` is not stripped.
+    source: ADR-005 decision 1; BC-18
+    check_ref: pytest
+  - id: AC-2
+    text: >-
+      Two strings are the same identity when their normalised forms are equal or one is the `resolves_to` or an `also_known_as` of a route
+      of the other; effort, speed, context size, a bracketed option list and a provider prefix are never a difference. A string that
+      matches no catalog entry is unknown: it is neither equal to nor different from anything, including another unknown string with the
+      same text.
+    source: BC-18; BC-19; R-7; ADR-007 decision 3
+    check_ref: pytest
+  - id: AC-3
+    text: >-
+      The exclusion test runs on the raw NFKC and case-folded string, brackets included, and on the normalised form. It matches by exact
+      alias after normalisation, by `fnmatch` pattern (a pattern with regular-expression syntax matches only itself), and by a family tag
+      that occurs in the string once separators are removed. The nine variants of BC-9 for Fable (`FABLE`, ` Fable-5.1 `,
+      `anthropic/claude-fable-5-1`, `Claude Fable 5.1`, `claude_fable_5_1`, `claude-fable-5-1[effort=high]`, `Fable5`, `fable-5.1-xhigh`,
+      `x[model=fable]`) and the four of `best` (`BEST`, ` best `, `best[1m]`, `anthropic/best`) all match; a full-width spelling matches;
+      `claude-opus-5-5`, `gpt-6.1-sol`, `sonnet` and `bestow` do not.
+    source: BC-9; ADR-005 decision 1; R-12
+    check_ref: pytest
+  - id: AC-4
+    text: >-
+      `family_of` returns the family of the catalog entry that a string matches, and can be told to use only entries whose approval
+      state is not `proposed`, so that seed text no team approved never creates a family difference. `name_conflicts` returns every pair
+      of entries that claim the same normalised route `name` or `also_known_as`. Both take plain values, not contract objects.
+    source: BC-10; BC-9; ADR-007 decision 1; ADR-005 decision 1
+    check_ref: pytest
+  - id: AC-5
+    text: >-
+      `cursor_plain_id` is true only for a name that starts with a letter, holds only letters, digits and `. _ / + -`, and is not one of
+      the YAML words `true`, `false`, `null`, `yes`, `no`, `on`, `off`, `y`, `n`; it is the one test that decides whether a Cursor `model`
+      value may be written unquoted. The functions read no clock, locale or environment, and give the same result on every call.
+    source: BC-34; ADR-003 decision 3; BC-23
+    check_ref: pytest
+  - id: AC-6
+    text: >-
+      The module imports nothing outside the standard library and the domain, `uv run lint-imports` passes, and no file outside this
+      phase's operations changes; `orqlet gate status dynamic-model-profiles --phase P-3 --head staged` reports no ORQ-E450, ORQ-E451 or
+      ORQ-E453.
+    source: ORQLET-ARCH-002; plan rule on phase file lists
+    check_ref: import-linter
+  checks:
+  - ruff-check
+  - ruff-format
+  - mypy
+  - import-linter
+  - pytest
+  - gate-status-phase
+  file_operations:
+  - op: create
+    path: src/orqlet/domain/model_identity.py
+    why: The matching rule of ADR-005 as pure functions on strings and plain entries.
+  - op: create
+    path: tests/unit/domain/test_model_identity.py
+    why: AC-1 to AC-5 with the BC-9 variants and the clean strings that must not match.
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every `uv run` command below may sync the environment from uv.lock and fetch packages when it is not in sync (warning
+    list: fetches from the network); the sources and the placeholder are those of the environment entry of P-1. The implementer asks the
+    person before the first run in a session.
+  - >-
+    ruff-check: `uv run ruff check .` (.github/workflows/ci.yml:31 at 4aa05f2fa1e267d34824e166bb60abbc1aa75849, sha256
+    714c305445d190e7afe318249169abaf2552f8041f6ccc7c8017495d58f47762; AGENTS.md:47-50, sha256
+    067c53622629ccfb9e313ebff05ea775b4b9df36db1c091b74f1f1dc86423530; configuration pyproject.toml:38-60, sha256
+    8a2fd80847c2051b5cf82659fbf894e515d5bd210e2e28af490f56676a70a726).
+  - >-
+    ruff-format: `uv run ruff format --check .` (ci.yml:32, sha256 4a6a56a502fd2d8330bc12debf940777d4aa923df5b2d3c524cbf5ac8d00a078;
+    AGENTS.md:53-56, sha256 8126234061d2da27788ac0fc2d7bd556aaf15d09544948b1925a5534dc962233; pyproject.toml:38-60, sha256
+    8a2fd80847c2051b5cf82659fbf894e515d5bd210e2e28af490f56676a70a726).
+  - >-
+    mypy: `uv run mypy` (ci.yml:47, sha256 75f57430d5154f4df4619631e3b4eaec37adb06b46184fc6bda5faff21b4ea0f; AGENTS.md:59-62, sha256
+    7fe7fdd930a5e824723b1a7999200bd236becfcc5fe984e76fdd418009255039; pyproject.toml:62-67, sha256
+    3dee952ae0dcb1d883a3933b63a60b1ca77c0f2e76ba0b026681355a3322b4b4).
+  - >-
+    import-linter: `uv run lint-imports` (ci.yml:62, sha256 aba4e82ae9c8ba9c4a3ef94aadc20b9234104933816cdda02c750b860cca4621; pyproject.toml:82-127,
+    sha256 9e42efcc250c680906b6999be918f10bd8fe9a8fd0ebd1a72b675e2dd0621e04). Cited from the CI file only; onboard did not record it.
+  - >-
+    pytest: `uv run pytest` (ci.yml:84, sha256 7c910167a75b4b3f8dfad8fc42652fdd9eff338194d3979df24740ab50924b81; AGENTS.md:71-74, sha256
+    c560d01599d3004756e624e106c7fdb37d1ebc840106224073081c64110dd2eb; configuration pyproject.toml:69-80, sha256
+    37ed9bcdfa8a1f0d4db95633be21fc6569aeef36cc898fdf4919007237be28c2). Locally it runs on one Python; the matrix runs only in CI.
+  - >-
+    gate-status-phase: `uv run orqlet gate status dynamic-model-profiles --phase P-3 --head staged` reports no ORQ-E450, ORQ-E451 or ORQ-E453.
+    NOT_RUN caused by ORQ-I393 alone is expected offline; an ORQ-W390 caused by this task's own earlier commits is shown to the person.
+  expected_outputs:
+  - src/orqlet/domain/model_identity.py
+- id: P-4
+  objective: >-
+    Write the resolution of ADR-001 and ADR-007 as a pure domain function (precedence, constraints, modes, reviewer diversity, the
+    closed rejection reasons) and the application mapping from the v2 contract to its plain inputs, with the policy integrity checks
+    that `upgrade` and `validate model-policy` both need. No file is rendered and no command exists yet.
+  depends_on:
+  - P-3
+  implements: [EC-1]
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      `resolve` takes plain values and no clock. In mode `manual` one fixture per level shows that a valid higher level wins (an override,
+      then the assignment of the role or skill for the client, then the assignment of the profile, then the automatic result), and that
+      an invalid higher level is reported in `rejected` with its reason, after which the next level is used and the source says which.
+      An invalid override is never replaced without that entry.
+    source: BC-5; BC-6; R-5; R-6; ADR-001 decision 4
+    check_ref: pytest
+  - id: AC-2
+    text: >-
+      In `automatic` and `automatic-with-fallbacks` the result has no selected model, says that the client chooses, and has the source
+      `automatic`; it lists the ordered eligible candidates and, for fallbacks, the ordered eligible fallbacks. A fallback named by the
+      caller is the source `explicit-fallback`; a named override is `task-override`; the sources are the five of ADR-001 decision 6 and no
+      other.
+    source: BC-27; BC-2; ADR-001 decisions 3 and 6
+    check_ref: pytest
+  - id: AC-3
+    text: >-
+      The rejection reasons are a closed set: `excluded`, `not-approved`, `disabled-or-retired`, `no-route-for-client`,
+      `route-name-unknown`, `access-blocked`, `same-family-as-coder`, `same-model-as-coder`, `outside-profile` and `override-invalid`.
+      One fixture per reason yields exactly that reason. A `proposed`, `disabled` or `retired` model is never selected and never listed as
+      a candidate; an `excluded` model is rejected whatever its state; a route whose `name` is null is `route-name-unknown`.
+    source: BC-10; BC-4; ADR-001 decision 5; ADR-004 decision 3
+    check_ref: pytest
+  - id: AC-4
+    text: >-
+      In `manual` mode the first eligible candidate of the client's own ordered list is selected. When none is eligible nothing is
+      selected, each candidate has its reason in `rejected`, and the result is `none-qualifies`. The same input gives the same output on
+      every call and on every day.
+    source: BC-4; ADR-001 decision 3; BC-23
+    check_ref: pytest
+  - id: AC-5
+    text: >-
+      With a coder model given as a catalog id, a candidate of the same model is `same-model-as-coder` and a candidate of the same family
+      is `same-family-as-coder`; a candidate from a profile below the coder's profile (default `engineering` for the role
+      `orqlet-code-reviewer`) is `outside-profile`; effort, speed and context size never make a candidate different. When no candidate can
+      be shown different the result is `none-qualifies` in every mode and also when the policy has no entry for the client.
+    source: BC-38; R-7; ADR-006 decision 7; ADR-007 decision 11
+    check_ref: pytest
+  - id: AC-6
+    text: >-
+      An assignment that names a `task` applies only when the caller passes that task; the mapping that later phases render from ignores
+      every task-scoped assignment, so a task-scoped assignment can never reach a generated file.
+    source: BC-43; ADR-001 decision 7
+    check_ref: pytest
+  - id: AC-7
+    text: >-
+      `policy_problems(policy, role_names, skill_names)` returns ORQ-E543 for every model, route, candidate, fallback or assignment that
+      matches an exclusion in any approval state, and ORQ-E545 for a duplicate id, an unknown model, profile, role or skill name in a
+      profile, fallback, escalation or assignment, and for two entries that claim the same normalised name or `also_known_as`. Each
+      problem is a code and a field path and holds no model string.
+    source: BC-9; BC-13; ADR-005 decision 1; ADR-002 decision 3; BC-32
+    check_ref: pytest
+  - id: AC-8
+    text: >-
+      The domain module imports nothing outside the standard library and the domain; the application module imports no file, process or
+      network module; `uv run lint-imports` passes; no file outside this phase's operations changes; `orqlet gate status
+      dynamic-model-profiles --phase P-4 --head staged` reports no ORQ-E450, ORQ-E451 or ORQ-E453.
+    source: C-1; ORQLET-ARCH-001; ORQLET-ARCH-002; plan rule on phase file lists
+    check_ref: import-linter
+  checks:
+  - ruff-check
+  - ruff-format
+  - mypy
+  - import-linter
+  - pytest
+  - gate-status-phase
+  file_operations:
+  - op: create
+    path: src/orqlet/domain/model_resolution.py
+    why: Precedence, constraints, modes, diversity and reasons as a pure function on plain values.
+  - op: create
+    path: src/orqlet/application/usecases/model_selection.py
+    why: Maps the v2 contract and the workflow's role and skill names to the plain inputs, and holds `policy_problems`.
+  - op: create
+    path: tests/unit/domain/test_model_resolution.py
+    why: AC-1 to AC-6 on plain fixtures.
+  - op: create
+    path: tests/unit/application/test_model_selection.py
+    why: AC-7 and the mapping from a loaded policy to the resolver's inputs.
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every `uv run` command below may sync the environment from uv.lock and fetch packages when it is not in sync (warning
+    list: fetches from the network); the sources and the placeholder are those of the environment entry of P-1. The implementer asks the
+    person before the first run in a session.
+  - >-
+    ruff-check: `uv run ruff check .` (.github/workflows/ci.yml:31 at 4aa05f2fa1e267d34824e166bb60abbc1aa75849, sha256
+    714c305445d190e7afe318249169abaf2552f8041f6ccc7c8017495d58f47762; AGENTS.md:47-50, sha256
+    067c53622629ccfb9e313ebff05ea775b4b9df36db1c091b74f1f1dc86423530; configuration pyproject.toml:38-60, sha256
+    8a2fd80847c2051b5cf82659fbf894e515d5bd210e2e28af490f56676a70a726).
+  - >-
+    ruff-format: `uv run ruff format --check .` (ci.yml:32, sha256 4a6a56a502fd2d8330bc12debf940777d4aa923df5b2d3c524cbf5ac8d00a078;
+    AGENTS.md:53-56, sha256 8126234061d2da27788ac0fc2d7bd556aaf15d09544948b1925a5534dc962233; pyproject.toml:38-60, sha256
+    8a2fd80847c2051b5cf82659fbf894e515d5bd210e2e28af490f56676a70a726).
+  - >-
+    mypy: `uv run mypy` (ci.yml:47, sha256 75f57430d5154f4df4619631e3b4eaec37adb06b46184fc6bda5faff21b4ea0f; AGENTS.md:59-62, sha256
+    7fe7fdd930a5e824723b1a7999200bd236becfcc5fe984e76fdd418009255039; pyproject.toml:62-67, sha256
+    3dee952ae0dcb1d883a3933b63a60b1ca77c0f2e76ba0b026681355a3322b4b4).
+  - >-
+    import-linter: `uv run lint-imports` (ci.yml:62, sha256 aba4e82ae9c8ba9c4a3ef94aadc20b9234104933816cdda02c750b860cca4621; pyproject.toml:82-127,
+    sha256 9e42efcc250c680906b6999be918f10bd8fe9a8fd0ebd1a72b675e2dd0621e04). Cited from the CI file only; onboard did not record it.
+  - >-
+    pytest: `uv run pytest` (ci.yml:84, sha256 7c910167a75b4b3f8dfad8fc42652fdd9eff338194d3979df24740ab50924b81; AGENTS.md:71-74, sha256
+    c560d01599d3004756e624e106c7fdb37d1ebc840106224073081c64110dd2eb; configuration pyproject.toml:69-80, sha256
+    37ed9bcdfa8a1f0d4db95633be21fc6569aeef36cc898fdf4919007237be28c2). Locally it runs on one Python; the matrix runs only in CI.
+  - >-
+    gate-status-phase: `uv run orqlet gate status dynamic-model-profiles --phase P-4 --head staged` reports no ORQ-E450, ORQ-E451 or ORQ-E453.
+    NOT_RUN caused by ORQ-I393 alone is expected offline; an ORQ-W390 caused by this task's own earlier commits is shown to the person.
+  expected_outputs:
+  - src/orqlet/domain/model_resolution.py
+  - src/orqlet/application/usecases/model_selection.py
+- id: P-5
+  objective: >-
+    Carry the selection to the renderers: `ClientRole` and `ClientSkill` gain a per-client `model_settings` mapping in the ports module,
+    the request builder fills it from the resolver, and the role and skill writers write a client's own entry through `front_matter` and
+    `toml_table`. Only mode `manual` pins. With no policy, or in any other mode, every generated byte stays as it is today. The
+    commands that call `compose` are wired in P-6.
+  depends_on:
+  - P-4
+  implements: [EC-9]
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      With no policy given to the request builder, the five existing role files of each of the three clients are byte-identical to the
+      files that the base revision renders, and the existing golden files and golden tests pass without a single edit (the new golden
+      files of AC-3 are the only golden changes of this phase).
+    source: BC-1; C-3; A-28
+    check_ref: pytest
+  - id: AC-2
+    text: >-
+      In mode `automatic` and in mode `automatic-with-fallbacks`, with or without a policy, the model line of a Claude Code and a Cursor
+      role file is `model: inherit` and a Codex role file has no model key, as today; the files of the two modes are identical.
+    source: BC-2; BC-27; R-9; ADR-001 decision 3
+    check_ref: pytest
+  - id: AC-3
+    text: >-
+      In mode `manual`, with an approved candidate whose route has a name for the client, that client's role file carries that client's
+      name in its own field: Claude Code `model:` and, when the assignment sets an effort, `effort:`; Codex `model` and
+      `model_reasoning_effort`; Cursor `model:` only. With two or three clients enabled each file carries its own client's name. A pinned
+      `orqlet-tester` is pinned by new golden files for each client (family `models-2026-11`).
+    source: BC-3; R-3; R-4; ADR-003 decision 2
+    check_ref: pytest
+  - id: AC-4
+    text: >-
+      A Cursor value is written only when `cursor_plain_id` is true and never with a bracketed option. An effort assignment for Cursor and
+      a name that is not plain-safe each give the finding ORQ-W546 with a fixed text and no model string, render nothing for that role,
+      and leave `model: inherit`. No writer builds text by hand: every value passes through `front_matter` or `toml_table`.
+    source: BC-34; ADR-003 decision 3; C-1
+    check_ref: pytest
+  - id: AC-5
+    text: >-
+      A skill assignment in mode `manual` writes `model:` (and `effort:` when set) into the front matter of the Claude Code skill file
+      only; in any other mode it writes none; the `.agents/skills` file, which Cursor and Codex share, never changes; an assignment of a
+      skill for Codex or Cursor gives ORQ-W546 and no change. This is the only way the main agent is pinned.
+    source: BC-7; BC-8; ADR-003 decision 4
+    check_ref: pytest
+  - id: AC-6
+    text: >-
+      For a request with a full fixture policy and all three clients, the set of paths that the adapters write equals the set for no
+      policy: no `settings.json`, `settings.local.json`, `config.toml` or model file is rendered for any client.
+    source: BC-8; ADR-003 decision 5
+    check_ref: pytest
+  - id: AC-7
+    text: >-
+      A pin uses the route's exact `name`. An alias name is written only when the route is declared `kind: alias` with `resolves_to`,
+      and the selection then returns the finding ORQ-W545 (an environment variable can remap an alias). A route of kind `id` never
+      produces ORQ-W545.
+    source: BC-28; BC-43; ADR-003 decision 2; F-17
+    check_ref: pytest
+  - id: AC-8
+    text: >-
+      For a policy that wrongly approves a route matching the Fable exclusion, the selection returns no setting for it, and for every
+      combination of mode and client none of the rendered files contains `fable`, `best` or `claude-fable-` in any letter case.
+    source: BC-9; R-12; ADR-005 decision 2
+    check_ref: pytest
+  - id: AC-9
+    text: >-
+      `ModelSetting` and the `model_settings` mapping (client id to setting) live in `application/ports/instruction_adapter.py`; each
+      writer reads only its own client's entry; the three client adapter modules and `RenderRequest` are unchanged; `uv run lint-imports`
+      passes; `test_role_files_never_name_a_vendor_model` now says that a role file names a model only when the policy assigned it and
+      never an excluded one, and still passes for the packaged roles without a policy.
+    source: C-11; ORQLET-ARCH-003; ADR-003 decisions 1 and 10
+    check_ref: import-linter
+  - id: AC-10
+    text: >-
+      No file outside this phase's operations changes, `pyproject.toml` and `uv.lock` are unchanged, and `orqlet gate status
+      dynamic-model-profiles --phase P-5 --head staged` reports no ORQ-E450, ORQ-E451 or ORQ-E453.
+    source: BC-25; plan rule on phase file lists
+    check_ref: gate-status-phase
+  checks:
+  - ruff-check
+  - ruff-format
+  - mypy
+  - import-linter
+  - pytest
+  - gate-status-phase
+  file_operations:
+  - op: modify
+    path: src/orqlet/application/ports/instruction_adapter.py
+    why: Adds `ModelSetting` and the optional `model_settings` mapping to `ClientRole` and `ClientSkill`.
+  - op: modify
+    path: src/orqlet/adapters/render/roles.py
+    why: Each writer reads its own client's entry and writes `model`, `effort` or the Codex keys through the shared emitters.
+  - op: modify
+    path: src/orqlet/adapters/render/skills.py
+    why: The Claude Code skill writer adds `model` and `effort` front matter for an explicit assignment; the shared agents file never changes.
+  - op: modify
+    path: src/orqlet/application/usecases/render_request.py
+    why: The function `build_render_request` takes the selection and sets `model_settings` on the roles and skills.
+  - op: modify
+    path: src/orqlet/application/usecases/render_all.py
+    why: The function `compose` accepts the selection and hands it to the request builder; its default leaves every caller as it is.
+  - op: modify
+    path: src/orqlet/application/usecases/model_selection.py
+    why: Adds the mapping from the resolver's output to `model_settings`, with ORQ-W545 and ORQ-W546.
+  - op: modify
+    path: tests/unit/render/test_skills.py
+    why: The vendor-name test becomes "a role file names a model only when the policy assigned it".
+  - op: create
+    path: tests/unit/render/test_model_settings_render.py
+    why: AC-2 to AC-8 on the three client writers, with the goldens of AC-3.
+  - op: create
+    path: tests/unit/application/test_model_settings_request.py
+    why: AC-1 and AC-9 on the request builder and the mapping.
+  - op: create
+    path: tests/golden/claude-code/models-2026-11/.claude/agents/orqlet-tester.md
+    why: Golden file of a pinned role for Claude Code, written with --update-golden and read before the commit.
+  - op: create
+    path: tests/golden/codex/models-2026-11/.codex/agents/orqlet-tester.toml
+    why: Golden file of a pinned role for Codex.
+  - op: create
+    path: tests/golden/cursor/models-2026-11/.cursor/agents/orqlet-tester.md
+    why: Golden file of a pinned role for Cursor.
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every `uv run` command below may sync the environment from uv.lock and fetch packages when it is not in sync (warning
+    list: fetches from the network); the sources and the placeholder are those of the environment entry of P-1. The implementer asks the
+    person before the first run in a session.
+  - >-
+    Goldens are rewritten only with `uv run pytest --update-golden` (tests/conftest.py:34-39 at 4aa05f2fa1e267d34824e166bb60abbc1aa75849,
+    sha256 cc8fa6889990ee5496d7ec470fcd4313a7694103e788f2c3674af0b6b2696467, which refuses it in CI); the diff is read before the commit and
+    holds only the three golden files of this phase.
+  - >-
+    ruff-check: `uv run ruff check .` (.github/workflows/ci.yml:31, sha256 714c305445d190e7afe318249169abaf2552f8041f6ccc7c8017495d58f47762;
+    AGENTS.md:47-50, sha256 067c53622629ccfb9e313ebff05ea775b4b9df36db1c091b74f1f1dc86423530; configuration pyproject.toml:38-60, sha256
+    8a2fd80847c2051b5cf82659fbf894e515d5bd210e2e28af490f56676a70a726).
+  - >-
+    ruff-format: `uv run ruff format --check .` (ci.yml:32, sha256 4a6a56a502fd2d8330bc12debf940777d4aa923df5b2d3c524cbf5ac8d00a078;
+    AGENTS.md:53-56, sha256 8126234061d2da27788ac0fc2d7bd556aaf15d09544948b1925a5534dc962233; pyproject.toml:38-60, sha256
+    8a2fd80847c2051b5cf82659fbf894e515d5bd210e2e28af490f56676a70a726).
+  - >-
+    mypy: `uv run mypy` (ci.yml:47, sha256 75f57430d5154f4df4619631e3b4eaec37adb06b46184fc6bda5faff21b4ea0f; AGENTS.md:59-62, sha256
+    7fe7fdd930a5e824723b1a7999200bd236becfcc5fe984e76fdd418009255039; pyproject.toml:62-67, sha256
+    3dee952ae0dcb1d883a3933b63a60b1ca77c0f2e76ba0b026681355a3322b4b4).
+  - >-
+    import-linter: `uv run lint-imports` (ci.yml:62, sha256 aba4e82ae9c8ba9c4a3ef94aadc20b9234104933816cdda02c750b860cca4621; pyproject.toml:82-127,
+    sha256 9e42efcc250c680906b6999be918f10bd8fe9a8fd0ebd1a72b675e2dd0621e04). Cited from the CI file only; onboard did not record it.
+  - >-
+    pytest: `uv run pytest` (ci.yml:84, sha256 7c910167a75b4b3f8dfad8fc42652fdd9eff338194d3979df24740ab50924b81; AGENTS.md:71-74, sha256
+    c560d01599d3004756e624e106c7fdb37d1ebc840106224073081c64110dd2eb; configuration pyproject.toml:69-80, sha256
+    37ed9bcdfa8a1f0d4db95633be21fc6569aeef36cc898fdf4919007237be28c2). Locally it runs on one Python; the matrix runs only in CI.
+  - >-
+    gate-status-phase: `uv run orqlet gate status dynamic-model-profiles --phase P-5 --head staged` reports no ORQ-E450, ORQ-E451 or ORQ-E453.
+    NOT_RUN caused by ORQ-I393 alone is expected offline; an ORQ-W390 caused by this task's own earlier commits is shown to the person.
+  expected_outputs:
+  - src/orqlet/adapters/render/roles.py
+  - src/orqlet/adapters/render/skills.py
+  - tests/golden/claude-code/models-2026-11/.claude/agents/orqlet-tester.md
+- id: P-6
+  objective: >-
+    Wire the policy into the three callers of `compose` and into the findings of `upgrade`: refuse on an invalid, deleted or v1
+    policy before any write, report `missing-candidate` and the settings a client cannot honour, list the review records that a pin
+    change makes stale, report a pending role binding, and make `explain` show the selection that `upgrade` would write.
+  depends_on:
+  - P-5
+  implements: [EC-8, EC-9]
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      `upgrade` returns `refused` with exit status 3 and writes nothing, in a normal run and with `--dry-run` and `--check`, when the
+      policy is invalid (ORQ-E540, ORQ-E541, ORQ-E542), deleted (the file is missing and the lock records it as seeded; ORQ-E547), a v1
+      file, or fails `policy_problems` (ORQ-E543, ORQ-E545). Each refusal prints the code, the fixed text and a field path, and no value
+      of the file. With no policy file ever present the upgrade plan equals the plan before this phase.
+    source: BC-37; F-1; F-2; F-16; C-3
+    check_ref: pytest
+  - id: AC-2
+    text: >-
+      For each profile or assignment in mode `manual` with no eligible candidate, and for an `automatic-with-fallbacks` one with no
+      eligible fallback, `upgrade` prints ORQ-W540 (`missing-candidate`) naming the target and the closed reason of each rejected
+      candidate; nothing is pinned and the role keeps its automatic setting.
+    source: BC-4; BC-37; R-6; F-3; ADR-003 decision 6
+    check_ref: pytest
+  - id: AC-3
+    text: >-
+      The findings ORQ-W545 (alias route rendered) and ORQ-W546 (a skill assignment for Codex or Cursor, a Cursor effort, a name that
+      Cursor cannot take unquoted) appear in the preview of `upgrade` and in `explain`, and each prints only a fixed text and the target.
+    source: BC-43; BC-7; F-4; F-17
+    check_ref: pytest
+  - id: AC-4
+    text: >-
+      When the plan changes the bytes of an agent file that an earlier review record names (`agent.binding_ref` and `agent.client`),
+      `upgrade` prints ORQ-W547 with the path of each such record (at most 20, then the count). The text says that a pin changes protected
+      files and `protected_set_digest`, that approvals of designs and plans in flight then show ORQ-W390 and that the person decides.
+    source: BC-37; F-12; ADR-003 decision 7; C-8
+    check_ref: pytest
+  - id: AC-5
+    text: >-
+      When the plan holds a proposal for `.orqlet/role-bindings.yaml` that adds a binding for `orqlet-code-reviewer`, `upgrade` prints
+      ORQ-I540 saying that a `code-reviewer` record is ORQ-E415 until a reviewed edit applies the proposal. Orqlet never applies it.
+    source: BC-37; F-13; ADR-006 consequences
+    check_ref: pytest
+  - id: AC-6
+    text: >-
+      Reverting a policy edit and running `upgrade` again restores the generated files of the earlier state byte for byte, tested with
+      three upgrades (no pin, a pin, the edit reverted).
+    source: BC-29; R-4; ADR-003 consequences
+    check_ref: pytest
+  - id: AC-7
+    text: >-
+      `explain` reports, in its `declared` data and its text, one entry for each role and skill that has a setting or a finding: the
+      target, the client, the source, and the setting or null. For a fixture policy the entries equal what `upgrade` writes into the
+      files, compared by parsing the written files. With an invalid, deleted or v1 policy `explain` prints the finding, lists no entry,
+      writes nothing and does not fail.
+    source: BC-43; ADR-001 decision 7
+    check_ref: pytest
+  - id: AC-8
+    text: >-
+      Every pin and every proposal reaches disk through the journalled change plan: a test with the faulty file system of tests/fakes
+      shows that an interrupted upgrade with a pin resumes to the same files. `init` calls `compose` with no policy and its output is
+      unchanged for a project that has none.
+    source: C-5; ORQLET-SAFE-001; EC-8
+    check_ref: pytest
+  - id: AC-9
+    text: >-
+      No file outside this phase's operations changes, and `orqlet gate status dynamic-model-profiles --phase P-6 --head staged` reports
+      no ORQ-E450, ORQ-E451 or ORQ-E453.
+    source: plan rule on phase file lists
+    check_ref: gate-status-phase
+  checks:
+  - ruff-check
+  - ruff-format
+  - mypy
+  - import-linter
+  - pytest
+  - gate-status-phase
+  file_operations:
+  - op: modify
+    path: src/orqlet/application/usecases/upgrade.py
+    why: Loads the policy, refuses before any write, passes the selection to `compose` and adds the findings of AC-2 to AC-5.
+  - op: modify
+    path: src/orqlet/application/usecases/init_project.py
+    why: Calls `compose` with no policy, so `init` is unchanged for a project that has none.
+  - op: modify
+    path: src/orqlet/application/usecases/explain.py
+    why: Loads the policy and reports the selection that `upgrade` would write.
+  - op: modify
+    path: src/orqlet/application/usecases/render_all.py
+    why: The function `compose` takes the policy state and returns its findings with the composition.
+  - op: modify
+    path: src/orqlet/application/usecases/model_selection.py
+    why: Adds ORQ-W540 for `missing-candidate` and the per-target explanation entries.
+  - op: create
+    path: src/orqlet/application/usecases/pin_staleness.py
+    why: Finds the review records that a changed agent file makes stale, reading the records through the FileSystem port.
+  - op: modify
+    path: src/orqlet/interface/cli/commands/lifecycle.py
+    why: The command `explain` puts the selection entries into its JSON data.
+  - op: modify
+    path: src/orqlet/interface/cli/render_human.py
+    why: The text of `explain` lists the selection entries.
+  - op: create
+    path: tests/unit/application/test_upgrade_model_policy.py
+    why: AC-1 to AC-6 and AC-8 on the memory file system, the fake VCS and the faulty file system.
+  - op: create
+    path: tests/unit/application/test_pin_staleness.py
+    why: AC-4, the list of stale records.
+  - op: create
+    path: tests/unit/application/test_explain_model_selection.py
+    why: AC-7, `explain` against what `upgrade` writes.
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every `uv run` command below may sync the environment from uv.lock and fetch packages when it is not in sync (warning
+    list: fetches from the network); the sources and the placeholder are those of the environment entry of P-1. The implementer asks the
+    person before the first run in a session.
+  - >-
+    ruff-check: `uv run ruff check .` (.github/workflows/ci.yml:31 at 4aa05f2fa1e267d34824e166bb60abbc1aa75849, sha256
+    714c305445d190e7afe318249169abaf2552f8041f6ccc7c8017495d58f47762; AGENTS.md:47-50, sha256
+    067c53622629ccfb9e313ebff05ea775b4b9df36db1c091b74f1f1dc86423530; configuration pyproject.toml:38-60, sha256
+    8a2fd80847c2051b5cf82659fbf894e515d5bd210e2e28af490f56676a70a726).
+  - >-
+    ruff-format: `uv run ruff format --check .` (ci.yml:32, sha256 4a6a56a502fd2d8330bc12debf940777d4aa923df5b2d3c524cbf5ac8d00a078;
+    AGENTS.md:53-56, sha256 8126234061d2da27788ac0fc2d7bd556aaf15d09544948b1925a5534dc962233; pyproject.toml:38-60, sha256
+    8a2fd80847c2051b5cf82659fbf894e515d5bd210e2e28af490f56676a70a726).
+  - >-
+    mypy: `uv run mypy` (ci.yml:47, sha256 75f57430d5154f4df4619631e3b4eaec37adb06b46184fc6bda5faff21b4ea0f; AGENTS.md:59-62, sha256
+    7fe7fdd930a5e824723b1a7999200bd236becfcc5fe984e76fdd418009255039; pyproject.toml:62-67, sha256
+    3dee952ae0dcb1d883a3933b63a60b1ca77c0f2e76ba0b026681355a3322b4b4).
+  - >-
+    import-linter: `uv run lint-imports` (ci.yml:62, sha256 aba4e82ae9c8ba9c4a3ef94aadc20b9234104933816cdda02c750b860cca4621; pyproject.toml:82-127,
+    sha256 9e42efcc250c680906b6999be918f10bd8fe9a8fd0ebd1a72b675e2dd0621e04). Cited from the CI file only; onboard did not record it.
+  - >-
+    pytest: `uv run pytest` (ci.yml:84, sha256 7c910167a75b4b3f8dfad8fc42652fdd9eff338194d3979df24740ab50924b81; AGENTS.md:71-74, sha256
+    c560d01599d3004756e624e106c7fdb37d1ebc840106224073081c64110dd2eb; configuration pyproject.toml:69-80, sha256
+    37ed9bcdfa8a1f0d4db95633be21fc6569aeef36cc898fdf4919007237be28c2). Locally it runs on one Python; the matrix runs only in CI.
+  - >-
+    gate-status-phase: `uv run orqlet gate status dynamic-model-profiles --phase P-6 --head staged` reports no ORQ-E450, ORQ-E451 or ORQ-E453.
+    NOT_RUN caused by ORQ-I393 alone is expected offline; an ORQ-W390 caused by this task's own earlier commits is shown to the person.
+  expected_outputs:
+  - src/orqlet/application/usecases/upgrade.py
+  - src/orqlet/application/usecases/pin_staleness.py
+- id: P-7
+  objective: >-
+    Add the read-only command `orqlet validate model-policy` with every check of the design brief: the contract, the references, the
+    exclusion (also against the base tree), the approval fields, the credential scan, the staleness warnings, the deletion rule and
+    the drift check of the model values in the agent and skill files. The command reads files and git trees and starts no process of
+    its own.
+  depends_on:
+  - P-6
+  implements: [EC-6, EC-8]
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      `orqlet validate model-policy [PATH]` (default `.orqlet/model-policy.yaml`) exits 0 on PASS and 5 on FAIL and on NOT_RUN, as every
+      `validate` command does. A policy that was never present (no file, no seeded row in the lock, not in the base tree) is NOT_RUN
+      with the reason "no model policy, nothing was checked". A policy that is missing from the working tree but present at the base
+      tree, or recorded as seeded in the lock, is FAIL with ORQ-E547. `--json` prints the common result envelope.
+    source: BC-33; BC-39; F-15; F-16
+    check_ref: pytest
+  - id: AC-2
+    text: >-
+      FAIL findings: ORQ-E540, ORQ-E541 and ORQ-E542 from the loader; ORQ-E543 for every model, route, candidate, fallback or assignment
+      that matches an exclusion in any state; ORQ-E544 for an `excluded` entry that the base tree holds and the file lacks (the base is the
+      optional `--base` and otherwise the merge base that `validate review` uses); ORQ-E545 for the reference and name problems of
+      `policy_problems`, where the known role and skill names are those of the packaged workflow; ORQ-E546 for an `approved` entry
+      without `approved_by` or without an `approval_ref` of the allowed forms (`pr:<number>`, `commit:<full hex id>` or `adr:<repository
+      path>`).
+    source: BC-9; BC-13; BC-32; R-11; ADR-004 decision 1; ADR-005 decision 2
+    check_ref: pytest
+  - id: AC-3
+    text: >-
+      Warnings, which do not change PASS: ORQ-W540 (`missing-candidate`) for a `manual` profile or assignment with no eligible candidate
+      and for an `automatic-with-fallbacks` one with no eligible fallback; ORQ-W541 when `reviewed_for_release` is older than the workflow
+      version that the installed package states (a `Version` comparison, no clock); ORQ-W542 when a route's `retires_on` is past or
+      within 30 days of today, read through the Clock port, where selection itself never reads the date.
+    source: BC-13; F-8; F-9; ADR-004 decision 5
+    check_ref: pytest
+  - id: AC-4
+    text: >-
+      The drift check reads the `model` value of every `.claude/agents/*.md`, `.cursor/agents/*.md`, `.codex/agents/*.toml`,
+      `.claude/skills/*/SKILL.md` and `.agents/skills/*/SKILL.md` file, generated or team-authored. A value that matches an exclusion is
+      ORQ-E548 in any file. A value that differs from the resolution is ORQ-W543 in a file that the lock records as generated, and
+      nothing in a team-authored file. A value that fails `ModelRef` (a bracketed Cursor ID, non-ASCII text) is tested for the exclusion
+      on its raw NFKC string first and then reported as `unmatched`, never skipped. A team-authored file that cannot be parsed or is
+      above 256 KiB is ORQ-W544 and is not scanned further.
+    source: BC-30; BC-9; R-12; ADR-003 decision 8; F-14
+    check_ref: pytest
+  - id: AC-5
+    text: >-
+      A finding prints the catalog id that a string matched, or `unmatched` with the string's length, never the string; for every finding
+      of this command, a unique marker placed in each model field of the policy and of the agent files never appears in the text or the
+      data of the result.
+    source: BC-32; BC-19; ADR-002 decision 3
+    check_ref: pytest
+  - id: AC-6
+    text: >-
+      `IMPLEMENTED_COMMANDS` lists `validate model-policy`. The command is built from a services object that adds the Clock port to the
+      ports of the other validators; the unit tests use the fake clock, the fake VCS and the memory file system and open no socket.
+    source: BC-41; BC-23; ORQLET-TEST-001
+    check_ref: pytest
+  - id: AC-7
+    text: >-
+      `pyproject.toml` and `uv.lock` are unchanged, `uv run lint-imports` passes, no file outside this phase's operations changes, and
+      `orqlet gate status dynamic-model-profiles --phase P-7 --head staged` reports no ORQ-E450, ORQ-E451 or ORQ-E453.
+    source: BC-25; plan rule on phase file lists
+    check_ref: gate-status-phase
+  checks:
+  - ruff-check
+  - ruff-format
+  - mypy
+  - import-linter
+  - pytest
+  - gate-status-phase
+  file_operations:
+  - op: create
+    path: src/orqlet/application/usecases/validate_model_policy.py
+    why: The checks of AC-1 to AC-5 and the services object with the Clock port.
+  - op: modify
+    path: src/orqlet/interface/cli/commands/validate.py
+    why: Registers `validate model-policy` with `--base` and `--json`.
+  - op: modify
+    path: src/orqlet/interface/cli/wiring.py
+    why: Builds the services of the command from the local file system, the git adapter, the strict loader, the package and the system clock.
+  - op: modify
+    path: src/orqlet/application/usecases/capabilities.py
+    why: The frozen set of implemented commands gains `validate model-policy`.
+  - op: create
+    path: tests/unit/application/test_validate_model_policy.py
+    why: AC-1 to AC-6 on fakes.
+  - op: create
+    path: tests/integration/test_validate_model_policy_cli.py
+    why: Exit statuses and the JSON envelope through the real command line.
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every `uv run` command below may sync the environment from uv.lock and fetch packages when it is not in sync (warning
+    list: fetches from the network); the sources and the placeholder are those of the environment entry of P-1. The implementer asks the
+    person before the first run in a session.
+  - >-
+    ruff-check: `uv run ruff check .` (.github/workflows/ci.yml:31 at 4aa05f2fa1e267d34824e166bb60abbc1aa75849, sha256
+    714c305445d190e7afe318249169abaf2552f8041f6ccc7c8017495d58f47762; AGENTS.md:47-50, sha256
+    067c53622629ccfb9e313ebff05ea775b4b9df36db1c091b74f1f1dc86423530; configuration pyproject.toml:38-60, sha256
+    8a2fd80847c2051b5cf82659fbf894e515d5bd210e2e28af490f56676a70a726).
+  - >-
+    ruff-format: `uv run ruff format --check .` (ci.yml:32, sha256 4a6a56a502fd2d8330bc12debf940777d4aa923df5b2d3c524cbf5ac8d00a078;
+    AGENTS.md:53-56, sha256 8126234061d2da27788ac0fc2d7bd556aaf15d09544948b1925a5534dc962233; pyproject.toml:38-60, sha256
+    8a2fd80847c2051b5cf82659fbf894e515d5bd210e2e28af490f56676a70a726).
+  - >-
+    mypy: `uv run mypy` (ci.yml:47, sha256 75f57430d5154f4df4619631e3b4eaec37adb06b46184fc6bda5faff21b4ea0f; AGENTS.md:59-62, sha256
+    7fe7fdd930a5e824723b1a7999200bd236becfcc5fe984e76fdd418009255039; pyproject.toml:62-67, sha256
+    3dee952ae0dcb1d883a3933b63a60b1ca77c0f2e76ba0b026681355a3322b4b4).
+  - >-
+    import-linter: `uv run lint-imports` (ci.yml:62, sha256 aba4e82ae9c8ba9c4a3ef94aadc20b9234104933816cdda02c750b860cca4621; pyproject.toml:82-127,
+    sha256 9e42efcc250c680906b6999be918f10bd8fe9a8fd0ebd1a72b675e2dd0621e04). Cited from the CI file only; onboard did not record it.
+  - >-
+    pytest: `uv run pytest` (ci.yml:84, sha256 7c910167a75b4b3f8dfad8fc42652fdd9eff338194d3979df24740ab50924b81; AGENTS.md:71-74, sha256
+    c560d01599d3004756e624e106c7fdb37d1ebc840106224073081c64110dd2eb; configuration pyproject.toml:69-80, sha256
+    37ed9bcdfa8a1f0d4db95633be21fc6569aeef36cc898fdf4919007237be28c2). Locally it runs on one Python; the matrix runs only in CI.
+  - >-
+    gate-status-phase: `uv run orqlet gate status dynamic-model-profiles --phase P-7 --head staged` reports no ORQ-E450, ORQ-E451 or ORQ-E453.
+    NOT_RUN caused by ORQ-I393 alone is expected offline; an ORQ-W390 caused by this task's own earlier commits is shown to the person.
+  expected_outputs:
+  - src/orqlet/application/usecases/validate_model_policy.py
+  - src/orqlet/interface/cli/commands/validate.py
+- id: P-8
+  objective: >-
+    Add the read-only command `orqlet models resolve`, which prints the selection for a role, a skill or a profile and the hint that the
+    skills offer. It is built from a services object that holds no VCS, process or clock, so that it can start no process and read no
+    date, and it detects a deleted policy from the lock's seeded row.
+  depends_on:
+  - P-7
+  implements: [EC-6]
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      The command is `orqlet models resolve --client C (--role R | --skill S | --profile P) [--task T] [--override MODEL]
+      [--different-family-from CATALOG_ID] [--coder-profile P] [--json]`. `--client` is one of the three clients. Exactly one of `--role`,
+      `--skill` and `--profile` is given. `--override` is checked as a recorded model string and `--different-family-from` as a catalog
+      id. A breach of any of these exits 2 with a usage message that does not repeat the offending value.
+    source: BC-33; ADR-002 decision 3; ADR-007 decision 11
+    check_ref: pytest
+  - id: AC-2
+    text: >-
+      The `data` of the JSON result has exactly these keys: `client`, `target` (`kind`, `name`), `task`, `policy` (`present` or
+      `absent`), `profile`, `mode`, `source`, `selection` (null, or `model`, `name`, `kind`, `effort`), `client_chooses` (a boolean),
+      `candidates` (ordered; each `model`, `name`, `kind`, `effort`, `also_known_as`), `fallbacks` (the same shape), `escalation`,
+      `list_prices` (each `model`, `input_per_million_usd`, `output_per_million_usd`), `rejected` (each `model` and `reason`, a reason of
+      the closed set), `hint` and `result` (`selected`, `automatic` or `none-qualifies`). Keys are sorted, so the same input gives the
+      same bytes.
+    source: BC-35; BC-23; R-3; ADR-001 decision 8
+    check_ref: pytest
+  - id: AC-3
+    text: >-
+      The text output has one line each for `target`, `policy`, `profile`, `source`, `selected` (the name, its kind, its effort and the
+      catalog id, or "the client chooses"), `candidates`, `fallbacks`, `escalation`, `rejected` and `hint`. Exit status 0 means a
+      selection or an automatic result exists, also when no policy file was ever present ("no model policy; the client chooses"); 1 means
+      that no candidate qualifies, also when `--different-family-from` leaves none that can be shown different, in every mode and with no
+      policy; 3 means that a policy is present but invalid, deleted or a v1 file.
+    source: BC-33; BC-38; BC-4; F-15
+    check_ref: pytest
+  - id: AC-4
+    text: >-
+      The `hint` is the fixed sentence "Suggested for this work: profile <id>; the client keeps the choice and nothing here changes the
+      model." for a target that has a profile, "no assignment for this target; the client chooses" for a target that a present policy
+      does not assign, and "no model policy; the client chooses" when there is no policy. An assignment that names a `task` appears only
+      when `--task` names that task, and never in a generated file.
+    source: BC-35; BC-43; ADR-001 decisions 7 and 8
+    check_ref: pytest
+  - id: AC-5
+    text: >-
+      The use case takes a services object with the project file system, the strict loader and the workflow package, and no VCS,
+      process runner or clock; a test passes fakes that fail on any other access, and the command runs in a folder that is not a git
+      repository with the same output. Two runs print the same bytes. A policy that is missing while the lock records it as seeded exits
+      3 without any git call.
+    source: BC-23; BC-39; R-13; F-9; ORQLET-NOMODEL-001
+    check_ref: pytest
+  - id: AC-6
+    text: >-
+      An excluded model is never a candidate, a selection or a fallback and appears only in `rejected` with the reason `excluded`; an
+      override that matches an exclusion or fails a constraint is `override-invalid`; the output never prints the override string, only
+      catalog ids that passed `ModelRef` and fixed words.
+    source: BC-9; BC-6; BC-32
+    check_ref: pytest
+  - id: AC-7
+    text: >-
+      `orqlet models` is a registered command group with the one subcommand `resolve`, `IMPLEMENTED_COMMANDS` lists `models resolve`,
+      `pyproject.toml` and `uv.lock` are unchanged, `uv run lint-imports` passes, no file outside this phase's operations changes, and
+      `orqlet gate status dynamic-model-profiles --phase P-8 --head staged` reports no ORQ-E450, ORQ-E451 or ORQ-E453.
+    source: BC-41; BC-25; plan rule on phase file lists
+    check_ref: gate-status-phase
+  checks:
+  - ruff-check
+  - ruff-format
+  - mypy
+  - import-linter
+  - pytest
+  - gate-status-phase
+  file_operations:
+  - op: create
+    path: src/orqlet/application/usecases/models_resolve.py
+    why: The use case and its narrow services object, over the resolver and the loader.
+  - op: create
+    path: src/orqlet/interface/cli/commands/models.py
+    why: The `models` group with `resolve`, the usage checks and the output of AC-2 and AC-3.
+  - op: modify
+    path: src/orqlet/interface/cli/app.py
+    why: Registers the `models` group.
+  - op: modify
+    path: src/orqlet/interface/cli/wiring.py
+    why: Builds the services of `models resolve` with no VCS, process or clock.
+  - op: modify
+    path: src/orqlet/application/usecases/capabilities.py
+    why: The frozen set of implemented commands gains `models resolve`.
+  - op: create
+    path: tests/unit/application/test_models_resolve.py
+    why: AC-2 to AC-6 on fakes that fail on any VCS, process or clock access.
+  - op: create
+    path: tests/integration/test_models_resolve_cli.py
+    why: AC-1, AC-3 and AC-5 through the real command line, including a folder that is not a git repository.
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every `uv run` command below may sync the environment from uv.lock and fetch packages when it is not in sync (warning
+    list: fetches from the network); the sources and the placeholder are those of the environment entry of P-1. The implementer asks the
+    person before the first run in a session.
+  - >-
+    ruff-check: `uv run ruff check .` (.github/workflows/ci.yml:31 at 4aa05f2fa1e267d34824e166bb60abbc1aa75849, sha256
+    714c305445d190e7afe318249169abaf2552f8041f6ccc7c8017495d58f47762; AGENTS.md:47-50, sha256
+    067c53622629ccfb9e313ebff05ea775b4b9df36db1c091b74f1f1dc86423530; configuration pyproject.toml:38-60, sha256
+    8a2fd80847c2051b5cf82659fbf894e515d5bd210e2e28af490f56676a70a726).
+  - >-
+    ruff-format: `uv run ruff format --check .` (ci.yml:32, sha256 4a6a56a502fd2d8330bc12debf940777d4aa923df5b2d3c524cbf5ac8d00a078;
+    AGENTS.md:53-56, sha256 8126234061d2da27788ac0fc2d7bd556aaf15d09544948b1925a5534dc962233; pyproject.toml:38-60, sha256
+    8a2fd80847c2051b5cf82659fbf894e515d5bd210e2e28af490f56676a70a726).
+  - >-
+    mypy: `uv run mypy` (ci.yml:47, sha256 75f57430d5154f4df4619631e3b4eaec37adb06b46184fc6bda5faff21b4ea0f; AGENTS.md:59-62, sha256
+    7fe7fdd930a5e824723b1a7999200bd236becfcc5fe984e76fdd418009255039; pyproject.toml:62-67, sha256
+    3dee952ae0dcb1d883a3933b63a60b1ca77c0f2e76ba0b026681355a3322b4b4).
+  - >-
+    import-linter: `uv run lint-imports` (ci.yml:62, sha256 aba4e82ae9c8ba9c4a3ef94aadc20b9234104933816cdda02c750b860cca4621; pyproject.toml:82-127,
+    sha256 9e42efcc250c680906b6999be918f10bd8fe9a8fd0ebd1a72b675e2dd0621e04). Cited from the CI file only; onboard did not record it.
+  - >-
+    pytest: `uv run pytest` (ci.yml:84, sha256 7c910167a75b4b3f8dfad8fc42652fdd9eff338194d3979df24740ab50924b81; AGENTS.md:71-74, sha256
+    c560d01599d3004756e624e106c7fdb37d1ebc840106224073081c64110dd2eb; configuration pyproject.toml:69-80, sha256
+    37ed9bcdfa8a1f0d4db95633be21fc6569aeef36cc898fdf4919007237be28c2). Locally it runs on one Python; the matrix runs only in CI.
+  - >-
+    gate-status-phase: `uv run orqlet gate status dynamic-model-profiles --phase P-8 --head staged` reports no ORQ-E450, ORQ-E451 or ORQ-E453.
+    NOT_RUN caused by ORQ-I393 alone is expected offline; an ORQ-W390 caused by this task's own earlier commits is shown to the person.
+  expected_outputs:
+  - src/orqlet/application/usecases/models_resolve.py
+  - src/orqlet/interface/cli/commands/models.py
+- id: P-9
+  objective: >-
+    Teach the code that knows the two reviewer roles about the third, before the review skill changes: the record-path pattern, the two
+    hard-coded reviewer maps (with a test that they agree), the seeded binding, the minimum independence by role, and the derivation of
+    independence from freshness and observed identity. The derivation stays a pure function of recorded values.
+  depends_on:
+  - P-8
+  implements: [EC-3, EC-5, EC-8]
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      The record-path pattern of `domain/evidence_artifacts.py` admits `code-reviewer`, so `docs/design/<task>/reviews/code-reviewer-P-<n>-r<k>.yaml`
+      is recognised as a review record, is left out of `code_tests` and `knowledge` like the records of the other two roles, and does not
+      raise ORQ-E400; a path with any other role name stays an ordinary input with ORQ-E400, and a path of the right shape whose content
+      names another role is not excluded.
+    source: BC-36; ADR-006 decision 6
+    check_ref: pytest
+  - id: AC-2
+    text: >-
+      `REVIEW_AGENTS` and `DEFAULT_REVIEWERS` each hold the three reviewers (`architecture-reviewer` and `orqlet-arch-reviewer`,
+      `security-reviewer` and `orqlet-security-reviewer`, `code-reviewer` and `orqlet-code-reviewer`), and a unit test asserts that the two
+      maps hold the same roles and the same agent names. The seeded `role-bindings.yaml` of `init` holds a third binding for
+      `orqlet-code-reviewer` for `claude-code`, `codex` and `cursor`, with the same capability block as the other two and
+      `independence_capability: I2`.
+    source: BC-41; EC-5; ADR-006 decision 6
+    check_ref: pytest
+  - id: AC-3
+    text: >-
+      `derive_independence` gives I0 for an unapproved binding, for a context recorded as not fresh, and, for a role that requires
+      freshness (the code reviewer), for a context that is not recorded as fresh. Otherwise it gives I2 for a different client or for two
+      different families that are both known from observed identities, and I1 for the rest. One client with two observed different families
+      is I2; the same client with the same observed family is I1; a requested-only model, or `identity_source` unknown, is an unknown
+      identity and never shows a family difference. A missing `identity_source` means unknown.
+    source: BC-16; BC-17; BC-19; R-7; R-8; ADR-007 decisions 2, 4 and 5
+    check_ref: pytest
+  - id: AC-4
+    text: >-
+      `independence_notes` returns, in a fixed order and from the closed set, `identity-unknown` when a different client rests on an
+      unknown identity on either side, and `same-model-different-client` when two observed identities are the same model on different
+      clients. Recording an identity is never worse than omitting it: for every combination, the class with an observed identity is at
+      least the class without it.
+    source: BC-17; ADR-007 decision 5
+    check_ref: pytest
+  - id: AC-5
+    text: >-
+      `minimum_independence(change_class, role)` is I2 at every class for `code-reviewer` and unchanged for the other roles (I2 at D3,
+      I1 below); `satisfies` takes the role; a call that gives no role behaves as before. A table-driven test over every combination of
+      approval, equal or different client and unknown, equal or different family gives, for the architecture and security roles with no
+      freshness recorded, the same class as the function of the base revision.
+    source: BC-20; BC-15; R-10; ADR-006 decision 4; C-7
+    check_ref: pytest
+  - id: AC-6
+    text: >-
+      `orqlet review prepare` prints the `review_input` block of each of the three reviewers whose agent file is in the tree, and
+      ORQ-I441 for one that is not; the guard on the source text of `REVIEW_AGENTS` in `test_render_integrations.py` follows the new
+      definition. No file outside this phase's operations changes, and `orqlet gate status dynamic-model-profiles --phase P-9 --head
+      staged` reports no ORQ-E450, ORQ-E451 or ORQ-E453.
+    source: BC-15; BC-41; plan rule on phase file lists
+    check_ref: gate-status-phase
+  checks:
+  - ruff-check
+  - ruff-format
+  - mypy
+  - import-linter
+  - pytest
+  - gate-status-phase
+  file_operations:
+  - op: modify
+    path: src/orqlet/domain/evidence_artifacts.py
+    why: The review pattern admits the role `code-reviewer`.
+  - op: modify
+    path: src/orqlet/domain/independence.py
+    why: Freshness, the role input of the minimum, observed identities and the closed notes, as pure functions.
+  - op: modify
+    path: src/orqlet/application/usecases/render_all.py
+    why: The map `REVIEW_AGENTS` gains the third reviewer and the type of its role literal follows the contract.
+  - op: modify
+    path: src/orqlet/application/usecases/review_prepare.py
+    why: The map `DEFAULT_REVIEWERS` gains the third reviewer.
+  - op: modify
+    path: tests/unit/domain/test_evidence_artifacts.py
+    why: AC-1.
+  - op: modify
+    path: tests/unit/domain/test_independence.py
+    why: AC-3 to AC-5, keeping the existing cases.
+  - op: modify
+    path: tests/unit/application/test_render_integrations.py
+    why: The string guard on the definition of `REVIEW_AGENTS` follows the three-reviewer definition.
+  - op: modify
+    path: tests/unit/application/test_lifecycle.py
+    why: The test that `init` approves the generated reviewers as default bindings expects the third binding.
+  - op: modify
+    path: tests/unit/application/test_review_prepare.py
+    why: AC-6, the third reviewer in the printed inputs.
+  - op: create
+    path: tests/unit/application/test_review_maps.py
+    why: AC-2, the two maps agree.
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every `uv run` command below may sync the environment from uv.lock and fetch packages when it is not in sync (warning
+    list: fetches from the network); the sources and the placeholder are those of the environment entry of P-1. The implementer asks the
+    person before the first run in a session.
+  - >-
+    ruff-check: `uv run ruff check .` (.github/workflows/ci.yml:31 at 4aa05f2fa1e267d34824e166bb60abbc1aa75849, sha256
+    714c305445d190e7afe318249169abaf2552f8041f6ccc7c8017495d58f47762; AGENTS.md:47-50, sha256
+    067c53622629ccfb9e313ebff05ea775b4b9df36db1c091b74f1f1dc86423530; configuration pyproject.toml:38-60, sha256
+    8a2fd80847c2051b5cf82659fbf894e515d5bd210e2e28af490f56676a70a726).
+  - >-
+    ruff-format: `uv run ruff format --check .` (ci.yml:32, sha256 4a6a56a502fd2d8330bc12debf940777d4aa923df5b2d3c524cbf5ac8d00a078;
+    AGENTS.md:53-56, sha256 8126234061d2da27788ac0fc2d7bd556aaf15d09544948b1925a5534dc962233; pyproject.toml:38-60, sha256
+    8a2fd80847c2051b5cf82659fbf894e515d5bd210e2e28af490f56676a70a726).
+  - >-
+    mypy: `uv run mypy` (ci.yml:47, sha256 75f57430d5154f4df4619631e3b4eaec37adb06b46184fc6bda5faff21b4ea0f; AGENTS.md:59-62, sha256
+    7fe7fdd930a5e824723b1a7999200bd236becfcc5fe984e76fdd418009255039; pyproject.toml:62-67, sha256
+    3dee952ae0dcb1d883a3933b63a60b1ca77c0f2e76ba0b026681355a3322b4b4).
+  - >-
+    import-linter: `uv run lint-imports` (ci.yml:62, sha256 aba4e82ae9c8ba9c4a3ef94aadc20b9234104933816cdda02c750b860cca4621; pyproject.toml:82-127,
+    sha256 9e42efcc250c680906b6999be918f10bd8fe9a8fd0ebd1a72b675e2dd0621e04). Cited from the CI file only; onboard did not record it.
+  - >-
+    pytest: `uv run pytest` (ci.yml:84, sha256 7c910167a75b4b3f8dfad8fc42652fdd9eff338194d3979df24740ab50924b81; AGENTS.md:71-74, sha256
+    c560d01599d3004756e624e106c7fdb37d1ebc840106224073081c64110dd2eb; configuration pyproject.toml:69-80, sha256
+    37ed9bcdfa8a1f0d4db95633be21fc6569aeef36cc898fdf4919007237be28c2). Locally it runs on one Python; the matrix runs only in CI.
+  - >-
+    gate-status-phase: `uv run orqlet gate status dynamic-model-profiles --phase P-9 --head staged` reports no ORQ-E450, ORQ-E451 or ORQ-E453.
+    NOT_RUN caused by ORQ-I393 alone is expected offline; an ORQ-W390 caused by this task's own earlier commits is shown to the person.
+  expected_outputs:
+  - src/orqlet/domain/evidence_artifacts.py
+  - src/orqlet/domain/independence.py
+  - tests/unit/application/test_review_maps.py
+- id: P-10
+  objective: >-
+    Make `orqlet validate review` read the policy from the base tree and the staged tree and apply the identity, freshness, exclusion,
+    deletion and unloadable-policy rules of ADR-005 and ADR-007, with the closed warnings printed in each finding and no recorded model
+    string in any output. Records that exist today keep their verdict.
+  depends_on:
+  - P-9
+  implements: [EC-3, EC-8]
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      `validate review` reads `.orqlet/model-policy.yaml` from the base tree and from the staged tree with `read_model_policy_at`.
+      Exclusions are the union of both trees. A family is taken only from a catalog entry that is not `proposed` at the base tree.
+      `model_families` of `role-bindings.yaml` still applies to a string that the policy cannot match, and to every string when the policy
+      was never present; where the policy matches a string its family wins.
+    source: BC-40; BC-31; BC-10; ADR-007 decision 1; ADR-005 decision 2
+    check_ref: pytest
+  - id: AC-2
+    text: >-
+      The tree matrix holds. Both trees valid is the normal case. A staged policy that is unloadable, or deleted while the base tree has
+      one, gives ORQ-E461 for every record that names a model and never falls back to `model_families`. A base policy that is absent or
+      unloadable while the staged one is valid is judged on the staged tree for exclusions, with no policy family, and gives the warning
+      `policy-changed-in-this-change` (ORQ-W462). A policy that was never present in either tree gives the legacy rules and the
+      information ORQ-I460 "no exclusion list was available". A binding that exists only in the staged tree is the warning
+      `binding-added-in-this-change` (ORQ-W463) and not ORQ-E415; a binding in neither tree is ORQ-E415 as today.
+    source: BC-44; BC-39; BC-31; ADR-007 decision 1; F-16; F-18
+    check_ref: pytest
+  - id: AC-3
+    text: >-
+      A record whose `model_requested` or `model_observed`, for the agent or the coder, matches an exclusion is ORQ-E460 and its class is
+      I0, so it is never counted. A record that names no model is unaffected by the exclusion check.
+    source: BC-9; BC-31; R-12; F-11; ADR-005 decision 2
+    check_ref: pytest
+  - id: AC-4
+    text: >-
+      Each of these warnings starts its message with its closed name and a colon, and the data of the result lists the names in
+      `independence_notes`: `model-requested-differs-from-observed` (ORQ-W464, naming catalog ids or `unmatched`), `identity-unknown`
+      (ORQ-W460), `same-model-different-client` (ORQ-W461), `policy-changed-in-this-change` (ORQ-W462), `binding-added-in-this-change`
+      (ORQ-W463) and `codex-read-only-not-stated` (ORQ-W465). A `codex` record whose `capability_limits` lack the phrase "read-only is not
+      enforced by this client" gets ORQ-W465; one that holds it gets none.
+    source: BC-19; BC-22; BC-17; R-7; ADR-007 decisions 5 and 9
+    check_ref: pytest
+  - id: AC-5
+    text: >-
+      A record of role `code-reviewer` with no `context`, or with `context.fresh` false, derives I0 and the result is NOT_RUN with the
+      reason, not an error; a record below I2 is NOT_RUN with the text "independence I1 is below I2, which the code reviewer requires at
+      every change class"; a record of the other two roles with `context.fresh: false` is I0 and one with no `context` is as before.
+    source: BC-16; BC-15; R-8; R-10; ADR-007 decision 4; ADR-006 decision 4
+    check_ref: pytest
+  - id: AC-6
+    text: >-
+      No finding and no data field of `validate review` contains a recorded model string, a key of the policy or a text of a record: only
+      catalog ids, `unmatched` with a length, closed names and fixed text. A test places a unique marker in each model field of a record
+      and of the policy and finds it nowhere in the result.
+    source: BC-32; BC-19; ADR-002 decision 3
+    check_ref: pytest
+  - id: AC-7
+    text: >-
+      The records that exist today keep their verdict. The acceptance tests of `tests/e2e/test_s9_acceptance.py` and
+      `tests/e2e/test_full_task.py` pass without an edit, and a new table test shows, for the three shapes among the 112 records
+      (cursor with cursor and null models, codex with cursor and null models, and a D3 change below I2), the same verdict and the same
+      errors as before, with only the warnings of AC-4 that apply to them.
+    source: BC-20; C-7; A-65
+    check_ref: pytest
+  - id: AC-8
+    text: >-
+      `pyproject.toml` and `uv.lock` are unchanged, `uv run lint-imports` passes, no file outside this phase's operations changes, and
+      `orqlet gate status dynamic-model-profiles --phase P-10 --head staged` reports no ORQ-E450, ORQ-E451 or ORQ-E453.
+    source: BC-25; plan rule on phase file lists
+    check_ref: gate-status-phase
+  checks:
+  - ruff-check
+  - ruff-format
+  - mypy
+  - import-linter
+  - pytest
+  - gate-status-phase
+  file_operations:
+  - op: create
+    path: src/orqlet/application/usecases/review_identity.py
+    why: Reads the two policy trees, applies the matrix of AC-2 and returns the identities, the notes and the findings for one record.
+  - op: modify
+    path: src/orqlet/application/usecases/validate_records.py
+    why: Uses `review_identity` for independence, adds the freshness reason and the base-tree binding rule, and prints the notes.
+  - op: create
+    path: tests/unit/application/test_validate_review_identity.py
+    why: AC-1 to AC-7 on the fake VCS and the memory file system.
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every `uv run` command below may sync the environment from uv.lock and fetch packages when it is not in sync (warning
+    list: fetches from the network); the sources and the placeholder are those of the environment entry of P-1. The implementer asks the
+    person before the first run in a session.
+  - >-
+    ruff-check: `uv run ruff check .` (.github/workflows/ci.yml:31 at 4aa05f2fa1e267d34824e166bb60abbc1aa75849, sha256
+    714c305445d190e7afe318249169abaf2552f8041f6ccc7c8017495d58f47762; AGENTS.md:47-50, sha256
+    067c53622629ccfb9e313ebff05ea775b4b9df36db1c091b74f1f1dc86423530; configuration pyproject.toml:38-60, sha256
+    8a2fd80847c2051b5cf82659fbf894e515d5bd210e2e28af490f56676a70a726).
+  - >-
+    ruff-format: `uv run ruff format --check .` (ci.yml:32, sha256 4a6a56a502fd2d8330bc12debf940777d4aa923df5b2d3c524cbf5ac8d00a078;
+    AGENTS.md:53-56, sha256 8126234061d2da27788ac0fc2d7bd556aaf15d09544948b1925a5534dc962233; pyproject.toml:38-60, sha256
+    8a2fd80847c2051b5cf82659fbf894e515d5bd210e2e28af490f56676a70a726).
+  - >-
+    mypy: `uv run mypy` (ci.yml:47, sha256 75f57430d5154f4df4619631e3b4eaec37adb06b46184fc6bda5faff21b4ea0f; AGENTS.md:59-62, sha256
+    7fe7fdd930a5e824723b1a7999200bd236becfcc5fe984e76fdd418009255039; pyproject.toml:62-67, sha256
+    3dee952ae0dcb1d883a3933b63a60b1ca77c0f2e76ba0b026681355a3322b4b4).
+  - >-
+    import-linter: `uv run lint-imports` (ci.yml:62, sha256 aba4e82ae9c8ba9c4a3ef94aadc20b9234104933816cdda02c750b860cca4621; pyproject.toml:82-127,
+    sha256 9e42efcc250c680906b6999be918f10bd8fe9a8fd0ebd1a72b675e2dd0621e04). Cited from the CI file only; onboard did not record it.
+  - >-
+    pytest: `uv run pytest` (ci.yml:84, sha256 7c910167a75b4b3f8dfad8fc42652fdd9eff338194d3979df24740ab50924b81; AGENTS.md:71-74, sha256
+    c560d01599d3004756e624e106c7fdb37d1ebc840106224073081c64110dd2eb; configuration pyproject.toml:69-80, sha256
+    37ed9bcdfa8a1f0d4db95633be21fc6569aeef36cc898fdf4919007237be28c2). Locally it runs on one Python; the matrix runs only in CI.
+  - >-
+    gate-status-phase: `uv run orqlet gate status dynamic-model-profiles --phase P-10 --head staged` reports no ORQ-E450, ORQ-E451 or ORQ-E453.
+    NOT_RUN caused by ORQ-I393 alone is expected offline; an ORQ-W390 caused by this task's own earlier commits is shown to the person.
+  expected_outputs:
+  - src/orqlet/application/usecases/review_identity.py
+  - src/orqlet/application/usecases/validate_records.py
+- id: P-11
+  objective: >-
+    Keep earlier review conclusions out of a review packet: the VCS port's `diff_patch` gains a path-exclusion parameter that the git
+    adapter spells as pathspecs after `--`, and `review prepare` leaves `docs/design/*/reviews/*` and every path that the design manifest
+    names as a review note out of the snapshot, the context copies and `diff.patch`. The phase establishes with a real git that an
+    exclude pathspec works with `diff-tree`.
+  depends_on:
+  - P-10
+  implements: [EC-8]
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      The port is `diff_patch(base, head, *, exclude_patterns=(), exclude_paths=())`. The git adapter passes each pattern as
+      `:(exclude)<pattern>` and each path as `:(exclude,literal)<path>`, only after `--`, to the allow-listed `diff-tree`, whose option
+      check is unchanged. The fake VCS applies the same rule: a pattern matches as `fnmatch` does, with `*` crossing `/`, and a path
+      matches only itself.
+    source: ADR-007 decision 8; BC-45
+    check_ref: pytest
+  - id: AC-2
+    text: >-
+      An integration test builds a repository with a real git, with changed files under `docs/design/<task>/reviews/` and elsewhere in
+      two commits, and shows that the patch of the adapter with the exclusion holds no header for an excluded path and holds the other
+      sections byte for byte as the unfiltered patch holds them. It also shows a literal path with glob characters is excluded only as
+      that path. The same scenario runs against the fake and the real adapter in `test_vcs_revisions_contract.py`, so the two agree.
+    source: BC-45; BC-21; ADR-007 decision 8; U-12
+    check_ref: pytest
+  - id: AC-3
+    text: >-
+      `review prepare` leaves out of `snapshot/`, of the context copies and of `diff.patch` every path that matches
+      `docs/design/*/reviews/*` and every path that `reviews[].note` of the task's design manifest names. Excluded paths appear in neither
+      the `omitted` list nor `MANIFEST.json`. Each round builds the whole packet again from the staged snapshot and its diff, so two
+      runs on the same tree give the same `packet_digest`.
+    source: BC-21; BC-45; R-8; ADR-007 decision 8
+    check_ref: pytest
+  - id: AC-4
+    text: >-
+      A sentinel string written into a review record and into a note path named by the manifest is found in no file of the packet. The
+      scan covers every file of the packet and runs twice: once against the fake, and once against the real git adapter in the
+      integration test.
+    source: BC-21; BC-45; ADR-007 decision 8
+    check_ref: pytest
+  - id: AC-5
+    text: >-
+      The integration test runs on the CI matrix of Linux, macOS and Windows. If a platform's git does not honour the pathspec, the phase
+      stops with a plan amendment, because the fallback of ADR-007 decision 8, a filter of the patch by its file headers, needs one more
+      module that this plan does not list; the amendment is not written around the plan.
+    source: ADR-007 decision 8; plan rule on amendments
+    check_ref: review:ci-platforms
+  - id: AC-6
+    text: >-
+      No git option beyond the pathspec after `--` is added, the allow-list of subcommands is unchanged, `pyproject.toml` and `uv.lock`
+      are unchanged, and `orqlet gate status dynamic-model-profiles --phase P-11 --head staged` reports no ORQ-E450, ORQ-E451 or ORQ-E453.
+    source: ORQLET-SEC-001; BC-25; plan rule on phase file lists
+    check_ref: gate-status-phase
+  checks:
+  - ruff-check
+  - ruff-format
+  - mypy
+  - import-linter
+  - pytest
+  - gate-status-phase
+  file_operations:
+  - op: modify
+    path: src/orqlet/application/ports/vcs.py
+    why: The method `diff_patch` gains the two exclusion parameters.
+  - op: modify
+    path: src/orqlet/adapters/git/vcs_git.py
+    why: Spells the exclusions as pathspecs after `--`.
+  - op: modify
+    path: src/orqlet/application/usecases/review_prepare.py
+    why: Filters the snapshot and the context copies and passes the exclusions to `diff_patch`.
+  - op: modify
+    path: tests/fakes/vcs.py
+    why: The fake patch applies the same exclusion rule.
+  - op: modify
+    path: tests/contract/test_vcs_revisions_contract.py
+    why: The patch scenario with an exclusion runs against the fake and the real adapter.
+  - op: modify
+    path: tests/unit/application/test_review_prepare.py
+    why: AC-3 and the fake half of AC-4.
+  - op: create
+    path: tests/integration/test_review_packet_real_git.py
+    why: AC-2 and the real-git half of AC-4.
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every `uv run` command below may sync the environment from uv.lock and fetch packages when it is not in sync (warning
+    list: fetches from the network); the sources and the placeholder are those of the environment entry of P-1. The implementer asks the
+    person before the first run in a session.
+  - >-
+    ruff-check: `uv run ruff check .` (.github/workflows/ci.yml:31 at 4aa05f2fa1e267d34824e166bb60abbc1aa75849, sha256
+    714c305445d190e7afe318249169abaf2552f8041f6ccc7c8017495d58f47762; AGENTS.md:47-50, sha256
+    067c53622629ccfb9e313ebff05ea775b4b9df36db1c091b74f1f1dc86423530; configuration pyproject.toml:38-60, sha256
+    8a2fd80847c2051b5cf82659fbf894e515d5bd210e2e28af490f56676a70a726).
+  - >-
+    ruff-format: `uv run ruff format --check .` (ci.yml:32, sha256 4a6a56a502fd2d8330bc12debf940777d4aa923df5b2d3c524cbf5ac8d00a078;
+    AGENTS.md:53-56, sha256 8126234061d2da27788ac0fc2d7bd556aaf15d09544948b1925a5534dc962233; pyproject.toml:38-60, sha256
+    8a2fd80847c2051b5cf82659fbf894e515d5bd210e2e28af490f56676a70a726).
+  - >-
+    mypy: `uv run mypy` (ci.yml:47, sha256 75f57430d5154f4df4619631e3b4eaec37adb06b46184fc6bda5faff21b4ea0f; AGENTS.md:59-62, sha256
+    7fe7fdd930a5e824723b1a7999200bd236becfcc5fe984e76fdd418009255039; pyproject.toml:62-67, sha256
+    3dee952ae0dcb1d883a3933b63a60b1ca77c0f2e76ba0b026681355a3322b4b4).
+  - >-
+    import-linter: `uv run lint-imports` (ci.yml:62, sha256 aba4e82ae9c8ba9c4a3ef94aadc20b9234104933816cdda02c750b860cca4621; pyproject.toml:82-127,
+    sha256 9e42efcc250c680906b6999be918f10bd8fe9a8fd0ebd1a72b675e2dd0621e04). Cited from the CI file only; onboard did not record it.
+  - >-
+    pytest: `uv run pytest` (ci.yml:84, sha256 7c910167a75b4b3f8dfad8fc42652fdd9eff338194d3979df24740ab50924b81; AGENTS.md:71-74, sha256
+    c560d01599d3004756e624e106c7fdb37d1ebc840106224073081c64110dd2eb; configuration pyproject.toml:69-80, sha256
+    37ed9bcdfa8a1f0d4db95633be21fc6569aeef36cc898fdf4919007237be28c2). Locally it runs on one Python; the matrix of ci.yml:72-74, sha256
+    242b2b1b63fc8cfdac2ff4e0df54f65d34ffb41a8c027af105cf8db033e03724, runs only in CI, where AC-5 is judged.
+  - >-
+    gate-status-phase: `uv run orqlet gate status dynamic-model-profiles --phase P-11 --head staged` reports no ORQ-E450, ORQ-E451 or ORQ-E453.
+    NOT_RUN caused by ORQ-I393 alone is expected offline; an ORQ-W390 caused by this task's own earlier commits is shown to the person.
+  expected_outputs:
+  - src/orqlet/adapters/git/vcs_git.py
+  - tests/integration/test_review_packet_real_git.py
+- id: P-12
+  objective: >-
+    Make the documents and the ownership file true before the workflow package changes: the README and the architecture proposal say what
+    is built (the policy, the commands, the required code review gate, the effect of a pin on the protected digest), and CODEOWNERS
+    names the owner of the seed path, of itself, of the source and of the tests as the answer to Q-32 gives it. No code changes.
+  depends_on:
+  - P-11
+  implements: [EC-7]
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      `.github/CODEOWNERS` keeps every line that it has and adds, after the general entries, the owner `@tmishari` for
+      `src/orqlet/workflow/seeds/**`, `.github/CODEOWNERS`, `src/orqlet/**` and `tests/**`. A test parses the file and shows that each of
+      these four patterns and `.orqlet/**` has at least one owner that starts with `@`, that no line is malformed and that no pattern is
+      listed twice. The phase report says that with one owner a change that `@tmishari` authors has no other code owner who can approve
+      it (the answer to Q-32), and that Q-34 asks what the host enforces.
+    source: EC-7; R-11; Q-32; Q-23; ADR-004 decision 2
+    check_ref: pytest
+  - id: AC-2
+    text: >-
+      `README.md` documents `orqlet models resolve` and `orqlet validate model-policy` with their exit statuses, the file
+      `.orqlet/model-policy.yaml` with the five separate states of a model, the three modes and the default `automatic`, the precedence
+      order, the rule that only `manual` pins and that only an explicit Claude Code skill assignment pins the main agent, the Fable
+      exclusion by model identity, and the code review gate as required at every phase with independence I2, NOT_RUN when no reviewer
+      qualifies, and a human code-owner review as the fallback. It no longer says that the code reviewer is optional.
+    source: BC-26; R-1; R-10; ADR-006 decision 9
+    check_ref: pytest
+  - id: AC-3
+    text: >-
+      `README.md` says in one paragraph, where a person reads about `orqlet upgrade`, that a pin changes the bytes of protected agent
+      files and therefore `protected_set_digest`, that approvals of designs and plans in flight then show ORQ-W390 and that the person
+      decides, and that the new roles, the changed role and skill text and the version stamps do the same once, at the upgrade that ships
+      them. A test pins the sentences.
+    source: C-8; ADR-003 decision 7 and consequences; ADR-006 consequences
+    check_ref: pytest
+  - id: AC-4
+    text: >-
+      `README.md` holds a table of the finding codes ORQ-E540 to ORQ-E548, ORQ-W540 to ORQ-W547, ORQ-I540, ORQ-E460, ORQ-E461,
+      ORQ-W460 to ORQ-W465 and ORQ-I460, each with one line of meaning. A test reads the codes that the source modules
+      `model_policy_source.py`, `model_selection.py`, `validate_model_policy.py`, `upgrade.py`, `pin_staleness.py` and `review_identity.py`
+      define and finds each in the table and no other code of the 54x and 46x families in the table.
+    source: BC-26; BC-13; BC-37; plan decision on finding codes
+    check_ref: pytest
+  - id: AC-5
+    text: >-
+      The sections 10.3, 14.9, 17.12.5 and 24.1 of the architecture proposal and its Q-07 entry say that the code review gate is required
+      at every phase at independence I2, that per-role pins exist in the mode `manual`, and that the v2 policy has the spelling of this
+      change. The Q-07 row no longer holds "provided capability only", "Recommended [R]: (1) until the owners decide" or "keeps
+      `required: false`", and a test pins their absence and the presence of "required gate".
+    source: BC-26; C-9; ADR-006 decision 9
+    check_ref: pytest
+  - id: AC-6
+    text: >-
+      No file of `src/`, `tools/` or the workflow package changes in this phase. `pyproject.toml` and `uv.lock` are unchanged, and
+      `orqlet gate status dynamic-model-profiles --phase P-12 --head staged` reports no ORQ-E450, ORQ-E451 or ORQ-E453.
+    source: BC-25; plan rule on phase file lists
+    check_ref: gate-status-phase
+  checks:
+  - ruff-check
+  - ruff-format
+  - mypy
+  - pytest
+  - gate-status-phase
+  file_operations:
+  - op: modify
+    path: .github/CODEOWNERS
+    why: Adds the four entries of AC-1 for the owner that the answer to Q-32 names.
+  - op: modify
+    path: README.md
+    why: Documents the policy, the two commands, the gate and the effect of a pin (BC-26, C-8).
+  - op: modify
+    path: docs/design/orqlet-architecture-proposal.md
+    why: Brings sections 10.3, 14.9, 17.12.5 and 24.1 and the Q-07 entry in line with what is built (C-9).
+  - op: create
+    path: tests/unit/test_codeowners.py
+    why: AC-1, a parse test of the ownership file.
+  - op: create
+    path: tests/unit/test_readme_model_policy.py
+    why: AC-2 to AC-5, the README sentences, the codes table and the proposal's Q-07 row.
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every `uv run` command below may sync the environment from uv.lock and fetch packages when it is not in sync (warning
+    list: fetches from the network); the sources and the placeholder are those of the environment entry of P-1. The implementer asks the
+    person before the first run in a session.
+  - >-
+    ruff-check: `uv run ruff check .` (.github/workflows/ci.yml:31 at 4aa05f2fa1e267d34824e166bb60abbc1aa75849, sha256
+    714c305445d190e7afe318249169abaf2552f8041f6ccc7c8017495d58f47762; AGENTS.md:47-50, sha256
+    067c53622629ccfb9e313ebff05ea775b4b9df36db1c091b74f1f1dc86423530; configuration pyproject.toml:38-60, sha256
+    8a2fd80847c2051b5cf82659fbf894e515d5bd210e2e28af490f56676a70a726).
+  - >-
+    ruff-format: `uv run ruff format --check .` (ci.yml:32, sha256 4a6a56a502fd2d8330bc12debf940777d4aa923df5b2d3c524cbf5ac8d00a078;
+    AGENTS.md:53-56, sha256 8126234061d2da27788ac0fc2d7bd556aaf15d09544948b1925a5534dc962233; pyproject.toml:38-60, sha256
+    8a2fd80847c2051b5cf82659fbf894e515d5bd210e2e28af490f56676a70a726).
+  - >-
+    mypy: `uv run mypy` (ci.yml:47, sha256 75f57430d5154f4df4619631e3b4eaec37adb06b46184fc6bda5faff21b4ea0f; AGENTS.md:59-62, sha256
+    7fe7fdd930a5e824723b1a7999200bd236becfcc5fe984e76fdd418009255039; pyproject.toml:62-67, sha256
+    3dee952ae0dcb1d883a3933b63a60b1ca77c0f2e76ba0b026681355a3322b4b4).
+  - >-
+    pytest: `uv run pytest` (ci.yml:84, sha256 7c910167a75b4b3f8dfad8fc42652fdd9eff338194d3979df24740ab50924b81; AGENTS.md:71-74, sha256
+    c560d01599d3004756e624e106c7fdb37d1ebc840106224073081c64110dd2eb; configuration pyproject.toml:69-80, sha256
+    37ed9bcdfa8a1f0d4db95633be21fc6569aeef36cc898fdf4919007237be28c2). Locally it runs on one Python; the matrix runs only in CI.
+  - >-
+    gate-status-phase: `uv run orqlet gate status dynamic-model-profiles --phase P-12 --head staged` reports no ORQ-E450, ORQ-E451 or ORQ-E453.
+    NOT_RUN caused by ORQ-I393 alone is expected offline; an ORQ-W390 caused by this task's own earlier commits is shown to the person.
+  expected_outputs:
+  - .github/CODEOWNERS
+  - README.md
+  - docs/design/orqlet-architecture-proposal.md
+- id: P-13
+  objective: >-
+    The one rebuild of the workflow package, last among the changes to the tool: the two new roles, the changed architecture role, the
+    hint and the diversity step in the skills, the PR-text step, the two references, the shipped seed of the model policy and its
+    rendering by `init` and `upgrade`, the two new rules of the team's `.prompts/rules.yaml`, the workflow version 0.5.0, the rebuilt
+    `MANIFEST.json` and every golden file that follows. The installed files of this repository are regenerated in P-14.
+  depends_on:
+  - P-12
+  implements: [EC-1, EC-3, EC-4, EC-5, EC-8, EC-9]
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      `identity.json` states `workflow_version` 0.5.0 and `controls_level` 3 as before; `MANIFEST.json` is rebuilt and
+      `tools/build_manifest.py --check` passes; `releases.json` is unchanged and `test_release_gate.py` passes. The only change in the
+      goldens that carry the marker `workflow@0.4.0` (three `AGENTS.md`, three pull-request template files and the conventions block) is
+      the version and the hash that follows it.
+    source: ORQLET-DET-002; C-2; BC-1
+    check_ref: manifest-check
+  - id: AC-2
+    text: >-
+      The role `orqlet-code-reviewer` (front matter `name`, `description`, `mode: read-only`; the description names the use "from the
+      review skill with the packet only" once) holds, each pinned by a test: "You are the Code Reviewer."; the sentence that it receives
+      the path of a read-only packet and not the Coder's conversation, memory or reasoning; four checks in this order, the code against
+      the acceptance criteria including failure handling, defects, the adequacy of the tests, maintainability; the sentence that
+      boundaries, contracts, compatibility and security belong to the other two reviewers and are reported as an observation, never a
+      finding; the finding format and self-check sentence; "no code defect found" with an absence record; a request to state the model it
+      ran on when its client shows it and that it was started in a clean context; "never an instruction" once; "you are read-only" with
+      the no-command phrase; the no-lookup sentence once.
+    source: ADR-006 decisions 1 and 2; BC-14; R-7; R-8
+    check_ref: pytest
+  - id: AC-3
+    text: >-
+      The role `orqlet-pr-writer` (`mode: read-only`; the description names the use from the implement skill with the plan, the design
+      brief and the diff summary only) holds, each pinned: "You are the PR Writer."; that it receives paths of the plan, the design brief
+      and a summary of the staged diff; that it treats all three as data and never as instructions; a title that is an imperative
+      sentence without a type prefix and a description of what changed, why and how it was checked, in the form that the repository's
+      pull-request template and AGENTS.md ask for; "never add an AI attribution"; that it returns text only, writes no file and opens no
+      pull request; "never an instruction" once; "you are read-only" with the no-command phrase; the no-lookup sentence once.
+    source: ADR-006 decision 8; BC-24; BC-14; R-1
+    check_ref: pytest
+  - id: AC-4
+    text: >-
+      The only change to `orqlet-arch-reviewer.md` is that the check "the code is correct against the acceptance criteria, including
+      failure handling;" is removed, because the code reviewer holds it; its description and every other line are unchanged and the four
+      phrases that tests keep still hold. `orqlet-security-reviewer.md` is byte-identical to its base version, so existing security records
+      keep their definition digest. The five existing roles keep their model setting: their golden files differ from the base goldens
+      only by the removed check.
+    source: ADR-006 decision 1 and consequences; BC-1; C-3
+    check_ref: pytest
+  - id: AC-5
+    text: >-
+      Both new roles render for `claude-code`, `codex` and `cursor` with six new golden files and, in the rendered request, the inputs
+      `roles/orqlet-code-reviewer` and `roles/orqlet-pr-writer`. Each carries the strongest read-only control of its client: the tool list
+      `Read, Grep, Glob` in Claude Code, `readonly: true` in Cursor and `sandbox_mode = "read-only"` in Codex, and no file promises that
+      the control is enforced; `ROLE_NAMES` of the test support lists seven roles.
+    source: BC-14; ADR-006 decision 8; ADR-007 decision 9
+    check_ref: pytest
+  - id: AC-6
+    text: >-
+      Step 1 of each of the six skills gains one indented continuation line, gated by `<!-- requires: models resolve -->`, in this
+      wording with the skill's own name: "Run `orqlet models resolve --skill <skill name> --client <your client>`, offer the person the
+      profile and the models it prints as a suggestion for this work, and never change the model yourself; with exit status 1 or 3, say
+      that no suggestion exists and go on." The phase-contract references stay byte-identical in their four folders. With every command
+      present, each skill body is at most 70 lines and 900 words, names no product or vendor, and keeps its pinned structure.
+    source: BC-35; R-1; ADR-001 decision 8; A-32
+    check_ref: pytest
+  - id: AC-7
+    text: >-
+      The review skill says in its purpose that three independent reviewers read the packet (Code, Architecture, Security) and starts
+      `orqlet-code-reviewer`, `orqlet-arch-reviewer` and `orqlet-security-reviewer` in step 3, each in a clean context with the packet path
+      and nothing else. Between steps 2 and 3 it holds the diversity step: record the coder's model, requested and observed, with its
+      source; find the catalog id of that model by an exact match with a `name` or `also_known_as` among the candidates that `orqlet
+      models resolve --profile engineering --client <coder's client>` prints; run `orqlet models resolve --role orqlet-code-reviewer
+      --client <reviewer's client> --different-family-from <that id>`, leaving the flag out when nothing matches and saying so; start the
+      reviewer on the first candidate when the client lets a start name a model and record requested and observed; on exit status 1 report
+      NOT_RUN and ask for another client or a human code-owner review, never a new session of the same client.
+    source: BC-15; BC-17; BC-38; ADR-006 decision 5; ADR-007 decision 11; Q-37
+    check_ref: pytest
+  - id: AC-8
+    text: >-
+      The implement skill gains, before its final stop step, a step that starts `orqlet-pr-writer` as a typed subagent with the paths of
+      the plan, the design brief and a summary of the staged diff and nothing else, shows the returned title and description to the person
+      as a draft and never opens the pull request; without subagents it says so and skips the draft. The stop step stays the last. The
+      starting assignment of `orqlet-pr-writer` in the seed is the profile `economy`.
+    source: BC-24; ADR-006 decision 8; R-1
+    check_ref: pytest
+  - id: AC-9
+    text: >-
+      `references/plan-format.md` says that `review_evidence` is the three roles, or the three plus `code-reviewer` for a plan whose header
+      names workflow version 0.5.0 or higher, and that the plan-level check enforces it. `references/review-format.md` lists the role
+      `code-reviewer` and its path, shows the optional fields `context`, `identity_source` and `selection_source`, states that only an
+      observed identity shows a family difference, that a `code-reviewer` record needs `context.fresh: true` and is NOT_RUN below I2 at
+      every class, the phrase for Codex records, and the closed warnings of `validate review`.
+    source: EC-3; EC-4; BC-15; BC-16; BC-22; ADR-007 decisions 2, 4 and 9
+    check_ref: pytest
+  - id: AC-10
+    text: >-
+      The seed `seeds/orqlet/model-policy.yaml` passes `orqlet validate model-policy` in a test. Every model has `approval.state:
+      proposed`, `callable: not-run`, `evaluated.state: none`, and every route `access: unknown`. It holds the Fable exclusion (aliases
+      `fable` and `best`, id pattern `claude-fable-*`, family tag `fable`), no model `gpt-6-sol`, and no Cursor route `name` (all null, Q-35).
+      Its catalog and profiles are the table of ADR-002 decision 7, its profile modes are `automatic`, and its ten assignments are: the
+      skills `orqlet-design` and `orqlet-plan` and the roles `orqlet-arch-reviewer` and `orqlet-security-reviewer` on `quality`; the skill
+      `orqlet-implement` and the roles `orqlet-tester` and `orqlet-code-reviewer` on `engineering`; the roles `orqlet-inventory`,
+      `orqlet-tracer` and `orqlet-pr-writer` on `economy`.
+    source: BC-11; C-4; R-2; R-15; Q-35; ADR-002 decisions 6 and 7
+    check_ref: pytest
+  - id: AC-11
+    text: >-
+      A guard test fails when the seed's `reviewed_for_release` differs from the workflow version in `identity.json`; when a seed `id` or
+      `family` does not appear in the evidence file of its `documented` entry after the normalisation of ADR-005, which is how
+      `composer-2.5` is found in a page that writes "Composer 2.5"; when a route `name` or `resolves_to` does not appear in that file
+      verbatim; when a route has an access other than `unknown`; or when seed text is not printable ASCII within 400 characters. The test
+      proves consistency with the cited page and not the truth of the page.
+    source: BC-11; R-16; ADR-004 decision 4; Q-8
+    check_ref: pytest
+  - id: AC-12
+    text: >-
+      `init` writes `.orqlet/model-policy.yaml` once as a seeded file and records it in the lock; `upgrade` over a project without it
+      creates it as a new file; over a project whose copy the team edited it writes nothing; when the shipped seed changes (a fake
+      workflow whose seed differs) it writes `.orqlet/proposals/.orqlet__model-policy.yaml.diff` and never the team's file. The golden file
+      `tests/golden/common/.orqlet/model-policy.yaml` equals the shipped seed byte for byte. A role-bindings proposal with the third
+      binding is written for an existing project and is never applied.
+    source: BC-12; EC-8; A-21; C-5
+    check_ref: pytest
+  - id: AC-13
+    text: >-
+      `.prompts/rules.yaml` adds ORQLET-MODEL-001 (MUST, enforcement `deterministic`, `check_ref: uv run pytest`, scope paths
+      `src/orqlet/**` and `tests/**`): "A model name appears in a generated or packaged file only when the model policy assigned it, and
+      never when the policy excludes it." and ORQLET-MODEL-002 (MUST, enforcement `review`, scope path `docs/design/**`): "A review record
+      for a gated role names the models that ran, or says they are unknown, and states the freshness of its context; a class below the
+      role's minimum is NOT_RUN, never a pass." Every existing rule is unchanged and the file loads with the strict loader.
+    source: BC-26; C-10; ADR-006 decision 9
+    check_ref: pytest
+  - id: AC-14
+    text: >-
+      The changed or new golden files are exactly those of this phase's operations, rewritten with `--update-golden` and read before the
+      commit; the wheel test lists `orqlet/workflow/seeds/orqlet/model-policy.yaml`; `pyproject.toml` and `uv.lock` are unchanged and the
+      test of the runtime dependencies passes; `uv run lint-imports` passes; and `orqlet gate status dynamic-model-profiles --phase P-13
+      --head staged` reports no ORQ-E450, ORQ-E451 or ORQ-E453.
+    source: BC-25; ORQLET-DET-001; plan rule on phase file lists
+    check_ref: gate-status-phase
+  checks:
+  - ruff-check
+  - ruff-format
+  - mypy
+  - import-linter
+  - pytest
+  - manifest-check
+  - gate-status-phase
+  file_operations:
+  - op: create
+    path: src/orqlet/workflow/roles/orqlet-code-reviewer.md
+    why: The new read-only role of ADR-006 decision 1 with the text of AC-2.
+  - op: create
+    path: src/orqlet/workflow/roles/orqlet-pr-writer.md
+    why: The new read-only role of ADR-006 decision 8 with the text of AC-3.
+  - op: modify
+    path: src/orqlet/workflow/roles/orqlet-arch-reviewer.md
+    why: One check moves to the code reviewer (AC-4).
+  - op: modify
+    path: src/orqlet/workflow/skills/orqlet-design/skill.md
+    why: The hint continuation line of AC-6.
+  - op: modify
+    path: src/orqlet/workflow/skills/orqlet-implement/skill.md
+    why: The hint line and the PR-text step before the stop step (AC-6, AC-8).
+  - op: modify
+    path: src/orqlet/workflow/skills/orqlet-onboard/skill.md
+    why: The hint continuation line of AC-6.
+  - op: modify
+    path: src/orqlet/workflow/skills/orqlet-plan/skill.md
+    why: The hint continuation line of AC-6.
+  - op: modify
+    path: src/orqlet/workflow/skills/orqlet-research/skill.md
+    why: The hint continuation line of AC-6.
+  - op: modify
+    path: src/orqlet/workflow/skills/orqlet-review/skill.md
+    why: Three reviewers, the diversity step and the hint line (AC-6, AC-7).
+  - op: modify
+    path: src/orqlet/workflow/skills/orqlet-plan/references/plan-format.md
+    why: The plan-level rule on `review_evidence` by workflow version (AC-9).
+  - op: modify
+    path: src/orqlet/workflow/skills/orqlet-review/references/review-format.md
+    why: The code-reviewer record, its optional fields and the closed warnings (AC-9).
+  - op: create
+    path: src/orqlet/workflow/seeds/orqlet/model-policy.yaml
+    why: The shipped seed of the model policy, all `proposed` (AC-10).
+  - op: modify
+    path: src/orqlet/adapters/render/prompts_seed.py
+    why: Adds the function that renders the seed as the seeded file `.orqlet/model-policy.yaml`.
+  - op: modify
+    path: src/orqlet/adapters/render/renderers.py
+    why: The packaged renderers expose the new seed function.
+  - op: modify
+    path: src/orqlet/application/ports/renderers.py
+    why: The renderer port gains the model-policy seed method.
+  - op: modify
+    path: src/orqlet/application/usecases/render_all.py
+    why: The function `compose` adds the seed to the files it returns.
+  - op: modify
+    path: src/orqlet/workflow/identity.json
+    why: The workflow version 0.5.0 (AC-1).
+  - op: modify
+    path: src/orqlet/workflow/MANIFEST.json
+    why: Rebuilt with tools/build_manifest.py after every change of the package.
+  - op: modify
+    path: .prompts/rules.yaml
+    why: Adds ORQLET-MODEL-001 and ORQLET-MODEL-002 (AC-13).
+  - op: modify
+    path: tests/support/render.py
+    why: The constant `ROLE_NAMES` lists seven roles and `READ_ONLY_ROLES` follows.
+  - op: modify
+    path: tests/unit/render/test_skills.py
+    why: The role and skill tests follow the seven roles and the new skill text.
+  - op: modify
+    path: tests/unit/test_workflow_role_prompts.py
+    why: Pins stay for the five old roles; the new roles are pinned in their own file.
+  - op: modify
+    path: tests/unit/test_workflow_skill_contracts.py
+    why: The structure pins follow the new steps, within the limits of AC-6.
+  - op: modify
+    path: tests/unit/application/test_init_project.py
+    why: The file list that `init` writes gains the seed and the new role files.
+  - op: modify
+    path: tests/contract/test_reproducible_build.py
+    why: The wheel must carry the seed file.
+  - op: create
+    path: tests/unit/test_workflow_code_review_roles.py
+    why: AC-2 to AC-5, the pinned phrases of the two new roles and of the changed one.
+  - op: create
+    path: tests/unit/test_workflow_model_hint_text.py
+    why: AC-6 to AC-8, the hint line, the diversity step and the PR-text step.
+  - op: create
+    path: tests/unit/test_workflow_model_policy_seed.py
+    why: AC-10 and AC-11, the seed and its guard tests.
+  - op: create
+    path: tests/unit/render/test_model_policy_seed.py
+    why: AC-12, `init` and `upgrade` with the seed, and the golden of the seed.
+  - op: create
+    path: tests/unit/test_prompts_model_rules.py
+    why: AC-13, the two rules and the unchanged others.
+  - op: create
+    path: tests/golden/common/.orqlet/model-policy.yaml
+    why: The golden file of the seed.
+  - op: modify
+    path: tests/golden/common/pr_template/existing-reconciled.md
+    why: The marker carries workflow@0.5.0.
+  - op: modify
+    path: tests/golden/common/pr_template/new-with-team.md
+    why: The marker carries workflow@0.5.0.
+  - op: modify
+    path: tests/golden/common/pr_template/new-workflow-only.md
+    why: The marker carries workflow@0.5.0.
+  - op: modify
+    path: tests/golden/common/resources/conventions-block.md
+    why: The marker carries workflow@0.5.0.
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/AGENTS.md
+    why: The markers carry workflow@0.5.0.
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/agents/orqlet-arch-reviewer.md
+    why: One check removed (AC-4).
+  - op: create
+    path: tests/golden/claude-code/docs-2026-10/.claude/agents/orqlet-code-reviewer.md
+    why: Golden file of the new role.
+  - op: create
+    path: tests/golden/claude-code/docs-2026-10/.claude/agents/orqlet-pr-writer.md
+    why: Golden file of the new role.
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-design/SKILL.md
+    why: The hint line.
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-implement/SKILL.md
+    why: The hint line and the PR-text step.
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-onboard/SKILL.md
+    why: The hint line.
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-plan/SKILL.md
+    why: The hint line.
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-research/SKILL.md
+    why: The hint line.
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-review/SKILL.md
+    why: Three reviewers, the diversity step and the hint line.
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-plan/references/plan-format.md
+    why: The plan-level rule.
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-review/references/review-format.md
+    why: The code-reviewer record.
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/AGENTS.md
+    why: The markers carry workflow@0.5.0.
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.codex/agents/orqlet-arch-reviewer.toml
+    why: One check removed (AC-4).
+  - op: create
+    path: tests/golden/codex/docs-2026-10/.codex/agents/orqlet-code-reviewer.toml
+    why: Golden file of the new role.
+  - op: create
+    path: tests/golden/codex/docs-2026-10/.codex/agents/orqlet-pr-writer.toml
+    why: Golden file of the new role.
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-design/SKILL.md
+    why: The hint line.
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-implement/SKILL.md
+    why: The hint line and the PR-text step.
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-onboard/SKILL.md
+    why: The hint line.
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-plan/SKILL.md
+    why: The hint line.
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-research/SKILL.md
+    why: The hint line.
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-review/SKILL.md
+    why: Three reviewers, the diversity step and the hint line.
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-plan/references/plan-format.md
+    why: The plan-level rule.
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-review/references/review-format.md
+    why: The code-reviewer record.
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/AGENTS.md
+    why: The markers carry workflow@0.5.0.
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.cursor/agents/orqlet-arch-reviewer.md
+    why: One check removed (AC-4).
+  - op: create
+    path: tests/golden/cursor/docs-2026-10/.cursor/agents/orqlet-code-reviewer.md
+    why: Golden file of the new role.
+  - op: create
+    path: tests/golden/cursor/docs-2026-10/.cursor/agents/orqlet-pr-writer.md
+    why: Golden file of the new role.
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-design/SKILL.md
+    why: The hint line.
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-implement/SKILL.md
+    why: The hint line and the PR-text step.
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-onboard/SKILL.md
+    why: The hint line.
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-plan/SKILL.md
+    why: The hint line.
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-research/SKILL.md
+    why: The hint line.
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-review/SKILL.md
+    why: Three reviewers, the diversity step and the hint line.
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-plan/references/plan-format.md
+    why: The plan-level rule.
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-review/references/review-format.md
+    why: The code-reviewer record.
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every `uv run` command below may sync the environment from uv.lock and fetch packages when it is not in sync (warning
+    list: fetches from the network); the sources and the placeholder are those of the environment entry of P-1. The implementer asks the
+    person before the first run in a session.
+  - >-
+    Regeneration, run by the implementer after the person's yes, in this order after the last text change: `uv run pytest
+    --update-golden` (tests/conftest.py:34-39 at 4aa05f2fa1e267d34824e166bb60abbc1aa75849, sha256
+    cc8fa6889990ee5496d7ec470fcd4313a7694103e788f2c3674af0b6b2696467; refused in CI), whose diff is read before the commit, then `uv run
+    python tools/build_manifest.py` (tools/build_manifest.py:1-57, sha256 06a0bf036682fa31e4d132dc62d2b20679e674d55f1b039c96710f2325d46c62).
+    No contract changes in this phase, so the schemas are not regenerated.
+  - >-
+    ruff-check: `uv run ruff check .` (.github/workflows/ci.yml:31, sha256 714c305445d190e7afe318249169abaf2552f8041f6ccc7c8017495d58f47762;
+    AGENTS.md:47-50, sha256 067c53622629ccfb9e313ebff05ea775b4b9df36db1c091b74f1f1dc86423530; configuration pyproject.toml:38-60, sha256
+    8a2fd80847c2051b5cf82659fbf894e515d5bd210e2e28af490f56676a70a726).
+  - >-
+    ruff-format: `uv run ruff format --check .` (ci.yml:32, sha256 4a6a56a502fd2d8330bc12debf940777d4aa923df5b2d3c524cbf5ac8d00a078;
+    AGENTS.md:53-56, sha256 8126234061d2da27788ac0fc2d7bd556aaf15d09544948b1925a5534dc962233; pyproject.toml:38-60, sha256
+    8a2fd80847c2051b5cf82659fbf894e515d5bd210e2e28af490f56676a70a726).
+  - >-
+    mypy: `uv run mypy` (ci.yml:47, sha256 75f57430d5154f4df4619631e3b4eaec37adb06b46184fc6bda5faff21b4ea0f; AGENTS.md:59-62, sha256
+    7fe7fdd930a5e824723b1a7999200bd236becfcc5fe984e76fdd418009255039; pyproject.toml:62-67, sha256
+    3dee952ae0dcb1d883a3933b63a60b1ca77c0f2e76ba0b026681355a3322b4b4).
+  - >-
+    import-linter: `uv run lint-imports` (ci.yml:62, sha256 aba4e82ae9c8ba9c4a3ef94aadc20b9234104933816cdda02c750b860cca4621; pyproject.toml:82-127,
+    sha256 9e42efcc250c680906b6999be918f10bd8fe9a8fd0ebd1a72b675e2dd0621e04). Cited from the CI file only; onboard did not record it.
+  - >-
+    pytest: `uv run pytest` (ci.yml:84, sha256 7c910167a75b4b3f8dfad8fc42652fdd9eff338194d3979df24740ab50924b81; AGENTS.md:71-74, sha256
+    c560d01599d3004756e624e106c7fdb37d1ebc840106224073081c64110dd2eb; configuration pyproject.toml:69-80, sha256
+    37ed9bcdfa8a1f0d4db95633be21fc6569aeef36cc898fdf4919007237be28c2). Locally it runs on one Python; the matrix runs only in CI.
+  - >-
+    manifest-check: `uv run python tools/build_manifest.py --check` (ci.yml:64, sha256 a2061c7f43040eacd56749b7ea2ba34accbb81e0c943eec9b42e749cf22fe474;
+    it runs tools/build_manifest.py:1-57, sha256 06a0bf036682fa31e4d132dc62d2b20679e674d55f1b039c96710f2325d46c62).
+  - >-
+    gate-status-phase: `uv run orqlet gate status dynamic-model-profiles --phase P-13 --head staged` reports no ORQ-E450, ORQ-E451 or
+    ORQ-E453. NOT_RUN caused by ORQ-I393 alone is expected offline. From this phase on the gate also shows ORQ-W390 for
+    `workflow_version`, `protected_set_digest` and `applicable_rules_hash`; that is the expected effect of ADR-003 and of the new rules,
+    it is shown to the person and no artifact is edited to hide it.
+  expected_outputs:
+  - src/orqlet/workflow/roles/orqlet-code-reviewer.md
+  - src/orqlet/workflow/roles/orqlet-pr-writer.md
+  - src/orqlet/workflow/seeds/orqlet/model-policy.yaml
+  - src/orqlet/workflow/identity.json
+  - src/orqlet/workflow/MANIFEST.json
+  - .prompts/rules.yaml
+- id: P-14
+  objective: >-
+    Regenerate this repository's installed files with `orqlet upgrade`, after the package, the tests, the documents and the rules are
+    final. The person runs it with the command line built from this working tree, not with the older `orqlet` on the path, whose package
+    still holds workflow 0.4.0. The list below is the planning list from the file-level facts of the code; the dry-run at this phase
+    decides, and a different list needs a plan amendment.
+  depends_on:
+  - P-13
+  implements: [EC-9]
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      `uv run orqlet upgrade --dry-run` previews exactly the files of this phase (workflow 0.4.0 to 0.5.0); the person reads the preview
+      and approves it; `uv run orqlet upgrade --yes` writes the files, journalled, and none is written by hand. A path outside the list
+      stops the phase for a plan amendment.
+    source: AGENTS.md "Generated files"; ADR-003 consequences; EC-9
+    check_ref: orqlet-upgrade-dry-run
+  - id: AC-2
+    text: >-
+      After the upgrade, `uv run orqlet upgrade --check` reports nothing to upgrade, and `uv run orqlet doctor` reports no ORQ-E150 or
+      ORQ-W152 for any installed file.
+    source: BC-14; A-21
+    check_ref: orqlet-upgrade-check
+  - id: AC-3
+    text: >-
+      `.orqlet/model-policy.yaml` is created from the seed with the owner `seeded` in the lock; `uv run orqlet validate model-policy`
+      passes on it; `uv run orqlet models resolve --client claude-code --role orqlet-code-reviewer --different-family-from
+      claude-opus-5-5` exits 1, because no entry is approved, and without the flag it exits 0 with "the client chooses". No pin appears
+      in any agent file.
+    source: BC-11; BC-38; C-4; R-9
+    check_ref: orqlet-models-resolve
+  - id: AC-4
+    text: >-
+      The new role files exist for the three clients with their lock rows (owner `orqlet`, class `protected`); the rule files of the two
+      new rules exist for Claude Code and Cursor; `.orqlet/versions.yaml` and `.orqlet/role-bindings.yaml` are unchanged, and the two
+      proposal files `.orqlet/proposals/.orqlet__versions.yaml.diff` and `.orqlet/proposals/.orqlet__role-bindings.yaml.diff` hold the
+      pending changes. No proposal is applied.
+    source: BC-14; BC-37; BC-12; A-21
+    check_ref: review:upgrade-outputs
+  - id: AC-5
+    text: >-
+      The phase report says that applying the role-bindings proposal is a reviewed edit by the team, that it changes which reviewers are
+      approved and so reviewer independence, and that until it is applied a `code-reviewer` record is ORQ-E415.
+    source: BC-37; F-13; ADR-006 consequences
+    check_ref: review:role-bindings-note
+  - id: AC-6
+    text: >-
+      `uv run orqlet gate status dynamic-model-profiles` reports this task's artifacts as stale on `workflow_version`,
+      `protected_set_digest` and `applicable_rules_hash` (ORQ-W390); the phase report records it, no artifact is edited to hide it, and
+      the person decides what follows.
+    source: ADR-003 consequences; C-8
+    check_ref: orqlet-gate-status
+  - id: AC-7
+    text: The refusal of `--update-golden` in CI (tests/conftest.py:34-39) is unchanged.
+    source: ORQLET-DET-001
+    check_ref: review:conftest
+  - id: AC-8
+    text: >-
+      Every job of the CI workflow passes on the implementation pull request at a head that holds this phase: ruff check, ruff format
+      --check, mypy, lint-imports, the schema and manifest checks, pytest on Ubuntu, macOS and Windows with Python 3.12 to 3.15, and the
+      build job that builds the wheel twice and compares the digests.
+    source: BC-25; ORQLET-QA-001
+    check_ref: ci
+  - id: AC-9
+    text: >-
+      No file outside this phase's operations changes, and `orqlet gate status dynamic-model-profiles --phase P-14 --head staged` reports
+      no ORQ-E450, ORQ-E451 or ORQ-E453.
+    source: plan rule on phase file lists
+    check_ref: gate-status-phase
+  checks:
+  - orqlet-upgrade-dry-run
+  - orqlet-upgrade-check
+  - orqlet-models-resolve
+  - orqlet-gate-status
+  - gate-status-phase
+  - pytest
+  - ci
+  file_operations:
+  - op: create
+    path: .claude/agents/orqlet-code-reviewer.md
+    why: Written by `orqlet upgrade` only, never by hand; listed by the planning list.
+  - op: create
+    path: .claude/agents/orqlet-pr-writer.md
+    why: Written by `orqlet upgrade` only, never by hand; listed by the planning list.
+  - op: create
+    path: .cursor/agents/orqlet-code-reviewer.md
+    why: Written by `orqlet upgrade` only, never by hand; listed by the planning list.
+  - op: create
+    path: .cursor/agents/orqlet-pr-writer.md
+    why: Written by `orqlet upgrade` only, never by hand; listed by the planning list.
+  - op: create
+    path: .codex/agents/orqlet-code-reviewer.toml
+    why: Written by `orqlet upgrade` only, never by hand; listed by the planning list.
+  - op: create
+    path: .codex/agents/orqlet-pr-writer.toml
+    why: Written by `orqlet upgrade` only, never by hand; listed by the planning list.
+  - op: create
+    path: .claude/rules/orqlet-orqlet-model-001.md
+    why: Written by `orqlet upgrade` only, never by hand; the rule file of ORQLET-MODEL-001.
+  - op: create
+    path: .claude/rules/orqlet-orqlet-model-002.md
+    why: Written by `orqlet upgrade` only, never by hand; the rule file of ORQLET-MODEL-002.
+  - op: create
+    path: .cursor/rules/orqlet-orqlet-model-001.mdc
+    why: Written by `orqlet upgrade` only, never by hand; the rule file of ORQLET-MODEL-001.
+  - op: create
+    path: .cursor/rules/orqlet-orqlet-model-002.mdc
+    why: Written by `orqlet upgrade` only, never by hand; the rule file of ORQLET-MODEL-002.
+  - op: create
+    path: .orqlet/model-policy.yaml
+    why: The seed, written once as a new seeded file by `orqlet upgrade`.
+  - op: create
+    path: .orqlet/proposals/.orqlet__versions.yaml.diff
+    why: The pending change of the seeded versions file; never applied by the upgrade.
+  - op: modify
+    path: .claude/agents/orqlet-arch-reviewer.md
+    why: Written by `orqlet upgrade` only, never by hand; one check removed.
+  - op: modify
+    path: .cursor/agents/orqlet-arch-reviewer.md
+    why: Written by `orqlet upgrade` only, never by hand; one check removed.
+  - op: modify
+    path: .codex/agents/orqlet-arch-reviewer.toml
+    why: Written by `orqlet upgrade` only, never by hand; one check removed.
+  - op: modify
+    path: .claude/skills/orqlet-design/SKILL.md
+    why: Written by `orqlet upgrade` only, never by hand; the hint line.
+  - op: modify
+    path: .claude/skills/orqlet-implement/SKILL.md
+    why: Written by `orqlet upgrade` only, never by hand; the hint line and the PR-text step.
+  - op: modify
+    path: .claude/skills/orqlet-onboard/SKILL.md
+    why: Written by `orqlet upgrade` only, never by hand; the hint line.
+  - op: modify
+    path: .claude/skills/orqlet-plan/SKILL.md
+    why: Written by `orqlet upgrade` only, never by hand; the hint line.
+  - op: modify
+    path: .claude/skills/orqlet-research/SKILL.md
+    why: Written by `orqlet upgrade` only, never by hand; the hint line.
+  - op: modify
+    path: .claude/skills/orqlet-review/SKILL.md
+    why: Written by `orqlet upgrade` only, never by hand; three reviewers and the diversity step.
+  - op: modify
+    path: .claude/skills/orqlet-plan/references/plan-format.md
+    why: Written by `orqlet upgrade` only, never by hand.
+  - op: modify
+    path: .claude/skills/orqlet-review/references/review-format.md
+    why: Written by `orqlet upgrade` only, never by hand.
+  - op: modify
+    path: .agents/skills/orqlet-design/SKILL.md
+    why: Written by `orqlet upgrade` only, never by hand; the hint line.
+  - op: modify
+    path: .agents/skills/orqlet-implement/SKILL.md
+    why: Written by `orqlet upgrade` only, never by hand; the hint line and the PR-text step.
+  - op: modify
+    path: .agents/skills/orqlet-onboard/SKILL.md
+    why: Written by `orqlet upgrade` only, never by hand; the hint line.
+  - op: modify
+    path: .agents/skills/orqlet-plan/SKILL.md
+    why: Written by `orqlet upgrade` only, never by hand; the hint line.
+  - op: modify
+    path: .agents/skills/orqlet-research/SKILL.md
+    why: Written by `orqlet upgrade` only, never by hand; the hint line.
+  - op: modify
+    path: .agents/skills/orqlet-review/SKILL.md
+    why: Written by `orqlet upgrade` only, never by hand; three reviewers and the diversity step.
+  - op: modify
+    path: .agents/skills/orqlet-plan/references/plan-format.md
+    why: Written by `orqlet upgrade` only, never by hand.
+  - op: modify
+    path: .agents/skills/orqlet-review/references/review-format.md
+    why: Written by `orqlet upgrade` only, never by hand.
+  - op: modify
+    path: AGENTS.md
+    why: Written by `orqlet upgrade` only; the two managed blocks carry workflow@0.5.0 and their hashes.
+  - op: modify
+    path: .github/pull_request_template.md
+    why: Written by `orqlet upgrade` only; the workflow block carries workflow@0.5.0.
+  - op: modify
+    path: .orqlet/generated.lock.yaml
+    why: Written by `orqlet upgrade` only, last; the new rows and the new versions and hashes.
+  - op: modify
+    path: .orqlet/workflow.lock
+    why: Written by `orqlet upgrade` only; the installed workflow version and digest.
+  - op: modify
+    path: .orqlet/standards.lock.yaml
+    why: Written by `orqlet upgrade` only; the applicable rules hash after the two new rules.
+  - op: modify
+    path: .orqlet/proposals/.orqlet__role-bindings.yaml.diff
+    why: The pending third binding of the seeded role-bindings file; never applied by the upgrade.
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every `uv run` command below may sync the environment from uv.lock and fetch packages when it is not in sync (warning
+    list: fetches from the network); the sources and the placeholder are those of the environment entry of P-1. The implementer asks the
+    person before the first run in a session.
+  - >-
+    orqlet-upgrade-dry-run: `uv run orqlet upgrade --dry-run`, then `uv run orqlet upgrade --yes` after the person's yes to the preview.
+    These are Orqlet's own commands, built from this working tree; the upgrade writes through the journalled change plan and can be undone
+    with `orqlet rollback`. The `orqlet` on the path (0.3.0) must not be used for this phase.
+  - >-
+    orqlet-upgrade-check: `uv run orqlet upgrade --check` reports nothing to upgrade; `uv run orqlet doctor` reports no ORQ-E150 or
+    ORQ-W152.
+  - >-
+    orqlet-models-resolve: `uv run orqlet validate model-policy` and `uv run orqlet models resolve --client claude-code --role
+    orqlet-code-reviewer` with and without `--different-family-from claude-opus-5-5`, with the exit statuses of AC-3.
+  - >-
+    orqlet-gate-status: `uv run orqlet gate status dynamic-model-profiles` shows the ORQ-W390 of AC-6; NOT_RUN caused by ORQ-I393 alone is
+    expected offline.
+  - >-
+    pytest: `uv run pytest` (.github/workflows/ci.yml:84 at 4aa05f2fa1e267d34824e166bb60abbc1aa75849, sha256
+    7c910167a75b4b3f8dfad8fc42652fdd9eff338194d3979df24740ab50924b81; AGENTS.md:71-74, sha256
+    c560d01599d3004756e624e106c7fdb37d1ebc840106224073081c64110dd2eb; configuration pyproject.toml:69-80, sha256
+    37ed9bcdfa8a1f0d4db95633be21fc6569aeef36cc898fdf4919007237be28c2), cited again before the run.
+  - >-
+    gate-status-phase: `uv run orqlet gate status dynamic-model-profiles --phase P-14 --head staged` reports no ORQ-E450, ORQ-E451 or
+    ORQ-E453. NOT_RUN caused by ORQ-I393 alone is expected offline; the stale entries of AC-6 are shown to the person.
+  - >-
+    ci: GitHub runs the CI workflow (.github/workflows/ci.yml:18-107 at 4aa05f2fa1e267d34824e166bb60abbc1aa75849, sha256
+    7a37d7d89da4dd970d632a1eba57ed099c515cb3c080904ee47bbfa89ac63d00; matrix at ci.yml:72-74, sha256
+    242b2b1b63fc8cfdac2ff4e0df54f65d34ffb41a8c027af105cf8db033e03724) on the implementation pull request. Its build job (ci.yml:98-107,
+    sha256 554a41d55aa9f37adcfc49c5f7cb107d2e57dadc831c3da6f518908129e4766c) spans several lines and holds `$(` and a redirection to a
+    file (warning list); the agent never runs it locally and its evidence is the CI run.
+  expected_outputs:
+  - .orqlet/generated.lock.yaml
+  - .orqlet/workflow.lock
+  - .orqlet/model-policy.yaml
+  - .orqlet/proposals/.orqlet__versions.yaml.diff
+  - AGENTS.md
+reuse_decisions: []
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: planner
+    phase: plan
+    confirmed_requirements:
+    - "Every BC-1 to BC-45 and R-1 to R-16 of docs/design/dynamic-model-profiles/design/component.md is covered by an acceptance criterion or listed under unverified (R-14, R-11 in part)."
+    - "Constraints C-1 to C-11 are respected: C-1 P-1 to P-4 and P-8; C-2 P-1 and P-13; C-3 P-5, P-6 and P-13; C-4 P-13 and P-14; C-5 P-6 and P-13; C-6 every phase; C-7 P-1, P-9 and P-10; C-8 P-6 and P-12; C-9 P-12 and P-13; C-10 P-13; C-11 P-5."
+    - "Ordering: the contract and schema (P-1) before everything that reads the policy; the record-path pattern and the three-reviewer maps (P-9) before the review skill changes (P-13); the workflow package, the seed, the rules and the manifest last (P-13), then the installed files (P-14)."
+    applicable_standards:
+    - "orqlet standards for --path src/orqlet/application/contracts --phase plan --role planner: 11 rules, applicable_rules_hash 59a5c666671d2ebb2ac9fdcce19cf2c57a455cf6c9e15dee02c55e49c83cf41c"
+    - "orqlet standards for --path src/orqlet/application/usecases and src/orqlet/application/ports --phase plan --role planner: 10 rules, applicable_rules_hash 7a2bb4403f4ff8889ce277ac7dddb5f9b18f19c5112539f251978480bc5aa98f"
+    - "orqlet standards for --path src/orqlet/adapters/render and src/orqlet/adapters/git --phase plan --role planner: 9 rules, applicable_rules_hash 59e02a76ac2fc01a95c29c48065ac2d87abcfe57b540b55f94ff9e12acbc2909"
+    - "orqlet standards for --path src/orqlet/domain --phase plan --role planner: 9 rules, applicable_rules_hash 9f47111268d3608344cd22f9312a074f4ba1e628eeae165aebc873cb442a549a"
+    - "orqlet standards for --path src/orqlet/interface/cli --phase plan --role planner: 8 rules, applicable_rules_hash 6ac987dbfde5d83c31dc1284bf0afbe1ea1456bb2fbf436a18ed7b54a3415299"
+    - "orqlet standards for --path src/orqlet/workflow --phase plan --role planner: 10 rules, applicable_rules_hash 03dd4e37f75d033df99354ddeba18461f2202477422361db3bc0a0ba62b4b3e1"
+    - "orqlet standards for --path tests --phase plan --role planner: 5 rules, applicable_rules_hash b00a25323520408083d05f4ede1362d8835dc8dfbfd1cfb4e5fdc369090ddf1b"
+    - "orqlet standards for --path tools, .orqlet, .prompts, .github/CODEOWNERS, README.md and docs/design/orqlet-architecture-proposal.md --phase plan --role planner: 3 rules, applicable_rules_hash 7cedb45ea31f8900517dcaca99243b1d35b05b37792a98fd1c45d16b2bf75038"
+    acceptance_criteria:
+    - "BC-1 to BC-45 and R-1 to R-16 of docs/design/dynamic-model-profiles/design/component.md, sections 2 and 6"
+    evidence:
+    - docs/design/dynamic-model-profiles/as-is.md
+    - docs/design/dynamic-model-profiles/design/manifest.yaml
+    - docs/design/dynamic-model-profiles/questions.yaml
+  checks:
+  - what: input check of the phase contract on the design
+    how: >-
+      orqlet gate status gave ORQ-W390 on the AS-IS base_revision, ORQ-I392, ORQ-I393 and the ORQ-I394 of this plan only; orqlet validate
+      design, as-is and ledger passed; git merge-base --is-ancestor of base_revision b7b113c9 and of the design merge 4aa05f2f exits 0 for
+      HEAD and for origin/main; the merge changed the approved files (git diff --quiet from its first parent exits 1), git diff --quiet
+      of the merge against the files exits 0, no approved file is untracked, and the ledger has no change to an answered question since
+      the merge. The person named origin/main and the merge commit, confirmed ORQ-W390 as expected (the design merge is the only commit
+      since b7b113c9 and touches no file of the design's scope) and accepted the state of the design reviews.
+    result: pass
+  - what: standards read
+    how: "orqlet standards for --phase plan --role planner for each path of the scope; the rule counts and hashes are in applicable_standards"
+    result: pass
+  - what: no command found in a project file was run
+    how: >-
+      only orqlet validate, gate, standards and evidence commands, read-only git commands (rev-parse, merge-base, log, diff, ls-files,
+      diff-tree) and rg ran; the one diff-tree probe is described under unverified
+    result: pass
+  - what: paths projected
+    how: orqlet validate plan docs/design/dynamic-model-profiles/plan.yaml
+    result: pass
+  - what: AGENTS.md entries compared with the CI file
+    how: >-
+      AGENTS.md:47-50, 53-56, 59-62, 65-68 and 71-74 (sha256 in the completion entries) give `uv run ruff check .`, `uv run ruff format
+      --check .`, `uv run mypy`, `uv sync --locked --all-groups --python <PYTHON_VERSION>` and `uv run pytest`; ci.yml:31, 32, 47, 83 and 84
+      hold the same commands, with the matrix expression of ci.yml:72-74 in place of the placeholder; no difference
+    result: pass
+  - what: check commands cited
+    how: >-
+      orqlet evidence cite at 4aa05f2fa1e267d34824e166bb60abbc1aa75849 for .github/workflows/ci.yml:18-107, 31, 32, 47, 62, 63, 64, 72-74,
+      83, 84 and 98-107, AGENTS.md:47-74, pyproject.toml:38-60, 62-67, 69-80 and 82-127, tools/export_schemas.py:1-38,
+      tools/build_manifest.py:1-57 and tests/conftest.py:34-39; the hashes are in the completion entries
+    result: pass
+  - what: commands on the warning list marked
+    how: >-
+      every `uv run` and `uv sync` may fetch from the network when the environment is out of sync with uv.lock, and the first completion
+      entry of each phase says so and asks the person first; the CI build job spans several lines and holds `$(` and a redirection and
+      is marked in P-14, where it runs only in CI
+    result: pass
+  - what: other places that pin what the plan changes were searched
+    how: >-
+      rg for 0.4.0 outside docs and the golden folder, with hidden files, found .github/pull_request_template.md, .orqlet/generated.lock.yaml,
+      .orqlet/versions.yaml, .orqlet/workflow.lock, AGENTS.md, README.md (an example at line 205), MANIFEST.json and identity.json (P-13,
+      P-14); the seven version-marker goldens are in P-13; rg for the role names found tests/support/render.py (ROLE_NAMES),
+      tests/unit/render/test_skills.py, tests/unit/test_workflow_role_prompts.py, tests/unit/test_workflow_skill_contracts.py and
+      tests/unit/application/test_render_integrations.py (the REVIEW_AGENTS string); rg for REVIEW_AGENTS and DEFAULT_REVIEWERS found
+      only render_all.py, review_prepare.py and that test
+    result: pass
+  - what: acceptance criteria cover the design's behaviour criteria
+    how: >-
+      Read from the `source` of every criterion by a script over this file. BC-1 P-5, P-13; BC-2 P-4, P-5; BC-3 P-5; BC-4 P-4, P-6, P-8;
+      BC-5 P-4; BC-6 P-4, P-8; BC-7 P-5, P-6; BC-8 P-5; BC-9 P-1, P-3, P-4, P-5, P-7, P-8, P-10; BC-10 P-3, P-4, P-10; BC-11 P-1, P-13,
+      P-14; BC-12 P-13, P-14; BC-13 P-4, P-7, P-12; BC-14 P-13, P-14; BC-15 P-1, P-9, P-10, P-13; BC-16 P-1, P-9, P-10, P-13; BC-17 P-9,
+      P-10, P-13; BC-18 P-3; BC-19 P-3, P-7, P-9, P-10; BC-20 P-1, P-9, P-10; BC-21 P-11; BC-22 P-10, P-13; BC-23 P-2, P-3, P-4, P-7, P-8;
+      BC-24 P-13; BC-25 every phase; BC-26 P-12, P-13; BC-27 P-4, P-5; BC-28 P-1, P-5; BC-29 P-6; BC-30 P-7; BC-31 P-10; BC-32 P-1, P-2,
+      P-4, P-7, P-8, P-10; BC-33 P-7, P-8; BC-34 P-3, P-5; BC-35 P-8, P-13; BC-36 P-9; BC-37 P-2, P-6, P-12, P-14; BC-38 P-4, P-8, P-13,
+      P-14; BC-39 P-2, P-7, P-8, P-10; BC-40 P-10; BC-41 P-7, P-8, P-9; BC-42 P-1; BC-43 P-4, P-5, P-6, P-8; BC-44 P-2, P-10; BC-45 P-11.
+      R-1 P-12, P-13; R-2 P-13; R-3 P-5, P-8; R-4 P-5, P-6; R-5 P-4; R-6 P-4, P-6; R-7 P-3, P-4, P-9, P-10, P-13; R-8 P-9, P-10, P-11,
+      P-13; R-9 P-5, P-14; R-10 P-9, P-10, P-12; R-11 P-7, P-12; R-12 P-3, P-5, P-7, P-10; R-13 P-8; R-15 P-13; R-16 P-13; R-14 is
+      listed under unverified. C-1 to C-11 each appear as the source of a criterion. Every criterion names its source.
+    result: pass
+  - what: open questions that block the plan
+    how: >-
+      Q-32, Q-33 and Q-37 are answered in the ledger (Q-33 and Q-37 as the request states them; Q-32 by the person's choice in the
+      session of "no second owner"); Q-34 is open and blocks implement only; Q-35 and Q-36 are open and block nothing; orqlet validate
+      ledger passes
+    result: pass
+  - what: plan approved by the person
+    how: 'not given: the plan is a draft until its pull request merges'
+    result: not-run
+  unverified:
+  - >-
+    The plan is a draft: the person has not approved it, and approval is the merge of its pull request. An offline `orqlet gate status
+    dynamic-model-profiles` has no approval evidence, so it reports NOT_RUN (ORQ-I393); a NOT_RUN result is not a pass.
+  - >-
+    Q-34 is open and blocks implement: the implement skill stops at its input check until the person answers what the host enforces
+    (required reviews, code-owner review, stale-approval dismissal, last-pusher approval, administrator bypass, which branch's
+    CODEOWNERS applies). Q-35 (Cursor model IDs) and Q-36 (a required CI check for a NOT_RUN gated review and for `validate
+    model-policy`) block nothing: no Cursor route has a name in the seed, and no CI job is added (C-4; a CI change would be D3).
+  - >-
+    Q-32 was answered "no second owner": only @tmishari owns the seed path, CODEOWNERS, `src/orqlet/**` and `tests/**`, so the approval
+    rule of Q-23 (any developer except the author, a code-owner review on the catalog paths) cannot be met for a change that @tmishari
+    authors, and a required code-owner review, if the host has one, would have no eligible approver other than an administrator bypass.
+    P-12 adds the four entries on that reading (the answer says "these paths", the four groups of Q-32's text); a different reading is
+    a change of one file in P-12.
+  - >-
+    The design reviews ended NOT PASS in three rounds, every blocking finding was answered in the design, and the last revision was not
+    reviewed again; the person accepted this state in the request. The manifest's own self-check names "BC-1 to BC-42" while
+    component.md section 6 holds BC-1 to BC-45; this plan covers all 45, and the design manifest is untouched.
+  - >-
+    The ORQ-W390 on the AS-IS file is expected: the file is bound to the research branch commit 0a28048, which pull request 15
+    squash-merged as b7b113c (Q-31 records that b7b113c is the approved AS-IS), and the design merge 4aa05f2 is the only commit since
+    b7b113c and touches no file of the design's scope. The person confirmed it in the request.
+  - >-
+    R-14 is not built, as the design says: no paid evaluation or callable check runs, because Q-27 and Q-28 give a budget rule and no
+    approved scope; the fields `callable` and `evaluated` exist so that results can be recorded later, and the states are attested
+    labels that no tool checks. R-11 is built as far as Orqlet can build it: the attestation fields are checked for presence and form,
+    and the approval itself is the host's merge record, which nothing here enforces (Q-34).
+  - >-
+    `git diff-tree` and the exclude pathspec (the unknown of ADR-007 decision 8): a read-only probe in this session, with git 2.56.0 on
+    the commits b7b113c9 and 4aa05f2f of this repository, gave 20 file sections unfiltered, 14 with the spellings
+    `:(exclude)docs/design/*/reviews/*`, `:(exclude,glob)docs/design/**/reviews/**` and `:!docs/design/*/reviews/*`, and none of the six
+    review files left. That is one version of git on one platform. P-11 establishes it for the CI matrix with a real-git test; if a
+    platform fails, the fallback (a filter by file headers) needs one more module and so a plan amendment.
+  - >-
+    Readings that this plan made and the person confirms by approving it: the version of the workflow package is 0.5.0 (a minor step; the
+    plan-level rule on `review_evidence` starts there); finding codes ORQ-E540 to E548, W540 to W547, I540 and ORQ-E460, E461, W460
+    to W465, I460; the 30-day window of ORQ-W542; the closed names that print at the start of the warnings of `validate review`; the
+    spellings of the v2 contract in P-1; the output contract of `models resolve` in P-8, with `candidates` added to the design's list
+    so that the review skill can name the first qualifying candidate (BC-35 asks for "the ordered candidates"); the hint sentence of P-8
+    and P-13; the wording of the diversity step; `independence_capability: I2` on the code reviewer's binding; `ORQ-E546` blocks
+    `validate model-policy` but not `upgrade`; `validate model-policy` calls a policy deleted when it is missing from the working tree
+    and present at the base tree or in the lock (the design says "staged tree"); the logical `id` and `family` of seed entries are
+    matched in the evidence by the normalisation of ADR-005 where the design says "verbatim", because the page writes "Composer 2.5"
+    and the route names are matched verbatim; the sixth skill, onboard, gets the hint because BC-35 says each workflow skill; the
+    security reviewer role is left unchanged, since only one check moves; the effort values `low`, `medium`, `high`, `xhigh` and `max`
+    are the ones that the stored pages give for Claude Code and for the OpenAI API, and whether Codex accepts `xhigh` and `max` in
+    `model_reasoning_effort` is not established by any stored page, so it is the team's attested choice.
+  - >-
+    The wording of the roles and of the skill lines is fixed here as pinned phrases and structure, not as whole texts; the Coder writes
+    the sentences around them. Whether each skill body still fits 70 lines and 900 words with the added lines was not counted (the
+    implement skill has 59 lines and the review skill 52); a skill that does not fit needs a design revision, not a longer limit.
+  - >-
+    The checks `import-linter`, `schema-check` and `manifest-check` are cited from the CI file (ci.yml:62 to 64) and from the check_ref
+    of the architecture and determinism rules; onboard did not record them in AGENTS.md, which lists lint, type-check and test only, so
+    the person confirms them before the first run. Every `uv run` fetches from the network when the environment is out of sync.
+  - >-
+    Tests outside the lists of the phases that break because of a change here (for example a test that counts the files of `init` or
+    pins a key of the `explain` data) need a plan amendment; the lists name the tests that rg and the code showed. The list of P-14 is
+    the planning list, and the dry-run decides. P-14 needs the command line built from this working tree, since the `orqlet` on the path
+    is 0.3.0 and its package holds workflow 0.4.0.
+  - >-
+    Whether Cursor routes an inheriting subagent per request under Auto (U-28) and whether any Codex subagent has a clean context
+    (U-10) are unknown, and nothing in this plan depends on either. Every vendor statement about a model is a vendor claim, and the seed
+    ships no account fact.
+  - >-
+    The README and the architecture proposal are Markdown files that the approved design requires to change (BC-26, C-9); they are
+    changed in P-12 only because of that requirement, together with the role, skill and reference sources of P-13.
+  - >-
+    The answer times in the ledger are the times they were written in this session: Q-33 and Q-37 carry 10:50, the time of the request
+    that stated them, and Q-32 carries 10:57. The request left the markers `<EDIT ...>` after the answers of Q-33 and Q-37 and a bare
+    placeholder for Q-32; Q-33 and Q-37 are recorded as written, and Q-32 was asked twice and answered by the person's choice.
+  questions:
+  - Q-34
