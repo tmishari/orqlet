@@ -1,0 +1,203 @@
+schema: orqlet.design-set/v1
+header:
+  schema: orqlet.artifact-header/v1
+  task: dynamic-model-profiles
+  status: draft
+  workflow_version: 0.4.0
+  protected_set_digest: b5d119f17890b8d7602c906b3325af7db4ef3d74fb31b8d697cdeeebfbb4be2d
+  bound:
+    base_revision: b7b113c9141e1ef42e9d6e2204e565cb27cdf295
+    standards_lock_hash: 89a225016ff9d8b3ed977df39a70dfbe9dbc5f7c6d3762d0f2208b1b7a037a52
+    applicable_rules_hash: 56502a0ec5eda3b13b4c9d97c7d4dfa41df82c86a206e36dd5d2d92aab299b97
+    profile_version: 1
+    upstream:
+      - {ref: docs/design/dynamic-model-profiles/as-is.md, sha256: 28094d9205c100197f064c7db3f8374e24a743900175ac9ebb7d4b3a598edd83}
+as_is_ref: docs/design/dynamic-model-profiles/as-is.md#28094d9205c100197f064c7db3f8374e24a743900175ac9ebb7d4b3a598edd83
+change_class: {trigger: D3, declared: D3, effective: D3}
+scope:
+  paths:
+    - "src/orqlet/application/contracts/**"
+    - "src/orqlet/application/usecases/**"
+    - "src/orqlet/application/ports/**"
+    - "src/orqlet/adapters/render/**"
+    - "src/orqlet/adapters/git/**"
+    - "src/orqlet/domain/**"
+    - "src/orqlet/interface/cli/**"
+    - "src/orqlet/workflow/**"
+    - "tools/**"
+    - ".orqlet/**"
+    - ".prompts/**"
+    - ".github/CODEOWNERS"
+    - ".claude/agents/**"
+    - ".cursor/agents/**"
+    - ".codex/agents/**"
+    - ".claude/skills/**"
+    - ".agents/skills/**"
+    - "tests/**"
+    - "README.md"
+    - "docs/design/orqlet-architecture-proposal.md"
+  trust_boundaries: []
+extractor_config:
+  security_globs:
+    - ".github/CODEOWNERS"
+    - ".orqlet/**"
+    - "src/orqlet/domain/**"
+expected_changes:
+  - id: EC-1
+    surface: persisted-schema
+    action: add
+    identity: "orqlet.model-policy/v2 at .orqlet/model-policy.yaml"
+    expected_after:
+      kind: declaration
+      value: "A seeded, team-owned file of schema orqlet.model-policy/v2 holding policy_version, reviewed_for_release, models (id, family, approval, documented, callable, evaluated, routes with also_known_as), excluded, profiles (quality, engineering, economy) and assignments of roles and skills. An absent file means no policy and no change to the model setting of any existing role file."
+    verification: manual
+  - id: EC-2
+    surface: persisted-schema
+    action: remove
+    identity: "orqlet.model-policy/v1"
+    expected_after:
+      kind: declaration
+      value: "The v1 contract, its JSON schema file and its contract-test fixture are replaced by v2. No reader of v1 exists."
+    verification: manual
+  - id: EC-3
+    surface: persisted-schema
+    action: change
+    identity: "orqlet.review-result/v1 and the review-record path pattern"
+    expected_after:
+      kind: declaration
+      value: "role also admits code-reviewer, and the record-path pattern of domain/evidence_artifacts.py admits code-reviewer-P-<n>-r<k>.yaml; agent.client and coder_binding.client become the closed set of the three clients; agent and coder_binding gain an optional identity_source; agent gains an optional context (fresh, input) and an optional selection_source; context is required for a code-reviewer record. The schema id stays v1 and every existing record stays valid; the closed client set is the one narrowing of an accepted value, and every existing record is checked against it."
+    verification: manual
+  - id: EC-4
+    surface: persisted-schema
+    action: change
+    identity: "orqlet.implementation-plan/v1 review_evidence"
+    expected_after:
+      kind: declaration
+      value: "review_evidence also lists code-reviewer. Because the per-phase validator cannot see the plan header, a plan-level check requires code-reviewer in every phase when header.workflow_version is at or above the release that ships the role, and keeps today's exact set otherwise. The schema id stays v1 and every approved plan stays valid."
+    verification: manual
+  - id: EC-5
+    surface: persisted-schema
+    action: change
+    identity: "orqlet.role-bindings/v1"
+    expected_after:
+      kind: declaration
+      value: "Binding.role also admits code-reviewer; the seeded file gains a binding for orqlet-code-reviewer for claude-code, codex and cursor; model_families is read only when no model policy exists."
+    verification: manual
+  - id: EC-6
+    surface: public-api
+    action: add
+    identity: "command line: orqlet validate model-policy and orqlet models resolve (no extractor covers the command line)"
+    expected_after:
+      kind: declaration
+      value: "validate model-policy [PATH] and models resolve --client C (--role R | --skill S | --profile P) [--task T] [--override MODEL] [--different-family-from MODEL] [--json], with the output and exit statuses of the design brief, section 3 (validate: 0 or 5; resolve: 0, 1, 2 or 3)."
+    verification: manual
+  - id: EC-7
+    surface: security
+    action: change
+    identity: ".github/CODEOWNERS entries for the seed of the policy and CODEOWNERS itself (.orqlet/** already owns the policy path)"
+    expected_after:
+      kind: declaration
+      value: "The seed path (src/orqlet/workflow/seeds/**) and .github/CODEOWNERS have code owners; Q-32 asks who the second owner is, so that the approval rule of Q-23 can be met, and whether src/orqlet/domain/** and tests/** are owned too."
+    verification: manual
+  - id: EC-8
+    surface: public-api
+    action: change
+    identity: "command line: behaviour of orqlet init, upgrade, validate review and review prepare (no extractor covers the command line)"
+    expected_after:
+      kind: declaration
+      value: "init seeds the policy and the code-reviewer binding; upgrade renders manual pins, reports missing-candidate, unsupported skill or Cursor-effort assignments, stale reviews and a pending binding, and refuses on an invalid, deleted or v1 policy (a deleted seeded file is otherwise tolerated today); validate review reads the policy from the base and the staged tree and applies the identity, freshness, exclusion, deletion and unloadable-policy rules; models resolve and validate model-policy detect a deleted file from the lock's seeded row or the base tree; review prepare leaves docs/design/**/reviews/** out of the snapshot, the context copies and diff.patch and lists three reviewers."
+    verification: manual
+  - id: EC-9
+    surface: persisted-schema
+    action: add
+    identity: "generated files: agent files of orqlet-code-reviewer and orqlet-pr-writer for the three clients, the model setting of pinned subagents, Claude Code skill front-matter, and their lock rows"
+    expected_after:
+      kind: declaration
+      value: "Two roles render for claude-code, codex and cursor under .claude/agents, .codex/agents and .cursor/agents with lock rows (owner orqlet, class protected); a subagent pinned by manual mode carries its client's model field; an explicit Claude Code skill assignment adds model and effort front-matter; no settings, config.toml or model file is rendered."
+    verification: manual
+artifacts:
+  - {id: D-1, kind: c4-context, path: docs/design/dynamic-model-profiles/design/context.md, covers: "Orqlet, the three clients, the host, the approvers and the vendor pages around model selection; no new trust boundary", sha256: 31e1e40aca33b01023f6532563f8230b134b13210f0f0e8b52fd282103aa57b2}
+  - {id: D-2, kind: c4-container, path: docs/design/dynamic-model-profiles/design/container.md, covers: "Where the policy, resolution, rendering and review changes sit in the layers", sha256: 1b7e42d370471cee37b987efdd6c970cc2211f19efc54b74c285540bd377884f}
+  - {id: D-3, kind: c4-component, path: docs/design/dynamic-model-profiles/design/component.md, covers: "The design brief and the components with their interfaces", sha256: f4f9497bb7d335b46e0b796a6029a0a5bf426dbfdd1a90e4d93fe052167fcc67}
+  - {id: D-4, kind: data-flow, path: docs/design/dynamic-model-profiles/design/data-flow.md, covers: "Refresh-time flow from policy to generated files and run-time flow from recorded identity to independence", sha256: 6320ae17d234fd6e7358ced1124d0a7048ee4d2fca14329e0d78a5df36f7a77f}
+  - {id: D-5, kind: sequence, path: docs/design/dynamic-model-profiles/design/sequence.md, covers: "A policy change, a code review that must differ from the coder, a release-time recheck", sha256: 2d9bee4638a3e04f71c7e34eacff84428a2b387adcbc5ca9d244683161bae667}
+  - {id: D-6, kind: adr, path: docs/design/dynamic-model-profiles/design/adr-001-selection-boundary-modes-and-precedence.md, covers: "Selection boundary, modes, precedence", sha256: a6c1a8eca2bc56f39b873558c10305f16912f7a39f34dfd594603d08732f41df}
+  - {id: D-7, kind: adr, path: docs/design/dynamic-model-profiles/design/adr-002-model-policy-v2-contract-and-home.md, covers: "Policy contract v2 and its home", sha256: d43e2d78da80f6a55f7ac887291affdde0bddadab6e0f60d1fe07839e4d0a2bd}
+  - {id: D-8, kind: adr, path: docs/design/dynamic-model-profiles/design/adr-003-rendering-model-settings-into-generated-files.md, covers: "Rendering model settings into generated files", sha256: 6256dc40f78e91c424be27ea260c4de784ac3a6ca36246424e8d0b164bccc72f}
+  - {id: D-9, kind: adr, path: docs/design/dynamic-model-profiles/design/adr-004-catalog-governance-and-release-recheck.md, covers: "Catalog approval and recheck on each release", sha256: cac85c2169b30d96348de9cb80e885ba0f3aaea494899432415bbd4e829b031e}
+  - {id: D-10, kind: adr, path: docs/design/dynamic-model-profiles/design/adr-005-fable-exclusion-by-model-identity.md, covers: "Fable exclusion by model identity", sha256: f91cb911575530b6c71b3465e132b0046aef040c0951fc348d6ab75a51fa939d}
+  - {id: D-11, kind: adr, path: docs/design/dynamic-model-profiles/design/adr-006-code-review-gate-and-new-roles.md, covers: "Code review gate, code reviewer and PR-text roles", sha256: 799953e2d5847e545f854d396ec9498e90b0d81c8ddfc8fdc5ab51c8ccc53c8b}
+  - {id: D-12, kind: adr, path: docs/design/dynamic-model-profiles/design/adr-007-independence-model-identity-and-fresh-context.md, covers: "Independence, recorded model identity and a fresh context", sha256: 0fea8f96cc98823723f6a90d8f5adf1627afa80e6b322229bc4e581e6a3def28}
+considerations:
+  security:
+    state: affected
+    notes: "Catalog approval is an authorization decision (Q-23) that the host can enforce if configured (Q-34) and Orqlet does not; the policy and the review records are untrusted input read through the FileSystem port with strict YAML, bounded types, a credential scan and no recorded model string printed in a finding; the Fable exclusion is defence in depth, checked in three places (the resolver that the renderers obey, `validate model-policy` with its drift check and deletion rule, and `validate review` with the union of the base and staged policy), with one matching rule, and none of it runs in CI today; no secret, network path or new dependency is added; independence stays an attested statement, only an observed identity counts, and I3 comes only from the host."
+  compatibility:
+    state: affected
+    notes: "With no policy file the model setting of every existing role file is unchanged, while the new roles and the changed role and skill text change the golden files on purpose; existing review records and approved plans stay valid because new rules apply by role and by workflow_version; contracts change additively except model-policy, whose v1 has no reader; existing projects receive the role-bindings change as a pending diff, and a project whose model_families is populated keeps it for strings the policy cannot match; a pin change alters protected_set_digest, so in-flight approvals show ORQ-W390 (ADR-003)."
+  operations:
+    state: affected
+    notes: "Each Orqlet release rechecks the shipped catalog, enforced by a test that compares reviewed_for_release with the workflow version; the workflow package gains two roles, a seed and changed skill text, so MANIFEST.json is rebuilt and the version bumped; CODEOWNERS gains entries; CI adds no job."
+standards_applied:
+  - ORQLET-ARCH-001
+  - ORQLET-ARCH-002
+  - ORQLET-ARCH-003
+  - ORQLET-DET-002
+  - ORQLET-DET-003
+  - ORQLET-NOMODEL-001
+  - ORQLET-QA-001
+  - ORQLET-SAFE-001
+  - ORQLET-SEC-001
+  - ORQLET-SEC-002
+  - ORQLET-SEC-003
+  - ORQLET-TEST-001
+  - ORQLET-STYLE-001
+reviews:
+  - {role: architecture-reviewer, note: docs/design/dynamic-model-profiles/reviews/architecture-reviewer-design-r1.md}
+  - {role: security-reviewer, note: docs/design/dynamic-model-profiles/reviews/security-reviewer-design-r1.md}
+  - {role: architecture-reviewer, note: docs/design/dynamic-model-profiles/reviews/architecture-reviewer-design-r2.md}
+  - {role: security-reviewer, note: docs/design/dynamic-model-profiles/reviews/security-reviewer-design-r2.md}
+  - {role: architecture-reviewer, note: docs/design/dynamic-model-profiles/reviews/architecture-reviewer-design-r3.md}
+  - {role: security-reviewer, note: docs/design/dynamic-model-profiles/reviews/security-reviewer-design-r3.md}
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architect
+    phase: design
+    confirmed_requirements:
+      - "Every v0.5 element named in Q-15 is decided in an ADR: tier hints (ADR-001, Decision 8), roles and the code reviewer (ADR-006), pins and the pin rule (ADR-001, ADR-003), refresh (ADR-004, `models refresh` not built), model-policy v2 (ADR-002), independence (ADR-007) and the Fable exclusion (ADR-005)."
+      - "The design holds no phase list, build order or task list; orderings are constraints."
+      - "ORQLET-NOMODEL-001 is kept: Orqlet selects at refresh time only, by a deterministic render, and calls no model."
+      - "Every unresolved consequential decision is a ledger question (Q-32 to Q-37), and the readings the design made are listed for the person in the brief, section 8."
+    applicable_standards:
+      - "orqlet standards for --path src/orqlet/application/contracts/** --phase design --role architect: 11 rules, applicable_rules_hash 59a5c666671d2ebb2ac9fdcce19cf2c57a455cf6c9e15dee02c55e49c83cf41c"
+      - "orqlet standards for --path src/orqlet/application/usecases/** --phase design --role architect: 10 rules, applicable_rules_hash 7a2bb4403f4ff8889ce277ac7dddb5f9b18f19c5112539f251978480bc5aa98f"
+      - "orqlet standards for --path src/orqlet/adapters/render/** --phase design --role architect: 9 rules, applicable_rules_hash 59e02a76ac2fc01a95c29c48065ac2d87abcfe57b540b55f94ff9e12acbc2909"
+      - "orqlet standards for --path src/orqlet/domain/** --phase design --role architect: 9 rules, applicable_rules_hash 9f47111268d3608344cd22f9312a074f4ba1e628eeae165aebc873cb442a549a"
+      - "orqlet standards for --path src/orqlet/interface/cli/** --phase design --role architect: 8 rules, applicable_rules_hash 6ac987dbfde5d83c31dc1284bf0afbe1ea1456bb2fbf436a18ed7b54a3415299"
+      - "orqlet standards for --path src/orqlet/workflow/** --phase design --role architect: 10 rules, applicable_rules_hash 03dd4e37f75d033df99354ddeba18461f2202477422361db3bc0a0ba62b4b3e1"
+      - "orqlet standards for --path tests/** --phase design --role architect: 5 rules, applicable_rules_hash b00a25323520408083d05f4ede1362d8835dc8dfbfd1cfb4e5fdc369090ddf1b"
+      - "orqlet standards for --path .orqlet/**, .prompts/**, .github/CODEOWNERS and README.md --phase design --role architect: 3 rules, applicable_rules_hash 7cedb45ea31f8900517dcaca99243b1d35b05b37792a98fd1c45d16b2bf75038"
+    acceptance_criteria:
+      - "BC-1 to BC-42 of docs/design/dynamic-model-profiles/design/component.md, section 6"
+    evidence:
+      - "docs/design/dynamic-model-profiles/as-is.md"
+      - "docs/design/dynamic-model-profiles/questions.yaml"
+      - "docs/design/dynamic-model-profiles/evidence/web/github-required-reviews-and-codeowners.md"
+  checks:
+    - {what: "The input check of the phase contract ran on the AS-IS file", how: "orqlet validate as-is passed; orqlet gate status gave ORQ-W390 (base_revision) and ORQ-I393 only; git merge-base --is-ancestor of base_revision 0a28048 exits 1 because pull request 15 was squash-merged, and the person accepted b7b113c as the approved AS-IS (Q-31)", result: pass}
+    - {what: "The class was recomputed and the manifest validates", how: "orqlet validate design docs/design/dynamic-model-profiles/design/manifest.yaml", result: pass}
+    - {what: "Citations of code lines in the ADRs resolve", how: "rg -n on independence.py, render_all.py, release.py", result: pass}
+    - {what: "No command found in a project file was run", how: "only orqlet standards, validate, gate, evidence hash and ledger commands and read-only git commands ran", result: pass}
+    - {what: "The architecture and security reviewers each returned a note in three rounds, saved unchanged with the author's responses", how: "docs/design/dynamic-model-profiles/reviews/architecture-reviewer-design-r1.md, -r2.md, -r3.md and security-reviewer-design-r1.md, -r2.md, -r3.md", result: pass}
+    - {what: "The design that will merge is the design a reviewer read", how: "the files were changed after rounds 1, 2 and 3 to answer them; every round-3 finding was answered by a text change and the result was not reviewed again, so the hashes in the round-3 notes differ from the manifest's", result: fail}
+  failures:
+    - "Every review round ended NOT PASS (round 1: 5 and 4 blocking findings; round 2: 3 and 1; round 3: 2 and 2). Each blocking finding was checked against the code, accepted and answered in the design; the answers of round 3 were not reviewed again."
+  unverified:
+    - "That the final revision has no remaining blocking finding: it was not reviewed after the round-3 responses. The person decides whether to arrange another review round in a fresh session or to rely on the review of the design pull request."
+    - "Every reviewer ran without a shell, so no reviewer ran orqlet validate, standards, evidence cite or a test; the author ran orqlet validate design, validate ledger and evidence hash."
+    - "Whether git diff-tree honours an exclude pathspec for the review packet (ADR-007, Decision 8) and whether the host applies CODEOWNERS from the base branch (Q-34)."
+    - "Whether Cursor routes an inheriting subagent per request under Auto (U-28), and whether any Codex subagent has a clean context (U-10): the design does not depend on either."
+    - "Whether the host enforces required reviews and code-owner review (Q-34)."
+    - "Every vendor statement about model capability is a vendor claim; no model was called or evaluated."
+  questions: ["Q-32", "Q-33", "Q-34", "Q-35", "Q-36", "Q-37"]

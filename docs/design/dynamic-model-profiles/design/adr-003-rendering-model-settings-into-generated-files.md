@@ -1,0 +1,45 @@
+# ADR-003: Rendering model settings into generated agent and skill files
+
+Status: proposed with the design.
+
+## Context
+
+- A role renderer receives a `ClientRole` with no model or effort field; a skill renderer receives a `ClientSkill`; `RenderRequest` has no policy input (A-7, A-8, A-16). Claude Code and Cursor files get the literal `model: inherit`; Codex files get no model key (A-9, A-10, A-11). The skill renderer writes no model field (A-13). No adapter renders a settings, `config.toml` or model file (A-15).
+- The three client adapters call `claude_role(role)`, `cursor_role(role)`, `codex_role(role)` and the skill writers with those two objects (`src/orqlet/adapters/clients/claude_code.py:68-69`, `cursor.py:52`, `codex.py:63`). `build_render_request` fills `roles` and `skills` (`src/orqlet/application/usecases/render_request.py:110-119`; A-16).
+- The fields exist in the clients: Claude Code `model` and `effort` in a subagent file (A-100); Codex `model` and `model_reasoning_effort` in a custom agent file (A-106, A-107); Cursor `model` with bracketed options (A-118). A skill-level `model` is documented for Claude Code only (A-104, A-105, A-147), where it lasts for the rest of the turn.
+- Aliases move with the vendor; pinning uses a full ID (A-92). A blocked or forced model is replaced by the client without telling Orqlet (A-96, A-102, A-119); a Cursor session already did this with `inherit` (A-66).
+- Front matter writes a value bare only when it matches a short allow-list that has no `[`; any other value is written quoted, and Cursor once read the quotes of a `name` literally (`src/orqlet/adapters/render/emit.py:8, 28`). A Cursor model ID with options (`claude-opus-5[effort=high,...]`, A-118) would therefore be written quoted.
+- Golden tests pin the bytes; one test fails when a role file names a vendor model; one asserts `model: inherit` (A-28 to A-31). The reviewer-definition digest covers the agent file bytes (A-55); `protected_set_digest` covers every protected row without exclusion (A-25).
+- ORQLET-ARCH-003: the workflow package is read-only data used only by adapters and the interface. ORQLET-ARCH-002: the application layer reaches files only through ports.
+
+## Decision
+
+1. **The selection travels on the objects the renderers already receive, per client.** `compose` builds one `RenderRequest` for every enabled client (`render_all.py:121-129`) and model names differ by client, so `ClientRole` and `ClientSkill` (in `application/ports/instruction_adapter.py`) each gain an optional `model_settings`: a mapping from client id to a setting (the exact name, its kind and an optional effort), set by `build_render_request` from the resolver that `orqlet models resolve` also uses. Each per-client writer (`claude_role`, `cursor_role`, `codex_role` and the skill writer) reads only its own client's entry. The three client adapters and `RenderRequest` do not change. With no entry, a role file is written as today.
+2. **Subagent roles.** Only the mode `manual` renders a pin: the first eligible candidate's route name, as Claude Code `model:` (+ `effort:`), Cursor `model:`, Codex `model` and `model_reasoning_effort`. `automatic` and `automatic-with-fallbacks` write today's literal (ADR-001). A pin uses the exact ID; an alias is written only when the route is declared as an alias with `resolves_to` (a deliberate choice), and `upgrade` then warns that an environment variable can remap an alias (`alias-route-rendered`).
+3. **Cursor pins are plain IDs.** A Cursor `model` value is written only when it is plain-safe, with no bracketed options. An `effort` assignment for Cursor produces a finding and is not rendered until a check with the real client shows that a quoted value is read correctly. All writing goes through `front_matter` and `toml_table`; no renderer builds text by hand.
+4. **Skills.** Claude Code only, `model` and `effort` front-matter, and only for an explicit skill assignment in mode `manual`. This is the single exception to "the main agent is never pinned": a skill pin changes the model for the rest of the turn (A-104). A skill assignment for Codex or Cursor produces a finding that the client documents no skill-level model, and renders nothing.
+5. **Otherwise the main agent is never pinned,** and Orqlet renders no settings, `config.toml` or model file. Organisation controls (`availableModels`, `deniedModels`, Team Settings, Workspace settings) are the company's (Q-23) and are not generated.
+6. **`missing-candidate`.** In `manual` mode, a route with no `name`, an unapproved model, a blocked access or an excluded model gives no pin. The role keeps its automatic setting and `upgrade` reports the exact reason (ADR-001, Decision 5). Nothing is dropped silently.
+7. **A pin change is a reviewer change.** It changes the agent file bytes, so the reviewer-definition digest changes and earlier reviews become stale (A-55); `upgrade` lists the affected review records as a finding.
+8. **Drift is checked, read-only.** `orqlet validate model-policy` compares the `model` value of every agent and skill file in the client folders, generated or team-authored, with the resolution and with the exclusion (ADR-005), because `doctor` compares files with the lock's recorded hash and not with a fresh render (A-26, C-12). A difference in a generated file is a warning; an excluded name in any file is an error. A `model` value that fails the `ModelRef` type (a bracketed Cursor ID, non-ASCII text) is first tested for the exclusion on its raw NFKC string and then reported as `unmatched`; it is never skipped. A team-authored agent or skill file that cannot be parsed, or that exceeds 256 KiB, is reported as a warning and not scanned further. Project-level client settings files are outside this check.
+9. **Effort is rendered where the client supports it** (Claude Code, Codex) and is never counted as diversity (ADR-007).
+10. **Tests.** The model line or key of every existing role file, without a policy, equals today's. The new roles, the changed role text and the changed skill text change the golden files on purpose, and the new golden files are reviewed as such. A new golden set renders a fixture policy for each client. `test_role_files_never_name_a_vendor_model` becomes "a role file names a model only when the policy assigned it, and never an excluded one". The lookup-text test stays: baseline text and skill steps still name no product (A-32).
+
+## Consequences
+
+- A policy edit changes protected files and so `protected_set_digest` (A-25). An approved design or plan in flight then shows ORQ-W390; the stale-input matrix of the phase contract puts such a digest change under "unknown", and the person decides. This is accepted because the default is `automatic`: the model setting of an existing role file changes only when a team opts into a pin. (The new roles, the changed role and skill text and the version stamps change protected files and the digest for every project, once, at the upgrade that ships them; ADR-006 says so.)
+- Previewing a change is `orqlet upgrade` (it plans before any write, A-18) plus `orqlet validate model-policy`. Reverting is reverting the policy edit and running `orqlet upgrade`; no new command is needed.
+- Orqlet cannot see a client replacing a pin. The detection is the recorded requested and observed identities (ADR-007) and the drift check above for files edited by hand.
+- Cursor effort is not renderable at first; Claude Code and Codex are.
+- An invalid, deleted or v1 policy blocks every `orqlet upgrade` until it is fixed or restored (fail closed, exit 3, nothing written); a team cannot upgrade the tool around a broken policy.
+- Cursor also reads `.claude/skills` (`src/orqlet/adapters/clients/cursor.py:20-23`, ORQ-L004), so a Claude Code skill pin is visible to Cursor when both clients are enabled. Whether Cursor honours a `model` field in a skill is not established by any fetched page (AS-IS, capability matrix); it is an unknown, not a claim.
+- Personal settings and credentials are never touched.
+
+## Rejected alternatives
+
+- **Add a `models` field to `RenderRequest` and change the three adapters.** The adapters would need new code for no new capability; the roles and skills can carry the per-client mapping that a renderer needs.
+- **One `model_setting` on each role.** One request serves all enabled clients and model names differ by client, so a single value could not carry a Claude, a Cursor and a Codex name.
+- **Write the choice into user-level client settings.** It changes personal settings, which the request forbids, and is outside the repository.
+- **Render `.claude/settings.json` with `model` or `availableModels`.** Orqlet renders no settings today; `model` there is an initial selection and not enforcement (A-97); organisation restrictions belong to the company (Q-23).
+- **Name models in the role sources of the workflow package.** The loader refuses a `model` key (A-5), and the package would carry vendor names and need a release for every model change (A-12).
+- **Pin every role by default.** See ADR-001.
