@@ -606,7 +606,12 @@ questions:
       - "docs/design/dynamic-model-profiles/evidence/web/github-required-reviews-and-codeowners.md"
     blocks:
       - implement
-    status: open
+    status: answered
+    answer:
+      value: "Read from the host on 2026-11-05 with read-only GitHub API calls: main has no branch protection and no ruleset applies to it. Nothing requires an approving review, a code-owner review, stale-approval dismissal or approval of the most recent push, and there is no bypass to disable, because an administrator can merge or push to main directly. The repository is public and user-owned and tmishari is its only collaborator. The CODEOWNERS file that applies to a pull request is the one on its base branch (GitHub documentation, About code owners). The human code-owner review that stands in for an AI reviewer (I3) is therefore enforced by nothing."
+      answerer: user
+      time: "2026-11-05T11:36:00+02:00"
+      scope: task
   - id: Q-35
     key: 3ed1622a40cd8b697ca029a9c4ee82a47ee5cdfe2d92d86f1f5b00ea818f1593
     subject: "Cursor model IDs for the starting catalog"
