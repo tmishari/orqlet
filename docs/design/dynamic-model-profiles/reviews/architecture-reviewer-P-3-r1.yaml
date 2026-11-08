@@ -1,0 +1,204 @@
+schema: orqlet.review-result/v1
+task: dynamic-model-profiles
+phase: P-3
+role: architecture-reviewer
+round: 1
+verdict: FAIL
+assurance: advisory
+review_input:
+  schema: orqlet.review-input/v1
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  components:
+    code_tests: fa6fd4390155e01f69afb16b823ce64ae4fbef4814cae609f78f8c723695eed8
+    design: af08cad54b174da764ccf0d9a534a6f83068ee318eb81cc6622337a56a287b28
+    evidence_inputs: f4cc814d7ed21551ad4dda8b2c10ad44565c1a50fe047586662998bf2965fff6
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 64828bab5b853ad6f3ffbf4c5fe4bcddd899ddfcedeb56010b5bd4e587e515c8
+    reviewer_definition: 6ce838ea71280ef545f87a85c2922b4bd9a2740713521c2dd24ed4768ead4be9
+    standards: 20b2417f8fe79a6b504d5edb6aa5876a9d7ae7a5a78a128d2d5e210ff3b835a9
+  digest: 18cff201a0ea3beb5548888f4bd3b719d49236ab77ab01c6bb71d977e58d027c
+  merge_base: 3db213fd9ffa5be05ac098bae4d51217068170e0
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: bb870c5236ad9b2cb5f0f6b0f8568baf499d9bd1727a18254303b9b1e797e7f4
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran in the same client as the Coder (cursor), so independence is I1, not I2.
+- The reviewer's session had no shell, so it ran no command and recomputed no digest, hash or check.
+  The quote digests were added by the person running the review with `orqlet evidence cite` at revision
+  040a8a882ac283f3fb9a80af1ccb1fce9dba3cb9, on committed files whose staged content is the same. The
+  phase's module, tests and records are staged and not committed, so they cannot be cited by revision;
+  their lines stay in the claim text, and F-4 and F-5, which rest on them alone, are observations.
+- 'Read-only is declared by the agent definition (readonly: true), not enforced by Orqlet.'
+- The model that ran the reviewer is not observed.
+- 'Not examined by the reviewer: the earlier review records under reviews/ (deliberately not read), the
+  P-1 and P-2 code beyond the contract lines cited, behaviour on the other Python versions of the CI
+  matrix, and docs/design/orqlet-architecture-proposal.md, which the packet left out (ORQ-I440).'
+applicability:
+  examined:
+  - MANIFEST.json
+  - diff.patch
+  - context/plan.yaml
+  - context/design-manifest.yaml
+  - context/test-record.yaml
+  - context/knowledge-impact.yaml
+  - snapshot/src/orqlet/domain/model_identity.py
+  - snapshot/tests/unit/domain/test_model_identity.py
+  - snapshot/docs/design/dynamic-model-profiles/questions.yaml
+  - snapshot/src/orqlet/application/contracts/common.py
+  - snapshot/src/orqlet/application/contracts/model_policy.py
+  - snapshot/src/orqlet/domain/resolver.py
+  - snapshot/src/orqlet/domain/independence.py
+  - snapshot/src/orqlet/domain/globs.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: blocking
+  category: architecture
+  rule_ref: plan P-3 AC-6
+  evidence:
+  - {kind: quote, path: docs/design/dynamic-model-profiles/plan.yaml, lines: 381-387, revision: 040a8a882ac283f3fb9a80af1ccb1fce9dba3cb9, quote_sha256: dfafcfb9ffb7d381f17cc944c6bed12d34fcbddd92401dad8b2432fb07016bca}
+  - {kind: quote, path: docs/design/dynamic-model-profiles/design/manifest.yaml, lines: 41-44, revision: 040a8a882ac283f3fb9a80af1ccb1fce9dba3cb9, quote_sha256: 876977b020a69e931a0e5d2560b2a75e95363d2486c7b167b6a4e29a984e107c}
+  - {kind: quote, path: docs/design/dynamic-model-profiles/design/manifest.yaml, lines: 94-101, revision: 040a8a882ac283f3fb9a80af1ccb1fce9dba3cb9, quote_sha256: 5f9ce69406f5c3c812a6db2212b9e4073afd0318bdf2d4b70dc1816e09f5e8bc}
+  claim: 'AC-6 of P-3 is not met. It requires `orqlet gate status dynamic-model-profiles --phase P-3
+    --head staged` to report no ORQ-E451 (plan.yaml:381-387). The test record (staged, lines 20-27, not
+    citable by revision) shows exit 5 with ORQ-E451 on src/orqlet/domain/model_identity.py and on P-2''s
+    model_policy_scan.py, and its verdict is FAIL. The cause is the design, not the code: the manifest
+    lists src/orqlet/domain/** as a security glob (manifest.yaml:41-44), and its only security expected
+    change, EC-7, concerns CODEOWNERS with verification manual (manifest.yaml:94-101). So no domain file
+    of any phase can be counted as covered, and AC-6 as written cannot pass with any implementation. The
+    reviewer did not run the gate; the cause is the record''s statement, and the manifest is consistent
+    with it.'
+  suggested_action: Keep the phase open. The person decides a design amendment, either a security expected
+    change that covers the matching rule and exclusion in src/orqlet/domain/model_identity.py with a verification
+    the gate can count, or a narrower security glob; then re-approve the plan and re-run the gate for P-3.
+    Later phases that touch src/orqlet/domain/** carry the same gate clause.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: finding
+  severity: non-blocking
+  category: architecture
+  rule_ref: 'AGENTS.md baseline: do not guess; keep facts and decisions apart'
+  evidence:
+  - kind: absence
+    searched: [docs/design/dynamic-model-profiles/questions.yaml]
+    method: 'grep for P-3, logical id, canonical separator, normalises to nothing, letter case, model_identity,
+      resolves_to: no match'
+    revision: 040a8a882ac283f3fb9a80af1ccb1fce9dba3cb9
+  claim: 'The coder settled six behaviours that the approved design and plan leave open, and the tests lock
+    them in: the normalised form uses a hyphen as its separator; a string that two entries name is unknown;
+    an entry''s logical id is not one of its names; a bracket in an id pattern is literal; an alias or family
+    tag that normalises to nothing matches nothing; the YAML words are refused in any letter case. The
+    knowledge record (staged, line 28) lists all six and says they live only in docstrings and the phase
+    report. questions.yaml has no question for any of them. The tests that pin them
+    (test_model_identity.py:14-20, model_identity.py:185-201, both staged) cite "the brief, item n" as their
+    expected_behavior_source; that is the Tester''s brief, which is not a repository file, so a reader cannot
+    check the source. Three of them shape later phases: whether an id is a name (the resolver and validate
+    review), ambiguity as unknown (family derivation), and empty matchers (F-3).'
+  suggested_action: Record the six as ledger questions or a design note and have the person confirm them
+    before P-4 calls these functions; then point the affected test docstrings at that entry instead of "the
+    brief". If the person confirms them, no code change is needed.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: finding
+  severity: non-blocking
+  category: failure-handling
+  rule_ref: ADR-005 decision 1 (exclusion is broad and fail-safe)
+  evidence:
+  - {kind: quote, path: src/orqlet/application/contracts/common.py, lines: 36-38, revision: 040a8a882ac283f3fb9a80af1ccb1fce9dba3cb9, quote_sha256: 84db59aa2aa471dbea7b10fc1b075b30154032c9fef1e8f55f689adbb33762c8}
+  - {kind: quote, path: src/orqlet/application/contracts/model_policy.py, lines: 127-139, revision: 040a8a882ac283f3fb9a80af1ccb1fce9dba3cb9, quote_sha256: 3f34d47356f6228a5c3876c0bc65f0ae54eab21469631daffe2a63756e3ade60}
+  - {kind: quote, path: docs/design/dynamic-model-profiles/plan.yaml, lines: 889-898, revision: 040a8a882ac283f3fb9a80af1ccb1fce9dba3cb9, quote_sha256: 3649a49e61949649d68625c9da2e37c5f8b55a2dd49982297b16177e0aec9569}
+  claim: 'An excluded[] entry whose every matcher normalises to nothing passes the P-1 contract and, with
+    this phase''s code, excludes nothing. ModelRef accepts values such as "-" or "anthropic/"
+    (common.py:36-38). The contract''s _something_to_match check only asks that a tuple is non-empty
+    (model_policy.py:127-139). _normalised and _tags drop an empty form (model_identity.py:171-175 and
+    209-212, staged). So {aliases: ["anthropic/"], family_tags: ["-"]} is a valid exclusion that matches no
+    string. P-7 AC-2 lists the FAIL findings of `validate model-policy`, and none covers this
+    (plan.yaml:889-898). Nothing calls the module yet, so nothing is affected today. Once P-4 and P-7 use it,
+    a reviewed edit could quietly empty an exclusion while keeping its id, which ORQ-E544 (an entry missing
+    from the file) would not catch. The security reviewer is better placed to rate the risk.'
+  suggested_action: With F-2, have the person decide whether such an entry is refused. If so, add the refusal
+    to the contract or to P-7's findings through a plan amendment. Nothing in this phase needs to change, because
+    the gap is the missing refusal before the matcher is reached.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: correctness
+  evidence: []
+  claim: 'resolves_to counts as a name for matching (_names) but not as a claim for name_conflicts (_claimed)
+    (model_identity.py:121-132 and 178-191, staged). If an alias route of entry A resolves to a name that
+    entry B lists, that name matches both entries, so it becomes unknown, and name_conflicts reports nothing.
+    This follows AC-4''s text, and it is fail-safe for identity because unknown never creates a family
+    difference, but a mis-pointed alias goes unreported. The test file lists "a shared resolves_to" as
+    deliberately not pinned (test_model_identity.py:30-33, staged). Traced by reading, not by running.'
+  suggested_action: 'Add it to the questions of F-2: should `validate model-policy` report a resolves_to that
+    another entry claims?'
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: tests
+  evidence: []
+  claim: The test record maps AC-6 to check_ref gate-status-phase (tests/P-3.yaml:27, staged), while the plan's
+    AC-6 names check_ref import-linter (plan.yaml:387). FAIL is the correct result for AC-6 as a whole, because
+    its text includes the gate, but the reference differs from the plan.
+  suggested_action: Align the record's check_ref for AC-6 with the plan, or record both checks.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+    acceptance_criteria: [AC-1, AC-2, AC-3, AC-4, AC-5, AC-6]
+  checks:
+  - what: Packet read (manifest, diff, plan, design manifest, test and knowledge records, the phase's module
+      and tests)
+    how: read-only file reads of MANIFEST.json, diff.patch, context/* and snapshot/*
+    result: pass
+  - what: Scope against the file lists of P-1, P-2 and P-3
+    how: diff.patch file headers against context/plan.yaml
+    result: pass
+  - what: Domain boundaries (ORQLET-ARCH-001, ORQLET-ARCH-002)
+    how: imports of snapshot/src/orqlet/domain/model_identity.py against the import-linter contracts
+    result: pass
+  - what: AC-1 to AC-5 against the code and the tests
+    how: read the staged module and tests against each clause
+    result: pass
+  - what: AC-6, the gate check
+    how: context/test-record.yaml and context/design-manifest.yaml
+    result: fail
+  - what: Checkable claims of the knowledge record
+    how: no caller under snapshot/src, knowledge_scope, .orqlet/knowledge.yaml sources, the five cited hashes
+      against the design manifest
+    result: pass
+  - what: Any check run or digest recomputed
+    how: ''
+    result: not-run
+  unverified:
+  - Lint, type, import, test and gate results are the Coder's claims; the reviewer had no shell.
+  - Behaviour on the other Python versions of the CI matrix (ORQLET-QA-001).
+  questions:
+  - 'F-2: confirm the six behaviours the coder settled, as ledger questions or a design note.'
+  - 'F-3: is an exclusion whose matchers all normalise to nothing refused?'
+  - 'F-4: should validate model-policy report a resolves_to that another entry claims?'

@@ -1,0 +1,170 @@
+schema: orqlet.review-result/v1
+task: dynamic-model-profiles
+phase: P-3
+role: security-reviewer
+round: 2
+verdict: PASS
+assurance: advisory
+review_input:
+  schema: orqlet.review-input/v1
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  components:
+    code_tests: e0222cc2b022408f94364833f723de120fe778490e08534b1719438ebbf2adc0
+    design: af08cad54b174da764ccf0d9a534a6f83068ee318eb81cc6622337a56a287b28
+    evidence_inputs: 08fb3d772f3bb7063e6aa83d8f9a2197dc812234c9676002aa9ae5ee1eb0d153
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 64828bab5b853ad6f3ffbf4c5fe4bcddd899ddfcedeb56010b5bd4e587e515c8
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: 20b2417f8fe79a6b504d5edb6aa5876a9d7ae7a5a78a128d2d5e210ff3b835a9
+  digest: 0fb84b9d65b3de73c83570392a2cd9eb8557b000d0cd1836b4593fdd655a0707
+  merge_base: 3db213fd9ffa5be05ac098bae4d51217068170e0
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran in the same client as the Coder (cursor), so independence is I1, not I2.
+- The reviewer's session had no shell (a read-only `head` command was refused), so no command ran and no quote
+  digest was computed; every item is an observation with its staged lines in the claim text.
+- Not blind to round 1. The packet still carries the earlier review records (ADR-007 decision 8, which keeps
+  them out, is a later phase), and the reviewer read security-reviewer-P-3-r1.
+- 'Read-only is declared by the agent definition (readonly: true), not enforced by Orqlet.'
+- The model that ran the reviewer is not observed.
+- 'Not examined by the reviewer: the test file beyond lines 1-46 and 995-1234 and targeted searches; the
+  Tester''s brief, which is not in the packet; what later phases do when every candidate is excluded; the P-1
+  and P-2 code beyond the contract types ModelRef, RecordedModel, PolicyText and IdPattern; and
+  docs/design/orqlet-architecture-proposal.md, which the packet left out (ORQ-I440).'
+applicability:
+  examined:
+  - diff.patch
+  - context/design-manifest.yaml
+  - context/test-record.yaml
+  - context/knowledge-impact.yaml
+  - snapshot/src/orqlet/domain/model_identity.py
+  - snapshot/tests/unit/domain/test_model_identity.py
+  - snapshot/docs/design/dynamic-model-profiles/knowledge/P-3.yaml
+  - snapshot/src/orqlet/application/contracts/model_policy.py
+  - snapshot/src/orqlet/application/contracts/common.py
+  - snapshot/docs/design/dynamic-model-profiles/reviews/security-reviewer-P-3-r1.yaml
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: 'The round-2 normalisation of id patterns can collapse a valid pattern into the bare wildcard `*`,
+    which excludes every model. `_patterns` (model_identity.py:216-223, staged) applies `_canonical` (148-152),
+    which removes a provider prefix and trims separators at both ends. IdPattern allows `.`, `-`, `_`, `/` and
+    `*` (model_policy.py:34-36). Traced by reading, not run: `xai/*` and `anthropic/*` lose their prefix and
+    become `*`; `.*`, `-*`, `_*` and `*.` lose their separators and become `*`; `fnmatchcase(<any normalised
+    string>, "*")` is true, so `claude-opus-5-5` is excluded. A second effect: `claude-fable-.*` becomes
+    `claude-fable-*` and now excludes `claude-fable-5`, the case AC-3 forbids ("a pattern with
+    regular-expression syntax matches only itself"); REGEX_PATTERNS (test_model_identity.py:1002-1007) holds no
+    `.*` pattern, so the suite does not catch it. This fails closed. A reviewed policy edit can already exclude
+    nearly everything (a one-letter family tag), so an attacker gains nothing new; the risk is that an honest
+    author who writes `xai/*` meaning "this vendor only" blocks every model.'
+  suggested_action: 'Ask the person. One option: in `_patterns`, drop a normalised pattern that holds nothing
+    but `*` and `?`, the same way an empty one is dropped; the raw-form match still catches `xai/grok-...`. Add
+    `.*`, `-*`, `xai/*`, `anthropic/*` and `claude-fable-.*` as cases that must not exclude `claude-opus-5-5` or
+    `claude-fable-5`. If the person accepts the wider reading as fail-safe, record it in ADR-005 and in the
+    guidance for policy authors, and change the wording of AC-3.'
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: Continues F-3 of round 1. tests/P-3.yaml:20 (staged) still records gate-status-phase FAIL with ORQ-E451
+    on model_identity.py, so AC-6 fails. The design manifest still lists `src/orqlet/domain/**` as a security
+    glob (design-manifest.yaml:41-44), and EC-7 (94-100) is still the only security expected change; it is
+    checked by hand, so no automated check covers this path. The person chose to continue with the check open.
+  suggested_action: Amend the design and the plan so that a security expected change covers domain/model_identity.py
+    and domain/model_policy_scan.py before the phase is called done.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: Continues F-2 of round 1, unchanged. `name_conflicts` (121-132) reads only route `name` and `also_known_as`
+    through `_claimed`, while `_match_index` (201-208) also matches `resolves_to` through `_names`. A `resolves_to`
+    that collides across entries therefore makes the string unknown, and no error reports it. The effect is
+    conservative, but it hides why an identity is unknown.
+  suggested_action: Keep the round-1 question open for the person. In later phases, report an ambiguous match
+    as ambiguous rather than as plain `unmatched`.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: Continues F-4 of round 1, unchanged. `_folded` (140-141) uses NFKC and case folding, and the separator set
+    `[-_. ]` (33) leaves out tab, Unicode dashes and zero-width characters, so `fa\u200bble` or `fa\tble` does not
+    match the tag `fable`. The contract types allow ASCII only, but ADR-005 runs the exclusion on a raw string that
+    has failed its type.
+  suggested_action: In the later phases, refuse a string that fails its type whatever the exclusion returns, and
+    keep one test for that.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: P-3
+    acceptance_criteria: [AC-1, AC-2, AC-3, AC-4, AC-5, AC-6]
+  checks:
+  - what: Staged module equals its diff hunk
+    how: Read snapshot model_identity.py (240 lines) and diff.patch lines 2443-2688 side by side
+    result: pass
+  - what: Round-2 change cannot fail open
+    how: Read _rule_matches (232-240); the new matcher is an extra OR clause
+    result: pass
+  - what: Pattern normalisation edge cases (prefix, separators, regex-looking patterns)
+    how: Traced _canonical, _patterns and _glob by hand against the character set of IdPattern
+    result: fail
+  - what: Secret and certificate shapes in the module, tests and knowledge record
+    how: Grep (sk-, ghp_, AKIA, ASIA, AIza, xai-, eyJ, BEGIN, password, secret, token, api key, URLs)
+    result: pass
+  - what: File, process, environment, clock, eval, YAML parsing and logging in the module
+    how: Read of imports and body; test-file imports searched
+    result: pass
+  - what: Processing cost on long or crafted input
+    how: Read _without_options (linear), _SEPARATORS, _PLAIN_ID; IdPattern max 128; Python 3.12 or later fnmatch
+    result: pass
+  - what: YAML safety of cursor_plain_id
+    how: Read the _PLAIN_ID fullmatch and _YAML_WORDS against the YAML 1.1 boolean, null and number forms
+    result: pass
+  - what: Knowledge record discloses nothing private
+    how: Read context/knowledge-impact.yaml and snapshot knowledge/P-3.yaml
+    result: pass
+  - what: Quote digests computed
+    how: ''
+    result: not-run
+  - what: F-1 behaviour executed
+    how: ''
+    result: not-run
+  unverified:
+  - F-1 is derived from reading the code and fnmatch semantics; it was not executed
+  - the Tester's brief, which is not in the packet
+  - what later phases (the resolver, automatic modes) do when every candidate is excluded
+  questions:
+  - 'F-1: should a normalised id pattern that holds only wildcards be dropped, or is "exclude everything" accepted as fail-safe?'
+  - 'F-3 (round-1 F-2): is a cross-entry resolves_to collision a conflict?'

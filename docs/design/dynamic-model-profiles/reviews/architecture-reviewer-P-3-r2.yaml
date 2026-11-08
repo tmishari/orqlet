@@ -1,0 +1,190 @@
+schema: orqlet.review-result/v1
+task: dynamic-model-profiles
+phase: P-3
+role: architecture-reviewer
+round: 2
+verdict: FAIL
+assurance: advisory
+review_input:
+  schema: orqlet.review-input/v1
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  components:
+    code_tests: e0222cc2b022408f94364833f723de120fe778490e08534b1719438ebbf2adc0
+    design: af08cad54b174da764ccf0d9a534a6f83068ee318eb81cc6622337a56a287b28
+    evidence_inputs: 08fb3d772f3bb7063e6aa83d8f9a2197dc812234c9676002aa9ae5ee1eb0d153
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 64828bab5b853ad6f3ffbf4c5fe4bcddd899ddfcedeb56010b5bd4e587e515c8
+    reviewer_definition: 6ce838ea71280ef545f87a85c2922b4bd9a2740713521c2dd24ed4768ead4be9
+    standards: 20b2417f8fe79a6b504d5edb6aa5876a9d7ae7a5a78a128d2d5e210ff3b835a9
+  digest: 208ea9d00232c2d1988093375d31c58072700ff9117cffb1531a0db0c32f54bf
+  merge_base: 3db213fd9ffa5be05ac098bae4d51217068170e0
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: bb870c5236ad9b2cb5f0f6b0f8568baf499d9bd1727a18254303b9b1e797e7f4
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran in the same client as the Coder (cursor), so independence is I1, not I2.
+- The reviewer's session had no shell, so it ran no command and computed no digest or check. The quote
+  digests were added by the person running the review with `orqlet evidence cite`, at the revisions the
+  reviewer named (040a8a882ac283f3fb9a80af1ccb1fce9dba3cb9 and the merge base); each cited file is the same
+  there as in the staged tree. The phase's module, tests and records are staged and not committed, so their
+  lines stay in the claim text.
+- Not blind to round 1. The packet still carries the round-1 review records (ADR-007 decision 8, which keeps
+  them out, is a later phase), and the reviewer read them; F-2 and F-3 carry over from round 1, F-1 is new.
+- 'Read-only is declared by the agent definition (readonly: true), not enforced by Orqlet.'
+- The model that ran the reviewer is not observed.
+- 'Not examined by the reviewer: the P-1 and P-2 code beyond the contract types cited, behaviour on the other
+  Python versions of the CI matrix, and docs/design/orqlet-architecture-proposal.md, which the packet left
+  out (ORQ-I440).'
+applicability:
+  examined:
+  - MANIFEST.json
+  - diff.patch
+  - context/plan.yaml
+  - context/design-manifest.yaml
+  - context/test-record.yaml
+  - context/knowledge-impact.yaml
+  - snapshot/src/orqlet/domain/model_identity.py
+  - snapshot/tests/unit/domain/test_model_identity.py
+  - snapshot/docs/design/dynamic-model-profiles/questions.yaml
+  - snapshot/docs/design/dynamic-model-profiles/design/adr-005-fable-exclusion-by-model-identity.md
+  - snapshot/docs/design/dynamic-model-profiles/design/adr-007-independence-model-identity-and-fresh-context.md
+  - snapshot/docs/design/dynamic-model-profiles/design/adr-003-rendering-model-settings-into-generated-files.md
+  - snapshot/docs/design/dynamic-model-profiles/design/component.md
+  - snapshot/src/orqlet/application/contracts/model_policy.py
+  - snapshot/tests/fixtures/contracts/valid/orqlet.model-policy.v2.yaml
+  - snapshot/pyproject.toml
+  - snapshot/docs/design/dynamic-model-profiles/reviews/architecture-reviewer-P-3-r1.yaml
+  - snapshot/docs/design/dynamic-model-profiles/reviews/security-reviewer-P-3-r1.yaml
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: blocking
+  category: correctness
+  rule_ref: plan P-3 AC-3; ADR-005 decision 1
+  evidence:
+  - {kind: quote, path: src/orqlet/application/contracts/model_policy.py, lines: 34-36, revision: 040a8a882ac283f3fb9a80af1ccb1fce9dba3cb9, quote_sha256: 80a87621ca795d4b61dab68930b3757ca780b0c655b11496cd10a78bb3475bd4}
+  - {kind: quote, path: tests/fixtures/contracts/valid/orqlet.model-policy.v2.yaml, lines: 70-72, revision: 040a8a882ac283f3fb9a80af1ccb1fce9dba3cb9, quote_sha256: 56f964cd06612f2aaf253d9175034fb920f75c760722abca12bba09e2264301c}
+  - {kind: quote, path: docs/design/dynamic-model-profiles/plan.yaml, lines: 357-366, revision: 3db213fd9ffa5be05ac098bae4d51217068170e0, quote_sha256: fdc2431ce7d10d7abf0a4467a8055112373359231087fb31d8009d4468006f2c}
+  - {kind: quote, path: docs/design/dynamic-model-profiles/design/adr-005-fable-exclusion-by-model-identity.md, lines: "26", revision: 3db213fd9ffa5be05ac098bae4d51217068170e0, quote_sha256: add55b7882f833d4dc1161462aa2db07a7fd1e849f8d95783d79b0c08d4acc75}
+  claim: 'The normalised-pattern path of the round-2 rework can widen a pattern to match every model.
+    `_patterns` normalises each id pattern with `_canonical`, which also removes a provider prefix of the
+    table and strips separators at both ends (model_identity.py:148-152 and 216-223, staged). When only
+    wildcards remain, `fnmatchcase(normalised, "*")` is true for every string (model_identity.py:238,
+    staged): `xai/*`, `anthropic/*`, `openai/*`, `google/*`, `.*`, `-*` and `*.` all become `*`, so
+    `is_excluded("claude-opus-5-5", [ExclusionRule(id_patterns=("xai/*",))])` returns True. More generally
+    the prefix is often a pattern''s only vendor constraint: `openai/*-mini` becomes `*-mini` and excludes
+    every vendor''s `-mini` model. The contract accepts these patterns (model_policy.py:34-36); the committed
+    v2 fixture already uses a vendor-prefixed pattern, `vendor/blocked-?` (fixture lines 70-72); ADR-005 names
+    "a vendor the company rules out" as a use of team exclusions (adr-005 line 26). AC-3 asks for matching
+    "by fnmatch pattern" (plan.yaml:357-366), and fnmatch of `xai/*` does not match `claude-opus-5-5`. One
+    such entry would make the resolver reject every candidate and `validate model-policy` report ORQ-E543
+    on every model. It fails closed, so it is not a security weakening, but the answer is wrong. No test
+    covers a pattern whose normalised form is only wildcards (test_model_identity.py:1102-1128, staged).
+    Traced by reading, not executed.'
+  suggested_action: 'Ask the person to refine the F-1 decision, then change `_patterns` and add tests for
+    `xai/*`, `anthropic/*`, `openai/*-mini`, `.*` and `*.`. (a) The minimum: drop a normalised pattern that
+    holds nothing but `*` and `?` when the written pattern held a literal character. (b) Also keep the vendor
+    constraint: do not remove a provider prefix from a pattern, and match a prefixed pattern against a form
+    of the model that keeps its prefix, with separators normalised; this gives up matching `openai/gpt-6.1-*`
+    against an unprefixed `GPT 6.1 Sol`, which a current test asserts.'
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: finding
+  severity: blocking
+  category: architecture
+  rule_ref: plan P-3 AC-6
+  evidence:
+  - {kind: quote, path: docs/design/dynamic-model-profiles/plan.yaml, lines: 381-387, revision: 3db213fd9ffa5be05ac098bae4d51217068170e0, quote_sha256: dfafcfb9ffb7d381f17cc944c6bed12d34fcbddd92401dad8b2432fb07016bca}
+  - {kind: quote, path: docs/design/dynamic-model-profiles/design/manifest.yaml, lines: 41-44, revision: 3db213fd9ffa5be05ac098bae4d51217068170e0, quote_sha256: 876977b020a69e931a0e5d2560b2a75e95363d2486c7b167b6a4e29a984e107c}
+  - {kind: quote, path: docs/design/dynamic-model-profiles/design/manifest.yaml, lines: 94-101, revision: 3db213fd9ffa5be05ac098bae4d51217068170e0, quote_sha256: 5f9ce69406f5c3c812a6db2212b9e4073afd0318bdf2d4b70dc1816e09f5e8bc}
+  claim: 'AC-6 is still not met. The test record (tests/P-3.yaml:20, staged) shows the phase gate exiting 5
+    with ORQ-E451 on domain/model_identity.py and domain/model_policy_scan.py, and its verdict is FAIL. The
+    design lists `src/orqlet/domain/**` as a security glob (manifest.yaml:41-44), and its only security expected
+    change is EC-7, verified by hand (manifest.yaml:94-101), so no domain file can count as covered, whatever
+    the code does. Neither the plan nor the design has changed since round 1. The record also still maps AC-6
+    to gate-status-phase, while the plan names import-linter (round-1 F-5).'
+  suggested_action: The person amends the design, either a security expected change that covers the two domain
+    modules with a verification the gate can count, or a narrower security glob; then re-approves the plan, and
+    the gate is re-run for P-2 and P-3. P-4 and the later phases that touch domain files have the same gate clause.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: finding
+  severity: non-blocking
+  category: architecture
+  rule_ref: 'AGENTS.md baseline: do not guess; keep facts and decisions apart'
+  evidence:
+  - kind: absence
+    searched: [docs/design/dynamic-model-profiles/questions.yaml]
+    method: 'searched for P-3, model_identity, logical id, canonical separator, normalises to nothing, letter
+      case, resolves_to, id pattern: no match; questions.yaml and the design folder are not in diff.patch'
+    revision: 3db213fd9ffa5be05ac098bae4d51217068170e0
+  claim: 'The knowledge record lists seven behaviours chosen during implementation, one of them the person''s
+    decision on security F-1; all seven live only in docstrings and the phase report, and the tests cite "the
+    brief, item n", which is not a repository file. The round-1 questions (architecture F-2, F-3 and F-4,
+    security F-2) have no ledger entry either, and ADR-005 is unchanged. The record''s already-documented
+    category is true of the rule itself but, by its own text, not of the seven behaviours; the record discloses
+    this accurately, but the behaviours still have no reviewed home.'
+  suggested_action: Before P-4 calls these functions, record the seven behaviours, the F-1 decision with the
+    refinement from F-1 of this round, and the open round-1 questions in the ledger or in an ADR-005 amendment;
+    then point the test docstrings at those entries instead of "the brief".
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+    acceptance_criteria: [AC-1, AC-2, AC-3, AC-4, AC-5, AC-6]
+  checks:
+  - what: Packet read
+    how: MANIFEST.json base, the diff.patch file list, context/*, the snapshot module and tests, ADR-005, ADR-007
+      decisions 1-11, ADR-003 decision 3, the component.md rows, the contract types
+    result: pass
+  - what: Scope against P-3 file_operations
+    how: diff headers against the plan; the P-3 code is the two planned files plus its records
+    result: pass
+  - what: ORQLET-ARCH-001/002
+    how: the module's imports against the import-linter forbidden list in pyproject.toml
+    result: pass
+  - what: AC-1, AC-2, AC-4, AC-5
+    how: read each clause against the code and its tests
+    result: pass
+  - what: AC-3
+    how: the BC-9 variants and the clean strings hold by reading; the normalised-pattern path matches too much (F-1)
+    result: fail
+  - what: AC-6
+    how: test record, plan and design manifest
+    result: fail
+  - what: Knowledge record claims
+    how: no caller in snapshot/src; .orqlet/knowledge.yaml has sources []; knowledge_scope []; the five cited
+      hashes compared with the design manifest, not recomputed
+    result: pass
+  - what: Any command run or digest computed
+    how: ''
+    result: not-run
+  unverified:
+  - Lint, type, import, test and gate results are the Coder's claims; the reviewer had no shell.
+  - Behaviour on the other Python versions of the CI matrix.
+  - F-1 was traced by reading, not executed.
+  questions:
+  - 'F-1: which refinement of the id-pattern normalisation does the person choose, (a) or (b)?'
+  - 'F-2: which design amendment clears ORQ-E451 for the domain paths?'
+  - 'F-3: where are the seven behaviours and the round-1 questions recorded?'
