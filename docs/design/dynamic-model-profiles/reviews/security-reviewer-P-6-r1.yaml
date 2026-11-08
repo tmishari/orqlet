@@ -1,0 +1,222 @@
+schema: orqlet.review-result/v1
+task: dynamic-model-profiles
+phase: P-6
+role: security-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  schema: orqlet.review-input/v1
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  components:
+    code_tests: 61e876c23539e56f8195d4b0443b13256623dd93beb2413e97a06193c8ef811b
+    design: af08cad54b174da764ccf0d9a534a6f83068ee318eb81cc6622337a56a287b28
+    evidence_inputs: 25a36d15524cb0f26f8bf65fabf9cc254beeb859d1a620324732d54c5e7feae4
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 64828bab5b853ad6f3ffbf4c5fe4bcddd899ddfcedeb56010b5bd4e587e515c8
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: 20b2417f8fe79a6b504d5edb6aa5876a9d7ae7a5a78a128d2d5e210ff3b835a9
+  digest: 76aaf3c42a369b980c929cc7f3b73e83ba595a90d09908edb335866aeb1953c3
+  merge_base: 3db213fd9ffa5be05ac098bae4d51217068170e0
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran in the same client as the Coder (cursor), so independence is I1, not I2.
+- The reviewer's session had no shell, so it ran no check and computed no quote digest; every finding is an observation and
+  none rests on a quote. It did not save a record file; the person running the review saved this one from its answer.
+- 'Read-only is declared by the agent definition (readonly: true), not enforced by Orqlet.'
+- The model that ran the reviewer is not observed.
+- The packet held the earlier review records under snapshot/docs/design/dynamic-model-profiles/reviews/ (22 files) and in
+  diff.patch, which ADR-007 decision 8 says a packet must not carry. The reviewer says it read the hunk of
+  security-reviewer-P-5-r1.yaml; it says it found F-1 (cost) from the code before it read that record, that F-3, F-4 and the
+  `inherit` note were raised there first, and that it re-checked each against the code and the plan in this packet. Its
+  findings F-1, F-3 and F-4 are influenced by that record.
+- 'Not examined by the reviewer: P-1 to P-4 code in depth (it read the policy contract, model_policy_source, model_selection in
+  full, model_identity in part, model_resolution lines 180-545, emit.py, local_fs.py and yaml_loader.py; it did not read
+  model_policy_scan.py or src/orqlet/workflow/**), the claimed test results (10732 passed), the cost claim of F-1 (from
+  reading, not measured), and whether Cursor or Codex honour `model` in these files (ADR-003 states it as unknown).'
+applicability:
+  examined:
+  - diff.patch
+  - context/plan.yaml
+  - context/design-manifest.yaml
+  - context/test-record.yaml
+  - context/knowledge-impact.yaml
+  - context/standards/rules.yaml
+  - snapshot/src/orqlet/application/usecases/upgrade.py
+  - snapshot/src/orqlet/application/usecases/pin_staleness.py
+  - snapshot/src/orqlet/application/usecases/model_selection.py
+  - snapshot/src/orqlet/application/usecases/model_policy_source.py
+  - snapshot/src/orqlet/application/usecases/render_all.py
+  - snapshot/src/orqlet/application/usecases/explain.py
+  - snapshot/src/orqlet/application/usecases/init_project.py
+  - snapshot/src/orqlet/interface/cli/commands/lifecycle.py
+  - snapshot/src/orqlet/interface/cli/render_human.py
+  - snapshot/src/orqlet/adapters/render/emit.py
+  - snapshot/src/orqlet/adapters/local_fs.py
+  - snapshot/src/orqlet/domain/model_identity.py
+  - snapshot/src/orqlet/domain/model_resolution.py
+  - snapshot/src/orqlet/application/contracts/model_policy.py
+  - the tests of the phase, by name and by search for credential shapes
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: failure-handling
+  rule_ref: ORQLET-SEC-002
+  evidence: []
+  claim: >-
+    P-4 F-2 and P-5 F-2 are still open, and P-6 puts the cost on every `upgrade` and `explain`. `_name_problems`
+    (model_selection.py:571-574) still yields one problem per conflicting pair, because `name_conflicts`
+    (model_identity.py:121-132) returns every pair. `_problem_findings` (423-436) caps only the printed paths (`_MAX_PATHS`,
+    439), not the list it builds. The contract caps no list except `also_known_as` (model_policy.py:102). `_split`
+    (model_resolution.py:437-445) judges every candidate id with no early exit, and `_judge` (477-479) re-matches all
+    exclusions each time. `_settings_of` (259) and `_missing` (326) repeat this for each role, skill and client. No P-6 test
+    bounds the time. The policy is untrusted and capped only at 256 KiB. Not measured.
+  suggested_action: >-
+    Report each later entry once. Cap list lengths in the contract, or memoise the exclusion result per model within one run.
+    Add a bounded-time test on a worst-case policy.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: failure-handling
+  rule_ref: ORQLET-SEC-002
+  evidence: []
+  claim: >-
+    The size limits are applied after the whole file is read. `local_fs.read_bytes` ends in `handle.read()`
+    (local_fs.py:88-104). `load_model_policy` reads, then `_parse` checks 256 KiB (model_policy_source.py:108, 156). P-6 adds a
+    second site: `pin_staleness._read` reads each `docs/design/*/reviews/*` file that matches the review pattern, then checks
+    64 KiB (pin_staleness.py:115-116). `upgrade` did not read these files before P-6. A very large file in the repository costs
+    memory in a local `upgrade`.
+  suggested_action: >-
+    Add a size or bounded read to the `FileSystem` port, or check the size before reading. P-2 F-1 raised this for the policy.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: >-
+    This is P-5 F-3, and it is first reachable from a command in P-6. `upgrade` now writes the pin of a policy whose
+    `approval.state` is `approved`. The resolver reads no `approved_by` or `approval_ref` (grep of model_resolution.py). It has
+    no exclusion floor, so a staged policy that drops `excluded[]` pins an excluded model. The checks against the base tree and
+    of the approval fields are P-7, which depends on P-6. Mitigations in the packet: the policy sits under `.orqlet/**`, a
+    security glob with CODEOWNERS, and the pin shows as a diff.
+  suggested_action: >-
+    The person decides: ship P-6 and P-7 together, or accept the window. Question: does this accepted risk stand until P-7?
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: architecture
+  rule_ref: ORQLET-ARCH-002
+  evidence: []
+  claim: >-
+    P-5 F-1 is closed for the command path and open at the renderer. `compose` passes a selection only through
+    `follow_policy`, and a policy with problems is refused there (model_selection.py:198-220). `build_render_request` still uses
+    any `ModelSelection` and never reads `problems` (render_request.py:118). The guarantee that a faulty policy pins nothing is
+    a convention of the caller. P-5 F-5 (a route named `inherit` writes the same bytes as no pin) is also unchanged. It is a
+    correctness issue, not a security risk.
+  suggested_action: >-
+    Refuse a selection with `problems` in `build_render_request`, or leave the convention and say so in the design.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: failure-handling
+  evidence: []
+  claim: >-
+    `_proposes_code_reviewer` (upgrade.py:286-298) calls `kind` and `read_bytes` with no handler for `FileSystemError` or
+    `OSError`. `pin_staleness` handles both after the test record's own failures. The call is reached only when the plan already
+    holds a proposal for the bindings file, so a failure needs a race or a permission change between two reads. The failure
+    would be an exception out of `upgrade`.
+  suggested_action: >-
+    Catch `FileSystemError` and `OSError` as `pin_staleness` does, and return False.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: info
+  category: standards
+  evidence: []
+  claim: >-
+    The packet holds earlier review records under `snapshot/docs/design/dynamic-model-profiles/reviews/` (22 files) and in
+    `diff.patch`. ADR-007 decision 8 says a packet must not carry them. The reviewer read the hunk of
+    security-reviewer-P-5-r1.yaml. F-1 (cost) was found from the code before the reviewer read it. F-3, F-4 and the `inherit`
+    note were raised there first. The reviewer re-checked each against the code and plan in this packet.
+  suggested_action: >-
+    Exclude `reviews/` from the packet snapshot and from `diff.patch`.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: The policy as untrusted input (ORQLET-SEC-002)
+    how: Read model_policy_source.py and local_fs.py. The policy is read through the FileSystem port and the strict loader; a link or non-regular file is refused as ORQ-E540; refusal texts carry the code, a fixed text and a field path, never a pydantic message or a file value; the credential scan runs on the raw text after the contract passes.
+    result: pass
+  - what: Refusal before any write
+    how: upgrade.py:145-153 returns `refused` before plan_changes, so it holds for a normal run, --dry-run and --check; compose writes nothing; init passes policy=None; explain only reads.
+    result: pass
+  - what: Injection into generated files
+    how: Model names are limited by ModelRef (ASCII, no whitespace, quote or brackets; the Rust-regex `$` does not match before a trailing newline, and the contract tests include "a\n" and "codex\n"). Effort is a closed Literal. emit.py quotes with json.dumps unless the value passes the allow-list. A finding's text holds only a validated name, a profile id, a client id and fixed words, never a model string.
+    result: pass
+  - what: pin_staleness
+    how: Paths in ORQ-W547 come from the strict review-path regex and CanonicalPath.parse; a link, a bad name, an oversized file or an invalid record is skipped; binding_ref goes only into a constant format string and is then parsed as a path; nothing is written.
+    result: pass
+  - what: Process, network, environment and logging access
+    how: grep of the eight P-6 use-case files for subprocess, os.system, environ, socket, urllib, open(, eval, pickle, print( and logging found nothing (ORQLET-SEC-001).
+    result: pass
+  - what: Dependencies and ownership files
+    how: no diff for pyproject.toml, uv.lock, .github, AGENTS.md, .orqlet, client adapters or CODEOWNERS.
+    result: pass
+  - what: Secrets and credential shapes in the diff (ORQLET-SEC-003)
+    how: regex scan of the diff for AWS, GitHub, Stripe, Google, JWT, private-key and userinfo shapes; the only hit is the userinfo test line, built from PASSWORD fragments. No personal path, host or address appears.
+    result: pass
+  - what: Writes (ORQLET-SAFE-001)
+    how: P-6 adds no write outside apply_plan.
+    result: pass
+  - what: Private data in the knowledge draft and the test record
+    how: read knowledge/P-6.yaml and tests/P-6.yaml; no private data.
+    result: pass
+  - what: Check commands re-run (ruff, mypy, lint-imports, pytest, gate status)
+    how: The Shell tool was refused; this session cannot run commands.
+    result: not-run
+  - what: quote_sha256 for quote evidence
+    how: no shell to compute digests, so no finding rests on a quote.
+    result: not-run
+  - what: Earlier review records are not read
+    how: the reviewer read the hunk of security-reviewer-P-5-r1.yaml (see capability_limits).
+    result: fail
+  unverified:
+  - All claimed command results of the test record (10732 passed).
+  - The cost claim of F-1 is from reading, not measured.
+  - P-1 to P-4 code beyond the files listed in capability_limits, and src/orqlet/workflow/**.
+  - Whether Cursor or Codex honour a `model` field in these files (ADR-003 states it as unknown).
+  questions:
+  - 'F-3: does the accepted risk of the P-6 to P-7 window stand until P-7?'
+  - 'F-4: should build_render_request refuse a selection that has problems? (render_request.py is not in the file list of P-6.)'

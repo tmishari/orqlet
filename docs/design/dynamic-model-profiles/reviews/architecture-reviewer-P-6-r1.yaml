@@ -1,0 +1,245 @@
+schema: orqlet.review-result/v1
+task: dynamic-model-profiles
+phase: P-6
+role: architecture-reviewer
+round: 1
+verdict: FAIL
+assurance: advisory
+review_input:
+  schema: orqlet.review-input/v1
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  components:
+    code_tests: 61e876c23539e56f8195d4b0443b13256623dd93beb2413e97a06193c8ef811b
+    design: af08cad54b174da764ccf0d9a534a6f83068ee318eb81cc6622337a56a287b28
+    evidence_inputs: 25a36d15524cb0f26f8bf65fabf9cc254beeb859d1a620324732d54c5e7feae4
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 64828bab5b853ad6f3ffbf4c5fe4bcddd899ddfcedeb56010b5bd4e587e515c8
+    reviewer_definition: 6ce838ea71280ef545f87a85c2922b4bd9a2740713521c2dd24ed4768ead4be9
+    standards: 20b2417f8fe79a6b504d5edb6aa5876a9d7ae7a5a78a128d2d5e210ff3b835a9
+  digest: a7d33f91dd077ae815d8ad6bf4751e34c13dcd82dce5228bf8d0796679b82702
+  merge_base: 3db213fd9ffa5be05ac098bae4d51217068170e0
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: bb870c5236ad9b2cb5f0f6b0f8568baf499d9bd1727a18254303b9b1e797e7f4
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran in the same client as the Coder (cursor), so independence is I1, not I2.
+- The reviewer's session was in Ask mode and had no shell, so it ran no command, computed no quote digest and could not run
+  `orqlet standards for` (it read context/standards/rules.yaml). It did not save a record file; the person running the review
+  saved this one from its answer. The reviewer's evidence entries named packet paths (context/..., snapshot/...) with
+  the digest value not-computed. The person running the review replaced the entries of F-1 by quotes of committed files, with
+  digests from `orqlet evidence cite` at revision 5f4ed4d8b8edcec58875e21b59e1a5e17f329caa (the plan, the design manifest and
+  the implement skill), and gave F-2 an absence record. The phase's modules, tests and records are staged and not committed,
+  so they cannot be cited by revision; their lines stay in the claim text. The claims are the reviewer's, with the packet
+  paths changed to repository paths. The categories of F-3, F-4 and F-6 (the reviewer wrote requirements and behaviour, which
+  the format does not allow) were set to correctness, and the result of the knowledge check (the reviewer wrote partial) was
+  set to fail, because the format allows only pass, fail and not-run.
+- 'Read-only is declared by the agent definition (readonly: true), not enforced by Orqlet.'
+- The model that ran the reviewer is not observed.
+- The packet held the earlier review records under snapshot/docs/design/**/reviews/, which ADR-007 decision 8 says a packet
+  must not carry. The reviewer says it opened architecture-reviewer-P-5-r1.yaml to learn the format and read its findings, and
+  tests/P-2 to P-5.yaml for the digest comparison; it says F-1 and F-2 overlap the P-5 review and that it re-derived both
+  from the P-6 test record, the plan, the skill text and the diff.
+- 'Not examined by the reviewer: the full suite and import-linter (not run), whether the design and plan are approved (its
+  copies show status draft), the CI matrix Pythons other than the one used (ORQLET-QA-001), P-1 to P-5 code beyond what P-6
+  relies on, golden files, docs/design/orqlet-architecture-proposal.md (not in the packet), security aspects, and
+  tests/unit/application/test_upgrade_model_policy.py lines 1-690 and 1030-1330.'
+applicability:
+  examined:
+  - diff.patch
+  - context/plan.yaml
+  - context/design-manifest.yaml
+  - context/test-record.yaml
+  - context/knowledge-impact.yaml
+  - context/standards/rules.yaml
+  - snapshot/src/orqlet/workflow/skills/orqlet-implement/skill.md
+  - snapshot/src/orqlet/application/usecases/upgrade.py
+  - snapshot/src/orqlet/application/usecases/pin_staleness.py
+  - snapshot/src/orqlet/application/usecases/model_selection.py
+  - snapshot/src/orqlet/application/usecases/render_all.py
+  - snapshot/src/orqlet/application/usecases/explain.py
+  - snapshot/src/orqlet/application/usecases/init_project.py
+  - snapshot/src/orqlet/interface/cli/commands/lifecycle.py
+  - snapshot/src/orqlet/interface/cli/render_human.py
+  - the new tests of the phase (in part) and the three edited earlier tests
+  - snapshot/README.md
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: blocking
+  category: architecture
+  evidence:
+  - {kind: quote, path: docs/design/dynamic-model-profiles/plan.yaml, lines: 788-791, revision: 5f4ed4d8b8edcec58875e21b59e1a5e17f329caa, quote_sha256: bc52a5ef144a331105db3718f0fd64fb88e9b3d13df8284a2dff5edc28da4811}
+  - {kind: quote, path: docs/design/dynamic-model-profiles/design/manifest.yaml, lines: 40-44, revision: 5f4ed4d8b8edcec58875e21b59e1a5e17f329caa, quote_sha256: d23805dd65b8caffcb88634e1b54038b53ef5245d2edb10737c86240397036d8}
+  - {kind: quote, path: docs/design/dynamic-model-profiles/design/manifest.yaml, lines: 94-101, revision: 5f4ed4d8b8edcec58875e21b59e1a5e17f329caa, quote_sha256: 5f9ce69406f5c3c812a6db2212b9e4073afd0318bdf2d4b70dc1816e09f5e8bc}
+  - {kind: quote, path: src/orqlet/workflow/skills/orqlet-implement/skill.md, lines: '28', revision: 5f4ed4d8b8edcec58875e21b59e1a5e17f329caa, quote_sha256: abe08b555946f39423f9e0d0b1870a31c99bd9eca170aef8868a0aad1b64ead0}
+  - {kind: absence, searched: [docs/design/dynamic-model-profiles/design/manifest.yaml], method: 'read expected_changes EC-1 to EC-9 of context/design-manifest.yaml; the only entry with surface security is EC-7 (lines 94-101, verification manual, CODEOWNERS); no entry covers src/orqlet/domain/**', revision: 3db213fd9ffa5be05ac098bae4d51217068170e0}
+  claim: >-
+    AC-9 of P-6 fails and the test record's verdict is FAIL. The gate (gate-status-phase, exit 5) reports ORQ-E451 on
+    model_identity.py (P-3), model_policy_scan.py (P-2) and model_resolution.py (P-4), which match the design's security glob
+    src/orqlet/domain/**. P-6 changes none of them, so the cause is inherited from the branch. The implement skill says
+    ORQ-E451 stops the work. The same failure is recorded in tests/P-2 to P-6.yaml, and each time the only decision on record
+    is "the person chose to continue". The plan digest (64828bab...) is the one the P-5 review read, and the design manifest
+    has no domain entry, so nothing was amended or waived in a form a reviewer can read.
+  suggested_action: >-
+    The person decides once: amend the design and plan (a security expected change for src/orqlet/domain/** that the gate can
+    count, or a narrower glob, then a renewed design approval), or record an explicit waiver for the rest of the branch.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: finding
+  severity: non-blocking
+  category: architecture
+  evidence:
+  - {kind: absence, searched: [docs/design/dynamic-model-profiles/plan.yaml], method: 'read the file operations of P-6 (context/plan.yaml 797-836) and compared them with the paths changed in diff.patch: test_model_settings_request.py, test_render_integrations.py and test_resources_composition.py change and are not listed', revision: 3db213fd9ffa5be05ac098bae4d51217068170e0}
+  claim: >-
+    Three earlier tests were edited outside the phase's file list: test_model_settings_request.py, test_render_integrations.py
+    and test_resources_composition.py. The test record discloses this and says the person agreed, but the plan was not amended.
+    AC-9 also says that no file outside the phase's operations changes, yet the record attributes its fail only to the gate.
+    The edits are minimal and forced by the plan's own change of compose (`selection` to `policy`) and of ModelSelection.
+    The reviewer could see the first two in the diff; the third sits in a file that the diff shows as new, so it relied on
+    the record for it.
+  suggested_action: >-
+    List these tests in the plan when F-1 is amended. Check that P-7 to P-13 do not pin these signatures again.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: correctness
+  evidence: []
+  claim: >-
+    The coder's readings of AC-2 are held only in docstrings and the phase report (knowledge-impact.yaml), and no answer from
+    the person is recorded. (a) An assignment that names one model in mode automatic-with-fallbacks never gets ORQ-W540
+    (model_selection.py:357-365). AC-2 says "an automatic-with-fallbacks one with no eligible fallback", which can also be read
+    to cover it. A test pins the narrow reading. (b) A profile that no assignment uses is judged for every enabled client
+    (model_selection.py:326-354). Once a seeded policy ships profiles in mode manual with candidates for only some clients,
+    every upgrade would warn about profiles nothing uses. The reviewer cannot tell whether that is wanted.
+  suggested_action: >-
+    Ask the person to confirm (a) and (b), or fix them in the plan text.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: correctness
+  evidence: []
+  claim: >-
+    ORQ-W547 fires on every plan that changes an agent file that a review record names, with or without a policy
+    (pin_staleness.py:48; `_pin_notes` in upgrade.py:263 does not look at the policy). That matches AC-4, and the plan's later
+    README paragraph (P-12 AC-3) says release upgrades do the same. The message wording says "A model pin changes protected
+    files", which reads as if only a pin causes it. The only test without a policy covers a release that changes no agent
+    file, so the case of a release that changes role text and has no policy is not tested.
+  suggested_action: >-
+    Optionally word the message for any agent-file change, and add that one test.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: docs
+  evidence:
+  - {kind: quote, path: README.md, lines: 771-772, revision: 5f4ed4d8b8edcec58875e21b59e1a5e17f329caa, quote_sha256: 5496b0427d570204a5b1e60b24b81911f5d331837880e4cea6d062be313c6da0}
+  claim: >-
+    The knowledge record says README.md stays true. Its search used new terms (model-policy, ORQ-E540 and so on) and so does not
+    test statements that this phase makes incomplete. README.md:771-772 lists three causes of a non-zero `orqlet upgrade
+    --check`. A policy edit that is not yet rendered, and a refused policy (exit 3), are now two more. P-12 AC-3 and AC-4 name
+    an upgrade paragraph and a codes table but not this line. The statement is incomplete rather than false.
+  suggested_action: >-
+    Add this line to the README work of P-12, or say in the record that it is deferred.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: info
+  category: correctness
+  evidence: []
+  claim: >-
+    `upgrade --resume` with a policy that has become invalid or deleted is refused (upgrade.py:145-153) before the interrupted
+    change can be finished. `rollback` is the way out. This is consistent with AC-1, but neither the plan nor a test says it,
+    and the fault test resumes only with a valid policy.
+  suggested_action: >-
+    Say so in the design notes or add one test.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: info
+  category: tests
+  evidence: []
+  claim: >-
+    Evidence quality. (a) Every command in the test record has evidence_kind "claimed". (b) The gate-status digest a38a798d...
+    is identical in tests/P-4.yaml, P-5.yaml and P-6.yaml. The reviewer cannot tell whether the gate output carries the phase
+    name or whether the digest was reused. (c) Many tests cite "the interface item N" of a tester brief that is not in the
+    packet; the reviewer checked those tests only against the plan and the ADRs. (d) model_selection.py now holds mapping,
+    problem checks, selection, the ORQ-W540 analysis and the refusal outcome (ORQLET-STYLE-001 is SHOULD, so this is not a
+    defect).
+  suggested_action: >-
+    Re-run the gate with --phase P-6 and keep its own digest.
+  confidence: low
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+    acceptance_criteria: [AC-1, AC-2, AC-3, AC-4, AC-5, AC-6, AC-7, AC-8, AC-9]
+  checks:
+  - what: P-6 source changes stay inside the phase file list
+    how: diff.patch against plan.yaml 797-836; the source changes are upgrade, init_project, explain, render_all, model_selection, pin_staleness, lifecycle and render_human
+    result: pass
+  - what: Test edits stay inside the phase file list
+    how: test-record.yaml pytest summary
+    result: fail
+  - what: Layering and purity (ORQLET-ARCH-001, ORQLET-ARCH-002, ORQLET-ARCH-003)
+    how: read the imports of the new and changed modules; import-linter not run
+    result: pass
+  - what: Code against AC-1 to AC-8 (refusal before any plan, ORQ-W540, W545, W546, W547, I540, explain, init, journalled writes)
+    how: read the code and the tests that map to each criterion
+    result: pass
+  - what: Failure handling
+    how: load_model_policy returns states and does not raise; pin_staleness skips unreadable, oversized and invalid records; messages carry no model string or file value
+    result: pass
+  - what: Tests meaningful and complete
+    how: read the tests for AC-1 to AC-8 in part; no mutation run
+    result: pass
+  - what: Knowledge record accurate
+    how: README.md and the plan's later phases; one statement this phase makes incomplete was found (F-5, info), and the record's search terms did not cover it
+    result: fail
+  - what: AC-9 gate check
+    how: test-record.yaml, design-manifest.yaml and skill.md:28
+    result: fail
+  - what: Commands (ruff, mypy, import-linter, pytest, gate)
+    how: no shell in this review
+    result: not-run
+  - what: Quote digests
+    how: no shell in this review; the digests of F-1 and F-5 were added by the person running the review (see capability_limits)
+    result: not-run
+  - what: Earlier review records are not read
+    how: the reviewer opened architecture-reviewer-P-5-r1.yaml and tests/P-2 to P-5.yaml (see capability_limits)
+    result: fail
+  unverified:
+  - That the full suite passes (10732 passed is claimed) and that import-linter reports no broken contract.
+  - Whether the design and plan are approved; the packet copies show status draft.
+  - Python versions of the CI matrix other than the one used (ORQLET-QA-001).
+  - P-1 to P-5 code beyond what P-6 relies on, golden files, and docs/design/orqlet-architecture-proposal.md (not in the packet).
+  - Security aspects, which belong to the security reviewer. Not every test body was read; tests/unit/application/test_upgrade_model_policy.py lines 1-690 and 1030-1330 were not.
+  questions:
+  - 'F-1: do you want a design and plan amendment, or a recorded waiver, for the ORQ-E451 on src/orqlet/domain/**?'
+  - 'F-3: confirm the two readings of AC-2 (a single-model fallback assignment gets no ORQ-W540; an unused profile is judged for every enabled client).'
+  - 'F-4: should ORQ-W547 also fire on release upgrades without a policy, and should its wording say so?'

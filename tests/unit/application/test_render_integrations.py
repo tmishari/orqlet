@@ -1071,8 +1071,8 @@ RENDER_ALL_API = {
         " resources: Resources, *, clients: Sequence[str], prompts_dir: str, pr_targets:"
         " tuple[str, ...], profile_bytes: bytes, resources_bytes: bytes, integrations:"
         " Integrations | None=None, orqlet_owned: frozenset[str]=frozenset(), released:"
-        " frozenset[str]=frozenset(), released_record: bytes | None=None, selection:"
-        " ModelSelection | None=None) -> Composition"
+        " frozenset[str]=frozenset(), released_record: bytes | None=None, policy:"
+        " PolicyState | None=None) -> Composition"
     ),
     "team_template": (
         "def team_template(loaded: Sequence[LoadedPack], findings: list[Finding]) ->"

@@ -162,6 +162,9 @@ def _run(services: InitServices, options: InitOptions) -> InitResult:
         pr_targets=targets,
         profile_bytes=existing or contract_bytes(services.writer, profile),
         resources_bytes=resources_bytes,
+        # No policy, as for the registry: `init` renders no pin, and the first pin is written by
+        # the `upgrade` that follows, which loads the policy and refuses a faulty one first.
+        policy=None,
     )
     findings += composition.findings
     findings += environment_findings(services, options.prompts_dir)

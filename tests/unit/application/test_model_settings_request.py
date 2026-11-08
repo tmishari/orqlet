@@ -400,6 +400,10 @@ def test_the_selection_functions_take_the_arguments_of_the_interface_decision() 
     """expected_behavior_source: the interface decision 3 (`select_models(policy, role_names,
     skill_names, clients)`) and 4 (`build_render_request(..., *, selection=None)` and `compose`
     with `selection: ModelSelection | None = None`).
+
+    Phase P-6: `compose` takes `policy: PolicyState | None = None` in place of `selection` and
+    makes the selection itself (plan P-6, file operation on render_all.py); the builder keeps its
+    keyword.
     """
     assert list(inspect.signature(select_models).parameters) == [
         "policy",
@@ -410,12 +414,15 @@ def test_the_selection_functions_take_the_arguments_of_the_interface_decision() 
     selection = inspect.signature(build_render_request).parameters["selection"]
     assert selection.default is None
     assert selection.kind is inspect.Parameter.KEYWORD_ONLY
-    assert inspect.signature(compose).parameters["selection"].default is None
+    assert inspect.signature(compose).parameters["policy"].default is None
 
 
 def test_a_selection_is_a_frozen_slotted_record_of_four_parts_and_empty_by_default() -> None:
     """expected_behavior_source: the interface decision 3 (`ModelSelection(roles, skills,
     findings, problems)`, frozen and slotted; `ModelSelection()` is an empty selection).
+
+    Phase P-6 adds the two parts `entries` and `missing` after `problems` (plan P-6, file
+    operation on model_selection.py), so the record now has six.
     """
     selection = ModelSelection()
 
@@ -424,6 +431,8 @@ def test_a_selection_is_a_frozen_slotted_record_of_four_parts_and_empty_by_defau
         "skills",
         "findings",
         "problems",
+        "entries",
+        "missing",
     ]
     assert plain(selection.roles) == {}
     assert plain(selection.skills) == {}

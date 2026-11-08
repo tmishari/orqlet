@@ -1,0 +1,30 @@
+schema: orqlet.test-record/v1
+task: dynamic-model-profiles
+phase: P-6
+review_input:
+  schema: orqlet.review-input/v1
+  covers: [code_tests, plan]
+  components:
+    code_tests: 61e876c23539e56f8195d4b0443b13256623dd93beb2413e97a06193c8ef811b
+    plan: 64828bab5b853ad6f3ffbf4c5fe4bcddd899ddfcedeb56010b5bd4e587e515c8
+  digest: c6afe1ca6fd2c1d6eb49f849b47fc6dcf68b00dac559987300a458c4eb00ca25
+  merge_base: 3db213fd9ffa5be05ac098bae4d51217068170e0
+verdict: FAIL
+evidence_kind: claimed
+commands:
+  - {id: ruff-check, exit_code: 0, summary: "All checks passed! The digest is of the whole captured output, escape codes included.", result_digest: 5b196eb3a6acb50d3fa398d04ca284985cc1ffec870e940264b00780bfd2c971}
+  - {id: ruff-format, exit_code: 0, summary: "622 files already formatted. The digest is of the whole captured output.", result_digest: 14b58213cc03cf9101d7a4dc2eaf946636ea1756063ea5f9adf339523c488502}
+  - {id: mypy, exit_code: 0, summary: "Success: no issues found in 372 source files. The digest is of the whole captured output.", result_digest: 6f7a92370a317cef7edbb5af4e833b49a8c6ece10906a1c61a6b821a6cf6f3a0}
+  - {id: import-linter, exit_code: 0, summary: "Contracts: 5 kept, 0 broken. The new module pin_staleness imports the application modules binding_inputs and validation and the domain; model_selection imports model_policy_source of the same layer; no application module imports a file, process or network module. pyproject.toml, uv.lock, .github and AGENTS.md show no diff against HEAD. The digest is of the whole captured output.", result_digest: 81a9316de1d5933dd261ec2fb979c67e73aca1736afa91dd50a6e6bbfdc84acf}
+  - {id: pytest, exit_code: 0, summary: "Full suite on the staged tree: 10732 passed, 1 skipped in 843.34s; the skip is tests/integration/test_junction.py, which runs on Windows only. The exit status and the count were read from the captured output of the foreground run. The tests were written first by orqlet-tester, which ran no test against the implementation: its narrowed run before the implementation gave 133 failed, 12 passed and 1 collection error. The first narrowed run after the implementation gave 1 failed (a binding_ref that is not a file name raised InvalidPath out of the staleness scan), the second 2 failed (a read that raised OSError), the third 200 passed; the scan then caught InvalidPath and OSError. Four tests of earlier tasks pin the parameter list of compose, the fields of ModelSelection and the signature text of compose in the public names of render_all; the plan itself changes them. Three files, outside the phase's list, were edited with the person's agreement (test_model_settings_request.py, test_render_integrations.py, test_resources_composition.py) and staged; the narrowed run of these and of tests/unit/render then gave 1211 passed. The tester wrote a reference implementation outside the repository to check that its tests can be met and broke it about 25 ways; the coder did not read it. A first and a second full run were started in the background and were cut off when the shell that started them ended (the output stopped at test_reproducible_build.py and at test_vcs_commit_subjects_contract.py with no exit line); neither is a result, and only the third, foreground run is digested here. The digest is of the whole captured output of that run.", result_digest: aba9b162921325c1e00e354372819d280cb53f4e5c6bdb459d0744dae3ed8ac0}
+  - {id: gate-status-phase, exit_code: 5, summary: "FAIL. ORQ-E451 (no entry) security: additional, on src/orqlet/domain/model_identity.py of P-3, src/orqlet/domain/model_policy_scan.py of P-2 and src/orqlet/domain/model_resolution.py of P-4, which match the design's security glob src/orqlet/domain/**; this phase changes none of the three. EC-7 is the only security entry and is verification manual, so the gate never counts a security path as covered. The person chose to continue with this check open. No ORQ-E450 or ORQ-E453. Also ORQ-W390 on as-is, design and plan, cause base_revision, and ORQ-I393 offline; the same three ORQ-W390 were present at the input check before this phase wrote anything, and this phase adds none. The digest is of the whole captured output.", result_digest: a38a798d2aae190c8d4aef1ccd1237d5a51f0234f9ca54a6dc7c77dac0a379c5}
+acceptance_coverage:
+  - {ac: AC-1, check_ref: pytest, result: pass}
+  - {ac: AC-2, check_ref: pytest, result: pass}
+  - {ac: AC-3, check_ref: pytest, result: pass}
+  - {ac: AC-4, check_ref: pytest, result: pass}
+  - {ac: AC-5, check_ref: pytest, result: pass}
+  - {ac: AC-6, check_ref: pytest, result: pass}
+  - {ac: AC-7, check_ref: pytest, result: pass}
+  - {ac: AC-8, check_ref: pytest, result: pass}
+  - {ac: AC-9, check_ref: gate-status-phase, result: fail}
