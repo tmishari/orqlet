@@ -343,6 +343,7 @@ def test_ac4_build_render_request_is_unchanged_and_leaves_the_field_empty() -> N
         "conventions",
         "client_version",
         "available_commands",
+        "selection",  # dynamic-model-profiles P-5: the model settings of the roles and skills
     ]
     assert packaged_request().integrations is None
 
@@ -1014,6 +1015,7 @@ INSTRUCTION_ADAPTER_API = {
     "CapabilityLimit": "class CapabilityLimit",
     "ScopedRule": "class ScopedRule",
     "ClientCommand": "class ClientCommand",
+    "ModelSetting": "class ModelSetting",
     "ClientSkill": "class ClientSkill",
     "ClientRole": "class ClientRole",
     "ConventionsView": "class ConventionsView",
@@ -1069,7 +1071,8 @@ RENDER_ALL_API = {
         " resources: Resources, *, clients: Sequence[str], prompts_dir: str, pr_targets:"
         " tuple[str, ...], profile_bytes: bytes, resources_bytes: bytes, integrations:"
         " Integrations | None=None, orqlet_owned: frozenset[str]=frozenset(), released:"
-        " frozenset[str]=frozenset(), released_record: bytes | None=None) -> Composition"
+        " frozenset[str]=frozenset(), released_record: bytes | None=None, selection:"
+        " ModelSelection | None=None) -> Composition"
     ),
     "team_template": (
         "def team_template(loaded: Sequence[LoadedPack], findings: list[Finding]) ->"
@@ -1124,7 +1127,8 @@ RENDER_REQUEST_API = {
         "def build_render_request(workflow: WorkflowSource, loader: DocumentLoader, rules:"
         " Sequence[RuleSpec], resources: Resources, conventions: ConventionsView | None, *,"
         " client_version: str | None=None, available_commands:"
-        " Collection[str]=IMPLEMENTED_COMMANDS) -> RenderRequest"
+        " Collection[str]=IMPLEMENTED_COMMANDS, selection: ModelSelection | None=None) ->"
+        " RenderRequest"
     ),
     "parse_command": "def parse_command(path: str, text: str) -> tuple[str, str]",
 }

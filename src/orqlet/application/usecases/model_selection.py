@@ -10,12 +10,18 @@ Two mappings exist on purpose. An assignment that names a `task` applies only to
 passes that task (`models resolve --task`), and a generated file is global and cannot depend on a
 task. So what is rendered is read through `to_render_policy`, which drops every task-scoped
 assignment, and a task-scoped assignment can never reach a generated file (ADR-001 decision 7).
+
+`select_models` is the one step from a policy to the settings that the renderers write. The
+resolver is safe only for a policy that has passed `policy_problems`, so the selection asks first
+and, for a policy with any problem, pins nothing at all: a generated file never follows a policy
+that is known to be unsafe or inconsistent (ADR-005, the P-4 security review).
 """
 
 from __future__ import annotations
 
-from collections.abc import Collection, Iterator
-from dataclasses import dataclass, replace
+from collections.abc import Collection, Iterator, Mapping, Sequence
+from dataclasses import dataclass, field, replace
+from typing import Literal
 
 from orqlet.application.contracts.model_policy import (
     Assignment,
@@ -26,19 +32,38 @@ from orqlet.application.contracts.model_policy import (
     Profile,
     Route,
 )
-from orqlet.domain.model_identity import ExclusionRule, is_excluded, name_conflicts
+from orqlet.application.ports.instruction_adapter import ModelSetting
+from orqlet.domain.findings import Finding, Severity
+from orqlet.domain.model_identity import (
+    ExclusionRule,
+    cursor_plain_id,
+    is_excluded,
+    name_conflicts,
+)
 from orqlet.domain.model_resolution import (
     AssignmentInput,
+    Choice,
     ModelInput,
     ProfileInput,
+    ResolveRequest,
     ResolverPolicy,
     RouteInput,
     catalog_entries,
     is_model_excluded,
+    resolve,
 )
 
 EXCLUDED_MODEL = "ORQ-E543"
 BAD_REFERENCE = "ORQ-E545"
+ALIAS_RENDERED = "ORQ-W545"
+NOT_RENDERABLE = "ORQ-W546"
+
+CLAUDE_CODE = "claude-code"
+CURSOR = "cursor"
+
+type TargetKind = Literal["role", "skill"]
+
+_ALIAS_TEXT = "the pin is an alias route, and an environment variable can remap an alias"
 
 
 @dataclass(frozen=True, slots=True)
@@ -88,6 +113,103 @@ def policy_problems(
         *_reference_problems(policy, frozenset(role_names), frozenset(skill_names)),
         *_name_problems(resolver),
     )
+
+
+@dataclass(frozen=True, slots=True)
+class ModelSelection:
+    """What the generated files may follow: a setting for each target and client, and what was said.
+
+    `roles` and `skills` map a target name to a client id to a setting; a target that no client
+    pins has no key. A selection made from a policy that has problems holds those `problems` and
+    nothing else, so that a caller can refuse the policy and no file follows it.
+    """
+
+    roles: Mapping[str, Mapping[str, ModelSetting]] = field(default_factory=dict)
+    skills: Mapping[str, Mapping[str, ModelSetting]] = field(default_factory=dict)
+    findings: tuple[Finding, ...] = ()
+    problems: tuple[PolicyProblem, ...] = ()
+
+
+def select_models(
+    policy: ModelPolicy,
+    role_names: Collection[str],
+    skill_names: Collection[str],
+    clients: Sequence[str],
+) -> ModelSelection:
+    """The settings of every role and skill of the workflow for each enabled client.
+
+    Only a `selected` resolution is written, and the resolver selects only in mode `manual`; every
+    other mode, and a target nobody assigned, leaves the client's own choice as it is today. A
+    setting that a client cannot take is left out with a finding (ORQ-W546), and a pin on an
+    alias route is written with a warning (ORQ-W545). A finding holds a fixed text, the target and
+    the client, never a model string (BC-32).
+    """
+    problems = policy_problems(policy, role_names, skill_names)
+    if problems:
+        return ModelSelection(problems=problems)
+    resolver = to_render_policy(policy)
+    enabled = tuple(dict.fromkeys(clients))
+    findings: list[Finding] = []
+    return ModelSelection(
+        roles=_settings_of("role", role_names, enabled, resolver, findings),
+        skills=_settings_of("skill", skill_names, enabled, resolver, findings),
+        findings=tuple(findings),
+    )
+
+
+# --- what a file follows ------------------------------------------------------------------
+
+
+def _settings_of(
+    kind: TargetKind,
+    names: Collection[str],
+    clients: Sequence[str],
+    resolver: ResolverPolicy,
+    findings: list[Finding],
+) -> dict[str, dict[str, ModelSetting]]:
+    table: dict[str, dict[str, ModelSetting]] = {}
+    for name in sorted(set(names)):
+        settings: dict[str, ModelSetting] = {}
+        for client in clients:
+            request = ResolveRequest(client=client, target_kind=kind, target=name)
+            resolution = resolve(resolver, request)
+            if resolution.outcome != "selected" or resolution.selected is None:
+                continue
+            setting = _setting(kind, name, client, resolution.selected, findings)
+            if setting is not None:
+                settings[client] = setting
+        if settings:
+            table[name] = settings
+    return table
+
+
+def _setting(
+    kind: TargetKind, name: str, client: str, choice: Choice, findings: list[Finding]
+) -> ModelSetting | None:
+    refusal = _refusal(kind, client, choice)
+    if refusal is not None:
+        findings.append(_finding(NOT_RENDERABLE, kind, name, client, refusal))
+        return None
+    if choice.kind == "alias":
+        findings.append(_finding(ALIAS_RENDERED, kind, name, client, _ALIAS_TEXT))
+    return ModelSetting(choice.name, choice.kind, choice.effort)
+
+
+def _refusal(kind: TargetKind, client: str, choice: Choice) -> str | None:
+    """Why this client cannot be given the choice, in a fixed text; `None` when it can."""
+    if kind == "skill" and client != CLAUDE_CODE:
+        return "the client documents no skill-level model, so nothing is written"
+    if client != CURSOR:
+        return None
+    if choice.effort is not None:
+        return "Cursor takes no effort in a model value, so nothing is written"
+    if not cursor_plain_id(choice.name):
+        return "Cursor cannot take this model name without quotes, so nothing is written"
+    return None
+
+
+def _finding(code: str, kind: TargetKind, name: str, client: str, text: str) -> Finding:
+    return Finding(code, f"{kind} {name} for {client}: {text}", Severity.WARNING)
 
 
 # --- the mapping --------------------------------------------------------------------------

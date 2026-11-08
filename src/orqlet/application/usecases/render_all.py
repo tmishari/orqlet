@@ -30,6 +30,7 @@ from orqlet.application.usecases.init_files import (
     to_desired,
 )
 from orqlet.application.usecases.init_state import InitRefused
+from orqlet.application.usecases.model_selection import ModelSelection
 from orqlet.application.usecases.render_request import build_render_request
 from orqlet.application.usecases.resources_source import resources_path
 from orqlet.application.usecases.resources_view import conventions_view
@@ -113,8 +114,13 @@ def compose(
     orqlet_owned: frozenset[str] = frozenset(),
     released: frozenset[str] = frozenset(),
     released_record: bytes | None = None,
+    selection: ModelSelection | None = None,
 ) -> Composition:
-    """Every file the project should hold, as `Desired`, with the findings the render raised."""
+    """Every file the project should hold, as `Desired`, with the findings the render raised.
+
+    A `selection` pins models in the role and skill files; without one every caller gets the files
+    it got before.
+    """
     findings: list[Finding] = []
     conventions, convention_findings = conventions_view(profile, resources)
     findings += convention_findings
@@ -124,6 +130,7 @@ def compose(
         tuple(resolution.rules.values()),
         resources,
         conventions,
+        selection=selection,
     )
     request = replace(request, integrations=integrations)
     results = [services.adapters[client].render(request) for client in clients]

@@ -1,0 +1,202 @@
+schema: orqlet.review-result/v1
+task: dynamic-model-profiles
+phase: P-5
+role: security-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  schema: orqlet.review-input/v1
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  components:
+    code_tests: 245b5b06e852ebcb3460de0ea4c2e8f67792068fcd5f0467ac5caf3ae0b82223
+    design: af08cad54b174da764ccf0d9a534a6f83068ee318eb81cc6622337a56a287b28
+    evidence_inputs: b50dab115ab3f4e40d07d5228e32cc8b4a9c925c0cc8842c43392b78a1c03057
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 64828bab5b853ad6f3ffbf4c5fe4bcddd899ddfcedeb56010b5bd4e587e515c8
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: 20b2417f8fe79a6b504d5edb6aa5876a9d7ae7a5a78a128d2d5e210ff3b835a9
+  digest: 8a1d01d83d7275b5df7dc20a34e0a50c306359d06379ec8d02a7b2ae0dff7340
+  merge_base: 3db213fd9ffa5be05ac098bae4d51217068170e0
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran in the same client as the Coder (cursor), so independence is I1, not I2.
+- The reviewer's session had no shell, so it ran no command and computed no quote digest; every behaviour it states comes
+  from reading the code. No finding rests on a quote. F-1 has an absence record that searched the staged snapshot and
+  names the head revision, and F-2 to F-5 are observations.
+- 'Read-only is declared by the agent definition (readonly: true), not enforced by Orqlet.'
+- The model that ran the reviewer is not observed.
+- The packet held the earlier review records under snapshot/docs/design/**/reviews/, which ADR-007 decision 8 says a
+  packet must not carry. The reviewer says it opened snapshot/docs/design/dynamic-model-profiles/reviews/security-reviewer-P-4-r1.yaml
+  to copy the record format and read its findings, so that earlier reviewer's conclusion reached it. Its F-2 came from
+  that record; the reviewer says it re-read the code for F-2 and that F-2 is influenced. Its other findings and its
+  PASS were not drawn from that record, as it states.
+- 'Not examined by the reviewer: the code of P-1 to P-4 in depth (contracts, reader, scan, identity beyond
+  cursor_plain_id, resolution beyond lines 195-545), src/orqlet/workflow/**, the cost of the checks (F-2 is from reading,
+  not measured), the tester''s claimed command results, and whether Cursor honours a model field in a .claude/skills
+  file (ADR-003 states it as unknown).'
+applicability:
+  examined:
+  - diff.patch (file headers of all files; full read of the P-5 hunks)
+  - context/plan.yaml
+  - context/design-manifest.yaml
+  - context/test-record.yaml
+  - context/knowledge-impact.yaml
+  - context/standards/rules.yaml
+  - snapshot/src/orqlet/adapters/render/roles.py
+  - snapshot/src/orqlet/adapters/render/skills.py
+  - snapshot/src/orqlet/adapters/render/emit.py
+  - snapshot/src/orqlet/application/usecases/model_selection.py
+  - snapshot/src/orqlet/application/usecases/render_request.py
+  - snapshot/src/orqlet/application/usecases/render_all.py
+  - snapshot/src/orqlet/application/ports/instruction_adapter.py
+  - snapshot/src/orqlet/domain/model_identity.py
+  - snapshot/src/orqlet/domain/model_resolution.py
+  - snapshot/src/orqlet/application/contracts/model_policy.py
+  - snapshot/src/orqlet/application/contracts/common.py
+  - snapshot/tests/unit/render/test_model_settings_render.py and snapshot/tests/unit/application/test_model_settings_request.py (by name and by the Fable tests)
+  - the test_skills.py change, the three edited earlier tests and the three new golden files
+  - snapshot/docs/design/dynamic-model-profiles/design/adr-003-rendering-model-settings-into-generated-files.md
+  - snapshot/docs/design/dynamic-model-profiles/design/adr-005-fable-exclusion-by-model-identity.md
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: security
+  rule_ref: ORQLET-ARCH-002
+  evidence:
+  - {kind: absence, searched: [src/orqlet/application/usecases/render_request.py, src/orqlet/application/usecases/render_all.py, src/orqlet/adapters/render/roles.py, src/orqlet/adapters/render/skills.py], method: 'Searched for `problems`, `is_excluded`, `is_model_excluded` and `exclusion` in the four files; none is used. The other hits for `.problems` and `selection=` are unrelated modules or the pass-through at render_all.py:133.', revision: cda60cc122635c85cdb56e22cd55ecb3df2773f0}
+  claim: >-
+    The guarantees "a policy with a problem pins nothing" and "a renderer cannot name an excluded model" hold only for a
+    ModelSelection built by select_models (model_selection.py:147-157). ModelSelection is a public dataclass with four free fields.
+    build_render_request copies chosen.roles and chosen.skills into the request (render_request.py:118-125) without reading
+    chosen.problems. The writers write setting.name (roles.py:35, 57; skills.py:61), and the only check there is the Cursor plain-id
+    test (roles.py:64-74). ADR-005 decision 2 says "the renderers write only what the resolver returns"; that is a convention of the
+    caller, not enforced where the bytes are made. There is no live exposure in P-5: only compose passes a selection through, and no
+    command calls compose with one.
+  suggested_action: >-
+    Make build_render_request refuse a selection whose `problems` is not empty, or state in P-6 that select_models is the only
+    constructor a command may use, with a test of the caller. Add a test for the refused selection.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: failure-handling
+  rule_ref: ORQLET-SEC-002
+  evidence: []
+  claim: >-
+    P-4 F-2 is still open and its reach grows. _name_problems still yields one PolicyProblem per conflicting pair, so N entries
+    claiming one name give N(N-1)/2 problems (model_selection.py:342-345). select_models now runs policy_problems and then a resolve
+    for every role and skill name times every enabled client (model_selection.py:147, 163-181). The policy file is untrusted
+    repository input, capped only at 256 KiB. P-5 adds no bounded-time test. The reviewer did not measure the cost; this is from reading the code.
+  suggested_action: >-
+    Before P-6 runs this on every `upgrade`, report each later entry once, normalise the exclusion rules once per policy, and add a
+    bounded-time test on a worst-case policy. Or cap the list lengths in the contract.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: >-
+    The Fable exclusion depends entirely on the policy's `excluded[]` entries, as ADR-005 says ("no built-in exclusion floor").
+    test_model_settings_render.py:1129-1142 shows the same policy pins `claude-fable-9` and writes it into the files when the exclusion
+    entry is absent. The check against the base tree arrives in P-7, which depends on P-6 (plan, P-7 objective and `depends_on`). So
+    between P-6 and P-7, `upgrade` would write a pin that follows a staged policy that has dropped the exclusion. Nothing in P-5 can do
+    this, because no command passes a selection yet.
+  suggested_action: >-
+    The person decides whether P-6 and P-7 ship in one release, or whether P-6 `upgrade` also refuses an `excluded[]` list that is
+    empty or shorter than the base tree's.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: standards
+  evidence: []
+  claim: >-
+    The test record has verdict FAIL, from AC-10 (gate-status-phase): ORQ-E451 on src/orqlet/domain/model_identity.py,
+    model_policy_scan.py and model_resolution.py, with the person's choice to continue (test-record.yaml, command gate-status-phase). P-5
+    changes no path of the security globs (.github/CODEOWNERS, .orqlet/**, src/orqlet/domain/**), so the item is inherited from P-2 to
+    P-4, as in P-4 F-4. EC-7 is the only security entry and is `verification: manual`, so the gate never counts a security path as
+    covered. The test evidence is `claimed`; the reviewer did not re-run the 10532-test suite.
+  suggested_action: Amend the design manifest and the plan before the pull request, as the test record already says.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: correctness
+  evidence: []
+  claim: >-
+    A route named `inherit` passes ModelRef (common.py) and cursor_plain_id, which refuses YAML words but not `inherit`
+    (model_identity.py cursor_plain_id). The Claude Code and Cursor writers then write `model: inherit`, the same bytes as "no pin",
+    with no finding, and Codex gets `model = "inherit"`. A pin is quietly lost. This is not an injection: every value passes
+    through the quoting emitters.
+  suggested_action: Refuse `inherit` as a route name in the policy check, or give it a finding in _refusal.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: Injection through the model name or effort into front matter or TOML
+    how: Read emit.py and the writers. Every value goes through front_matter or toml_table, which quote with json.dumps. The names are limited by ModelRef (ASCII, no newline, 128 characters) and the effort is a closed Literal. The Cursor plain-id regex is a subset of the front-matter allow-list, and both use fullmatch. The tests cover awkward names.
+    result: pass
+  - what: File, process, network, environment and logging access in the six P-5 source files
+    how: Grepped subprocess, os.system, environ, getenv, open(, socket, urllib, requests, print and logging. The only hits are the text of a finding and a function name. The writers return RenderedFile and write nothing.
+    result: pass
+  - what: Secrets and credential shapes in the diff
+    how: Grepped for key shapes and private-key, JWT and URL-userinfo patterns, and for words like password and token. The only hits are P-2 scan tests that assemble synthetic values from fragments, outside this phase.
+    result: pass
+  - what: Dependency, workflow and client-folder changes
+    how: Listed all file headers of diff.patch. There is no pyproject.toml, uv.lock, .github, AGENTS.md, .orqlet, adapters/clients/** or RenderRequest change.
+    result: pass
+  - what: Model strings in findings and golden files
+    how: _finding holds the kind, target, client and a fixed text, never a model string. The new golden files hold only placeholder names, and a search of tests/golden for `fable` found nothing.
+    result: pass
+  - what: Private data in the knowledge drafts and the record
+    how: Read knowledge/P-1..P-5.yaml and the test record. No personal path, host, address or credential. The only local reference is /tmp, as a note.
+    result: pass
+  - what: Edits to three earlier tests outside the phase's file list
+    how: diff.patch lines 12665-12729, they only add the `selection` parameter and the `ModelSetting` name to the pinned signatures, with no assertion removed. The replacement for test_role_files_never_name_a_vendor_model keeps the vendor check without a policy and adds the with-policy and excluded cases.
+    result: pass
+  - what: Check commands re-run (ruff, mypy, lint-imports, pytest, gate status)
+    how: The Shell tool refused; this session cannot run commands.
+    result: not-run
+  - what: quote_sha256 for quote evidence
+    how: No shell to compute digests, so no finding rests on a quote.
+    result: not-run
+  - what: Earlier review records are not read
+    how: The reviewer opened security-reviewer-P-4-r1.yaml to copy the record format and read its findings (see capability_limits).
+    result: fail
+  unverified:
+  - All claimed command results of the test record.
+  - The cost claim of F-2 is from reading, not measured.
+  - P-1 to P-4 code in depth and src/orqlet/workflow/**, which this phase does not change.
+  - Whether Cursor honours a `model` field in a `.claude/skills` file (ADR-003 states it as unknown).
+  questions:
+  - 'F-3: ship P-6 and P-7 in one release, or add an exclusion check to P-6 `upgrade`?'
+  - 'F-1: should build_render_request refuse a selection that has problems?'

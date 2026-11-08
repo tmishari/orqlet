@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from collections.abc import Mapping
+from dataclasses import dataclass, field
 from typing import Protocol
 
 from orqlet.application.contracts.integrations import Integrations
+from orqlet.domain.model_resolution import Effort, RouteKind
 from orqlet.domain.ownership import FileClass, OwnerMode
 from orqlet.domain.paths import CanonicalPath
 
@@ -58,6 +60,19 @@ class ClientCommand:
 
 
 @dataclass(frozen=True, slots=True)
+class ModelSetting:
+    """The model a client is told to use: the exact name of a route, its kind and an effort.
+
+    One request serves every enabled client and each client names a model its own way, so a role
+    or a skill carries a mapping from client id to setting (`model_settings`), not one value.
+    """
+
+    name: str
+    kind: RouteKind
+    effort: Effort | None = None
+
+
+@dataclass(frozen=True, slots=True)
 class ClientSkill:
     """A workflow skill. The steps whose commands this release lacks are already left out."""
 
@@ -67,17 +82,24 @@ class ClientSkill:
     references: tuple[tuple[str, str], ...] = ()  # (file name, text) of `references/<file>`
     inputs: tuple[tuple[str, str, str], ...] = ()  # (id, version, sha256) of the skill text
     agent_may_start: bool = False  # True: the agent may start it; a workflow skill is person-only
+    # Client id to setting. Only the Claude Code skill file reads it; the file that Cursor and
+    # Codex share never does.
+    model_settings: Mapping[str, ModelSetting] = field(default_factory=dict)
 
 
 @dataclass(frozen=True, slots=True)
 class ClientRole:
-    """A subagent definition. Role files never name a vendor model."""
+    """A subagent definition. The packaged text never names a vendor model.
+
+    A role file names a model only through `model_settings`, which the team's policy fills.
+    """
 
     name: str
     description: str
     body: str
     read_only: bool = True
     inputs: tuple[tuple[str, str, str], ...] = ()
+    model_settings: Mapping[str, ModelSetting] = field(default_factory=dict)  # client id to setting
 
 
 @dataclass(frozen=True, slots=True)
