@@ -1,4 +1,4 @@
-"""`orqlet validate as-is|design|plan|ledger|resources`: check an artifact someone wrote."""
+"""`orqlet validate as-is|design|plan|ledger|model-policy|resources`: check an artifact."""
 
 from __future__ import annotations
 
@@ -11,6 +11,7 @@ from orqlet.application.usecases.validate_as_is import AsIsOptions, validate_as_
 from orqlet.application.usecases.validate_design import validate_design
 from orqlet.application.usecases.validate_integrations import validate_integrations
 from orqlet.application.usecases.validate_ledger import validate_ledger
+from orqlet.application.usecases.validate_model_policy import validate_model_policy
 from orqlet.application.usecases.validate_plan import validate_plan
 from orqlet.application.usecases.validate_records import (
     RecordOptions,
@@ -25,7 +26,7 @@ from orqlet.interface.cli.commands.lifecycle import JsonOption, RootOption, find
 from orqlet.interface.cli.exit_codes import ExitCode
 from orqlet.interface.cli.render_human import render_validation
 from orqlet.interface.cli.runner import CommandOutput, execute
-from orqlet.interface.cli.wiring import build_validate_services
+from orqlet.interface.cli.wiring import build_model_policy_services, build_validate_services
 
 validate_app = typer.Typer(help="Check an artifact that an agent wrote.", no_args_is_help=True)
 
@@ -158,6 +159,25 @@ HeadOption = Annotated[
     str | None,
     typer.Option(help="The tree under review: `staged`, `HEAD` or a full commit id."),
 ]
+
+
+@validate_app.command("model-policy")
+def model_policy_command(
+    file: Annotated[str, typer.Argument(help="The policy, relative to the root.")] = (
+        ".orqlet/model-policy.yaml"
+    ),
+    base: BaseOption = None,
+    root: RootOption = Path(),
+    json_output: JsonOption = False,
+) -> None:
+    """Check the model policy and the model values in the agent and skill files."""
+    execute(
+        "validate model-policy",
+        lambda: output_of(
+            validate_model_policy(build_model_policy_services(root), file, base), file
+        ),
+        as_json=json_output,
+    )
 
 
 @validate_app.command("review")

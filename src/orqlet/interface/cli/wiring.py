@@ -38,6 +38,7 @@ from orqlet.application.ports.documents import DocumentLoader
 from orqlet.application.ports.scanner import ProjectScanner, TechnologyScanner
 from orqlet.application.usecases.services import Services as LifecycleServices
 from orqlet.application.usecases.services import Stores
+from orqlet.application.usecases.validate_model_policy import ModelPolicyServices
 from orqlet.application.usecases.validation import ValidateServices
 
 DATA_DIR_VARIABLE = "ORQLET_DATA_DIR"
@@ -94,6 +95,18 @@ def build_validate_services(root: Path) -> ValidateServices:
         vcs=GitVcs(SubprocessRunner(), resolved_root),
         loader=StrictYamlLoader(),
         workflow=PackagedWorkflow(),
+    )
+
+
+def build_model_policy_services(root: Path) -> ModelPolicyServices:
+    """The ports of the other validators, and the system clock for the retirement dates."""
+    validators = build_validate_services(root)
+    return ModelPolicyServices(
+        project=validators.project,
+        vcs=validators.vcs,
+        loader=validators.loader,
+        workflow=validators.workflow,
+        clock=SystemClock(),
     )
 
 
