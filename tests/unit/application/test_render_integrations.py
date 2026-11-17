@@ -1055,9 +1055,11 @@ RENDER_ALL_API = {
     "WORKFLOW_LOCK_PATH": "WORKFLOW_LOCK_PATH",
     "RELEASED_PATH": "RELEASED_PATH",
     "KNOWLEDGE_PATH": "KNOWLEDGE_PATH",
+    # Phase P-9 (AC-6): the map holds the three reviewers, and the role literal follows the
+    # contract `Binding.role`.
     "REVIEW_AGENTS": (
-        "REVIEW_AGENTS: tuple[tuple[Literal['architecture-reviewer', 'security-reviewer'], str],"
-        " ...]"
+        "REVIEW_AGENTS: tuple[tuple[Literal['architecture-reviewer', 'security-reviewer',"
+        " 'code-reviewer'], str], ...]"
     ),
     "Composition": "class Composition",
     "stack_of_profile": "def stack_of_profile(profile: ProjectProfile) -> Stack",

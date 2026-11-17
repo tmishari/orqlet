@@ -162,21 +162,36 @@ def test_init_seeds_an_empty_knowledge_configuration_and_a_team_edit_survives_an
 
 
 def test_init_approves_the_generated_reviewers_as_the_default_review_bindings() -> None:
+    """expected_behavior_source: P-9 AC-2 ("The seeded `role-bindings.yaml` of `init` holds a
+    third binding for `orqlet-code-reviewer` for `claude-code`, `codex` and `cursor`, with the
+    same capability block as the other two and `independence_capability: I2`"); BC-41; EC-5;
+    ADR-006 decision 6 (the seeded binding for the three clients); the two existing bindings keep
+    `I1`."""
     env = initialised()
     path = ".orqlet/role-bindings.yaml"
 
     loaded = load_contract(StrictYamlLoader(), RoleBindings, tree(env.project)[path], source=path)
 
     approved = {(b.role, b.id): b for b in loaded.bindings}
+    assert len(loaded.bindings) == 3
     assert set(approved) == {
         ("architecture-reviewer", "orqlet-arch-reviewer"),
         ("security-reviewer", "orqlet-security-reviewer"),
+        ("code-reviewer", "orqlet-code-reviewer"),
     }
-    for binding in approved.values():
-        assert binding.independence_capability == "I1"
+    capability = {"architecture-reviewer": "I1", "security-reviewer": "I1", "code-reviewer": "I2"}
+    for (role, _agent), binding in approved.items():
+        assert binding.independence_capability == capability[role]
         assert set(binding.clients) == {"claude-code", "codex", "cursor"}
         assert binding.minimum_capability is not None
-        assert binding.minimum_capability.context == "fresh"
+        block = binding.minimum_capability
+        assert (block.context, block.input, block.write_access) == (
+            "fresh",
+            "review-packet",
+            "none-or-recorded-limit",
+        )
+    # The role file of `orqlet-code-reviewer` arrives in phase P-13, so only the two reviewers
+    # whose files exist today are checked for an agent file here.
     for agent in ("orqlet-arch-reviewer", "orqlet-security-reviewer"):
         assert f".claude/agents/{agent}.md" in tree(env.project)  # each binding has its agent file
 

@@ -1,0 +1,27 @@
+schema: orqlet.test-record/v1
+task: dynamic-model-profiles
+phase: P-9
+review_input:
+  schema: orqlet.review-input/v1
+  covers: [code_tests, plan]
+  components:
+    code_tests: 9c2b5d68691f4882f66a9c4dc770fe54d447e7a8f3f882fd39b6f95558159741
+    plan: 64828bab5b853ad6f3ffbf4c5fe4bcddd899ddfcedeb56010b5bd4e587e515c8
+  digest: 03c11e4634e0ff90a37a43c9a804c4d9ee0014bad63391e33d60ba5e79e81e85
+  merge_base: 3dd84c80c676f2e28e23647b79396fe1771fee7f
+verdict: FAIL
+evidence_kind: claimed
+commands:
+  - {id: ruff-check, exit_code: 0, summary: "All checks passed! The digest is of the whole captured output (NO_COLOR=1). At 3dd84c8 the command reported one finding, I001 (import order) in tests/unit/application/test_pin_staleness.py; the person decided to fix it by moving one import statement into the first-party block.", result_digest: 5b196eb3a6acb50d3fa398d04ca284985cc1ffec870e940264b00780bfd2c971}
+  - {id: ruff-format, exit_code: 0, summary: "630 files already formatted. The digest is of the whole captured output (NO_COLOR=1).", result_digest: b009514e5b8856fa21b38bad723e6d8b2b084f77cb4c635eb4156c12078ecf26}
+  - {id: mypy, exit_code: 0, summary: "Success: no issues found in 380 source files. The digest is of the whole captured output (NO_COLOR=1).", result_digest: a2e8dce6f5f75da8699a5398648ace27b8b562f9b5ec73c28d4b44cb9415608c}
+  - {id: import-linter, exit_code: 0, summary: "Contracts: 5 kept, 0 broken. orqlet.domain.independence imports the standard library (collections.abc, enum, fnmatch) and orqlet.domain.change_class only, and a test reads its source to show it (AST: imports and calls, with a self-test of the checker). pyproject.toml and uv.lock show no diff against HEAD, and no .md file is staged. The digest is of the whole captured output (NO_COLOR=1).", result_digest: 9fa880ecc584ec857258aa820b06cecc17be2d3013fbb46a1853443269ac19c3}
+  - {id: pytest, exit_code: 0, summary: "Full suite on the staged tree: 12267 passed, 1 skipped in 1070.16s (0:17:50); the skip is tests/integration/test_junction.py, Windows only. One run in the background, exit status 0 read from the job's footer. The staged code and tests did not change while it ran (fingerprint of the staged blobs outside docs/, 5cf2650c before and after; the knowledge record was written during the run). A first attempt in a subshell died when its tool call returned and wrote no result; the run that counts started after a comment fix. The count rose from 12118 (P-8) to 12267, the 149 cases of the Tester. The Tester was a subagent that wrote the tests of the six files before any implementation existed; the transcript that I can read shows its prompt and not the agent definition applied, so I do not claim it was the typed orqlet-tester. Red run, implementation absent: 341 collected, 100 failed, 241 passed (collected/failed: evidence_artifacts 54/3, independence 113/84, render_integrations 96/1, lifecycle 50/1, review_prepare 23/8, review_maps 5/3); the 241 are controls and characterisation of the base behaviour. The narrowed run of the six files before the lint fixes: 341 passed. The coder added no test. It changed two lines of the Tester's tests for lint (SIM300, C420) and two comments (P-10 to P-13), and edited two existing tests outside the list under the person's decisions: test_upgrade_model_policy.py (+16) and test_pin_staleness.py (+6, -7). AC-1: the clause that no ORQ-E400 is raised is covered at the predicate only, because validate_records.py changes in P-10. The digest is of the whole captured output.", result_digest: 5a6b442ec9e063545f130d9d294fdd9bbc9992a88d97a4e4e03ea80704e82979}
+  - {id: gate-status-phase, exit_code: 5, summary: "FAIL, exit 5. ORQ-E451 (no entry) security: additional, on src/orqlet/domain/evidence_artifacts.py and src/orqlet/domain/independence.py, the two domain files that this phase changes; they match the design's security glob src/orqlet/domain/** and the design has no entry for them. The default base is main at 3dd84c8, which already holds model_identity.py, model_policy_scan.py and model_resolution.py, so the three files that P-2 to P-8 listed are not listed now. I continued with the check open under the person's instruction for P-2 to P-8; for the two files of this phase the person asked only to be told. No ORQ-E450 or ORQ-E453. Also ORQ-I393 offline. ORQ-W390 on as-is, design and plan, cause base_revision (three lines, as in P-8), and no ORQ-I392, so this phase adds no fourth. AC-6 also says that no file outside the phase's operations changes: test_upgrade_model_policy.py and test_pin_staleness.py are outside the list and were changed under the person's decisions. The digest is of the whole captured output.", result_digest: 168db1b83a791db2f90b7a8b90424fc78650c76d07593479429ad38634b1b043}
+acceptance_coverage:
+  - {ac: AC-1, check_ref: pytest, result: pass}
+  - {ac: AC-2, check_ref: pytest, result: pass}
+  - {ac: AC-3, check_ref: pytest, result: pass}
+  - {ac: AC-4, check_ref: pytest, result: pass}
+  - {ac: AC-5, check_ref: pytest, result: pass}
+  - {ac: AC-6, check_ref: gate-status-phase, result: fail}

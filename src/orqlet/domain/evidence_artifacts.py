@@ -24,7 +24,8 @@ _PATTERNS: tuple[tuple[RecordKind, re.Pattern[str]], ...] = (
         RecordKind.REVIEW,
         re.compile(
             rf"^docs/design/{_TASK}/reviews/"
-            r"(?P<role>architecture-reviewer|security-reviewer)-(?P<phase>P-[1-9]\d*)-r(?P<round>[1-9]\d*)\.yaml$"
+            r"(?P<role>architecture-reviewer|security-reviewer|code-reviewer)"
+            r"-(?P<phase>P-[1-9]\d*)-r(?P<round>[1-9]\d*)\.yaml$"
         ),
     ),
     (RecordKind.TEST, re.compile(rf"^docs/design/{_TASK}/tests/(?P<phase>P-[1-9]\d*)\.yaml$")),

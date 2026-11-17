@@ -1,0 +1,325 @@
+schema: orqlet.review-result/v1
+task: dynamic-model-profiles
+phase: P-9
+role: architecture-reviewer
+round: 1
+verdict: FAIL
+assurance: advisory
+review_input:
+  components:
+    code_tests: 9c2b5d68691f4882f66a9c4dc770fe54d447e7a8f3f882fd39b6f95558159741
+    design: af08cad54b174da764ccf0d9a534a6f83068ee318eb81cc6622337a56a287b28
+    evidence_inputs: e1101fb058ee911a1352f8c1e6f6f320747da9404b104bfd39b3ecc58d5338d6
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 64828bab5b853ad6f3ffbf4c5fe4bcddd899ddfcedeb56010b5bd4e587e515c8
+    reviewer_definition: 6ce838ea71280ef545f87a85c2922b4bd9a2740713521c2dd24ed4768ead4be9
+    standards: 20b2417f8fe79a6b504d5edb6aa5876a9d7ae7a5a78a128d2d5e210ff3b835a9
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 11a4821ddea10fdec598901b6da10a3c430ace61ce539266dd3a345c174b4ca0
+  merge_base: 3dd84c80c676f2e28e23647b79396fe1771fee7f
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: bb870c5236ad9b2cb5f0f6b0f8568baf499d9bd1727a18254303b9b1e797e7f4
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran in the same client as the Coder (cursor), so independence is I1, not I2.
+- The reviewer was started as a typed subagent (orqlet-arch-reviewer) in a clean context; its prompt held the packet path and nothing else. The
+  model that ran it is not observed.
+- >-
+  The reviewer's session had no shell: it ran no check and computed no quote digest. The coder cited, with `orqlet evidence cite` at the commit
+  3dd84c80c676f2e28e23647b79396fe1771fee7f, each quote of a file that is committed, and compared the lines with the reviewer's text; every cited
+  line matched. Three ranges differ from the reviewer's: the manifest range 40-44 is 41-44 (the key and its three globs, as in the P-8 record),
+  the plan file list 1194-1226 is 1195-1225 (the list itself) and the ORQ-E400 range 89-91 is 89-93 (it then holds the code). A quote of a file
+  that is only staged (the P-9 code, the tests and the records) cannot be digested, because the command reads committed files; its location is
+  written into the claim, and a finding that has no other evidence is an observation.
+- >-
+  The packet held earlier review records (snapshot/docs/design/dynamic-model-profiles/reviews/) and its diff runs from the merge base
+  3dd84c80c676f2e28e23647b79396fe1771fee7f. ADR-007 decision 8 says a packet must not carry earlier conclusions. The reviewer says it found F-1
+  first in the test records of P-2 to P-9, then read lines 1-150 of architecture-reviewer-P-8-r1.yaml, whose F-1 raises the same point, so F-1 is
+  not independent of the earlier rounds.
+- 'Read-only is declared by the agent definition, not enforced by Orqlet.'
+- The reviewer says it could not observe its own client or model, so it claims no independence beyond a clean context and a packet-only prompt.
+- >-
+  Coder's note, not part of the reviewer's text: the ORQ-E451 of F-1 is the open check of P-2 to P-8, now also on the two domain files that this
+  phase changes. No finding other than F-1 blocks, so no rework round was run. F-2, F-4 and F-5 concern files outside the phase's list, so they
+  wait for the person's decision (a plan amendment); F-3, F-6, F-7 and F-8 are noted for the person and for P-10.
+applicability:
+  examined:
+  - context/plan.yaml
+  - context/design-manifest.yaml
+  - context/test-record.yaml
+  - context/knowledge-impact.yaml
+  - diff.patch
+  - snapshot/docs/design/dynamic-model-profiles/design/adr-006-code-review-gate-and-new-roles.md
+  - snapshot/docs/design/dynamic-model-profiles/design/adr-007-independence-model-identity-and-fresh-context.md
+  - snapshot/docs/design/dynamic-model-profiles/design/component.md
+  - snapshot/src/orqlet/domain/independence.py
+  - snapshot/src/orqlet/application/usecases/validate_records.py
+  - snapshot/src/orqlet/application/usecases/validate_plan.py
+  - snapshot/src/orqlet/application/usecases/binding_inputs.py
+  - snapshot/src/orqlet/application/contracts/plan.py
+  - snapshot/tests/unit/domain/test_independence.py
+  - snapshot/tests/unit/domain/test_evidence_artifacts.py
+  - snapshot/docs/design/dynamic-model-profiles/reviews/architecture-reviewer-P-8-r1.yaml
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: blocking
+  category: architecture
+  evidence:
+  - kind: quote
+    path: docs/design/dynamic-model-profiles/design/manifest.yaml
+    lines: 41-44
+    revision: 3dd84c80c676f2e28e23647b79396fe1771fee7f
+    quote_sha256: 876977b020a69e931a0e5d2560b2a75e95363d2486c7b167b6a4e29a984e107c
+  - kind: quote
+    path: docs/design/dynamic-model-profiles/design/manifest.yaml
+    lines: 94-95
+    revision: 3dd84c80c676f2e28e23647b79396fe1771fee7f
+    quote_sha256: be6b620c4eaca27f2c9ff32bb0ce705d16128443bee4f4592dbc44ce018724f4
+  - kind: quote
+    path: docs/design/dynamic-model-profiles/plan.yaml
+    lines: 1180-1186
+    revision: 3dd84c80c676f2e28e23647b79396fe1771fee7f
+    quote_sha256: b0dd4545039183213029efe4d4d871d23e30cfdbf2a3bfccbd223367223ef877
+  - kind: quote
+    path: src/orqlet/workflow/skills/orqlet-implement/skill.md
+    lines: '28'
+    revision: 3dd84c80c676f2e28e23647b79396fe1771fee7f
+    quote_sha256: abe08b555946f39423f9e0d0b1870a31c99bd9eca170aef8868a0aad1b64ead0
+  - kind: absence
+    searched:
+    - docs/design/dynamic-model-profiles/design/**
+    - docs/design/dynamic-model-profiles/plan.yaml
+    - docs/design/dynamic-model-profiles/questions.yaml
+    - docs/design/dynamic-model-profiles/tests/**
+    - docs/design/dynamic-model-profiles/knowledge/**
+    method: >-
+      Grep for 'waiver' and 'waive' and for 'ORQ-E451' over the design folder of the snapshot. 'waiver' matched only in earlier review records.
+      ORQ-E451 matched only in tests/P-2 to P-9.yaml and in review records. None of these is a design amendment or a waiver.
+    revision: 3dd84c80c676f2e28e23647b79396fe1771fee7f
+  claim: >-
+    AC-6 of P-9 is not met by the phase's own test record (verdict FAIL, AC-6 fail). The cause is ORQ-E451 on evidence_artifacts.py and
+    independence.py, which match the design's security glob src/orqlet/domain/** while the design's only security entry (EC-7) covers CODEOWNERS.
+    The implement skill says this code stops the work. The packet holds no amendment or waiver; the only trace is the Coder's sentence 'the person
+    asked only to be told'. This is the same open check as in P-2 to P-8. P-9 is the first phase that adds two domain files to it, and P-10 AC-8
+    and P-12 will ask for the same gate result. Locations that rest on files which are not committed, so no digest could be made:
+    docs/design/dynamic-model-profiles/tests/P-9.yaml:12 (verdict: FAIL), :20 (the gate entry) and :27 (AC-6 fail) (staged).
+  suggested_action: >-
+    The person decides once, in a form the packet carries: amend the design (a security expected change for src/orqlet/domain/**, or a narrower
+    glob) with a renewed approval, or record a waiver. State which gate result P-9 to P-14 are measured against.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: finding
+  severity: non-blocking
+  category: standards
+  evidence:
+  - kind: quote
+    path: docs/design/dynamic-model-profiles/plan.yaml
+    lines: 1195-1225
+    revision: 3dd84c80c676f2e28e23647b79396fe1771fee7f
+    quote_sha256: 3496ed22ca0f922537d011663e862b79a4779d41d7aaa47d567fb8ab615300a8
+  claim: >-
+    The change edits two tests outside P-9's file list (six test files and four source files; neither of these two is listed), and AC-6 says no
+    file outside the list changes. Both edits are forced and disclosed. The pattern now admits the role, so the code-reviewer-P-1-r1.yaml row of
+    the negative list in test_pin_staleness.py is wrong. Adding the role to REVIEW_AGENTS makes the code_reviewer_binding() fixture of
+    test_upgrade_model_policy.py add a duplicate. The plan was not amended. The pin-staleness row was deleted, not turned into a positive case.
+    No test in that file now shows that a code-reviewer record path is read. Locations that rest on files which are not committed, so no digest
+    could be made: diff.patch 349 (test_pin_staleness.py) and 786 (test_upgrade_model_policy.py) (staged).
+  suggested_action: >-
+    Add both files to P-9's file operations by plan amendment, or record the person's agreement. Add a case in test_pin_staleness.py showing that
+    a code-reviewer record path is read.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: finding
+  severity: non-blocking
+  category: correctness
+  evidence:
+  - kind: quote
+    path: src/orqlet/application/usecases/validate_records.py
+    lines: 316-324
+    revision: 3dd84c80c676f2e28e23647b79396fe1771fee7f
+    quote_sha256: 942e43e560e001335512f116195ddc49237ca8e42e51778d1e98002f935782f8
+  - kind: quote
+    path: docs/design/dynamic-model-profiles/plan.yaml
+    lines: 1268-1331
+    revision: 3dd84c80c676f2e28e23647b79396fe1771fee7f
+    quote_sha256: a0f77e0f4d5756c0ba4abeef55400de5838017e6b574f59c475891a16c1d95f5
+  claim: >-
+    The observed flags default to True, the permissive value. ADR-007 decision 2 says a requested-only identity never establishes a difference.
+    The one production caller still passes none of the new arguments and still counts model_requested as a family source. This is only the P-9 to
+    P-10 sequencing, and it is a documented reading. A test pins the permissive defaults. So P-10's new review_identity.py, or any later caller
+    that omits the flags, silently counts a requested-only model as observed, and P-10's criteria do not catch it (the reviewer read P-10 AC-1 to
+    AC-8 and found none that requires every call to pass the flags, or that a requested-only model gives no family difference through validate
+    review). Locations that rest on files which are not committed, so no digest could be made: src/orqlet/domain/independence.py:68-69
+    (agent_observed: bool = True, coder_observed: bool = True) and tests/unit/domain/test_independence.py:400-413 (staged).
+  suggested_action: >-
+    Add to P-10 an AC that every call to derive_independence passes the observed flags explicitly and that the defaults are removed. Add an AC
+    with a use-case-level test that a requested-only model gives no family difference through validate review.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: finding
+  severity: non-blocking
+  category: docs
+  evidence:
+  - kind: quote
+    path: src/orqlet/application/usecases/binding_inputs.py
+    lines: '280'
+    revision: 3dd84c80c676f2e28e23647b79396fe1771fee7f
+    quote_sha256: d3ae663ff7609178850ebd18a80af53ec03e9d4c2f1422ead4cc9245e4e346fd
+  claim: >-
+    The comment names two roles, and the change makes it wrong because a binding request can now carry code-reviewer. The knowledge record lists
+    this line as 'no phase names'. The baseline says to update documentation that a change makes wrong in the same change.
+  suggested_action: Correct the comment, and put binding_inputs.py in a phase's file list (P-9 by amendment, or P-10).
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: finding
+  severity: non-blocking
+  category: compatibility
+  evidence:
+  - kind: quote
+    path: docs/design/dynamic-model-profiles/design/adr-006-code-review-gate-and-new-roles.md
+    lines: '18'
+    revision: 3dd84c80c676f2e28e23647b79396fe1771fee7f
+    quote_sha256: 97baa5295ae587bf587859654525133398234a0e94bf8cd5f7b55e3b05b9236f
+  - kind: quote
+    path: src/orqlet/application/usecases/validate_plan.py
+    lines: '41'
+    revision: 3dd84c80c676f2e28e23647b79396fe1771fee7f
+    quote_sha256: f7ddff5347e7e558493293605d2d6564df4824ea1f251eb3fbe3d49a32c202de
+  - kind: quote
+    path: src/orqlet/application/usecases/validate_plan.py
+    lines: 136-148
+    revision: 3dd84c80c676f2e28e23647b79396fe1771fee7f
+    quote_sha256: b63fac678c108f600a1f8b9a6d59086ba0e27b60c2497acf722e6d66b1484c6d
+  - kind: absence
+    searched:
+    - docs/design/dynamic-model-profiles/plan.yaml
+    method: "Grep for 'validate_plan.py' and 'REVIEW_ITEMS' over the plan: no match, so no phase lists validate_plan.py."
+    revision: 3dd84c80c676f2e28e23647b79396fe1771fee7f
+  claim: >-
+    The design says validate_plan.py changes with the plan contract. No phase of the plan lists it, and REVIEW_ITEMS still holds three names.
+    A plan criterion whose check_ref is code-reviewer therefore gets ORQ-E375. The knowledge record says 'whether a criterion may name
+    code-reviewer is unknown'. This is not a P-9 defect, because the file is correctly absent from P-9's list. It is a design-to-plan gap.
+  suggested_action: >-
+    The person says whether a criterion may name code-reviewer as its check. If so, add validate_plan.py and its test to a phase's file list.
+    If not, amend ADR-006 decision 3.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: finding
+  severity: non-blocking
+  category: tests
+  evidence:
+  - kind: quote
+    path: src/orqlet/application/usecases/validate_records.py
+    lines: 89-93
+    revision: 3dd84c80c676f2e28e23647b79396fe1771fee7f
+    quote_sha256: 7c11756a93f2e1254419508460bbfe5bdcd7910764b568574b4f5995fb88e1d8
+  - kind: absence
+    searched:
+    - tests/**
+    method: "Grep for 'code-reviewer' over tests: 13 files match; none is a validate-review use-case or e2e test."
+    revision: 3dd84c80c676f2e28e23647b79396fe1771fee7f
+  claim: >-
+    AC-1 says a code-reviewer record 'does not raise ORQ-E400'. The test record says the clause is covered at the predicate only 'because
+    validate_records.py changes in P-10'. But ORQ-E400 there depends only on parse_evidence_path, which P-9 changes, so a use-case-level test is
+    possible in P-9. The predicate test still shows the decision, so the gap is thin. Location that rests on a file which is not committed, so no
+    digest could be made: tests/unit/domain/test_evidence_artifacts.py:96-98 (the comment that says the second effect is covered at the
+    predicate only) (staged).
+  suggested_action: >-
+    Add one validate review test for a code-reviewer path that asserts ORQ-E400 is absent, or state the real reason for the gap.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: info
+  category: architecture
+  evidence: []
+  claim: >-
+    independence_notes compares agent_model and coder_model as raw strings. ADR-007 decision 3 makes the same logical model the same identity
+    whatever its alias, effort or speed. The function is pure, so the caller must pass the normalised catalog id. The docstring does not say so. If
+    P-10 passes raw strings, alias variants of one model escape same-model-different-client. Location, in a file that is not committed so no digest
+    could be made: src/orqlet/domain/independence.py:117 (if agent_model is not None and agent_model == coder_model) (staged).
+  suggested_action: State in the docstring and in a P-10 AC that the *_model arguments are catalog ids from the matching rule.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-8
+  kind: observation
+  severity: info
+  category: standards
+  evidence:
+  - kind: quote
+    path: src/orqlet/application/contracts/plan.py
+    lines: '21'
+    revision: 3dd84c80c676f2e28e23647b79396fe1771fee7f
+    quote_sha256: b3738f3056e38b12a268bb42b6488e256edc836bbaad3812a7115fc847d458e8
+  claim: >-
+    The role string is a constant in two layers (CODE_REVIEWER in plan.py and in independence.py:29, the second in a staged file), and a literal in
+    the contracts, the two maps and the path pattern. A test pins the constant in independence.py to the literal, and test_review_maps.py ties the
+    maps to Binding.role. Nothing ties the constant in plan.py to them.
+  suggested_action: Optional. Let plan.py import the domain constant, or add the one-line equality test.
+  confidence: low
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+    acceptance_criteria:
+    - AC-1
+    - AC-2
+    - AC-3
+    - AC-4
+    - AC-5
+    - AC-6
+  checks:
+  - what: AC-1, the record-path pattern admits code-reviewer and other role names stay ordinary inputs
+    how: Read the pattern hunk and the tests of test_evidence_artifacts.py in diff.patch. Not run.
+    result: pass
+  - what: AC-2, the two reviewer maps and the seeded binding
+    how: Read the hunks of render_all.py and review_prepare.py, test_review_maps.py and test_lifecycle.py in diff.patch. Not run.
+    result: pass
+  - what: AC-3 to AC-5, derive_independence, the notes, the minimum and satisfies against ADR-007 decisions 2, 4 and 5
+    how: Read independence.py in the snapshot and the table tests that compare with a copy of the base-revision function. Not run.
+    result: pass
+  - what: Layering and purity of the domain module and the import from render_all.py
+    how: Read the imports in the snapshot. independence.py gains no import and render_all.py imports the domain constant, which is inward. Import-linter not run.
+    result: pass
+  - what: AC-6, ORQ-I441 printed once per role without a block
+    how: Read review_prepare.py in the snapshot. No skill text refers to the old single message.
+    result: pass
+  - what: AC-6, the phase gate reports no ORQ-E450, ORQ-E451 or ORQ-E453
+    how: The test record gives verdict FAIL and AC-6 fail (F-1). Not run by the reviewer.
+    result: fail
+  - what: Checks and tests pass
+    how: The reviewer ran no command (no ruff, mypy, lint-imports, pytest or orqlet command) and checked no test count or hash.
+    result: not-run
+  unverified:
+  - That the results in context/test-record.yaml are true.
+  - The second half of test_independence.py in diff.patch; the reviewer read only its test headings and the sections on the notes grid, on recording never being worse, and on the minimum by role.
+  - tests/golden, uv.lock, the repository's own .orqlet/role-bindings.yaml (two bindings) and the generated .claude, .cursor and .codex copies.
+  questions:
+  - 'Q1: How is ORQ-E451 on the domain files settled before the pull request merges (F-1)?'
+  - 'Q2: Are the two out-of-list test edits accepted by plan amendment (F-2)?'
+  - 'Q3: May a plan criterion name code-reviewer, and which phase changes validate_plan.py (F-5)?'
