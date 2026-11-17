@@ -6,6 +6,10 @@ A phase skill is started by the person only: Claude Code and Cursor document the
 `disable-model-invocation`, and Codex documents `allow_implicit_invocation: false` in a sidecar
 `agents/openai.yaml`. A skill for the team's resources (`agent_may_start`) carries neither: the
 agent may start it, because it only says how to read.
+
+Only the Claude Code skill file can carry a model: Claude Code documents `model` and `effort` in a
+skill's front matter, and the file that Cursor and Codex share is the same bytes for both, with no
+model documented for either. A skill's `model_settings` is therefore read for Claude Code alone.
 """
 
 from __future__ import annotations
@@ -14,23 +18,24 @@ import re
 
 from orqlet.adapters.render.emit import Data, front_matter, normalise_text, yaml_document
 from orqlet.adapters.render.instructions import GENERATED_NOTICE
-from orqlet.application.ports.instruction_adapter import ClientSkill, RenderedFile
+from orqlet.application.ports.instruction_adapter import ClientSkill, ModelSetting, RenderedFile
 from orqlet.domain.digest import sha256_hex
 from orqlet.domain.ownership import FileClass, OwnerMode
 from orqlet.domain.paths import CanonicalPath
 
 CLAUDE_SKILLS = ".claude/skills"
 AGENTS_SKILLS = ".agents/skills"
+CLAUDE_CODE = "claude-code"
 _NAME = re.compile(r"[a-z0-9][a-z0-9-]*")
 
 
 def claude_skill_files(skill: ClientSkill) -> tuple[RenderedFile, ...]:
-    return _skill_files(CLAUDE_SKILLS, skill)
+    return _skill_files(CLAUDE_SKILLS, skill, skill.model_settings.get(CLAUDE_CODE))
 
 
 def agents_skill_files(skill: ClientSkill) -> tuple[RenderedFile, ...]:
-    """The files Cursor and Codex read. Identical for both clients."""
-    return _skill_files(AGENTS_SKILLS, skill)
+    """The files Cursor and Codex read. Identical for both clients, and never pinned to a model."""
+    return _skill_files(AGENTS_SKILLS, skill, None)
 
 
 def codex_sidecar(skill: ClientSkill) -> RenderedFile:
@@ -44,12 +49,18 @@ def codex_sidecar(skill: ClientSkill) -> RenderedFile:
     )
 
 
-def _skill_files(base: str, skill: ClientSkill) -> tuple[RenderedFile, ...]:
+def _skill_files(
+    base: str, skill: ClientSkill, setting: ModelSetting | None
+) -> tuple[RenderedFile, ...]:
     if _NAME.fullmatch(skill.name) is None:
         raise ValueError(f"a skill name is lower case letters, digits and hyphens: {skill.name!r}")
     fields: list[tuple[str, Data]] = [("name", skill.name), ("description", skill.description)]
     if not skill.agent_may_start:
         fields.append(("disable-model-invocation", True))
+    if setting is not None:
+        fields.append(("model", setting.name))
+        if setting.effort is not None:
+            fields.append(("effort", setting.effort))
     head = front_matter(fields, plain_when_safe=True)
     text = f"{head}{GENERATED_NOTICE}\n\n{normalise_text(skill.body)}"
     files = [_file(f"{base}/{skill.name}/SKILL.md", text, skill.inputs)]

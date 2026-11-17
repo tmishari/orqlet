@@ -36,8 +36,10 @@ from orqlet.adapters.system import SystemClock, UuidGenerator
 from orqlet.adapters.workflow_package import PackagedWorkflow
 from orqlet.application.ports.documents import DocumentLoader
 from orqlet.application.ports.scanner import ProjectScanner, TechnologyScanner
+from orqlet.application.usecases.models_resolve import ModelsServices
 from orqlet.application.usecases.services import Services as LifecycleServices
 from orqlet.application.usecases.services import Stores
+from orqlet.application.usecases.validate_model_policy import ModelPolicyServices
 from orqlet.application.usecases.validation import ValidateServices
 
 DATA_DIR_VARIABLE = "ORQLET_DATA_DIR"
@@ -92,6 +94,30 @@ def build_validate_services(root: Path) -> ValidateServices:
     return ValidateServices(
         project=LocalFileSystem(resolved_root),
         vcs=GitVcs(SubprocessRunner(), resolved_root),
+        loader=StrictYamlLoader(),
+        workflow=PackagedWorkflow(),
+    )
+
+
+def build_model_policy_services(root: Path) -> ModelPolicyServices:
+    """The ports of the other validators, and the system clock for the retirement dates."""
+    validators = build_validate_services(root)
+    return ModelPolicyServices(
+        project=validators.project,
+        vcs=validators.vcs,
+        loader=validators.loader,
+        workflow=validators.workflow,
+        clock=SystemClock(),
+    )
+
+
+def build_models_services(root: Path) -> ModelsServices:
+    """What `models resolve` needs: the project's files, the strict loader, the workflow.
+
+    It builds no Git adapter, no process runner and no clock: the command can make no git call.
+    """
+    return ModelsServices(
+        project=LocalFileSystem(root.resolve(strict=True)),
         loader=StrictYamlLoader(),
         workflow=PackagedWorkflow(),
     )

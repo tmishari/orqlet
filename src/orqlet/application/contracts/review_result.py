@@ -6,11 +6,18 @@ states the digest of these inputs, not that a review took place (proposal 6.14.1
 
 from __future__ import annotations
 
-from typing import Literal, Self
+from typing import Annotated, Literal, Self
 
 from pydantic import Field, model_validator
 
-from orqlet.application.contracts.common import Contract, SHA256Hex, Slug, Text
+from orqlet.application.contracts.common import (
+    ClientId,
+    Contract,
+    RecordedModel,
+    SHA256Hex,
+    Slug,
+    Text,
+)
 from orqlet.application.contracts.finding import AbsenceEvidence, Finding
 from orqlet.application.contracts.review_input import ReviewInput
 from orqlet.application.contracts.self_check import SelfCheck
@@ -28,18 +35,39 @@ REQUIRED_COVERS = frozenset(
 )
 
 
+# Where a recorded model identity came from (ADR-007 decision 2). The agent that writes a record
+# is on the coder's side, so all three values are attested; only an observed identity can ever
+# establish a family difference, and a record that says nothing means `unknown`.
+IdentitySource = Literal["client-reported", "person-observed", "unknown"]
+SelectionSource = Literal[
+    "task-override", "role-assignment", "profile-assignment", "automatic", "explicit-fallback"
+]
+
+
+class Context(Contract):
+    """The reviewer's attestation of a fresh session that read the packet and nothing else."""
+
+    fresh: Annotated[bool, Field(strict=True)]
+    input: Literal["packet-only"]
+
+
 class AgentBinding(Contract):
     binding_ref: str = Field(min_length=1)  # an id in role-bindings.yaml
     definition_sha256: SHA256Hex
-    client: str = Field(min_length=1)
-    model_requested: str | None = None
-    model_observed: str | None = None  # where the client reports it
+    client: ClientId
+    model_requested: RecordedModel | None = None
+    model_observed: RecordedModel | None = None  # where the client reports it
+    # The three below are optional, so every record written before them still loads (BC-16).
+    identity_source: IdentitySource = "unknown"
+    context: Context | None = None
+    selection_source: SelectionSource | None = None
 
 
 class CoderBinding(Contract):
-    client: str = Field(min_length=1)
-    model_requested: str | None = None
-    model_observed: str | None = None
+    client: ClientId
+    model_requested: RecordedModel | None = None
+    model_observed: RecordedModel | None = None
+    identity_source: IdentitySource = "unknown"
 
 
 class Applicability(Contract):
@@ -60,7 +88,7 @@ class ReviewResult(Contract):
     schema_id: Literal["orqlet.review-result/v1"] = Field(alias="schema")
     task: Slug  # must equal the task in the path
     phase: str = Field(pattern=r"^P-[1-9]\d*$")
-    role: Literal["architecture-reviewer", "security-reviewer"]
+    role: Literal["architecture-reviewer", "security-reviewer", "code-reviewer"]
     round: int = Field(ge=1)
     verdict: Literal["PASS", "FAIL", "NOT_RUN"]  # errors, timeouts and unavailability are NOT_RUN
     assurance: Literal["advisory"]

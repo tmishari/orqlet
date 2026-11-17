@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from orqlet.application.ports.instruction_adapter import ModelSetting
 from orqlet.application.usecases.diagnose import Diagnosis
 from orqlet.application.usecases.explain import Explanation
 from orqlet.application.usecases.init_project import InitResult
@@ -133,10 +134,27 @@ def render_explanation(explanation: Explanation) -> str:
     lines += ["", f"{len(explanation.rules)} rule(s) apply:"]
     lines += [f"  {r.level.name:<6} {r.id}  ({r.source})" for r in explanation.rules]
     lines += ["", "Limits:"] + [f"  {f.code} {f.message}" for f in explanation.limits]
+    lines += ["", *_model_selection_lines(explanation)]
     lines += ["", "Cannot be inspected from the repository:"]
     lines += [f"  {item}" for item in explanation.uninspectable]
     lines += ["", "Not run:"] + [f"  {item}" for item in explanation.not_run]
     return "\n".join(lines)
+
+
+def _model_selection_lines(explanation: Explanation) -> list[str]:
+    """What `upgrade` would write for each role and skill, then what it says about the policy."""
+    lines = ["Model selection:"]
+    for row in explanation.model_selection:
+        setting = "none" if row.setting is None else _setting_text(row.setting)
+        lines.append(f"  {row.kind} {row.target} [{row.client}] {row.source}: {setting}")
+    lines += [f"  {f.code} {f.message}" for f in explanation.model_findings]
+    if len(lines) == 1:
+        lines.append("  none")
+    return lines
+
+
+def _setting_text(setting: ModelSetting) -> str:
+    return setting.name if setting.effort is None else f"{setting.name} (effort {setting.effort})"
 
 
 def render_profile_edit(result: ProfileEditResult) -> str:

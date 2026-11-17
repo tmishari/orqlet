@@ -623,7 +623,9 @@ def test_the_implemented_commands_differ_from_the_base_by_exactly_the_new_comman
     `validate integrations`). The base is the list of `BASE_COMMANDS` above."""
     added = IMPLEMENTED_COMMANDS - BASE_COMMANDS
 
-    assert added == {"validate integrations"}
+    # P-7 of dynamic-model-profiles adds `validate model-policy` to the base, and P-8 adds
+    # `models resolve`.
+    assert added == {"validate integrations", "validate model-policy", "models resolve"}
     assert BASE_COMMANDS <= IMPLEMENTED_COMMANDS
 
 
@@ -632,7 +634,11 @@ def test_the_commands_that_the_application_registers_are_the_implemented_command
     as `integrations` on the `validate` group is `validate integrations`. The equality test of
     tests/integration/test_validate_cli.py needs no change."""
     assert registered_names(app) == set(IMPLEMENTED_COMMANDS)
-    assert registered_names(app) - BASE_COMMANDS == {"validate integrations"}
+    assert registered_names(app) - BASE_COMMANDS == {
+        "validate integrations",
+        "validate model-policy",
+        "models resolve",
+    }
     assert "validate integrations" not in PLANNED_COMMANDS
 
 
@@ -656,7 +662,10 @@ def test_the_command_has_the_signature_that_the_manifest_gives() -> None:
 
     assert api.errors == ()
     assert api.manual == ()
-    assert frozenset(api.symbols) == BASE_PUBLIC_NAMES | {"integrations_command"}
+    assert frozenset(api.symbols) == BASE_PUBLIC_NAMES | {
+        "integrations_command",
+        "model_policy_command",
+    }
     assert api.symbols["integrations_command"].signature == canonical_signature(
         "def integrations_command(file: Annotated[str, typer.Argument("
         "help='The declaration, relative to the root.')]='.orqlet/integrations.yaml', "

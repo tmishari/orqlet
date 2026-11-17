@@ -218,6 +218,7 @@ def test_build_render_request_takes_the_registry_and_the_conventions_before_the_
         "conventions",
         "client_version",
         "available_commands",
+        "selection",  # dynamic-model-profiles P-5: the model settings of the roles and skills
     ]
     assert parameters["resources"].default is inspect.Parameter.empty
     assert parameters["conventions"].default is inspect.Parameter.empty

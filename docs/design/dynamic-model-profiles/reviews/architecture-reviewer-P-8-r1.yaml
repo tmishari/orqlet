@@ -1,0 +1,388 @@
+schema: orqlet.review-result/v1
+task: dynamic-model-profiles
+phase: P-8
+role: architecture-reviewer
+round: 1
+verdict: FAIL
+assurance: advisory
+review_input:
+  components:
+    code_tests: 1196f782c88dcabf018eaf77ed8cbd51c072338b2636d888ba6ed307ed893d0b
+    design: af08cad54b174da764ccf0d9a534a6f83068ee318eb81cc6622337a56a287b28
+    evidence_inputs: 4060ccb691157b271364923b17854da9ff7871b3cabc81cbc09a52fd7aa709fb
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 64828bab5b853ad6f3ffbf4c5fe4bcddd899ddfcedeb56010b5bd4e587e515c8
+    reviewer_definition: 6ce838ea71280ef545f87a85c2922b4bd9a2740713521c2dd24ed4768ead4be9
+    standards: 20b2417f8fe79a6b504d5edb6aa5876a9d7ae7a5a78a128d2d5e210ff3b835a9
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 176399c011747044b4dad7c9573fd585fcbc3caf63f5c0623edf1bce6cae23ac
+  merge_base: 3db213fd9ffa5be05ac098bae4d51217068170e0
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: bb870c5236ad9b2cb5f0f6b0f8568baf499d9bd1727a18254303b9b1e797e7f4
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran in the same client as the Coder (cursor), so independence is I1, not I2.
+- The reviewer was started as a typed subagent (orqlet-arch-reviewer) in a clean context; its prompt held the packet path and nothing else. The
+  model that ran it is not observed.
+- 'The reviewer''s session had no shell: it ran no check and computed no quote digest. The coder cited, with `orqlet evidence cite` at the commit
+  456cc1a206c053ed0d98362a059e68d06115a429, each quote of a file that is committed, and compared the lines with the reviewer''s text; every cited
+  line matched. A quote of a file that is only staged (the P-8 code, the tests and the records) cannot be digested, because the command reads
+  committed files; its location is written into the claim, and a finding that has no other evidence is an observation.'
+- The packet held earlier review records (snapshot/docs/design/dynamic-model-profiles/reviews/) and its diff runs from the merge base 3db213fd9ffa5be05ac098bae4d51217068170e0,
+  so it holds P-1 to P-7 as well. ADR-007 decision 8 says a packet must not carry earlier conclusions.
+- 'Read-only is declared by the agent definition (readonly: true), not enforced by Orqlet.'
+- The reviewer's text says it read part of architecture-reviewer-P-7-r1.yaml (diff.patch 2256-2466) after a search hit; its F-1 and F-2 overlap
+  that record. It says it took F-1's facts from test-record.yaml, design-manifest.yaml and plan.yaml, and F-2's from diff.patch and plan.yaml.
+- The reviewer says it reviewed only P-8's files, taken from the plan's file list (plan.yaml 1071-1091), and that it cannot see the coder's client
+  or model, so it does not claim independence beyond a clean context.
+- 'Coder''s note, not part of the reviewer''s text: the ORQ-E451 of F-1 is the open check that the person chose to continue with, as for P-2 to
+  P-7, and P-8 changes none of the three files it names.'
+applicability:
+  examined:
+  - context/plan.yaml
+  - context/design-manifest.yaml
+  - context/knowledge-impact.yaml
+  - context/test-record.yaml
+  - diff.patch
+  - snapshot/src/orqlet/application/usecases/models_resolve.py
+  - snapshot/src/orqlet/interface/cli/commands/models.py
+  - snapshot/src/orqlet/interface/cli/wiring.py
+  - snapshot/src/orqlet/interface/cli/app.py
+  - snapshot/src/orqlet/interface/cli/runner.py
+  - snapshot/src/orqlet/interface/cli/render_json.py
+  - snapshot/src/orqlet/application/usecases/capabilities.py
+  - snapshot/src/orqlet/application/usecases/model_selection.py
+  - snapshot/src/orqlet/application/usecases/model_policy_source.py
+  - snapshot/src/orqlet/application/usecases/validate_model_policy.py
+  - snapshot/src/orqlet/application/usecases/render_all.py
+  - snapshot/src/orqlet/domain/model_resolution.py
+  - snapshot/tests/unit/application/test_models_resolve.py
+  - snapshot/tests/integration/test_models_resolve_cli.py
+  - snapshot/tests/integration/test_validate_integrations_cli.py
+  - snapshot/README.md
+  - snapshot/docs/design/dynamic-model-profiles/plan.yaml
+  - snapshot/docs/design/dynamic-model-profiles/design/component.md
+  - snapshot/docs/design/dynamic-model-profiles/design/sequence.md
+  - snapshot/docs/design/dynamic-model-profiles/design/adr-001-selection-boundary-modes-and-precedence.md
+  - snapshot/docs/design/dynamic-model-profiles/design/adr-007-independence-model-identity-and-fresh-context.md
+  - snapshot/docs/design/dynamic-model-profiles/reviews/architecture-reviewer-P-7-r1.yaml
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: blocking
+  category: architecture
+  evidence:
+  - kind: quote
+    path: docs/design/dynamic-model-profiles/design/manifest.yaml
+    lines: 41-44
+    revision: 456cc1a206c053ed0d98362a059e68d06115a429
+    quote_sha256: 876977b020a69e931a0e5d2560b2a75e95363d2486c7b167b6a4e29a984e107c
+  - kind: quote
+    path: docs/design/dynamic-model-profiles/design/manifest.yaml
+    lines: 94-95
+    revision: 456cc1a206c053ed0d98362a059e68d06115a429
+    quote_sha256: be6b620c4eaca27f2c9ff32bb0ce705d16128443bee4f4592dbc44ce018724f4
+  - kind: quote
+    path: docs/design/dynamic-model-profiles/plan.yaml
+    lines: 1057-1063
+    revision: 456cc1a206c053ed0d98362a059e68d06115a429
+    quote_sha256: b1ae0574a0c08459d1c1f3a8423bb925570e4e1f48d1ad3f4111aa6e6e32c402
+  claim: 'AC-7 of P-8 is not met by the phase''s own test record: verdict FAIL, AC-7 fail. The cause is ORQ-E451 on three domain files of P-2,
+    P-3 and P-4 that match the security glob src/orqlet/domain/**. The design manifest has one security expected change, EC-7, and it covers CODEOWNERS
+    only. P-8 changes none of the three files, so the cause is inherited, and the gate output is byte-identical to P-7''s. It will recur: P-9
+    changes domain/evidence_artifacts.py and domain/independence.py (plan.yaml 1196-1200) and P-12 AC-6 asks for the same gate result. The only
+    trace of a decision is the author''s sentence ''The person chose to continue with this check open''. The packet holds no design amendment
+    and no waiver, so I cannot verify it. Locations that rest on files which are not committed, so no digest could be made: docs/design/dynamic-model-profiles/tests/P-8.yaml:12
+    (verdict: FAIL), :20 (the gate entry) and :28 (AC-7 fail) (staged).'
+  suggested_action: 'The person decides once, in a form the packet carries: amend the design (a security expected change for src/orqlet/domain/**,
+    or a narrower glob) with a renewed approval, or record a waiver. Say which gate result P-8 and the later phases are measured against.'
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: finding
+  severity: non-blocking
+  category: standards
+  evidence:
+  - kind: quote
+    path: docs/design/dynamic-model-profiles/plan.yaml
+    lines: 2416-2417
+    revision: 456cc1a206c053ed0d98362a059e68d06115a429
+    quote_sha256: b01edbadbf9f3539962e3fcd0f81665ec805ba718cfe11703ca7a9f952a41e9f
+  - kind: absence
+    searched:
+    - context/plan.yaml
+    - context/standards/rules.yaml
+    - context/standards/foundations.md
+    - context/design-manifest.yaml
+    method: 'Grep, case-insensitive, for ''pinned[- ]signature'' and ''test_validate_integrations_cli'' over context/: matches only in context/test-record.yaml
+      and context/knowledge-impact.yaml. Searched in the packet dynamic-model-profiles-P-8-4f067fac of the staged tree.'
+    revision: 456cc1a206c053ed0d98362a059e68d06115a429
+  claim: 'The change edits tests/integration/test_validate_integrations_cli.py. It is not in P-8''s file_operations (plan.yaml 1071-1091) and
+    the plan was not amended, although the plan says such tests need an amendment. The test record justifies the edit with ''the pinned-signature
+    rule'', and that rule is in neither the plan nor the standards. The edit is small and forced by the new command: the expected set of added
+    commands, a comment, and one more name in the registered set. It is disclosed, and every other assertion stays. It is a second reason AC-7
+    is fail (''no file outside this phase''s operations changes''). The same file is edited in the same hunk by P-7. Locations that rest on files
+    which are not committed, so no digest could be made: tests/integration/test_validate_integrations_cli.py in the diff hunk (diff.patch 12608-12634)
+    (staged).'
+  suggested_action: Add the file to the file operations of P-7 and P-8 by plan amendment, or record the person's agreement in the packet. Do not
+    cite a rule that the plan does not hold.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: finding
+  severity: non-blocking
+  category: correctness
+  evidence:
+  - kind: quote
+    path: docs/design/dynamic-model-profiles/plan.yaml
+    lines: 1034-1041
+    revision: 456cc1a206c053ed0d98362a059e68d06115a429
+    quote_sha256: 636d966e3b68ccd553ae1c5ebacea85db1f85f3d22f1a84ba2c15a90b99a18c2
+  claim: 'A target that the policy assigns to one model with no profile gets the hint ''no assignment for this target; the client chooses''. A
+    pinned level leaves resolution.profile empty, and the hint reads only that field. The same output shows source role-assignment and, in mode
+    manual, a selection, so the sentence is false in its first part and in its second part for a manual pin. AC-4 names the sentence only for
+    a target that has a profile and for a target the policy does not assign, so a pinned target is not covered. The test pins the behaviour and
+    calls it a reading, and the knowledge record lists it as reading (6). The skills will show this sentence to the person (ADR-001 decision 8).
+    Locations that rest on files which are not committed, so no digest could be made: src/orqlet/application/usecases/models_resolve.py:305-322
+    (staged); tests/unit/application/test_models_resolve.py:2052-2061 (staged).'
+  suggested_action: Ask the person which fixed sentence a pinned target gets (for example one that names the catalog id). Add it to AC-4 and to
+    the test. Until then the reading is an open question and not a decision.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: non-blocking
+  category: architecture
+  evidence:
+  - kind: quote
+    path: src/orqlet/domain/model_resolution.py
+    lines: '140'
+    revision: 456cc1a206c053ed0d98362a059e68d06115a429
+    quote_sha256: 0596e6839859dac2c92f47aea12f14c7fb67a9a771b2607270354ce113389b8f
+  - kind: quote
+    path: docs/design/dynamic-model-profiles/design/adr-001-selection-boundary-modes-and-precedence.md
+    lines: '31'
+    revision: 456cc1a206c053ed0d98362a059e68d06115a429
+    quote_sha256: 8e9de49e1811aac9a9c1bb4a19c9cb2a7fdd085f9eee2f36ccf8ea059ec6fd8c
+  - kind: quote
+    path: docs/design/dynamic-model-profiles/design/component.md
+    lines: '128'
+    revision: 456cc1a206c053ed0d98362a059e68d06115a429
+    quote_sha256: af4dd73de3dbf16389b15f62941fb6cdd669179c0ab5af81e4783e6874b9dbba
+  claim: 'No input of the command names a fallback, so the source explicit-fallback can never appear in its output. ADR-001 decision 6, component.md
+    line 39 and P-4 AC-2 (the resolver returns it for a named fallback) all expect it. P-8 AC-1 gives no option for it and the coder followed
+    the criteria. Because ADR-001 decision 3 says the agent names a fallback ''by an explicit override'', such a run reads as task-override. I
+    do not know whether the person wants an option or wants the value only in review records. Locations that rest on files which are not committed,
+    so no digest could be made: src/orqlet/application/usecases/models_resolve.py:102-110 (ModelsQuery has no fallback field) and :210-219 (the
+    ResolveRequest built from the query) (staged).'
+  suggested_action: Ask the person. If an option is wanted, amend AC-1 and AC-2 of P-8 and the tests. If not, say in the design that explicit-fallback
+    is a review-record value only.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: non-blocking
+  category: failure-handling
+  evidence:
+  - kind: quote
+    path: src/orqlet/domain/model_resolution.py
+    lines: '176'
+    revision: 456cc1a206c053ed0d98362a059e68d06115a429
+    quote_sha256: 41ce7e2527015eeb6a09b7c53d7421e195146d7bce7c67897f267976eb73debe
+  - kind: quote
+    path: src/orqlet/domain/model_resolution.py
+    lines: '269'
+    revision: 456cc1a206c053ed0d98362a059e68d06115a429
+    quote_sha256: f306ae003ead91677fd316dbda780a64b516c15f794d788806be7e7d648dda0e
+  - kind: quote
+    path: src/orqlet/domain/model_resolution.py
+    lines: 490-491
+    revision: 456cc1a206c053ed0d98362a059e68d06115a429
+    quote_sha256: 145dc4ceb436cf882a84117e3c4ba1476859416f5e997b1a50bf1dd94eb922e8
+  - kind: absence
+    searched:
+    - src/
+    method: 'Grep for ''diversity_unproven|_unproven'' over src/: set in model_resolution.py only, never read. Searched in the packet dynamic-model-profiles-P-8-4f067fac
+      of the staged tree.'
+    revision: 456cc1a206c053ed0d98362a059e68d06115a429
+  claim: 'When --different-family-from names an id that is not a known, non-proposed catalog entry, the resolver cannot show any candidate as
+    different. It returns none-qualifies with diversity_unproven true and usually no rejection. The use case never reads that flag and AC-2 closes
+    the key set, so the person sees exit 1, ''no candidate qualifies'' and ''rejected: none''. A mistyped id looks the same as a coder in the
+    same family as every candidate, except through `rejected`. ADR-007 decision 11 covers an unmatched coder by omitting the flag, but a proposed
+    entry or a mistyped id still reaches this state. The tests leave this output unpinned. Locations that rest on files which are not committed,
+    so no digest could be made: tests/unit/application/test_models_resolve.py:38-40 (staged).'
+  suggested_action: Ask whether the cause must be shown (a fixed sentence in `hint`, or a key added by plan amendment). If not, the review skill
+    text of P-13 should say that exit 1 with an empty rejected list can also mean an unknown coder id.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: finding
+  severity: non-blocking
+  category: architecture
+  evidence:
+  - kind: quote
+    path: src/orqlet/application/usecases/model_policy_source.py
+    lines: 81-92
+    revision: 456cc1a206c053ed0d98362a059e68d06115a429
+    quote_sha256: f2b102a42839673d3bc853056dbbc708716d73365b2b0d54acf9e9573a87883c
+  - kind: quote
+    path: src/orqlet/application/usecases/model_policy_source.py
+    lines: 99-100
+    revision: 456cc1a206c053ed0d98362a059e68d06115a429
+    quote_sha256: ad70150bbf745987fb94c764658d83fabf9dbfb19aa9c4c43443aa1290016646
+  claim: 'load_model_policy needs only the project file system and the loader, but its parameter type demands a vcs. To keep ModelsServices free
+    of a VCS, the use case adds _PolicyView, whose vcs raises RuntimeError. It works and tests cover the no-git behaviour. But the guarantee of
+    AC-5 rests on a stand-in that fakes a port and not on the type. A later change that made load_model_policy use vcs would pass mypy and fail
+    at run time with exit 70. The coder disclosed it (knowledge record, reading 1); model_policy_source.py is not in the P-8 file list. Locations
+    that rest on files which are not committed, so no digest could be made: src/orqlet/application/usecases/models_resolve.py:123-140 (class _PolicyView)
+    (staged).'
+  suggested_action: Split PolicyServices into a working-tree reader protocol (project, loader) and a tree reader protocol (vcs, loader) by plan
+    amendment or in a follow-up phase, then delete _PolicyView. No behaviour changes.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: finding
+  severity: non-blocking
+  category: standards
+  rule_ref: ORQLET-STYLE-001
+  evidence:
+  - kind: quote
+    path: src/orqlet/application/usecases/model_selection.py
+    lines: 86-96
+    revision: 456cc1a206c053ed0d98362a059e68d06115a429
+    quote_sha256: 6a8fe707aec53163d6d7db5152781a42897096f6da819a0a95444a844dda6b13
+  - kind: quote
+    path: src/orqlet/application/usecases/model_selection.py
+    lines: 411-441
+    revision: 456cc1a206c053ed0d98362a059e68d06115a429
+    quote_sha256: 9bd306f0107b3a44e630ec4cafec4c58dc1efb41e6060e3ec5673affaeb742da
+  - kind: quote
+    path: src/orqlet/application/usecases/validate_model_policy.py
+    lines: 89-96
+    revision: 456cc1a206c053ed0d98362a059e68d06115a429
+    quote_sha256: ef7bd3bcb14a11e98eb3e6874192851ea877ac161e76949d9fbfdcfa7b28a7dd
+  - kind: quote
+    path: src/orqlet/application/usecases/validate_model_policy.py
+    lines: 216-224
+    revision: 456cc1a206c053ed0d98362a059e68d06115a429
+    quote_sha256: ed87d4e4a0ab1505924dd387a613ea6eb64ab80b21d397b5f2f04f193a497839
+  - kind: quote
+    path: src/orqlet/application/usecases/render_all.py
+    lines: 175-176
+    revision: 456cc1a206c053ed0d98362a059e68d06115a429
+    quote_sha256: 6b6c4979430880dc8ed894f9e79e96d5217b1a6adad26042bc0337d20218f783
+  claim: 'The refusal text and its helpers now exist in three copies: the code-to-text map for ORQ-E543 and ORQ-E545, the 20-path limit, the path-list
+    helper and the deleted-file finding. P-8 adds the third (models_resolve.py, with wording that must not say ''upgrade''). Each copy indexes
+    _PROBLEM_TEXT[code], so a code that policy_problems adds later fails in each copy; in this command that is an internal error (exit 70). The
+    two-line list of role and skill names is also repeated in render_all.py, validate_model_policy.py (299-300) and models_resolve.py (160-161).
+    Only the remedy sentence differs between the copies. Locations that rest on files which are not committed, so no digest could be made: src/orqlet/application/usecases/models_resolve.py:78-89
+    and 172-203 (staged).'
+  suggested_action: Move the map, the path listing and the deleted finding into model_selection.py with the remedy sentence as a parameter, and
+    call it from the three callers. This touches P-7 and P-8 files, so it needs a plan amendment or a follow-up.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-8
+  kind: observation
+  severity: info
+  category: docs
+  evidence:
+  - kind: quote
+    path: docs/design/dynamic-model-profiles/design/adr-007-independence-model-identity-and-fresh-context.md
+    lines: '26'
+    revision: 456cc1a206c053ed0d98362a059e68d06115a429
+    quote_sha256: b54ca0eb69d43abd6b50cb0f6454206dfbf9b9cc6f258f7703b60a26e2f2f5c5
+  - kind: quote
+    path: docs/design/dynamic-model-profiles/design/sequence.md
+    lines: '49'
+    revision: 456cc1a206c053ed0d98362a059e68d06115a429
+    quote_sha256: 01cc1881239c31406a54375a37a478cf649fccb89bcbc0fbef031588497911c0
+  - kind: quote
+    path: docs/design/dynamic-model-profiles/plan.yaml
+    lines: '1691'
+    revision: 456cc1a206c053ed0d98362a059e68d06115a429
+    quote_sha256: 84bb054a6d7bc9fb93f341d38127b8fd7b69cab6b17ef78e43eb08c4a6918a60
+  - kind: quote
+    path: docs/design/dynamic-model-profiles/plan.yaml
+    lines: '2058'
+    revision: 456cc1a206c053ed0d98362a059e68d06115a429
+    quote_sha256: b2b5361fa1ee6f1e7e71d4cf5a9a02430ce35480edcdfeca47b353b15e974e1e
+  claim: The ADR and the sequence diagram write the role as `code-reviewer`. The plan, the resolver's default floor (model_resolution.py 72 and
+    538-539) and the role file use `orqlet-code-reviewer`. The command checks the name only as a slug, by design, so a run with the ADR's spelling
+    exits 0 with 'no assignment for this target'. With --different-family-from it exits 1 and an empty reason list, and the engineering floor
+    does not apply. The plan uses the right name, so the risk sits in whoever copies the ADR.
+  suggested_action: Correct the two design texts at the next design amendment, or note the long name where P-13 writes the review skill step.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+    acceptance_criteria:
+    - AC-1
+    - AC-2
+    - AC-3
+    - AC-4
+    - AC-5
+    - AC-6
+    - AC-7
+  checks:
+  - what: Phase implemented and file list
+    how: 'plan.yaml 998-1128 against the diff headers of diff.patch. The reviewer''s own result: pass for the seven planned files; one out-of-list
+      edit (F-2).'
+    result: pass
+  - what: Contract of AC-1 to AC-6 against the code
+    how: 'Read models_resolve.py, commands/models.py, wiring.py, app.py, capabilities.py, model_resolution.py, model_selection.py, model_policy_source.py,
+      runner.py and render_json.py. The reviewer''s own result: pass; open items F-3 to F-5.'
+    result: pass
+  - what: Layering and the no-VCS, no-process, no-clock rule
+    how: 'Read the imports and the services object. The reviewer''s own result: pass; F-6 on how it is achieved.'
+    result: pass
+  - what: Tests cover the criteria
+    how: 'Read the heads, the guards, the test list and about ten bodies of the two new files. The reviewer''s own result: pass; the other bodies
+      were not read.'
+    result: pass
+  - what: Knowledge record and absence record
+    how: 'Checked the README line numbers it cites and P-12 AC-2. The reviewer''s own result: accurate for the README; the two lines of docs/design/orqlet-architecture-proposal.md
+      (4486, 4550) cannot be checked because that file is not in the packet.'
+    result: pass
+  - what: Ruff, ruff format, mypy, import-linter, pytest and the gate
+    how: The reviewer ran nothing (no shell). The test record's results are claimed.
+    result: not-run
+  - what: Quote digests (`orqlet evidence cite`)
+    how: The reviewer computed none. The coder cited the quotes of committed files.
+    result: not-run
+  failures:
+  - 'F-1: AC-7 fail by the phase''s own record'
+  - 'F-2: a file outside the list changed without an amendment'
+  unverified:
+  - 'That ruff, mypy, import-linter and pytest pass. The reviewer ran nothing; the test record is evidence_kind: claimed and its digests were
+    not recomputed.'
+  - That pyproject.toml and uv.lock are unchanged. The diff shows no entry for either; the reviewer had no git.
+  - Which 36 tests pass with the implementation absent (test-record.yaml 19). The record does not say, and the premise tests of the unit file
+    account for some.
+  - That the Tester was the typed orqlet-tester. The record itself does not claim it. One Tester assertion (test_an_override_that_is_rejected_is_override_invalid)
+    was changed by the coder; the reviewer read the changed assertion and it still checks that the override does not leak.
+  - Supported Python versions other than the one the record ran on (ORQLET-QA-001).
+  - P-1 to P-7 code in the cumulative diff, the golden files, and the security depth, which belongs to the security reviewer.
+  questions:
+  - 'F-3: the hint sentence for a pinned target'
+  - 'F-4: whether explicit-fallback needs an input'
+  - 'F-5: whether an unknown coder id must be shown'

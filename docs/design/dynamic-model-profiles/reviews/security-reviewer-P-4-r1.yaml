@@ -1,0 +1,201 @@
+schema: orqlet.review-result/v1
+task: dynamic-model-profiles
+phase: P-4
+role: security-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  schema: orqlet.review-input/v1
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  components:
+    code_tests: a183e1fc6b06fb5118c70fa9ea3d302241e10685fe1d9cc16fc1373f58fff748
+    design: af08cad54b174da764ccf0d9a534a6f83068ee318eb81cc6622337a56a287b28
+    evidence_inputs: 9f1410e7d78a0f0e9b9f7fe98cf64e837029c9fec8277f54432137e06c8f649b
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 64828bab5b853ad6f3ffbf4c5fe4bcddd899ddfcedeb56010b5bd4e587e515c8
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: 20b2417f8fe79a6b504d5edb6aa5876a9d7ae7a5a78a128d2d5e210ff3b835a9
+  digest: 0e12ee1d9739c20d342e744aef3be0cde2b98de92986d2a207c89d3cc9b196ac
+  merge_base: 3db213fd9ffa5be05ac098bae4d51217068170e0
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran in the same client as the Coder (cursor), so independence is I1, not I2.
+- The reviewer's session had no shell, so it ran no command and computed no quote digest; every behaviour it states comes
+  from reading the code. The quote digests were added by the person running the review with `orqlet evidence cite` at
+  revision dcaa6deff4c68c26d3223ad1e919777f350d06db, on committed files whose staged content is the same. The phase's
+  modules, tests and records are staged and not committed, so they cannot be cited by revision; their lines stay in the
+  claim text, and F-3 to F-5, which rest on them alone, are observations. The absence record of F-1 searched the staged
+  snapshot, and names the base revision.
+- 'Read-only is declared by the agent definition (readonly: true), not enforced by Orqlet.'
+- The model that ran the reviewer is not observed.
+- The packet held the earlier review records, 22 of them under snapshot/docs/design/**/reviews/ and the P-1 to P-3
+  records in diff.patch, which ADR-007 decision 8 says a packet must not carry. The reviewer says it never opened one.
+- 'Not examined by the reviewer: the code of P-1 to P-3 in depth (it read model_identity.py, model_policy_scan.py and the
+  contract only for what P-4 relies on), the P-2 reader beyond the size cap, src/orqlet/workflow/** and the schema changes,
+  input limits on override and fallback strings (nothing calls `resolve` yet), the tester''s claimed command results, and the
+  earlier review records.'
+applicability:
+  examined:
+  - diff.patch
+  - context/plan.yaml
+  - context/design-manifest.yaml
+  - context/test-record.yaml
+  - context/knowledge-impact.yaml
+  - context/standards/rules.yaml
+  - snapshot/src/orqlet/domain/model_resolution.py
+  - snapshot/src/orqlet/application/usecases/model_selection.py
+  - snapshot/src/orqlet/domain/model_identity.py
+  - snapshot/tests/unit/domain/test_model_resolution.py
+  - snapshot/tests/unit/application/test_model_selection.py
+  - snapshot/docs/design/dynamic-model-profiles/knowledge/P-4.yaml
+  - snapshot/src/orqlet/application/contracts/model_policy.py
+  - snapshot/src/orqlet/application/contracts/common.py
+  - snapshot/docs/design/dynamic-model-profiles/design/adr-001-selection-boundary-modes-and-precedence.md
+  - snapshot/docs/design/dynamic-model-profiles/design/adr-005-fable-exclusion-by-model-identity.md
+  - snapshot/docs/design/dynamic-model-profiles/design/adr-007-independence-model-identity-and-fresh-context.md
+  - snapshot/docs/design/dynamic-model-profiles/design/component.md
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: security
+  evidence:
+  - {kind: quote, path: src/orqlet/application/contracts/common.py, lines: 36-38, revision: dcaa6deff4c68c26d3223ad1e919777f350d06db, quote_sha256: 84db59aa2aa471dbea7b10fc1b075b30154032c9fef1e8f55f689adbb33762c8}
+  - {kind: quote, path: docs/design/dynamic-model-profiles/design/adr-005-fable-exclusion-by-model-identity.md, lines: "15", revision: dcaa6deff4c68c26d3223ad1e919777f350d06db, quote_sha256: a2a799a070206f933df4c3da3d49e42a530a049430d8a6bf059fc7c2eeda56b6}
+  - {kind: absence, searched: [tests/unit/domain/test_model_resolution.py, tests/unit/application/test_model_selection.py, tests/unit/domain/test_model_identity.py, src/orqlet/application/usecases/model_selection.py], method: 'searched for a family compared after normalisation, a family spelling variant in a fixture, and a policy check on family spelling; found none', revision: dcaa6deff4c68c26d3223ad1e919777f350d06db}
+  claim: 'Reviewer diversity compares two families with `model.family == self._coder.family` (model_resolution.py:510-516,
+    staged), an exact string comparison. `family` is a ModelRef, which allows upper and lower case and the characters
+    `. _ : / @ + -` (common.py:36-38), and `policy_problems` does not flag two entries whose families differ only in spelling,
+    for example `Anthropic` and `anthropic`. A same-vendor candidate can then count as a different family. This is the safe
+    direction for exclusion but the unsafe direction for independence. ADR-005 decision 1 says the one matching rule is used
+    for "an identity, a family, the same-model test", and the P-4 reading "compared by catalog id and family, not through the
+    name rule" appears only in the module docstring and the knowledge record.'
+  suggested_action: 'Compare the normalised forms of the two families, or add an ORQ-E545 problem in `policy_problems` for two
+    entries whose families normalise equal but are written differently. Add a fixture for the spelling variant. Ask the
+    design owner which of the two the design means.'
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: finding
+  severity: non-blocking
+  category: failure-handling
+  rule_ref: ORQLET-SEC-002
+  evidence:
+  - {kind: quote, path: src/orqlet/domain/model_identity.py, lines: 121-133, revision: dcaa6deff4c68c26d3223ad1e919777f350d06db, quote_sha256: caf78d8ff1b20df304e24f19d3e531824d399c1e221723fc9df5ec61ff7f1e0c}
+  - {kind: quote, path: src/orqlet/domain/model_identity.py, lines: 215-221, revision: dcaa6deff4c68c26d3223ad1e919777f350d06db, quote_sha256: c8dfabe62d3117fa05fb76b9383894daae481b814e87675c60900099d5dd3cd1}
+  - {kind: quote, path: src/orqlet/application/contracts/model_policy.py, lines: 194-195, revision: dcaa6deff4c68c26d3223ad1e919777f350d06db, quote_sha256: c789b908069617e95d44f0805957ba1d67af4dacdae212247c4642814ed3488d}
+  - {kind: quote, path: src/orqlet/application/usecases/model_policy_source.py, lines: "46", revision: dcaa6deff4c68c26d3223ad1e919777f350d06db, quote_sha256: 353b837ed6e06d72179317b8abe8f9a1b52d90e518d464fe458c174534265a5e}
+  claim: '`_name_problems` (model_selection.py:220-224, staged) yields one PolicyProblem for each conflicting pair that
+    `name_conflicts` returns. When N entries claim one name, that is N(N-1)/2 problems, and the same `models[k]` path
+    repeats. `models` and `excluded` have no length cap in the contract (model_policy.py:194-195). The only bound is the
+    256 KiB file size (model_policy_source.py:46). `is_excluded` also recomputes the normalised aliases and the tags for
+    every rule on every call (model_identity.py:215-221), and `policy_problems` calls it for every model, route and name
+    string. The policy file is untrusted repository input (ORQLET-SEC-002), so a crafted file within the size cap could cost
+    much time or memory when `validate model-policy` runs on a pull request. The reviewer did not measure this; it is from
+    reading the code. P-4 adds no bounded-time test, unlike the scan module, which has one.'
+  suggested_action: 'Report each later entry once (a set of indexes). Normalise the exclusion rules once per policy instead of
+    once per call, or cap the list lengths in the contract. Add a bounded-time test on a worst-case 256 KiB policy.'
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: 'The packet carries earlier reviewers'' conclusions (22 earlier review records under snapshot/docs/design/**/reviews/, and
+    the P-1 to P-3 review records in diff.patch), which is what ADR-007 decision 8 says a packet must not do. The reviewer did
+    not open any of those files, so no conclusion in this record depends on them. The packet builder that made this packet
+    predates the exclusion.'
+  suggested_action: Rebuild the packet without them if a clean review is needed.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: 'The tester''s record shows gate-status-phase failing with ORQ-E451 (no security entry) on src/orqlet/domain/**,
+    which now includes model_resolution.py (test record, staged, line 20). EC-7 is the only security entry and is
+    verification manual, so the gate never counts a security path as covered. The record says the person chose to continue
+    with this check open. This review does not close that gate.'
+  suggested_action: Amend the design and plan before the pull request, as the test record already says.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: correctness
+  evidence: []
+  claim: 'Two things the later phases must account for. (a) The resolver keeps the first entry for a duplicate id
+    (model_resolution.py:262-264, staged), while `policy_problems` treats an id as excluded when any entry with it is
+    excluded (model_selection.py:154-166, staged). Every Choice.name comes from the entry that the resolver itself checked,
+    so the reviewer found no way for an excluded route name to be emitted; the resolver is still safe only for policies that
+    passed `policy_problems`. (b) A candidate id that is absent from the catalog is rejected as not-approved
+    (model_resolution.py:446-452, staged), even if it matches an exclusion. It is refused either way, and `policy_problems`
+    reports ORQ-E543 and ORQ-E545 for the reference.'
+  suggested_action: 'In P-5 and later, make `upgrade`, `validate model-policy` and `models resolve` refuse any policy that has a
+    `policy_problems` entry before they call `resolve`.'
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+    acceptance_criteria: [AC-1, AC-2, AC-3, AC-4, AC-5, AC-6, AC-7, AC-8]
+  checks:
+  - what: Packet read, the diff, plan phase P-4, the knowledge-impact record, the test record, the standards rules, ADR-001, ADR-005, ADR-007 and component.md
+    how: read the files in the packet path
+    result: pass
+  - what: Secret shapes in the diff (sk-, xai-, AIza, AKIA, gh tokens, PEM blocks, JWT shapes, URL userinfo)
+    how: searched diff.patch; the only hit is a P-2 test that assembles the value from fragments; the two P-4 test files have no match for password, secret, token, key, bearer or credential
+    result: pass
+  - what: File, process, network or environment access in the two P-4 modules
+    how: read both modules in full; they import only collections.abc, dataclasses, typing, the v2 contract and the domain identity and resolution modules
+    result: pass
+  - what: Dependency, workflow and client-folder changes
+    how: listed the file headers of diff.patch; no entry for pyproject.toml, uv.lock, .github, AGENTS.md, .orqlet or a client folder
+    result: pass
+  - what: Exclusion, unknown strings, rejections, task-scoped assignments, unknown coder model and unknown profile floor
+    how: read the resolver against ADR-001, ADR-005 and ADR-007
+    result: pass
+  - what: No web or external lookup
+    how: none made
+    result: pass
+  - what: Earlier review records in the packet not read
+    how: never opened a reviews/** file
+    result: pass
+  - what: Check commands re-run
+    how: shell blocked in this session
+    result: not-run
+  - what: quote_sha256 values for the quote evidence
+    how: no shell to compute them
+    result: not-run
+  - what: F-2 cost claim measured
+    how: read only, not measured
+    result: not-run
+  unverified:
+  - F-1 and F-2 behaviour is derived from reading the code, not executed.
+  - The tester's claimed command results; the reviewer ran none of them.
+  questions:
+  - 'F-1: should family strings be compared normalised, or should policy_problems refuse two families that differ only in spelling?'
+  - 'F-2: should the problems of one name conflict be reported once per later entry, and should the lists have a cap?'

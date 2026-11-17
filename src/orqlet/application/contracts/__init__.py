@@ -38,7 +38,7 @@ from orqlet.application.contracts.workflow_package import (
 CONTRACTS: dict[str, type[Contract]] = {
     "orqlet.project-profile/v1": ProjectProfile,
     "orqlet.workflow-policy/v2": WorkflowPolicy,
-    "orqlet.model-policy/v1": ModelPolicy,
+    "orqlet.model-policy/v2": ModelPolicy,
     "orqlet.integrations/v1": Integrations,
     "orqlet.generated-lock/v1": GeneratedLock,
     "orqlet.versions/v1": Versions,

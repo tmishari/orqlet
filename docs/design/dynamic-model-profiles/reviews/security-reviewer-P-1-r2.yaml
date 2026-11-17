@@ -1,0 +1,186 @@
+schema: orqlet.review-result/v1
+task: dynamic-model-profiles
+phase: P-1
+role: security-reviewer
+round: 2
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: cb794ec06db282876bde6d2eec08d6d79b1bcf455be093b54e3d7104231532ac
+    design: af08cad54b174da764ccf0d9a534a6f83068ee318eb81cc6622337a56a287b28
+    evidence_inputs: c16178d0467284e9853740e14c8d21e501afa131b17ebe47bf605b9c2bd52dde
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 64828bab5b853ad6f3ffbf4c5fe4bcddd899ddfcedeb56010b5bd4e587e515c8
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: 20b2417f8fe79a6b504d5edb6aa5876a9d7ae7a5a78a128d2d5e210ff3b835a9
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 028cda688e53f4daa97ec80ae54fe755271e883c2556d8a2b5aee8ac306cf370
+  merge_base: 3db213fd9ffa5be05ac098bae4d51217068170e0
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran in the same client as the Coder (cursor), so independence is I1, not I2.
+- The reviewer's shell was blocked in its session, so it ran no command and recomputed no digest, hash
+  or check.
+- Quote digests were not computed, so every item is an observation and none can block.
+- 'Read-only is declared by the agent definition (readonly: true), not enforced by Orqlet.'
+- The model that ran the reviewer is not observed.
+applicability:
+  examined:
+  - diff.patch
+  - context/plan.yaml
+  - context/test-record.yaml
+  - context/knowledge-impact.yaml
+  - snapshot/src/orqlet/application/contracts/
+  - snapshot/src/orqlet/domain/
+  - snapshot/src/orqlet/application/usecases/gate_status.py
+  - snapshot/tests/unit/application/test_model_policy_contract.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: info
+  category: security
+  rule_ref: ORQLET-SEC-002
+  evidence: []
+  claim: documented.evidence, evaluated.evidence and list_price.source are RepoPath (model_policy.py:76,82,94).
+    `_repository_path` re-raises the text of InvalidPath, which quotes the refused path (common.py:51-56;
+    domain/paths.py:34-48). load_contract prints error['msg'] (loading.py:22-27), so a refused path in
+    a policy file is echoed in the raised error. C-1 says a validator message must never repeat a value.
+    The module docstring (model_policy.py:8) leaves the masking to the loader. test_model_policy_contract.py:468-477
+    checks that these paths are refused, not that the text omits them. The AC-4 no-echo test covers only
+    ModelRef, RecordedModel, PolicyText and IdPattern. Nothing reads the contract yet, so there is no
+    exposure in P-1.
+  suggested_action: In P-2, build findings from the field path (loc) and never from msg. Put a marker
+    string in each of the three RepoPath fields in the AC-5 marker test, so the refused-path echo is covered
+    by a test.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: security
+  rule_ref: ORQLET-SEC-003
+  evidence: []
+  claim: 'The new plan rule (plan.py:89-102) makes code-reviewer required if and only if header.workflow_version
+    is 0.5.0 or higher, and forbids it below that. The version is a free string in the plan header (artifact_header.py:49),
+    written by the plan''s author. A plan written under 0.5.0 that is re-labelled 0.4.0 with three roles
+    loads. Two things limit this: gate_status.py:176-184 and :192-201 compare the header version with
+    the installed lock and give ORQ-W390 plus a skip, which is a warning and not an error; and the plan''s
+    pull request is reviewed, but who owns CODEOWNERS is still open (Q-32, Q-34). This is the accepted
+    trade-off of EC-4, not a defect in P-1.'
+  suggested_action: In P-10 and the gate, keep a plan with a stale workflow_version at NOT_RUN. Never
+    read it as "no code review needed". Add a test for that.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: correctness
+  rule_ref: ORQLET-SEC-002
+  evidence: []
+  claim: 'The plan rule parses the header version with domain Version.parse. Its pattern uses `\d` (versions.py:11),
+    which in Python also matches non-ASCII digits after the first digit of a part, and int() converts
+    them, so a version with a non-ASCII digit parses as a larger number. model_policy.py deliberately
+    avoids this for reviewed_for_release (ReleaseVersion, ASCII classes, with a comment). The NOT_A_VERSION
+    list in test_plan_review_evidence_by_version.py:45-61 has no such case. The reviewer found no bypass
+    of the review requirement: ORQ-W390 compares the exact string with the installed version, and writing
+    "0.4.0" already gives the same result.'
+  suggested_action: 'Follow up outside P-1 (domain/versions.py is not in this phase''s file list): use
+    re.ASCII or [0-9] in Version, or add a test that fixes the accepted behaviour.'
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: standards
+  rule_ref: ORQLET-DET-002
+  evidence: []
+  claim: 'Five files change under workflow 0.4.0: four schema files plus MANIFEST.json, with the v1 schema
+    deleted. The workflow_digest is the digest of the manifest (workflow_manifest.py:47-49, adapters/workflow_package.py:34-40),
+    so 0.4.0 gets a new digest with no version bump (AC-8 defers the bump to P-13). A project whose lock
+    holds the old 0.4.0 digest gets ORQ-E161 (diagnose.py:347-355). That includes this repository until
+    P-14. releases.json lists only 0.1.0, so check_release_history cannot flag it. The reviewer cannot
+    tell from the packet whether 0.4.0 was ever published.'
+  suggested_action: State in the plan or the pull request that no release branch is cut from main between
+    the P-1 merge and the P-13 version bump.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+    confirmed_requirements:
+    - Looked for secrets, auth, injection and unsafe parsing, file and process access, dependency change,
+      data exposure and logging, and knowledge-text disclosure.
+    applicable_standards:
+    - ORQLET-SEC-001
+    - ORQLET-SEC-002
+    - ORQLET-SEC-003
+    - ORQLET-DET-002
+    - ORQLET-DET-003
+    - ORQLET-NOMODEL-001
+    acceptance_criteria:
+    - AC-4
+    - AC-5
+    - AC-6
+    - AC-7
+    - AC-8
+    - AC-9
+    evidence:
+    - packet diff.patch
+    - packet snapshot (staged tree)
+    - context/plan.yaml
+    - context/test-record.yaml
+    - context/knowledge-impact.yaml
+  checks:
+  - what: Diff has no credential-shaped text
+    how: regex search over diff.patch; the v2 fixture was read in full; the only hit was the word tokens
+      in a price comment
+    result: pass
+  - what: New tests start no process or network and write only under tmp_path
+    how: search of the added lines of diff.patch; the only write_text and write_bytes hits write under
+      tmp_path
+    result: pass
+  - what: No dependency or protected-file change
+    how: file list of diff.patch against the P-1 file_operations; no pyproject.toml, uv.lock, .orqlet/**,
+      CODEOWNERS or tools/** in the diff
+    result: pass
+  - what: No refused model string is echoed by the new contract types
+    how: read common.py, model_policy.py, loading.py and the tests at test_model_policy_contract.py:1080-1330;
+      the path fields are F-1
+    result: pass
+  - what: Knowledge drafts disclose nothing private
+    how: knowledge/P-1.yaml holds digests, repository paths and a no-impact reason only
+    result: pass
+  - what: Any command run (tests, ruff, mypy, import-linter, schema and manifest checks)
+    how: ''
+    result: not-run
+  unverified:
+  - Test, lint, type and schema results are the tester's claims; the reviewer had no shell.
+  - test_review_contract_additions.py was not read; about 270 of the 1335 lines of test_model_policy_contract.py
+    were read, and all four new test files were searched through diff.patch.
+  - The v2 schema file was read for its patterns and counts only.
+  - Whether workflow 0.4.0 was published (F-4).
+  - 'That quote hashes would resolve: no quote evidence was given.'
+  questions:
+  - 'F-4: may a release branch be cut from main between the P-1 merge and P-13?'

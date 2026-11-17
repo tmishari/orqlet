@@ -14,8 +14,14 @@ from pydantic import Field, model_validator
 from orqlet.application.contracts.artifact_header import ArtifactHeader
 from orqlet.application.contracts.common import Contract, GitOid, Glob, RepoPath, Text
 from orqlet.application.contracts.self_check import SelfCheck
+from orqlet.domain.errors import InvalidVersion
+from orqlet.domain.versions import Version
 
 REQUIRED_REVIEW_EVIDENCE = frozenset({"architecture-reviewer", "security-reviewer", "tester"})
+CODE_REVIEWER = "code-reviewer"
+# The workflow release that ships the code reviewer (ADR-006 decision 3). A plan written for an
+# older release keeps the three roles it was approved with; a newer one holds all four.
+CODE_REVIEWER_FROM = Version(0, 5, 0)
 
 
 class PlanFileOperation(Contract):
@@ -41,19 +47,24 @@ class Phase(Contract):
     file_operations: tuple[PlanFileOperation, ...] = ()
     acceptance_criteria: tuple[AcceptanceCriterion, ...] = ()
     checks: tuple[str, ...] = ()
-    review_evidence: tuple[Literal["architecture-reviewer", "security-reviewer", "tester"], ...]
+    review_evidence: tuple[
+        Literal["architecture-reviewer", "security-reviewer", "tester", "code-reviewer"], ...
+    ]
     knowledge_step: Literal["required"]  # there is no way to omit it
     completion: tuple[Text, ...] = ()
     expected_outputs: tuple[Text, ...] = ()
 
     @model_validator(mode="after")
     def _all_review_evidence(self) -> Self:
-        if frozenset(self.review_evidence) != REQUIRED_REVIEW_EVIDENCE or len(
-            self.review_evidence
-        ) != len(REQUIRED_REVIEW_EVIDENCE):
+        # A phase cannot see the plan header, so it accepts either set; the plan picks one.
+        accepted = (REQUIRED_REVIEW_EVIDENCE, REQUIRED_REVIEW_EVIDENCE | {CODE_REVIEWER})
+        if frozenset(self.review_evidence) not in accepted or len(self.review_evidence) != len(
+            frozenset(self.review_evidence)
+        ):
             raise ValueError(
                 f"{self.id}: review_evidence is always the architecture reviewer, the security "
-                "reviewer and the tester, each once"
+                "reviewer and the tester, each once, and the code reviewer too"
+                " for a plan of workflow version 0.5.0 or higher"
             )
         return self
 
@@ -74,3 +85,19 @@ class ImplementationPlan(Contract):
     phases: tuple[Phase, ...] = Field(min_length=1)
     reuse_decisions: tuple[ReuseDecision, ...] = ()
     self_check: SelfCheck
+
+    @model_validator(mode="after")
+    def _review_evidence_follows_the_workflow_version(self) -> Self:
+        try:
+            version = Version.parse(self.header.workflow_version)
+        except InvalidVersion:
+            # `InvalidVersion` quotes the text; a refusal repeats no value of the file.
+            raise ValueError("header.workflow_version is not a major.minor.patch version") from None
+        needs_code_reviewer = version >= CODE_REVIEWER_FROM
+        for phase in self.phases:
+            if (CODE_REVIEWER in phase.review_evidence) != needs_code_reviewer:
+                raise ValueError(
+                    f"{phase.id}: review_evidence holds the code reviewer exactly when "
+                    "header.workflow_version is 0.5.0 or higher"
+                )
+        return self

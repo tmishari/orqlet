@@ -1,0 +1,281 @@
+schema: orqlet.review-result/v1
+task: dynamic-model-profiles
+phase: P-7
+role: security-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 5c6dea3750ef3bffb93214c648f7e19142d928d08defe4d3685ed8cbdda23c51
+    design: af08cad54b174da764ccf0d9a534a6f83068ee318eb81cc6622337a56a287b28
+    evidence_inputs: 479f1220c7efaac1dda0341e9d6d9faff1f264eaa63e9453dd6b03ee9ea34bd7
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 64828bab5b853ad6f3ffbf4c5fe4bcddd899ddfcedeb56010b5bd4e587e515c8
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: 20b2417f8fe79a6b504d5edb6aa5876a9d7ae7a5a78a128d2d5e210ff3b835a9
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: a29aca7c9915fcb6740eb0be4bb874616272fef643593f7322e29894aabf2e33
+  merge_base: 3db213fd9ffa5be05ac098bae4d51217068170e0
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran in the same client as the Coder (cursor), so independence is I1, not I2.
+- The reviewer was started as a generalPurpose subagent in a clean context. Its prompt held the text of the agent definition .cursor/agents/orqlet-security-reviewer.md,
+  the packet path and a note on the shape of the answer, because the typed subagent orqlet-security-reviewer could not be started. The model that ran it
+  is not observed.
+- 'The reviewer''s session had no shell: it ran no check and computed no quote digest. The coder cited, with `orqlet evidence cite` at the commit c309395332346c4233a8fa58c55a3d00bf0cadb4,
+  each quote of a file that is committed and not staged, and compared the reviewer''s text with the lines. A quote of a file that is only staged (the P-7
+  code, the tests and the two records) cannot be digested, because the command reads committed files; its location is written into the claim, and a finding
+  that has no other evidence is recorded as an observation.'
+- The packet held earlier review records (snapshot/docs/design/dynamic-model-profiles/reviews/) and its diff runs from the merge base 3db213fd9ffa5be05ac098bae4d51217068170e0,
+  so it holds P-1 to P-6 as well. ADR-007 decision 8 says a packet must not carry earlier conclusions.
+- The reviewer does not say whether it opened earlier review records.
+- 'Read-only is declared by the agent definition (readonly: true), not enforced by Orqlet.'
+- 'Not examined by the reviewer: MANIFEST.json: the file is over the read limit, and I used diff.patch headers and the snapshot instead. | Phases P-1 to
+  P-6 (contracts, domain matching, upgrade and render writers, role and skill renderers, goldens, schemas). They are in the diff because it runs from the
+  merge base. I read them only where P-7 depends on them (model_identity, model_policy_source, model_selection). Earlier security rounds exist for them
+  and I did not repeat those reviews. | Most of tests/unit/application/test_validate_model_policy.py and the second half of tests/integration/test_validate_model_policy_cli.py.
+  I read the AC-4 W544 tests, the AC-5 marker tests and the head of the integration file. | src/orqlet/adapters/git/git_runner.py (the hardening of git:
+  allow-listed subcommands, scrubbed environment). I read only the callers'' revision and ref checks. | Whether any test or check passes. I ran nothing.
+  The test record has evidence_kind ''claimed'', so its results are the Tester''s statement. | How Claude Code, Cursor and Codex actually parse agent and
+  skill files. I may not look anything up on the web, and the repository does not say. | pyproject.toml and uv.lock contents. I only checked that the diff
+  headers show no change to them.'
+applicability:
+  examined:
+  - context/plan.yaml
+  - context/test-record.yaml
+  - context/knowledge-impact.yaml
+  - context/design-manifest.yaml
+  - context/standards/rules.yaml
+  - context/as-is.md
+  - diff.patch
+  - snapshot/src/orqlet/application/usecases/validate_model_policy.py
+  - snapshot/src/orqlet/application/usecases/model_policy_source.py
+  - snapshot/src/orqlet/application/usecases/binding_inputs.py
+  - snapshot/src/orqlet/application/usecases/validation.py
+  - snapshot/src/orqlet/application/usecases/model_selection.py
+  - snapshot/src/orqlet/application/usecases/capabilities.py
+  - snapshot/src/orqlet/application/contracts/model_policy.py
+  - snapshot/src/orqlet/application/contracts/common.py
+  - snapshot/src/orqlet/application/contracts/profile.py
+  - snapshot/src/orqlet/application/contracts/loading.py
+  - snapshot/src/orqlet/application/ports/vcs.py
+  - snapshot/src/orqlet/domain/paths.py
+  - snapshot/src/orqlet/domain/model_identity.py
+  - snapshot/src/orqlet/domain/conventions.py
+  - snapshot/src/orqlet/adapters/fs/local_fs.py
+  - snapshot/src/orqlet/adapters/fs/yaml_loader.py
+  - snapshot/src/orqlet/adapters/git/vcs_git.py
+  - snapshot/src/orqlet/adapters/git/objects.py
+  - snapshot/src/orqlet/interface/cli/commands/validate.py
+  - snapshot/src/orqlet/interface/cli/runner.py
+  - snapshot/src/orqlet/interface/cli/wiring.py
+  - snapshot/tests/unit/application/test_validate_model_policy.py
+  - snapshot/tests/integration/test_validate_model_policy_cli.py
+  - snapshot/docs/design/dynamic-model-profiles/design/component.md
+  - snapshot/docs/design/dynamic-model-profiles/design/adr-004-catalog-governance-and-release-recheck.md
+  - snapshot/docs/design/dynamic-model-profiles/design/adr-005-fable-exclusion-by-model-identity.md
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: security
+  evidence:
+  - kind: absence
+    searched:
+    - snapshot/docs/design/dynamic-model-profiles/design/adr-005-fable-exclusion-by-model-identity.md
+    - snapshot/docs/design/dynamic-model-profiles/design/component.md
+    - context/plan.yaml
+    method: Grep for ORQ-E544, 'removed exclusion', 'excluded[] entry' and 'narrow'. ADR-005 decision 2 says an `excluded[]` entry 'present at the base
+      tree is missing from the file' but does not say what makes two entries the same. Nothing says that weakening an entry is out of scope. The reading
+      is recorded only in the module docstring and in context/knowledge-impact.yaml. Searched in the packet of the staged tree 2afb30b3453ab30c21fc2ef8b7336ec8eb7d0f4d.
+    revision: c309395332346c4233a8fa58c55a3d00bf0cadb4
+  claim: 'ORQ-E544 judges ''removed'' by exclusion `id` only. Narrowing an exclusion that keeps its id (dropping aliases, id_patterns or family_tags down
+    to one harmless value) gives no finding, so the command can report PASS while models the base excluded are no longer excluded. Locations that rest on
+    files which are not committed, so no digest could be made: src/orqlet/application/usecases/validate_model_policy.py:370-371 (staged); src/orqlet/application/usecases/validate_model_policy.py:387
+    (staged).'
+  suggested_action: Ask the person whether an exclusion's matching fields (aliases, id_patterns, family_tags) are part of its identity. If so, report ORQ-E544
+    for every base alias, pattern or tag that the same-id entry lacks. If not, add the limit to the limits list of ADR-005 so it is a decision and not a
+    docstring.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: finding
+  severity: non-blocking
+  category: security
+  evidence:
+  - kind: quote
+    path: docs/design/dynamic-model-profiles/plan.yaml
+    lines: 913-914
+    revision: c309395332346c4233a8fa58c55a3d00bf0cadb4
+    quote_sha256: 862cb62182b9aed2b4ffb3970e1dc1d3bf4b857542f8a57753d35d97f2207862
+  claim: 'A file the scan cannot use (a link, a duplicate key, unparsable front matter or TOML, a non-text `model`, over 256 KiB, not UTF-8, unreadable)
+    gives only a warning (ORQ-W544). The verdict stays PASS and the exit code stays 0. A file that Orqlet''s strict loader refuses can therefore pass the
+    exclusion check (ORQ-E548) if a client reads it more leniently. Locations that rest on files which are not committed, so no digest could be made: src/orqlet/application/usecases/validate_model_policy.py:598-599
+    (staged); tests/unit/application/test_validate_model_policy.py:2690-2694 (staged).'
+  suggested_action: Also call `out.skip(...)` when a file is not scanned, so the verdict is NOT_RUN (exit 5) as `Collector.skip` documents ('keeps the verdict
+    from being PASS'). If the person keeps the approved AC-4 behaviour, record the bypass in the limits of ADR-005.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: finding
+  severity: non-blocking
+  category: security
+  evidence:
+  - kind: quote
+    path: src/orqlet/application/usecases/binding_inputs.py
+    lines: 132-133
+    revision: c309395332346c4233a8fa58c55a3d00bf0cadb4
+    quote_sha256: 10a47161d741e365803dcfe2b6d805a04350586a3c7c54da51fb5087170a4546
+  - kind: quote
+    path: src/orqlet/application/usecases/binding_inputs.py
+    lines: 143-145
+    revision: c309395332346c4233a8fa58c55a3d00bf0cadb4
+    quote_sha256: cc6601af350ecf5d2e472a7d9d9eba45cd3e64c12b52352acb55912685293031
+  - kind: quote
+    path: src/orqlet/application/contracts/common.py
+    lines: '86'
+    revision: c309395332346c4233a8fa58c55a3d00bf0cadb4
+    quote_sha256: 40109a68eb5c994476ef1f80804b6c237576a3ed94b7110d6269038c173cb1aa
+  - kind: quote
+    path: docs/design/dynamic-model-profiles/design/adr-005-fable-exclusion-by-model-identity.md
+    lines: '29'
+    revision: c309395332346c4233a8fa58c55a3d00bf0cadb4
+    quote_sha256: 4b9b8601eddd9b787cdf26d8d8e8a53a15300834462edbe076b7082c7598df1c
+  claim: The base tree for ORQ-E544 and for the deleted-file check comes from `locate()`. That function reads the target branch name from `.orqlet/project-profile.yaml`
+    in the working tree. The profile is part of the content under review, so a change that edits `repository.target_branch.value` can move the base to a
+    ref that already holds its own policy. The helper existed before this phase. P-7 now builds a security control on it.
+  suggested_action: Say in ADR-005 and in the help text of `--base` that the default base follows the working-tree profile and is advisory. Or ask the person
+    whether the default base should come from the protected ref's own copy of the profile.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: finding
+  severity: info
+  category: security
+  evidence:
+  - kind: absence
+    searched:
+    - snapshot/src/orqlet/application/usecases/validate_model_policy.py
+    method: Grep for `_MAX_`. Only `_MAX_BYTES` (size, checked after the read) and `_MAX_PATHS` (the length of a printed list) exist. There is no limit
+      on the number of entries in a scanned folder. Searched in the packet of the staged tree 2afb30b3453ab30c21fc2ef8b7336ec8eb7d0f4d.
+    revision: c309395332346c4233a8fa58c55a3d00bf0cadb4
+  claim: 'Agent and skill files, the profile and the lock are read whole before any size check, and the number of folder entries scanned has no cap. A hostile
+    change that adds very large or very many files in the five scanned folders costs memory and time, but the effect is bounded by what Git hosts accept.
+    The code documents this as a limit of the FileSystem port. Locations that rest on files which are not committed, so no digest could be made: src/orqlet/application/usecases/validate_model_policy.py:608-610
+    (staged); src/orqlet/application/usecases/validate_model_policy.py:17-18 (staged).'
+  suggested_action: Add a size or stat query to the FileSystem port in a later phase, and a cap on scanned entries. Until then keep the limit stated in
+    the docstring.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: 'The phase gate stays open with ORQ-E451. The security-glob paths src/orqlet/domain/** (identity matching, the policy credential scan, resolution)
+    have no expected-change entry with automatic verification. The person chose to continue with this open, and the P-7 tester record is FAIL on AC-7 because
+    of it. This phase does not change those files. Locations that rest on files which are not committed, so no digest could be made: context/test-record.yaml:20
+    (not a committed file).'
+  suggested_action: Settle ORQ-E451 for the three domain files before the pull request merges, by adding a security expected-change entry to the design
+    or by a recorded person's waiver.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: info
+  category: security
+  evidence:
+  - kind: absence
+    searched:
+    - snapshot/tests/unit/application/test_validate_model_policy.py
+    - snapshot/docs/design/dynamic-model-profiles/design/adr-003-rendering-model-settings-into-generated-files.md
+    method: Grep for upper-case suffixes, nested folders and client parsing rules. No test pins a case variant or a nested folder. I did not read the stored
+      client documentation. Searched in the packet of the staged tree 2afb30b3453ab30c21fc2ef8b7336ec8eb7d0f4d.
+    revision: c309395332346c4233a8fa58c55a3d00bf0cadb4
+  claim: The drift scan reads only `*.md` and `*.toml` files (suffix compared with case), one level inside five fixed folders. Front matter must start exactly
+    at the top of the file (a BOM and CRLF are tolerated). I cannot tell from the repository whether the three clients read other spellings or locations,
+    so I do not know what an excluded model could sit in without being seen.
+  suggested_action: Ask the person whether the ADR-003 decision 8 list of scanned files has been checked against the stored client documentation, including
+    suffix case and nested agent folders.
+  confidence: low
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+    acceptance_criteria:
+    - AC-1
+    - AC-2
+    - AC-3
+    - AC-4
+    - AC-5
+    - AC-6
+    - AC-7
+  checks:
+  - what: Credential-shaped text in code, tests, fixtures and knowledge records
+    how: Regex search of diff.patch for AWS, GitHub, Stripe, Google, JWT, PEM and URL-userinfo shapes. Read the P-7 test helpers that build a placeholder
+      token
+    result: pass
+  - what: Dependency and workflow changes
+    how: Listed the 'diff --git' headers in diff.patch. There is no pyproject.toml, uv.lock, .github or AGENTS.md entry. The new module imports only re,
+      tomllib, dataclasses, datetime and typing from outside the package
+    result: pass
+  - what: Process, network and file access of the new use case
+    how: Grep of validate_model_policy.py for os., subprocess, socket, urllib, http, eval, exec, pickle, yaml.load and shell=. No match. Reads go through
+      the FileSystem, Vcs and Clock ports. The wrapper `_Redirected` raises on every write, delete and make-dir call
+    result: pass
+  - what: PATH and --base handling
+    how: Read CanonicalPath.parse (refuses absolute paths, '..', '.git', ':' and backslash), LocalFileSystem (refuses links on every path component and
+      uses O_NOFOLLOW), check_ref_name and check_revision (no leading dash or revision syntax) and the runner (an unexpected exception prints only its type
+      name)
+    result: pass
+  - what: Findings carry no string from a file
+    how: Read the messages in validate_model_policy.py. Read model_policy_source._contract_message and the contract types (ModelRef, PolicyText, IdPattern
+      are fixed alphabets with built-in messages). Read the AC-5 marker tests
+    result: pass
+  - what: Unsafe parsing and denial of service
+    how: Read the strict YAML loader (no anchors, aliases or duplicate keys, depth and node limits, RecursionError caught) and the TOML guard (ValueError
+      and RecursionError caught). Read model_identity._without_options (linear) and the fnmatch use. Reads are not size-bounded, see F-4
+    result: pass
+  - what: Knowledge text and records disclose nothing private
+    how: Searched the diff and the context for '/Users/', '/home/' and e-mail shapes. No hits in the diff. One reviewer handle appears in context/as-is.md
+      line 773, outside this change. knowledge-impact.yaml holds no draft and only design references
+    result: pass
+  - what: Tests and checks pass
+    how: Not run. I may only read the packet
+    result: not-run
+  - what: Hardening of the git runner and the scrubbed environment
+    how: Not read; relied on the callers' revision and ref checks
+    result: not-run
+  unverified:
+  - That the test, lint, type and import-linter results in context/test-record.yaml are true. The record's evidence_kind is 'claimed'.
+  - How the three clients read agent and skill files (leniency, symlinks, suffix case, nesting). This decides how serious F-2 and F-6 are.
+  - Whether a CI job or a clone has a ref of the change's own name that F-3 could use. That depends on the environment.
+  - Whether the P-1 to P-6 code in the same diff still holds. I did not review it again.
+  - The behaviour of GitRunner and of the Windows junction handling in LocalFileSystem.
+  questions:
+  - 'Q1: Is a change to the aliases, patterns or tags of an exclusion that keeps its id meant to count as ''removed'' for ORQ-E544 (F-1)?'
+  - 'Q2: Should a file that cannot be scanned keep the verdict at PASS, as AC-4 and the tests say, or should it make the result NOT_RUN (F-2)?'
+  - 'Q3: Is the default base meant to follow the working-tree profile (F-3), given that ADR-005 calls these checks ''checked, not enforced''?'
+  - 'Q4: How will ORQ-E451 for the three domain security files (F-5) be settled before merge?'

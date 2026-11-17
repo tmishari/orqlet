@@ -1,0 +1,31 @@
+schema: orqlet.test-record/v1
+task: dynamic-model-profiles
+phase: P-5
+review_input:
+  schema: orqlet.review-input/v1
+  covers: [code_tests, plan]
+  components:
+    code_tests: 245b5b06e852ebcb3460de0ea4c2e8f67792068fcd5f0467ac5caf3ae0b82223
+    plan: 64828bab5b853ad6f3ffbf4c5fe4bcddd899ddfcedeb56010b5bd4e587e515c8
+  digest: 6db05d7e7874bb541ec27aa3fb69d59f5363c49772fc6d7751915efafb84621c
+  merge_base: 3db213fd9ffa5be05ac098bae4d51217068170e0
+verdict: FAIL
+evidence_kind: claimed
+commands:
+  - {id: ruff-check, exit_code: 0, summary: "All checks passed! The digest is of the whole captured output, escape codes included.", result_digest: 25f326e22c6432fe8d9cb53763a5ba90eb40292202e859de3428a71489e9f494}
+  - {id: ruff-format, exit_code: 0, summary: "618 files already formatted. The digest is of the whole captured output.", result_digest: 56d2de8447fea928ff8b45134d1285b21662ed7ce4fdb6f168efbe00b893b889}
+  - {id: mypy, exit_code: 0, summary: "Success: no issues found in 368 source files. The digest is of the whole captured output.", result_digest: b07baf1842d2eeda40097ba2a2beeaf01f81aa7c9dc386373336ecb0f2339656}
+  - {id: import-linter, exit_code: 0, summary: "Contracts: 5 kept, 0 broken. The ports module imports collections.abc, dataclasses and orqlet.domain.model_resolution for the new names; the application module imports no file, process or network module. The three client adapter modules and RenderRequest show no diff against HEAD. pyproject.toml, uv.lock, .github and AGENTS.md show no diff against HEAD. The digest is of the whole captured output.", result_digest: 4eeda57cce8e772ba2e75fbb1651922b30abbb0028970fe69e596c2d292dd735}
+  - {id: pytest, exit_code: 0, summary: "Full suite on the staged tree: 10532 passed, 1 skipped in 865.20s; the skip is tests/integration/test_junction.py, which runs on Windows only. The exit status was observed directly from the run. The tests were written first by orqlet-tester, which ran no test. The narrowed run of the three phase test files before the implementation exited 2 with three collection errors on the missing names. The first narrowed run after the implementation gave 283 passed and 1 failed, the golden test with no golden files; after the three golden files of AC-3 were written with --update-golden for that one test and the diff was read (three files only) the narrowed run passed 284. An earlier full run on the staged tree gave 6 failed and 10526 passed: three tests of earlier tasks (test_render_integrations.py, test_resources_composition.py, test_resources_view.py) pin the exact parameter lists of build_render_request and compose and the public names of the three edited modules, which the plan itself changes. Those three files are not in the phase's file list; with the person's agreement six lines in them were edited (the new keyword selection, the new class ModelSetting and the two signature strings), staged, and the full suite was run again; its output replaced the first one, so only the second is digested here. The coder ran 12 mutation experiments against the narrowed suite by changing a source file for one run each: 11 failed the suite and one (task-scoped assignments rendered) passed, which is an equivalent mutant because the resolver already ignores a task-scoped assignment when the request has no task. The files were restored and git shows no unstaged change. The notes of the mutation runs are under /tmp, not in the repository. The digest is of the whole captured output of the second full run.", result_digest: d7ce25859ca91b64926783b32c5a95b3151540a93b80fb69aab7dccdd5ca2292}
+  - {id: gate-status-phase, exit_code: 5, summary: "FAIL. ORQ-E451 (no entry) security: additional, on src/orqlet/domain/model_identity.py of P-3, src/orqlet/domain/model_policy_scan.py of P-2 and src/orqlet/domain/model_resolution.py of P-4, which match the design's security glob src/orqlet/domain/**; this phase changes none of the three. EC-7 is the only security entry and is verification manual, so the gate never counts a security path as covered. The person chose to continue with this check open. No ORQ-E450 or ORQ-E453. Also ORQ-W390 on as-is, design and plan, cause base_revision, and ORQ-I393 offline; the same three ORQ-W390 are present at the plan and ledger merge 3db213f before P-1. The digest is of the whole captured output.", result_digest: a38a798d2aae190c8d4aef1ccd1237d5a51f0234f9ca54a6dc7c77dac0a379c5}
+acceptance_coverage:
+  - {ac: AC-1, check_ref: pytest, result: pass}
+  - {ac: AC-2, check_ref: pytest, result: pass}
+  - {ac: AC-3, check_ref: pytest, result: pass}
+  - {ac: AC-4, check_ref: pytest, result: pass}
+  - {ac: AC-5, check_ref: pytest, result: pass}
+  - {ac: AC-6, check_ref: pytest, result: pass}
+  - {ac: AC-7, check_ref: pytest, result: pass}
+  - {ac: AC-8, check_ref: pytest, result: pass}
+  - {ac: AC-9, check_ref: import-linter, result: pass}
+  - {ac: AC-10, check_ref: gate-status-phase, result: fail}

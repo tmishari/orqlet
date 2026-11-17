@@ -67,7 +67,8 @@
         "role": {
           "enum": [
             "architecture-reviewer",
-            "security-reviewer"
+            "security-reviewer",
+            "code-reviewer"
           ],
           "title": "Role",
           "type": "string"

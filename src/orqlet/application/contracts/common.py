@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Annotated, Self
+from typing import Annotated, Literal, Self
 
 from pydantic import (
     AfterValidator,
@@ -25,6 +25,27 @@ Timestamp = Annotated[
     str, StringConstraints(pattern=r"^\d{4}-\d{2}-\d{2}(T[0-9:.]+(Z|[+-]\d{2}:\d{2})?)?$")
 ]
 Client = str  # "claude-code", "codex" or "cursor"; validated where a closed set is needed
+ClientId = Literal["claude-code", "codex", "cursor"]
+
+# The three string types below are a pattern and a length and nothing else. A custom validator
+# message can repeat the offending value (see `loading.py`); a built-in pattern or length error
+# never does, so a refused string is never echoed and never truncated (BC-32). The classes are
+# written with explicit ASCII ranges, because `\w` and `\d` also match other scripts.
+#
+# ModelRef: a model name that Orqlet holds (a catalog id, a family, a route name).
+ModelRef = Annotated[
+    str, StringConstraints(pattern=r"^[A-Za-z0-9._:/@+-]+$", min_length=1, max_length=128)
+]
+# RecordedModel: a model string that a client reported; it may be display text such as
+# `Name 1.2 [a=b]`, so the space, brackets, `=` and `,` are allowed.
+RecordedModel = Annotated[
+    str, StringConstraints(pattern=r"^[A-Za-z0-9 ._:/@+\-\[\]=,]+$", min_length=1, max_length=128)
+]
+# PolicyText: free text of the model policy, printable ASCII only, so a file that the team
+# approves holds no hidden or foreign-script content.
+PolicyText = Annotated[
+    str, StringConstraints(pattern=r"^[\x20-\x7e]+$", min_length=1, max_length=400)
+]
 
 
 def _repository_path(value: str) -> str:

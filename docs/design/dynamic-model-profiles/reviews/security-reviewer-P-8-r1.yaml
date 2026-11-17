@@ -1,0 +1,261 @@
+schema: orqlet.review-result/v1
+task: dynamic-model-profiles
+phase: P-8
+role: security-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 1196f782c88dcabf018eaf77ed8cbd51c072338b2636d888ba6ed307ed893d0b
+    design: af08cad54b174da764ccf0d9a534a6f83068ee318eb81cc6622337a56a287b28
+    evidence_inputs: 4060ccb691157b271364923b17854da9ff7871b3cabc81cbc09a52fd7aa709fb
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 64828bab5b853ad6f3ffbf4c5fe4bcddd899ddfcedeb56010b5bd4e587e515c8
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: 20b2417f8fe79a6b504d5edb6aa5876a9d7ae7a5a78a128d2d5e210ff3b835a9
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: c82c5b0ac4871eed79140dadc699709b68058071302aec13bc2796146cbc3e91
+  merge_base: 3db213fd9ffa5be05ac098bae4d51217068170e0
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran in the same client as the Coder (cursor), so independence is I1, not I2.
+- The reviewer was started as a typed subagent (orqlet-security-reviewer) in a clean context; its prompt held the packet path and nothing else.
+  The model that ran it is not observed.
+- 'The reviewer''s session had no shell: it ran no check and computed no quote digest. The coder cited, with `orqlet evidence cite` at the commit
+  456cc1a206c053ed0d98362a059e68d06115a429, each quote of a file that is committed, and compared the lines with the reviewer''s text; every cited
+  line matched. A quote of a file that is only staged (the P-8 code, the tests and the records) cannot be digested, because the command reads
+  committed files; its location is written into the claim, and a finding that has no other evidence is an observation.'
+- The packet held earlier review records (snapshot/docs/design/dynamic-model-profiles/reviews/) and its diff runs from the merge base 3db213fd9ffa5be05ac098bae4d51217068170e0,
+  so it holds P-1 to P-7 as well. ADR-007 decision 8 says a packet must not carry earlier conclusions.
+- 'Read-only is declared by the agent definition (readonly: true), not enforced by Orqlet.'
+- The reviewer does not say whether it opened earlier review records; it names the P-7 review text only as the one hit of its credential search,
+  which names its own search strings.
+- The reviewer's categories denial-of-service (F-2, F-3) and process (F-4) are not in the closed list of the format. The coder recorded F-2 and
+  F-3 under security and F-4 under standards.
+- The reviewer's text says it read P-1 to P-7 code only where P-8 depends on it, and that it does not know which hunks of diff.patch are staged
+  and which are committed. The coder digested the quotes of F-1 to F-3 that are in committed files; the one location in a staged file (F-1, models_resolve.py)
+  is written into the claim.
+- 'Coder''s note, not part of the reviewer''s text. The reviewer left one item unverified: whether a trailing newline in an option value is refused.
+  The coder ran the types that the command uses (Slug, ModelRef and RecordedModel from the contracts, strict validation) on ''x\n'', ''x\r'',
+  ''x\n\n'' and ''x\u2028'': each of the three types refused all four values. `orqlet models resolve --client codex --role orqlet-tester --task
+  $''x\n''` exits 2 with the fixed sentence for --task.'
+- 'Coder''s note, not part of the reviewer''s text. For F-3 the coder timed the whole process (`uv run orqlet models resolve --client claude-code
+  --role orqlet-tester --json`, five runs each) on a throwaway policy of 262064 bytes with 794 exclusions: median 1.59 s without an override and
+  1.62 s with one, against 0.73 s and 0.71 s for a policy with one exclusion. The runs exit 0. The scratch files are outside the repository.'
+applicability:
+  examined:
+  - context/plan.yaml
+  - context/test-record.yaml
+  - context/knowledge-impact.yaml
+  - context/design-manifest.yaml
+  - diff.patch
+  - snapshot/src/orqlet/application/usecases/models_resolve.py
+  - snapshot/src/orqlet/application/usecases/model_policy_source.py
+  - snapshot/src/orqlet/application/usecases/model_selection.py
+  - snapshot/src/orqlet/application/usecases/capabilities.py
+  - snapshot/src/orqlet/interface/cli/commands/models.py
+  - snapshot/src/orqlet/interface/cli/wiring.py
+  - snapshot/src/orqlet/interface/cli/runner.py
+  - snapshot/src/orqlet/interface/cli/app.py
+  - snapshot/src/orqlet/interface/cli/commands/lifecycle.py
+  - snapshot/src/orqlet/domain/model_resolution.py
+  - snapshot/src/orqlet/domain/model_identity.py
+  - snapshot/src/orqlet/adapters/fs/local_fs.py
+  - snapshot/src/orqlet/adapters/fs/yaml_loader.py
+  - snapshot/src/orqlet/application/contracts/common.py
+  - snapshot/src/orqlet/application/contracts/model_policy.py
+  - snapshot/src/orqlet/application/contracts/loading.py
+  - snapshot/tests/integration/test_models_resolve_cli.py
+  - snapshot/tests/unit/application/test_models_resolve.py
+  - snapshot/docs/design/dynamic-model-profiles/design/component.md
+  - snapshot/docs/design/dynamic-model-profiles/design/adr-005-fable-exclusion-by-model-identity.md
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: info
+  category: failure-handling
+  evidence:
+  - kind: quote
+    path: src/orqlet/application/usecases/model_policy_source.py
+    lines: 99-110
+    revision: 456cc1a206c053ed0d98362a059e68d06115a429
+    quote_sha256: 4d53dcbabe4f56f0346fddadccf273f71da825dfc870ba8435cd1a04bc6ca5f7
+  - kind: quote
+    path: src/orqlet/application/usecases/model_policy_source.py
+    lines: 132-151
+    revision: 456cc1a206c053ed0d98362a059e68d06115a429
+    quote_sha256: 80dd4bfc2fcf0e39bcf0472caebca7cf66ba159cad9eea419203cdec935fdfb3
+  claim: 'A policy that is missing is ''deleted'' only when a valid lock lists it with owner `seeded`. A lock that is missing, unreadable, invalid
+    or a link, or a lock that lacks the row, gives PolicyAbsent. `models resolve` then prints ''no model policy; the client chooses'' with exit
+    0, and every exclusion and pin is dropped. Deleting the policy and the lock row together therefore reads the same as a project that never
+    had a policy. This is a deliberate, tested decision (the docstring says so; test_a_lock_that_cannot_prove_a_deletion_leaves_the_policy_absent),
+    and the design says deletion is detected ''from the lock''s seeded row'' (component.md:39). The design does not say a broken lock reads as
+    absent. Impact is bounded because the command is advisory (''the client keeps the choice''). Enforcement is `validate review` against the
+    base and staged trees (adr-005:20). Locations that rest on files which are not committed, so no digest could be made: src/orqlet/application/usecases/models_resolve.py:142-147
+    (staged).'
+  suggested_action: Say in component.md or ADR-005 that `models resolve` with policy 'absent' is not evidence that no exclusion exists. Keep the
+    review skill (a later phase) from reading it that way.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: security
+  evidence:
+  - kind: quote
+    path: src/orqlet/adapters/fs/local_fs.py
+    lines: '106'
+    revision: 456cc1a206c053ed0d98362a059e68d06115a429
+    quote_sha256: a5d0063acbf095bc33e4a0fb7bbe4afa68e01126d989bcc0868d6f9ecc4631d2
+  - kind: quote
+    path: src/orqlet/application/usecases/model_policy_source.py
+    lines: '108'
+    revision: 456cc1a206c053ed0d98362a059e68d06115a429
+    quote_sha256: d717b552e58bc1c7fda5ca0f1bd015de529f3afb5c57514541fffd4d6fcf7f69
+  - kind: quote
+    path: src/orqlet/application/usecases/model_policy_source.py
+    lines: '146'
+    revision: 456cc1a206c053ed0d98362a059e68d06115a429
+    quote_sha256: b37730477ac39713d81dfe006302e4aefce6694c44c8d3277f08d59637a2bf02
+  - kind: quote
+    path: src/orqlet/application/usecases/model_policy_source.py
+    lines: '156'
+    revision: 456cc1a206c053ed0d98362a059e68d06115a429
+    quote_sha256: f1853fc5b71dc54e4e1d660592f95a6708c50d9aaad33321224951a452d55f9b
+  claim: The policy and, when the policy is missing, the lock are read whole before any size check. `LocalFileSystem.read_bytes` returns `handle.read()`,
+    and the 256 KiB check in `_parse` runs afterwards. The strict loader's 1 MiB limit also runs after the read. `models resolve` is a new entry
+    point for this reader, and the review skill is expected to call it on a branch it did not write. A very large regular file at `.orqlet/model-policy.yaml`
+    costs memory. Only regular files reach the read (links and other kinds are refused), and the effect is bounded by what Git hosts accept. The
+    docstring names this as a limit of the `FileSystem` port. It is the same class as F-4 of the P-7 security review.
+  suggested_action: Add a size query to the `FileSystem` port in a later phase. Until then keep the limit stated.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: security
+  evidence:
+  - kind: quote
+    path: src/orqlet/application/usecases/model_selection.py
+    lines: 505-516
+    revision: 456cc1a206c053ed0d98362a059e68d06115a429
+    quote_sha256: f079bb4ccc6ee4942461e1794aa81bde58f59812ddc4f093a2cc844836370c8a
+  - kind: quote
+    path: src/orqlet/domain/model_resolution.py
+    lines: 199-206
+    revision: 456cc1a206c053ed0d98362a059e68d06115a429
+    quote_sha256: c35ec763137ed278ba5269d6b8c5cd74f1055519b97317273854d8d70b1059b9
+  - kind: quote
+    path: src/orqlet/domain/model_identity.py
+    lines: 214-221
+    revision: 456cc1a206c053ed0d98362a059e68d06115a429
+    quote_sha256: f02325d70160aed18f764483eba4fec954bc83b88d3a667e54dc4075252025a2
+  claim: Exclusion matching is super-linear in the size of a file that the repository controls. `policy_problems` and `resolve` call `is_model_excluded`
+    for each model over every string of the model (id, family, each route's name, `resolves_to` and up to 8 `also_known_as`) and over every exclusion
+    rule. `_rule_matches` recomputes the normalised aliases and tags of the rule on each call (model_identity.py:214-221). The only bound is the
+    256 KiB size cap, with no cap on entries. By reading the code, a policy packed with exclusions and models can take a long time. I did not
+    measure it, so this is an observation, not a finding. Other commands share this cost (`upgrade`, `validate model-policy`, `explain`). P-8
+    adds a command that an agent may run automatically on a pulled branch.
+  suggested_action: Measure a 256 KiB worst-case policy. If it is slow, compute the normalised forms once for each rule or cap the entries per
+    list. Otherwise record the limit.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: standards
+  evidence: []
+  claim: 'The phase gate stays open with ORQ-E451. The files src/orqlet/domain/model_identity.py (P-3), model_policy_scan.py (P-2) and model_resolution.py
+    (P-4) match the design''s security glob `src/orqlet/domain/**` and have no automatic security expected-change entry. EC-7 is the only security
+    entry and its verification is manual. The test record is FAIL on AC-7 because of it, and records that the person chose to continue. The record
+    says P-8 stages no file under src/orqlet/domain. I could not check that, because the diff runs from the merge base and mixes committed and
+    staged hunks. Location: context/test-record.yaml (gate-status-phase, acceptance_coverage AC-7).'
+  suggested_action: Settle ORQ-E451 for the three domain files before the pull request merges, or record a person's waiver.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+    acceptance_criteria:
+    - AC-1
+    - AC-2
+    - AC-3
+    - AC-4
+    - AC-5
+    - AC-6
+    - AC-7
+  checks:
+  - what: Secrets in code, tests, fixtures and knowledge text
+    how: Regex search of diff.patch for AWS, GitHub, OpenAI, Slack, Google, JWT and PEM shapes and for /Users/ and /home/. The only hit is the
+      P-7 review text that names its own search strings. The credential fixture is built by concatenation (test_models_resolve_cli.py:130). knowledge/P-8.yaml
+      and knowledge-impact.yaml hold design references and no private data.
+    result: pass
+  - what: Dependency, workflow and config changes
+    how: 'Listed every diff --git header: none for pyproject.toml, uv.lock, .github or AGENTS.md. pyproject pins typer 0.27.3 and pydantic 2.14.1.'
+    result: pass
+  - what: Process, network and git access of the new use case
+    how: 'Read the imports of models_resolve.py: only dataclasses, typing and orqlet ports and modules. _PolicyView.vcs raises on use. build_models_services
+      builds no Git adapter, runner or clock. The guard test and the no-write test are in the tests.'
+    result: pass
+  - what: Injection and input validation of the options
+    how: '_check_usage validates the options with strict, ASCII-only types before any file is read: Slug for role, skill and task, ModelRef for
+      the coder model, RecordedModel for the override, and closed sets for client and profile. All printed strings are those types, Literals or
+      fixed text, so output holds no control characters. Pydantic''s built-in pattern errors are caught with `from None`, and BadParameter carries
+      fixed text. The BREACHES tests cover about 40 breaches, text and JSON, for non-repetition.'
+    result: pass
+  - what: Path and file-system handling
+    how: The only paths are the constants .orqlet/model-policy.yaml and .orqlet/generated.lock.yaml. LocalFileSystem refuses a link on any path
+      component and opens with O_NOFOLLOW. A link or other non-file at the policy path gives ORQ-E540 and exit 3.
+    result: pass
+  - what: Data exposure and logging
+    how: 'Findings are built from the field path and the rule type, never from a value or a key of the file. _problem_findings caps the listed
+      paths at 20. An override is never printed; every override-level rejection reads override-invalid. Unexpected errors print only the exception
+      type (runner.py) and pretty exceptions are off (app.py). Marker tests check stdout and stderr, text and JSON. The reviewer read the coder''s
+      edit of the override leak assertion: it removes only the permitted catalog id, and the rest of the override is still checked.'
+    result: pass
+  - what: Unsafe parsing
+    how: The strict YAML loader allows no anchors, aliases, merge keys, duplicate keys or custom tags, and limits depth and nodes. The 256 KiB
+      cap, the credential scan and the contract run before any value is used. _without_options is linear, and patterns are limited to ASCII with
+      only * and ? as wildcards.
+    result: pass
+  - what: Fail-closed behaviour of the resolver
+    how: With --different-family-from naming an unknown or proposed model, or with no policy, the result is none-qualifies (exit 1). Override,
+      floor and diversity checks apply to the override too.
+    result: pass
+  - what: Tests and checks pass
+    how: Not run; the reviewer had no shell. The test record has evidence_kind claimed.
+    result: not-run
+  unverified:
+  - That the results in context/test-record.yaml are true.
+  - That a trailing newline in an option value (for example --task 'x\n') is refused. The tests cover an embedded newline only. The reviewer relies
+    on pydantic-core's regex engine (pydantic 2.14.1), where $ does not match before a trailing newline, and did not confirm it.
+  - Which hunks of diff.patch are staged and which are committed.
+  - P-1 to P-7 code in the same diff. The reviewer read it only where P-8 depends on it. Earlier security rounds exist for it and were not repeated.
+  - MANIFEST.json (over the read limit; the diff headers and the snapshot were used instead).
+  - The behaviour of the GitRunner (not used by this command).
+  questions:
+  - 'Q1: Should a missing policy with an invalid or absent lock be shown differently from ''no policy was ever present'' (F-1)?'
+  - 'Q2: Has a 256 KiB worst-case policy been timed for `policy_problems` and `resolve` (F-3)?'
+  - 'Q3: How will ORQ-E451 for the three domain security files be settled before merge (F-4)?'

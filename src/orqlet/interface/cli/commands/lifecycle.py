@@ -11,6 +11,7 @@ from orqlet.adapters.scan.personal_names import FsPersonalNames
 from orqlet.application.contracts.cli_result import FindingOut
 from orqlet.application.usecases.diagnose import Diagnosis, doctor, sync
 from orqlet.application.usecases.explain import Explanation, explain
+from orqlet.application.usecases.model_selection import SelectionEntry
 from orqlet.application.usecases.release import ReleaseOptions, release_file
 from orqlet.application.usecases.rollback import RollbackOptions, rollback
 from orqlet.application.usecases.standards_for import StandardsQuery
@@ -249,7 +250,10 @@ def explain_command(
         explanation: Explanation = explain(services, query)
         return CommandOutput(
             data={
-                "declared": explanation.declared,
+                "declared": {
+                    **explanation.declared,
+                    "model_selection": [_entry_out(row) for row in explanation.model_selection],
+                },
                 "generated": [
                     {"path": d.path, "block": d.block, "owner": d.owner.value, "state": d.state}
                     for d in explanation.generated
@@ -261,11 +265,26 @@ def explain_command(
                 "cannot_be_inspected": list(explanation.uninspectable),
             },
             human=render_explanation(explanation),
-            findings=findings_out(explanation.limits),
+            findings=findings_out((*explanation.limits, *explanation.model_findings)),
             not_run=explanation.not_run,
         )
 
     execute("explain", action, as_json=json_output)
+
+
+def _entry_out(entry: SelectionEntry) -> dict[str, object]:
+    setting = entry.setting
+    return {
+        "kind": entry.kind,
+        "target": entry.target,
+        "client": entry.client,
+        "source": entry.source,
+        "setting": (
+            None
+            if setting is None
+            else {"name": setting.name, "kind": setting.kind, "effort": setting.effort}
+        ),
+    }
 
 
 # --- release -------------------------------------------------------------------------------------

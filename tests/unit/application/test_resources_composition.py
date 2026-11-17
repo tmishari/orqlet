@@ -780,6 +780,7 @@ def test_compose_takes_the_registry_and_its_bytes_next_to_the_profile_and_its_by
         "orqlet_owned",
         "released",
         "released_record",
+        "policy",  # dynamic-model-profiles P-6: the state of the model policy file (P-5: selection)
     ]
     keyword_only = {
         name for name, p in parameters.items() if p.kind is inspect.Parameter.KEYWORD_ONLY

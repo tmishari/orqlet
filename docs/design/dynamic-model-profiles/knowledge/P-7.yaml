@@ -1,0 +1,42 @@
+schema: orqlet.knowledge-impact/v1
+task: dynamic-model-profiles
+phase: P-7
+review_input:
+  schema: orqlet.review-input/v1
+  covers: [code_tests, knowledge, plan, standards, candidates]
+  components:
+    candidates: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    code_tests: 5c6dea3750ef3bffb93214c648f7e19142d928d08defe4d3685ed8cbdda23c51
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 64828bab5b853ad6f3ffbf4c5fe4bcddd899ddfcedeb56010b5bd4e587e515c8
+    standards: 20b2417f8fe79a6b504d5edb6aa5876a9d7ae7a5a78a128d2d5e210ff3b835a9
+  digest: d4cb040e6d05fd2e1623102b8aa5a2fe6839f468dd5a90a163e49e235f559414
+  merge_base: 3db213fd9ffa5be05ac098bae4d51217068170e0
+outcome: no-impact
+analysis:
+  command: orqlet knowledge impact
+  orqlet_version: 0.3.0
+  candidates_digest: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+  candidate_count: 0
+  input: pre-draft-tree
+  views: [committed:HEAD]
+  index_state: not-used
+entries:
+  []
+no_impact:
+  category: already-documented
+  reason: "This phase adds the read-only command validate model-policy (use case validate_model_policy, the services object with the Clock port, the wiring function and the registration in the validate group) and lists it in IMPLEMENTED_COMMANDS. The behaviour is already written in the approved design: BC-9, BC-13, BC-30, BC-32, BC-33 and BC-39 of component.md, the failure rows F-14, F-15 and F-16, ADR-002 decision 3, ADR-003 decision 8, ADR-004 decisions 1 and 5 and ADR-005 decision 2. No knowledge document exists that the change could make wrong: the plan knowledge_scope is empty, the project configures no knowledge source (ORQ-I400), and the sentence of README.md that lists the validate commands (README.md lines 361 and 362) becomes incomplete but is outside this phase's file list; plan phase P-12 writes the README table of the finding codes and the paragraph on the policy. Readings of the coder held only in module docstrings and the phase report: ORQ-E544 compares the excluded entries by id; the approval_ref forms are pr and a positive integer, commit and 40 or 64 lowercase hex digits, adr and a repository path; ORQ-W542 is inclusive at 30 days and reads the clock only when a route has a retirement date; the enabled clients come from the project profile and are all three when it cannot be read; ORQ-W544 covers generated files too; a model key that is present and empty is ORQ-W544; a skill folder that is a link is ORQ-W544; ORQ-W540 is the finding list of select_models, not a second logic; a custom PATH is read through the same reader and has no base and no deletion rule. Three tests of an earlier task (test_validate_integrations_cli.py) that pin the commands of the validate group and the public names of its module were edited with the person's agreement."
+  absence_record:
+    scopes_searched: [".orqlet/knowledge.yaml sources", "the plan's knowledge_scope", "README.md, AGENTS.md and docs/ outside docs/design for the model policy, its finding codes and the list of validate commands"]
+    views: [committed:HEAD]
+    revision: c309395332346c4233a8fa58c55a3d00bf0cadb4
+    method: "orqlet knowledge impact on the staged tree, which found no candidate; the project configures no knowledge sources (ORQ-I400) and the plan's knowledge_scope is empty. A search of README.md and AGENTS.md for model-policy and model policy found nothing; README.md lines 361 and 362 name the validate commands that existed before this phase and become incomplete, and the plan documents them in P-12."
+    index_state: not-used
+    candidates_found: 0
+  already_documented_refs:
+    - {path: docs/design/dynamic-model-profiles/design/adr-002-model-policy-v2-contract-and-home.md, sha256: "d43e2d78da80f6a55f7ac887291affdde0bddadab6e0f60d1fe07839e4d0a2bd"}
+    - {path: docs/design/dynamic-model-profiles/design/adr-003-rendering-model-settings-into-generated-files.md, sha256: "6256dc40f78e91c424be27ea260c4de784ac3a6ca36246424e8d0b164bccc72f"}
+    - {path: docs/design/dynamic-model-profiles/design/adr-004-catalog-governance-and-release-recheck.md, sha256: "cac85c2169b30d96348de9cb80e885ba0f3aaea494899432415bbd4e829b031e"}
+    - {path: docs/design/dynamic-model-profiles/design/adr-005-fable-exclusion-by-model-identity.md, sha256: "f91cb911575530b6c71b3465e132b0046aef040c0951fc348d6ab75a51fa939d"}
+    - {path: docs/design/dynamic-model-profiles/design/component.md, sha256: "f4f9497bb7d335b46e0b796a6029a0a5bf426dbfdd1a90e4d93fe052167fcc67"}
+    - {path: docs/design/dynamic-model-profiles/design/manifest.yaml, sha256: "bf6f5a347d2ce68eacffeaf7792653804124c7bd47ccc2917b8e13060d374a2c"}

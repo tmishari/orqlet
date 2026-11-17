@@ -99,7 +99,7 @@
     },
     {
       "path": "schemas/orqlet.implementation-plan.v1.json",
-      "sha256": "fb7debb7337ff4257b0bf7d5ac58e762ee11203034e490cc4d0c5d66a22ae22d"
+      "sha256": "04600e8f82ca31fda86932a42a967025990d9f4fde0fc2e1078c78645bf64133"
     },
     {
       "path": "schemas/orqlet.integrations.v1.json",
@@ -114,8 +114,8 @@
       "sha256": "77ba8e36514fc075300ba4af704896faf0009297fbee40bdb4fcd71600652172"
     },
     {
-      "path": "schemas/orqlet.model-policy.v1.json",
-      "sha256": "1de87a5098cb7350e092b31b1038af4f3ed3e66d1d34dd3d4a76bfc6990e28f3"
+      "path": "schemas/orqlet.model-policy.v2.json",
+      "sha256": "df02a6ccf433ba6bb74aab9f16c8f040765908f6085464c42be2517957589c4a"
     },
     {
       "path": "schemas/orqlet.module-card.v1.json",
@@ -143,11 +143,11 @@
     },
     {
       "path": "schemas/orqlet.review-result.v1.json",
-      "sha256": "c78201cadfe18b9f76f4d868ea549b746a0fffb51f1c2dd88d5c46a3db33661b"
+      "sha256": "e504898185c9170f324e95ba6f79371fb5c36d45ad19cdc6fc08238b63628a4e"
     },
     {
       "path": "schemas/orqlet.role-bindings.v1.json",
-      "sha256": "2eadfdef5d0e31600dfddc32c6850674312397f20aea4325a6e1de5908a2f955"
+      "sha256": "4dbca4b3688038b60e82d2d517bdc4c90c81197c734744b39c93bce4250ee87f"
     },
     {
       "path": "schemas/orqlet.rules.v1.json",

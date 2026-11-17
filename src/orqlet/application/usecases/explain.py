@@ -7,6 +7,8 @@ from dataclasses import dataclass
 from orqlet.application.contracts.resources import Resources
 from orqlet.application.usecases.diagnose import Drift, measure_drift
 from orqlet.application.usecases.installation import load_installation
+from orqlet.application.usecases.model_policy_source import load_model_policy
+from orqlet.application.usecases.model_selection import SelectionEntry
 from orqlet.application.usecases.render_all import compose, resolve_for
 from orqlet.application.usecases.resources_source import load_resources, resources_path
 from orqlet.application.usecases.services import Services
@@ -33,6 +35,10 @@ class Explanation:
     uninspectable: tuple[str, ...]
     not_run: tuple[str, ...]
     findings: tuple[Finding, ...] = ()
+    # What `upgrade` would write for the roles and skills, and what it would say about the model
+    # policy. A policy that cannot be used gives its findings and no entry.
+    model_selection: tuple[SelectionEntry, ...] = ()
+    model_findings: tuple[Finding, ...] = ()
 
 
 def explain(services: Services, query: StandardsQuery) -> Explanation:
@@ -54,7 +60,9 @@ def explain(services: Services, query: StandardsQuery) -> Explanation:
         pr_targets=(),
         profile_bytes=b"",
         resources_bytes=b"",
+        policy=load_model_policy(services),
     )
+    selection = composition.model_outcome.selection
     limits = tuple(finding for finding in composition.findings if finding.code.startswith("ORQ-L"))
     declared: dict[str, object] = {
         "workflow_version": str(release.version),
@@ -91,4 +99,6 @@ def explain(services: Services, query: StandardsQuery) -> Explanation:
         uninspectable=UNINSPECTABLE,
         not_run=tuple(not_run),
         findings=resource_findings,
+        model_selection=() if selection is None else selection.entries,
+        model_findings=composition.model_outcome.findings,
     )

@@ -11,16 +11,23 @@ from dataclasses import dataclass, field
 from typing import Literal
 
 from orqlet.application.contracts.integrations import Integrations
+from orqlet.application.contracts.loading import load_contract
 from orqlet.application.contracts.resources import Resources
+from orqlet.application.contracts.role_bindings import RoleBindings
+from orqlet.application.ports.documents import DocumentError
 from orqlet.application.ports.filesystem import FileKind
 from orqlet.application.ports.prompter import NoAnswerAvailable
 from orqlet.application.usecases.apply_plan import apply_plan
 from orqlet.application.usecases.init_files import contract_bytes
 from orqlet.application.usecases.installation import Installation, load_installation
 from orqlet.application.usecases.integrations_source import integrations_path, load_integrations
+from orqlet.application.usecases.model_policy_source import load_model_policy
+from orqlet.application.usecases.pin_staleness import stale_review_finding, stale_review_records
 from orqlet.application.usecases.render_all import (
+    BINDINGS_PATH,
     PROFILE_PATH,
     RELEASED_PATH,
+    Composition,
     compose,
     environment_findings,
     ignored_findings,
@@ -29,15 +36,18 @@ from orqlet.application.usecases.render_all import (
 )
 from orqlet.application.usecases.resources_source import load_resources, resources_path
 from orqlet.application.usecases.services import Services
-from orqlet.domain.changeplan import ChangePlan
+from orqlet.domain.changeplan import ChangePlan, proposal_path
 from orqlet.domain.classify import FileState
 from orqlet.domain.findings import Finding, Severity
 from orqlet.domain.mcp_credentials import mcp_file_path
+from orqlet.domain.model_resolution import CODE_REVIEWER_ROLE
 from orqlet.domain.ownership import OwnerMode
 from orqlet.domain.paths import CanonicalPath
 from orqlet.domain.versions import WorkflowRelease, is_below_floor, is_downgrade
 
 UpgradeStatus = Literal["up-to-date", "available", "applied", "previewed", "needs-input", "refused"]
+
+_PENDING_BINDING = "ORQ-I540"
 
 
 @dataclass(frozen=True, slots=True)
@@ -132,11 +142,20 @@ def upgrade(services: Services, options: UpgradeOptions) -> UpgradeResult:
         ),
         released=inst.released,
         released_record=_released_record(services, inst),
+        policy=load_model_policy(services),
     )
+    if composition.model_outcome.refused:
+        # Before any plan: a policy that cannot be used must not turn into files, or into the
+        # deletion of the files that an earlier pin wrote (ADR-005, BC-37).
+        findings += composition.model_outcome.findings
+        return UpgradeResult(
+            "refused", tuple(findings), installed=inst.installed_release, candidate=release
+        )
     findings += composition.findings
     findings += environment_findings(services, _prompts_dir(inst))
     plan = plan_changes(services, composition.desired, inst.recorded)
     findings += _proposal_notes(services, plan)
+    findings += _pin_notes(services, composition, plan)
     findings += [
         Finding(
             "ORQ-W080",
@@ -239,6 +258,53 @@ def _proposal_notes(services: Services, plan: ChangePlan) -> list[Finding]:
         for item in plan.items
         if item.state is FileState.SEEDED_PROPOSAL and item.path.key in keys
     ]
+
+
+def _pin_notes(services: Services, composition: Composition, plan: ChangePlan) -> list[Finding]:
+    """What a change of the model settings leaves for a person to decide; none of it is applied."""
+    notes: list[Finding] = []
+    stale = stale_review_finding(
+        stale_review_records(services.project, services.loader, plan.writes)
+    )
+    if stale is not None:
+        notes.append(stale)
+    if _proposes_code_reviewer(services, composition, plan):
+        notes.append(
+            Finding(
+                _PENDING_BINDING,
+                f"The plan proposes a binding for {CODE_REVIEWER_ROLE} in {BINDINGS_PATH}; read "
+                "the proposal file. A `code-reviewer` record is ORQ-E415 until a reviewed edit "
+                "applies it. Orqlet never applies the proposal.",
+                Severity.INFO,
+                str(BINDINGS_PATH),
+            )
+        )
+    return notes
+
+
+def _proposes_code_reviewer(services: Services, composition: Composition, plan: ChangePlan) -> bool:
+    """True when the plan holds a proposal for the bindings file that adds the code reviewer."""
+    proposal = proposal_path(BINDINGS_PATH, None)
+    if not any(write.path == proposal and write.is_proposal for write in plan.writes):
+        return False
+    wanted = next((item.content for item in composition.desired if item.path == BINDINGS_PATH), b"")
+    on_disk = (
+        services.project.read_bytes(BINDINGS_PATH)
+        if services.project.kind(BINDINGS_PATH) is FileKind.FILE
+        else b""
+    )
+    return CODE_REVIEWER_ROLE in _binding_ids(services, wanted) and (
+        CODE_REVIEWER_ROLE not in _binding_ids(services, on_disk)
+    )
+
+
+def _binding_ids(services: Services, content: bytes) -> frozenset[str]:
+    """The ids of the bindings in `content`; a file that cannot be read has none."""
+    try:
+        bindings = load_contract(services.loader, RoleBindings, content, source=str(BINDINGS_PATH))
+    except DocumentError:
+        return frozenset()
+    return frozenset(binding.id for binding in bindings.bindings)
 
 
 def _registry(

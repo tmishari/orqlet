@@ -7,7 +7,7 @@ should contain.
 from __future__ import annotations
 
 from collections.abc import Iterable, Sequence
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 from typing import Literal
 
 from orqlet.application.contracts.integrations import Integrations
@@ -23,6 +23,7 @@ from orqlet.application.ports.instruction_adapter import CapabilityLimit, Render
 from orqlet.application.ports.renderers import BlockSpec, TeamTemplate
 from orqlet.application.ports.standards import LoadedPack
 from orqlet.application.ports.vcs import RepoState
+from orqlet.application.usecases.capabilities import IMPLEMENTED_COMMANDS
 from orqlet.application.usecases.init_files import (
     contract_bytes,
     lock_from_recorded,
@@ -30,6 +31,8 @@ from orqlet.application.usecases.init_files import (
     to_desired,
 )
 from orqlet.application.usecases.init_state import InitRefused
+from orqlet.application.usecases.model_policy_source import PolicyLoaded, PolicyState
+from orqlet.application.usecases.model_selection import PolicyOutcome, follow_policy
 from orqlet.application.usecases.render_request import build_render_request
 from orqlet.application.usecases.resources_source import resources_path
 from orqlet.application.usecases.resources_view import conventions_view
@@ -41,6 +44,7 @@ from orqlet.application.usecases.standards_for import (
     prompts_dir_of,
     resolve_standards,
 )
+from orqlet.application.usecases.workflow_sources import load_roles, load_skills
 from orqlet.domain.blocks import render_block
 from orqlet.domain.changeplan import (
     ChangePlan,
@@ -76,6 +80,9 @@ class Composition:
     desired: list[Desired]
     findings: list[Finding]
     resolution: Resolution
+    # What the model policy asked of this render: the selection that was followed, or the refusal.
+    # Its findings are also in `findings`; a command that refuses reads `model_outcome.refused`.
+    model_outcome: PolicyOutcome = field(default_factory=PolicyOutcome)
 
 
 def stack_of_profile(profile: ProjectProfile) -> Stack:
@@ -113,17 +120,27 @@ def compose(
     orqlet_owned: frozenset[str] = frozenset(),
     released: frozenset[str] = frozenset(),
     released_record: bytes | None = None,
+    policy: PolicyState | None = None,
 ) -> Composition:
-    """Every file the project should hold, as `Desired`, with the findings the render raised."""
+    """Every file the project should hold, as `Desired`, with the findings the render raised.
+
+    The `policy` is the state of the model policy file. A policy that can be followed pins models
+    in the role and skill files and its warnings join the findings; one that cannot be used leaves
+    the files as they were with no policy, and `model_outcome.refused` tells the caller to stop.
+    Without a policy every caller gets the files it got before.
+    """
     findings: list[Finding] = []
     conventions, convention_findings = conventions_view(profile, resources)
     findings += convention_findings
+    outcome = _model_outcome(services, policy, clients)
+    findings += outcome.findings
     request = build_render_request(
         services.workflow,
         services.loader,
         tuple(resolution.rules.values()),
         resources,
         conventions,
+        selection=outcome.selection,
     )
     request = replace(request, integrations=integrations)
     results = [services.adapters[client].render(request) for client in clients]
@@ -141,7 +158,23 @@ def compose(
         desired.append(
             Desired(RELEASED_PATH, OwnerMode.ORQLET, FileClass.GENERATED, released_record)
         )
-    return Composition(desired, findings, resolution)
+    return Composition(desired, findings, resolution, outcome)
+
+
+def _model_outcome(
+    services: Services, policy: PolicyState | None, clients: Sequence[str]
+) -> PolicyOutcome:
+    """What the policy asks for the roles and skills of the packaged workflow.
+
+    The names are read only for a loaded policy, which is the only state that is checked against
+    them, so a project with no policy loads no more than it did before.
+    """
+    roles: list[str] = []
+    skills: list[str] = []
+    if isinstance(policy, PolicyLoaded):
+        roles = [role.name for role in load_roles(services.workflow)]
+        skills = [skill.name for skill in load_skills(services.workflow, IMPLEMENTED_COMMANDS)]
+    return follow_policy(policy, roles, skills, clients)
 
 
 def team_template(loaded: Sequence[LoadedPack], findings: list[Finding]) -> TeamTemplate | None:

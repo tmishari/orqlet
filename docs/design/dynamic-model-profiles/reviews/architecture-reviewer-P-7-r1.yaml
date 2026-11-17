@@ -1,0 +1,398 @@
+schema: orqlet.review-result/v1
+task: dynamic-model-profiles
+phase: P-7
+role: architecture-reviewer
+round: 1
+verdict: FAIL
+assurance: advisory
+review_input:
+  components:
+    code_tests: 5c6dea3750ef3bffb93214c648f7e19142d928d08defe4d3685ed8cbdda23c51
+    design: af08cad54b174da764ccf0d9a534a6f83068ee318eb81cc6622337a56a287b28
+    evidence_inputs: 479f1220c7efaac1dda0341e9d6d9faff1f264eaa63e9453dd6b03ee9ea34bd7
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 64828bab5b853ad6f3ffbf4c5fe4bcddd899ddfcedeb56010b5bd4e587e515c8
+    reviewer_definition: 6ce838ea71280ef545f87a85c2922b4bd9a2740713521c2dd24ed4768ead4be9
+    standards: 20b2417f8fe79a6b504d5edb6aa5876a9d7ae7a5a78a128d2d5e210ff3b835a9
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: bc98781be7299f08e2e0f305384b0c98fbf941473ac58633af4f7998eaec9d92
+  merge_base: 3db213fd9ffa5be05ac098bae4d51217068170e0
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: bb870c5236ad9b2cb5f0f6b0f8568baf499d9bd1727a18254303b9b1e797e7f4
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran in the same client as the Coder (cursor), so independence is I1, not I2.
+- The reviewer was started as a generalPurpose subagent in a clean context. Its prompt held the text of the agent definition .cursor/agents/orqlet-arch-reviewer.md,
+  the packet path and a note on the shape of the answer, because the typed subagent orqlet-arch-reviewer could not be started. The model that ran it is
+  not observed.
+- 'The reviewer''s session had no shell: it ran no check and computed no quote digest. The coder cited, with `orqlet evidence cite` at the commit c309395332346c4233a8fa58c55a3d00bf0cadb4,
+  each quote of a file that is committed and not staged, and compared the reviewer''s text with the lines. A quote of a file that is only staged (the P-7
+  code, the tests and the two records) cannot be digested, because the command reads committed files; its location is written into the claim, and a finding
+  that has no other evidence is recorded as an observation.'
+- The packet held earlier review records (snapshot/docs/design/dynamic-model-profiles/reviews/) and its diff runs from the merge base 3db213fd9ffa5be05ac098bae4d51217068170e0,
+  so it holds P-1 to P-6 as well. ADR-007 decision 8 says a packet must not carry earlier conclusions.
+- The reviewer says it opened architecture-reviewer-P-6-r1.yaml to learn the format and read search hits of the other records on ORQ-E451 and AC-7; its
+  F-1 and F-2 overlap that record, and it says it derived both again from the packet.
+- 'Read-only is declared by the agent definition (readonly: true), not enforced by Orqlet.'
+- 'Not examined by the reviewer: I did not run ruff, mypy, import-linter, pytest, the gate or `orqlet knowledge impact`. I used only read-only search and
+  listing tools, so every pass result below comes from the test record''s own claims and from reading the code. | Test bodies: I read all test names (119
+  unit functions, about 36 integration functions) and about ten bodies. I did not read the other bodies, or the fixtures and fakes under tests/. | P-1 to
+  P-6 code in the cumulative diff (contracts, resolver, renderers, upgrade, explain), the golden files, and the domain modules model_identity, model_resolution
+  and model_policy_scan beyond how P-7 calls them. These belong to earlier phases. | ADR-001, ADR-002, ADR-006, ADR-007, the sequence, data-flow and container
+  documents, and docs/design/orqlet-architecture-proposal.md (omitted from the packet as over the limits). | Whether the design and the plan are approved:
+  the headers in the packet say status draft. | CI matrix Pythons other than the one the record used (ORQLET-QA-001). | Security depth: the security reviewer
+  owns it. I looked only at layering, the no-process rule, the leak of model strings, and the reading of untrusted files.'
+applicability:
+  examined:
+  - MANIFEST.json
+  - context/plan.yaml
+  - context/design-manifest.yaml
+  - context/knowledge-impact.yaml
+  - context/test-record.yaml
+  - context/standards/rules.yaml
+  - context/standards/foundations.md
+  - diff.patch
+  - snapshot/src/orqlet/application/usecases/validate_model_policy.py
+  - snapshot/src/orqlet/application/usecases/model_selection.py
+  - snapshot/src/orqlet/application/usecases/model_policy_source.py
+  - snapshot/src/orqlet/application/usecases/binding_inputs.py
+  - snapshot/src/orqlet/application/usecases/validation.py
+  - snapshot/src/orqlet/application/usecases/gate_status.py
+  - snapshot/src/orqlet/application/contracts/model_policy.py
+  - snapshot/src/orqlet/interface/cli/commands/validate.py
+  - snapshot/src/orqlet/interface/cli/wiring.py
+  - snapshot/src/orqlet/interface/cli/runner.py
+  - snapshot/src/orqlet/interface/cli/errors.py
+  - snapshot/src/orqlet/adapters/git/vcs_git.py
+  - snapshot/src/orqlet/adapters/git/git_runner.py
+  - snapshot/src/orqlet/adapters/render/roles.py
+  - snapshot/src/orqlet/workflow/skills/orqlet-implement/skill.md
+  - snapshot/tests/unit/application/test_validate_model_policy.py
+  - snapshot/tests/integration/test_validate_model_policy_cli.py
+  - snapshot/tests/integration/test_validate_integrations_cli.py
+  - snapshot/docs/design/dynamic-model-profiles/design/component.md
+  - snapshot/docs/design/dynamic-model-profiles/design/adr-003-rendering-model-settings-into-generated-files.md
+  - snapshot/docs/design/dynamic-model-profiles/design/adr-004-catalog-governance-and-release-recheck.md
+  - snapshot/docs/design/dynamic-model-profiles/design/adr-005-fable-exclusion-by-model-identity.md
+  - snapshot/docs/design/dynamic-model-profiles/reviews/architecture-reviewer-P-6-r1.yaml
+  - snapshot/README.md
+  - snapshot/.orqlet/knowledge.yaml
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: blocking
+  category: architecture
+  evidence:
+  - kind: quote
+    path: docs/design/dynamic-model-profiles/plan.yaml
+    lines: 932-933
+    revision: c309395332346c4233a8fa58c55a3d00bf0cadb4
+    quote_sha256: fd79c18a85f0f64a9c5b42a7cfbdfe84654a18b999559493d45f2a2928ebcc8c
+  - kind: quote
+    path: src/orqlet/workflow/skills/orqlet-implement/skill.md
+    lines: '28'
+    revision: c309395332346c4233a8fa58c55a3d00bf0cadb4
+    quote_sha256: abe08b555946f39423f9e0d0b1870a31c99bd9eca170aef8868a0aad1b64ead0
+  - kind: quote
+    path: src/orqlet/application/usecases/gate_status.py
+    lines: '269'
+    revision: c309395332346c4233a8fa58c55a3d00bf0cadb4
+    quote_sha256: 32d5134448b7f1c49d0f1c28c17d6dea609395b22c734bdb06ec3ec2b7bbcf64
+  - kind: quote
+    path: docs/design/dynamic-model-profiles/design/manifest.yaml
+    lines: 94-95
+    revision: c309395332346c4233a8fa58c55a3d00bf0cadb4
+    quote_sha256: be6b620c4eaca27f2c9ff32bb0ce705d16128443bee4f4592dbc44ce018724f4
+  - kind: absence
+    searched:
+    - context/design-manifest.yaml
+    - context/plan.yaml
+    - context/test-record.yaml
+    - context/knowledge-impact.yaml
+    - snapshot/docs/design/dynamic-model-profiles/questions.yaml
+    method: 'rg -i ''waive'' over the four context files returned no match. rg -c ''surface: security'' on the design manifest returned 1, which is EC-7
+      at line 95. rg for ''waive|chose to continue'' in the question ledger returned no match. Searched in the packet of the staged tree 2afb30b3453ab30c21fc2ef8b7336ec8eb7d0f4d.'
+    revision: c309395332346c4233a8fa58c55a3d00bf0cadb4
+  claim: 'AC-7 of P-7 is not met. It requires `orqlet gate status ... --phase P-7 --head staged` to report no ORQ-E451. The test record marks AC-7 as fail
+    and gives the record verdict FAIL, with gate exit 5 and ORQ-E451 "(no entry) security: additional" on three src/orqlet/domain files (context/test-record.yaml:20).
+    The gate''s own message adds "A renewed design approval is needed", and the implement skill says ORQ-E451 "stops the work". The design manifest has
+    one security expected change, EC-7, which covers CODEOWNERS and not src/orqlet/domain/**, although that glob is a security glob. The packet holds no
+    design amendment and no recorded waiver. The only decision is the record''s sentence "The person chose to continue with this check open", which I cannot
+    verify. P-7 changes none of the three domain files, so the cause is inherited from the branch, but the phase''s criterion is unmet. Locations that rest
+    on files which are not committed, so no digest could be made: context/test-record.yaml:12 (not a committed file); context/test-record.yaml:28 (not a
+    committed file).'
+  suggested_action: 'The person decides once: amend the design and plan (a security expected change that covers src/orqlet/domain/**, or a narrower glob,
+    then a renewed design approval), or record an explicit waiver, so that P-7 and the later phases can show the gate result they are measured against.'
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: finding
+  severity: non-blocking
+  category: architecture
+  evidence:
+  - kind: quote
+    path: docs/design/dynamic-model-profiles/plan.yaml
+    lines: 2416-2417
+    revision: c309395332346c4233a8fa58c55a3d00bf0cadb4
+    quote_sha256: b01edbadbf9f3539962e3fcd0f81665ec805ba718cfe11703ca7a9f952a41e9f
+  - kind: absence
+    searched:
+    - context/plan.yaml
+    - context/standards/rules.yaml
+    - context/standards/foundations.md
+    method: rg for 'test_validate_integrations_cli' and for 'signature' returned no match in the plan or the standards. The word 'signature' appears only
+      in context/test-record.yaml. Searched in the packet of the staged tree 2afb30b3453ab30c21fc2ef8b7336ec8eb7d0f4d.
+    revision: c309395332346c4233a8fa58c55a3d00bf0cadb4
+  claim: 'The change edits tests/integration/test_validate_integrations_cli.py, which is not in P-7''s file_operations, and the plan was not amended. AC-7
+    requires that no file outside the phase''s operations changes. The plan says tests outside the lists that break "need a plan amendment". The test record
+    justifies the edit with "the pinned-signature rule", and I found no such rule in the plan or the standards. The edit is three assertions, it is forced
+    by the new command, and it is disclosed. The same test pins the exact set of added commands, so P-8 (`models resolve`) will break it again, and P-8''s
+    file list does not name it. Locations that rest on files which are not committed, so no digest could be made: diff.patch:9543-9545 (not a committed
+    file).'
+  suggested_action: Add tests/integration/test_validate_integrations_cli.py to the plan's file operations for P-7 and P-8 in the same amendment as F-1,
+    or record the person's agreement in a form the packet carries.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence: []
+  claim: 'ORQ-E544 compares the base and staged `excluded` entries by `id` only. An exclusion that keeps its id but loses an alias, a pattern or a tag is
+    not found. The resolver, ORQ-E543 and ORQ-E548 then run against the narrowed staged exclusions. So one edit can narrow the Fable entry, pin or write
+    the model, and pass every check of this command. The code and the tests both say this is accepted as "a stated uncertainty", and no question to the
+    person is recorded. AC-2''s wording ("an `excluded` entry that the base tree holds and the file lacks") is met literally. ADR-005 decision 2 and BC-9
+    state the intent that one change cannot remove an exclusion and pass its own edit. Locations that rest on files which are not committed, so no digest
+    could be made: src/orqlet/application/usecases/validate_model_policy.py:370-371 (staged); src/orqlet/application/usecases/validate_model_policy.py:387-391
+    (staged); tests/unit/application/test_validate_model_policy.py:28-29 (staged).'
+  suggested_action: Ask the person whether a narrowed entry (the same id with fewer aliases, patterns or tags than at the base) must also be ORQ-E544, and
+    if so compare the match lists of each base entry with the staged entry of the same id, with a test.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: finding
+  severity: non-blocking
+  category: failure-handling
+  evidence:
+  - kind: quote
+    path: src/orqlet/adapters/git/vcs_git.py
+    lines: 60-61
+    revision: c309395332346c4233a8fa58c55a3d00bf0cadb4
+    quote_sha256: fa1cecb1f7be2d3ada989d711ce8f8acb45ed4b587bc6753c1a8b2e96573b0c2
+  - kind: quote
+    path: src/orqlet/adapters/git/git_runner.py
+    lines: '77'
+    revision: c309395332346c4233a8fa58c55a3d00bf0cadb4
+    quote_sha256: af76d46379a3dfabf4e023411e37309bc51789a87f7893e26bd5003617b6ad4f
+  - kind: quote
+    path: src/orqlet/interface/cli/runner.py
+    lines: 32-33
+    revision: c309395332346c4233a8fa58c55a3d00bf0cadb4
+    quote_sha256: 578492c757ceeaa0927202f6c57107e431756cd832f250be2a16d0f7c23e2ce7
+  claim: '`locate()` is called in `_absent` and in `_removed_exclusions` with no handling of `VcsError`. In a root that is not a Git repository, `head_commit()`
+    runs `git rev-parse` and accepts only exit codes 0 and 1. A return code of 128 raises `VcsError`, which the runner turns into exit 3 (REFUSED). So a
+    never-present policy in such a root does not give NOT_RUN with exit 5, as AC-1 says, and a loaded policy loses all its other findings. This is inferred
+    from reading the adapter, the runner and `_absent`. I did not run it. Both test files list "what a root that is no Git repository does" as deliberately
+    not pinned. `validate review` shares `locate()`, so this may be accepted project behaviour. Locations that rest on files which are not committed, so
+    no digest could be made: src/orqlet/application/usecases/validate_model_policy.py:257 (staged); tests/unit/application/test_validate_model_policy.py:33
+    (staged).'
+  suggested_action: Catch `VcsError` around the two `locate()` calls and turn it into a skip reason, so the verdict is NOT_RUN or FAIL (exit 5) and the
+    other findings stay, or ask the person to confirm that exit 3 is wanted for a root that is not a Git repository.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: non-blocking
+  category: failure-handling
+  evidence: []
+  claim: 'When the lock is missing, unreadable or invalid, `_generated_paths` returns an empty set with no not-run reason. Every file then counts as team-authored,
+    so ORQ-W543 (the drift check of AC-4) cannot fire, and the result can still be PASS. The test for this case asserts only `result.findings == ()` and
+    not the verdict. The baseline says a check that did not run is reported as not run, and a corrupt lock is the situation in which the drift check cannot
+    know what is generated. Locations that rest on files which are not committed, so no digest could be made: src/orqlet/application/usecases/validate_model_policy.py:531-532
+    (staged); src/orqlet/application/usecases/validate_model_policy.py:539-540 (staged); tests/unit/application/test_validate_model_policy.py:2521 (staged).'
+  suggested_action: Add a not-run reason such as 'the lock could not be read, so generated files were not compared' when `_generated_paths` falls back,
+    and have the test assert the verdict.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: finding
+  severity: non-blocking
+  category: docs
+  evidence:
+  - kind: quote
+    path: README.md
+    lines: 361-362
+    revision: c309395332346c4233a8fa58c55a3d00bf0cadb4
+    quote_sha256: 4e2fffad0ef10ff0a67578e8f9cd7282f9656aa0109d64121986d27edcac91c8
+  - kind: quote
+    path: README.md
+    lines: '722'
+    revision: c309395332346c4233a8fa58c55a3d00bf0cadb4
+    quote_sha256: 5dc0994b86da74d917e96cbaf2deeda8e0a03023fffd94504977c311ef178460
+  - kind: absence
+    searched:
+    - context/knowledge-impact.yaml
+    method: rg -c '722' returned no match, so the record does not mention README line 722. Searched in the packet of the staged tree 2afb30b3453ab30c21fc2ef8b7336ec8eb7d0f4d.
+    revision: c309395332346c4233a8fa58c55a3d00bf0cadb4
+  claim: The knowledge record names README.md lines 361-362 as the sentence that the new command makes incomplete, and defers it to P-12. The README lists
+    the validate commands in a second place, the `validate` row of the command table at line 722, which the record does not cite. P-12 AC-2 documents the
+    two new commands but names no sentence or table row to update. The record's search used new terms (model-policy, model policy), which cannot find statements
+    that are made incomplete. The statements are incomplete, not false, and the record is honest about line 361-362.
+  suggested_action: Add README.md:722 to the deferred README work in the knowledge record and to the P-12 acceptance criteria.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: info
+  category: docs
+  evidence: []
+  claim: 'The knowledge record uses the category already-documented. Its own reason lists several behaviours that exist only in module docstrings and the
+    phase report, so a person has not been asked about them: ORQ-E544 compared by id, the `approval_ref` forms, ORQ-W542 inclusive at 30 days, the enabled
+    clients read from the profile with all three as the fallback, ORQ-W544 also applying to generated files, an empty model key being ORQ-W544, and a linked
+    skill folder being ORQ-W544. The record says so itself, but it asks no question, so the category fits only in part.'
+  suggested_action: Put the readings that the person has not confirmed into the question ledger or the plan's readings list.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-8
+  kind: observation
+  severity: info
+  category: tests
+  rule_ref: ORQLET-QA-001
+  evidence: []
+  claim: 'Every command result in the test record is `evidence_kind: claimed`: ruff, mypy, import-linter, the 11403-test pytest run and the gate. The packet
+    has no output to check, only digests. This review could not confirm any passing result, and ORQLET-QA-001 asks for the checks on every supported Python
+    version. Locations that rest on files which are not committed, so no digest could be made: context/test-record.yaml:13 (not a committed file).'
+  suggested_action: Run the five checks and the gate on the staged tree again in a session that can show their output, or keep this as the known limit of
+    the record.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-9
+  kind: observation
+  severity: info
+  category: tests
+  evidence: []
+  claim: Test provenance is partly unclear. A generalPurpose subagent wrote the tests, not the typed `orqlet-tester`, which the record says could not be
+    launched. In its first run behind the import shim, 644 failed plus 10 passed is 654, against 664 collected. The files collect 671 tests, of which four
+    are the coder's and "three are not accounted for". The coder also changed the helpers `pad()` and `compact()` that the tester wrote. I read those two
+    helpers and they look harmless, but they weaken the claim that the tests were written independently first.
+  suggested_action: Have the tester account for the three tests, or say which they are, and record who changed the helpers.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-10
+  kind: observation
+  severity: info
+  category: failure-handling
+  evidence: []
+  claim: 'Each agent and skill file is read in full before its size is checked against 256 KiB, and the number of files in a folder has no limit. A very
+    large file in `.claude/agents` can use a lot of memory before the command refuses it. The docstring discloses this (the `FileSystem` port has no size
+    query), and the policy reader and other validators work the same way. It is a limit of the port, not a defect of this phase. Locations that rest on
+    files which are not committed, so no digest could be made: src/orqlet/application/usecases/validate_model_policy.py:608-610 (staged).'
+  suggested_action: Leave as is for this phase, and consider a size-checked read on the FileSystem port in a later change.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-11
+  kind: observation
+  severity: info
+  category: correctness
+  evidence: []
+  claim: 'When the packaged workflow cannot be read, `selection` is None, and `_agent_files` skips with the text "generated files were not compared, because
+    the policy has problems". The policy does not have problems in that case, so the second reason misstates the cause. The first reason, which names the
+    unreadable roles and skills, is correct. Locations that rest on files which are not committed, so no digest could be made: src/orqlet/application/usecases/validate_model_policy.py:510-512
+    (staged).'
+  suggested_action: 'Word the reason by cause: the policy has problems, or the workflow could not be read.'
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+    acceptance_criteria:
+    - AC-1
+    - AC-2
+    - AC-3
+    - AC-4
+    - AC-5
+    - AC-6
+    - AC-7
+  checks:
+  - what: The change implements P-7 and stays inside its file list
+    how: Compared the six listed operations with diff.patch and with a parse of the plan's file lists for P-1 to P-7. All six files are present. One extra
+      file, tests/integration/test_validate_integrations_cli.py, is edited (F-2). The other files outside the lists are the records, the review notes and
+      three P-5/P-6 test edits that the earlier review rounds covered.
+    result: fail
+  - what: Layering and purity (ORQLET-ARCH-001, ORQLET-ARCH-002, ORQLET-SEC-001)
+    how: Read the imports and the calls of validate_model_policy.py, wiring.py and validate.py. The module takes ports only (FileSystem, Vcs, DocumentLoader,
+      WorkflowSource, Clock), imports only `re` and `tomllib` from the standard library besides them, and starts no process. import-linter was not run.
+    result: pass
+  - what: Code against AC-1 to AC-6, with the design brief rows BC-9, 13, 30, 32, 33, 39 and F-14 to F-16
+    how: Read the use case end to end against the plan text, the component rows and ADR-003, 004 and 005, and read model_selection.py and model_policy_source.py,
+      which it calls. The exit statuses, the states absent, deleted and invalid, ORQ-E543 to E548 and W540 to W544, the clock read, the 256 KiB limits and
+      the description of values as catalog id, inherit or unmatched with a length all match. The gaps are F-3 to F-5 and F-11.
+    result: pass
+  - what: AC-7 gate check
+    how: Read the plan, the test record, the design manifest, the skill line and gate_status.py
+    result: fail
+  - what: Failure handling
+    how: 'Read the except clauses: file reads, TOML and front matter parsing, lock and profile reads, base reading, directory listing. All fail closed to
+      a finding or a skip except F-4 (VcsError from locate) and F-5 (the lock).'
+    result: fail
+  - what: Tests are meaningful and cover the criteria
+    how: Listed all test names and read the W542 boundary tests, the NFKC and ModelRef tests, the lock tests, the marker-leak tests and the integration
+      base tests. They run on fakes and a real Git repository, probe boundaries (day 30 and day 31, 256 KiB and one byte more) and cover every acceptance
+      criterion, with the gaps in F-3 to F-5. I did not read every body.
+    result: pass
+  - what: Knowledge diff and knowledge-impact record are accurate
+    how: 'Confirmed that .orqlet/knowledge.yaml has `sources: []`, that README.md and AGENTS.md do not name model-policy, that the cited README lines 361-362
+      are right, that the cited design rows exist, and that the artifact hashes match the design manifest. The record omits README line 722 (F-6) and its
+      readings are not asked of the person (F-7).'
+    result: fail
+  - what: Standards that apply (SEC-001, SEC-002, SEC-003, TEST-001, ARCH-001, ARCH-002, STYLE-001)
+    how: Read context/standards/rules.yaml against the code. No process is started, files are read through the port, YAML is parsed with the strict loader,
+      no secret is in the code, and the unit tests use fakes with sockets blocked. STYLE-001 is a SHOULD and the functions are short.
+    result: pass
+  - what: Ruff, ruff format, mypy, import-linter, pytest and the gate
+    how: Not run by me. I used only read-only tools. The record's results are claimed (F-8).
+    result: not-run
+  - what: Quote digests (`orqlet evidence cite`)
+    how: I could not run the tool, so the quotes carry paths and lines but no digest.
+    result: not-run
+  - what: I read no earlier review record or other reviewer's output
+    how: The packet snapshot holds the earlier reviews under docs/design/**/reviews. I opened architecture-reviewer-P-6-r1.yaml (to learn the format) and
+      read search hits of the other records on ORQ-E451 and AC-7. F-1 and F-2 overlap that review's F-1 and F-2. I re-derived both from the P-7 test record,
+      the plan, the manifest, the skill text and the diff.
+    result: fail
+  unverified:
+  - That ruff, ruff format, mypy, import-linter and the full suite pass on the staged tree (11403 passed is claimed), and on the other Pythons of the CI
+    matrix.
+  - That the person agreed to continue with ORQ-E451 open, and agreed to the edit in test_validate_integrations_cli.py. Only the record says so.
+  - 'That F-4 happens as I read it: a root that is not a Git repository gives exit 3. I did not run it.'
+  - That the design and the plan are approved. Their headers say draft, and the plan digest (64828bab...) is unchanged since P-1.
+  - Whether the generated files that the drift check expects (the `inherit` text, the pinned names) match what the renderers write, beyond roles.py. The
+    unit tests assume this, and I read only roles.py.
+  - Whether the first-run counts and the three unaccounted tests (F-9) change what the suite proves.
+  questions:
+  - 'F-1: do you want a design and plan amendment (a security expected change for src/orqlet/domain/** and a renewed design approval) or a recorded waiver
+    for ORQ-E451 for the rest of the branch?'
+  - 'F-2: may the plan list tests/integration/test_validate_integrations_cli.py in P-7 and P-8, so that the pinned set of commands changes by amendment
+    and not by surprise?'
+  - 'F-3: must ORQ-E544 also fire when an exclusion keeps its id but has fewer aliases, patterns or tags than at the base?'
+  - 'F-4: is exit 3 (VcsError) the wanted result of `validate model-policy` in a root that is not a Git repository, or should it be NOT_RUN with exit 5?'
+  - 'F-5: should an unreadable lock make the drift check NOT_RUN, or is silent PASS the wanted reading of ''every file is team-authored''?'

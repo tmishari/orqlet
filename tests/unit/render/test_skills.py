@@ -18,6 +18,7 @@ from orqlet.adapters.render.skills import agents_skill_files, claude_skill_files
 from orqlet.adapters.workflow_package import PackagedWorkflow
 from orqlet.application.contracts import CONTRACTS
 from orqlet.application.contracts.loading import load_contract
+from orqlet.application.contracts.model_policy import ModelPolicy
 from orqlet.application.ports.instruction_adapter import (
     ClientCommand,
     ClientRole,
@@ -26,6 +27,7 @@ from orqlet.application.ports.instruction_adapter import (
 )
 from orqlet.application.usecases.capabilities import IMPLEMENTED_COMMANDS, PLANNED_COMMANDS
 from orqlet.application.usecases.init_files import merge_rendered
+from orqlet.application.usecases.model_selection import ModelSelection, select_models
 from orqlet.application.usecases.render_request import build_render_request
 from orqlet.application.usecases.workflow_sources import (
     SourceError,
@@ -485,12 +487,123 @@ def test_a_role_that_writes_is_not_given_the_read_only_controls() -> None:
     assert "sandbox_mode" not in codex_role(writer).content.decode()
 
 
-def test_role_files_never_name_a_vendor_model() -> None:
-    for role in packaged_request().roles:
-        for rendered in (claude_role(role), cursor_role(role), codex_role(role)):
-            text = rendered.content.decode().lower()
-            for vendor in ("gpt-", "claude-", "sonnet", "opus", "haiku", "gemini"):
-                assert vendor not in text, f"{rendered.path}: {vendor}"
+def test_a_role_file_names_a_model_only_when_assigned_and_never_an_excluded_one() -> None:
+    """P-5 AC-9. expected_behavior_source: plan P-5 AC-9 ("the vendor-name test is modified": a
+    role file names a model only when the policy assigned it, and never an excluded one); AC-1
+    (with no policy the files are those of today); AC-8 (an excluded string reaches no file); BC-1;
+    ADR-003 decision 1; ADR-005 decision 2. The names assigned here are placeholders. The brief
+    of this phase keeps the vendor-name check for the case with no policy.
+    """
+    vendors = ("gpt-", "claude-", "sonnet", "opus", "haiku", "gemini")
+    excluded_strings = ("fable", "best", "claude-fable-")
+    assigned = {"claude-code": "example-alpha", "cursor": "example-beta", "codex": "example-gamma"}
+
+    def policy(route_names: dict[str, str], excluded: list[dict[str, object]]) -> ModelPolicy:
+        routes: list[dict[str, object]] = [
+            {
+                "client": client,
+                "kind": "id",
+                "name": name,
+                "resolves_to": None,
+                "also_known_as": [],
+                "access": "unknown",
+            }
+            for client, name in route_names.items()
+        ]
+        model = {
+            "id": "example-model",
+            "family": "example-family",
+            "approval": {"state": "approved"},
+            "documented": {"evidence": "docs/example/evidence/entry.md", "date": "2026-10-30"},
+            "callable": "not-run",
+            "evaluated": {"state": "none"},
+            "routes": routes,
+        }
+        assignment = {
+            "target": {"kind": "role", "name": "orqlet-tester"},
+            "task": None,
+            "client": None,
+            "profile": None,
+            "model": "example-model",
+            "mode": "manual",
+            "effort": None,
+        }
+        return ModelPolicy.model_validate(
+            {
+                "schema": "orqlet.model-policy/v2",
+                "policy_version": 1,
+                "reviewed_for_release": "0.4.0",
+                "models": [model],
+                "excluded": excluded,
+                "profiles": [],
+                "assignments": [assignment],
+            }
+        )
+
+    def role_files(selection: ModelSelection | None) -> dict[str, str]:
+        request = build_render_request(
+            WORKFLOW, StrictYamlLoader(), (), EMPTY_RESOURCES, None, selection=selection
+        )
+        return {
+            str(rendered.path): rendered.content.decode()
+            for role in request.roles
+            for rendered in (claude_role(role), cursor_role(role), codex_role(role))
+        }
+
+    def assert_no_vendor_name(files: dict[str, str]) -> None:
+        for path, text in files.items():
+            for vendor in vendors:
+                assert vendor not in text.lower(), f"{path}: {vendor}"
+
+    # No policy: the packaged roles name no vendor model and keep their automatic setting.
+    without_policy = role_files(None)
+    assert without_policy == role_files(ModelSelection())
+    assert_no_vendor_name(without_policy)
+    for path, text in without_policy.items():
+        lines = text.splitlines()
+        if path.endswith(".toml"):
+            assert not any(line.startswith("model") for line in lines), path
+        else:
+            assert "model: inherit" in lines, path
+
+    # A policy that assigns the tester: its three files name the assigned model of their own
+    # client, no other file names any, and no vendor name appears.
+    selection = select_models(policy(assigned, []), ROLE_NAMES, SKILL_NAMES, tuple(assigned))
+    with_policy = role_files(selection)
+    tester_lines = {
+        ".claude/agents/orqlet-tester.md": "model: example-alpha",
+        ".cursor/agents/orqlet-tester.md": "model: example-beta",
+        ".codex/agents/orqlet-tester.toml": 'model = "example-gamma"',
+    }
+    assert set(with_policy) == set(without_policy)
+    for path, text in with_policy.items():
+        if path in tester_lines:
+            assert tester_lines[path] in text.splitlines(), path
+            assert "model: inherit" not in text.splitlines(), path
+        else:
+            assert text == without_policy[path], path
+    for name in assigned.values():
+        assert sum(name in text for text in with_policy.values()) == 1, name
+    assert_no_vendor_name(with_policy)
+
+    # A policy that wrongly approves an excluded route: it is refused with ORQ-E543, so no file
+    # names the route, its alias or its family, and every file is the file of no policy.
+    fable: dict[str, object] = {
+        "id": "rule-fable",
+        "reason": "Example reason.",
+        "source": "Example notice.",
+        "aliases": ["best"],
+        "id_patterns": ["claude-fable-*"],
+        "family_tags": ["fable"],
+    }
+    wrong = policy({"claude-code": "claude-fable-9"}, [fable])
+    refused = select_models(wrong, ROLE_NAMES, SKILL_NAMES, tuple(assigned))
+    after_refusal = role_files(refused)
+    assert "ORQ-E543" in {problem.code for problem in refused.problems}
+    assert after_refusal == without_policy
+    for path, text in after_refusal.items():
+        for needle in excluded_strings:
+            assert needle not in text.lower(), f"{path}: {needle}"
 
 
 def test_each_role_says_never_an_instruction_once_and_read_only_roles_stay_read_only() -> None:
