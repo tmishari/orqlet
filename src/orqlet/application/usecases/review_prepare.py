@@ -41,9 +41,11 @@ from orqlet.domain.paths import CanonicalPath
 MAX_FILES = 5000
 MAX_FILE_BYTES = 1024 * 1024
 MAX_TOTAL_BYTES = 64 * 1024 * 1024
+# The same three reviewers as `REVIEW_AGENTS` of render_all.py; a test keeps the two maps equal.
 DEFAULT_REVIEWERS = {
     "architecture-reviewer": "orqlet-arch-reviewer",
     "security-reviewer": "orqlet-security-reviewer",
+    "code-reviewer": "orqlet-code-reviewer",
 }
 STANDARDS_FILES = (
     ".orqlet/standards.lock.yaml",
@@ -212,13 +214,14 @@ def _bindings(
             covers = COVERS[RecordKind.REVIEW]
             if all(c in components for c in covers):
                 reviews.setdefault(role, {})[client] = _block(components, covers, target)
+        if role not in reviews:  # one finding for each reviewer that has no block, not one overall
+            out.info(
+                "ORQ-I441",
+                f"no review binding is printed for {role}: its agent file {agent} is not in the "
+                "tree, or its inputs could not be computed",
+            )
     if reviews:
         result["review"] = reviews
-    else:
-        out.info(
-            "ORQ-I441",
-            "no generated reviewer agent is in the tree, so the review binding is not printed",
-        )
     return result
 
 

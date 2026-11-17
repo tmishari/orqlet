@@ -296,6 +296,22 @@ def no_pin_doc() -> dict[str, Any]:
 # --- projects ------------------------------------------------------------------------------
 
 
+@pytest.fixture(autouse=True)
+def before_the_code_reviewer_binding(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The tests of this module start from a project that `init` gave no code reviewer binding.
+
+    Phase P-9 puts that binding into `REVIEW_AGENTS`, so `initialised()` would already hold it and
+    `code_reviewer_binding()` would add it a second time. Taking it out here keeps what each test
+    means: the binding is added only where the test asks for it (the seed itself is tested in
+    test_lifecycle.py and test_review_maps.py).
+    """
+    monkeypatch.setattr(
+        render_all,
+        "REVIEW_AGENTS",
+        tuple(entry for entry in render_all.REVIEW_AGENTS if entry != CODE_REVIEWER),
+    )
+
+
 def initialised() -> Env:
     env = Env(project=repo("uv_fastapi"), vcs=FakeVcs(RepoState.HAS_COMMITS, branch="main"))
     assert init_project(env.services(), YES).status == "applied"

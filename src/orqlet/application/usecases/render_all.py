@@ -56,6 +56,7 @@ from orqlet.domain.changeplan import (
 )
 from orqlet.domain.digest import sha256_hex
 from orqlet.domain.findings import Finding, Severity
+from orqlet.domain.independence import CODE_REVIEWER
 from orqlet.domain.ownership import FileClass, OwnerMode
 from orqlet.domain.paths import CanonicalPath
 from orqlet.domain.resolver import rules_hash
@@ -69,9 +70,14 @@ WORKFLOW_LOCK_PATH = CanonicalPath.parse(".orqlet/workflow.lock")
 RELEASED_PATH = CanonicalPath.parse(".orqlet/released.yaml")
 KNOWLEDGE_PATH = CanonicalPath.parse(".orqlet/knowledge.yaml")
 # The reviewers Orqlet generates. A team approves its own alternatives in role-bindings.yaml.
-REVIEW_AGENTS: tuple[tuple[Literal["architecture-reviewer", "security-reviewer"], str], ...] = (
+# The role literal is the one of the contract `Binding.role`; `DEFAULT_REVIEWERS` of
+# review_prepare.py holds the same three, and a test keeps the two maps equal.
+REVIEW_AGENTS: tuple[
+    tuple[Literal["architecture-reviewer", "security-reviewer", "code-reviewer"], str], ...
+] = (
     ("architecture-reviewer", "orqlet-arch-reviewer"),
     ("security-reviewer", "orqlet-security-reviewer"),
+    ("code-reviewer", "orqlet-code-reviewer"),
 )
 
 
@@ -271,7 +277,8 @@ def data_files(
                 minimum_capability=MinimumCapability(
                     context="fresh", input="review-packet", write_access="none-or-recorded-limit"
                 ),
-                independence_capability="I1",
+                # The code reviewer needs I2 at every change class (ADR-006 decision 4).
+                independence_capability="I2" if role == CODE_REVIEWER else "I1",
             )
             for role, agent in REVIEW_AGENTS
         ),

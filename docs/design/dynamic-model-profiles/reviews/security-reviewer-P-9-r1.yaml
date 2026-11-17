@@ -1,0 +1,231 @@
+schema: orqlet.review-result/v1
+task: dynamic-model-profiles
+phase: P-9
+role: security-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 9c2b5d68691f4882f66a9c4dc770fe54d447e7a8f3f882fd39b6f95558159741
+    design: af08cad54b174da764ccf0d9a534a6f83068ee318eb81cc6622337a56a287b28
+    evidence_inputs: e1101fb058ee911a1352f8c1e6f6f320747da9404b104bfd39b3ecc58d5338d6
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 64828bab5b853ad6f3ffbf4c5fe4bcddd899ddfcedeb56010b5bd4e587e515c8
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: 20b2417f8fe79a6b504d5edb6aa5876a9d7ae7a5a78a128d2d5e210ff3b835a9
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 48c7d1131dd965c5ce012113d0b566db560ea692b3dbabbd3888607e5b618997
+  merge_base: 3dd84c80c676f2e28e23647b79396fe1771fee7f
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran in the same client as the Coder (cursor), so independence is I1, not I2.
+- The reviewer was started as a typed subagent (orqlet-security-reviewer); its prompt held the packet path and nothing else. The model that ran it
+  is not observed.
+- >-
+  The reviewer's session had no usable shell (it says the shell was refused in Ask mode): it ran no check and computed no quote digest. The coder
+  cited, with `orqlet evidence cite` at the commit 3dd84c80c676f2e28e23647b79396fe1771fee7f, the two quotes that this record carries, both of
+  committed lines of validate_records.py that the reviewer's F-1 names (316-326 and 360-366). The reviewer gave no evidence entry, so all five items
+  are observations as it returned them. The coder added these two entries to F-1 and otherwise only removed markdown backticks, wrote the dollar
+  sign of F-4 in words, moved the reviewer's notes into the fields of the format and changed the first person to the third in the list of
+  unverified items. A file that is only staged (the P-9 code, the tests and the records) cannot be digested, because the command reads committed files.
+- >-
+  The reviewer discloses that its context was not packet-only: it opened one earlier review record (security-reviewer-P-8-r1.yaml) only to copy the
+  finding format, and it read the ADRs, the plan, the design manifest and unchanged source files of the snapshot.
+- >-
+  The packet held earlier review records (snapshot/docs/design/dynamic-model-profiles/reviews/) and its diff runs from the merge base
+  3dd84c80c676f2e28e23647b79396fe1771fee7f. ADR-007 decision 8 says a packet must not carry earlier conclusions; the reviewer's F-5 says the same.
+- 'Read-only is declared by the agent definition, not enforced by Orqlet.'
+- >-
+  The reviewer says it could not observe its own client or model, so it claims no independence beyond a clean context.
+- >-
+  Coder's note, not part of the reviewer's text. For F-4 the coder called parse_evidence_path on an assumed path ending in a newline: it returns a
+  record path for code-reviewer-P-1-r1.yaml followed by a newline, and also for security-reviewer-P-1-r1.yaml followed by a newline. The base pattern
+  of the two older roles ends in the same dollar sign, so the behaviour is not new. Whether the newline can reach it in the real flow (git diff-tree -z
+  and the blob reader, as the reviewer says) was not run by the coder.
+- >-
+  Coder's note, not part of the reviewer's text: no finding blocks, so no rework round was run. The verdict is PASS but this record is NOT_RUN on
+  independence (I1, where a D3 change requires I2). F-1 and F-2 name work for P-10; F-3 repeats the open ORQ-E451 of the gate.
+applicability:
+  examined:
+  - context/plan.yaml
+  - context/test-record.yaml
+  - context/knowledge-impact.yaml
+  - context/design-manifest.yaml
+  - diff.patch
+  - snapshot/src/orqlet/domain/independence.py
+  - snapshot/src/orqlet/domain/evidence_artifacts.py
+  - snapshot/src/orqlet/application/usecases/render_all.py
+  - snapshot/src/orqlet/application/usecases/review_prepare.py
+  - snapshot/src/orqlet/application/usecases/validate_records.py
+  - snapshot/src/orqlet/application/usecases/binding_inputs.py
+  - snapshot/src/orqlet/application/usecases/upgrade.py
+  - snapshot/src/orqlet/application/contracts/review_result.py
+  - snapshot/src/orqlet/adapters/git/objects.py
+  - snapshot/tests/unit/domain/test_evidence_artifacts.py
+  - snapshot/tests/unit/application/test_review_prepare.py
+  - snapshot/tests/unit/application/test_review_maps.py
+  - snapshot/docs/design/dynamic-model-profiles/design/adr-006-code-review-gate-and-new-roles.md
+  - snapshot/docs/design/dynamic-model-profiles/design/adr-007-independence-model-identity-and-fresh-context.md
+  - snapshot/docs/design/dynamic-model-profiles/reviews/security-reviewer-P-8-r1.yaml
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence:
+  - kind: quote
+    path: src/orqlet/application/usecases/validate_records.py
+    lines: 316-326
+    revision: 3dd84c80c676f2e28e23647b79396fe1771fee7f
+    quote_sha256: f6943c36c90adf863522e100c86c711e64aa91f32c3ff3a0468ef1a8ad8425fc
+  - kind: quote
+    path: src/orqlet/application/usecases/validate_records.py
+    lines: 360-366
+    revision: 3dd84c80c676f2e28e23647b79396fe1771fee7f
+    quote_sha256: 4eff17b9ec55a4d449d41ec8fd76745f579c8fabdaee30f544e82b2f08dccb33
+  claim: >-
+    This phase adds the code reviewer's gate rules to independence.py, but the only caller is unchanged. validate_records.py:316-326 calls
+    derive_independence with no role, fresh or observed arguments, and :360 calls minimum_independence with no role. The new defaults reproduce
+    the base behaviour. After this phase a path code-reviewer-P-<n>-r<k>.yaml is a recognised review record (domain/evidence_artifacts.py:27), and
+    init seeds an approved I2 binding for orqlet-code-reviewer (render_all.py:80 and :281). Suppose a project made by init has an agent file for
+    orqlet-code-reviewer in the tree. The role file arrives in P-13; without the agent file, binding_inputs.py:372-375 gives ORQ-E400. A
+    code-reviewer record is then judged by the old rules. It needs no fresh-context claim. At D1/D2 the minimum stays I1, and the gate only skips
+    when derived < needed (validate_records.py:360-366). A requested-only family still counts (validate_records.py:319-324). ADR-006 decision 4
+    and ADR-007 decision 4 say I2 at every class with a fresh context. P-10 AC-5 plans the wiring. Existing projects get only a proposal for the
+    binding, and the record is ORQ-E415 until a person applies it (upgrade.py:275-277). Exposure is low and interim.
+  suggested_action: >-
+    Do not cut a release-X.Y.Z between P-9 and P-10. In P-10, add a test that validate_records passes role, fresh and both observed flags.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: >-
+    The new arguments default to the weaker reading, and the role is an open string. domain/independence.py:68-71 defaults agent_observed=True,
+    coder_observed=True, fresh=None and role=None. Lines 127-138 take role: str | None. A caller that omits an argument gets the weaker result with
+    no error. A role string that is not exactly 'code-reviewer' gets the base minimum and no freshness requirement. Today no path passes such a
+    value, because record.role is a three-value Literal (contracts/review_result.py:91). This is the decided shape (AC-3 and AC-5, 'a call that
+    gives no role behaves as before'; C-7), so I report it and do not call it a defect.
+  suggested_action: >-
+    In P-10, pass every value as an explicit keyword. Consider typing role as the three-role Literal, or add a test that an unknown role string is
+    refused.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: standards
+  evidence: []
+  claim: >-
+    The phase gate is open with ORQ-E451 (context/test-record.yaml, command gate-status-phase, and AC-6 marked fail). evidence_artifacts.py (what is
+    left out of a review's own binding) and independence.py (the class that decides the review gate) match the design's security glob
+    src/orqlet/domain/**. The design has no security expected-change entry for them: EC-7 is the only one and covers CODEOWNERS
+    (context/design-manifest.yaml, EC-3 and EC-5 are persisted-schema entries). AC-6 also says no file outside the operations list changes.
+    test_upgrade_model_policy.py and test_pin_staleness.py changed under the person's decisions. This is the same open item as F-4 of the P-8
+    security review.
+  suggested_action: >-
+    Settle ORQ-E451 for the two files before the pull request merges: add a security entry or record a person's waiver. Record the two outside
+    edits where the plan rule allows.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: >-
+    The record-path pattern ends in a dollar sign (domain/evidence_artifacts.py:28) and is applied with pattern.match (:51). Python's dollar sign also
+    matches before one final newline, so the predicate would accept a path that ends in code-reviewer-P-1-r1.yaml and a newline. The same holds for the
+    two older roles. The new test list (tests/unit/domain/test_evidence_artifacts.py) has no trailing-newline case. I found no effect. In the real
+    flow the path comes from git diff-tree -z and is read through read_blobs, which raises VcsError for a path with a line break
+    (adapters/git/objects.py:27), so the run stops and the path is not excluded. I did not run it.
+  suggested_action: Low priority. Use the end-of-string anchor, or add one test case with a trailing newline.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: security
+  evidence: []
+  claim: >-
+    The packet's snapshot/docs/design/dynamic-model-profiles/reviews/ holds the earlier review records of P-1 to P-8 and the design notes. ADR-007
+    decision 8 says a packet must carry no earlier conclusion, and the P-8 security record already noted this. diff.patch does not hold them. Because
+    of this, a reviewer in a fresh context can still see earlier verdicts.
+  suggested_action: >-
+    Keep this open for the phase that changes review prepare. Until then, treat the packet's freshness claim as attested only.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: Secrets in code, tests, fixtures and knowledge text
+    how: >-
+      Regex search of diff.patch for secret words, http(s)://, /Users/ and the account name, and a credential-shape regex across the whole packet. Zero
+      hits in the diff. Hits only in unchanged files: the scanner patterns in domain/resources.py and domain/mcp_credentials.py (read), and
+      docs/design/mcp-or-plugins/design/adr-002-one-credential-per-user.md (not opened, not in the diff).
+    result: pass
+  - what: Dependency, workflow and config changes
+    how: Listed all 14 diff --git headers of diff.patch. None is pyproject.toml, uv.lock, .github or AGENTS.md.
+    result: pass
+  - what: File, process and network access of the changed source
+    how: Read the four source hunks in full. No subprocess, open, eval or network call. The new import in render_all.py is application to domain.
+    result: pass
+  - what: Injection and unsafe parsing
+    how: >-
+      The role pattern is an anchored alternation of literals with no nested quantifier. ORQ-I441 and the agent path use only constants from
+      DEFAULT_REVIEWERS and AGENT_FILES. See F-4.
+    result: pass
+  - what: Authorization and independence logic
+    how: >-
+      Read independence.py in full, against ADR-006 and ADR-007 decisions 2, 4 and 5 and the contract fields in review_result.py. Fresh false gives
+      I0. A missing fresh gives I0 for the code reviewer. Only an observed identity can show a family difference, and recording an identity is
+      never worse than omitting it. See F-1 and F-2.
+    result: pass
+  - what: Seeded binding and approval path
+    how: >-
+      The bindings file is seeded (render_all.py:316), and upgrade only proposes it and never applies it (upgrade.py:275-299). The repository's own
+      .orqlet/role-bindings.yaml is not in the diff.
+    result: pass
+  - what: Data exposure and logging
+    how: independence_notes returns only the two closed constants and compares model strings without returning them.
+    result: pass
+  - what: Knowledge draft discloses nothing private
+    how: Read knowledge/P-9.yaml. It names repository paths, line numbers and digests only.
+    result: pass
+  - what: Tests and checks pass
+    how: Not run; the reviewer had no usable shell. The test record is FAIL and claimed.
+    result: not-run
+  unverified:
+  - That the results in context/test-record.yaml are true.
+  - What init actually writes. The reviewer read render_all.py and the tests, and did not run it.
+  - The test_independence.py hunks from diff.patch line 946 to 1599. The reviewer read only 1600-1830. It read the test_review_prepare, test_review_maps and test_evidence_artifacts hunks, and the tests for the two existing test files only in part.
+  - Whether CODEOWNERS covers src/orqlet/domain/** (EC-7 asks it, Q-32).
+  - MANIFEST.json beyond its first line (over the read limit).
+  questions:
+  - 'Q1: Will P-9 reach a release branch before P-10 (F-1)?'
+  - 'Q2: Will ORQ-E451 be settled with a security entry or a waiver (F-3)?'

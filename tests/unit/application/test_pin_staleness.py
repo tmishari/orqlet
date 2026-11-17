@@ -36,12 +36,6 @@ from collections.abc import Iterator, Sequence
 from typing import Any
 
 import pytest
-from orqlet.application.usecases.pin_staleness import (
-    MAX_LISTED,
-    STALE_REVIEW,
-    stale_review_finding,
-    stale_review_records,
-)
 
 from orqlet.adapters.fs.yaml_loader import StrictYamlLoader
 from orqlet.application.contracts.review_result import ReviewResult
@@ -50,6 +44,12 @@ from orqlet.application.ports.filesystem import (
     FileSystemError,
     NotARegularFile,
     PathNotFound,
+)
+from orqlet.application.usecases.pin_staleness import (
+    MAX_LISTED,
+    STALE_REVIEW,
+    stale_review_finding,
+    stale_review_records,
 )
 from orqlet.domain.changeplan import PlannedWrite, proposal_path
 from orqlet.domain.evidence_artifacts import MAX_EVIDENCE_BYTES
@@ -356,7 +356,6 @@ def test_only_files_that_are_review_record_paths_are_read() -> None:
         "docs/design/demo/reviews/architecture-reviewer-P-1-r1.yml",
         "docs/design/demo/reviews/architecture-reviewer-P-1-r0.yaml",
         "docs/design/demo/reviews/architecture-reviewer-P-0-r1.yaml",
-        "docs/design/demo/reviews/code-reviewer-P-1-r1.yaml",
         "docs/design/demo/reviews/architecture-reviewer-P-1-r1.yaml.bak",
         "docs/design/demo/tests/P-1.yaml",
         "docs/design/demo/architecture-reviewer-P-1-r1.yaml",
