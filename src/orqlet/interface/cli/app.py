@@ -20,6 +20,7 @@ from orqlet.interface.cli.commands.lifecycle import (
     sync_command,
     upgrade_command,
 )
+from orqlet.interface.cli.commands.models import models_app
 from orqlet.interface.cli.commands.profile import profile_app
 from orqlet.interface.cli.commands.resources import resources_group
 from orqlet.interface.cli.commands.review import review_app
@@ -49,6 +50,7 @@ app.add_typer(gate_app, name="gate")
 app.add_typer(evidence_app, name="evidence")
 app.add_typer(knowledge_app, name="knowledge")
 app.add_typer(review_app, name="review")
+app.add_typer(models_app, name="models")
 
 
 def _show_version(value: bool) -> None:

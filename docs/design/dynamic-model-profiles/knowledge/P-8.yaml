@@ -1,0 +1,42 @@
+schema: orqlet.knowledge-impact/v1
+task: dynamic-model-profiles
+phase: P-8
+review_input:
+  schema: orqlet.review-input/v1
+  covers: [code_tests, knowledge, plan, standards, candidates]
+  components:
+    candidates: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    code_tests: 1196f782c88dcabf018eaf77ed8cbd51c072338b2636d888ba6ed307ed893d0b
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 64828bab5b853ad6f3ffbf4c5fe4bcddd899ddfcedeb56010b5bd4e587e515c8
+    standards: 20b2417f8fe79a6b504d5edb6aa5876a9d7ae7a5a78a128d2d5e210ff3b835a9
+  digest: a83a10e59c98e298f1d7e2d4c6a26abeeedf4aafa8fede4ff27a9cc165363d94
+  merge_base: 3db213fd9ffa5be05ac098bae4d51217068170e0
+outcome: no-impact
+analysis:
+  command: orqlet knowledge impact
+  orqlet_version: 0.3.0
+  candidates_digest: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+  candidate_count: 0
+  input: pre-draft-tree
+  views: [committed:HEAD]
+  index_state: not-used
+entries:
+  []
+no_impact:
+  category: already-documented
+  reason: "This phase adds the read-only command models resolve (use case models_resolve over ModelsServices, which has no VCS, process runner or clock; the models group) and lists it in IMPLEMENTED_COMMANDS. The behaviour is already written in the approved design: BC-4, BC-6, BC-9, BC-23, BC-32, BC-33, BC-35, BC-38, BC-39, BC-43, ADR-001 decisions 4, 5, 7 and 8, ADR-002 decision 3 and ADR-007 decision 11. No knowledge document exists that the change could make wrong: the plan knowledge_scope is empty and no knowledge source is configured. Places that list or count commands become incomplete; each is outside this phase's file list and plan phase P-12 (plan.yaml lines 1508 to 1584) writes them: README.md lines 22, 30-40, 361-362, 709-728 and 735-757 (751 lists the kinds of validate); docs/design/orqlet-architecture-proposal.md lines 4550 (what is implemented at v0.5) and 4486 (a count of 1,504 tests), dated 2026-10-22. Readings of the coder, held in the docstrings and the report: (1) load_model_policy is reused through a private view whose vcs raises on use, because model_policy_source.py is not in the phase list; (2) usage checks run in the command before any file is read and never repeat the value; role and skill names are not checked against the workflow; (3) to_resolver_policy is used so that --task applies; a policy problem, an invalid, v1 or deleted file exits 3 without the word upgrade; (4) a missing policy that the lock does not show as deleted is empty: exit 0, or 1 with a coder constraint; (5) every override-level rejection is override-invalid, so excluded never appears in rejected; (6) the hint follows the resolution's profile, and a target pinned to one model gets the no-assignment sentence; (7) a refusal prints one stdout line, findings on stderr and an empty data; (8) the policy is checked against 256 KiB after it is read, the lock only when the policy is missing. Two assertions of test_validate_integrations_cli.py were edited under the pinned-signature rule."
+  absence_record:
+    scopes_searched: [".orqlet/knowledge.yaml sources", "the plan's knowledge_scope", "README.md, AGENTS.md, the workflow package under src/orqlet/workflow, .github and docs/ outside docs/design/dynamic-model-profiles for every list or count of the commands of the CLI or of a command group"]
+    views: [committed:HEAD]
+    revision: 456cc1a206c053ed0d98362a059e68d06115a429
+    method: "orqlet knowledge impact on the staged tree, which found no candidate; the project configures no knowledge sources (ORQ-I400) and the plan's knowledge_scope is empty. A search with rg for the names of the commands (validate integrations, validate model-policy, models resolve, knowledge impact, review prepare, standards for, gate status) and for the words command group, subcommand, IMPLEMENTED_COMMANDS and a number followed by commands found the places named in the reason: README.md (it has no occurrence of the word models) and docs/design/orqlet-architecture-proposal.md. AGENTS.md names only standards for; the skills of the workflow package name single commands under requires markers; the generated copies of the skills repeat those texts."
+    index_state: not-used
+    candidates_found: 0
+  already_documented_refs:
+    - {path: docs/design/dynamic-model-profiles/design/adr-001-selection-boundary-modes-and-precedence.md, sha256: "a6c1a8eca2bc56f39b873558c10305f16912f7a39f34dfd594603d08732f41df"}
+    - {path: docs/design/dynamic-model-profiles/design/adr-002-model-policy-v2-contract-and-home.md, sha256: "d43e2d78da80f6a55f7ac887291affdde0bddadab6e0f60d1fe07839e4d0a2bd"}
+    - {path: docs/design/dynamic-model-profiles/design/adr-006-code-review-gate-and-new-roles.md, sha256: "799953e2d5847e545f854d396ec9498e90b0d81c8ddfc8fdc5ab51c8ccc53c8b"}
+    - {path: docs/design/dynamic-model-profiles/design/adr-007-independence-model-identity-and-fresh-context.md, sha256: "0fea8f96cc98823723f6a90d8f5adf1627afa80e6b322229bc4e581e6a3def28"}
+    - {path: docs/design/dynamic-model-profiles/design/component.md, sha256: "f4f9497bb7d335b46e0b796a6029a0a5bf426dbfdd1a90e4d93fe052167fcc67"}
+    - {path: docs/design/dynamic-model-profiles/design/manifest.yaml, sha256: "bf6f5a347d2ce68eacffeaf7792653804124c7bd47ccc2917b8e13060d374a2c"}

@@ -36,6 +36,7 @@ from orqlet.adapters.system import SystemClock, UuidGenerator
 from orqlet.adapters.workflow_package import PackagedWorkflow
 from orqlet.application.ports.documents import DocumentLoader
 from orqlet.application.ports.scanner import ProjectScanner, TechnologyScanner
+from orqlet.application.usecases.models_resolve import ModelsServices
 from orqlet.application.usecases.services import Services as LifecycleServices
 from orqlet.application.usecases.services import Stores
 from orqlet.application.usecases.validate_model_policy import ModelPolicyServices
@@ -107,6 +108,18 @@ def build_model_policy_services(root: Path) -> ModelPolicyServices:
         loader=validators.loader,
         workflow=validators.workflow,
         clock=SystemClock(),
+    )
+
+
+def build_models_services(root: Path) -> ModelsServices:
+    """What `models resolve` needs: the project's files, the strict loader, the workflow.
+
+    It builds no Git adapter, no process runner and no clock: the command can make no git call.
+    """
+    return ModelsServices(
+        project=LocalFileSystem(root.resolve(strict=True)),
+        loader=StrictYamlLoader(),
+        workflow=PackagedWorkflow(),
     )
 
 

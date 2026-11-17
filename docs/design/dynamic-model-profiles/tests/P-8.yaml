@@ -1,0 +1,28 @@
+schema: orqlet.test-record/v1
+task: dynamic-model-profiles
+phase: P-8
+review_input:
+  schema: orqlet.review-input/v1
+  covers: [code_tests, plan]
+  components:
+    code_tests: 1196f782c88dcabf018eaf77ed8cbd51c072338b2636d888ba6ed307ed893d0b
+    plan: 64828bab5b853ad6f3ffbf4c5fe4bcddd899ddfcedeb56010b5bd4e587e515c8
+  digest: 5881344d9c817ac860487f3687328e761353c24b2619689a3680073bbd3b09d2
+  merge_base: 3db213fd9ffa5be05ac098bae4d51217068170e0
+verdict: FAIL
+evidence_kind: claimed
+commands:
+  - {id: ruff-check, exit_code: 0, summary: "All checks passed! The digest is of the whole captured output, escape codes included.", result_digest: 5b196eb3a6acb50d3fa398d04ca284985cc1ffec870e940264b00780bfd2c971}
+  - {id: ruff-format, exit_code: 0, summary: "629 files already formatted. The digest is of the whole captured output.", result_digest: c673ff5f18969095c1192a3d425f283a3744f0c5e307fe9de2f67148a8d4ef8a}
+  - {id: mypy, exit_code: 0, summary: "Success: no issues found in 379 source files. The digest is of the whole captured output.", result_digest: 3fbe7c5bd5abf59d6430cb2a57337334e8542dca026a2548e48de5a024ebc965}
+  - {id: import-linter, exit_code: 0, summary: "Contracts: 5 kept, 0 broken. The new use case models_resolve imports the ports (FileSystem, DocumentLoader, WorkflowSource), the application modules capabilities, model_policy_source, model_selection and workflow_sources, the contracts and the domain under their public names; it imports no clock, no Vcs, no process runner and no file, process or network module, and a test reads its source to show it (AST, no locate call). pyproject.toml and uv.lock show no diff against HEAD, and no .md file is staged. The digest is of the whole captured output.", result_digest: c37db87e671f7c45e0876dfa210e2627651855d8309bf22f560924d19f37b2fe}
+  - {id: pytest, exit_code: 0, summary: "Full suite on the staged tree: 12118 passed, 1 skipped in 1029.31s (0:17:09); the skip is tests/integration/test_junction.py, Windows only. Started in the background; exit status 0 read from the exit line of the same job. The staged code and tests did not change while it ran (code_tests 1196f782 before and after; the knowledge record was added during the run). The count rose from 11403 (P-7) to 12118, the 715 tests of the two new files (378 unit, 337 integration). The Tester was a subagent that wrote only those two files before any implementation existed; the transcript that I can read shows its prompt and not the agent definition applied, so I do not claim it was the typed orqlet-tester. Red run, implementation absent: 715 collected, 679 failed, 36 passed (the Tester's run); my rerun with the use case module set aside gave the same counts. The tests import the modules lazily, so the collected count is exact without a shim; no temporary shim was made, which the prompt had expected. The coder added no test: all 715 are the Tester's. First green run: 714 passed, 1 failed, test_an_override_that_is_rejected_is_override_invalid[example-proposed-claude-code], which asserts model in (PROPOSED, None) and that no 12 characters of the override appear, although the catalog id example-proposed is a 16-character prefix of that override; the unit tests require the id. The coder changed that assertion to leak-check the output with the id taken out (1699 to 1701 lines). The coder also edited two assertions and a comment of tests/integration/test_validate_integrations_cli.py (4 insertions, 2 deletions by git diff --cached --stat), as the pinned-signature rule allows. The digest is of the whole captured output.", result_digest: 92a5c814c79a361152ffd0eec45f9a98225f3934200b681041f3825bec7897c2}
+  - {id: gate-status-phase, exit_code: 5, summary: "FAIL, exit 5. ORQ-E451 (no entry) security: additional, on src/orqlet/domain/model_identity.py of P-3, src/orqlet/domain/model_policy_scan.py of P-2 and src/orqlet/domain/model_resolution.py of P-4, which match the design's security glob src/orqlet/domain/**; this phase changes none of the three and stages no file under src/orqlet/domain. EC-7 is the only security entry and its verification is manual. The person chose to continue with this check open. No ORQ-E450 or ORQ-E453. Also ORQ-I393 offline. ORQ-W390 on as-is, design and plan, cause base_revision, and no ORQ-I392. This output is byte-identical to the one that P-7 recorded (the same sha256), so this phase adds no gate finding and no fourth ORQ-W390. AC-7 also says that no file outside the phase's operations changes: the edit of tests/integration/test_validate_integrations_cli.py is outside the file list and was made under the pinned-signature rule. The digest is of the whole captured output.", result_digest: a38a798d2aae190c8d4aef1ccd1237d5a51f0234f9ca54a6dc7c77dac0a379c5}
+acceptance_coverage:
+  - {ac: AC-1, check_ref: pytest, result: pass}
+  - {ac: AC-2, check_ref: pytest, result: pass}
+  - {ac: AC-3, check_ref: pytest, result: pass}
+  - {ac: AC-4, check_ref: pytest, result: pass}
+  - {ac: AC-5, check_ref: pytest, result: pass}
+  - {ac: AC-6, check_ref: pytest, result: pass}
+  - {ac: AC-7, check_ref: gate-status-phase, result: fail}
