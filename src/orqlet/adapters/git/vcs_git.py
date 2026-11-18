@@ -15,6 +15,7 @@ from orqlet.application.ports.vcs import (
     TreeChange,
     TreeFile,
     VcsError,
+    check_exclusions,
     check_ref_name,
 )
 
@@ -161,10 +162,32 @@ class GitVcs:
             )
         return tuple(sorted(changes, key=lambda change: change.path))
 
-    def diff_patch(self, base: str, head: str) -> bytes:
+    def diff_patch(
+        self,
+        base: str,
+        head: str,
+        *,
+        exclude_patterns: Sequence[str] = (),
+        exclude_paths: Sequence[str] = (),
+    ) -> bytes:
+        """`diff-tree -p`, with each exclusion as a pathspec after `--` and no other addition.
+
+        `:(exclude)` leaves out what a pattern matches and `:(exclude,literal)` leaves out one
+        path, its glob characters taken as they are. With exclusions only, Git compares every
+        other path. The pathspecs follow `--`, so the option check of the runner never sees them.
+        """
         check_revision(base)
         check_revision(head)
-        return self._git.run("diff-tree", "-r", "-p", "--no-renames", base, head).stdout
+        check_exclusions(exclude_patterns, exclude_paths)
+        pathspecs = [f":(exclude){pattern}" for pattern in exclude_patterns]
+        pathspecs += [
+            f":(exclude,literal){path}"
+            for path in self._not_directories(exclude_paths, (base, head))
+        ]
+        command = ["diff-tree", "-r", "-p", "--no-renames", base, head]
+        if pathspecs:
+            command += ["--", *pathspecs]
+        return self._git.run(*command).stdout
 
     def resolve(self, ref: str) -> str | None:
         check_ref_name(ref)
@@ -238,6 +261,22 @@ class GitVcs:
         self._git.init_repository(branch)
 
     # --- internals -----------------------------------------------------------------------
+    def _not_directories(self, paths: Sequence[str], revisions: Sequence[str]) -> list[str]:
+        """The entries that are the name of no directory in any of the trees.
+
+        Git reads a literal pathspec that names a directory as every path below it (measured with
+        git 2.56.1: `:(exclude,literal)notes/dir` also drops `notes/dir/inner.md`). An entry names
+        one file, so one that is a directory in either tree is left out of the command.
+        """
+        if not paths:
+            return []
+        directories: set[str] = set()
+        for revision in revisions:
+            for file in self.tree_at(revision):
+                parts = file.path.split("/")
+                directories.update("/".join(parts[:end]) for end in range(1, len(parts)))
+        return [path for path in paths if path not in directories]
+
     def _same_directory(self, reported: str) -> bool:
         return os.path.normcase(os.path.realpath(reported)) == os.path.normcase(str(self._root))
 

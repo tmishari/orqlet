@@ -7,15 +7,23 @@ was never staged was never reviewed, and a half-merged index is refused by `stag
 
 The packet is read-only by instruction and by location, not by a file mode: the file-system port has
 no permission call. It is written once, into a folder that did not exist.
+
+The packet carries no earlier conclusion (ADR-007 decision 8): the review records of every task and
+the notes that the design manifest names are left out of the snapshot, the context copies and the
+diff, and are not listed as omitted, which would tell a reviewer that earlier rounds exist. The
+notes are those of the design manifest at the merge base, so a change cannot hide a file from its
+own review by editing the manifest; the manifest copy of the tree under review lists its notes. A
+note never takes out the manifest, the plan or a standards file.
 """
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Collection, Mapping
 
 from orqlet.application.contracts.design_set import DesignSet
 from orqlet.application.contracts.plan import ImplementationPlan
 from orqlet.application.ports.filesystem import FileSystem, FileSystemError
+from orqlet.application.ports.vcs import is_excluded
 from orqlet.application.usecases.binding_inputs import (
     AGENT_FILES,
     BindingRequest,
@@ -53,6 +61,9 @@ STANDARDS_FILES = (
     ".prompts/rules.yaml",
     ".prompts/foundations.md",
 )
+# The records of every task's earlier review rounds; `*` also matches `/`, so a folder below
+# matches too. The notes that a design manifest names come on top of this (`_left_out`).
+REVIEW_RECORDS = f"{TASK_ROOT}/*/reviews/*"
 
 
 def review_prepare(
@@ -101,15 +112,36 @@ def review_prepare(
     return out.result(data)
 
 
+def _left_out(
+    approved: DesignSet | None, carried: Collection[str]
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    """The patterns and the paths that stay out of the packet: earlier records and design notes.
+
+    The notes are those of the `approved` design manifest, the one at the merge base, and never
+    those of the manifest under review: a change that named a changed file as a note would hide it
+    from its own review, with nothing in the packet to show it. A base without a usable manifest
+    names no note. A note that names a `carried` path is ignored as well: the reviewer reads the
+    change against the manifest, the plan and the standards. `diff_patch` and the filters below
+    apply the result by the same rule (`is_excluded`).
+    """
+    notes = {review.note for review in approved.reviews} if approved else set()
+    return (REVIEW_RECORDS,), tuple(sorted(notes - set(carried)))
+
+
 def _packet_files(
     services: ValidateServices, target: Target, folder: str, phase: str
 ) -> tuple[dict[str, bytes], list[str]]:
     vcs = services.vcs
+    plan_path, manifest_path = f"{folder}/plan.yaml", f"{folder}/design/manifest.yaml"
+    approved = read_contract_at(services, target.base, manifest_path, DesignSet, Collector())
+    patterns, notes = _left_out(approved, (plan_path, manifest_path, *STANDARDS_FILES))
     files: dict[str, bytes] = {}
     omitted: list[str] = []
     total = 0
     entries = []
     for entry in vcs.tree_at(target.tree):
+        if is_excluded(entry.path, patterns, notes):
+            continue  # before any check that reports an omission: nothing says it was there
         if entry.mode in {"120000", "160000"}:
             omitted.append(f"{entry.path} (a symbolic link or a gitlink)")
             continue
@@ -132,19 +164,21 @@ def _packet_files(
             continue
         files[f"snapshot/{path}"] = data
         total += len(data)
-    files["diff.patch"] = vcs.diff_patch(target.base, target.tree)
+    files["diff.patch"] = vcs.diff_patch(
+        target.base, target.tree, exclude_patterns=patterns, exclude_paths=notes
+    )
     for label, path in (
-        ("plan.yaml", f"{folder}/plan.yaml"),
-        ("design-manifest.yaml", f"{folder}/design/manifest.yaml"),
+        ("plan.yaml", plan_path),
+        ("design-manifest.yaml", manifest_path),
         ("as-is.md", f"{folder}/as-is.md"),
         ("test-record.yaml", f"{folder}/tests/{phase}.yaml"),
         ("knowledge-impact.yaml", f"{folder}/knowledge/{phase}.yaml"),
     ):
-        data = vcs.read_at(target.tree, path)
+        data = None if is_excluded(path, patterns, notes) else vcs.read_at(target.tree, path)
         if data is not None:
             files[f"context/{label}"] = data
     for path in STANDARDS_FILES:
-        data = vcs.read_at(target.tree, path)
+        data = None if is_excluded(path, patterns, notes) else vcs.read_at(target.tree, path)
         if data is not None:
             files[f"context/standards/{path.rsplit('/', 1)[-1]}"] = data
     return files, omitted

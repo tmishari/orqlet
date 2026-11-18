@@ -1,0 +1,178 @@
+schema: orqlet.review-result/v1
+task: dynamic-model-profiles
+phase: P-11
+role: security-reviewer
+round: 3
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 6479d22cbc51f894a16b817121763c056e2bc6a5bc5025f0e686771c8265cbc0
+    design: af08cad54b174da764ccf0d9a534a6f83068ee318eb81cc6622337a56a287b28
+    evidence_inputs: b1ea3d7a881ce707f176e9dbbdcecc5a1802f6b1de1bfb578682078a7a0703f2
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 64828bab5b853ad6f3ffbf4c5fe4bcddd899ddfcedeb56010b5bd4e587e515c8
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: 20b2417f8fe79a6b504d5edb6aa5876a9d7ae7a5a78a128d2d5e210ff3b835a9
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 793f022a2d590346b5fbc478e51eda81537bc91857bc9ac39f32e21d1b91708a
+  merge_base: bb5ec564483aca02f4fc5dfc45035ca427cbec0a
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran in the same client as the Coder (cursor), so independence is I1, not I2.
+- The reviewer was started as a typed subagent (orqlet-security-reviewer); its prompt held the packet path and nothing else. The model that ran
+  it is not observed.
+- 'The reviewer''s session had no shell: it ran no command and computed no quote digest, so every test count, the ten mutants and the other checks
+  of the test record are claims of the Coder that it did not repeat.'
+- 'The packet held no file under a reviews folder, although the index held the four records of rounds 1 and 2: diff.patch has nine file headers
+  and none is under a reviews folder. The Coder scanned the packet (1004 files) by path and by the claim text of 142 records, the four staged
+  ones included: no file and no hit. The packet still told of earlier rounds in prose, and both reviewers say so: the test and knowledge records
+  of this phase name earlier review findings (the Coder''s words on rework rounds), the manifest copy and the AS-IS file name two record paths,
+  19 earlier test or knowledge records say similar things, and test names and docstrings in diff.patch mention them. ADR-007 decision 8 does not
+  reach those, and the sentinel scan cannot catch a paraphrase. The review was therefore not fully context-clean.'
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- 'No quote evidence was needed: the reviewer''s F-3 rests on an absence record, which the Coder re-ran with git grep at the base commit; the
+  match list is in the entry. The other findings are observations.'
+- 'Coder''s note, not part of the reviewer''s text: no blocking finding, and no code or test changed after this packet. F-1 (including its invalid-record
+  part) is for the person to accept: it follows ADR-007 decision 8 and AC-3 and is listed again in the pull request. F-2 repeats F-6 of the architecture
+  review and is open. F-3 and F-5 are open; AC-5 and the minimum git version stay for the person and the CI matrix. F-4 is true and is the same
+  limit as in the architecture review: the context-clean claim does not hold.'
+applicability:
+  examined:
+  - MANIFEST.json
+  - diff.patch
+  - context/design-manifest.yaml
+  - context/plan.yaml
+  - context/test-record.yaml
+  - context/knowledge-impact.yaml
+  - snapshot/src/orqlet/adapters/git/
+  - snapshot/src/orqlet/application/ports/vcs.py
+  - snapshot/src/orqlet/application/usecases/review_prepare.py
+  - snapshot/src/orqlet/application/usecases/binding_inputs.py
+  - snapshot/src/orqlet/application/contracts/design_set.py
+  - snapshot/src/orqlet/domain/environment.py
+  - snapshot/tests/
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: security
+  claim: 'review prepare can withhold a changed file from both reviewers while the review binding still covers it. _packet_files (review_prepare.py
+    about 131-169) drops any path matching docs/design/*/reviews/*, and any path named by reviews[].note in the base manifest, from the snapshot,
+    the context copies and diff.patch. It adds no omitted line and no MANIFEST entry. The code_tests binding takes only valid evidence records
+    out of its own digest (evidence_file_ok, binding_inputs.py about 192-211: schema-valid, identity-matching, not deleted). So these changes
+    are in the digest a review record states but are never shown to the reviewer: a non-record file under a reviews folder; a malformed or forged
+    record; the deletion of a record; any file an approved base manifest names as a note (DesignReview.note is any RepoPath, design_set.py about
+    126-128). ADR-007 decision 8 and AC-3 set this, and the knowledge record says so ("no NOT_RUN for an invalid record"). The Coder also flags
+    the note part as the open F-1 of both round-2 reviews. The invalid-record part is not named there as a residual.'
+  suggested_action: Ask the person to accept the residual explicitly. Optionally have review prepare report to its caller, not in the packet,
+    how many paths were withheld that are not valid review records. Optionally have validate design warn when a note lies outside docs/design/<task>/reviews/.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: failure-handling
+  claim: A base manifest that is missing or unreadable silently means "no notes". approved = read_contract_at(..., Collector()) (review_prepare.py
+    about line 136) discards the findings, and the unit test test_without_a_manifest_to_read_at_the_base_... asserts no error. This fails toward
+    showing more, not toward hiding changes, so earlier note files then enter the packet (BC-21). Nothing tells the person that it happened.
+  suggested_action: Return an info finding to the caller (not into the packet) when the base manifest could not be read.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: finding
+  severity: non-blocking
+  category: correctness
+  evidence:
+  - kind: absence
+    searched:
+    - src/**/*.py
+    method: 'git grep -n -i for a git version check (''git version'', ''--version'', ''rev-parse --git'', ''git_version'', a minimum-version name)
+      at the base commit: the only match is orqlet''s own --version option (src/orqlet/interface/cli/app.py:66). No check of diff.patch against
+      diff_tree was searched for by the Coder; the reviewer reports none in the staged snapshot.'
+    revision: bb5ec564483aca02f4fc5dfc45035ca427cbec0a
+  claim: diff.patch rests on git reading an exclude-only pathspec as "everything else" (vcs_git.py diff_patch about 165-190). The only observed
+    versions are 2.56.0 and 2.56.1 on macOS, and AC-5 (the CI matrix) is NOT_RUN in the test record. The supported git versions are an open question
+    (U-1/Q-1; the older docs state 2.56.0 is the only verified version). No runtime check compares the patch with diff_tree minus the exclusions.
+    If a git read the pathspec differently, the packet would carry an empty or narrowed diff with no error. A reviewer handed an empty diff could
+    then answer "no security-relevant change". Git's behaviour on other versions is an unknown to the reviewer.
+  suggested_action: After diff_patch, require the number of "diff --git " sections to equal the number of paths from diff_tree that is_excluded
+    keeps, and raise VcsError otherwise. Before merge, read the AC-5 result of the CI matrix.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: standards
+  claim: 'This review was not fully context-clean. The packet holds no review record: the snapshot has no reviews/ path and MANIFEST.json has
+    none. But context/test-record.yaml, context/knowledge-impact.yaml and the test docstrings in diff.patch name earlier rounds ("F-1 of the architecture
+    review r1", "F-1 of the security review r2", "F-1 of both round-2 reviews") with the gist of each finding. The sentinel scan cannot catch
+    a paraphrase.'
+  suggested_action: Keep rework history out of the tester and knowledge records and out of test docstrings (a PR description is the place). Note
+    this limit in the review record's capability_limits.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: architecture
+  claim: One rule has two matchers. is_excluded (Python fnmatchcase) filters the snapshot, the context copies and the fake. Git's pathspec matcher
+    filters diff.patch. The port docstring calls both "as fnmatch does". The shipped pattern is a constant with no "[", backslash or "^", so there
+    is no mismatch today. The contract tests cover *, ? and [a-c] only. A future pattern could make the snapshot and the diff disagree.
+  suggested_action: Document the supported glob subset on the port, or let the F-3 count check catch a disagreement.
+  confidence: low
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: only the packet read, no Coder conversation
+    how: MANIFEST, diff.patch, context/*, snapshot/ files cited in the findings
+    result: pass
+  - what: findings carry evidence or are observations
+    how: F-1, F-2, F-4 and F-5 are observations; F-3 has an absence record
+    result: pass
+  - what: option and pathspec injection, entry validation, environment, dependencies and secrets
+    how: 'read the adapter, the runner, the environment allow-list and the diff; the reviewer found no issue (argument injection, entry validation,
+      scrubbed environment, staged-manifest hiding, directory notes, dependencies, unbounded note list: see the examined list of its answer)'
+    result: pass
+  - what: review independent of earlier rounds
+    how: no reviews/ path in the packet, but earlier rounds are named in prose in the test and knowledge records; F-4
+    result: fail
+  - what: quote digests computed
+    how: ''
+    result: not-run
+  - what: any test, lint or command run
+    how: ''
+    result: not-run
+  failures:
+  - F-4
+  unverified:
+  - Behaviour on git versions other than the 2.56.x the Coder cites, on Linux or Windows, or under case-folding or Unicode-normalising git configurations
+    was not examined.
+  - How consumers outside the packet treat a symlink or a gitlink under a reviews folder was not examined; the new code hides it without an omitted
+    line.
+  - Host-side controls (required reviews, CODEOWNERS) are not readable from the packet.
+  - An oversized note list was reasoned to fail closed (ProcessError, then VcsError) and not tested.
+  - The tree id of MANIFEST.json was not read in full; the revision of the evidence is the merge base.

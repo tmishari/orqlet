@@ -1,0 +1,27 @@
+schema: orqlet.test-record/v1
+task: dynamic-model-profiles
+phase: P-11
+review_input:
+  schema: orqlet.review-input/v1
+  covers: [code_tests, plan]
+  components:
+    code_tests: 6479d22cbc51f894a16b817121763c056e2bc6a5bc5025f0e686771c8265cbc0
+    plan: 64828bab5b853ad6f3ffbf4c5fe4bcddd899ddfcedeb56010b5bd4e587e515c8
+  digest: 0f6ce6c52464c965a18c53a193c38ce42720f672f73408905e23212838dc533d
+  merge_base: bb5ec564483aca02f4fc5dfc45035ca427cbec0a
+verdict: NOT_RUN
+evidence_kind: claimed
+commands:
+  - {id: ruff-check, exit_code: 0, summary: "All checks passed! The digest is of the whole captured output as written, which holds two ANSI colour escapes although NO_COLOR=1 was set.", result_digest: 5b196eb3a6acb50d3fa398d04ca284985cc1ffec870e940264b00780bfd2c971}
+  - {id: ruff-format, exit_code: 0, summary: "633 files already formatted. The digest is of the whole captured output (NO_COLOR=1).", result_digest: 72b998afaf6ea566e9f8910d20c4487c5ed1dfbb8b27a7a2baac02cf30772f6d}
+  - {id: mypy, exit_code: 0, summary: "Success: no issues found in 383 source files. The digest is of the whole captured output (NO_COLOR=1).", result_digest: 9d1003c43cd831d5da9df55b3010d7d9579c9a948173b757df5ad71cc44e95c8}
+  - {id: import-linter, exit_code: 0, summary: "Contracts: 5 kept, 0 broken. The port module imports only the standard library, domain.paths and domain.errors; the adapter and the use case import the port. git_runner.py is untouched, so the allow-list of subcommands and the option check are as before. pyproject.toml and uv.lock show no diff against origin/main or in the index, and no .md file is staged. The digest is of the whole captured output as written, which holds 27 ANSI colour escapes although NO_COLOR=1 was set.", result_digest: 7a2fad1dcc5307402cb04707957884534f62da097ee40c6d6285d0f92e83a48e}
+  - {id: pytest, exit_code: 0, summary: "Full suite on the staged tree, as the plan gives it (uv run pytest): 12451 passed, 1 skipped in 892.36s (0:14:52), exit 0; the skip is tests/integration/test_junction.py, Windows only. The exit status went to a separate file; the digest is of the output file. The staged code (src and tests) did not change during the run (sha256 f8cc5f0a before and after). It is the third full run (before: 12443, 12446). Round 0: the typed orqlet-tester wrote the cases before any code existed; on the three test files they ran red, 55 failed and 77 passed (37 TypeError for the missing keyword, 18 AssertionError about a leak; the 77 are not classified). After the code 7 failed, one test defect (the unit test compared the omitted list with messages that carry a prefix); the coder corrected that line, 132 passed; the coder added 17 items (refusals of 8 entries on the fake and on git, one real-git file-to-directory case), 149 passed. Rework 1, after F-1 of the architecture review r1: the coder wrote 3 cases first (a note naming the manifest, the plan or a standards file); red 3 failed, then 152 passed. Rework 2, after F-1 of the security review r2 (the notes come from the design manifest at the merge base): the coder wrote 4 unit cases and 1 real-git case first and moved the carried-files case to a base manifest; red 8 failed, 149 passed; then 157 passed on the three files. Ten mutants of the round-0 code were each killed and reverted; none ran on the reworks. AC-1 and AC-3 are marked pass for what the tests assert and differ from their text: the adapter passes a note path as :(exclude,literal) only when it is no directory in either tree (AC-1); a note naming the manifest, the plan or a standards file is ignored and the notes are read at the merge base (AC-3). The person accepts or amends. Git was observed on macOS only; Linux and Windows are for the CI matrix (AC-5).", result_digest: f68f66d70bd5741d4b931058e3d8ab6f75ad5396dabe13d10dc9e1b619cf7579}
+  - {id: gate-status-phase, exit_code: 5, summary: "NOT_RUN, exit 5. No ORQ-E450, ORQ-E451 or ORQ-E453. The text is identical to the run before any change of this phase. The EC rows are all manual (ORQ-I451). ORQ-W390 on as-is, design and plan, cause base_revision (three lines, as in P-10; the person confirmed in this session that planned work covers them), ORQ-I393 offline and the NOT RUN lines for the stale inputs and for approval, which needs host evidence. The base is main at bb5ec56. The verdict of this record is NOT_RUN and not PASS because the validator does not accept a PASS with a command that exited 5 (ORQ-E417). AC-5 is not-run because its evidence is the CI matrix after the pull request. The digest is of the whole captured output (NO_COLOR=1).", result_digest: 553f7d417664ea9c90c72e2e197a33ecb138eaa361f8e50c50ee09cd9a4ed265}
+acceptance_coverage:
+  - {ac: AC-1, check_ref: pytest, result: pass}
+  - {ac: AC-2, check_ref: pytest, result: pass}
+  - {ac: AC-3, check_ref: pytest, result: pass}
+  - {ac: AC-4, check_ref: pytest, result: pass}
+  - {ac: AC-5, check_ref: "review:ci-platforms", result: not-run}
+  - {ac: AC-6, check_ref: gate-status-phase, result: pass}

@@ -9,7 +9,9 @@ from orqlet.application.ports.vcs import (
     TreeChange,
     TreeFile,
     VcsError,
+    check_exclusions,
     check_ref_name,
+    is_excluded,
 )
 from orqlet.domain.digest import sha256_hex
 
@@ -138,10 +140,20 @@ class FakeVcs:
             )
         return tuple(changes)
 
-    def diff_patch(self, base: str, head: str) -> bytes:
+    def diff_patch(
+        self,
+        base: str,
+        head: str,
+        *,
+        exclude_patterns: Sequence[str] = (),
+        exclude_paths: Sequence[str] = (),
+    ) -> bytes:
+        """A header and a status line for each changed path that no exclusion names."""
+        check_exclusions(exclude_patterns, exclude_paths)
         lines = [
             f"diff --git a/{c.path} b/{c.path}\n{c.status} {c.old_mode} {c.new_mode}"
             for c in self.diff_tree(base, head)
+            if not is_excluded(c.path, exclude_patterns, exclude_paths)
         ]
         return ("\n".join(lines) + "\n").encode() if lines else b""
 
