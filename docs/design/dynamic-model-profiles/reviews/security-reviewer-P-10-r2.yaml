@@ -1,0 +1,174 @@
+schema: orqlet.review-result/v1
+task: dynamic-model-profiles
+phase: P-10
+round: 2
+verdict: PASS
+assurance: advisory
+role: security-reviewer
+review_input:
+  components:
+    code_tests: 00f0824cba59d6efb9b630c4508e041d3753fb3fcfaef179be1ff60aec3219e1
+    design: af08cad54b174da764ccf0d9a534a6f83068ee318eb81cc6622337a56a287b28
+    evidence_inputs: 7e5544ebae1f3a7eca19d03449f25dc67aa36cda7e56f0ff2ffd10d917ca5b06
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 64828bab5b853ad6f3ffbf4c5fe4bcddd899ddfcedeb56010b5bd4e587e515c8
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: 20b2417f8fe79a6b504d5edb6aa5876a9d7ae7a5a78a128d2d5e210ff3b835a9
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 2f37b85dc5e5b903680033a8c1354b34585a010bb33499753cb21c8bae9e1a37
+  merge_base: 1c83b5693052cfa6da31eea551acd0e51027a210
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran in the same client as the Coder (cursor), so independence is I1, not I2.
+- The reviewer was started as a typed subagent (orqlet-security-reviewer); its prompt held the packet path and nothing else. The model that ran
+  it is not observed.
+- 'The reviewer''s session had no usable shell (Ask mode): it ran no check and computed no quote digest, so every item it returned is an observation,
+  and the lines they name are staged and cannot be digested by `orqlet evidence cite`, which reads committed files.'
+- The packet held the round-1 review records and the older ones under snapshot/docs/design/dynamic-model-profiles/reviews/. ADR-007 decision 8
+  says a packet must not carry earlier conclusions.
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- The reviewer discloses that it did not read the earlier review records, that one search result showed a single line of an earlier security record
+  (diff line 379), and that it did not use it.
+- 'Coder''s note, not part of the reviewer''s text: no finding blocks. The reviewer gave its evidence as plain sentences and not as evidence entries,
+  so the coder folded each sentence into the claim of the finding and left the evidence list empty, and changed nothing else of the sense. The
+  verdict is PASS but this record is NOT_RUN on independence (I1, where a D3 change requires I2). The reviewer''s F-1 is the same gap that the
+  architecture review reports as its F-1; it was not fixed, because it does not block.'
+applicability:
+  examined:
+  - diff.patch
+  - context/plan.yaml
+  - context/test-record.yaml
+  - context/knowledge-impact.yaml
+  - context/standards/rules.yaml
+  - snapshot/src/orqlet/application/usecases/review_identity.py
+  - snapshot/src/orqlet/application/usecases/validate_records.py
+  - snapshot/src/orqlet/application/usecases/model_policy_source.py
+  - snapshot/src/orqlet/application/usecases/validate_model_policy.py
+  - snapshot/src/orqlet/application/usecases/binding_inputs.py
+  - snapshot/src/orqlet/adapters/git/objects.py
+  - snapshot/src/orqlet/adapters/git/vcs_git.py
+  - snapshot/src/orqlet/domain/model_identity.py
+  - snapshot/src/orqlet/domain/independence.py
+  - snapshot/src/orqlet/application/contracts
+  - snapshot/tests/unit/application/test_validate_review_identity.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: tests
+  rule_ref: ORQLET-TEST-001
+  claim: 'The code follows ADR-007 decision 1: model_families comes from the base tree (validate_records.py 332, base.model_families if base else
+    ()), so a change cannot give itself a family difference, and with it class I2, by editing its own role-bindings file. No test pins this: every
+    test that uses LEGACY, SPLIT or SHARED sets base_bindings equal to staged_bindings, and the module docstring says that no test depends on
+    which tree gives model_families. If someone reads the staged tree instead, every test still passes and the self-vouching path reopens.'
+  suggested_action: Add one test where the staged role-bindings file adds a model_families that splits two strings, the base has none, and the
+    same client is used. Expect I1, with no family taken from the staged tree.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: security
+  rule_ref: ADR-007 decision 1; BC-44
+  claim: '(a) A binding that exists only in the staged tree counts as approved (validate_records.py 330-331), so a change can approve its own
+    reviewer up to I2 with only the warning ORQ-W463 (lines 351-362). The old code read the staged tree alone and gave no warning, so this is
+    not a regression. (b) A binding that the staged tree removes or narrows stays approved for that change, so a revocation takes effect from
+    the next change. That fits using the base tree as the anchor, but the Coder chose it (reading 7 of the knowledge record) and no test pins
+    it: a search of the test file for removes, removed, dropped and stays approved found nothing.'
+  suggested_action: No code change needed for this phase. Pin (b) with a test, or state it in the phase notes. Make sure the host evidence in
+    S11 treats ORQ-W463 as something to show a person.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: security
+  rule_ref: AC-3; BC-9; ADR-005 decision 2
+  claim: The exclusion list stops only a recorded model string that matches it (_named_models and assess_identity test exclusions only for strings
+    the record names). A record that names no model, or names an unmatchable string, is never excluded. If the client differs, it still reaches
+    I2 with only the warning identity-unknown (the tests test_a_record_that_names_no_model_is_unaffected_by_the_exclusion_check and test_an_unknown_identity_on_two_clients_warns_identity_unknown).
+    This follows AC-3 and ADR-007, and the record is attested and not verified. So the exclusion is not a control against a coder who leaves the
+    model out.
+  suggested_action: No change in this phase. Keep ORQ-W460 and independence_notes visible to the person, and say so in the later skill text (P-13).
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: security
+  rule_ref: BC-44; ADR-005 decision 2; F-18
+  claim: With a valid staged policy and an absent or unloadable base policy, exclusions come only from the staged tree and the only signal is
+    ORQ-W462 (read_policy_view and _policy_findings); a staged policy that is deleted or corrupt gives no finding for a record that names no model.
+    validate model-policy reports a deletion against the base tree and removed exclusions (ORQ-E544, matched by exclusion id) in validate_model_policy.py
+    241-261 and 381-398. A search of .github/workflows/ci.yml, the only workflow in the packet, for model-policy, validate review, gate status
+    and ci check found nothing. These edges are accepted by the design, but the same change could still shrink the exclusion list over two changes
+    if the policy-lifecycle checks do not run. validate review does not stop that, and it relies on validate model-policy. The reviewer cannot
+    see from the packet which host check runs validate model-policy.
+  suggested_action: Confirm which required check runs orqlet validate model-policy on pull requests. No code change in P-10.
+  confidence: low
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: P-10
+    applicable_standards:
+    - ORQLET-SEC-001
+    - ORQLET-SEC-002
+    - ORQLET-SEC-003
+    acceptance_criteria:
+    - AC-1
+    - AC-2
+    - AC-3
+    - AC-6
+    - AC-8
+  checks:
+  - what: Secrets in diff, tests and knowledge text
+    how: search of diff.patch and the test file for token patterns and keywords; read knowledge and test records
+    result: pass
+  - what: Process and file-system access
+    how: read the imports of review_identity.py; searched the new test file for subprocess, open, os and network calls
+    result: pass
+  - what: Injection and unsafe parsing
+    how: read model_policy_source._parse, contracts/common.py string types, objects.check_revision
+    result: pass
+  - what: Data exposure in findings and data fields
+    how: read every Finding constructor in review_identity.py and validate_records.py; read the marker test
+    result: pass
+  - what: Dependency change
+    how: file list of diff.patch
+    result: pass
+  - what: Trust of the base tree and the staged tree
+    how: read read_policy_view, _refusal, _lock_seeds_policy, _independence
+    result: pass
+  - what: Test run
+    how: ''
+    result: not-run
+  failures: []
+  unverified:
+  - The reviewer did not run the test suite or any command; passing results come from test-record.yaml (evidence_kind claimed).
+  - domain/model_resolution.py (catalog_entries), model_selection.to_resolver_policy and the allow-list of GitRunner were not read.
+  - No quote digests were computed, so every item is an observation; the staged tree id is not in what was read, so line numbers are from the
+    packet snapshot.
+  - Whether any host check runs `orqlet validate model-policy` or `orqlet validate review` (F-4).
+  questions:
+  - Which required check runs `orqlet validate model-policy` on pull requests? .github/workflows/ci.yml does not name it.

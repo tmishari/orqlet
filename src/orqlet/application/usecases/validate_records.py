@@ -37,6 +37,12 @@ from orqlet.application.usecases.binding_inputs import (
     read_contract_at,
 )
 from orqlet.application.usecases.knowledge_impact import Analysis, analyse
+from orqlet.application.usecases.review_identity import (
+    BINDING_ADDED,
+    assess_identity,
+    closed_warning,
+    ordered,
+)
 from orqlet.application.usecases.validation import (
     TASK_ROOT,
     Collector,
@@ -60,17 +66,13 @@ from orqlet.domain.evidence_artifacts import (
     parse_evidence_path,
     rounds_are_contiguous,
 )
-from orqlet.domain.independence import (
-    Independence,
-    derive_independence,
-    family_of,
-    minimum_independence,
-)
+from orqlet.domain.independence import CODE_REVIEWER, Independence, minimum_independence
 from orqlet.domain.knowledge import longest_shared_run, markdown_references, near_duplicate
 from orqlet.domain.paths import CanonicalPath
 
 COPY_MAX_LINES = 10
 NEAR_DUPLICATE_THRESHOLD = 0.8
+_BINDINGS_PATH = ".orqlet/role-bindings.yaml"
 _LINES_SUFFIX = re.compile(r"^(?P<path>.+):(?P<lines>[1-9]\d*(?:-[1-9]\d*)?)$")
 
 
@@ -180,12 +182,12 @@ def validate_review(
     _check_rounds(services, identity, raw_path, out)
     _check_quotes(services, record, out, raw_path)
     located = locate(services, options.base, options.head)
-    derived: Independence | None = None
+    derivation: Derivation | None = None
     if located.target is None:
         for problem in located.problems:
             out.skip(problem)
     else:
-        derived = _review_binding(services, record, located.target, out, raw_path)
+        derivation = _review_binding(services, record, located.target, out, raw_path)
     data_out: dict[str, object] = {
         "role": record.role,
         "round": record.round,
@@ -193,7 +195,8 @@ def validate_review(
         "findings": len(record.findings),
         "blocking": sum(1 for f in record.findings if f.severity == "blocking"),
         "independence_claimed": record.independence,
-        "independence_derived": None if derived is None else derived.name,
+        "independence_derived": None if derivation is None else derivation.independence.name,
+        "independence_notes": [] if derivation is None else list(derivation.notes),
     }
     return out.result(data_out)
 
@@ -246,13 +249,21 @@ def _check_quotes(
                 )
 
 
+@dataclass(frozen=True, slots=True)
+class Derivation:
+    """The class derived for a review record, and the closed names that qualify it."""
+
+    independence: Independence
+    notes: tuple[str, ...]
+
+
 def _review_binding(
     services: ValidateServices,
     record: ReviewResult,
     target: Target,
     out: Collector,
     raw_path: str,
-) -> Independence | None:
+) -> Derivation:
     plan = read_contract_at(
         services,
         target.tree,
@@ -274,11 +285,11 @@ def _review_binding(
     components = _verify_binding(
         services, record.review_input, COVERS[RecordKind.REVIEW], request, out, raw_path
     )
-    derived = _independence(services, record, target, out, raw_path)
+    derivation = _independence(services, record, target, out, raw_path)
     if Component.REVIEWER_DEFINITION in components:
         _check_definition_hash(services, record, target, out, raw_path)
-    _check_independence_gate(services, record, derived, target, out)
-    return derived
+    _check_independence_gate(services, record, derivation.independence, target, out)
+    return derivation
 
 
 def _check_definition_hash(
@@ -296,40 +307,65 @@ def _check_definition_hash(
         )
 
 
+def _approves(bindings: RoleBindings | None, record: ReviewResult) -> bool:
+    return bindings is not None and any(
+        b.id == record.agent.binding_ref
+        and b.role == record.role
+        and record.agent.client in b.clients
+        for b in bindings.bindings
+    )
+
+
 def _independence(
     services: ValidateServices,
     record: ReviewResult,
     target: Target,
     out: Collector,
     raw_path: str,
-) -> Independence:
-    bindings = read_contract_at(
-        services, target.tree, ".orqlet/role-bindings.yaml", RoleBindings, out
-    )
-    approved = bindings is not None and any(
-        b.id == record.agent.binding_ref
-        and b.role == record.role
-        and record.agent.client in b.clients
-        for b in bindings.bindings
-    )
-    families = [(f.match, f.family) for f in (bindings.model_families if bindings else ())]
-    derived = derive_independence(
+) -> Derivation:
+    staged = read_contract_at(services, target.tree, _BINDINGS_PATH, RoleBindings, out)
+    # The base tree is history: a file that is missing or broken there approves nothing, and the
+    # problem is not this record's, so it is read with a collector that is thrown away.
+    base = read_contract_at(services, target.base, _BINDINGS_PATH, RoleBindings, Collector())
+    approved_at_base = _approves(base, record)
+    approved = approved_at_base or _approves(staged, record)
+    families = [(f.match, f.family) for f in (base.model_families if base else ())]
+    assessment = assess_identity(
+        services,
+        record,
+        base=target.base,
+        staged=target.tree,
         approved_binding=approved,
-        agent_client=record.agent.client,
-        agent_family=family_of(
-            record.agent.model_observed or record.agent.model_requested, families
-        ),
-        coder_client=record.coder_binding.client,
-        coder_family=family_of(
-            record.coder_binding.model_observed or record.coder_binding.model_requested, families
-        ),
+        legacy_families=families,
+        path=raw_path,
     )
+    out.findings.extend(assessment.findings)
+    names = list(assessment.names)
     if not approved:
         out.error(
             "ORQ-E415",
             f"{record.agent.binding_ref} is not an approved {record.role} binding for "
-            f"{record.agent.client} in .orqlet/role-bindings.yaml",
+            f"{record.agent.client} in {_BINDINGS_PATH}",
             raw_path,
+        )
+    elif not approved_at_base:
+        # The change that introduces a role must not be deadlocked, so the binding of the staged
+        # tree counts, and a person is told that the change approved its own reviewer.
+        out.findings.append(
+            closed_warning(
+                BINDING_ADDED,
+                "the approved binding of this reviewer is in the staged tree and not in the base "
+                "tree, so the change under review added it",
+                raw_path,
+            )
+        )
+        names.append(BINDING_ADDED)
+    derived = assessment.derived
+    # With an approved binding and no exclusion, freshness is the only way left to be I0.
+    if derived is Independence.I0 and approved and not assessment.excluded:
+        out.skip(
+            "independence is I0: the record does not state a fresh context "
+            "(agent.context.fresh: true), and a review that is not fresh never counts"
         )
     if Independence[record.independence] > derived:
         out.error(
@@ -338,7 +374,7 @@ def _independence(
             "no recorded identifier can show a human reviewer (I3)",
             raw_path,
         )
-    return derived
+    return Derivation(derived, ordered(names))
 
 
 def _check_independence_gate(
@@ -357,12 +393,16 @@ def _check_independence_gate(
     )
     if design is None:
         return
-    needed = minimum_independence(ChangeClass.parse(design.change_class.effective))
-    if derived < needed:
-        out.skip(
-            f"independence {derived.name} is below {needed.name}, which a "
-            f"{design.change_class.effective} change requires of a review"
-        )
+    effective = design.change_class.effective
+    needed = minimum_independence(ChangeClass.parse(effective), record.role)
+    if derived >= needed:
+        return
+    who = (
+        "the code reviewer requires at every change class"
+        if record.role == CODE_REVIEWER
+        else f"a {effective} change requires of a review"
+    )
+    out.skip(f"independence {derived.name} is below {needed.name}, which {who}")
 
 
 # --- test record ----------------------------------------------------------------------------

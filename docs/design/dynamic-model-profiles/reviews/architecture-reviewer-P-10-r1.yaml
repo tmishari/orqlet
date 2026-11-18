@@ -1,0 +1,183 @@
+schema: orqlet.review-result/v1
+task: dynamic-model-profiles
+phase: P-10
+role: architecture-reviewer
+round: 1
+verdict: FAIL
+assurance: advisory
+review_input:
+  components:
+    code_tests: 88797771a5ebefb8e1b26685c3244c945e98ea86755d6e4c56769ff20d79e76a
+    design: af08cad54b174da764ccf0d9a534a6f83068ee318eb81cc6622337a56a287b28
+    evidence_inputs: 5c8009ea9728853a8dfde57df0e0c64241e8af4b06b118d665ac87d02dc37f3c
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 64828bab5b853ad6f3ffbf4c5fe4bcddd899ddfcedeb56010b5bd4e587e515c8
+    reviewer_definition: 6ce838ea71280ef545f87a85c2922b4bd9a2740713521c2dd24ed4768ead4be9
+    standards: 20b2417f8fe79a6b504d5edb6aa5876a9d7ae7a5a78a128d2d5e210ff3b835a9
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 9bed16d6b75268efbf108af5563066c375ab85b716445c8d15375dcc96d76e0b
+  merge_base: 1c83b5693052cfa6da31eea551acd0e51027a210
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: bb870c5236ad9b2cb5f0f6b0f8568baf499d9bd1727a18254303b9b1e797e7f4
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran in the same client as the Coder (cursor), so independence is I1, not I2.
+- The reviewer was started as a typed subagent (orqlet-arch-reviewer); its prompt held the packet path and nothing else. The model that ran it
+  is not observed.
+- 'The reviewer''s session had no usable shell (Ask mode): it ran no check and computed no quote digest. The coder cited, with `orqlet evidence
+  cite` at the commit 1c83b5693052cfa6da31eea551acd0e51027a210, the four quotes of committed lines that F-1 carries: component.md 140 (BC-39)
+  and 94 (F-16), ADR-005 line 20 (decision 2) and model_policy_source.py 117-121. The reviewer gave no digest, so its F-2 to F-4 are observations.
+  The lines of review_identity.py and validate_records.py that the findings name are staged and not committed, so they cannot be digested and
+  rest on the reviewer''s reading; the reviewer''s absence entry of F-1 is left out for the same reason, because an absence record names a commit
+  and these files are in none.'
+- The packet held earlier review records (snapshot/docs/design/dynamic-model-profiles/reviews/). ADR-007 decision 8 says a packet must not carry
+  earlier conclusions. The reviewer says it did not open them.
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- 'Coder''s note, not part of the reviewer''s text: the reviewer''s F-1 blocks. It is the lock leg of the deletion rule of ADR-005 decision 2,
+  which the coder had named as reading (9) of the knowledge record and left as a question. Rework round 1 fixes it inside review_identity.py,
+  with tests, and a round 2 follows on a new packet; this record is stale after that change. F-2 to F-4 do not block and are reported to the person.'
+applicability:
+  examined:
+  - diff.patch
+  - context/plan.yaml
+  - context/test-record.yaml
+  - context/knowledge-impact.yaml
+  - context/design-manifest.yaml
+  - snapshot/src/orqlet/application/usecases/review_identity.py
+  - snapshot/src/orqlet/application/usecases/validate_records.py
+  - snapshot/src/orqlet/application/usecases/model_policy_source.py
+  - snapshot/tests/unit/application/test_validate_review_identity.py
+  - snapshot/docs/design/dynamic-model-profiles/design/component.md
+  - snapshot/docs/design/dynamic-model-profiles/design/adr-005-fable-exclusion-by-model-identity.md
+  - snapshot/docs/design/dynamic-model-profiles/design/adr-006-code-review-gate-and-new-roles.md
+  - snapshot/docs/design/dynamic-model-profiles/design/adr-007-independence-model-identity-and-fresh-context.md
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: blocking
+  category: correctness
+  rule_ref: ORQLET-SEC-002
+  evidence:
+  - kind: quote
+    path: docs/design/dynamic-model-profiles/design/component.md
+    lines: '140'
+    revision: 1c83b5693052cfa6da31eea551acd0e51027a210
+    quote_sha256: eeb1ad8d6fce0bd78f4a476bfa206e50904a7c16f999fb5b2af79da7a9f5e438
+  - kind: quote
+    path: docs/design/dynamic-model-profiles/design/component.md
+    lines: '94'
+    revision: 1c83b5693052cfa6da31eea551acd0e51027a210
+    quote_sha256: ced4b96c4e31937390b8730f778ad0d40f33ff73c3767728e0a8c8c0479f506f
+  - kind: quote
+    path: docs/design/dynamic-model-profiles/design/adr-005-fable-exclusion-by-model-identity.md
+    lines: '20'
+    revision: 1c83b5693052cfa6da31eea551acd0e51027a210
+    quote_sha256: 528c2f2d79517be88545161ac5bbd40df8f348fd93b25a01f436f86ab6c4c8c4
+  - kind: quote
+    path: src/orqlet/application/usecases/model_policy_source.py
+    lines: 117-121
+    revision: 1c83b5693052cfa6da31eea551acd0e51027a210
+    quote_sha256: 9ea090299aaa65d79ac7c285d3b21c5ea47747d65bd0db7d7b106f181c613220
+  claim: BC-39 and F-16 say a policy that is recorded as seeded in the lock makes `validate review` error on every record that names a model,
+    and ADR-005 decision 2 says such a file is treated as unloadable. review_identity.py judges two trees only. A policy missing from both trees
+    is PolicyAbsent in both, so never_present is true. The result is the information ORQ-I460 and the legacy rules, with no error. A policy deleted
+    in an earlier merged change, with its seeded row still in the lock, makes the Fable exclusion stop applying to later changes, and nothing
+    fails. `validate model-policy` does have the lock leg (validate_model_policy.py _deleted), so the two commands now disagree on what a deleted
+    policy is. The Coder's reading (9) in the knowledge record names this and leaves it as a question for the person; no test covers it.
+  suggested_action: 'A person decides, then one of two changes. Either add the lock leg to `validate review`: read .orqlet/generated.lock.yaml
+    and treat a seeded policy row with no policy file in either tree as refused (ORQ-E461), with a test. The reader''s docstring says a tree has
+    no lock, so this probably needs model_policy_source.py added to the phase''s file list. Or amend BC-39, F-16 and ADR-005 to say `validate
+    review` judges two trees only; the second option leaves a fail-open hole in the Fable path.'
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: compatibility
+  claim: 'Approval is approved_at_base or _approves(staged, record) (validate_records.py 326-332 and 351). A binding that the staged tree removes
+    or narrows still approves the record, with no warning. If the staged file is missing, the old FAIL (ORQ-E415) becomes NOT_RUN, because read_contract_at
+    only skips and the base approves. Before this change the staged tree decided. ADR-007 decision 1 is silent on this case. The Coder disclosed
+    it as reading (7), and it is untested: the binding tests cover a binding in the staged tree only and a binding in neither tree.'
+  suggested_action: Record the decision in the design or ledger. Add a test for a binding removed in the staged tree, and either a closed warning
+    or an explicit statement that a revocation takes effect from the next change.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: architecture
+  rule_ref: ORQLET-STYLE-001
+  claim: The closed-warning set is split. Five names are produced in review_identity.py. binding-added-in-this-change is produced in validate_records._independence,
+    which appends to names and re-sorts with ordered(). That function now reads two binding files, decides approval, runs the identity assessment,
+    emits ORQ-E415 or W463, adds the freshness reason and raises ORQ-E412, so it has more than one reason to change. The data field independence_notes
+    now holds six names, while the domain's INDEPENDENCE_NOTES holds two.
+  suggested_action: 'Optional: move the binding-approval reading into review_identity.py so the whole closed set comes from one module. Otherwise
+    leave as is and keep ADR-007''s list as the single reference.'
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: failure-handling
+  claim: read_model_policy_at maps a VcsError to PolicyInvalid (model_policy_source.py 122-127). For the base tree this is read as an unloadable
+    base, so exclusions come only from the staged policy and the result is ORQ-W462. ADR-007 says an unloadable base is judged on the staged tree,
+    so this is within the design. A failed read of the base is a repository fault, not a policy state, and it removes the base's exclusions silently
+    except for that warning.
+  suggested_action: Consider treating a base read failure as NOT_RUN in a later phase. No change is needed for P-10.
+  confidence: low
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+    confirmed_requirements:
+    - Change implements P-10 AC-1 to AC-7 as written and stays inside its file list (AC-8).
+    - Boundaries and contracts of ADR-005/006/007 hold except the lock leg of the deletion rule (F-1).
+  checks:
+  - what: Packet read
+    how: plan.yaml P-10 (lines 1263-1385), diff.patch in full, test-record, knowledge-impact, design manifest
+    result: pass
+  - what: Design compared with code
+    how: ADR-005, ADR-006 (decisions 3-6), ADR-007, component.md BC-9/10/16/17/19/20/22/31/32/39/40/44 and F-16/F-18 against review_identity.py
+      and validate_records.py in the snapshot
+    result: fail
+  - what: Layering and imports
+    how: read the import blocks of review_identity.py; compared with ORQLET-ARCH-001/002
+    result: pass
+  - what: Tests meaningful
+    how: read test_validate_review_identity.py apart from some fixtures; tests call the public entry point and assert verdicts, codes and message
+      prefixes
+    result: pass
+  - what: Knowledge record accurate
+    how: checked README.md:331, test_s9_acceptance.py:538-551, upgrade.py:276 and the plan lines for P-12/P-13
+    result: pass
+  failures:
+  - 'F-1: the lock leg of BC-39 and F-16 is missing from `validate review`.'
+  unverified:
+  - 'No command ran: ruff, mypy, import-linter, pytest (12350 passed) and gate status are the Coder''s and Tester''s claims; the digests and the
+    red-run figures (52 failed, 31 passed) were not checked.'
+  - The Tester record says it cannot show the typed orqlet-tester was used.
+  - ADR-001 to 004, role_bindings.py, the FakeVcs fake and the adapters were not opened; AgentBinding and CoderBinding fields were confirmed by
+    grep only.
+  - The packet snapshot holds earlier review notes under docs/design/dynamic-model-profiles/reviews/**; the reviewer did not open them.
+  questions:
+  - 'F-1: should `validate review` apply the lock leg (BC-39, F-16), or does the design change? Who decides?'
+  - 'F-2: should a binding revoked in the staged tree stop approving that change''s records?'

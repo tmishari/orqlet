@@ -1,0 +1,187 @@
+schema: orqlet.review-result/v1
+task: dynamic-model-profiles
+phase: P-10
+round: 2
+verdict: PASS
+assurance: advisory
+role: architecture-reviewer
+review_input:
+  components:
+    code_tests: 00f0824cba59d6efb9b630c4508e041d3753fb3fcfaef179be1ff60aec3219e1
+    design: af08cad54b174da764ccf0d9a534a6f83068ee318eb81cc6622337a56a287b28
+    evidence_inputs: 7e5544ebae1f3a7eca19d03449f25dc67aa36cda7e56f0ff2ffd10d917ca5b06
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 64828bab5b853ad6f3ffbf4c5fe4bcddd899ddfcedeb56010b5bd4e587e515c8
+    reviewer_definition: 6ce838ea71280ef545f87a85c2922b4bd9a2740713521c2dd24ed4768ead4be9
+    standards: 20b2417f8fe79a6b504d5edb6aa5876a9d7ae7a5a78a128d2d5e210ff3b835a9
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 83dfbcac4add688dbdd1ee651742d7f752b29b6d0b5a650773294ea869cbd1b6
+  merge_base: 1c83b5693052cfa6da31eea551acd0e51027a210
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: bb870c5236ad9b2cb5f0f6b0f8568baf499d9bd1727a18254303b9b1e797e7f4
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran in the same client as the Coder (cursor), so independence is I1, not I2.
+- The reviewer was started as a typed subagent (orqlet-arch-reviewer); its prompt held the packet path and nothing else. The model that ran it
+  is not observed.
+- 'The reviewer''s session had no usable shell (Ask mode): it ran no check and computed no quote digest, so every item it returned is an observation,
+  and the lines they name are staged and cannot be digested by `orqlet evidence cite`, which reads committed files.'
+- The packet held the round-1 review records and the older ones under snapshot/docs/design/dynamic-model-profiles/reviews/. ADR-007 decision 8
+  says a packet must not carry earlier conclusions.
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- The reviewer discloses that it opened architecture-reviewer-P-10-r1.yaml and architecture-reviewer-P-9-r1.yaml only after forming its own reading,
+  to check that the round-1 blocker was closed and to see the record format; its F-2 and F-5 overlap the round-1 F-2 and F-3, so they are not
+  independent of round 1. It did not open the security reviews.
+- 'Coder''s note, not part of the reviewer''s text: the round-1 blocker (the lock leg of ADR-005 decision 2 and BC-39) was fixed in rework round
+  1, and this round finds no blocking item. The verdict is PASS but this record is NOT_RUN on independence (I1, where a D3 change requires I2).
+  The reviewer''s category design-consistency of F-6 is not one that the contract allows, so the coder wrote docs. The reviewer''s F-1 is the
+  same gap that the security review reports as its F-1; it was not fixed, because it does not block.'
+applicability:
+  examined:
+  - diff.patch
+  - context/plan.yaml
+  - context/test-record.yaml
+  - context/knowledge-impact.yaml
+  - context/design-manifest.yaml
+  - snapshot/src/orqlet/application/usecases/review_identity.py
+  - snapshot/src/orqlet/application/usecases/validate_records.py
+  - snapshot/src/orqlet/application/usecases/model_policy_source.py
+  - snapshot/tests/unit/application/test_validate_review_identity.py
+  - snapshot/docs/design/dynamic-model-profiles/design/component.md
+  - snapshot/docs/design/dynamic-model-profiles/design/adr-005-fable-exclusion-by-model-identity.md
+  - snapshot/docs/design/dynamic-model-profiles/design/adr-006-code-review-gate-and-new-roles.md
+  - snapshot/docs/design/dynamic-model-profiles/design/adr-007-independence-model-identity-and-fresh-context.md
+  - snapshot/docs/design/dynamic-model-profiles/design/manifest.yaml
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: tests
+  claim: Nothing in the suite pins which tree supplies model_families. ADR-007 decision 1 says read from the base tree, and validate_records.py
+    332 does that. In every test that sets families, base and staged bindings are the same bytes (LEGACY, SPLIT, SHARED), and the module header
+    says no test depends on which tree is used. Reading from the staged tree again would pass all 95 tests. That would let a change add its own
+    model_families and give itself an I2, which is the property this phase exists to protect.
+  suggested_action: 'Add two cases: families only in the staged bindings give no family difference, and families only in the base bindings still
+    apply.'
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: compatibility
+  claim: Carried from round 1 (F-2); the rework did not touch it. Approval is approved_at_base or _approves(staged) (validate_records.py 330-331).
+    A binding that the staged tree removes or narrows still approves the record, with no warning. A missing staged role-bindings.yaml used to
+    give ORQ-E415 (FAIL); now only a not in the tree skip is recorded, so the result is NOT_RUN. ADR-007 decision 1 is silent on this, and no
+    test covers it. The coder named it as reading (7).
+  suggested_action: Record the decision in the ledger or ADR-007 (a revocation takes effect from the next change, or it warns), and add a test
+    for a binding removed in the staged tree.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: correctness
+  claim: 'The notes identity-unknown (ORQ-W460) and same-model-different-client (ORQ-W461) are built for every record (review_identity.py 221-226
+    builds findings before derived; _note_findings has no condition on the class). ADR-007 decision 5 and BC-17 define them as qualifiers of an
+    I2. The message says the class rests on a different client, which is untrue when the class is I0 (an excluded model, an unapproved binding,
+    a missing or stale context). Example: a codex code-reviewer record with no context and unknown models is I0 and still prints ORQ-W460. No
+    test combines two clients with an I0 class.'
+  suggested_action: Emit the two notes only when the derived class is I2, or state in the AC that they are class-independent. Add a test.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: architecture
+  claim: 'The lock lists the policy as seeded rule now exists twice: _lock_lists_policy_as_seeded in model_policy_source.py 132-151 for the working
+    tree and _lock_seeds_policy in review_identity.py 140-158 for git trees. _LOCK_PATH is also written again. The module comment and the knowledge
+    record both admit this. model_policy_source.py is outside P-10''s file list, and no later phase lists src/, so the copy will stay unless the
+    plan is amended.'
+  suggested_action: Accept it as disclosed, or amend the plan to share one rule over lock bytes. Two copies of a fail-closed rule can drift.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: architecture
+  rule_ref: ORQLET-STYLE-001
+  claim: 'Carried from round 1 (F-3). The closed warnings come from two modules: five from review_identity.py and binding-added-in-this-change
+    from _independence (validate_records.py 319-377). That function reads two binding files, decides approval, runs the assessment, emits ORQ-E415
+    or ORQ-W463, adds the freshness reason and raises ORQ-E412. The guideline is SHOULD, so this is optional.'
+  suggested_action: None needed for this phase; reported to the person.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: info
+  category: docs
+  claim: 'The approved manifest says in EC-5 (design/manifest.yaml 84): model_families is read only when no model policy exists. ADR-007 decision
+    1, BC-44 and P-10 AC-1 say it also applies to a string the policy cannot match. The code follows the second reading, which is more specific
+    and agrees with the accepted design-review answer F-6. The first sentence is stale. EC-5 is not one of P-10''s expected changes.'
+  suggested_action: The person confirms which text governs; correct the EC-5 sentence when the design is next amended.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: info
+  category: tests
+  claim: Smaller gaps. (a) ORQ-W464 is tested for the agent side only, although the code also warns for the coder side. (b) No test shows that
+    an excluded record gets no freshness NOT_RUN line (validate_records.py 363-368). (c) The unmatched (N characters) format is not pinned, which
+    the header says on purpose.
+  suggested_action: None needed for this phase; reported to the person.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+  checks:
+  - what: change stays inside the phase file list (AC-8)
+    how: listed the 7 files in diff.patch
+    result: pass
+  - what: boundaries and imports
+    how: read the import blocks of review_identity.py and validate_records.py against ORQLET-ARCH-001/002
+    result: pass
+  - what: design against code, with observations F-2, F-3 and F-6
+    how: ADR-005, ADR-006, ADR-007, component.md BC rows and F-16/F-18 against the two source files
+    result: pass
+  - what: round-1 blocker closed
+    how: read _lock_seeds_policy, _refusal and the LOCK_PLACEMENTS tests
+    result: pass
+  - what: no recorded string printed (AC-6)
+    how: read every Finding message in review_identity.py and the marker test
+    result: pass
+  - what: tests meaningful and covering AC-1 to AC-7, with observations F-1 and F-7
+    how: read the test file and checked which assertions would fail if each rule were reversed
+    result: pass
+  - what: checks and counts claimed in the tester record
+    how: ''
+    result: not-run
+  failures: []
+  unverified:
+  - Results of ruff, mypy, import-linter, pytest (12362 passed) and gate status are the coder's claims; no digest was checked.
+  - 'Not opened: ADR-001 to ADR-004, the FakeVcs fake, the git adapter, and tests/golden or the generated client folders.'
+  - The packet carries earlier review records, which ADR-007 decision 8 says it should not (P-11 fixes that). F-2 and F-5 overlap round 1's F-2
+    and F-3, so they are not independent of it.
+  questions:
+  - 'F-2: should a binding revoked in the staged tree stop approving that change''s records, or take effect from the next change?'
+  - 'F-3: are ORQ-W460 and ORQ-W461 meant only for an I2 class?'
+  - 'F-6: which governs, EC-5''s sentence or ADR-007 decision 1?'

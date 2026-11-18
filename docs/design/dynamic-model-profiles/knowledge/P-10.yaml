@@ -1,0 +1,41 @@
+schema: orqlet.knowledge-impact/v1
+task: dynamic-model-profiles
+phase: P-10
+review_input:
+  schema: orqlet.review-input/v1
+  covers: [code_tests, knowledge, plan, standards, candidates]
+  components:
+    candidates: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    code_tests: 00f0824cba59d6efb9b630c4508e041d3753fb3fcfaef179be1ff60aec3219e1
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 64828bab5b853ad6f3ffbf4c5fe4bcddd899ddfcedeb56010b5bd4e587e515c8
+    standards: 20b2417f8fe79a6b504d5edb6aa5876a9d7ae7a5a78a128d2d5e210ff3b835a9
+  digest: b6ae326a2f8e59cbd7b7112289b5585f5844018f72ad04ffd489d476d8a2192c
+  merge_base: 1c83b5693052cfa6da31eea551acd0e51027a210
+outcome: no-impact
+analysis:
+  command: orqlet knowledge impact
+  orqlet_version: 0.3.0
+  candidates_digest: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+  candidate_count: 0
+  input: pre-draft-tree
+  views: [committed:HEAD]
+  index_state: not-used
+entries:
+  []
+no_impact:
+  category: already-documented
+  reason: "This phase makes orqlet validate review judge a record on two trees: review_identity.py reads the model policy of the base tree and of the staged tree; exclusions are the union; a family comes only from a catalog entry that is not proposed at the base tree; a refused staged policy is ORQ-E461 and never falls back to model_families; the closed warnings, the freshness reason and the code-reviewer gate text follow. Written in the approved design: BC-9, BC-10, BC-16, BC-17, BC-19, BC-22, BC-31, BC-32, BC-39, BC-40, BC-44, ADR-005 decision 2, ADR-006 decision 4, ADR-007 decisions 1, 4, 5 and 9. No knowledge document exists that the change could make wrong: the plan knowledge_scope is empty and no knowledge source is configured. Readings of the coder: (1) model_families is read from the base tree; a refused staged policy gives no family at all; (2) ORQ-E461 and ORQ-I460 only for a record that names a model; (3) ORQ-W462 whenever the staged policy loads and differs from the base policy, an absent base included (BC-40, F-18); (4) ORQ-W464 names a catalog id or unmatched (N characters) for each side; (5) ORQ-W465 by substring on capability_limits; (6) independence_notes lists every closed name that starts a finding message, all six, in the order of AC-4; (7) a binding approved in either tree counts, so one that the staged tree removes while the base has it stays approved, as AC-2 names ORQ-E415 for neither tree; (8) the freshness reason is a second not_run line; (9) a policy that neither tree has and that the lock of either tree lists as seeded is ORQ-E461 (ADR-005 decision 2, BC-39; rework round 1, after F-1 of the architecture review r1); a lock that is missing, unreadable or invalid says nothing; the check is written in review_identity.py and repeats the one of model_policy_source.py, which reads the working tree and is outside the file list. No edit outside the file list; the coder changed one line of the Tester's file and added 12 tests in rework round 1."
+  absence_record:
+    scopes_searched: [".orqlet/knowledge.yaml sources", "the plan's knowledge_scope", "README.md, AGENTS.md, .github, docs/ outside docs/design/dynamic-model-profiles, src and tests outside tests/golden, for independence_derived, independence_notes, the codes ORQ-E412, ORQ-E415, ORQ-E460, ORQ-E461, ORQ-W460 to ORQ-W465 and ORQ-I460, for model_families, and for every statement of how validate review derives a class"]
+    views: [committed:HEAD]
+    revision: 1c83b5693052cfa6da31eea551acd0e51027a210
+    method: "orqlet knowledge impact on the staged tree found no candidate; no knowledge source is configured (ORQ-I400) and the plan's knowledge_scope is empty. rg found these places outside the file list. Still true: README.md 331 (same client is I1, a D3 change needs I2 and is NOT_RUN; it does not say that a policy also gives families, which P-12 names at plan.yaml 1574); tests/e2e/test_s9_acceptance.py 538 to 551 (ORQ-E415, independence_derived I0, ORQ-E412; passed unedited); upgrade.py 276 and test_upgrade_model_policy.py 1577 to 1597 (a code-reviewer record is ORQ-E415 until a reviewed edit applies the proposal; in the change that stages that edit it is ORQ-W463, a nuance for the person). Incomplete and owned by a later phase: orqlet-review/references/review-format.md 61 and orqlet-review/skill.md (a different client or model family is I2; P-13, plan.yaml 1794 and 1800); docs/design/orqlet-architecture-proposal.md 5057 (an unmapped model counts as the coder's family; true for model_families alone; P-12). Only the two files of this phase print the new codes. The generated copies under .claude, .cursor, .codex and tests/golden were not searched; they repeat the workflow package, which was."
+    index_state: not-used
+    candidates_found: 0
+  already_documented_refs:
+    - {path: docs/design/dynamic-model-profiles/design/adr-005-fable-exclusion-by-model-identity.md, sha256: "f91cb911575530b6c71b3465e132b0046aef040c0951fc348d6ab75a51fa939d"}
+    - {path: docs/design/dynamic-model-profiles/design/adr-006-code-review-gate-and-new-roles.md, sha256: "799953e2d5847e545f854d396ec9498e90b0d81c8ddfc8fdc5ab51c8ccc53c8b"}
+    - {path: docs/design/dynamic-model-profiles/design/adr-007-independence-model-identity-and-fresh-context.md, sha256: "0fea8f96cc98823723f6a90d8f5adf1627afa80e6b322229bc4e581e6a3def28"}
+    - {path: docs/design/dynamic-model-profiles/design/component.md, sha256: "f4f9497bb7d335b46e0b796a6029a0a5bf426dbfdd1a90e4d93fe052167fcc67"}
+    - {path: docs/design/dynamic-model-profiles/design/manifest.yaml, sha256: "bf6f5a347d2ce68eacffeaf7792653804124c7bd47ccc2917b8e13060d374a2c"}
