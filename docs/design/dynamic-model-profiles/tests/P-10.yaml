@@ -1,0 +1,29 @@
+schema: orqlet.test-record/v1
+task: dynamic-model-profiles
+phase: P-10
+review_input:
+  schema: orqlet.review-input/v1
+  covers: [code_tests, plan]
+  components:
+    code_tests: 00f0824cba59d6efb9b630c4508e041d3753fb3fcfaef179be1ff60aec3219e1
+    plan: 64828bab5b853ad6f3ffbf4c5fe4bcddd899ddfcedeb56010b5bd4e587e515c8
+  digest: c2d621123bacc056853d742d9d7bdb22d56581d2818b18869314b134aff55526
+  merge_base: 1c83b5693052cfa6da31eea551acd0e51027a210
+verdict: NOT_RUN
+evidence_kind: claimed
+commands:
+  - {id: ruff-check, exit_code: 0, summary: "All checks passed! The digest is of the whole captured output (NO_COLOR=1).", result_digest: 5b196eb3a6acb50d3fa398d04ca284985cc1ffec870e940264b00780bfd2c971}
+  - {id: ruff-format, exit_code: 0, summary: "632 files already formatted. The digest is of the whole captured output (NO_COLOR=1).", result_digest: b58bd81ef551b31b438034208a313011fa67ac392a54e8f49688e186660173a4}
+  - {id: mypy, exit_code: 0, summary: "Success: no issues found in 382 source files. The digest is of the whole captured output (NO_COLOR=1).", result_digest: 85aae95ad2238a458faec0d2cd6b6f0b4723fa48da0699c8875ac356d3d29f5c}
+  - {id: import-linter, exit_code: 0, summary: "Contracts: 5 kept, 0 broken. review_identity.py is in the application layer and imports only application and domain modules (and the standard library). pyproject.toml and uv.lock show no diff against origin/main or in the index, and no .md file is staged. The digest is of the whole captured output (NO_COLOR=1).", result_digest: 52032ef4a4aac9086dcdf85313f7ebb33344fa14996c5b8ed8198eb7db714b59}
+  - {id: pytest, exit_code: 0, summary: "Full suite on the staged tree, run as the plan gives it (uv run pytest): 12362 passed, 1 skipped in 1044.19s (0:17:24); the skip is tests/integration/test_junction.py, Windows only. One run in the background; the exit status is the last line of the output, which the wrapper appended and which is in the digest. The staged diff did not change while it ran (sha256 8b7e8c8b before and after). tests/e2e/test_s9_acceptance.py and tests/e2e/test_full_task.py are in this run and were not edited. Round 0: a subagent wrote 83 cases before any implementation existed and ran nothing; the transcript that I can read shows its work and not the agent definition applied, so I do not claim it was the typed orqlet-tester. Red run, agreed command on the one file: 52 failed, 31 passed, every failure an assertion about missing behaviour; I did not classify the 31. Rework round 1: finding F-1 of the architecture review r1 (the lock leg of ADR-005 decision 2 and BC-39) led the coder, not the Tester, to add 12 cases in the same file before the code: a seeded row of the policy in the lock of either tree or both with neither tree holding the file is ORQ-E461 without a fall back to model_families, locks that show no deletion keep the legacy rules, a record that names no model is not refused, a restored policy is judged, and no recorded text is printed. Red: 5 failed, 90 passed, each failure the absence of the error (the result was ORQ-I460 and PASS). After the code: 95 passed in 7.16s. The count rose from 12350 to 12362, the 12 cases. The coder also changed one line of the Tester's file, a blank line before a decorator, for ruff format. The digest is of the whole captured output.", result_digest: 2d5cdb3798be224d878705d9c74ef4c20f99fb2f5f69b734b68915fb5c2afe29}
+  - {id: gate-status-phase, exit_code: 5, summary: "NOT_RUN, exit 5. No ORQ-E450, ORQ-E451 or ORQ-E453. The EC rows are all manual (ORQ-I451). ORQ-W390 on as-is, design and plan, cause base_revision (three lines, as in P-9; the person confirmed that planned work covers them), ORQ-I393 offline and the NOT RUN lines for the stale inputs and for approval, which needs host evidence. The base is main at 1c83b56. The staged files outside docs/ are the three of the plan's file operations. The verdict of this record is NOT_RUN and not PASS because the validator does not accept a PASS with a command that exited 5 (ORQ-E417), and an offline gate status cannot exit 0 here; every other command exited 0 and every criterion is pass, AC-8 on its text, which asks for no ORQ-E450, ORQ-E451 or ORQ-E453 and holds. The digest is of the whole captured output (NO_COLOR=1).", result_digest: 553f7d417664ea9c90c72e2e197a33ecb138eaa361f8e50c50ee09cd9a4ed265}
+acceptance_coverage:
+  - {ac: AC-1, check_ref: pytest, result: pass}
+  - {ac: AC-2, check_ref: pytest, result: pass}
+  - {ac: AC-3, check_ref: pytest, result: pass}
+  - {ac: AC-4, check_ref: pytest, result: pass}
+  - {ac: AC-5, check_ref: pytest, result: pass}
+  - {ac: AC-6, check_ref: pytest, result: pass}
+  - {ac: AC-7, check_ref: pytest, result: pass}
+  - {ac: AC-8, check_ref: gate-status-phase, result: pass}

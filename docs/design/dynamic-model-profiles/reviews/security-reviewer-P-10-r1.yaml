@@ -1,0 +1,162 @@
+schema: orqlet.review-result/v1
+task: dynamic-model-profiles
+phase: P-10
+role: security-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 88797771a5ebefb8e1b26685c3244c945e98ea86755d6e4c56769ff20d79e76a
+    design: af08cad54b174da764ccf0d9a534a6f83068ee318eb81cc6622337a56a287b28
+    evidence_inputs: 5c8009ea9728853a8dfde57df0e0c64241e8af4b06b118d665ac87d02dc37f3c
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 64828bab5b853ad6f3ffbf4c5fe4bcddd899ddfcedeb56010b5bd4e587e515c8
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: 20b2417f8fe79a6b504d5edb6aa5876a9d7ae7a5a78a128d2d5e210ff3b835a9
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 3b8eedc934f17f7949c9980891d348b191523709f961d51853ee99502d299fb0
+  merge_base: 1c83b5693052cfa6da31eea551acd0e51027a210
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran in the same client as the Coder (cursor), so independence is I1, not I2.
+- The reviewer was started as a typed subagent (orqlet-security-reviewer); its prompt held the packet path and nothing else. The model that ran
+  it is not observed.
+- 'The reviewer''s session had no usable shell (Ask mode): it ran no check and computed no quote digest. It gave no digest and no evidence entry,
+  so all four items are observations as it returned them; the lines they name are staged and cannot be digested.'
+- The packet held earlier review records (snapshot/docs/design/dynamic-model-profiles/reviews/). ADR-007 decision 8 says a packet must not carry
+  earlier conclusions. The reviewer says it did not open them.
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- 'Coder''s note, not part of the reviewer''s text: no finding blocks. The reviewer''s F-1 is the same lock leg that the architecture review r1
+  blocks on, and is fixed in rework round 1; this record is stale after that change and a round 2 follows. The verdict is PASS but this record
+  is NOT_RUN on independence (I1, where a D3 change requires I2).'
+applicability:
+  examined:
+  - diff.patch
+  - context/plan.yaml
+  - context/test-record.yaml
+  - context/knowledge-impact.yaml
+  - context/design-manifest.yaml
+  - snapshot/src/orqlet/application/usecases/review_identity.py
+  - snapshot/src/orqlet/application/usecases/validate_records.py
+  - snapshot/src/orqlet/application/usecases/model_policy_source.py
+  - snapshot/tests/unit/application/test_validate_review_identity.py
+  - snapshot/docs/design/dynamic-model-profiles/design/adr-005-fable-exclusion-by-model-identity.md
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: security
+  claim: 'A policy file that the lock lists as seeded and that is missing from both trees is treated as never present. The result is only the
+    information ORQ-I460 and the legacy rules of model_families, with an empty exclusion list. ADR-005 decision 2 says a file that has a seeded
+    row in the lock is treated as unloadable and that only a project where the file was never present gets the legacy rules. review_identity.py
+    126-133 (_refusal) refuses only a staged tree that is invalid, or absent while the base has a file; never_present and ORQ-I460 (Severity.INFO)
+    then apply. The case is reachable: an earlier change deletes the file and is merged, because upgrade never recreates a deleted seeded file.
+    After that, base and staged are both absent, the Fable exclusion is gone with only an INFO line, and the verdict stays PASS or NOT_RUN. The
+    coder named this as reading (9) and as a question for the person. No test covers it: the test file has no case with a lock row.'
+  suggested_action: The person decides. Either give ORQ-E461 for a record that names a model when the lock lists the policy as seeded (the working-tree
+    reader already has the lock check, but it is private to model_policy_source.py), or record in ADR-005 that `validate review` accepts this
+    gap and `validate model-policy` is the detector.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: failure-handling
+  claim: A failure to read the base tree cannot be told apart from a base policy that is bad. read_model_policy_at returns the same PolicyInvalid
+    ORQ-E540 for a git read error as for a file that fails to load. read_policy_view then drops the base policy for exclusions, so they come from
+    the staged tree alone, and the only signal is the ORQ-W462 warning. For bad file content this is what plan AC-2 specifies. For an infrastructure
+    failure at the merge base it lets a change that removes an exclusion pass its own record. The base ref is a validated full commit id, so an
+    attacker cannot cause this directly; it is an environment or repository state.
+  suggested_action: Keep the AC-2 behaviour for a base file that is present but invalid. Treat a VcsError on the base read as could not run (Collector.skip,
+    giving NOT_RUN) instead of base has none. That needs the reader to tell the two apart.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: security
+  rule_ref: ORQLET-SEC-002
+  claim: 'ORQ-E415 (validate_records.py 344-350, a line this diff edits) prints record.agent.binding_ref unchanged in its message. The contract
+    (review_result.py 55) gives it only min_length=1: no pattern and no maximum length. A repository file can therefore put control characters,
+    ANSI sequences or very long text into a terminal or CI log. Other validators of this repository escape such text to ASCII (validate_model_policy.py
+    217, validate_integrations.py 107). AC-6 says no finding holds a text of a record, but its marker test marks only the four model fields, a
+    capability limit and policy values, not binding_ref. The text is not new in this diff; the exposure is existing.'
+  suggested_action: Constrain binding_ref with a pattern and length in the contract (the schema export check ORQLET-DET-003 then applies), or
+    print it escaped. Alternatively narrow AC-6 to model strings and say so.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: security
+  claim: Bindings count when approved in either tree (validate_records.py 330-331). A binding that only the staged tree has gives ORQ-W463, a
+    warning only. Before this phase the staged tree alone decided, so a change could already approve its own reviewer, and now it is at least
+    visible. A binding that the change removes while the base has it stays approved, with no warning at all, so a revocation made in the change
+    does not apply to that change's own records. Both are design choices (AC-2, reading 7). The protection against self-approval outside this
+    code, review of the bindings file, could not be verified.
+  suggested_action: The person confirms that the removal case is intended. Consider whether a binding removed in the staged tree should also produce
+    a warning.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: P-10
+    acceptance_criteria:
+    - AC-1
+    - AC-2
+    - AC-3
+    - AC-4
+    - AC-6
+    - AC-8
+  checks:
+  - what: packet and diff read
+    how: diff.patch, snapshot/src review_identity.py and validate_records.py, plan P-10 lines 1263-1397
+    result: pass
+  - what: secrets scan of diff and test file
+    how: regex search, no match
+    result: pass
+  - what: no new dependency
+    how: the five files named in diff.patch
+    result: pass
+  - what: revision and ref handling safe
+    how: adapters/git/objects.py check_revision
+    result: pass
+  - what: finding text echoes no recorded string
+    how: review_identity.py _label, _excluded_finding, closed_warning; contracts/common.py patterns
+    result: pass
+  - what: quote digests for findings
+    how: ''
+    result: not-run
+  - what: tests, lint and types executed
+    how: ''
+    result: not-run
+  failures: []
+  unverified:
+  - CODEOWNERS or other protection of .orqlet/role-bindings.yaml and .orqlet/model-policy.yaml
+  - pytest, mypy, ruff and lint-imports results; the reviewer relies on the claimed test record
+  - that no earlier review conclusion influenced it; it did not open them, but the packet held them
+  questions:
+  - 'F-1: should a seeded policy that is missing from both trees be ORQ-E461 for a record that names a model, as ADR-005 decision 2 says?'
+  - 'F-4: is a binding that the staged tree removes meant to stay approved for that change?'
