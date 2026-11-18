@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import re
-from collections.abc import Sequence
+from collections.abc import Collection, Sequence
 from dataclasses import dataclass
 from enum import StrEnum
+from fnmatch import fnmatchcase
 from typing import Protocol
 
-from orqlet.domain.errors import OrqletError
+from orqlet.domain.errors import InvalidPath, OrqletError
+from orqlet.domain.paths import CanonicalPath
 
 
 class RepoState(StrEnum):
@@ -34,6 +36,33 @@ def check_ref_name(ref: str) -> None:
     """
     if not _REF_NAME.fullmatch(ref) or ".." in ref or ref.endswith((".lock", "/", ".")):
         raise VcsError(f"not an accepted ref name: {ref!r}")
+
+
+def check_exclusions(patterns: Sequence[str], paths: Sequence[str]) -> None:
+    """Refuse an exclusion that Git could read as something else than what it stands for.
+
+    An empty pathspec matches every path, so an empty entry would drop the whole patch without a
+    word, and a NUL cannot be part of a command line. An entry of `paths` is one repository path
+    in its canonical spelling, so Git has no `..` or trailing `/` to resolve into a directory.
+    The entry is not repeated in the message: it came from a file of the managed repository.
+    """
+    for pattern in patterns:
+        if not pattern or "\0" in pattern:
+            raise VcsError("an exclusion pattern is empty or holds a NUL character")
+    for path in paths:
+        try:
+            CanonicalPath.parse(path)
+        except InvalidPath:
+            raise VcsError("an excluded path is not a canonical repository path") from None
+
+
+def is_excluded(path: str, patterns: Sequence[str], paths: Collection[str]) -> bool:
+    """The rule of `Vcs.diff_patch`: a pattern matches as `fnmatch` does, a path only itself.
+
+    One function for the callers that apply the rule themselves (the fake of the tests and
+    `review prepare`), so that they cannot drift from each other.
+    """
+    return path in paths or any(fnmatchcase(path, pattern) for pattern in patterns)
 
 
 @dataclass(frozen=True, slots=True)
@@ -110,8 +139,23 @@ class Vcs(Protocol):
         """The paths that differ between two commits or trees, sorted by path. No renames."""
         ...
 
-    def diff_patch(self, base: str, head: str) -> bytes:
-        """The unified diff between two commits or trees. No external diff or text conversion."""
+    def diff_patch(
+        self,
+        base: str,
+        head: str,
+        *,
+        exclude_patterns: Sequence[str] = (),
+        exclude_paths: Sequence[str] = (),
+    ) -> bytes:
+        """The unified diff between two commits or trees. No external diff or text conversion.
+
+        A path that matches a pattern of `exclude_patterns` or equals an entry of `exclude_paths`
+        has no section in the patch; every other section is as it is without an exclusion. A
+        pattern matches the whole path as `fnmatch` does, so `*` and `?` also match `/`. An entry
+        of `exclude_paths` names one file: its glob characters are literal, and one that names a
+        directory matches nothing below it. An entry that `check_exclusions` refuses is a
+        `VcsError`.
+        """
         ...
 
     def resolve(self, ref: str) -> str | None:

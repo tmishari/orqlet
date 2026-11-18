@@ -1,0 +1,201 @@
+schema: orqlet.review-result/v1
+task: dynamic-model-profiles
+phase: P-11
+role: security-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: b50e90fdf90f0440e241d478ee8c209be76f4e856c5188ff644017aebcd9cd13
+    design: af08cad54b174da764ccf0d9a534a6f83068ee318eb81cc6622337a56a287b28
+    evidence_inputs: aa6889bdca2801de32ba513e521055ec40b161f67e56cf6be2ec5b7db3acf95b
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 64828bab5b853ad6f3ffbf4c5fe4bcddd899ddfcedeb56010b5bd4e587e515c8
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: 20b2417f8fe79a6b504d5edb6aa5876a9d7ae7a5a78a128d2d5e210ff3b835a9
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: a8d9db3c0e0b3f698fba1c51db687ab6760fbd512d0debfdd6391ee9aac3dc08
+  merge_base: bb5ec564483aca02f4fc5dfc45035ca427cbec0a
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran in the same client as the Coder (cursor), so independence is I1, not I2.
+- The reviewer was started as a typed subagent (orqlet-security-reviewer); its prompt held the packet path and nothing else. The model that ran
+  it is not observed.
+- 'The reviewer''s session had no shell: it ran no command and computed no quote digest, so every test count, the ten mutants and the other checks
+  of the test record are claims of the Coder that it did not repeat.'
+- 'The packet held no file under a reviews folder. The Coder scanned it (1004 files) by path and by the claim text of 138 earlier records: no
+  file and no hit. It still held statements about earlier reviews in prose: 19 earlier test or knowledge records and statements A-64 and A-65
+  of the AS-IS file, which name two record paths. ADR-007 decision 8 does not reach those.'
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- The reviewer's quote digests were left as not computed. The coder computed them with orqlet evidence cite at the commit bb5ec564483aca02f4fc5dfc45035ca427cbec0a
+  for the three committed files that F-1 names (design_set.py 126-128, validate_design.py 228-236, binding_inputs.py 297). The lines of review_prepare.py
+  and vcs_git.py that the findings name are staged and not committed, so they are not digested and rest on the reviewer's reading. F-2 to F-4
+  carry no evidence and are observations.
+- 'Coder''s note, not part of the reviewer''s text: the reviewer found nothing that blocks. Its F-1 is the same trust boundary as F-1 of the architecture
+  review (the manifest under review chooses the notes). Rework round 1 closes only the part that hides the manifest, the plan and the standards.
+  Which of the options (a), (b) and (c) applies is a design decision for the person and is not changed in this phase. This record is stale after
+  the rework change; round 2 follows on a new packet.'
+applicability:
+  examined:
+  - MANIFEST.json
+  - diff.patch
+  - context/design-manifest.yaml
+  - context/test-record.yaml
+  - context/knowledge-impact.yaml
+  - snapshot/src/orqlet/adapters/git/
+  - snapshot/src/orqlet/application/ports/vcs.py
+  - snapshot/src/orqlet/application/usecases/review_prepare.py
+  - snapshot/src/orqlet/application/usecases/validate_design.py
+  - snapshot/src/orqlet/application/usecases/binding_inputs.py
+  - snapshot/src/orqlet/application/contracts/design_set.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: security
+  evidence:
+  - kind: quote
+    path: src/orqlet/application/contracts/design_set.py
+    lines: 126-128
+    revision: bb5ec564483aca02f4fc5dfc45035ca427cbec0a
+    quote_sha256: a9b749021428d6fabb80780ddf2cf30ab6753865d735d4fe82f64560f2f2e2d0
+  - kind: quote
+    path: src/orqlet/application/usecases/validate_design.py
+    lines: 228-236
+    revision: bb5ec564483aca02f4fc5dfc45035ca427cbec0a
+    quote_sha256: ae7b99a598c138ec95eef2223528c29b20c07d672a2414c435bdb7f86c8da4e2
+  - kind: quote
+    path: src/orqlet/application/usecases/binding_inputs.py
+    lines: '297'
+    revision: bb5ec564483aca02f4fc5dfc45035ca427cbec0a
+    quote_sha256: 05ddb4ac0d00b383ac582b7562f81d80afdff9bb9871601767402a72b40438bc
+  claim: Any repository path named as a review note in the staged design manifest is dropped from the snapshot, the context copies and diff.patch.
+    It is not listed in omitted or MANIFEST.json, by design. The only check on a note is that it is a canonical path (design_set.py:128), and
+    that it exists (validate_design.py:235) only for a D2 or higher design. The manifest is read from the tree under review (review_prepare.py:85-87),
+    not from the base. The staged change can therefore name src/..., pyproject.toml, uv.lock or a workflow file as a "note" and a reviewer reading
+    only this packet would not see it. The code_tests digest that review prepare prints still covers that file (binding_inputs.py:297), so a record
+    would state that it examined content it never saw. What remains visible is the manifest edit itself, in diff.patch and in context/design-manifest.yaml.
+    The coder raised this risk in the knowledge record. ADR-007 decision 8 states that note is any repository path but does not weigh the risk,
+    and the design's security consideration does not mention it.
+  suggested_action: 'Choose one and record it. (a) Take the note paths from the manifest at the merge base, or require that a staged edit of reviews[]
+    does not change what is excluded. (b) Exclude a note only when it lies under a location the design names (for example docs/design/), and report
+    any other note as a finding that names no earlier round. (c) Accept the risk in writing, with the person''s decision. Either way, state in
+    the review skill that the reviewer must read reviews: in the manifest copy. The staleness check of an approved design is a compensating control
+    only once it has run. The test record says it was NOT RUN (it needs host evidence).'
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: security
+  claim: The exclusion has no check on its own result. The adapter trusts Git to honour :(exclude) and :(exclude,literal) after -- (vcs_git.py:181-189),
+    and the packet gives nothing about Git other than 2.56.0 and 2.56.1 on macOS. The supported Git floor is still open in the design of the earlier
+    task (orqlet-implementation/design.md lines 61 and 276). AC-5 (Linux and Windows) is not-run in the test record. A Git that ignores the pathspec
+    would put earlier conclusions into the packet. A Git that matches too much would hide code. The directory case the coder measured (vcs_git.py:264-278)
+    shows that over-matching has already happened once. Neither case would be reported. Case-variant paths (macOS and Windows, core.ignorecase)
+    and non-NFC spellings are not covered by any test I read. The Git behaviour for those is unknown to me.
+  suggested_action: After the patch is made, refuse the packet (a finding, not a silent pass) if diff.patch holds a header for a path that is_excluded
+    says should be gone. Leave AC-5 open until the CI matrix has run.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: correctness
+  claim: 'is_excluded(path, patterns, paths: Collection[str]) and check_exclusions(Sequence[str], ...) (ports/vcs.py:41-65) accept a bare str,
+    which mypy also accepts. For paths, `path in paths` would then be a substring test and could exclude far more than intended. The adapter would
+    iterate a string character by character. The only caller today passes tuples (review_prepare.py:117), so this is not reachable now. Also,
+    check_exclusions parses a path but passes the raw string on (line 54), so a non-NFC spelling is accepted, although its docstring says "canonical
+    spelling". The notes of review_prepare are already NFC through RepoPath.'
+  suggested_action: Take tuples only, or reject a str at the port. Compare str(CanonicalPath.parse(path)) == path.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: security
+  claim: _not_directories drops a note from the Git command when it is a directory at either end of the diff (vcs_git.py:264-278). If a note is
+    a directory at the base and a file at the head, the snapshot leaves the file out (exact match, review_prepare.py:130) but diff.patch keeps
+    its section, so the note's content reaches the packet through the patch. The coder's real-Git test covers the opposite orientation (a file
+    at the base and a directory at the head). This leaks an earlier conclusion, not a secret. It works against AC-4 and ADR-007 decision 8. Separately,
+    argv grows with the number of notes and the manifest does not bound reviews. An oversized list fails as VcsError (mapped to ORQ-E106, interface/cli/errors.py:25)
+    before any packet is written, so it fails closed.
+  suggested_action: Either apply the same two-tree rule to the snapshot filter, or add a real-Git case for a note that is a directory at the base
+    and a file at the head.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet read
+    how: MANIFEST.json, context/*, diff.patch (all nine sections) and the staged sources it touches
+    result: pass
+  - what: git option injection
+    how: read git_runner.py (_check_options stops at the first --, exclusions come after it, base and head pass check_revision); read the test
+      that passes --stat, --output=leak.patch and --help as entries
+    result: pass
+  - what: pathspec magic injection
+    how: CanonicalPath refuses ':', backslash, control characters, '..', empty parts and a trailing '/'; check_exclusions refuses empty and NUL
+      patterns; patterns today are one constant
+    result: pass
+  - what: process and allow-list change
+    how: git_runner.py is not in diff.patch; the subcommand allow-list is unchanged; the environment is still scrubbed (environment.py), so GIT_LITERAL_PATHSPECS
+      and similar cannot leak in
+    result: pass
+  - what: secrets, credentials, personal data
+    how: searched diff.patch for password, secret, token, key, credential, private-key, cloud-key, URL, absolute-path and e-mail patterns; only
+      test@example.invalid and sentinel strings turned up
+    result: pass
+  - what: dependencies
+    how: uv.lock and pyproject.toml are not in diff.patch; the test record states no diff
+    result: pass
+  - what: logging and message exposure
+    how: check_exclusions does not echo the entry; excluded paths are absent from findings and omitted (tests read)
+    result: pass
+  - what: knowledge drafts disclose nothing private
+    how: read knowledge/P-11.yaml in full
+    result: pass
+  - what: exclusion hides reviewed content
+    how: traced note -> RepoPath -> design.reviews -> exclude_paths -> snapshot, diff and context copies; compared with the code_tests digest;
+      F-1
+    result: fail
+  - what: behaviour on Git other than 2.56.x, on Linux and Windows, on case-variant paths
+    how: ''
+    result: not-run
+  - what: all test files read line by line
+    how: ''
+    result: not-run
+  unverified:
+  - It is read-only and ran no commands; every quote digest was left as not computed by the reviewer.
+  - The revision used is the base commit; the staged tree id in MANIFEST.json was truncated when read.
+  - Git on Linux or Windows was not run; AC-5 is not-run in the test record.
+  - Of the test files, the first 300 lines of the unit-test diff and the integration file were read; the last 180 lines of the unit-test diff
+    and the shape of every case were not read line by line.
+  questions:
+  - 'For F-1, which option does the person want: (a) the notes of the base manifest, (b) notes only under a location the design names, or (c)
+    accept the risk in writing?'
+  - Does the design approval bind the manifest hash, and is it checked before a packet is built? The test record says approval needs host evidence
+    and was NOT RUN.

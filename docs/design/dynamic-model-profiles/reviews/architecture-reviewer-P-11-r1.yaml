@@ -1,0 +1,198 @@
+schema: orqlet.review-result/v1
+task: dynamic-model-profiles
+phase: P-11
+role: architecture-reviewer
+round: 1
+verdict: FAIL
+assurance: advisory
+review_input:
+  components:
+    code_tests: b50e90fdf90f0440e241d478ee8c209be76f4e856c5188ff644017aebcd9cd13
+    design: af08cad54b174da764ccf0d9a534a6f83068ee318eb81cc6622337a56a287b28
+    evidence_inputs: aa6889bdca2801de32ba513e521055ec40b161f67e56cf6be2ec5b7db3acf95b
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 64828bab5b853ad6f3ffbf4c5fe4bcddd899ddfcedeb56010b5bd4e587e515c8
+    reviewer_definition: 6ce838ea71280ef545f87a85c2922b4bd9a2740713521c2dd24ed4768ead4be9
+    standards: 20b2417f8fe79a6b504d5edb6aa5876a9d7ae7a5a78a128d2d5e210ff3b835a9
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 42cac37b5f7ad0a91643b908f9d2ff19400319ae999919b3adc6c0d6497f14fe
+  merge_base: bb5ec564483aca02f4fc5dfc45035ca427cbec0a
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: bb870c5236ad9b2cb5f0f6b0f8568baf499d9bd1727a18254303b9b1e797e7f4
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran in the same client as the Coder (cursor), so independence is I1, not I2.
+- The reviewer was started as a typed subagent (orqlet-arch-reviewer); its prompt held the packet path and nothing else. The model that ran it
+  is not observed.
+- 'The reviewer''s session had no shell: it ran no command and computed no quote digest, so every test count, the ten mutants and the other checks
+  of the test record are claims of the Coder that it did not repeat.'
+- 'The packet held no file under a reviews folder. The Coder scanned it (1004 files) by path and by the claim text of 138 earlier records: no
+  file and no hit. It still held statements about earlier reviews in prose: 19 earlier test or knowledge records and statements A-64 and A-65
+  of the AS-IS file, which name two record paths. ADR-007 decision 8 does not reach those.'
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- 'The coder cited, with orqlet evidence cite at the commit bb5ec564483aca02f4fc5dfc45035ca427cbec0a, the one committed line that F-1 rests on:
+  ADR-007 line 23 (decision 8). The lines of review_prepare.py and vcs_git.py that the findings name are staged and not committed, so they cannot
+  be digested and rest on the reviewer''s reading; the two absence entries of F-1 are left out for the same reason, because an absence record
+  names a commit and these files are in none. F-2 to F-7 carry no digest and are observations.'
+- 'Coder''s note, not part of the reviewer''s text: the reviewer''s F-1 blocks. Rework round 1 fixes it inside review_prepare.py: a note that
+  names the design manifest, the plan or a standards file is ignored, with three test cases written before the change (red: 3 failed; after: 3
+  passed). A round 2 follows on a new packet; this record is stale after that change. F-2 to F-7 do not block and are reported to the person;
+  F-3 is corrected in the knowledge record.'
+applicability:
+  examined:
+  - diff.patch
+  - context/plan.yaml
+  - context/test-record.yaml
+  - context/knowledge-impact.yaml
+  - context/design-manifest.yaml
+  - snapshot/src/orqlet/application/ports/vcs.py
+  - snapshot/src/orqlet/adapters/git/vcs_git.py
+  - snapshot/src/orqlet/adapters/git/git_runner.py
+  - snapshot/src/orqlet/application/usecases/review_prepare.py
+  - snapshot/src/orqlet/application/usecases/validate_design.py
+  - snapshot/src/orqlet/application/contracts/design_set.py
+  - snapshot/tests/unit/application/test_review_prepare.py
+  - snapshot/tests/integration/test_review_packet_real_git.py
+  - snapshot/tests/contract/test_vcs_revisions_contract.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: blocking
+  category: architecture
+  rule_ref: ADR-007 decision 8
+  evidence:
+  - kind: quote
+    path: docs/design/dynamic-model-profiles/design/adr-007-independence-model-identity-and-fresh-context.md
+    lines: '23'
+    revision: bb5ec564483aca02f4fc5dfc45035ca427cbec0a
+    quote_sha256: 31d5552a8fc14f72a429dab76f119f901881c0d607ddd4cc0279b67e381bf9ec
+  claim: A staged manifest whose reviews[].note names its own path passes validate design (the note exists). review prepare then drops snapshot/<task>/design/manifest.yaml,
+    context/design-manifest.yaml and the manifest's diff section, and omitted stays empty, so nothing in the packet shows the filtering. It can
+    name any path the same way (plan.yaml, a standards file, a changed source file), and the reviewer cannot tell. That breaks the property ADR-007
+    decision 8 states ("The design-manifest copy lists note paths") and the module docstring's "exact staged snapshot". The code follows the text
+    of AC-3, but AC-3 and the ADR conflict in this case and no test covers it.
+  suggested_action: Always keep context/design-manifest.yaml (and the plan and standards copies) whatever a note names, and add a test with a
+    manifest that names itself. If the person wants to keep the plan's wording, amend AC-3 and ADR-007 decision 8 explicitly.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: security
+  claim: Even with F-1 fixed, a note can name any existing file that the change modifies, and that file leaves the snapshot and the diff. The
+    packet's omitted and MANIFEST.json cannot show it, by design, so only a reviewer who cross-checks the manifest copy against the diff would
+    notice. The coder flagged this in knowledge/P-11.yaml. It is a trust boundary (the manifest under review decides what the reviewer sees),
+    so I leave it to the security reviewer and the person.
+  suggested_action: 'Options: take the note list from the base manifest, refuse a note that is not under a reviews folder and is changed by the
+    diff, or accept the risk in writing.'
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: docs
+  claim: 'knowledge/P-11.yaml says "the manifest copy shows it" and "the manifest copy still lists the note paths". That is false for the self-naming
+    manifest of F-1. It also says "no knowledge document exists that the change could make wrong" while the same record lists README.md:354, skill.md:26
+    and the proposal paragraph as incomplete or contradicted. The record asks the person which phase carries the proposal text. I could not check
+    that paragraph: the proposal file is not in the packet (it is probably over the 1 MiB limit).'
+  suggested_action: Correct both sentences once F-1 is settled, and have the person decide the owner of the proposal paragraph.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: non-blocking
+  category: correctness
+  claim: 'AC-1 says each note is passed as :(exclude,literal)<path>. The adapter passes it only when it is no directory in either tree (vcs_git.py:263-277).
+    That deviation is recorded in tests/P-11.yaml and knowledge/P-11.yaml, but plan.yaml was not amended. It also makes the fake and Git disagree:
+    if a note file is replaced by a directory of the same name, the fake drops the note''s section and Git keeps it, so the deleted note''s body
+    reaches diff.patch. The contract tests do not run this case; only the integration test checks the "hides nothing" half.'
+  suggested_action: Have the person accept or amend AC-1, and add this case to the shared contract scenarios.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: non-blocking
+  category: architecture
+  claim: 'The port says a pattern matches "as fnmatch does", but the git adapter hands the pattern to Git''s own pathspec matcher. From my knowledge
+    of Git (not measured here), the two differ on [^x], a backslash and [[:class:]]. The one live pattern (docs/design/*/reviews/*) has none of
+    these, so there is no defect today, and the real-git tests cover only that pattern. The repository also now has a second glob dialect: domain/globs.glob_match
+    keeps * inside a segment and has **, and ADR-007 and BC-21 write the rule as docs/design/**/reviews/**.'
+  suggested_action: Narrow the port contract (document or refuse [ and a backslash in a pattern) or add contract cases for them.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: info
+  category: failure-handling
+  claim: 'The coder measured only git 2.56.1 on macOS. I found no minimum Git version in README, pyproject, ci.yml or AGENTS.md. A Git that does
+    not support an exclude-only pathspec could return an empty patch with exit 0, which would look like "no change" to a reviewer. I did not verify
+    this, so it is a question: what is the oldest Git the project supports, and should an empty patch for a non-empty diff_tree be an error?'
+  suggested_action: Answer the question; consider that guard.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: info
+  category: standards
+  rule_ref: ORQLET-STYLE-001
+  claim: ports.vcs.is_excluded shares its name with domain.evidence_artifacts.is_excluded, which is also about review-record paths, and with domain.model_identity.is_excluded.
+    Separately, the manifest copy of this very task states earlier design-review outcomes in self_check.failures ("every review round ended NOT
+    PASS..."). ADR-007 decision 8 says that copy holds no conclusion, and the sentinel scan would not catch a paraphrase.
+  suggested_action: Rename the port function (for example is_left_out) and decide whether the design-manifest text is acceptable.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+    confirmed_requirements:
+    - The diff touches only the plan's P-11 file list plus tests/P-11.yaml and knowledge/P-11.yaml.
+    - pyproject.toml, uv.lock and the git sub-command allow-list are untouched; the pathspecs go after --, and the runner's option check skips
+      everything after -- (git_runner.py 89-91).
+    - ports/vcs.py imports only domain.paths and domain.errors, so imports point inward.
+  checks:
+  - what: change stays inside the P-11 file list
+    how: diff file list against plan.yaml P-11 file_operations
+    result: pass
+  - what: layers and port contract
+    how: read vcs.py, vcs_git.py, review_prepare.py, git_runner.py
+    result: pass
+  - what: AC-1 to AC-4 and AC-6 against code and tests
+    how: read the diff and the test files; F-4 for the wording of AC-1
+    result: pass
+  - what: ADR-007 decision 8 and BC-45 hold
+    how: traced the exclusion through all copies
+    result: fail
+  - what: knowledge-impact record accurate
+    how: compared its claims with the code
+    result: fail
+  failures:
+  - F-1
+  unverified:
+  - 'No command ran: the test counts (12443 passed), the ten mutants, ruff, mypy, import-linter and gate status are the author''s claims, not
+    checked here.'
+  - tests/P-11.yaml has verdict NOT_RUN and evidence_kind claimed. AC-5 (the Linux, macOS and Windows CI matrix) is not run. Git was observed
+    on macOS only.
+  - No quote digests were computed (no shell), so F-1 rests on a reading of the code. Only _check_reviews of validate_design.py was read, not
+    other manifest validators.
+  - The staged tree id (the tail of MANIFEST.json) was not read; evidence uses the merge base bb5ec56. docs/design/orqlet-architecture-proposal.md
+    is not in the packet.
+  - The generated agent copies and the web were not examined; the role forbids web lookups.

@@ -1,0 +1,177 @@
+schema: orqlet.review-result/v1
+task: dynamic-model-profiles
+phase: P-11
+role: architecture-reviewer
+round: 2
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: ec657c7297e5e2c5add2d6e1cc1d19f70a62d3e1ff7d0f30f2ccd4238be4be5d
+    design: af08cad54b174da764ccf0d9a534a6f83068ee318eb81cc6622337a56a287b28
+    evidence_inputs: b18eb3f7871d7be138c36ce2b383e053932de436fff49f99050d4849221cccf4
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 64828bab5b853ad6f3ffbf4c5fe4bcddd899ddfcedeb56010b5bd4e587e515c8
+    reviewer_definition: 6ce838ea71280ef545f87a85c2922b4bd9a2740713521c2dd24ed4768ead4be9
+    standards: 20b2417f8fe79a6b504d5edb6aa5876a9d7ae7a5a78a128d2d5e210ff3b835a9
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: fa35c1d9758dcb3cd8cf7296ec65e0fa621473c7f40b559efe0e00cd54568573
+  merge_base: bb5ec564483aca02f4fc5dfc45035ca427cbec0a
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: bb870c5236ad9b2cb5f0f6b0f8568baf499d9bd1727a18254303b9b1e797e7f4
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran in the same client as the Coder (cursor), so independence is I1, not I2.
+- The reviewer was started as a typed subagent (orqlet-arch-reviewer); its prompt held the packet path and nothing else. The model that ran it
+  is not observed.
+- 'The reviewer''s session had no shell: it ran no command and computed no quote digest, so every test count, the ten mutants and the other checks
+  of the test record are claims of the Coder that it did not repeat.'
+- 'The packet held no file under a reviews folder, although the index held the two records of round 1. The Coder scanned the packet (1004 files)
+  by path and by the claim text of 140 records, the two staged ones included: no file and no hit. It still held statements about earlier reviews
+  in prose: 19 earlier test or knowledge records and statements A-64 and A-65 of the AS-IS file, which name two record paths. ADR-007 decision
+  8 does not reach those.'
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- The reviewer's findings carry no digest and are observations; none blocks. The reviewer's evidence names staged lines that are in no commit,
+  so there is no digest to compute.
+- 'Coder''s note, not part of the reviewer''s text: no blocking finding. F-1 is the decision that the security review r2 raises as blocking (its
+  F-1). Rework round 2 changes the source of the notes to the design manifest at the merge base, with 4 new unit cases and 1 new real-git case
+  written before the change (red: 8 failed, 149 passed on the three files; after: 157 passed). This record is stale after that change, and round
+  3 follows on a new packet. F-2 is for the person (readings that are in no approved text); F-3 and F-4 are open; the import-linter wording of
+  F-5 is corrected in the test record.'
+applicability:
+  examined:
+  - diff.patch
+  - context/plan.yaml
+  - context/test-record.yaml
+  - context/knowledge-impact.yaml
+  - context/design-manifest.yaml
+  - snapshot/src/orqlet/application/ports/vcs.py
+  - snapshot/src/orqlet/adapters/git/vcs_git.py
+  - snapshot/src/orqlet/adapters/git/git_runner.py
+  - snapshot/src/orqlet/application/usecases/review_prepare.py
+  - snapshot/src/orqlet/application/contracts/design_set.py
+  - snapshot/tests/unit/application/test_review_prepare.py
+  - snapshot/tests/integration/test_review_packet_real_git.py
+  - snapshot/tests/contract/test_vcs_revisions_contract.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: architecture
+  claim: 'The staged design manifest decides which changed files the reviewer cannot see, and the carve-out is partial. review_prepare.py:124-125
+    takes every reviews[].note minus (plan, manifest, standards files). design_set.py:126-128 types a note as any RepoPath. So a note naming a
+    changed src or tests file, or the phase''s own tests/<phase>.yaml, knowledge/<phase>.yaml or as-is.md, drops it from snapshot/, diff.patch
+    and the context copies, with no entry in omitted or MANIFEST.json. test_review_prepare.py:657 asserts this for as-is.md. The review_input
+    digest is computed from the change set, not from the packet, so a record can bind files the reviewer never saw. The carve-out''s own reason
+    (review_prepare.py:116-122: the reviewer must read the change against these files) also applies to the test record and the knowledge-impact
+    record, which the reviewer is told to check. It also stops a reviewer verifying that the change stays inside its file list.'
+  suggested_action: 'Person decides before the packet is relied on as a gate. Options: honour a note only if it is under docs/design/<task>/ (the
+    reviews pattern already covers the usual case); or read the notes from the base manifest instead of the staged one; or add the test record,
+    knowledge record and AS-IS file to the carried set. The coder already put this to the person (knowledge-impact.yaml, last sentence of the
+    reason). I found no answer in the packet.'
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: docs
+  claim: The code differs from the approved text, and the records do not say so consistently. AC-3, BC-45 and ADR-007 decision 8 say every path
+    a note names is left out. The code ignores notes naming the manifest, plan or standards (review_prepare.py:124-133). AC-1 says each path is
+    passed as :(exclude,literal)<path>. The adapter drops any path that is a directory in either tree (vcs_git.py:264-278). The test record admits
+    both differences in the pytest summary, yet acceptance_coverage marks AC-1 and AC-3 "pass". The knowledge-impact record says "no-impact /
+    already-documented", but ADR-007 decision 8 and BC-45 do not contain these rules. They exist only in the module docstring and the records.
+    The approved design is protected and not edited here.
+  suggested_action: Have the person accept the two readings explicitly (an AC and BC amendment, or a recorded deviation), and correct the "already-documented"
+    category for readings 2, 3, 5 and 6 of the knowledge record.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: correctness
+  claim: For a note path that is a directory in one tree and a file in the other, the fake and the real adapter disagree, and diff.patch can show
+    what the snapshot hides. _not_directories removes the entry from the command, so git keeps the file's section. is_excluded still excludes
+    that path in the snapshot, in the context copies and in the fake. If a note held a conclusion, its deletion or addition section stays in diff.patch
+    while snapshot/ omits it. Only the real-git case at test_review_packet_real_git.py:410 covers this. It asserts only that the files below the
+    directory stay, not the file's own section, and it is not in the shared contract scenario that AC-2 requires. Exotic, but it is the leak AC-4
+    exists to prevent.
+  suggested_action: Pin the file-to-directory and directory-to-file cases in the shared contract scenario, assert the section of the file itself,
+    and either accept the leak knowingly or make review_prepare skip a note that _not_directories would drop.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: non-blocking
+  category: compatibility
+  claim: The port promises "matches as fnmatch does" (ports/vcs.py:59-65, docstring in diff_patch), but the real adapter delegates to git's wildmatch.
+    By my reading (not run here), they differ for "[^x]" (git negates, Python does not) and for a backslash (escape in git, literal in Python).
+    The contract tests cover only *, ? and [a-c]. No current caller is affected, because review prepare passes one constant pattern.
+  suggested_action: Narrow the port contract and make check_exclusions refuse a backslash and "[^", or add contract cases for them.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: docs
+  claim: Two accuracy points in the claimed records. The import-linter summary says the port module "imports only the standard library and domain.paths",
+    but ports/vcs.py also imports orqlet.domain.errors (lines 12-13; the OrqletError import was already there). The knowledge record reports that
+    the proposal text at docs/design/orqlet-architecture-proposal.md lines 1352-1360 is now stale. That file is not in the packet snapshot, so
+    I could not check the claim. The README line 354 and review skill line 26 I did read are incomplete but not false.
+  suggested_action: Correct the import-linter wording. Name the owning phase for the proposal paragraph (the open question in the knowledge record).
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+    confirmed_requirements:
+    - The diff touches exactly the seven files of P-11's file_operations, plus tests/P-11.yaml and knowledge/P-11.yaml.
+    - pyproject.toml, uv.lock, git_runner.py and .md files are untouched (AC-6).
+    - ports/vcs.py imports only the standard library and orqlet.domain modules, so imports point inward; git is reached only through GitRunner,
+      and the pathspecs come after -- (git_runner.py 87-91).
+  checks:
+  - what: packet read (manifest, plan P-11, design manifest, standards, test and knowledge records, whole diff.patch)
+    how: read-only file reads of the packet
+    result: pass
+  - what: change stays inside the P-11 file list
+    how: compared the diff headers with plan.yaml file_operations
+    result: pass
+  - what: layers, git allow-list and option check, environment scrubbing
+    how: read vcs.py, vcs_git.py, git_runner.py, environment.py, paths.py
+    result: pass
+  - what: tests meaningful against AC-1 to AC-4
+    how: read the contract, integration and unit test diffs in full
+    result: pass
+  - what: any command, test or git run
+    how: ''
+    result: not-run
+  - what: quote_sha256 for evidence
+    how: ''
+    result: not-run
+  - what: AC-5 platform behaviour
+    how: ''
+    result: not-run
+  unverified:
+  - 'AC-5 is not run: the Linux, macOS and Windows CI matrix is the only evidence for the exclude-only pathspec on each platform''s git. Git was
+    observed on macOS only, and case-insensitive behaviour was not checked.'
+  - The test record says ten mutants were killed on the round-0 code, and none were run on the rework.
+  - Not all 1004 snapshot files were read, only those the change touches and those cited.
+  - MANIFEST.json is a single long line; its tree and label fields were not read, so the revisions below are the base.

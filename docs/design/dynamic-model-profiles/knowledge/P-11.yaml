@@ -1,0 +1,39 @@
+schema: orqlet.knowledge-impact/v1
+task: dynamic-model-profiles
+phase: P-11
+review_input:
+  schema: orqlet.review-input/v1
+  covers: [code_tests, knowledge, plan, standards, candidates]
+  components:
+    candidates: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    code_tests: 6479d22cbc51f894a16b817121763c056e2bc6a5bc5025f0e686771c8265cbc0
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 64828bab5b853ad6f3ffbf4c5fe4bcddd899ddfcedeb56010b5bd4e587e515c8
+    standards: 20b2417f8fe79a6b504d5edb6aa5876a9d7ae7a5a78a128d2d5e210ff3b835a9
+  digest: 7793ada3603acf8e5612235c78f59ecd61ee0a9e7e6a7d9e94923f6ba648dceb
+  merge_base: bb5ec564483aca02f4fc5dfc45035ca427cbec0a
+outcome: no-impact
+analysis:
+  command: orqlet knowledge impact
+  orqlet_version: 0.3.0
+  candidates_digest: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+  candidate_count: 0
+  input: pre-draft-tree
+  views: [committed:HEAD]
+  index_state: not-used
+entries:
+  []
+no_impact:
+  category: already-documented
+  reason: "This phase keeps earlier review conclusions out of a review packet: Vcs.diff_patch takes exclude_patterns and exclude_paths, the git adapter spells them as :(exclude)<pattern> and :(exclude,literal)<path> after one --, and review prepare leaves docs/design/*/reviews/* and every reviews[].note path out of the snapshot, the context copies and diff.patch. The rule is in the approved design (plan.yaml 1402 to 1425): ADR-007 decision 8, BC-21, BC-45, R-8, U-12. No knowledge document is made wrong by it: the knowledge_scope is empty and no source is configured; three descriptions stay incomplete (absence record). Six readings of the coder are in no approved text, and the person is asked to accept them or to amend AC-1 and AC-3: (1) the notes are those of the design manifest at the merge base, not of the manifest under review, so a staged edit cannot hide a file from its own review (rework round 2, after F-1 of the security review r2); (2) git 2.56.1 on macOS matches everything below a directory named by a literal pathspec, so the adapter passes a note path only when it is no directory in either tree, and a note that names a directory leaves nothing out; (3) the port refuses as VcsError an empty or NUL-holding pattern and a non-canonical path, an empty literal pathspec dropped every section when measured; (4) exclusion runs before the symlink, size and limit checks, so a left-out entry is never in omitted; (5) a note that names a context source such as the AS-IS file or a test record drops that copy too; (6) a note that names the design manifest, the plan or a standards file is ignored (rework round 1, after F-1 of the architecture review r1). The approved manifest can still name any other changed file as a note and hide it from the snapshot and the diff, with nothing in the packet to show it; that stays a decision for the person (F-1 of both round-2 reviews). No edit outside the file list; the coder changed one line in each of two Tester files and added tests."
+  absence_record:
+    scopes_searched: [".orqlet/knowledge.yaml sources", "the plan's knowledge_scope", "README.md, AGENTS.md, .github, docs/ outside docs/design/dynamic-model-profiles, src and tests outside tests/golden, for every statement of what review prepare exports, of what a packet holds, and of how diff_patch is called"]
+    views: [committed:HEAD]
+    revision: bb5ec564483aca02f4fc5dfc45035ca427cbec0a
+    method: "orqlet knowledge impact on the staged tree found no candidate; no knowledge source is configured (ORQ-I400) and the plan's knowledge_scope is empty. rg found these places outside the file list. Incomplete after this phase and owned by a later phase or by nobody: README.md 354 (review prepare is described as exporting the staged snapshot, diff, plan and records, without the exclusion; P-12 names the README and the proposal, plan.yaml 1508 to 1584, and does not name the packet); orqlet-review/skill.md 26 (it lists what the packet holds, without the exclusion; P-13 changes the review skill, plan.yaml 1687 and 1688); docs/design/orqlet-architecture-proposal.md 1352 to 1360 (the packet rule of harness2-fit ADR-002: it says the built review prepare 'exports the staged tree and has no assertion until then', leaves out a changed path only when it is a valid review record, and returns NOT_RUN for one that is not; the built command after this phase leaves out by pattern every path under docs/design/*/reviews/ and every manifest note path, whether changed or not, and returns no NOT_RUN for an invalid record. ADR-007 decision 8 sets that rule and the proposal text does not say it; no plan phase names this paragraph). Question for the person: which phase carries it, P-12 or an amendment. The generated copies under .claude, .cursor, .codex and tests/golden were not searched; they repeat the workflow package, which was."
+    index_state: not-used
+    candidates_found: 0
+  already_documented_refs:
+    - {path: docs/design/dynamic-model-profiles/design/adr-007-independence-model-identity-and-fresh-context.md, sha256: "0fea8f96cc98823723f6a90d8f5adf1627afa80e6b322229bc4e581e6a3def28"}
+    - {path: docs/design/dynamic-model-profiles/design/component.md, sha256: "f4f9497bb7d335b46e0b796a6029a0a5bf426dbfdd1a90e4d93fe052167fcc67"}
+    - {path: docs/design/dynamic-model-profiles/design/manifest.yaml, sha256: "bf6f5a347d2ce68eacffeaf7792653804124c7bd47ccc2917b8e13060d374a2c"}
