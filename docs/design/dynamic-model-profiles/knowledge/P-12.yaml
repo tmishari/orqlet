@@ -1,0 +1,43 @@
+schema: orqlet.knowledge-impact/v1
+task: dynamic-model-profiles
+phase: P-12
+review_input:
+  schema: orqlet.review-input/v1
+  covers: [code_tests, knowledge, plan, standards, candidates]
+  components:
+    candidates: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    code_tests: cefa8bce542d4057df12698e011401b7545fca3f5829b5258538f2360729ef98
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 64828bab5b853ad6f3ffbf4c5fe4bcddd899ddfcedeb56010b5bd4e587e515c8
+    standards: 20b2417f8fe79a6b504d5edb6aa5876a9d7ae7a5a78a128d2d5e210ff3b835a9
+  digest: 4d16ddbe12c27a4ba443552289f702407fb5d4ff4b03562e95d9a7ed14f63518
+  merge_base: 1fc985140dc0022f58bea803b4949932d01ecf43
+outcome: no-impact
+analysis:
+  command: orqlet knowledge impact
+  orqlet_version: 0.3.0
+  candidates_digest: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+  candidate_count: 0
+  input: pre-draft-tree
+  views: [committed:HEAD]
+  index_state: not-used
+entries:
+  []
+no_impact:
+  category: behaviour-unchanged
+  reason: "This phase changes no behaviour of the tool. It adds four lines to .github/CODEOWNERS, brings README.md and docs/design/orqlet-architecture-proposal.md in line with the built model policy v2 and the code review gate (AC-1 to AC-5), and adds two test files that pin those texts. No file of src/, tools/ or the workflow package, no pyproject.toml and no uv.lock changes. orqlet knowledge impact found 0 candidates: the plan's knowledge_scope is empty and no knowledge source is configured (ORQ-I400, twice). The two documents the phase changes are its deliverable, covered by AC-1 to AC-5 and by the tests; they are no knowledge documents that the phase makes wrong. What the phase leaves wrong or incomplete is listed in scopes_searched under 'left open', by line of the staged file. The phase changes only the text that AC-1 to AC-5 name, as the diff shows, so none of it was changed. No plan phase carries it (P-13 and P-14 are not built) and the person decides which phase or amendment takes it. The search was by words: statements in other words may exist."
+  absence_record:
+    scopes_searched:
+      - ".orqlet/knowledge.yaml sources (none configured)"
+      - "the plan's knowledge_scope (empty)"
+      - "AGENTS.md, CLAUDE.md, .github, .prompts and docs/ outside docs/design/dynamic-model-profiles and the proposal, by the words code reviewer, code review gate, model-policy, model policy and model_policy. Hits only in records of other tasks (docs/design/orqlet-m2-workflow/design.md 25, docs/design/open-items/fragments/proposal-approval.yaml 742, 804, 870, 1470, docs/design/harness2-fit/**, docs/design/mcp-or-plugins/fragments/repo-distribution-mcp-credentials.yaml 573, docs/design/orqlet-implementation/plan.md 62). They say what a document said or what existed on their date and are left as history, not as statements about this build."
+      - "left open, proposal, the Code Reviewer is called a provided capability or not a required gate (staged-file lines 5, 98, 2037, 3035, 3389, 3717, 4465, 4530, 5201, 5217, 5685, 5759, 5761); AC-5 names 10.3, 14.9, 17.12.5, 24.1 and the two Q-07 rows, and the lines here are outside them"
+      - "left open, proposal, model policy as v0.5 specified it and not as v2 is built (lines 112, 2010, 2487, 4466, 4915, 5212, 5216; the words are model_policy none, runtime_id, prefer rank, model_profile strong-reviewer)"
+      - "left open, proposal, role counts and build status that do not include the code-reviewer role, which package 0.4.0 does not ship (lines 446, 2100, 2222, 2323, and 22.0 at 4503)"
+      - "left open, from P-11 and in no P-12 criterion, README.md 363 (what review prepare exports) and proposal 1352 to 1360 (the packet rule of harness2-fit ADR-002)"
+      - "not checked by this phase, README.md 21 (five specialist agents) and 139 (init wrote 73 files); P-13 adds a role and changes them"
+    views: [committed:HEAD]
+    revision: 1fc985140dc0022f58bea803b4949932d01ecf43
+    method: "orqlet knowledge impact on the staged tree (exit 0, 0 candidates, ORQ-I400 twice) and rg over the places above. Words searched in the proposal: provided capability, Code Reviewer is provided, four-role, four required roles, required only by Q-07, keeps required false, model_policy managed or none, strong-reviewer, runtime_id, prefer rank or price_rank, Q-07. Not searched: protected_set_digest, pin fields, sync. Line numbers are those of the staged proposal, which is larger than MAX_FILE_BYTES, so a reviewer packet carries no copy of it. The generated copies under .claude, .cursor, .codex and tests/golden were not searched."
+    index_state: not-used
+    candidates_found: 0

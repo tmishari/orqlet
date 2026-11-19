@@ -2080,7 +2080,7 @@ Rules for all roles: roles are activated by scope and phase (the activation tabl
 
 ### 10.3 Role catalogue (the base set: 7 subagent role definitions and 8 skills)
 
-The **required roles** of Phase 4 are the Coder, the Tester, the Architecture Reviewer and the Security Reviewer (Section 17.12.5). A **Code Reviewer** capability is provided in addition (v0.5, requirement CS-7.7); whether its record is a required gate is decision Q-07. Phase 1 uses specialist researchers. The Knowledge drafter is an optional helper; the knowledge **step** and its CI check are mandatory whether or not that helper exists (Section 17.13).
+The **required roles** of Phase 4 are the Coder, the Tester, the Architecture Reviewer, the Security Reviewer and the Code Reviewer (Section 17.12.5). The code review gate is required at every phase at independence I2 (requirement CS-7.7). Until task `dynamic-model-profiles` it was a capability without a gate: the person reopened decision Q-07 there (ledger question Q-9) and approved the gate (Q-19, Q-21; ADR-006). **What is built:** the validators. `orqlet validate review` derives the independence class and holds the code reviewer to I2 at every change class, and `orqlet validate plan` requires `code-reviewer` in the `review_evidence` of every phase of a plan whose header names workflow 0.5.0 or later. **What is not built:** the role `orqlet-code-reviewer` and its skill step, which ship with workflow 0.5.0. The binding for the role is built: `init` seeds it in `.orqlet/role-bindings.yaml` and `upgrade` proposes it to a project that lacks it. Phase 1 uses specialist researchers. The Knowledge drafter is an optional helper; the knowledge **step** and its CI check are mandatory whether or not that helper exists (Section 17.13).
 
 | Role | Phase | Realised as | Mode | Purpose | Output | Activation | Tier hint (advisory) |
 |---|---|---|---|---|---|---|---|
@@ -2094,14 +2094,14 @@ The **required roles** of Phase 4 are the Coder, the Tester, the Architecture Re
 | **Tester** | 4 | subagent `orqlet-tester` | writes tests, by instruction | Isolated business unit tests from the plan's criteria, written before the implementation; every expected behaviour cites its source; reports what ran and what could not be verified | tests + per-test `expected_behavior_source` + run record | every phase | balanced |
 | **Architecture Reviewer** | 2 (D2 and above), 4 | subagent `orqlet-arch-reviewer` | read-only | Check the design and the implementation against the approved design, plan, boundaries, patterns, contracts, compatibility, standards and scope; examine correctness against the acceptance criteria | `ReviewResult` | **every phase** (depth by change class) | strong |
 | **Security Reviewer** | 2 (D2 and above), 4 | subagent `orqlet-security-reviewer` | read-only | Concrete secrets, authentication and authorization, injection, filesystem, dependency, data-exposure and logging risks of this phase; **additional evidence, not a guarantee** | `ReviewResult` (assurance: advisory) | **every phase** (depth by change class) | strong |
-| **Code Reviewer** (provided capability, v0.5) | 4 | subagent `orqlet-code-reviewer` | read-only | A dedicated read-only review of the packet for business correctness against the acceptance criteria and the AS-IS, failure handling, compatibility, applicable standards, security (a second look, not a replacement of the Security Reviewer) and the adequacy of the tests, not their number | `ReviewResult` (role `code-reviewer`, assurance: advisory) | every phase as a provided capability; a required gate only where decision Q-07 makes it so | strong |
+| **Code Reviewer** (required gate, workflow 0.5.0) | 4 | subagent `orqlet-code-reviewer` | read-only | A dedicated read-only review of the packet for business correctness against the acceptance criteria and the AS-IS, failure handling, compatibility, applicable standards, security (a second look, not a replacement of the Security Reviewer) and the adequacy of the tests, not their number | `ReviewResult` (role `code-reviewer`, assurance: advisory) | **every phase**, a required gate at independence I2 | strong |
 | Knowledge drafter (optional) | 4 | subagent `orqlet-knowledge-writer` | writes knowledge drafts only at the exact knowledge paths that the plan or an approved amendment lists, by instruction | Help the agent draft knowledge changes and module cards from the candidate list | draft files in the branch (unstaged) | when `orqlet knowledge impact` lists candidates | small to balanced |
 
-Twelve roles are listed; five (coordinator, research synthesizer, architect, planner, coder) are performed by the main agent through skills, so **seven** need a subagent definition per client (six shipped with the protected workflow, one optional). **The Code Reviewer (v0.5).** The specification asks for a dedicated read-only code-review capability in addition to the four required roles. v0.2 had folded the "independent code reviewer" into the Architecture Reviewer and the Tester, and D-36 listed a single code reviewer as a rejected alternative; v0.5 reverses that **as a capability, not as a gate**: a `code-reviewer` role contract and the subagent definition `orqlet-code-reviewer` exist, `/orqlet-review` starts it on the same packet, and its record uses the same `orqlet.review-result/v1` schema. Whether a missing Code Reviewer record blocks the phase is **decision Q-07**. The release default [R] keeps the four-role gate set unchanged: without the owners' decision a missing code review is a report, not a gate. If the owners make it required, the role is bound, pinned and independent like the other reviewers and a missing or stale record is `NOT_RUN`.
+Twelve roles are listed; five (coordinator, research synthesizer, architect, planner, coder) are performed by the main agent through skills, so **seven** need a subagent definition per client (six shipped with the protected workflow, one optional). **The Code Reviewer (v0.5).** The specification asks for a dedicated read-only code-review capability in addition to the four required roles. v0.2 had folded the "independent code reviewer" into the Architecture Reviewer and the Tester, and D-36 listed a single code reviewer as a rejected alternative; v0.5 reversed that **as a capability, not as a gate**; task `dynamic-model-profiles` supersedes the second half: the gate is required. The `code-reviewer` role contract and the subagent definition `orqlet-code-reviewer` ship with workflow 0.5.0 (not built yet), `/orqlet-review` will start the role on the same packet, and its record uses the same `orqlet.review-result/v1` schema. A missing, stale or below-I2 record is `NOT_RUN`, never a pass, and a new session of the same client is I1 and does not satisfy the gate. A human code-owner review by someone who is not the author stands in, and Orqlet has no record for it: the pull-request approval is evidence of the code host, and what the host enforces is outside what Orqlet reads. Until `orqlet ci check` exists, Orqlet runs no check at merge time and a `NOT_RUN` review is a report.
 
 "Read-only" in this table means for the Coordinator, the research synthesizer, the Architect and the Planner that they change **no code, test or configuration**: they write the task artifacts under `docs/design/<task>/` (and Phase 0 writes `.orqlet/project-profile.yaml`, which the maintainer reviews); the researcher and reviewer *subagents* write nothing and return fragments or findings that the main agent writes into files. "Read-only" and "by instruction" are **instructions to the model** unless a client enforces them; Section 10.5 records what each client actually enforces. A reviewer that needs `git diff` receives the staged change as a prepared packet (`orqlet review prepare`, read-only) instead of a shell.
 
-**Tiering hypotheses and how they will be tested:** high-volume, low-ambiguity read-only work (repository inventory, documentation drafting) is the natural candidate for a smaller, cheaper tier; judgement-heavy roles (architect, planner, reviewers) are the natural candidates for stronger tiers; the coder is the most uncertain. The decision rests on measured missed-issue rate, unnecessary findings, rework cycles and cost per role (Section 21). Model tiers are advisory; **a model change never changes which gates apply** (it can make evidence stale through the model binding, Section 6.14.1, and a required role without an approved route is `NOT_RUN`, Section 14.9.2).
+**Tiering hypotheses and how they will be tested:** high-volume, low-ambiguity read-only work (repository inventory, documentation drafting) is the natural candidate for a smaller, cheaper tier; judgement-heavy roles (architect, planner, reviewers) are the natural candidates for stronger tiers; the coder is the most uncertain. The decision rests on measured missed-issue rate, unnecessary findings, rework cycles and cost per role (Section 21). Model tiers are advisory; **a model change never changes which gates apply** (it can make evidence stale through the model binding, Section 6.14.1, and a review gate is `NOT_RUN` when no reviewer reaches the minimum independence, Section 14.9.0).
 
 ### 10.4 Parallelism, reviewer independence and substitution
 
@@ -2498,29 +2498,46 @@ The company model policy lives in the standards repository next to the packs, ve
 
 Requested on 2026-10-20 after the two v0.4 review rounds (requirement R-12, Section 25.0): *select the best and the lowest-cost model per IDE for agents and subagents, and keep the choice up to date.* The developer chose, from the options offered: **both** vendor aliases and a governed refresh, **a reviewed pull request for every change**, and **owner-supplied ranking**. Orqlet still starts no session and calls no model (R-01), so "automatic" means *generated and refreshed from an approved policy*, not *chosen while a developer works*. **This section was added after the independent reviews and has never been independently reviewed.** v0.5 re-examined it against the specification of 2026-10-22 and corrected the points of Section 0.6.4 (the fall-through to the client default, the `sync` contradiction, the cost claim, the missing model binding in the review evidence, the missing separate states and fallback fields); **it still has no independent review.**
 
+#### 14.9.0 What is built, and what this section supersedes (task `dynamic-model-profiles`)
+
+Task `dynamic-model-profiles` built a model policy that is **not** the one that 14.9.1 to 14.9.4 describe, and it changes statements of this section. The policy file is `.orqlet/model-policy.yaml`, schema `orqlet.model-policy/v2` (the spelling is in Section 24.1). It is the team's file, changed by a reviewed edit (its seed is not built yet), and an absent file means no policy. Per-role pins exist in the mode `manual`, and only there: `orqlet upgrade` renders the first eligible candidate of the approved order into the model setting of a generated subagent file and, for Claude Code only, into a generated skill file for an explicit skill assignment. The modes `automatic` (the default) and `automatic-with-fallbacks` render nothing. The main agent is never pinned, except by that explicit skill assignment in Claude Code. A pin changes the bytes of the protected agent files and therefore `protected_set_digest`, so approvals of designs and plans in flight then show ORQ-W390 and the person decides; ORQ-W547 lists the review records that name a changed agent file. The code review gate is required at every phase at independence I2 (Section 10.3). The commands are `orqlet models resolve` and `orqlet validate model-policy`; the README lists their exit statuses and the finding codes ORQ-E540 to ORQ-E548, ORQ-W540 to ORQ-W547 and ORQ-I540.
+
+| Part of this section | Status | What is built |
+|---|---|---|
+| 14.9.1, row *per role, subagents* | Built, narrowed | A pin only in the mode `manual`, rendered by `upgrade`; `sync` writes no pin |
+| 14.9.1, row *per role, main agent* | Built, with one exception | Never pinned, except an explicit skill assignment in Claude Code |
+| 14.9.2 rules 1 to 3 (routes, `prefer: rank` or `price_rank`, `alias` or `runtime_id`) | Superseded | A profile lists ordered candidates for each client; there is no rank, price rank or `runtime_id`; a route is an `id` or an `alias` with `resolves_to`; the first eligible candidate is pinned; list prices are shown and select nothing |
+| 14.9.2 rule 4 (`model_policy: managed` or `none`, `missing-candidate` as an error, a required role without a candidate is `NOT_RUN`) | Superseded | There is no profile key; a role in the mode `manual` with no eligible candidate is not pinned, keeps its automatic setting and gets ORQ-W540; a review gate is `NOT_RUN` when no reviewer reaches the minimum independence |
+| 14.9.2 rule 5 (provider limits) | Not built as written | The limits that are built are those of ORQ-W546: a skill pin only for Claude Code, and no effort and no quoted name for Cursor |
+| 14.9.2 rules 6 and 7 (the pin is left out of the digest) | Superseded | A pin does change the digest; see the two rules |
+| 14.9.3 (`orqlet models refresh`, `--write-proposal`, the `doctor` reports) | Not built | `validate model-policy` reports drift (ORQ-W543), a retiring route (ORQ-W542) and a catalog reviewed for an older release (ORQ-W541) |
+| 14.9.4, "no fall-through to a client default for a required role" | Superseded | In the mode `manual` a role without an eligible candidate keeps the client's choice and the report says why |
+
 #### 14.9.1 What is automatic, and who selects
 
 | Level | Who selects | Automatic? | Notes |
 |---|---|---|---|
 | Per request, inside a client (Cursor `Auto`, fallback chains, retirement reroutes) | The client | Yes, by the vendor | Not controlled by Orqlet; recorded as `model_observed` only where the client reports it |
-| Per role, subagents (inventory researcher, behaviour tracer, tester, knowledge drafter, the architecture, security and code reviewers) | Orqlet **renders a pin** into the generated agent file from the approved policy | Only through **`orqlet upgrade`**, previewed and applied in a pull request after a reviewed policy change. **`orqlet sync` never writes a pin** | Sections 14.9.2 and 14.9.3 |
-| Per role, main agent (coordinator, synthesizer, architect, planner, coder) | The developer's session model | No | The skill text carries the profile hint ("run this in a strong model"); whether a project file can set the session model in each client was not researched **[U]** (spike S-30). Main-agent roles are never pinned and never reported `unpinned` |
+| Per role, subagents (inventory researcher, behaviour tracer, tester, knowledge drafter, the architecture, security and code reviewers) | Orqlet **renders a pin** into the generated agent file from the approved policy, in the mode `manual` only (Section 14.9.0) | Only through **`orqlet upgrade`**, previewed and applied in a pull request after a reviewed policy change. **`orqlet sync` never writes a pin** | Sections 14.9.2 and 14.9.3 |
+| Per role, main agent (coordinator, synthesizer, architect, planner, coder) | The developer's session model | No | The skill text carries the profile hint ("run this in a strong model"); whether a project file can set the session model in each client was not researched **[U]** (spike S-30). Main-agent roles are never pinned and never reported `unpinned`, except that an explicit skill assignment in Claude Code pins the model for the rest of the turn (Section 14.9.0) |
 | The approved set of routes | The policy owners | Refreshed by Section 14.9.3, adopted only by pull request | |
 
 #### 14.9.2 The pin-rendering rule (deterministic; no model call; no inference of quality or price)
 
-1. **Candidates** for a role on a client are the routes of the role's profile for that client that are `enabled`, whose model approval is `approved`, whose `availability.state` is not `retired`, that are not in `excluded`, and that carry an `alias` or a `runtime_id`. A route whose `evaluated` list holds a `fail` for the role is not a candidate; the absence of an evaluation does not exclude a route and is reported (`unevaluated for role`), because Orqlet does not decide suitability.
-2. **The profile states its preference.** `prefer: rank` takes the candidate with the smallest `rank` (the best); `prefer: price_rank` takes the smallest `price_rank` (the lowest cost). Both numbers are **supplied by the policy owners**; Orqlet infers neither quality from price nor suitability from either number. Ties go to the route listed first. Usefulness, retry cost and latency are measured by the evaluation of Section 21, and the owners may change a rank in a reviewed pull request when that evidence says so.
-3. **Alias or identifier.** A route with an `alias` is rendered as that alias, which the vendor moves forward; otherwise the administrator-supplied `runtime_id` is rendered. Orqlet never invents either. A route with neither is not a candidate.
-4. **No candidate (corrected in v0.5).** The project's profile records `model_policy: managed` or `model_policy: none`, a decision by the maintainer that is never inferred from absence.
-   - **`managed`, and a required role has no candidate.** The required roles are the Tester, the Architecture Reviewer, the Security Reviewer and, where decision Q-07 makes it required, the Code Reviewer. Orqlet writes **no pin**, marks the role's binding **`missing-candidate`**, and `doctor` reports the **missing capability** (role, client, profile) as an **error**. `orqlet gate status` and `/orqlet-review` read the baseline render and **stop before starting that role**; in CI the role's gate is **`NOT_RUN`**, because a record whose `model_binding` is `missing-candidate` is not an approved binding. **The client default never silently stands in for a required role.** Honest limit: nothing prevents a developer from running the role under the client default by hand; the resulting record is `NOT_RUN` because its binding does not match, so the work is lost, not accepted.
+1. **Superseded (Section 14.9.0).** **Candidates** for a role on a client are the routes of the role's profile for that client that are `enabled`, whose model approval is `approved`, whose `availability.state` is not `retired`, that are not in `excluded`, and that carry an `alias` or a `runtime_id`. A route whose `evaluated` list holds a `fail` for the role is not a candidate; the absence of an evaluation does not exclude a route and is reported (`unevaluated for role`), because Orqlet does not decide suitability.
+2. **Superseded (Section 14.9.0).** **The profile states its preference.** `prefer: rank` takes the candidate with the smallest `rank` (the best); `prefer: price_rank` takes the smallest `price_rank` (the lowest cost). Both numbers are **supplied by the policy owners**; Orqlet infers neither quality from price nor suitability from either number. Ties go to the route listed first. Usefulness, retry cost and latency are measured by the evaluation of Section 21, and the owners may change a rank in a reviewed pull request when that evidence says so.
+3. **Superseded (Section 14.9.0).** **Alias or identifier.** A route with an `alias` is rendered as that alias, which the vendor moves forward; otherwise the administrator-supplied `runtime_id` is rendered. Orqlet never invents either. A route with neither is not a candidate.
+4. **Superseded (Section 14.9.0).** **No candidate (corrected in v0.5).** The project's profile records `model_policy: managed` or `model_policy: none`, a decision by the maintainer that is never inferred from absence.
+   - **`managed`, and a required role has no candidate.** The required roles are the Tester, the Architecture Reviewer, the Security Reviewer and the Code Reviewer (a required gate, Section 10.3). Orqlet writes **no pin**, marks the role's binding **`missing-candidate`**, and `doctor` reports the **missing capability** (role, client, profile) as an **error**. `orqlet gate status` and `/orqlet-review` read the baseline render and **stop before starting that role**; in CI the role's gate is **`NOT_RUN`**, because a record whose `model_binding` is `missing-candidate` is not an approved binding. **The client default never silently stands in for a required role.** Honest limit: nothing prevents a developer from running the role under the client default by hand; the resulting record is `NOT_RUN` because its binding does not match, so the work is lost, not accepted.
    - **`managed`, and a role that no gate depends on** (inventory researcher, behaviour tracer, knowledge drafter) **has no candidate:** no pin is written, the client default applies and `doctor` reports `unpinned` as a warning.
    - **`none`:** every role inherits the session model, the binding is the recorded value `unmanaged`, and `doctor` reports `model policy: none` as information. The model binding of a review record is then `unmanaged`, and independence above class I1 cannot be derived from model identity.
-5. **Provider limits are validated** against Section 14.4: a Codex subagent must use the parent's provider; a Claude Code route must be a Claude-family route **[U for gateways]**; a local route (`locality: inference-local`) is allowed only where the client documents it for the **whole** agent tree. An unsupported pin is refused with a named reason, so "cheap local for the small roles and the best cloud model for architecture in one tree" is rejected where no client supports it.
-6. **Review roles and the model binding.** The pin is rendered into the generated reviewer file **and recorded as the role's `model_binding`** (profile, route, alias or runtime identifier, policy version and hash; Section 6.14.1). The approved binding in `role-bindings.yaml` records the `definition_sha256` of the agent definition **with the pin field removed**, so a policy-driven pin change does not edit the definition. A pin change is a **model-binding change**: it is reviewed as a policy change (code-owner review of `model-policy.yaml` and of the pull request that renders the new pin), and it makes that role's existing review evidence **stale through the `model_binding` component**. A policy that maps a review role below `strong-reviewer` is reported by `doctor` as `reduced review model`; that is a report, and it does not change which gates apply.
-7. **Pins are project policy, not workflow, and they are verified separately.** They are rendered from `model-policy.yaml`, are **not part of `workflow_digest`**, and the **pin field is excluded from the `protected_set_digest` of the agent files**, so a reviewed pin change is not mistaken for tampering with a protected file. CI verifies the pin field of every generated agent file against the render of the **baseline** policy and the rest of the file byte for byte against the render of the baseline-pinned CLI (Section 17.12.4).
+5. **Not built as written (Section 14.9.0).** **Provider limits are validated** against Section 14.4: a Codex subagent must use the parent's provider; a Claude Code route must be a Claude-family route **[U for gateways]**; a local route (`locality: inference-local`) is allowed only where the client documents it for the **whole** agent tree. An unsupported pin is refused with a named reason, so "cheap local for the small roles and the best cloud model for architecture in one tree" is rejected where no client supports it.
+6. **Superseded (Section 14.9.0).** **Review roles and the model binding.** The pin is rendered into the generated reviewer file, and the review record states the model that was requested and the one that was observed (Sections 17.12.5 and 6.14.1). The definition digest is that of the file **with** its pin, so a pin change edits the agent definition and makes the existing review evidence of that role stale; `upgrade` lists the affected review records (ORQ-W547). A pin change is reviewed as a policy change (code-owner review of `.orqlet/model-policy.yaml` and of the pull request that renders the pin). A reviewer candidate must come from the coder's profile or a higher one, and a candidate of a lower profile is rejected with its reason.
+7. **Superseded (Section 14.9.0).** **Pins are project policy, not workflow.** They are rendered from `.orqlet/model-policy.yaml` and are not part of `workflow_digest`. A pin changes the bytes of the protected agent file and therefore `protected_set_digest`; approvals of designs and plans in flight then show ORQ-W390 and the person decides. `orqlet validate model-policy` compares the model value of every agent and skill file with what the policy gives (ORQ-W543) and with the exclusions (ORQ-E548). No CI job runs it: the CI workflow runs no `orqlet` command.
 
 #### 14.9.3 Keeping it current
+
+**Not built (Section 14.9.0).** `orqlet models refresh`, `--write-proposal` and the `doctor` reports named below do not exist; what is built is `orqlet upgrade`, `orqlet models resolve` and `orqlet validate model-policy`.
 
 - **Aliases first, and what an alias does not give.** Where a client documents a tier alias that the vendor moves, the route names the alias; the generated file never changes when the vendor updates it. **A vendor-controlled alias movement is not a reviewed configuration change.** The reviewed fact is the alias *string*; the model behind it can change outside Orqlet with no commit, no hash change and no review. Orqlet records `model_observed` where the client reports the model identity and nothing more; whether Cursor, Claude Code and Codex report it for a subagent is unverified **[U]** (spike S-30). Consequences: an independence class that depends on the model family is computed from the **configured** family and never from the vendor's current target, so an alias-pinned role is I1 at most unless a `model_observed` value is recorded; a route that needs a stable identity pins a `runtime_id`; `doctor --live` may compare an observed identity with the recorded one where a client offers it.
 - **Governed refresh.** `orqlet models refresh [--client <c>] [--write-proposal]` reads the client metadata of Section 14.2 (concern 1: documented aliases, `agent models`, `codex debug models --bundled`), compares it with the policy and prints the new, retired and renamed candidates and, for every new candidate, the `locality` and `data_handling` values the policy still lacks (a candidate is never enabled with unknown locality). It is **opt-in, never run by a hook, metadata-only, and makes no Orqlet model call.** **Whether any of these metadata commands is free, side-effect-free or needs authentication or network access is not verified [U].** The command is therefore enabled for a client only after spike S-30 has recorded, for that client's command, its authentication, its network behaviour and any cost; until then it reads only the documented aliases. By default it writes nothing; `--write-proposal` writes `.orqlet/proposals/model-policy.<date>.diff`, a new file under the proposals folder (Section 23 lists it among the files a command writes). It **never** sets `enabled`, `approval`, `rank`, `price_rank`, `availability`, `callable` or `evaluated`: the owners edit the policy in a pull request.
@@ -2537,7 +2554,7 @@ wrote .orqlet/proposals/model-policy.<date>.diff (nothing else changed)
 
 #### 14.9.4 What this does not do
 
-No selection at run time; no change to a developer's own settings or credentials (the pins sit in the shared, generated files, and personal files are never touched); **no fall-through to an unrestricted client default for a required role** (rule 4); no verification that a model is callable for a developer's plan, which needs a budgeted model call and stays deferred (Section 14.7); no adoption of a new model without a reviewed pull request; no ranking by Orqlet. A model picker entry, a listed alias or a metadata row is still not proof of callable access (Section 14.2). Earlier Bedrock metadata is historical evidence and not proof of what is callable today, and an IDE subscription does not establish an API or CI entitlement (Section 25.2). Acceptance cases: FM-O01 to FM-O07 (Section 21.6.14).
+No selection at run time; no change to a developer's own settings or credentials (the pins sit in the shared, generated files, and personal files are never touched); **no fall-through to an unrestricted client default for a required role** (rule 4; superseded, see Section 14.9.0); no verification that a model is callable for a developer's plan, which needs a budgeted model call and stays deferred (Section 14.7); no adoption of a new model without a reviewed pull request; no ranking by Orqlet. A model picker entry, a listed alias or a metadata row is still not proof of callable access (Section 14.2). Earlier Bedrock metadata is historical evidence and not proof of what is callable today, and an IDE subscription does not establish an API or CI entitlement (Section 25.2). Acceptance cases: FM-O01 to FM-O07 (Section 21.6.14).
 
 ---
 
@@ -3416,7 +3433,7 @@ A **role contract** states what a role must receive, what it must produce, what 
 | **Tester** | 4 | The plan's acceptance criteria and their sources | Tests with `expected_behavior_source`, run records | Write access to tests; ability to run the profile's test command | **Any agent or model.** Evidence is the project CI's test job, not the Tester's statement | I1 from the Coder when it writes tests first |
 | **Architecture Reviewer** | 4, and 2 at D2 and above | The packet of Section 6.14.1 (its canonical content list: diff, before and after content, context, design, plan, standards, knowledge drafts, records and the role's binding) | `ReviewResult` with a verdict, findings and absence records | Read-only; no shell unless a prepared packet | **Approved bindings only** (below) | **I1 minimum**; D3 requires I2 |
 | **Security Reviewer** | 4, and 2 at D2 and above | The same packet and the security-relevant standards | `ReviewResult` | Read-only | **Approved bindings only** | **I1 minimum**; D3 requires I2 |
-| **Code Reviewer** (v0.5; required only by Q-07) | 4 | The same packet | `ReviewResult` (role `code-reviewer`) | Read-only | **Approved bindings only** where Q-07 makes it required; otherwise any agent | **I1 minimum** where required |
+| **Code Reviewer** (workflow 0.5.0; a required gate) | 4 | The same packet | `ReviewResult` (role `code-reviewer`) | Read-only | **Approved bindings only** | **I2 minimum at every change class**, in a fresh context on the packet alone |
 
 **Independence classes** (also Section 10.4):
 
@@ -3425,13 +3442,15 @@ A **role contract** states what a role must receive, what it must produce, what 
 | **I0** | The same agent context adopts a persona | **No.** Never recorded as a review; permitted for drafting only |
 | **I1** | A fresh-context subagent (or another session) that receives only the read-only packet, the plan, the standards and the acceptance criteria, not the Coder's transcript | **Yes** (minimum) |
 | **I2** | I1 and a different model family **or** a different client from the Coder (a different login alone adds no independence) | Yes; required for D3 and recommended for security-sensitive work |
-| **I3** | A human reviewer who is a code owner and **not the author** of the change, or a CI-executor job run by the team's own pipeline and verified by `ci check` | Yes; the strongest option |
+| **I3** | A human reviewer who is a code owner and **not the author** of the change, or a CI-executor job run by the team's own pipeline and verified by `ci check` | Yes, as evidence of the host; Orqlet derives no I3 from a record (below) |
+
+**The code review gate.** The code review gate is required at every phase at independence I2, for every change class (Section 10.3; decision Q-07 as re-decided in task `dynamic-model-profiles`). A record that reaches no I2 is `NOT_RUN`, never a pass. **As built:** Orqlet derives I0, I1 and I2 from the recorded values (an approved binding, a fresh context, the clients and the observed model families); a family difference needs both identities observed, and a requested model alone is an unknown identity. It derives no I3: a human code-owner review is evidence of the code host, Orqlet has no record for it, and the Orqlet record of such a change stays `NOT_RUN`. A new session of the same client is I1 and does not satisfy the gate.
 
 **I1 provisional.** A reviewer whose isolation the documentation does not state (for example a Codex subagent, Section 10.5) is recorded as *I1 provisional*. It satisfies the gate only with the explicit acknowledgement of the human approver in the pull-request review, and a team may require I2 instead.
 
 **Approved bindings.** The baseline `.orqlet/role-bindings.yaml` (Section 24.12) lists the agents allowed to serve a review role: the generated `orqlet-*` agents by default, plus any alternative a code owner has approved after checking it against the role's minimum capability. A review note names its binding, the agent definition's SHA-256, the client, the model as requested and, where the client reports it, as observed. A note whose binding is not approved, or whose independence is below the minimum, is `NOT_RUN`. A developer may use a private agent for the Coder, the Tester or research; **a private agent never serves a review gate**.
 
-**What a model change may do:** it never changes *which* gates apply or what must be produced and proved. It can make existing evidence **stale** (a changed model binding, Section 6.14.1), and it makes a gate `NOT_RUN` when a required role has no approved route (Section 14.9.2 rule 4). A different model changes who does the work, not what must be produced; where company policy restricts models, that is Section 14's concern.
+**What a model change may do:** it never changes *which* gates apply or what must be produced and proved. It can make existing evidence **stale** (a changed model binding, Section 6.14.1), and a review gate is `NOT_RUN` when no reviewer reaches the minimum independence (Section 14.9.0). A different model changes who does the work, not what must be produced; where company policy restricts models, that is Section 14's concern.
 
 #### 17.12.6 Where a client cannot support a required capability
 
@@ -4581,130 +4600,140 @@ Angle-bracket values are placeholders. No example contains company policy, busin
 
 ### 24.1 `model-policy.yaml` (advisory reference and administrator-export input)
 
+**The v2 policy as built.** The block below is `orqlet.model-policy/v2` in the spelling that is built (task `dynamic-model-profiles`). It replaces the v0.5 example, whose spelling (`logical_id`, `executor`, `prefer`, `rank`, `price_rank`, a `roles:` map, `status`, `owner`, `compatibility`, `data_classes`) no command reads; the v1 contract has no reader. A test loads the block with the contract of the policy (`tests/unit/test_readme_model_policy.py`). Per-role pins exist in the mode `manual`, and only there: in this example the role `orqlet-tester` (profile `engineering`, mode `manual`) and the skill `orqlet-design` for Claude Code (an explicit model, mode `manual`) are pinned by `orqlet upgrade`; the profile `quality` is `automatic` and pins nothing, and `economy` is `automatic-with-fallbacks`. Every name is a placeholder, and the example makes no claim about a real model. The seed of the file is not built yet.
+
 ```yaml
-# Advisory in the IDE-first model: Orqlet starts no session and selects no model at run time. This file is a reviewed reference, the input to an
-# administrator proposal (Section 14.1) and the source of the pins that `orqlet upgrade` renders into subagent files after a reviewed change
-# (Section 14.9; `orqlet sync` only reports a mismatch and writes nothing). Vendor/runtime identifiers, ranks and prices are supplied by the
-# owners, never invented here. A project that has no model policy records `model_policy: none` in its profile; that is a decision, not a default.
-schema: orqlet.model-policy/v2         # [P] v2 adds the four separate states, fallback, escalation, availability and route exclusions; the built v1 contract needs a migration
-policy_version: 0.0.0-draft
-status: draft                          # draft | approved. NOTHING below is approved.
-owner: <model-policy owner role>
-compatibility:
-  orqlet: "<supported range, set at release>"
-  min_client_versions:                 # to be filled from the M0 spikes
-    claude-code: <min version>
-    codex: <min version>
-    cursor: <min version>
-
-data_classes:                          # defined by the company, not by Orqlet
-  - id: <class id>
-    cloud_routes_allowed: <true|false>
-
+# Team file `.orqlet/model-policy.yaml`, schema `orqlet.model-policy/v2`, in the spelling that is built.
+# Every name below is a placeholder; a real file names the models of its own catalog.
+schema: orqlet.model-policy/v2
+policy_version: 1
+reviewed_for_release: "0.4.0"          # the workflow version at which the catalog was last rechecked
 models:
-  - logical_id: <logical model name>   # a logical name, never a vendor model ID
-    # Four SEPARATE facts about a model or route (Section 14.2). None of them implies another.
-    discovered:                        # 1. seen in client metadata or documentation (a candidate, nothing more)
-      source: <metadata command or document>
-      observed_at: <date>
-    approval:                          # 2. company-approved, by a reviewed pull request
-      status: proposed                 # proposed | approved | disabled | retired
-      approved_by: null
-    supports:
-      reasoning_levels: <from vendor documentation>
-      context_window: <from vendor documentation>
+  - id: example-large
+    family: example-family-a
+    approval:                          # 2. approved by the team, in a reviewed change
+      state: approved                  # proposed | approved | disabled | retired
+      approved_by: example-approver
+      approval_ref: pr:101             # pr:<number> | commit:<full hex id> | adr:<repository path>
+    documented:                        # 1. documented by the vendor: an evidence file and its date
+      evidence: docs/example/evidence/example-large.md
+      date: "2026-10-30"
+    callable: not-run                  # 4. not-run | verified: set by hand, no tool checks it
+    evaluated:                         # 5. none | evidenced
+      state: none
+      evidence: null
+    list_price: null                   # {input_per_million_usd, output_per_million_usd, source}; shown, never used to select
     routes:
-      - route_id: <logical model name>@claude-code
-        executor: claude-code
-        provider: <to be supplied>
-        runtime_id: null               # vendor/runtime-specific identifier: NOT SUPPLIED
-        alias: null                    # a vendor tier alias that the vendor moves forward (Section 14.9.3); a pin needs `alias` OR `runtime_id`
-        rank: null                     # owner-supplied quality order among approved routes of this client (1 = best)
-        price_rank: null               # owner-supplied cost order (1 = lowest); never used to infer suitability
-        availability: {state: unknown, retires_on: null, notice_ref: null}   # unknown | available | retiring | retired: owner-supplied from the vendor's notice
-        callable:                      # 3. callable for a developer, runtime and provider: only a budgeted, explicitly scoped check can set it (deferred)
-          verified: false
-          scope: null
-          budget: null
-          checked_at: null
-        evaluated: []                  # 4. evaluated as suitable for a role: [{role, report_ref, result, date}] supplied by the team
-        options: {}                    # effort/context options that the runtime supports
-        locality: unknown              # inference-local | inference-remote | unknown
-        data_handling: {allowed_data_classes: []}
-        observability: {model_identity: init-and-usage}   # init-and-usage | init-only | none
-        enabled: false                 # unverified routes stay disabled
-      - route_id: <logical model name>@codex
-        executor: codex
-        provider: <to be supplied>
-        runtime_id: null
-        alias: null
-        rank: null
-        price_rank: null
-        availability: {state: unknown, retires_on: null, notice_ref: null}
-        callable: {verified: false, scope: null, budget: null, checked_at: null}
-        evaluated: []
-        locality: unknown
-        data_handling: {allowed_data_classes: []}
-        observability: {model_identity: none}             # exec JSONL carries no model field
-        enabled: false
-      - route_id: <logical model name>@cursor
-        executor: cursor
-        provider: cursor-hosted
-        runtime_id: null
-        alias: null
-        rank: null
-        price_rank: null
-        availability: {state: unknown, retires_on: null, notice_ref: null}
-        callable: {verified: false, scope: null, budget: null, checked_at: null}
-        evaluated: []
-        locality: inference-remote     # all Cursor requests go through Cursor's servers
-        data_handling: {allowed_data_classes: []}
-        observability: {model_identity: <init-only | unknown>}   # Auto may hide the routed model
-        enabled: false
-
-excluded:
-  models: [fable]                      # no access [DC] (developer-confirmed, brief section 10); never in defaults
-  routes: []                           # route ids that are withdrawn without retiring the model
-reviewed_at: <date>                    # `doctor` warns when older than max_age_days
-max_age_days: <n>
-
-profiles:                              # starter profiles; the tier mapping is a hypothesis to evaluate (Section 10.3)
-  - id: readonly-fast                  # inventory researcher, knowledge drafter
-    prefer: price_rank                 # the lowest-cost route among those approved AND evaluated for the role (Section 14.9.2)
-    candidates: [<logical model name>]
-    fallback: none                     # none | [<profile id>]: an explicit, reviewed fallback; never the client default
-    escalation: ask-developer          # ask-developer | stop: what a skill does when the profile has no usable route
-  - id: balanced-general               # behaviour tracer, synthesizer, tester, coder (to be evaluated)
-    prefer: price_rank
-    candidates: [<logical model name>]
-    fallback: none
-    escalation: ask-developer
-  - id: strong-reasoning               # coordinator, architect, planner
-    prefer: rank                       # the best approved route
-    candidates: [<logical model name>]
-    fallback: none
-    escalation: ask-developer
-  - id: strong-reviewer                # independent code, architecture and security reviewers
-    requires: {independence_from_roles: [coder]}   # advisory: a different model family or client is recommended
-    prefer: rank
-    candidates: [<logical model name>]
-    fallback: none
-    escalation: stop                   # a required review role never runs on an unapproved route
-
-roles:                                 # skills reference roles/profiles, never model names
-  coordinator: {profile: strong-reasoning, pinned: false}        # main-agent roles are never pinned by Orqlet: the profile is a hint
-  inventory-researcher: {profile: readonly-fast, pinned: true}
-  behaviour-tracer: {profile: balanced-general, pinned: true}
-  research-synthesizer: {profile: balanced-general, pinned: false}
-  architect: {profile: strong-reasoning, pinned: false}
-  planner: {profile: strong-reasoning, pinned: false}
-  coder: {profile: balanced-general, pinned: false}              # the most uncertain assignment; evaluate
-  tester: {profile: balanced-general, pinned: true, required: true}
-  architecture-reviewer: {profile: strong-reviewer, pinned: true, required: true}
-  security-reviewer: {profile: strong-reviewer, pinned: true, required: true}
-  code-reviewer: {profile: strong-reviewer, pinned: true, required: false}   # Section 10.3: a provided capability; `required` follows decision Q-07
-  knowledge-drafter: {profile: readonly-fast, pinned: true}
-
+      - client: claude-code
+        kind: id                       # id | alias; an alias carries resolves_to
+        name: example-large-1          # the exact identifier of the client, or null while unknown
+        resolves_to: null
+        also_known_as: []
+        access: confirmed              # 3. account access: unknown | confirmed | blocked
+        retires_on: null
+      - client: codex
+        kind: id
+        name: null
+        resolves_to: null
+        also_known_as: []
+        access: unknown
+        retires_on: null
+  - id: example-small
+    family: example-family-b
+    approval:
+      state: approved
+      approved_by: example-approver
+      approval_ref: adr:docs/example/adr-001.md
+    documented:
+      evidence: docs/example/evidence/example-small.md
+      date: "2026-10-30"
+    callable: not-run
+    evaluated:
+      state: none
+      evidence: null
+    list_price: null
+    routes:
+      - client: claude-code
+        kind: id
+        name: example-small-1
+        resolves_to: null
+        also_known_as: []
+        access: confirmed
+        retires_on: null
+excluded:                              # matched by model identity, never by one name (Section 14.9.2)
+  - id: excluded-example
+    reason: The team has no access to this model family.
+    source: Example notice of the team.
+    aliases:
+      - excluded-alias
+    id_patterns:
+      - "excluded-example-*"
+    family_tags:
+      - excluded-family
+profiles:
+  - id: quality
+    capability: Judgement-heavy work, such as design, plan and the reviews.
+    mode: automatic
+    candidates:
+      - client: claude-code
+        models: [example-large]
+    fallbacks: []
+    escalation: null
+  - id: engineering
+    capability: Everyday engineering, such as implementation, tests and code review.
+    mode: manual
+    candidates:
+      - client: claude-code
+        models: [example-large, example-small]
+    fallbacks: []
+    escalation: quality
+  - id: economy
+    capability: High-volume, low-ambiguity read-only work.
+    mode: automatic-with-fallbacks
+    candidates:
+      - client: claude-code
+        models: [example-small]
+    fallbacks:
+      - client: claude-code
+        models: [example-large]
+    escalation: engineering
+assignments:
+  - target:
+      kind: role
+      name: orqlet-arch-reviewer
+    task: null
+    client: null
+    profile: quality
+    model: null
+    mode: automatic
+    effort: null
+  - target:
+      kind: role
+      name: orqlet-tester
+    task: null
+    client: claude-code
+    profile: engineering
+    model: null
+    mode: manual
+    effort: null
+  - target:
+      kind: role
+      name: orqlet-inventory
+    task: null
+    client: null
+    profile: economy
+    model: null
+    mode: automatic-with-fallbacks
+    effort: null
+  - target:
+      kind: skill
+      name: orqlet-design
+    task: null
+    client: claude-code
+    profile: null
+    model: example-large
+    mode: manual
+    effort: high
 ```
 
 **Historical labels (developer-supplied observations from the brief, not evidence).** The Cursor model picker once showed labels such as *Auto Balance*, *Grok 4.7 High Fast*, *Claude Opus 5.5 Medium*, *Claude Sonnet 5.5 High*, *GPT-5.4 Medium*, *Claude Opus 4.6 High* and *Claude Opus 4.8 1M High*. They are **not** execution identifiers, **not** an approved allowlist and **not** proof of callable access; none of them appears in the policy above.
@@ -5092,7 +5121,7 @@ Independent work continues while these wait.
 | Q-04 | Whether option Guard-C of Section 19.10.3, the managed-policy proposals (M7) and a managed Cursor hook for Q-06 option Miro-hook are possible | M1–M4 |
 | Q-05 | Which local guard accompanies the merge-time gate (Section 19.10.3) | M1; M3; M4 |
 | Q-06 | The Miro entries in every client in M4 and the M6 Miro read adapter; whether the Miro requirement can be called met (through MCP in any client, or narrowed to REST reads) | M1; M2; M3; GitHub, Jira and Confluence in every client |
-| Q-07 (answered 2026-10-25: option (1)) | Whether the provided Code Reviewer is a required gate (the role's `required` flag, the model-policy required roles, the M2 acceptance fixtures) | M1; M3; M4; the four required roles |
+| Q-07 (answered 2026-10-25: option (1); re-decided in task `dynamic-model-profiles`: option (3), a required gate in every phase) | Whether the Code Reviewer is a required gate (the role's `required` flag, the model-policy required roles, the M2 acceptance fixtures) | M1; M3; M4; the required roles |
 | Q-08 (answered 2026-10-25: v0.5) | Which version of this proposal is the approved basis (the header status and the plans that cite it) | All architecture work; the code that exists |
 
 | ID | Question | Why it is material |
@@ -5102,7 +5131,7 @@ Independent work continues while these wait.
 | **Q-04** | Can you, or an administrator you can ask, **deploy managed settings** for the three clients — Claude Code managed settings, Codex `requirements.toml`, Cursor Enterprise or Team hooks — and on which plans? | Managed settings are the only candidates for controls a developer cannot change locally (for Cursor hooks the documentation is silent). They enable option C of the local-before-approval gap, managed hooks, model and MCP restrictions and Cursor's "Required" plugin mode. Without them "strict" means a fixed workflow, visible drift and server-side gates |
 | **Q-05** (v0.3) | **Which local guard should accompany the merge-time gate?** The repository cannot stop an IDE agent from *writing* code before approval (Section 19.10.3). Option **Guard-A** merge-time only; option **Guard-B** = Guard-A + a generated project edit guard (client-enforced but editable, fails open by default in Claude Code and Cursor); option **Guard-C** = Guard-A + Guard-B + administrator-managed hooks where Q-04 allows. **Recommended: Guard-B by default, Guard-C if available** | The workflow is not weakened to hide the limit; this is the one place where a native IDE limitation forces a human choice |
 | **Q-06** (v0.4; clarified in v0.5) | **How should Miro be supported, given that no documented server-enforced read-only grant exists for its MCP server in any client and Cursor has no documented non-editable per-tool control in project files (Section 15.10.1)?** Two separate answers are needed. **(1) The option:** **Miro-REST**, the Miro REST read adapter (`boards:read` only, no comments, no MCP tools), recommended; **Miro-hook**, the Miro MCP server restricted by a client-side allowlist hook (client-enforced; editable by repository writers when it is a project hook; whether a managed hook can be disabled by a developer is not stated; not available to Cursor Cloud Agents; brittle because tool names change); or **Miro-none**, no Miro through MCP in Cursor. **Choosing Miro-REST narrows requirement R-11** from "Miro as an MCP integration" to "Miro board reads without comments": please say explicitly whether that scope change is accepted. **(2) The sub-answer:** is a client-enforced, editable control acceptable for Miro in Claude Code and Codex? Also needed: which Miro plan the team has (Miro's own pages disagree on whether MCP is available below Enterprise) | Without an answer the requirement stays **not met through MCP in any client** and Miro is registered nowhere; it is the one place where the vendors' documentation forces a human choice. A REST adapter is **not counted** as satisfying R-11 until the scope decision is recorded |
-| **Q-07** (v0.5) | **Should the Code Reviewer be a required gate?** The specification asks for a dedicated read-only code-review capability in addition to the Coder, Tester, Architecture Reviewer and Security Reviewer. v0.5 provides it (`orqlet-code-reviewer`, started by `/orqlet-review` on the same packet, Section 10.3). Options: **(1)** a provided capability only (a missing record is a report); **(2)** a required gate for the higher change classes (D2 and D3); **(3)** a required gate in every phase. **Recommended [R]: (1) until the owners decide**, so that the four-role gate set does not change without an approval. **Answered on 2026-10-25: option (1)**, by the person's "I approve all" in conversation; the four-role gate set is unchanged and `code-reviewer` keeps `required: false` | It decides whether a missing or stale code-review record blocks a phase, whether a role without an approved model route makes that gate `NOT_RUN`, and how many review fixtures M2 must build; it is the one place where the specification and the earlier decision D-36 point in different directions |
+| **Q-07** (v0.5) | **Should the Code Reviewer be a required gate?** The specification asks for a dedicated read-only code-review capability in addition to the Coder, Tester, Architecture Reviewer and Security Reviewer. v0.5 provides it (`orqlet-code-reviewer`, started by `/orqlet-review` on the same packet, Section 10.3). Options: **(1)** a capability whose missing record is only a report; **(2)** a required gate for the higher change classes (D2 and D3); **(3)** a required gate in every phase. The v0.5 recommendation [R] was option (1), so that the four-role gate set would not change without an approval. **Answered on 2026-10-25: option (1)**, by the person's "I approve all" in conversation. **Re-decided in task `dynamic-model-profiles`: option (3).** The person reopened the question (ledger question Q-9) and approved the gate in design (Q-19, Q-21; ADR-006 decision 9): the code review gate is required at every phase at independence I2, and a review that reaches no I2 is `NOT_RUN`. The role `orqlet-code-reviewer` is not built yet; it ships with workflow 0.5.0 | It decides whether a missing or stale code-review record blocks a phase, whether a role without an approved model route makes that gate `NOT_RUN`, and how many review fixtures M2 must build; it is the one place where the specification and the earlier decision D-36 point in different directions |
 | **Q-08** (v0.5) | **Which version of this proposal is the approved basis?** The implementation plans in `docs/design/orqlet-implementation/` and `docs/design/orqlet-m2-workflow/` use v0.4 as input and record their own decisions, but the repository holds no record of approving v0.4 (`as-is.md`, U-1). Is v0.4 approved, and should v0.5 replace it as the basis once approved? **Answered on 2026-10-25:** the person approved v0.5 as the basis, by "I approve all" in conversation. The person did not say whether v0.4 was approved, and did not decide whether the plans that cite v0.4 are re-based, so both stay unrecorded. | The status line says awaiting approval; a person who knows what has been approved has to say so, and the plans that cite v0.4 then need to be re-based on v0.5 or kept on v0.4 explicitly |
 
 ### 25.2 Pending developer-supplied information (not questions)

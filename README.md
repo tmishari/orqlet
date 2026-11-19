@@ -37,11 +37,18 @@ Version 0.3.0. What is built and tested in this repository:
   skills and `AGENTS.md` block that render them for the three clients;
 - the declaration of MCP servers (`.orqlet/integrations.yaml`), `validate integrations`, and the
   `.mcp.json` of Claude Code that `upgrade` writes from it, for one server only (Atlassian). The
-  section "MCP servers, one credential per user" says what that covers.
+  section "MCP servers, one credential per user" says what that covers;
+- the model policy: the team file `.orqlet/model-policy.yaml`, `orqlet models resolve`,
+  `orqlet validate model-policy`, the pins that `upgrade` renders in the mode `manual`, the exclusion
+  of a model by its identity, and the checks of `validate review` that derive the independence class
+  from the recorded model identities. The section "Model policy and the code review gate" says what
+  that covers and where it is awkward.
 
 What is **not** built yet: `orqlet ci check` and the merge-time gate, local Git hooks, the
 knowledge index and module catalogue, and MCP files for Cursor and Codex or for a server other
-than Atlassian. Approval cannot be verified by the
+than Atlassian. Also not built: the roles `orqlet-code-reviewer` and `orqlet-pr-writer`, the seed of
+the model policy and the skill steps that use them (so `/orqlet-review` starts two reviewers, not
+three), and `orqlet models refresh`. Approval cannot be verified by the
 tool today: `orqlet gate status <task>` always ends `NOT_RUN` for approval, because approval is meant
 to be a merge on the protected branch and that evidence comes from the code host. The generated files
 follow each client's published documentation; the tests check the files, not the clients.
@@ -284,6 +291,8 @@ What the upgrade does and does not touch:
   (`lowering_pin_or_floor_requires_approvals` in `.orqlet/versions.yaml`); Orqlet does not count
   them, your code host does.
 
+A model pin is rendered only where a team chose the mode `manual`. A pin changes the bytes of protected agent files and therefore `protected_set_digest`, so approvals of designs and plans in flight then show ORQ-W390 and the person decides what to do about them; Orqlet changes no record, and the upgrade lists the review records that name a changed agent file (ORQ-W547). The new roles, the changed role and skill text and the version stamps do the same once, at the upgrade that ships them.
+
 After an upgrade, start a new session in the client.
 
 ## Day to day
@@ -359,7 +368,197 @@ orqlet evidence cite <file> 10-20         # an evidence entry for lines of a com
 ```
 
 `validate` also checks the question ledger (`validate ledger`), the registry of links
-(`validate resources`) and the MCP declaration (`validate integrations`).
+(`validate resources`), the MCP declaration (`validate integrations`) and the model policy
+(`validate model-policy`).
+
+## Model policy and the code review gate
+
+Orqlet starts no session and calls no model. It can record which models a team approved for which
+work, show that choice on request, and write it into the generated agent files when the team asks
+for it. A team keeps the choice in one file, `.orqlet/model-policy.yaml` (schema
+`orqlet.model-policy/v2`; the JSON schema is `src/orqlet/workflow/schemas/orqlet.model-policy.v2.json`,
+and Section 24.1 of the architecture proposal has an example). The file belongs to the team and
+changes by a reviewed edit. Orqlet does not seed it yet, so a team writes it. A project without the
+file has no policy: the role files stay as they are (`model: inherit`, or no key for Codex) and the
+client chooses.
+
+The file holds `models` (each with its `routes` for the clients), `excluded` entries, three
+`profiles` (`quality`, `engineering` and `economy`, each a capability category with ordered
+candidates per client) and `assignments` of a profile or a model to a role or a skill.
+
+### The two commands
+
+`orqlet models resolve --client <client>` with one of `--role`, `--skill` and `--profile` prints what
+the policy gives for that target and where the answer comes from. It changes nothing. This is the
+output for a role that the team put in the mode `manual`, with the placeholder names of the example:
+
+```text
+$ orqlet models resolve --client claude-code --role orqlet-tester
+target: role orqlet-tester for claude-code
+policy: present
+profile: engineering, mode manual
+source: profile-assignment
+selected: example-large-1 (id route, no effort), catalog id example-large
+candidates: example-large-1 (id route, no effort), catalog id example-large; example-small-1 (id route, no effort), catalog id example-small
+fallbacks: none
+escalation: quality
+rejected: none
+hint: Suggested for this work: profile engineering; the client keeps the choice and nothing here changes the model.
+```
+
+`orqlet validate model-policy [file]` checks the file against its contract, checks that every
+reference names something that exists, that no approved model has a missing approver, that nothing
+excluded is named (also in the agent and skill files of the clients), and that the generated files
+hold what the policy gives. `--base REF` names the revision whose exclusions the file may not lose.
+The exit statuses are:
+
+| Command | Exit | Meaning |
+|---|---|---|
+| `orqlet models resolve` | 0 | An answer was printed: a model is selected, or the client chooses (the mode is `automatic` or `automatic-with-fallbacks`, or there is no policy) |
+| `orqlet models resolve` | 1 | No candidate qualifies; the rejected candidates and their reasons are printed |
+| `orqlet models resolve` | 2 | Wrong options, for example not exactly one of `--role`, `--skill` and `--profile` |
+| `orqlet models resolve` | 3 | Refused: the policy cannot be used (for example ORQ-E541 or ORQ-E545), so no selection is shown |
+| `orqlet validate model-policy` | 0 | `PASS`; warnings may be printed |
+| `orqlet validate model-policy` | 3 | Refused, for example outside a Git repository (ORQ-E106) |
+| `orqlet validate model-policy` | 5 | `FAIL`, or `NOT_RUN` because the project has no policy file |
+
+### The five states of a model
+
+A model entry keeps five facts apart. Each is a field that a person sets, and Orqlet derives none of
+them from another:
+
+| State | Field | Meaning |
+|---|---|---|
+| `documented` | `documented` | A page of the vendor documents the model; the entry names the evidence file and its date |
+| `approved` | `approval.state` | `proposed`, `approved`, `disabled` or `retired`; the team sets it in a reviewed change, and only an `approved` model can be selected or pinned |
+| `account access` | `routes[].access` | `unknown`, `confirmed` or `blocked`, for one client; `blocked` removes the route from every selection |
+| `callable` | `callable` | `not-run` or `verified`; a label that a person writes, which no command checks |
+| `evaluated` | `evaluated.state` | `none` or `evidenced`, with an evidence file; a label that a person writes |
+
+None of the five states implies another: a model can be documented and approved and still blocked
+for the account of the team, and `verified` or `evidenced` says only that someone attested it.
+
+### Modes and precedence
+
+A profile or an assignment has one of three modes:
+
+| Mode | What it does |
+|---|---|
+| `automatic` | Nothing is rendered. The generated files stay as they are and the client's own automatic selection applies |
+| `manual` | `orqlet upgrade` pins the first eligible candidate in the approved order. When none is eligible nothing is pinned, the reason is reported and the role keeps its automatic setting |
+| `automatic-with-fallbacks` | As `automatic`: nothing is rendered. The policy adds an ordered list of fallbacks that `models resolve` prints; no command names one of them yet |
+
+The default mode is `automatic`. When more than one thing names a model, the first of these wins, and
+a choice at level 1 to 3 that breaks a constraint is reported with its reason, never replaced by a
+lower level without a finding:
+
+1. an explicit override, which a person makes in the client or passes to `models resolve --override`
+   to have it checked;
+2. a team assignment for the role or skill, for the client;
+3. a team assignment for the profile, for the client;
+4. the automatic selection of the client.
+
+The constraints hold at every level: the model is not excluded, it is approved, the route has a
+known identifier for the client, the access is not blocked, and the model sits in the profile that
+the work needs. A reviewer may also not be of a lower profile than the coder.
+`--different-family-from` (a catalog id), `--coder-profile` and `--task` narrow the answer for those
+cases. The source of an answer that `models resolve` prints is one of `task-override`,
+`role-assignment`, `profile-assignment` and `automatic`. The resolver also knows the source
+`explicit-fallback`, for a fallback that a caller names, but no command names one yet, so
+`models resolve` never prints it.
+
+Only the mode `manual` renders a pin, and `orqlet upgrade` does it: the model setting of the generated
+subagent files for the three clients, and, for Claude Code only, of the generated skill files. The
+main agent is never pinned, with one exception: the only pin of the main agent is an explicit
+assignment of a skill in Claude Code, which sets the model for the rest of that turn. A skill
+assignment for Codex or Cursor renders nothing and `upgrade` says so (ORQ-W546). Orqlet cannot see a
+client replace a pin; a review record shows a model that was requested and a different one that ran
+(ORQ-W464). The effect of a pin on the approvals in flight is in the section on upgrading.
+
+### Excluded models
+
+A model is excluded by model identity, not by one name. An `excluded` entry of the policy matches a
+model by an alias (the whole name), by an id pattern (`*` and `?` are the only wildcards) or by a
+family tag (found anywhere in the name once separators are removed). The match runs on the string as
+written, folded by Unicode NFKC and case, and on its normal form without provider prefix and
+bracketed options, so `fable-5.1-xhigh` and `x[model=fable]` both match an entry that lists the
+family tag `fable`, which is how the exclusion of Fable is written. The exclusion is checked in the
+selection, which rejects an excluded candidate; in `validate model-policy`, where it is an error
+(ORQ-E543, ORQ-E548) and where an entry that the base tree had and the file lost is an error too
+(ORQ-E544); and in `validate review`, where a record that names an excluded model is invalid
+evidence of class I0 (ORQ-E460). The policy file holds the list, and Orqlet has no built-in list:
+the entry for Fable arrives with the seed, which is not built yet. The exclusion is defence in
+depth behind a block that the company sets in the client, not a replacement for it.
+
+### The code review gate
+
+The code review gate is required at every phase, at independence I2: the code reviewer needs I2 at
+every change class. The architecture reviewer and the security reviewer keep the minimum they had
+(I1, and I2 for a change of class D3). I2 means a different client from the
+coder's, or a different model family that both sides were observed to run: an identity that a record
+only requested is unknown, and an unknown identity never shows a difference. The record of a code
+reviewer must also state that the reviewer worked in a fresh context on the packet alone; a record that
+does not is I0, and I0 never counts.
+
+The review is `NOT_RUN` when no reviewer qualifies, never a pass. A new session of the same client
+does not satisfy the gate: it is I1. What stands in is a review in another client, or a human
+code-owner review by someone who is not the author. Orqlet has no record for a human code-owner
+review: the approval on the pull request is evidence of the code host, and the Orqlet record stays
+`NOT_RUN`. Orqlet runs no check at merge time (`orqlet ci check` is not built yet), so a `NOT_RUN`
+review blocks nothing by itself, and Orqlet does not know what the host does with such a pull
+request. The validators are commands that a person or an agent runs.
+
+What is built is the judgement, not the reviewer. `orqlet validate review` derives the independence
+class from the recorded values and judges the record against the minimum of its role. The recorded
+values are statements of whoever writes the record, and no tool verifies them: a class says how
+independent a review claims to be. `orqlet validate plan` requires `code-reviewer` in the `review_evidence` of every phase of a plan
+whose header names workflow 0.5.0 or later (and in no phase of an earlier plan). The workflow package
+has no `orqlet-code-reviewer` role yet, so the skill `/orqlet-review` starts two reviewers and the
+shipped workflow produces no record of the role. The binding for the role is already built: `init`
+writes it to `.orqlet/role-bindings.yaml`, and `upgrade` proposes it to a project whose bindings lack
+it and says so (ORQ-I540). Orqlet never applies that proposal, and until a reviewed edit applies it a
+record of the role is ORQ-E415.
+
+Two behaviours of `validate review` are awkward, and they are listed here as they are. ORQ-W460 is
+printed when a record's client differs from the coder's client and at least one side has no observed
+identity that the policy or `model_families` names, and ORQ-W461 is printed when both sides ran the same observed model on different clients.
+Neither looks at the class, so both are printed also when the class is I0: they are meant to qualify
+an I2 that rests on a different client, and next to an I0 they qualify nothing. A binding that the staged tree removes stays approved when the base tree approves it: the
+command counts a binding as approved when either tree approves it, so a change that removes the
+approval of its own reviewer is still judged with that approval. A binding that only the staged tree
+holds counts as well, with ORQ-W463, so that a person sees that the change approved its own reviewer.
+
+### Finding codes of the model policy, the selection and the review gate
+
+| Code | Meaning |
+|---|---|
+| ORQ-E540 | The policy file cannot be read, is not a regular file, is above 256 KiB, or breaks the rules for reading a document (anchors, aliases, repeated keys, depth) |
+| ORQ-E541 | The policy file fails its contract, or it is a v1 file that needs a migration |
+| ORQ-E542 | The policy file holds text that looks like a credential |
+| ORQ-E543 | A model, route, candidate, fallback or assignment matches an exclusion, in any approval state |
+| ORQ-E544 | The base tree has an exclusion entry, found by its `id`, that the file lacks; only a reviewed change removes an exclusion. An entry that keeps its `id` and loses an alias, a pattern or a tag is not found, and the check is skipped without a base tree or for a file given by path |
+| ORQ-E545 | The policy has a duplicate id, a reference or a name that nothing defines, or two models that claim one name |
+| ORQ-E546 | An approved model has no approver, or its approval reference is not `pr:<number>`, `commit:<full hex id>` or `adr:<repository path>` |
+| ORQ-E547 | The policy file is missing but the lock records it as seeded, or, in `validate model-policy`, the base tree holds it; `upgrade` writes nothing until it is restored |
+| ORQ-E548 | An agent or skill file holds a model that an exclusion matches |
+| ORQ-W540 | A profile or an assignment has nothing to give for a client, so nothing is pinned and the client keeps its choice |
+| ORQ-W541 | The policy was last reviewed for an older release than the installed workflow |
+| ORQ-W542 | A route is retired or retires within 30 days; the date changes no selection |
+| ORQ-W543 | A generated agent or skill file differs from what the policy gives; run `orqlet upgrade` |
+| ORQ-W544 | An agent or skill file, or a folder of them, could not be scanned (it is unreadable, unparsable or above 256 KiB) |
+| ORQ-W545 | A pin is written on an alias route, and an environment variable can remap an alias |
+| ORQ-W546 | A setting that a client cannot take is left out (a skill assignment for Codex or Cursor, an effort or a name with options for Cursor) |
+| ORQ-W547 | An upgrade changes an agent file that review records name; those records go stale and the approvals in flight show ORQ-W390 |
+| ORQ-I540 | The upgrade proposes a binding for `code-reviewer`; a record of that role is ORQ-E415 until a reviewed edit applies it |
+| ORQ-E460 | The requested or observed model of a review record matches an exclusion; the record is invalid evidence of class I0 |
+| ORQ-E461 | The policy of the staged tree is refused, so the models of a record that names one cannot be judged |
+| ORQ-W460 | The class rests on a different client and at least one side has no observed identity that the policy or `model_families` names (`identity-unknown`) |
+| ORQ-W461 | Both sides ran the same observed model on different clients, so only the client differs (`same-model-different-client`) |
+| ORQ-W462 | The policy of the staged tree is not the policy of the base tree (`policy-changed-in-this-change`) |
+| ORQ-W463 | The approved binding of the reviewer is in the staged tree and not in the base tree (`binding-added-in-this-change`) |
+| ORQ-W464 | The model that a record says it requested differs from the one that the client ran (`model-requested-differs-from-observed`) |
+| ORQ-W465 | A record of Codex does not state that read-only is not enforced by the client (`codex-read-only-not-stated`) |
+| ORQ-I460 | No exclusion list was available, because neither tree has a model policy; the legacy `model_families` rules apply |
 
 ## Team links and conventions
 
@@ -719,13 +918,14 @@ the release that needs them runs them. What each of the six showed, and what it 
 | `release` | Take a file out of the manifest (protected files cannot be released) |
 | `profile` | Answer open facts and approve the project profile |
 | `standards` | Read the standards that apply to a path, phase and role |
-| `validate` | Check an artifact an agent wrote, the registry of links (`validate resources`) and the MCP declaration (`validate integrations`) |
+| `validate` | Check an artifact an agent wrote, the registry of links (`validate resources`), the MCP declaration (`validate integrations`) and the model policy (`validate model-policy`) |
 | `resources` | Register links to team resources (`add`, `update`, `remove`, `attach`, `list`) |
 | `conventions` | Check the branch name and the commit subjects against the profile (`check`) |
 | `gate` | Check what the workflow's gates would see |
 | `evidence` | Print the hashes and citations an artifact must carry |
 | `knowledge` | Knowledge that travels with the code |
 | `review` | Independent review of a staged change |
+| `models` | Show what the model policy gives for a role, a skill or a profile (`models resolve`); it changes nothing |
 
 Run `orqlet <command> --help` for the options. Every command takes `--root <directory>` (the project
 root; the default is `.`) and most take `--json`. A command that writes takes `--yes` (apply without
@@ -749,11 +949,12 @@ asking) and, except `release`, `--dry-run` (show the plan, write nothing).
 | `resources list` | `--uncovered` (technologies that no entry names) |
 | `conventions check` | `--branch`, `--base`, `--head` |
 | `standards for` | `--path`, `--role`, `--phase`, `--packs-dir` |
-| `validate <kind> [file]` | the kinds are `as-is`, `design`, `plan`, `ledger`, `resources`, `integrations`, `review`, `test` and `knowledge`; `as-is` also takes `--against`, `--fragments` and `--ledger`; `review` takes `--base` and `--head` |
+| `validate <kind> [file]` | the kinds are `as-is`, `design`, `plan`, `ledger`, `resources`, `integrations`, `model-policy`, `review`, `test` and `knowledge`; `as-is` also takes `--against`, `--fragments` and `--ledger`; `review` takes `--base` and `--head`; `model-policy` takes `--base` |
 | `gate status [task]` | `--phase`, `--base`, `--head` |
 | `evidence cite <file> <lines>` | `--revision`; `evidence hash <files>...` |
 | `knowledge impact <task> <phase>` | `--base`, `--head` |
 | `review prepare <task> <phase>` | `--base`, `--head` (`staged`, `HEAD` or a commit id) |
+| `models resolve` | `--client` (required) and exactly one of `--role`, `--skill` and `--profile`; `--task`, `--override`, `--different-family-from` (a catalog id), `--coder-profile` |
 
 ## Checks for pull requests
 
