@@ -1,0 +1,81 @@
+schema: orqlet.question-ledger/v1
+task: one-command-setup
+questions:
+- id: Q-1
+  key: 61643b58a8b3c4792a694f648cb14d75fcca099e8e5a7d707b8ad3b4299971ef
+  subject: Installation and project skill scope
+  raised_by: Codex
+  phase: research
+  category: requirement
+  text: 'Is this the scope you want: one command installs Orqlet and its dependencies,
+    then Orqlet adds the Graphify and Ponytail skills to every project it initializes
+    or upgrades for Cursor, Codex, and Claude Code?'
+  why: Defines the requested installation and bundled-skill behaviour.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Yes, that is the scope
+    answerer: tmishari
+    time: '2026-11-19T18:48:54.538767+00:00'
+    scope: task
+- id: Q-2
+  key: 997b0e9208fba3a10f208e7a3c90f5c916357796afcac37a3869db94b64e5668
+  subject: Automatic prerequisite installation
+  raised_by: Codex
+  phase: research
+  category: requirement
+  text: For a machine missing prerequisites, should setup install uv and a compatible
+    Python automatically, along with Orqlet and the Graphify CLI?
+  why: Defines the requested installation and bundled-skill behaviour.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Yes, install them automatically
+    answerer: tmishari
+    time: '2026-11-19T18:48:54.538767+00:00'
+    scope: task
+- id: Q-3
+  key: f851b98584ca1ae344f2e00ce411d15a4c05420d292fccb9ee15d187713ad980
+  subject: Ponytail skills included
+  raised_by: Codex
+  phase: research
+  category: requirement
+  text: Which Ponytail skills should Orqlet include?
+  why: Defines the requested installation and bundled-skill behaviour.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: All six skills
+    answerer: tmishari
+    time: '2026-11-19T18:48:54.538767+00:00'
+    scope: task
+- id: Q-4
+  key: 46458445079dba9a60669e87753cce128e2e1537efda50c7e3f98151fd685a08
+  subject: Git prerequisite
+  raised_by: Codex
+  phase: research
+  category: requirement
+  text: Should Git remain a prerequisite, or should the installer also install Git?
+    Orqlet requires it, and installing it can involve OS package-manager or administrator
+    steps.
+  why: Defines the requested installation and bundled-skill behaviour.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Keep Git as a prerequisite
+    answerer: tmishari
+    time: '2026-11-19T18:48:54.538767+00:00'
+    scope: task
+conflicts: []
