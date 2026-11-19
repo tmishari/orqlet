@@ -97,8 +97,8 @@ expected_changes:
     identity: ".github/CODEOWNERS entries for the seed of the policy and CODEOWNERS itself (.orqlet/** already owns the policy path)"
     expected_after:
       kind: declaration
-      value: "The seed path (src/orqlet/workflow/seeds/**) and .github/CODEOWNERS have code owners; Q-32 asks who the second owner is, so that the approval rule of Q-23 can be met, and whether src/orqlet/domain/** and tests/** are owned too."
-    verification: manual
+      value: ".github/CODEOWNERS"
+    verification: extractor
   - id: EC-8
     surface: public-api
     action: change
@@ -118,7 +118,7 @@ expected_changes:
 artifacts:
   - {id: D-1, kind: c4-context, path: docs/design/dynamic-model-profiles/design/context.md, covers: "Orqlet, the three clients, the host, the approvers and the vendor pages around model selection; no new trust boundary", sha256: 31e1e40aca33b01023f6532563f8230b134b13210f0f0e8b52fd282103aa57b2}
   - {id: D-2, kind: c4-container, path: docs/design/dynamic-model-profiles/design/container.md, covers: "Where the policy, resolution, rendering and review changes sit in the layers", sha256: 1b7e42d370471cee37b987efdd6c970cc2211f19efc54b74c285540bd377884f}
-  - {id: D-3, kind: c4-component, path: docs/design/dynamic-model-profiles/design/component.md, covers: "The design brief and the components with their interfaces", sha256: f4f9497bb7d335b46e0b796a6029a0a5bf426dbfdd1a90e4d93fe052167fcc67}
+  - {id: D-3, kind: c4-component, path: docs/design/dynamic-model-profiles/design/component.md, covers: "The design brief and the components with their interfaces", sha256: 6b40605320c449c1ace532dd764579c89a28ef9933e4cf7d11faac4e2bbcdf81}
   - {id: D-4, kind: data-flow, path: docs/design/dynamic-model-profiles/design/data-flow.md, covers: "Refresh-time flow from policy to generated files and run-time flow from recorded identity to independence", sha256: 6320ae17d234fd6e7358ced1124d0a7048ee4d2fca14329e0d78a5df36f7a77f}
   - {id: D-5, kind: sequence, path: docs/design/dynamic-model-profiles/design/sequence.md, covers: "A policy change, a code review that must differ from the coder, a release-time recheck", sha256: 2d9bee4638a3e04f71c7e34eacff84428a2b387adcbc5ca9d244683161bae667}
   - {id: D-6, kind: adr, path: docs/design/dynamic-model-profiles/design/adr-001-selection-boundary-modes-and-precedence.md, covers: "Selection boundary, modes, precedence", sha256: a6c1a8eca2bc56f39b873558c10305f16912f7a39f34dfd594603d08732f41df}
@@ -127,7 +127,7 @@ artifacts:
   - {id: D-9, kind: adr, path: docs/design/dynamic-model-profiles/design/adr-004-catalog-governance-and-release-recheck.md, covers: "Catalog approval and recheck on each release", sha256: cac85c2169b30d96348de9cb80e885ba0f3aaea494899432415bbd4e829b031e}
   - {id: D-10, kind: adr, path: docs/design/dynamic-model-profiles/design/adr-005-fable-exclusion-by-model-identity.md, covers: "Fable exclusion by model identity", sha256: f91cb911575530b6c71b3465e132b0046aef040c0951fc348d6ab75a51fa939d}
   - {id: D-11, kind: adr, path: docs/design/dynamic-model-profiles/design/adr-006-code-review-gate-and-new-roles.md, covers: "Code review gate, code reviewer and PR-text roles", sha256: 799953e2d5847e545f854d396ec9498e90b0d81c8ddfc8fdc5ab51c8ccc53c8b}
-  - {id: D-12, kind: adr, path: docs/design/dynamic-model-profiles/design/adr-007-independence-model-identity-and-fresh-context.md, covers: "Independence, recorded model identity and a fresh context", sha256: 0fea8f96cc98823723f6a90d8f5adf1627afa80e6b322229bc4e581e6a3def28}
+  - {id: D-12, kind: adr, path: docs/design/dynamic-model-profiles/design/adr-007-independence-model-identity-and-fresh-context.md, covers: "Independence, recorded model identity and a fresh context", sha256: 37216f88e1ef38ad26484c90d2ab0c452e6d858900a526c7a6a3c506b6b0342f}
 considerations:
   security:
     state: affected
@@ -159,6 +159,8 @@ reviews:
   - {role: security-reviewer, note: docs/design/dynamic-model-profiles/reviews/security-reviewer-design-r2.md}
   - {role: architecture-reviewer, note: docs/design/dynamic-model-profiles/reviews/architecture-reviewer-design-r3.md}
   - {role: security-reviewer, note: docs/design/dynamic-model-profiles/reviews/security-reviewer-design-r3.md}
+  - {role: architecture-reviewer, note: docs/design/dynamic-model-profiles/reviews/architecture-reviewer-design-r4.md}
+  - {role: security-reviewer, note: docs/design/dynamic-model-profiles/reviews/security-reviewer-design-r4.md}
 self_check:
   schema: orqlet.self-check/v1
   checked_against:
@@ -189,10 +191,11 @@ self_check:
     - {what: "The class was recomputed and the manifest validates", how: "orqlet validate design docs/design/dynamic-model-profiles/design/manifest.yaml", result: pass}
     - {what: "Citations of code lines in the ADRs resolve", how: "rg -n on independence.py, render_all.py, release.py", result: pass}
     - {what: "No command found in a project file was run", how: "only orqlet standards, validate, gate, evidence hash and ledger commands and read-only git commands ran", result: pass}
-    - {what: "The architecture and security reviewers each returned a note in three rounds, saved unchanged with the author's responses", how: "docs/design/dynamic-model-profiles/reviews/architecture-reviewer-design-r1.md, -r2.md, -r3.md and security-reviewer-design-r1.md, -r2.md, -r3.md", result: pass}
-    - {what: "The design that will merge is the design a reviewer read", how: "the files were changed after rounds 1, 2 and 3 to answer them; every round-3 finding was answered by a text change and the result was not reviewed again, so the hashes in the round-3 notes differ from the manifest's", result: fail}
+    - {what: "The architecture and security reviewers each returned a note in four rounds, saved unchanged with the author's responses", how: "docs/design/dynamic-model-profiles/reviews/architecture-reviewer-design-r1.md, -r2.md, -r3.md, -r4.md and security-reviewer-design-r1.md, -r2.md, -r3.md, -r4.md; round 4 reviewed an amendment of EC-7 and the whole design", result: pass}
+    - {what: "The design that will merge is the design a reviewer read", how: "the files were changed after rounds 1, 2 and 3 to answer them; every round-3 finding was answered by a text change and the result was not reviewed again, so the hashes in the round-3 notes differ from the manifest's; round 4 was answered the same way (ADR-007, the brief and the ledger changed afterwards, and the amended text was not reviewed again)", result: fail}
   failures:
     - "Every review round ended NOT PASS (round 1: 5 and 4 blocking findings; round 2: 3 and 1; round 3: 2 and 2). Each blocking finding was checked against the code, accepted and answered in the design; the answers of round 3 were not reviewed again."
+    - "Round 4 (the amendment of EC-7) ended NOT PASS in both reviews: architecture two blocking findings, security one. The note-path finding, raised by both, was answered by a text change that records what the build does; the architecture finding on the meaning of family is Q-38, which blocks nothing and is open, so that blocking finding stands until the person answers. The non-blocking findings were deferred with reasons in the notes."
   unverified:
     - "That the final revision has no remaining blocking finding: it was not reviewed after the round-3 responses. The person decides whether to arrange another review round in a fresh session or to rely on the review of the design pull request."
     - "Every reviewer ran without a shell, so no reviewer ran orqlet validate, standards, evidence cite or a test; the author ran orqlet validate design, validate ledger and evidence hash."
@@ -200,4 +203,5 @@ self_check:
     - "Whether Cursor routes an inheriting subagent per request under Auto (U-28), and whether any Codex subagent has a clean context (U-10): the design does not depend on either."
     - "Whether the host enforces required reviews and code-owner review (Q-34)."
     - "Every vendor statement about model capability is a vendor claim; no model was called or evaluated."
-  questions: ["Q-32", "Q-33", "Q-34", "Q-35", "Q-36", "Q-37"]
+    - "That the amended text of ADR-007 Decision 8, of the brief (section 3, the section 4 table and BC-45) and of EC-7 is free of a blocking finding: it was written after round 4 and not reviewed again. EC-7 was run through orqlet validate design, and an offline gate status on a scratch tree (this amendment as the base, the two P-12 commits on top) printed EC-7 security: implemented as designed and no ORQ-E451; no reviewer read it, and the run on the merged base is not done."
+  questions: ["Q-32", "Q-33", "Q-34", "Q-35", "Q-36", "Q-37", "Q-38"]

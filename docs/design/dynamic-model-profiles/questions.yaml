@@ -660,4 +660,21 @@ questions:
       answerer: user
       time: "2026-11-05T10:50:00+02:00"
       scope: task
+  - id: Q-38
+    key: 7e084bd20fe4b600fe4309a495a630e6e61be5fb718ec09bd8dffc04916c1632
+    subject: "What a model family is in the independence rule: the vendor, or the model line"
+    raised_by: architect
+    phase: design
+    category: policy
+    text: "The independence class I2 and the rule that a reviewer is of another family than the coder both rest on the field family of a catalog entry, and no design file says what a family is. AS-IS I-1 reads it at the level of the vendor (a pair across families inside Claude Code or Codex needs a second client or session), ADR-007 lists Claude Code's `/tasks` as a route to I2 by family, which can only hold if two model lines of one vendor are two families, and ADR-005 uses a family tag for one model line. Is a family the vendor, or the model line?"
+    why: "The answer decides whether Opus against Sonnet satisfies R-7 and Q-21, or only a model of another vendor does, and what an approver checks the family string against. The built code takes the family string of the policy as given and decides nothing about it, so the answer changes documentation and approver guidance, and a policy edit if the reading is vendor-level."
+    options:
+      - "the vendor: two model lines of one vendor are the same family"
+      - "the model line: Opus and Sonnet are two families, with a weaker I2 than a pair of vendors"
+    evidence_refs:
+      - "docs/design/dynamic-model-profiles/as-is.md"
+      - "docs/design/dynamic-model-profiles/design/adr-007-independence-model-identity-and-fresh-context.md"
+      - "docs/design/dynamic-model-profiles/design/adr-005-fable-exclusion-by-model-identity.md"
+    blocks: []
+    status: open
 conflicts: []
