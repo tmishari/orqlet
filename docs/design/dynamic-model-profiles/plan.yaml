@@ -10,7 +10,7 @@ header:
     standards_lock_hash: 89a225016ff9d8b3ed977df39a70dfbe9dbc5f7c6d3762d0f2208b1b7a037a52
     applicable_rules_hash: 56502a0ec5eda3b13b4c9d97c7d4dfa41df82c86a206e36dd5d2d92aab299b97
     profile_version: 1
-design_ref: docs/design/dynamic-model-profiles/design/manifest.yaml#bf6f5a347d2ce68eacffeaf7792653804124c7bd47ccc2917b8e13060d374a2c
+design_ref: docs/design/dynamic-model-profiles/design/manifest.yaml#bb171fdc13d09245599bb6f3c278babd3d50153b5b16c4bd12756804638466ee
 base_revision: 4aa05f2fa1e267d34824e166bb60abbc1aa75849
 knowledge_scope: []
 phases:
@@ -2356,7 +2356,20 @@ self_check:
   - what: plan approved by the person
     how: 'not given: the plan is a draft until its pull request merges'
     result: not-run
+  - what: the design that the plan cites is the amended design
+    how: >-
+      design_ref cites the manifest of the design merge 492b547e6d30512b86b679c9926c2b47b18c3d47 (pull request 24), which the person
+      named; that merge amends EC-7 so that the security extractor checks it. orqlet evidence hash printed bb171fdc13d09245599bb6f3c278babd3d50153b5b16c4bd12756804638466ee.
+      Nothing else of the plan changed: base_revision and the bound values are those of the approved plan, and the person confirmed that
+      the ORQ-W390 on base_revision leaves the approval valid. orqlet standards for --path docs/design/dynamic-model-profiles/plan.yaml
+      --phase plan --role planner prints applicable_rules_hash 7cedb45ea31f8900517dcaca99243b1d35b05b37792a98fd1c45d16b2bf75038 (3 rules).
+    result: pass
   unverified:
+  - >-
+    This amendment changes design_ref only: no phase, criterion or file operation changed. P-14 changes six files under `.orqlet/**`, a
+    security glob of the design, and the design has one entry for the security surface, EC-7, which names `.github/CODEOWNERS` only. For
+    P-12 the gate reported ORQ-E451 for a changed security path that no entry covered, so P-14 may meet the same code; P-14 was not run
+    and this amendment does not add an entry for those files.
   - >-
     The plan is a draft: the person has not approved it, and approval is the merge of its pull request. An offline `orqlet gate status
     dynamic-model-profiles` has no approval evidence, so it reports NOT_RUN (ORQ-I393); a NOT_RUN result is not a pass.
