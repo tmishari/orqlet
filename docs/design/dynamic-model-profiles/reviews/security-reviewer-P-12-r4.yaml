@@ -1,0 +1,208 @@
+schema: orqlet.review-result/v1
+task: dynamic-model-profiles
+phase: P-12
+role: security-reviewer
+round: 4
+verdict: PASS
+assurance: advisory
+review_input:
+  schema: orqlet.review-input/v1
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  components:
+    code_tests: cc543195a38ed8805bc24365cd7b259d74cee9643b4f1bdc5778b9240cdc9b59
+    design: 42b7894ffd4a6d18273151d215244f7d5b819097bd9f289b7a342b9c9d24e98b
+    evidence_inputs: 1ceb57f793c6f15e0e762fc8f5e3fc6d0d32cb073ca13314d817b8b19910085f
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 486d5cb973178a8a3c97db9f7402243b8690281f89a4737b8aaf766441036b16
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: 20b2417f8fe79a6b504d5edb6aa5876a9d7ae7a5a78a128d2d5e210ff3b835a9
+  digest: 125bd9cd8e25edfb37257c5042768f2563bddd6390f8ac17f5bc622890243afd
+  merge_base: 000c3cbf0fbd662a318937c5010179f05b9766f8
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran in the same client as the Coder (cursor), so independence is I1, not I2.
+- The reviewer was started as a typed subagent (orqlet-security-reviewer); its prompt held the packet path and nothing else, in a new context. The model
+  that ran it is not observed. This is round 4 of the phase; the reviewer was given no earlier round.
+- The reviewer wrote that its session had no shell and that it could compute no quote digest. Its log shows 3 Shell calls, all read-only listings of the
+  packet (ls, find, wc). It ran no orqlet, test, hash or evidence command. The Coder did not test whether such a command would have worked in its session,
+  so it is not known whether the reviewer could have computed digests. Every test count and check result in the test record is therefore a claim of the
+  Coder that the reviewer did not repeat. The Coder computed the digests below for committed lines at revision 8a68afc5e740f47b1d6f7273a370ed6d336d547e
+  after reading each range against the claim it supports.
+- 'Packet checked by the Coder: dynamic-model-profiles-P-12-87465a94 (1007 files, staged tree ab27215991c4a90165f10f9bdaa14a03556ff772, base 000c3cbf0fbd662a318937c5010179f05b9766f8)
+  holds no file under a reviews folder and no P-12 review record, and the two P-12 records in it carry no earlier conclusion. The Coder''s scan did not
+  cover the docstrings of the tests, and the packet does carry mentions of earlier rounds there: tests/unit/test_codeowners.py names finding F-5 of the
+  round-3 record of the architecture reviewer, and 40 lines of tests/unit/test_readme_model_policy.py match ''rework round'', ''round N'', ''reviews/''
+  or ''open pull request''. The reviewers could read these, so their independence from rounds 1 to 3 is weaker than the packet rule intends (see the finding
+  on it).'
+- 'The proposal is over the packet limit (ORQ-I440) and the reviewers read it through the hunks of diff.patch only. `orqlet review prepare` printed ORQ-I441:
+  the code-reviewer binding is not printed.'
+- The test record the reviewer read says that the pytest run is a claim (evidence_kind claimed), has verdict NOT_RUN because the gate-status command exits
+  5 offline, and that the CI matrix did not run; the reviewer re-ran no check.
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- '`applicability.examined` lists the files that the reviewer opened with Read, taken from its tool-call log. Its Grep and Glob calls searched more of the
+  packet and are not listed.'
+- The reviewer returned all five findings as observations and said it used that kind because it could compute no quote digest; the Coder attached digested
+  quotes of committed lines to F-2 and F-3, after reading them, and kept the kind as returned. Severities are as the reviewer wrote them.
+- 'Coder''s note on F-2: true for the docstrings (test_codeowners.py lines 5-8 and 16, test_readme_model_policy.py line 58), and for the approved plan (plan.yaml
+  line 1521, which stays as approved). Not corrected in this phase.'
+- 'Coder''s note on F-3: the same as the note on F-3 of the architecture record: the person chose the five entries in the session of 2026-11-19; the repository
+  holds no record, and I wrote none.'
+- 'Coder''s note on F-4: checked: README lines 492 and 493 say ''defence in depth behind a block that the company sets in the client''; no company is named.
+  Whether the sentence stays is the owner''s decision, and I did not change it.'
+- The reviewer wrote the result of its two partial checks as 'partial'; the self-check format allows pass, fail and not-run, so they are recorded as not-run
+  with 'partial' at the start of the reason.
+- 'Coder''s note on the reviewer''s absence record: it searched the diff, the README, the two new tests, .github, .gitignore and .gitattributes for secrets,
+  tokens, URLs, e-mails, key shapes, account ids and internal hosts and found none in the added text; the Coder did not repeat that search in this round.'
+applicability:
+  examined:
+  - MANIFEST.json
+  - context/plan.yaml
+  - context/design-manifest.yaml
+  - context/test-record.yaml
+  - context/knowledge-impact.yaml
+  - diff.patch
+  - snapshot/.github/CODEOWNERS
+  - snapshot/tests/unit/test_codeowners.py
+  - context/standards/rules.yaml
+  - snapshot/docs/design/dynamic-model-profiles/questions.yaml
+  - snapshot/.github/workflows/ci.yml
+  - snapshot/src/orqlet/application/usecases/validate_model_policy.py
+  - snapshot/.claude/skills/orqlet-review/references/review-format.md
+  - snapshot/.claude/agents/orqlet-security-reviewer.md
+  - snapshot/.gitattributes
+  - snapshot/.gitignore
+  - snapshot/src/orqlet/application/contracts/finding.py
+  - snapshot/docs/design/dynamic-model-profiles/evidence/web/github-required-reviews-and-codeowners.md
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: security
+  claim: The nine new CODEOWNERS entries enforce nothing today. The answer to Q-34 says main has no branch protection and no ruleset, `tmishari` is the
+    only collaborator, and the human code-owner review "is therefore enforced by nothing". The answer to Q-32 says there is no second owner, so a change
+    that @tmishari authors has no other code owner who can approve it. "EC-7 implemented as designed" therefore means the file text is present, not that
+    a control exists. The README does not claim host enforcement, and a test guards that (test_readme_model_policy.py, `test_the_section_does_not_say_that_the_host_enforces_the_gate`).
+  suggested_action: No change to this phase. Say in the phase report that the entries are advisory until the host enforces reviews (AC-1 already asks for
+    this). Any ruleset is a host decision for the owner.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: docs
+  evidence:
+  - kind: quote
+    path: tests/unit/test_codeowners.py
+    lines: 5-8
+    revision: 8a68afc5e740f47b1d6f7273a370ed6d336d547e
+    quote_sha256: 42c792b10493597f179048f628c5c16b9428bda10dd15de4618a5a9745d3ed91
+  - kind: quote
+    path: tests/unit/test_readme_model_policy.py
+    lines: '58'
+    revision: 8a68afc5e740f47b1d6f7273a370ed6d336d547e
+    quote_sha256: 91a066a9e94841c26ec2f5a96ec8f7e8d57e2cbc7b67ba21ffef18780b2574dc
+  claim: Three places still describe Q-34 as open ("Q-34 asks what the host enforces", "Q-34 is open", "Q-34 leave open"). The ledger in the same tree marks
+    Q-34 answered on 2026-11-05 11:36, with no enforcement. The plan text predates that answer. A reader of the test docstrings could think enforcement
+    is undecided when it is known to be absent. The same file, test_readme_model_policy.py:1508, already cites the answer correctly.
+  suggested_action: Correct the three docstring sentences to say Q-34 is answered and nothing is enforced. Leave plan.yaml as the approved text and say
+    in the phase report that the ledger has moved on.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: standards
+  evidence:
+  - kind: quote
+    path: docs/design/dynamic-model-profiles/plan.yaml
+    lines: 1514-1520
+    revision: 8a68afc5e740f47b1d6f7273a370ed6d336d547e
+    quote_sha256: eee434c37bd1def831f8c5abd80f916fc71713dda9a16c8dfc739b6fa73059bd
+  - kind: quote
+    path: .github/CODEOWNERS
+    lines: 11-19
+    revision: 8a68afc5e740f47b1d6f7273a370ed6d336d547e
+    quote_sha256: 8472d47bd7ad055b6334c85c82179cbbe727ba8b22b1f9e2aa422b425c0ce514
+  claim: Five of the nine entries (`pyproject.toml`, `uv.lock`, `tools/**`, `docs/design/**`, `.github/pull_request_template.md`) are outside plan AC-1,
+    which lists four. The packet cites the person's approval only as given "in conversation" and holds no record of it. The change only adds ownership and
+    loosens nothing. The unknown is where that approval is written down.
+  suggested_action: Record the approval in the ledger or the phase report so that the plan, the tests and the file agree.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: non-blocking
+  category: security
+  claim: The README is now the public front page for a statement that the exclusion of Fable is "defence in depth behind a block that the company sets in
+    the client". ADR-005 and the ledger already hold the same fact ("fable is bloked by company"), and I did not check whether they are on main. I cannot
+    tell whether the person wants an employer's model block named in the README. No company is named.
+  suggested_action: Ask the owner whether the sentence stays. If not, say "a block that an organisation may set in the client", which still fits the test
+    phrases that pin the paragraph.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: security
+  claim: '`README.md`, `.gitignore` and `.gitattributes` have no owner entry. I read the last two. `.gitattributes` has no `-diff`, filter or `export-ignore`
+    that could hide a change from a reviewer packet. `.gitignore` holds only build and cache patterns. Q-32 and EC-7 name no such paths, so this is not
+    a gap against the design.'
+  suggested_action: None required. Consider these paths if the owner widens the list later.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+    confirmed_requirements:
+    - 'The diff touches only CODEOWNERS, the README, the proposal, two test files and the two P-12 records: no change under src/, tools/ or the workflow
+      package, and none to pyproject.toml or uv.lock; no new dependency.'
+    - No secret, token, URL, e-mail, key shape, account id or internal host in the added README, CODEOWNERS, test or knowledge text; the policy samples
+      hold placeholders only.
+    - The two new tests only read repository files; they use no process, network, write, environment, eval or import by name; the README policy sample is
+      parsed with StrictYamlLoader and the ModelPolicy contract.
+    - README statements on ORQ-E544, ORQ-E547, ORQ-E460, ORQ-E461 and the review_evidence rule for workflow 0.5.0 match validate_model_policy.py, review_identity.py,
+      validate_records.py and plan.py, and the README says that these checks are weak or advisory.
+  checks:
+  - what: 'packet read: manifest, plan P-12, diff, test record, knowledge record, ledger entries Q-32 and Q-34, CI file'
+    how: Read, Grep and Glob on the packet
+    result: pass
+  - what: the full proposal diff
+    how: 'partial: read the example policy hunk and every hunk that matched security terms, not all of the roughly 620 changed proposal lines'
+    result: not-run
+  - what: all of test_readme_model_policy.py
+    how: 'partial: read its docstring, imports, loader use and selected tests, not the rest of its 2441 lines'
+    result: not-run
+  - what: GitHub's pattern rules for CODEOWNERS (anchoring, last match)
+    how: no web lookup is allowed; the stored excerpt is silent; all nine owners are the same person
+    result: not-run
+  - what: test, gate and lint results of the tester's record
+    how: not rerun; taken as claimed (evidence_kind claimed, verdict NOT_RUN, exit 5)
+    result: not-run
+  - what: quote_sha256 values
+    how: not computed (no shell)
+    result: not-run
+  failures: []
+  unverified:
+  - The reviewer read part of the proposal diff and part of test_readme_model_policy.py, as the checks above say.
+  - The reviewer ran no command; the results in the test record are claims, and the CI matrix did not run.
+  - Whether ADR-005 and the ledger, which name the blocked model family, are on main was not checked by the reviewer.

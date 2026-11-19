@@ -1,0 +1,207 @@
+schema: orqlet.review-result/v1
+task: dynamic-model-profiles
+phase: P-12
+role: security-reviewer
+round: 5
+verdict: PASS
+assurance: advisory
+review_input:
+  schema: orqlet.review-input/v1
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  components:
+    code_tests: fe1d890106201fba2a537cab3e10bc503c38fd26ec73f8797c8d03a6470b4e31
+    design: 42b7894ffd4a6d18273151d215244f7d5b819097bd9f289b7a342b9c9d24e98b
+    evidence_inputs: 6d61564d2071cfae67222aeb7c5cbc45990bf5fdb288a6ba0d9c6e6bc5c4cfd9
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 486d5cb973178a8a3c97db9f7402243b8690281f89a4737b8aaf766441036b16
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: 20b2417f8fe79a6b504d5edb6aa5876a9d7ae7a5a78a128d2d5e210ff3b835a9
+  digest: 1ffb118cec0972438788c696ac79634ab3bbd2729cf2fdb2df2bea3e30f78a56
+  merge_base: 000c3cbf0fbd662a318937c5010179f05b9766f8
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran in the same client as the Coder (cursor), so independence is I1, not I2.
+- The reviewer was started as a typed subagent (orqlet-security-reviewer); its prompt held the packet path and nothing else, in a new context. The model
+  that ran it is not observed. This is round 5 of the phase; the reviewer was given no earlier round.
+- The reviewer wrote that its session had no shell and that it could compute no quote digest. Its log shows 2 Shell calls, read-only listings of the packet
+  (ls). It ran no orqlet, test, hash or evidence command. The Coder did not test whether such a command would have worked in its session, so it is not known
+  whether the reviewer could have computed digests. Every test count and check result in the test record is therefore a claim of the Coder that the reviewer
+  did not repeat. The Coder computed the digests below for committed lines at revision 5062194db0e5feae52e6559bc691a85a26166acb after reading each range
+  against the claim it supports.
+- 'Packet checked by the Coder: dynamic-model-profiles-P-12-95d0c516 (1007 files, staged tree e01d3d96b6a13f40c79d17eb6c0d504ca0f9708b, base 000c3cbf0fbd662a318937c5010179f05b9766f8).
+  It holds no file of a review record. Before the reviewers ran, the Coder scanned the whole packet, including the docstrings and comments of the two test
+  files, for the words round, rework, finding numbers, review-record paths and open pull request, and found no earlier-round information about P-12. The
+  design manifest and the as-is notes in the packet, and the proposal''s own text, hold design-phase review history and the words round and rework; every
+  packet carries them.'
+- 'The proposal is over the packet limit (ORQ-I440) and the reviewers read it through the hunks of diff.patch only. `orqlet review prepare` printed ORQ-I441:
+  the code-reviewer binding is not printed.'
+- The test record the reviewer read says that the pytest run is a claim (evidence_kind claimed), has verdict NOT_RUN because the gate-status command exits
+  5 offline, and that the CI matrix did not run; the reviewer re-ran no check.
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- '`applicability.examined` lists the files that the reviewer opened with Read, taken from its tool-call log. Its Grep and Glob calls searched more of the
+  packet and are not listed.'
+- 'The test record was corrected after the reviewers read it, in answer to security finding F-5 of this round: a tree id that the Coder had typed with 39
+  characters now reads 3f4b178f43a2a42ba9079a0b46a40a319285a327 (git cat-file prints `tree` for it). The review input of both reviewers covers the evidence
+  inputs, which include the test record, so the digest recorded here is the one of the packet that the reviewers read and it differs from the digest of
+  the committed tree; `orqlet validate review` may report the record stale for that reason.'
+- The reviewer's own model is not observed. The record leaves model_observed empty.
+- The reviewer wrote that the model it ran on is Claude Sonnet 5.5, 'taken from my instructions and not verified'. It is not an observation, so model_observed
+  stays empty. If it is true, the reviewer ran on the same model as the Coder.
+- The reviewer returned all five findings as observations and said it used that kind because it could compute no quote digest. The Coder attached one digested
+  quote of committed lines to F-1 and kept the kind as returned. Severities are as the reviewer wrote them.
+- 'Coder''s note on F-1: the same as the note on F-1 of the round-4 record: the entries enforce nothing at the host (Q-34, answered on 2026-11-05). The
+  pull request body says so.'
+- 'Coder''s note on F-2: not checked by the Coder beyond reading .github/CODEOWNERS lines 11-19; the entries for .github/ other than the workflows are as
+  the reviewer lists them. No change in this phase.'
+- 'Coder''s note on F-3: the person decided to keep the sentence about the block that the company sets in the client (answer of 2026-11-19).'
+- 'Coder''s note on F-4: true as far as `is_excluded` goes. I ran it with a family-tag rule `fable`: `fable-5.1-xhigh`, the fullwidth spelling and a spelling
+  with separators are excluded; a spelling with U+200B, U+00AD (soft hyphen) or U+200D is not. I did not check whether a client resolves such a string to
+  the excluded model. The code is outside this phase (no code changes here) and is not changed.'
+- 'Coder''s note on F-5: true. The id that I typed for the tree of the rerun had 39 characters; the right one is 3f4b178f43a2a42ba9079a0b46a40a319285a327
+  and git cat-file prints `tree` for it. The record is corrected in the commit 5062194.'
+- 'Coder''s note on the reviewer''s absence record: it searched the whole patch for credentials, tokens, private-key headers, JWT-like strings, home paths,
+  URLs, IP addresses, e-mail addresses, subprocess, os.system, os.environ, eval, exec, pickle, unsafe YAML loading, sockets, HTTP clients, writes, temp
+  files and importlib, and found only example.com placeholders. The Coder did not repeat that search.'
+applicability:
+  examined:
+  - MANIFEST.json
+  - context/plan.yaml
+  - context/design-manifest.yaml
+  - context/test-record.yaml
+  - context/knowledge-impact.yaml
+  - diff.patch
+  - snapshot/.github/CODEOWNERS
+  - snapshot/.github/workflows/ci.yml
+  - snapshot/.github/pull_request_template.md
+  - snapshot/src/orqlet/domain/model_identity.py
+  - snapshot/src/orqlet/application/usecases/review_identity.py
+  - snapshot/src/orqlet/domain/independence.py
+  - snapshot/src/orqlet/application/usecases/validate_records.py
+  - snapshot/tests/unit/test_readme_model_policy.py
+  - snapshot/src/orqlet/workflow/skills/orqlet-review/references/review-format.md
+  - snapshot/src/orqlet/workflow/schemas/orqlet.finding.v1.json
+  - snapshot/src/orqlet/domain/model_resolution.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence:
+  - kind: quote
+    path: .github/CODEOWNERS
+    lines: 11-19
+    revision: 5062194db0e5feae52e6559bc691a85a26166acb
+    quote_sha256: 8472d47bd7ad055b6334c85c82179cbbe727ba8b22b1f9e2aa422b425c0ce514
+  claim: 'The nine CODEOWNERS entries (snapshot/.github/CODEOWNERS:11-19, all owned by @tmishari) enforce nothing in this repository. Q-34''s answer (docs/design/dynamic-model-profiles/questions.yaml:610-614)
+    says main has no branch protection or ruleset, the repository is public, and tmishari is the only collaborator. Q-32''s answer (:571-575) says no second
+    owner exists. The human code-owner review that the README offers as the fallback for a NOT_RUN code review (diff.patch:197-205) cannot come from anyone
+    but the author for this repository''s own changes. The README and the tests do not claim enforcement: the tests pin the absence of "enforced by the
+    host" and "branch protection blocks/requires" in the new README section. The risk is that the test record''s "EC-7 security: implemented as designed"
+    (gate-status-phase summary) is read as protection. It only shows that the file content matches the design.'
+  suggested_action: Say in the pull-request description that the entries are advisory until the host enforces code-owner review (Q-34). Do not cite EC-7
+    "implemented as designed" as a control.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: security
+  claim: 'Some surfaces stay unowned. Under .github/ only workflows/**, CODEOWNERS and pull_request_template.md are owned, and the snapshot holds no other
+    file there today. A later .github/actions/** (a local composite action run by a workflow) or .github/dependabot.yml would be unowned. README.md carries
+    the install and CI snippets that users copy (snapshot/README.md:80, 87, 1008-1013) and has no owner. .gitignore and .gitattributes have none either.
+    The ordering of the patterns is sound: the file has no catch-all line, and every owner is the same today, so a later pattern cannot weaken an earlier
+    one.'
+  suggested_action: Decide whether .github/** (with the workflows line kept), README.md and .gitattributes should be owned. No change is needed for this
+    phase.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: security
+  claim: 'The repository is public (Q-34), and the README now names Fable four times as an excluded model and refers to "a block that the company sets in
+    the client" (diff.patch:180-186). The same fact is already in the proposal (the removed example line `models: [fable]`) and in the ledger, so this adds
+    no new exposure. No credential, host, e-mail or path was added: the only e-mail addresses in added lines are example.com placeholders in test data.'
+  suggested_action: Confirm that the person accepts naming the excluded model in the public README.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: security
+  claim: 'Out of this diff and not run: the exclusion match that the README describes (src/orqlet/domain/model_identity.py:141, 33, 209-222) folds with
+    NFKC and casefold, and joins the family-tag form by removing only the characters "-", "_", "." and space. A zero-width character such as U+200B is neither
+    folded nor removed, so a tag such as `fable` would not match `fa<U+200B>ble`. I did not check whether a client resolves such a string to the excluded
+    model. The README does not claim more than "once separators are removed" and calls the exclusion defence in depth behind the client''s own block.'
+  suggested_action: 'Owner of the matching rule: decide whether to strip format characters (Unicode category Cf) before matching, and add a test either
+    way.'
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: docs
+  claim: 'The test record cites a tree id with 39 hex characters for the 273-test rerun (tests/P-12.yaml, pytest summary: 3f4b178f0a2a42ba9079a0b46a40a319285a327).
+    That is not a valid object id. The record is claimed evidence (evidence_kind: claimed, verdict NOT_RUN), but a reader cannot match it to a tree. I also
+    could not read the staged tree id from MANIFEST.json, which is a single 131 KB line, so I took no revision from it.'
+  suggested_action: Correct the tree id in the test record.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+    confirmed_requirements:
+    - 'AC-6 holds: the diff has no src/, tools/, workflow package, pyproject.toml or uv.lock change, so no dependency or code path changed.'
+    - No secret, token, URL, e-mail (except example.com placeholders), key shape, home path or internal host in the added lines; the new tests only read
+      files by paths built from `__file__` and parse YAML through StrictYamlLoader and load_contract.
+    - README statements on a self-approved reviewer binding (ORQ-W463), I2 on a different client (ORQ-W460, ORQ-W461), unseeded exclusions (ORQ-I460), the
+      review gate rules, the plan rule on `code-reviewer` in `review_evidence` from workflow 0.5.0, the 256 KiB policy limit, the approval reference forms
+      and the packet omission of review records match the source, and the README says where they are weak.
+  checks:
+  - what: Every changed file in the diff is listed and none is in src, tools, workflow, pyproject or uv.lock
+    how: rg '^diff --git' on diff.patch
+    result: pass
+  - what: CODEOWNERS syntax, order and coverage read in full
+    how: Read snapshot/.github/CODEOWNERS and the test's parser rules
+    result: pass
+  - what: Security claims in README checked against source
+    how: Read model_identity.py, independence.py, review_identity.py, validate_records.py:310-376, plan.py, model_resolution.py:505-540
+    result: pass
+  - what: Secrets and unsafe I/O in added lines
+    how: rg over diff.patch (see the absence record)
+    result: pass
+  - what: The body of test_readme_model_policy.py read in full
+    how: partial read plus pattern searches
+    result: not-run
+  - what: orqlet validate, evidence cite and the tests run by the reviewer
+    how: no shell in this session
+    result: not-run
+  - what: Host enforcement of code-owner review
+    how: taken from Q-34, not observed
+    result: not-run
+  failures: []
+  unverified:
+  - About 2,000 lines of the body of test_readme_model_policy.py (diff.patch from roughly line 1760) were covered only by pattern searches and about 120
+    lines read in the snapshot.
+  - Vendor and model-capability claims, which are the author's.
+  - 'Anything on GitHub: the host settings come from the ledger answer, not from the reviewer.'
