@@ -1621,7 +1621,9 @@ phases:
     The one rebuild of the workflow package, last among the changes to the tool: the two new roles, the changed architecture role, the
     hint and the diversity step in the skills, the PR-text step, the two references, the shipped seed of the model policy and its
     rendering by `init` and `upgrade`, the two new rules of the team's `.prompts/rules.yaml`, the workflow version 0.5.0, the rebuilt
-    `MANIFEST.json` and every golden file that follows. The installed files of this repository are regenerated in P-14.
+    `MANIFEST.json` and every golden file that follows. It also makes the README, the architecture proposal and the test that pins their
+    sentences say what it builds (AC-15 to AC-19): seven roles, the roles built, the seed built. The installed files of this repository
+    are regenerated in P-14.
   depends_on:
   - P-12
   implements: [EC-1, EC-3, EC-4, EC-5, EC-8, EC-9]
@@ -1757,6 +1759,82 @@ phases:
       --head staged` reports no ORQ-E450, ORQ-E451 or ORQ-E453.
     source: BC-25; ORQLET-DET-001; plan rule on phase file lists
     check_ref: gate-status-phase
+  - id: AC-15
+    text: >-
+      `README.md` says what this phase builds: seven roles, the roles built, the seed built. The seven are `orqlet-inventory`,
+      `orqlet-tracer`, `orqlet-tester`, `orqlet-arch-reviewer`, `orqlet-security-reviewer`, `orqlet-code-reviewer` and `orqlet-pr-writer`;
+      six are read-only. Three sentences, which `tests/unit/test_readme_model_policy.py` pins today, are false after this phase and
+      change; AC-18 pins each, and AC-19 says that no other sentence changes: (1) the table row "Agents that follow a process" says
+      "seven specialist agents" where it says "five specialist agents"; (2) in Status, the sentence "Also not built: the roles
+      `orqlet-code-reviewer` and `orqlet-pr-writer`, the seed of the model policy and the skill steps that use them (so `/orqlet-review`
+      starts two reviewers, not three), and `orqlet models refresh`." becomes "Also not built: `orqlet models refresh`.", the paragraph
+      keeps its first words "What is **not** built yet:" (the tests of `test_readme_integrations.py` read them), and the bullets of what is
+      built, before it, name the roles `orqlet-code-reviewer` and `orqlet-pr-writer`, the skill steps that use them (`/orqlet-review`
+      starts three reviewers) and the seed that `init` writes to `.orqlet/model-policy.yaml`; (3) in the section "The code review gate" the
+      sentence "The workflow package has no `orqlet-code-reviewer` role yet, so the skill `/orqlet-review` starts two reviewers and the
+      shipped workflow produces no record of the role." says that the role ships with workflow 0.5.0 and that `/orqlet-review` starts
+      three reviewers (Code, Architecture and Security); the sentences after it on the binding stay (the binding is built, and until a
+      reviewed edit applies it a record of the role is ORQ-E415), and so do the phrases "`review_evidence`" and "workflow 0.5.0" of that
+      section.
+    source: BC-26; C-9; ADR-006 decisions 1, 8 and 9; AGENTS.md baseline "Update the documentation that your change makes wrong"
+    check_ref: pytest
+  - id: AC-16
+    text: >-
+      Three more sentences of `README.md` say the same facts in other words. No test pins them today, and they are false after this
+      phase; AC-18 pins each, and AC-19 says that no other sentence changes: (4) in "The workflow in the client", "four read-only ones
+      (an inventory researcher, a tracer, an architecture reviewer and a security reviewer) and a tester" says six read-only ones (the
+      same four, a code reviewer and a PR writer) and a tester; (5) in the section "Model policy and the code review gate", "Orqlet does
+      not seed it yet, so a team writes it." says that `init` writes the seed once, that `upgrade` writes it to a project that lacks it,
+      that every model in it is `proposed` and none is approved, and that the file is the team's from then on; (6) in "Excluded models",
+      "the entry for Fable arrives with the seed, which is not built yet." says that the seed holds the entry for Fable.
+    source: BC-26; C-9; ADR-006 decisions 8 and 9; AGENTS.md baseline "Update the documentation that your change makes wrong"
+    check_ref: pytest
+  - id: AC-17
+    text: >-
+      `docs/design/orqlet-architecture-proposal.md` stops saying that the code reviewer role, its skill step and the seed are not built.
+      These eight sentences change and no other one does (AC-19); AC-18 pins each. Pinned by `tests/unit/test_readme_model_policy.py`
+      today (the rule of section 10.3 and the edits P-11, P-14 and P-15) and false after this phase: (1) in section 10.3 the label
+      "**What is not built:**" goes with its sentence on the role and its skill step; what is built says that the role
+      `orqlet-code-reviewer` and its skill step are built and ship with workflow 0.5.0, "The binding for the role is built" stays, and
+      "its seeded binding" stays out; (2) the M2 row of the roadmap says "the code reviewer, which ships with workflow 0.5.0" without "and
+      is not built yet"; (3) the row 7.7 of section 26.12.1 says that the role `orqlet-code-reviewer` ships with workflow 0.5.0 where it
+      says "is not built yet", and keeps the status word "Partially covered" with the reason that Orqlet runs no check at merge time
+      (`orqlet ci check` is not built); (4) the list of section 26.12.4 says "the Code Reviewer gate (7.7: no merge-time check)" where it
+      says "the Code Reviewer role (7.7: not built yet)". Not pinned today and false after this phase: (5) in section 10.3 "ship with
+      workflow 0.5.0 (not built yet), `/orqlet-review` will start the role" says "ship with workflow 0.5.0, `/orqlet-review` starts the
+      role"; (6) in section 14.9.0 "(its seed is not built yet)" says that the seed ships with workflow 0.5.0 and that `init` writes it;
+      (7) in section 24.1 "The seed of the file is not built yet." says the same; (8) the Q-07 row of section 25.1 says "The role
+      `orqlet-code-reviewer` ships with workflow 0.5.0" without "is not built yet".
+    source: BC-26; C-9; ADR-006 decisions 1 and 9; AGENTS.md baseline "Update the documentation that your change makes wrong"
+    check_ref: pytest
+  - id: AC-18
+    text: >-
+      `tests/unit/test_readme_model_policy.py` follows the two documents and keeps its structure. Each sentence of AC-15 to AC-17 is
+      pinned by its new phrase, which stands once, and by its old phrase as gone, in the form of the edit tables of the file (an id, an old
+      fragment, a new fragment). The guard `test_the_readme_still_says_that_five_specialist_agents_ship` becomes a test that "seven
+      specialist agents" stands and "five specialist agents" does not. The test of the Status paragraph that names
+      `orqlet-code-reviewer` becomes a test that the paragraph names `orqlet models refresh` and neither role, and that the bullets before
+      it name both roles and the seed. The pinned phrase "has no `orqlet-code-reviewer` role yet" (`NOT_BUILT_PHRASES`, `ROLE_PARAGRAPH`)
+      and the edit fragments P-11, P-14 and P-15 change to the new sentences. The reference texts and the broken copies of the file
+      (`REFERENCE_SECTION`, `BREAKS`, `MORE_BREAKS`, `REFERENCE_PROPOSAL`) follow in step, so that every rule still fails on a text that
+      breaks it. Every other test of the file, and the README tests of `tests/unit/test_readme_integrations.py` and
+      `tests/unit/test_readme_ci_snippet.py`, pass unchanged. `tests/unit/test_codeowners.py` pins nothing that this phase changes and is
+      not touched.
+    source: BC-26; ORQLET-TEST-001
+    check_ref: pytest
+  - id: AC-19
+    text: >-
+      No other sentence of `README.md` or of the proposal changes in this phase, and no other Markdown file. These stay as they are and
+      are open. README, at cec37c7: the row of ORQ-W546 (it says "a name with options for Cursor", and the code leaves out every Cursor
+      name that the pattern `[A-Za-z][A-Za-z0-9._/+-]*` does not match); the exit-0 row of `orqlet models resolve` (it omits the case "no
+      assignment for this target; the client chooses"); the sentence on what holds at every level of `models resolve` (it omits the
+      refusal of the coder's own model or family when `--different-family-from` names one, and the floor); line 109, the list of seeded
+      files, which lacks `.orqlet/model-policy.yaml`; line 139, "`init` wrote 73 files", a count that this phase changes; line 212, the
+      example marker `workflow@0.4.0#...`; line 330, the row of `orqlet-review`, which names two reviews. The proposal: the role
+      catalogue of section 10.3 does not list the PR writer. The reviewers read the diff of the two files against the list of AC-15 to
+      AC-17.
+    source: plan rule on phase file lists; C-9
+    check_ref: review:documents-diff
   checks:
   - ruff-check
   - ruff-format
@@ -1824,6 +1902,12 @@ phases:
     path: .prompts/rules.yaml
     why: Adds ORQLET-MODEL-001 and ORQLET-MODEL-002 (AC-13).
   - op: modify
+    path: README.md
+    why: The six sentences of AC-15 and AC-16 that say the roles or the seed are not built, or count the roles (BC-26, C-9).
+  - op: modify
+    path: docs/design/orqlet-architecture-proposal.md
+    why: The eight sentences of AC-17 that say the code reviewer role, its skill step or the seed are not built (C-9).
+  - op: modify
     path: tests/support/render.py
     why: The constant `ROLE_NAMES` lists seven roles and `READ_ONLY_ROLES` follows.
   - op: modify
@@ -1835,6 +1919,9 @@ phases:
   - op: modify
     path: tests/unit/test_workflow_skill_contracts.py
     why: The structure pins follow the new steps, within the limits of AC-6.
+  - op: modify
+    path: tests/unit/test_readme_model_policy.py
+    why: AC-18, the pins of the README and proposal sentences follow the two documents.
   - op: modify
     path: tests/unit/application/test_init_project.py
     why: The file list that `init` writes gains the seed and the new role files.
@@ -2029,6 +2116,8 @@ phases:
   - src/orqlet/workflow/identity.json
   - src/orqlet/workflow/MANIFEST.json
   - .prompts/rules.yaml
+  - README.md
+  - docs/design/orqlet-architecture-proposal.md
 - id: P-14
   objective: >-
     Regenerate this repository's installed files with `orqlet upgrade`, after the package, the tests, the documents and the rules are
@@ -2328,8 +2417,10 @@ self_check:
   - what: other places that pin what the plan changes were searched
     how: >-
       rg for 0.4.0 outside docs and the golden folder, with hidden files, found .github/pull_request_template.md, .orqlet/generated.lock.yaml,
-      .orqlet/versions.yaml, .orqlet/workflow.lock, AGENTS.md, README.md (an example at line 205), MANIFEST.json and identity.json (P-13,
-      P-14); the seven version-marker goldens are in P-13; rg for the role names found tests/support/render.py (ROLE_NAMES),
+      .orqlet/versions.yaml, .orqlet/workflow.lock, AGENTS.md, MANIFEST.json and identity.json (P-13, P-14), and README.md, whose example
+      marker `workflow@0.4.0#...` (line 205 then, line 212 at cec37c7) no phase changes: no renderer or seed writes the root README.md,
+      it has no row in .orqlet/generated.lock.yaml, no test pins the marker, and AC-19 lists it as open; the seven version-marker goldens
+      are in P-13; rg for the role names found tests/support/render.py (ROLE_NAMES),
       tests/unit/render/test_skills.py, tests/unit/test_workflow_role_prompts.py, tests/unit/test_workflow_skill_contracts.py and
       tests/unit/application/test_render_integrations.py (the REVIEW_AGENTS string); rg for REVIEW_AGENTS and DEFAULT_REVIEWERS found
       only render_all.py, review_prepare.py and that test
@@ -2364,12 +2455,56 @@ self_check:
       the ORQ-W390 on base_revision leaves the approval valid. orqlet standards for --path docs/design/dynamic-model-profiles/plan.yaml
       --phase plan --role planner prints applicable_rules_hash 7cedb45ea31f8900517dcaca99243b1d35b05b37792a98fd1c45d16b2bf75038 (3 rules).
     result: pass
+  - what: input check of the phase contract for the amendment that adds the README files to P-13
+    how: >-
+      orqlet validate plan and validate ledger passed before any edit. orqlet gate status gave the ORQ-W390 of the AS-IS file, the design
+      and the plan (cause base_revision only), ORQ-I393, and no ORQ-E450, ORQ-E451, ORQ-E453 or ORQ-I394. git merge-base --is-ancestor of
+      base_revision 4aa05f2f, of the design merge 492b547e6d30512b86b679c9926c2b47b18c3d47 and of the plan merge
+      000c3cbf0fbd662a318937c5010179f05b9766f8 exits 0 for HEAD and for origin/main, which the person named with both merges. Each merge
+      changed its approved files (git diff --quiet from its first parent exits 1), git diff --quiet of each merge against its approved
+      files exits 0 and none is untracked, and git diff of questions.yaml against the design merge is empty. The open questions Q-35,
+      Q-36 and Q-38 block nothing in this phase. The person saw the ORQ-W390, the nine commits since 4aa05f2f (squash merges that carry
+      this task's trailer, signature status E) and the three test files that pull request 19 changed outside the lists of the plan, and
+      confirmed that the approval stays valid.
+    result: pass
+  - what: the sentences that P-13 makes untrue were derived from the tests and from a search
+    how: >-
+      Read tests/unit/test_readme_model_policy.py (constants, rules, edit tables and guards), tests/unit/test_codeowners.py (it reads
+      .github/CODEOWNERS and names no sentence of a document), and the tests of test_readme_integrations.py and test_readme_ci_snippet.py
+      that read the Status paragraph. rg over README.md and the proposal at cec37c7 for "not built", "built yet", "seed", "ship with",
+      "two reviewers", "five specialist" and "four read-only", and for the role names with words of the future. AC-15 to AC-17 name
+      what that found; AC-19 names what is left open. The search is by those words: a sentence that says the same in other words is not
+      found.
+    result: pass
   unverified:
   - >-
-    This amendment changes design_ref only: no phase, criterion or file operation changed. P-14 changes six files under `.orqlet/**`, a
-    security glob of the design, and the design has one entry for the security surface, EC-7, which names `.github/CODEOWNERS` only. For
-    P-12 the gate reported ORQ-E451 for a changed security path that no entry covered, so P-14 may meet the same code; P-14 was not run
-    and this amendment does not add an entry for those files.
+    The first amendment (pull request 25) changed design_ref only: no phase, criterion or file operation changed. P-14 changes six files
+    under `.orqlet/**`, a security glob of the design, and the design has one entry for the security surface, EC-7, which names
+    `.github/CODEOWNERS` only. For P-12 the gate reported ORQ-E451 for a changed security path that no entry covered, so P-14 may meet
+    the same code; P-14 was not run and neither amendment adds an entry for those files.
+  - >-
+    The second amendment (this one) adds to P-13 the operations on README.md, on the proposal and on tests/unit/test_readme_model_policy.py,
+    the acceptance criteria AC-15 to AC-19, two expected outputs and one sentence of the objective. It changes no other phase, no
+    design_ref and no bound value, and it leaves base_revision as the first amendment left it: moving it failed with ORQ-E308 on the
+    files that P-2, P-4, P-6, P-8 and P-10 create, and that was not tried again. P-14 needs no operation for README.md: no source file
+    of Orqlet names a README and no renderer or seed writes the root README.md (the seed with that name is `.prompts/README.md`), and
+    the file has no row in .orqlet/generated.lock.yaml, so `orqlet upgrade` does not write it. I read the sources and did not run
+    `orqlet upgrade --dry-run`, which is P-14's own check. The example marker in the README is open (AC-19); if the person wants it at
+    0.5.0 it is a hand edit that belongs to P-13, where the version changes.
+  - >-
+    Readings of the second amendment that the person confirms by approving it: (a) AC-15 to AC-17 name every sentence found that P-13
+    makes untrue, the pinned ones and the ones that no test pins (README 4 to 6, proposal 5 to 8), because the baseline says to update
+    the documentation that a change makes wrong; the person chose this scope in the session. README line 381, which pull request 23
+    lists as pinned by a test, is read by none; it is sentence 5. (b) The row 7.7 of section 26.12.1 keeps "Partially covered" because
+    Orqlet runs no check at merge time, as the README and section 10.3 say; a different reading changes that row and its list entry only.
+    (c) The sentences are fixed as what they say, with the old fragment, not as whole texts: the Coder writes the new words, and AC-18
+    pins the new and the old phrases. (d) Line numbers are those of cec37c7 and move when P-13 edits the files, so a test uses the
+    fragments, not the lines.
+  - >-
+    Pull request 19 changed three test files that no phase lists: tests/integration/test_validate_integrations_cli.py,
+    tests/unit/application/test_resources_composition.py and tests/unit/application/test_resources_view.py (a set of added commands and
+    two added parameters). The plan already says that a test outside the lists that breaks needs an amendment; none was made for those
+    three. P-13 can meet the same case in tests that this plan does not list, for example a test that counts the files of `init`.
   - >-
     The plan is a draft: the person has not approved it, and approval is the merge of its pull request. An offline `orqlet gate status
     dynamic-model-profiles` has no approval evidence, so it reports NOT_RUN (ORQ-I393); a NOT_RUN result is not a pass.
@@ -2436,7 +2571,8 @@ self_check:
     ships no account fact.
   - >-
     The README and the architecture proposal are Markdown files that the approved design requires to change (BC-26, C-9); they are
-    changed in P-12 only because of that requirement, together with the role, skill and reference sources of P-13.
+    changed in P-12 because of that requirement, and again in P-13 for the sentences that P-13 makes untrue (AC-15 to AC-17), together
+    with the role, skill and reference sources of P-13. No other sentence of either file and no other Markdown file changes (AC-19).
   - >-
     The answer times in the ledger are the times they were written in this session: Q-33 and Q-37 carry 10:50, the time of the request
     that stated them, and Q-32 carries 10:57. The request left the markers `<EDIT ...>` after the answers of Q-33 and Q-37 and a bare
