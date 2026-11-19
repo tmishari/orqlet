@@ -92,9 +92,9 @@ findings:
     quote_sha256: 5f9ce69406f5c3c812a6db2212b9e4073afd0318bdf2d4b70dc1816e09f5e8bc
   - kind: quote
     path: docs/design/dynamic-model-profiles/tests/P-9.yaml
-    lines: '19'
+    lines: '20'
     revision: 1fc985140dc0022f58bea803b4949932d01ecf43
-    quote_sha256: abe2f625d22bc80837d98fb03c50f69f45941daa2567dec8895a22411a735e9b
+    quote_sha256: 38a7d8739255ee21ea84c2966e4dfcb1da24e53f250379c3e0ab37265e25b550
   claim: 'AC-6 of the plan is not met, and the Tester''s own record has verdict FAIL. `gate status --phase P-12 --head staged` reports ORQ-E451 because
     EC-7 is `verification: manual` for a security path (`.github/CODEOWNERS`). The cause is in the approved design, not in this diff. The same failure is
     recorded for P-9, so AC-6 cannot be met by any phase that touches a security glob. The acceptance by the person appears only in the record the Coder
