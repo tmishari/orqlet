@@ -1,0 +1,95 @@
+schema: orqlet.knowledge-impact/v1
+task: dynamic-model-profiles
+phase: P-12
+review_input:
+  components:
+    candidates: 0ff5891119bea3beb1d5e6589821b0c989a6099e7665fd1525b2c78e54bf7191
+    code_tests: fe1d890106201fba2a537cab3e10bc503c38fd26ec73f8797c8d03a6470b4e31
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 486d5cb973178a8a3c97db9f7402243b8690281f89a4737b8aaf766441036b16
+    standards: 20b2417f8fe79a6b504d5edb6aa5876a9d7ae7a5a78a128d2d5e210ff3b835a9
+  covers:
+  - code_tests
+  - knowledge
+  - plan
+  - standards
+  - candidates
+  digest: d0f3ec4f151c8ab82ba92e12a4f20fd39f76c3823cf9fee9567cba5e380e84fd
+  merge_base: 000c3cbf0fbd662a318937c5010179f05b9766f8
+  schema: orqlet.review-input/v1
+outcome: no-impact
+analysis:
+  command: orqlet knowledge impact
+  orqlet_version: 0.3.0
+  candidates_digest: 0ff5891119bea3beb1d5e6589821b0c989a6099e7665fd1525b2c78e54bf7191
+  candidate_count: 1
+  input: pre-draft-tree
+  views:
+  - committed:HEAD
+  index_state: not-used
+entries:
+- id: K-1
+  candidate_ref: cand-4a8f5a32b2d4
+  action: unaffected
+  scope: project
+  reason: 'EC-7 is the design''s expected change for this phase and no knowledge document (the candidate names none). It lists .github/CODEOWNERS as the security
+    surface that the phase changes, and the phase implements it: lines 11 to 14 of .github/CODEOWNERS are the four entries of Q-32 and lines 15 to 19 are the five
+    that the person asked for later. gate status prints EC-7 as implemented as designed. README.md mentions CODEOWNERS at lines 165, 171, 779, 833, 834 and 1026 (read
+    with rg); none lists the entries of the file, and none is made wrong by them.'
+  evidence:
+  - kind: design
+    ref: docs/design/dynamic-model-profiles/design/manifest.yaml:94-101
+    sha256: 2aeffe184b73d3b089b4114ce4513257410f0582bf6c51d012eb11df2c630756
+  - kind: code
+    ref: .github/CODEOWNERS:11-14
+    sha256: 460a696d68919fa410b2dea0ff2f9bcc0e819dbdcf7ce774c2186818b14276ec
+  - kind: code
+    ref: .github/CODEOWNERS:15-19
+    sha256: 51db555222c2c49e7c76edf734c9affb4ea81befb86be9ddb6f498dd3c8e3f93
+no_impact:
+  category: already-documented
+  reason: 'The one candidate, EC-7, is an expected change of the design and no knowledge document, and the validator refuses behaviour-unchanged and internal-refactor
+    while one exists, so this record uses already-documented. What these references document: the design manifest (EC-7) names .github/CODEOWNERS as the security
+    surface of the phase, the ledger holds the answer to Q-32 on the owner, and .github/CODEOWNERS is itself the statement of who owns which path, including the five
+    entries that the person asked for later (pyproject.toml, uv.lock, tools/**, docs/design/** and .github/pull_request_template.md). These are design and ledger
+    records and the file itself, not knowledge documents: no knowledge source is configured (ORQ-I400) and the plan''s knowledge_scope is empty, so no knowledge document
+    exists that could say it. This is the reviewer''s call. The phase also changes no behaviour of the tool: it brings README.md and the proposal in line with the
+    built model policy v2 and the code review gate (AC-1 to AC-5), corrects statements outside those criteria that the person asked to be corrected (about 30 lines
+    of the proposal, three of the README) and adds two test files that pin the texts and the file. No file of src/, tools/ or the workflow package, no pyproject.toml
+    and no uv.lock changes. What the phase leaves wrong or unchecked is listed in scopes_searched under ''left open''. The search was by words: statements in other
+    words may exist.'
+  absence_record:
+    scopes_searched:
+    - .orqlet/knowledge.yaml sources (none configured)
+    - the plan's knowledge_scope (empty)
+    - AGENTS.md, CLAUDE.md, .github, .prompts and docs/ outside docs/design/dynamic-model-profiles and the proposal, by the words code reviewer, code review gate,
+      model-policy, model policy and model_policy. Hits only in records of other tasks (docs/design/orqlet-m2-workflow/design.md 25, docs/design/open-items/fragments/proposal-approval.yaml
+      742, 804, 870, 1470, docs/design/harness2-fit/**, docs/design/mcp-or-plugins/fragments/repo-distribution-mcp-credentials.yaml 573, docs/design/orqlet-implementation/plan.md
+      62). They say what a document said or what existed on their date and are left as history, not as statements about this build.
+    - 'README.md by the word CODEOWNERS (lines 165, 171, 779, 833, 834, 1026): none lists the entries of the file'
+    - 'left open, proposal, kept on purpose as dated history: section 22.0 (lines 4503 to 4515, facts of 2026-10-22 on role counts and the v0.5 rework table, including
+      row 4514 on the v1 policy contract), the change tables of earlier versions (lines 191 and 5486, ''all four roles'') and the revision log of v0.5 (lines 74,
+      96, 121 and 4528, which mention Q-07 or the four-role gate set; read in the context of the hit only)'
+    - 'left open, proposal lines 1352 to 1360: the status sentence now says the packet rule of harness2-fit ADR-002 was not built as written and names what review
+      prepare does (leaves out review records and the notes of the design manifest at the merge base; its own findings are ORQ-E440 to ORQ-E442, ORQ-I440 and ORQ-I441);
+      items 1 to 5 of that rule were not compared with the built command one by one'
+    - 'checked and true today, not changed: README.md 21 (five specialist agents; src/orqlet/workflow/roles holds five role files) and README.md 139 (73 files: a
+      dry run of orqlet init in an empty scratch folder, run with the person''s yes, listed 73 files to create); P-13 adds a role and changes both'
+    - 'not searched in other words: statements that describe the gate or the policy without the words searched'
+    views:
+    - committed:HEAD
+    revision: 8a68afc5e740f47b1d6f7273a370ed6d336d547e
+    method: 'orqlet knowledge impact on the committed tree HEAD (exit 0, one candidate, EC-7, and ORQ-I400 twice) and rg over the places above. Words searched in
+      the proposal: provided capability, Code Reviewer is provided, four-role, four required roles, four roles, All four, four Phase 4, required only by Q-07, keeps
+      required false, model_policy managed or none, strong-reviewer, runtime_id, prefer rank or price_rank, missing-candidate, six shipped, Q-07. Not searched: protected_set_digest,
+      pin fields, sync. Line numbers are those of the proposal at HEAD, which is larger than MAX_FILE_BYTES, so a reviewer packet carries no copy of it. The generated
+      copies under .claude, .cursor, .codex and tests/golden were not searched.'
+    index_state: not-used
+    candidates_found: 1
+  already_documented_refs:
+  - path: docs/design/dynamic-model-profiles/design/manifest.yaml
+    sha256: bb171fdc13d09245599bb6f3c278babd3d50153b5b16c4bd12756804638466ee
+  - path: docs/design/dynamic-model-profiles/questions.yaml
+    sha256: ee3a4834bb710eaaa2def4c43abc27bbb85e10f47814eb50f080436cb1e4582a
+  - path: .github/CODEOWNERS
+    sha256: 6defa2b62f614605fdb550374bce3b08d5461826f4d1685be7fa9a78b9abc9fb

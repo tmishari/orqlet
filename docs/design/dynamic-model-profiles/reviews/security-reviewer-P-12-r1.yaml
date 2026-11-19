@@ -1,0 +1,200 @@
+schema: orqlet.review-result/v1
+task: dynamic-model-profiles
+phase: P-12
+role: security-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  schema: orqlet.review-input/v1
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  components:
+    code_tests: 8117f1d282ab3e253aabe325e9e90ba750a4ac7777ace8e6dcca731f24187951
+    design: af08cad54b174da764ccf0d9a534a6f83068ee318eb81cc6622337a56a287b28
+    evidence_inputs: 76fdeaa456ee988dddd13f1bb54d459845f9ac5721cecefb028f4b60f8c74433
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 64828bab5b853ad6f3ffbf4c5fe4bcddd899ddfcedeb56010b5bd4e587e515c8
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: 20b2417f8fe79a6b504d5edb6aa5876a9d7ae7a5a78a128d2d5e210ff3b835a9
+  digest: 96dd80094b1d62897902698e1b24bfb03bf31cf0b8e27596fdb5ff8e0d9e8b9b
+  merge_base: 1fc985140dc0022f58bea803b4949932d01ecf43
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran in the same client as the Coder (cursor), so independence is I1, not I2.
+- The reviewer was started as a typed subagent (orqlet-security-reviewer); its prompt held the packet path and nothing else. The model that ran it is not
+  observed.
+- 'The reviewer''s session had no shell: it ran no command and computed no quote digest, so every test count and check of the test record is a claim of
+  the Coder that it did not repeat. The Coder computed the digests of the committed lines with orqlet evidence cite at 1fc985140dc0022f58bea803b4949932d01ecf43;
+  lines of staged files cannot be digested and rest on the reviewer''s reading.'
+- 'Packet checks by the Coder: the packet (1008 files, staged tree 0ed91eb717c4f0af902b334f499c7137dececaa4) holds no file under a reviews folder. A scan
+  of it for the claim text of 184 claims in the 34 earlier review records of this task found no hit. It still holds lines that mention earlier reviews or
+  rounds, in earlier test and knowledge records (P-3, P-10, P-11), in as-is.md, in ADR-002 and ADR-006, in questions.yaml, in the plan and in the design
+  manifest. The proposal (1,065,661 bytes in the staged tree; the base file, 1,062,453 bytes, was already over the limit of 1,048,576) is in neither the
+  snapshot nor the context copies (ORQ-I440); diff.patch holds 9 hunks of it (55,918 characters), so the reviewer could read what changed in it and never
+  the whole file.'
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- The security reviewer returned F-1 to F-4 as findings with absence records over packet files (context/test-record.yaml, diff.patch, the staged README
+  and CODEOWNERS). Those files are in no commit and an absence record names a commit, so the Coder records F-1 to F-4 as observations; the severity and
+  the claim text are the reviewer's and unchanged.
+- 'The review_input block of this record was rebuilt by the Coder, not read from the output of orqlet review prepare, because the printed block of the security
+  reviewer was cut off in the Coder''s terminal: it takes the printed components of the architecture reviewer for this packet, which equal the security
+  reviewer''s in every component but reviewer_definition (checked on a later run of review prepare, where evidence_inputs and the other components are equal
+  across the two roles), and the reviewer_definition of the security reviewer for cursor. The same method reproduces the printed digest of the architecture
+  reviewer exactly.'
+- 'Coder''s note, not part of the reviewer''s text: no finding blocks. F-6 is disproved by the ledger: Q-21 is answered in docs/design/dynamic-model-profiles/questions.yaml
+  (every phase, independence I2). F-3 and F-4 were checked against the code (independence.py module docstring; validate_model_policy.py, _removed_exclusions
+  and _absent) and are right: the README rows and the gate paragraph were corrected in rework round 1 of the phase. F-1 is ORQ-E451, accepted by the person.
+  F-2 is a question for the person (AC-1 names four patterns), F-5 is left as it is. A round 2 follows on a new packet; this record is stale after that
+  change.'
+applicability:
+  examined:
+  - MANIFEST.json
+  - diff.patch
+  - context/plan.yaml
+  - context/test-record.yaml
+  - context/knowledge-impact.yaml
+  - context/standards/
+  - snapshot/README.md
+  - snapshot/.github/CODEOWNERS
+  - snapshot/tests/unit/test_codeowners.py
+  - snapshot/tests/unit/test_readme_model_policy.py
+  - snapshot/src/orqlet/domain/model_identity.py
+  - snapshot/src/orqlet/domain/independence.py
+  - snapshot/src/orqlet/application/usecases/review_identity.py
+  - snapshot/src/orqlet/application/usecases/validate_model_policy.py
+  - snapshot/src/orqlet/application/usecases/models_resolve.py
+  - snapshot/src/orqlet/application/usecases/model_selection.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: security
+  claim: 'The CODEOWNERS change is a security-path change that the gate marks as not covered. The test record has `gate-status-phase` exit 5 (ORQ-E451:
+    `.github/CODEOWNERS` changed, a renewed design approval is needed). The cause is EC-7, whose verification is `manual`, and the record sets AC-6 to `fail`.
+    The person accepted this, so I do not override it, but the phase is not clean on AC-6. Separately, the four entries add no enforced control. Every new
+    line names the same single owner as the author (Q-32). The test docstrings record that `main` has no branch protection and that a code-owner review
+    is "enforced by nothing" (Q-34). A reader should not count these lines as an approval control.'
+  suggested_action: Amend EC-7 so that its verification is `tests/unit/test_codeowners.py` (a test, not `manual`), and renew the design approval, or record
+    that the phase merges with ORQ-E451 accepted. Do not describe the four entries as an enforced control anywhere.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: security
+  claim: 'After this change these paths still have no code owner: `tools/**` (`tools/build_manifest.py` rebuilds and checks `MANIFEST.json`, the integrity
+    record of the protected workflow), `pyproject.toml` and `uv.lock` (the dependency set, and rule ORQLET-NOMODEL-001 forbids a model SDK dependency),
+    and `docs/design/**` (the approved designs, plans and review records that act as approval evidence). Q-32 only asked about `src/orqlet/domain/**` and
+    `tests/**`, so the gap is outside the question, not an error in the answer. It is also a gap that a hostile or careless change could use only if the
+    host enforced owners, which Q-34 says it does not.'
+  suggested_action: Ask the person whether `tools/**`, `pyproject.toml`, `uv.lock` and `docs/design/**` should have an owner too. It is a one-file change
+    to CODEOWNERS.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: docs
+  claim: README lines 491-519 ("The code review gate") say `validate review` "derives the independence class from the recorded values". They never say that
+    those values are self-attested and that no command checks them. The values are the client, `model_observed`, `identity_source` (`client-reported` or
+    `person-observed`) and `context.fresh`. Whoever writes the record file chooses them. The domain docstring is explicit ("an unkeyed record can be written
+    by anyone", `src/orqlet/domain/independence.py`, top of the file) and the `Context` contract calls it "the reviewer's attestation". The README already
+    says this for `callable` and `evaluated` (line 439), so the gate section reads as stronger than it is.
+  suggested_action: 'Add one sentence to the gate section: the recorded identity and the fresh-context statement are attested by the record''s author, Orqlet
+    checks their form and consistency only, and I3 comes only from the host.'
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: non-blocking
+  category: docs
+  rule_ref: ORQLET-SEC-002
+  claim: 'The README rows for the exclusion-removal controls say less than the code does. (a) ORQ-E544 "only a reviewed change removes an exclusion": `validate_model_policy.py`
+    lines 370-371 say "The comparison is by `id`: an entry that kept its id and lost an alias, a pattern or a tag is not found". So narrowing the Fable
+    entry while keeping its id raises no E544. The check is also skipped (a skip, not a pass) for a custom PATH or when no base is located. (b) ORQ-E547
+    reads "the lock records it as seeded". That holds for `upgrade` and `models resolve`, which have no VCS access. `validate model-policy` also raises
+    E547 when the base tree holds the file (lines 253-262). Until the seed ships, a team''s own policy has no seeded row. There, `models resolve` answers
+    "no policy, the client chooses" with exit 0 after a deletion. `validate review` still uses the union of both trees'' exclusions, so that path is covered.
+    Nothing in CI runs any of these commands.'
+  suggested_action: State these three limits in the README rows or in "Excluded models". The design brief (EC-8) says `models resolve` detects a deletion
+    from the lock or the base tree, but the built command reads no tree. Tell the person, who decides whether that is a plan reading or a gap for P-13 or
+    P-14.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: security
+  claim: 'Outside the diff and not tested by me: `is_exclusion` in `src/orqlet/domain/model_identity.py` folds with NFKC and casefold and strips only `-
+    _ . ` as separators. By reading, a zero-width character inside a name (for example U+200B in "fa\u200bble") is not removed, so the family tag `fable`
+    would not match it. The practical risk looks low because a client would not resolve such a name to the real model. The README describes this matching
+    in detail, so a reader may trust it more than a test supports.'
+  suggested_action: Consider a test, or a README sentence, on characters that NFKC leaves in place.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: info
+  category: docs
+  claim: The proposal's Q-07 row and section 10.3 say the person "approved the gate (Q-19, Q-21; ADR-006)" and cite ledger question Q-9. The ledger is not
+    in the packet. The AS-IS file shows Q-19 ("I approve code review gate.") and Q-9 answered, and Q-21 (scope and class of the gate) still open at research
+    time. I could not confirm the later answer to Q-21. The test-record notes that approval is the merge of a pull request and that `orqlet gate status`
+    gives NOT_RUN for approval, so "approved" is the person's statement, not host evidence.
+  suggested_action: The person should confirm that the Q-21 answer exists in the ledger.
+  confidence: low
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+    confirmed_requirements:
+    - 'No secret, token, key shape, password or user path is in diff.patch: the only matches are example.com addresses in tests/unit/test_codeowners.py
+      and the word secrets in the Security Reviewer''s role row; the README examples use placeholder model names.'
+    - 'The new tests read repository files only: test_readme_model_policy.py loads the README YAML block through StrictYamlLoader and load_contract (ORQLET-SEC-002),
+      starts no process, uses no network and writes nothing.'
+    - pyproject.toml and uv.lock are not in the diff and no import of a new package appears.
+    - README claims match the code for the matching rule of excluded models, the exit statuses of validate model-policy, the union of the base and staged
+      exclusions, ORQ-W463, the two awkward points and the I0/I1/I2 rules.
+  checks:
+  - what: 'Packet read: diff, plan P-12, test record, knowledge record, standards'
+    how: read files in the packet; no command run
+    result: pass
+  - what: Secrets in the diff, fixtures, tests and knowledge text
+    how: Grep over diff.patch
+    result: pass
+  - what: Dependency and code files unchanged
+    how: file list of diff.patch
+    result: pass
+  - what: Security claims of the README checked against the code
+    how: read of six source files
+    result: pass
+  - what: README and the code agree on the reach of the exclusion controls
+    how: read of README lines 476-538 and validate_model_policy.py
+    result: fail
+  - what: orqlet evidence cite, validate review, standards for
+    how: 'not run: read-only session without a shell'
+    result: not-run
+  unverified:
+  - The question ledger, ADR texts and design reviews are not in the packet.
+  - Whether @tmishari has write access on the host, how GitHub applies CODEOWNERS (the host settings are Q-34), the CI matrix, golden files and the src/
+    code beyond the files named above.
+  - 'The proposal''s 5,000+ lines outside the hunks: the packet carries no copy of the proposal and the reviewer read only the diff.'

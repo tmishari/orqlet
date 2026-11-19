@@ -1,0 +1,354 @@
+schema: orqlet.review-result/v1
+task: dynamic-model-profiles
+phase: P-12
+role: architecture-reviewer
+round: 5
+verdict: PASS
+assurance: advisory
+review_input:
+  schema: orqlet.review-input/v1
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  components:
+    code_tests: fe1d890106201fba2a537cab3e10bc503c38fd26ec73f8797c8d03a6470b4e31
+    design: 42b7894ffd4a6d18273151d215244f7d5b819097bd9f289b7a342b9c9d24e98b
+    evidence_inputs: 6d61564d2071cfae67222aeb7c5cbc45990bf5fdb288a6ba0d9c6e6bc5c4cfd9
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 486d5cb973178a8a3c97db9f7402243b8690281f89a4737b8aaf766441036b16
+    reviewer_definition: 6ce838ea71280ef545f87a85c2922b4bd9a2740713521c2dd24ed4768ead4be9
+    standards: 20b2417f8fe79a6b504d5edb6aa5876a9d7ae7a5a78a128d2d5e210ff3b835a9
+  digest: 1a360988eb3bdcdb1fb19d03cceae0aed2c052131e61a7ccc8338b7ad9649a3e
+  merge_base: 000c3cbf0fbd662a318937c5010179f05b9766f8
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: bb870c5236ad9b2cb5f0f6b0f8568baf499d9bd1727a18254303b9b1e797e7f4
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran in the same client as the Coder (cursor), so independence is I1, not I2.
+- The reviewer was started as a typed subagent (orqlet-arch-reviewer); its prompt held the packet path and nothing else, in a new context. The model that
+  ran it is not observed. This is round 5 of the phase; the reviewer was given no earlier round.
+- The reviewer wrote that its session had no shell and that it could compute no quote digest. Its log shows 1 Shell call, read-only listings of the packet
+  (ls). It ran no orqlet, test, hash or evidence command. The Coder did not test whether such a command would have worked in its session, so it is not known
+  whether the reviewer could have computed digests. Every test count and check result in the test record is therefore a claim of the Coder that the reviewer
+  did not repeat. The Coder computed the digests below for committed lines at revision 5062194db0e5feae52e6559bc691a85a26166acb after reading each range
+  against the claim it supports.
+- 'Packet checked by the Coder: dynamic-model-profiles-P-12-95d0c516 (1007 files, staged tree e01d3d96b6a13f40c79d17eb6c0d504ca0f9708b, base 000c3cbf0fbd662a318937c5010179f05b9766f8).
+  It holds no file of a review record. Before the reviewers ran, the Coder scanned the whole packet, including the docstrings and comments of the two test
+  files, for the words round, rework, finding numbers, review-record paths and open pull request, and found no earlier-round information about P-12. The
+  design manifest and the as-is notes in the packet, and the proposal''s own text, hold design-phase review history and the words round and rework; every
+  packet carries them.'
+- 'The proposal is over the packet limit (ORQ-I440) and the reviewers read it through the hunks of diff.patch only. `orqlet review prepare` printed ORQ-I441:
+  the code-reviewer binding is not printed.'
+- The test record the reviewer read says that the pytest run is a claim (evidence_kind claimed), has verdict NOT_RUN because the gate-status command exits
+  5 offline, and that the CI matrix did not run; the reviewer re-ran no check.
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- '`applicability.examined` lists the files that the reviewer opened with Read, taken from its tool-call log. Its Grep and Glob calls searched more of the
+  packet and are not listed.'
+- 'The test record was corrected after the reviewers read it, in answer to security finding F-5 of this round: a tree id that the Coder had typed with 39
+  characters now reads 3f4b178f43a2a42ba9079a0b46a40a319285a327 (git cat-file prints `tree` for it). The review input of both reviewers covers the evidence
+  inputs, which include the test record, so the digest recorded here is the one of the packet that the reviewers read and it differs from the digest of
+  the committed tree; `orqlet validate review` may report the record stale for that reason.'
+- The reviewer's own model is not observed. The record leaves model_observed empty.
+- 'The reviewer wrote ''Recommended verdict: PASS'' and said that the parent should record the verdict after weighing the limits; the Coder records PASS
+  because the reviewer found no blocking finding. Its self-check marks the check on the knowledge-impact record as fail (finding F-6, non-blocking).'
+- 'Coder''s note on F-1: true; it is the same gap as the plan gap that the earlier review of this phase named. I read README lines 21, 381, 517 and 518
+  and they are true today; they become false when P-13 ships. A plan amendment is needed before P-13; this phase does not change the plan and none is written
+  yet.'
+- 'Coder''s note on F-2: true as far as I can tell. I searched docs/, AGENTS.md and .orqlet for ''interface decision''; it occurs only in review records
+  of other phases, so the interface decision (R1..R17, P1..P7) and the criteria A, B and C that the test docstrings cite are not stored in the repository.
+  The module docstring of tests/unit/test_readme_model_policy.py says that the plan author gave the interface decision to the Tester of P-12; where else
+  it is kept, I do not know. The five CODEOWNERS entries and the edit criteria are written down only in the pull request body, as the person chose.'
+- 'Coder''s note on F-3: true for the sizes: tests/unit/test_readme_model_policy.py has 2680 lines, tests/unit/test_readme_integrations.py 625 and tests/unit/test_readme_ci_snippet.py
+  499. Not changed in this phase.'
+- 'Coder''s note on F-4: true. The README row says ''a name with options for Cursor''; `_refusal` in model_selection.py refuses every Cursor name that `cursor_plain_id`
+  does not accept (`[A-Za-z][A-Za-z0-9._/+-]*`). Not fixed in this phase.'
+- 'Coder''s note on F-5: true as far as the code shows: model_resolution.py 291-293 returns Resolution(''client-chooses'', ''automatic'') and models_resolve.py
+  74 holds NO_ASSIGNMENT_HINT. I did not run `models resolve` to confirm the exit status 0 for that case. Not fixed in this phase.'
+- 'Coder''s note on F-6: true. The method text of the knowledge record ends ''Not searched: protected_set_digest, pin fields, sync'', and AC-3 of P-12 is
+  about a pin, protected_set_digest and ORQ-W390. No knowledge source is configured (ORQ-I400) and the plan''s knowledge_scope is empty, so there is no
+  knowledge document to search; the record says so, but it does not say that the search of those words in the proposal was left out for that reason. Not
+  changed.'
+- 'Coder''s note on F-7: README line 294 is new in this phase; lines 106, 107, 109 and 325 are longer than 300 characters on main (000c3cb) too. Not changed.'
+- 'The reviewer wrote the category of F-1 to F-7 as docs, architecture, tests, correctness, docs, docs and standards; they are in the list of the format.
+  It named a question: where the interface decision and the criteria A, B and C are stored (see the note on F-2).'
+applicability:
+  examined:
+  - MANIFEST.json
+  - context/plan.yaml
+  - context/design-manifest.yaml
+  - context/test-record.yaml
+  - context/knowledge-impact.yaml
+  - diff.patch
+  - snapshot/tests/unit/test_codeowners.py
+  - snapshot/tests/unit/test_readme_model_policy.py
+  - snapshot/src/orqlet/interface/cli/commands/models.py
+  - snapshot/src/orqlet/application/usecases/models_resolve.py
+  - snapshot/src/orqlet/interface/cli/exit_codes.py
+  - snapshot/src/orqlet/application/usecases/validate_model_policy.py
+  - snapshot/src/orqlet/interface/cli/errors.py
+  - snapshot/src/orqlet/interface/cli/runner.py
+  - snapshot/src/orqlet/domain/model_resolution.py
+  - snapshot/src/orqlet/application/usecases/render_all.py
+  - snapshot/src/orqlet/domain/independence.py
+  - snapshot/.agents/skills/orqlet-review/references/review-format.md
+  - snapshot/.github/CODEOWNERS
+  - snapshot/src/orqlet/application/contracts/finding.py
+  - snapshot/src/orqlet/application/usecases/validate_records.py
+  - snapshot/pyproject.toml
+  - context/standards/rules.yaml
+  - context/standards/standards.lock.yaml
+  - snapshot/src/orqlet/domain/model_identity.py
+  - snapshot/src/orqlet/application/usecases/model_selection.py
+  - snapshot/README.md
+  - snapshot/src/orqlet/application/contracts/plan.py
+  - snapshot/src/orqlet/application/contracts/self_check.py
+  - snapshot/src/orqlet/application/contracts/review_result.py
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: docs
+  rule_ref: 'AGENTS.md: update the documentation that your change makes wrong, in the same change'
+  evidence:
+  - kind: quote
+    path: README.md
+    lines: '21'
+    revision: 5062194db0e5feae52e6559bc691a85a26166acb
+    quote_sha256: a38a3228b7e9b7df764e93b43b4c2b328f66f8a1128eb4611c93730b091f9b63
+  - kind: quote
+    path: README.md
+    lines: '381'
+    revision: 5062194db0e5feae52e6559bc691a85a26166acb
+    quote_sha256: e9793270edb5a8aec698d5596147b5878d5c8fe008810258177954be52bbe5ab
+  - kind: quote
+    path: README.md
+    lines: 517-518
+    revision: 5062194db0e5feae52e6559bc691a85a26166acb
+    quote_sha256: 05a1e01b813529a3da51a16a727ad87312123631d61dd2ebcf2c2b66a5901b7c
+  - kind: quote
+    path: tests/unit/test_readme_model_policy.py
+    lines: '2293'
+    revision: 5062194db0e5feae52e6559bc691a85a26166acb
+    quote_sha256: 5ff34c82a3718809246e2c380e70f78eace154c957d8a1cda848c53428f89547
+  - kind: quote
+    path: docs/design/dynamic-model-profiles/plan.yaml
+    lines: '2331'
+    revision: 5062194db0e5feae52e6559bc691a85a26166acb
+    quote_sha256: 66b7609f74da51951dce154582a3e8e7d32738439457d29f778bc4627f603e71
+  - kind: absence
+    searched:
+    - docs/design/dynamic-model-profiles/plan.yaml
+    method: rg for README, architecture-proposal and test_readme_model_policy in plan.yaml, over P-13 (1619-2031) and P-14 (2032-2250); the only hits are
+      in P-12 (1574, 1577, 1583) and in notes at 2331 and 2438
+    revision: e01d3d96b6a13f40c79d17eb6c0d504ca0f9708b
+  claim: 'P-12 pins statements that P-13 makes false: five specialist agents, no `orqlet-code-reviewer` role, two reviewers, and a seed that is not built.
+    The test `test_the_readme_still_says_that_five_specialist_agents_ship` and `NOT_BUILT_PHRASES` fail once P-13 adds the role, but P-13 and P-14 list
+    no README, proposal or `test_readme_model_policy.py` edit. Plan line 2331 already says the README example belongs to P-13/P-14, and line 2438 says the
+    files change in P-12 only.'
+  suggested_action: Amend the plan before P-13 so that P-13 or P-14 lists README.md, the proposal and `test_readme_model_policy.py`. Alternatively, drop
+    the "five specialist agents" guard and pin the "not built yet" wording less tightly.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: finding
+  severity: non-blocking
+  category: architecture
+  evidence:
+  - kind: quote
+    path: .github/CODEOWNERS
+    lines: 15-19
+    revision: 5062194db0e5feae52e6559bc691a85a26166acb
+    quote_sha256: 51db555222c2c49e7c76edf734c9affb4ea81befb86be9ddb6f498dd3c8e3f93
+  - kind: quote
+    path: docs/design/dynamic-model-profiles/plan.yaml
+    lines: 1516-1519
+    revision: 5062194db0e5feae52e6559bc691a85a26166acb
+    quote_sha256: a7f598c384f60474c8308071ea3890b0a1d73f41f97e51075cfdd503d9695165
+  - kind: absence
+    searched:
+    - docs/design/dynamic-model-profiles/**
+    method: rg 'interface decision|criterion A|R17' over context/*.yaml and context/as-is.md; no hit for the sources the tests cite
+    revision: e01d3d96b6a13f40c79d17eb6c0d504ca0f9708b
+  claim: The phase adds `.github/pull_request_template.md`, `pyproject.toml`, `uv.lock`, `tools/**` and `docs/design/**` as owned paths. It also makes about
+    35 README and proposal edits (`README_EDITS` R-1..R-3, `PROPOSAL_EDITS` P-1..P-29). The tests cite them to "the interface decision" (R1..R17, P1..P7)
+    and "criteria A, B, C", and the docstrings say a person approved them "in conversation". None of these is in the plan, the design manifest or the as-is
+    file. The CODEOWNERS file is covered by EC-7, so this is not a deviation. The expected behaviour is not traceable from the packet, though.
+  suggested_action: Record the extra CODEOWNERS entries and the decision sources in the phase report or ledger, or in a plan amendment. The reviewer can
+    then trace each pinned sentence.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: finding
+  severity: non-blocking
+  category: tests
+  rule_ref: ORQLET-STYLE-001 (SHOULD)
+  evidence:
+  - kind: quote
+    path: tests/unit/test_readme_model_policy.py
+    lines: 855-910
+    revision: 5062194db0e5feae52e6559bc691a85a26166acb
+    quote_sha256: 56df78450afe70cb3a922f068a654acf9c992eb2246d595ed5f2e6349f70413c
+  - kind: quote
+    path: tests/unit/test_readme_model_policy.py
+    lines: 1560-1620
+    revision: 5062194db0e5feae52e6559bc691a85a26166acb
+    quote_sha256: 1225649d17907aa889fd76c2180cf0614ce1e610f2e93edb408c32b38f238497
+  claim: The README test is 2680 lines. It holds a second copy of the README section (`REFERENCE_SECTION`), mutation tables (`BREAKS`, `MORE_BREAKS`) that
+    test the rules themselves, and old/new-fragment pins of the edits. The siblings are 625 and 499 lines. A wording change in the README then needs edits
+    in two or three places in the test. Part of the value is in testing the test, not the business behaviour (the facts of AC-2 to AC-5).
+  suggested_action: Keep the structural rules (headings, tables, exit statuses, finding codes, the gate sentences). Drop the second README copy and the
+    edit-pin tables, or move them to a smaller test.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: finding
+  severity: non-blocking
+  category: correctness
+  evidence:
+  - kind: quote
+    path: README.md
+    lines: '552'
+    revision: 5062194db0e5feae52e6559bc691a85a26166acb
+    quote_sha256: 8c86457ccd0ddd6ab1d0fe7d75094282ffb384f9c57730ee24560578651376c4
+  - kind: quote
+    path: src/orqlet/application/usecases/model_selection.py
+    lines: 296-306
+    revision: 5062194db0e5feae52e6559bc691a85a26166acb
+    quote_sha256: a7630d779ff02a0b1e9a3d652a23f12d1de4da888bac205bb553b361215509ef
+  - kind: quote
+    path: src/orqlet/domain/model_identity.py
+    lines: '34'
+    revision: 5062194db0e5feae52e6559bc691a85a26166acb
+    quote_sha256: b09c9ae896cde846d3f3b6799afb10e08c3c60dbf08b6961babdf8ac80c93dd9
+  claim: The README row for ORQ-W546 says "an effort or a name with options for Cursor". The code leaves a name out when `cursor_plain_id` is false, so
+    any name outside `[A-Za-z][A-Za-z0-9._/+-]*` is refused. The code message is "Cursor cannot take this model name without quotes". The README wording
+    is narrower than the behaviour. The proposal's 14.9 text is closer to the code.
+  suggested_action: Reword the row, for example "a name that Cursor cannot take without quotes".
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: finding
+  severity: non-blocking
+  category: docs
+  evidence:
+  - kind: quote
+    path: README.md
+    lines: '417'
+    revision: 5062194db0e5feae52e6559bc691a85a26166acb
+    quote_sha256: 9354fc96dfabf2ddb20cc4aaae05048a004a86e2500df459c909ee2dc6c7ba91
+  - kind: quote
+    path: src/orqlet/domain/model_resolution.py
+    lines: 291-293
+    revision: 5062194db0e5feae52e6559bc691a85a26166acb
+    quote_sha256: a5c193228cad7d5d65ebc3ac55defbd77f008f13bf50108cf63ed6bb1eb523e9
+  - kind: quote
+    path: src/orqlet/application/usecases/models_resolve.py
+    lines: '74'
+    revision: 5062194db0e5feae52e6559bc691a85a26166acb
+    quote_sha256: db88fa59b7d10b05f85a06249f2fcde6dcf402425b165e20b19ff4fb3243be48
+  claim: 'The exit-0 row of `models resolve` lists three conditions: the mode is automatic or automatic-with-fallbacks, or there is no policy. The code
+    also gives "client-chooses" and exit 0 when no assignment applies to the target (`NO_ASSIGNMENT_HINT`). The parenthesis reads as a complete list, and
+    it is not.'
+  suggested_action: Add "or no assignment names the target" to the row.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: finding
+  severity: non-blocking
+  category: docs
+  evidence:
+  - kind: quote
+    path: docs/design/dynamic-model-profiles/knowledge/P-12.yaml
+    lines: 48-58
+    revision: 5062194db0e5feae52e6559bc691a85a26166acb
+    quote_sha256: 4f05dfce8176f55b582a5339b395d474cf8eaa87be325248febe97e430d180de
+  - kind: quote
+    path: docs/design/dynamic-model-profiles/knowledge/P-12.yaml
+    lines: 90-95
+    revision: 5062194db0e5feae52e6559bc691a85a26166acb
+    quote_sha256: 922badb1c03bd8ba7c5925ffbfc6b9e5ef7f6211556af249f75a7de59a2237b6
+  claim: 'The record says the category `already-documented` is used because the validator refuses the other categories while a reference exists. Its `already_documented_refs`
+    are the design manifest, `questions.yaml` and `.github/CODEOWNERS`, which is the file this phase edits. The method ends "Not searched: protected_set_digest,
+    pin fields, sync", but AC-3 is about that topic. The record therefore does not support the claim that nothing needs a knowledge entry.'
+  suggested_action: Re-run the search for `protected_set_digest`, pins and `sync` in the knowledge documents. Cite documents that are not part of this change,
+    or choose the category that matches what was found.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: info
+  category: standards
+  evidence:
+  - kind: quote
+    path: README.md
+    lines: '294'
+    revision: 5062194db0e5feae52e6559bc691a85a26166acb
+    quote_sha256: 093597c537ec654ef5383d8386af1b3a7fe60b46ab1535f3879bc6f27515813b
+  claim: Five README lines are over 300 characters, including the upgrade paragraph (line 294) and the lines near 464, 516 and 526. The rest of the README
+    hard-wraps at about 100 columns.
+  suggested_action: Wrap the new paragraphs like the rest of the file.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+    confirmed_requirements:
+    - 'The diff touches only the files named in plan P-12 (plan.yaml 1570-1584): .github/CODEOWNERS, README.md, the proposal, the two test files and the
+      two records. No code under src/ changed.'
+    - There are no imports of application or adapter code. The new tests read files and import only ExitCode and the domain, in line with ORQLET-ARCH-001..003.
+      No secrets or network access appear.
+    - The README matches the source on the exit codes of both commands, the `models resolve` output block, the precedence order and the Fable exclusion
+      by identity, the five-states table, the independence rules, the binding rules and the ORQ-E54x, ORQ-W54x and ORQ-I540 codes in the codes table.
+    - AC-1 to AC-5 each have a test that reads the documents or CODEOWNERS and fails when the criterion is broken; the CODEOWNERS parser rejects malformed
+      lines, duplicate patterns and owners that do not start with `@`.
+  checks:
+  - what: Diff stays inside the P-12 file list
+    how: diff.patch sections vs context/plan.yaml 1570-1584
+    result: pass
+  - what: README claims against the source
+    how: exit_codes.py, models.py, validate.py, models_resolve.py, model_resolution.py, independence.py, render_all.py, finding codes
+    result: pass
+  - what: Findings F-4 and F-5 in the README
+    how: model_selection.py 296-306; models_resolve.py 74; README 417 and 552
+    result: pass
+  - what: Each AC has a test that can fail
+    how: test_codeowners.py, test_readme_model_policy.py
+    result: pass
+  - what: 'CODEOWNERS: kept lines, extra entries, order'
+    how: snapshot/.github/CODEOWNERS, 19 lines
+    result: pass
+  - what: Knowledge-impact record
+    how: context/knowledge-impact.yaml
+    result: fail
+  - what: Test suite and lint on the staged tree
+    how: ''
+    result: not-run
+  - what: Hashes of the packet files (MANIFEST.json) and quote hashes
+    how: ''
+    result: not-run
+  failures:
+  - 'F-6: the knowledge-impact record does not support its own category.'
+  unverified:
+  - 'Test results: the reviewer ran nothing. The test record says 12719 passed on macOS, claimed only, and its own verdict is NOT_RUN because `gate status`
+    exited 5 offline.'
+  - The proposal file is not in the packet. The reviewer saw only the diff hunks of P-1..P-29 and did not check the unchanged text around them.
+  - ADR-001..ADR-006, BC-26, the ledger (Q-9, Q-19, Q-21, Q-32, Q-34) and the phase report are not in the packet. The reviewer could not check what the
+    README, proposal and tests say about them, including the AC-1 report sentence on the one owner.
+  - The CI matrix (other operating systems and Python versions) was not run.
+  - 'quote_sha256 values and MANIFEST hashes: not computed by the reviewer.'

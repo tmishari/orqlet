@@ -1,0 +1,59 @@
+schema: orqlet.test-record/v1
+task: dynamic-model-profiles
+phase: P-12
+review_input:
+  schema: orqlet.review-input/v1
+  covers:
+  - code_tests
+  - plan
+  components:
+    code_tests: fe1d890106201fba2a537cab3e10bc503c38fd26ec73f8797c8d03a6470b4e31
+    plan: 486d5cb973178a8a3c97db9f7402243b8690281f89a4737b8aaf766441036b16
+  digest: 46173ede5202f64957a45c974ab76fce8268c932eef234f9c74406960d0cdffe
+  merge_base: 000c3cbf0fbd662a318937c5010179f05b9766f8
+verdict: NOT_RUN
+evidence_kind: claimed
+commands:
+- id: ruff-check
+  exit_code: 0
+  summary: All checks passed. Run on the staged tree 8c2ab3fffb804b5707d9501b334a8198da161f58 (HEAD 8a68afc plus the staged README.md and the two test files) with NO_COLOR=1. The digest is of the whole captured output as written, which holds two ANSI
+    colour escapes although NO_COLOR=1 was set.
+  result_digest: 5b196eb3a6acb50d3fa398d04ca284985cc1ffec870e940264b00780bfd2c971
+- id: ruff-format
+  exit_code: 0
+  summary: '639 files already formatted, on the same tree (NO_COLOR=1). The two files above 637 are the Markdown files GRAPH_REPORT.md of the untracked folders graphify-out and src/graphify-out, which ruff 0.17.1 formats too: `ruff format --check --exclude graphify-out .` prints 637 files. `ruff check --show-files .` lists 386 files, all tracked. The digest is of the whole captured output of the plain run.'
+  result_digest: 6362ab739bd5c5c26b23b63ab36d68a8e126cc5016d2742a11499dcc9012729a
+- id: mypy
+  exit_code: 0
+  summary: 'Success: no issues found in 385 source files, on the same tree (NO_COLOR=1). The digest is of the whole captured output.'
+  result_digest: 34a20907522d96c7a4eacbc6afcff31e00a4a8f9e537845b2d8271e0c91ffe7b
+- id: pytest
+  exit_code: 0
+  summary: 'Full suite as the plan gives it (uv run pytest -p no:cacheprovider, NO_COLOR=1, run as a background job) on the staged tree 8c2ab3fffb804b5707d9501b334a8198da161f58 (HEAD 8a68afc plus the staged README.md and the two test files; the records of the phase were those of that moment, and this record was written after the run): 12719 passed, 1 skipped in 954.30s (0:15:54), exit 0; the skip is tests/integration/test_junction.py, Windows only. The staged tree was the same before and after the run (git write-tree). tests/unit/test_existing_records_and_plans_stay_valid.py reads the repository''s records, so it was rerun with the two P-12 test files after this record and the knowledge record were staged (tree 3f4b178f43a2a42ba9079a0b46a40a319285a327): 273 passed, exit 0, digest 7bc7e5ec51c7baaea4eab39878e8b94a28090f18faf23fff6715996850a88331 of its output file, whose last line `exit=0` is the exit status that the job appended. The digest is of the output file of the full run, whose last line `exit=0` is the exit status that the job appended. macOS only; the CI matrix (ubuntu, windows, macos, Python versions) was not run.'
+  result_digest: b49f5fd7e03ecfcc8ec75956b689a4efff9432a149827a959c309046478433fc
+- id: gate-status-phase
+  exit_code: 5
+  summary: 'NOT_RUN, exit 5, on the staged tree 8c2ab3fffb804b5707d9501b334a8198da161f58 (the knowledge record staged), against main 000c3cb. EC-7 security: implemented as designed. No ORQ-E450, no ORQ-E451 and no ORQ-E453, so AC-6 holds; the
+    exit status 5 is the NOT_RUN of an offline run: ORQ-W390 on as-is, design and plan with cause base_revision (three lines; the person confirmed that the approval stays valid), ORQ-I393 offline, and NOT
+    RUN lines for the three stale inputs and for approval. EC-1 to EC-6, EC-8 and EC-9 are manual (ORQ-I451, nine lines). The digest is of the whole captured output (NO_COLOR=1). The verdict of this record
+    is NOT_RUN only because of this exit status, as in the records of P-10 and P-11: the validator does not allow a PASS next to a command that exited with 5. Every criterion has the result pass.'
+  result_digest: 6b15b975a016237081c824d3545fce968ad77d3efd467c8c0f3362d99708a2a3
+acceptance_coverage:
+- ac: AC-1
+  check_ref: pytest
+  result: pass
+- ac: AC-2
+  check_ref: pytest
+  result: pass
+- ac: AC-3
+  check_ref: pytest
+  result: pass
+- ac: AC-4
+  check_ref: pytest
+  result: pass
+- ac: AC-5
+  check_ref: pytest
+  result: pass
+- ac: AC-6
+  check_ref: gate-status-phase
+  result: pass
