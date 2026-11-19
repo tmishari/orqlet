@@ -360,7 +360,7 @@ During a phase, the commands that tie the records to the change are:
 
 ```sh
 orqlet knowledge impact <task> <phase>    # candidates that the change may leave out of date, and the binding of the record
-orqlet review prepare <task> <phase>      # export the staged snapshot, diff, plan and records for the reviewers
+orqlet review prepare <task> <phase>      # export the staged snapshot, diff, plan and the test and knowledge records; earlier review records stay out
 orqlet validate test docs/design/<task>/tests/<phase>.yaml
 orqlet validate knowledge docs/design/<task>/knowledge/<phase>.yaml
 orqlet validate review docs/design/<task>/reviews/<role>-<phase>-r1.yaml
@@ -460,7 +460,9 @@ lower level without a finding:
 
 The constraints hold at every level: the model is not excluded, it is approved, the route has a
 known identifier for the client, the access is not blocked, and the model sits in the profile that
-the work needs. A reviewer may also not be of a lower profile than the coder.
+the work needs. A reviewer may also not be of a lower profile than the coder: `--coder-profile` sets that floor for
+any target, and without it the floor (the profile `engineering`) applies only to the role
+`orqlet-code-reviewer` and only when `--different-family-from` names the coder's model.
 `--different-family-from` (a catalog id), `--coder-profile` and `--task` narrow the answer for those
 cases. The source of an answer that `models resolve` prints is one of `task-override`,
 `role-assignment`, `profile-assignment` and `automatic`. The resolver also knows the source
@@ -501,7 +503,8 @@ reviewer must also state that the reviewer worked in a fresh context on the pack
 does not is I0, and I0 never counts.
 
 The review is `NOT_RUN` when no reviewer qualifies, never a pass. A new session of the same client
-does not satisfy the gate: it is I1. What stands in is a review in another client, or a human
+does not satisfy the gate unless both sides were observed to run different model families;
+without that it is I1. What stands in is a review in another client, or a human
 code-owner review by someone who is not the author. Orqlet has no record for a human code-owner
 review: the approval on the pull request is evidence of the code host, and the Orqlet record stays
 `NOT_RUN`. Orqlet runs no check at merge time (`orqlet ci check` is not built yet), so a `NOT_RUN`

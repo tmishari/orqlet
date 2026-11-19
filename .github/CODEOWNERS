@@ -12,3 +12,8 @@ src/orqlet/** @tmishari
 src/orqlet/workflow/seeds/** @tmishari
 .github/CODEOWNERS @tmishari
 tests/** @tmishari
+pyproject.toml @tmishari
+uv.lock @tmishari
+tools/** @tmishari
+docs/design/** @tmishari
+.github/pull_request_template.md @tmishari

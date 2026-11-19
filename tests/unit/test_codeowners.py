@@ -9,6 +9,13 @@ decision C1 to C3" is the reading that the plan author gave the Tester of phase 
 plan does not spell out what a malformed line is.
 
 These tests were written first, by the Tester of phase P-12, before the four entries were added.
+The rework of the open pull request (criterion C; the person approved it in conversation and it is
+not in plan.yaml) adds five patterns, keeps `src/orqlet/workflow/seeds/**` below `src/orqlet/**`,
+and stops freezing history: finding F-5 of docs/design/dynamic-model-profiles/reviews/
+architecture-reviewer-P-12-r3.yaml says that the exact owner `["@tmishari"]` and the literal first
+ten lines block a second code owner, which Q-32 and Q-34 leave open. The tests now ask that each
+of the ten patterns of the file at HEAD 1fc9851 is still listed with an owner, in any order and
+with any owners, and that each pattern of `OWNED_PATTERNS` has an owner that starts with `@`.
 The parser is a small function of text. It is also run on small texts, including one with CRLF line
 endings, so that a rule that cannot fail would fail here; those tests pass before the file changes.
 
@@ -38,23 +45,20 @@ pytestmark = pytest.mark.unit
 
 CODEOWNERS = Path(__file__).resolve().parents[2] / ".github" / "CODEOWNERS"
 
-OWNER = ("@tmishari",)
-# The ten entries of the file at HEAD 1fc9851, in order (AC-1: "keeps every line that it has").
-ORIGINAL_ENTRIES = [
-    (pattern, OWNER)
-    for pattern in (
-        "/.prompts/",
-        ".orqlet/**",
-        "docs/resources/**",
-        ".github/workflows/**",
-        "AGENTS.md",
-        ".claude/**",
-        ".cursor/**",
-        ".agents/**",
-        ".codex/**",
-        ".mcp.json",
-    )
-]
+# The ten patterns of the file at HEAD 1fc9851 (AC-1: "keeps every line that it has"). Neither their
+# order nor their owners are pinned: a second code owner may be allowed later.
+ORIGINAL_PATTERNS = (
+    "/.prompts/",
+    ".orqlet/**",
+    "docs/resources/**",
+    ".github/workflows/**",
+    "AGENTS.md",
+    ".claude/**",
+    ".cursor/**",
+    ".agents/**",
+    ".codex/**",
+    ".mcp.json",
+)
 # AC-1: the four paths that gain the owner of Q-32 (ADR-004 decision 2), after the general entries.
 NEW_PATTERNS = (
     "src/orqlet/workflow/seeds/**",
@@ -62,7 +66,16 @@ NEW_PATTERNS = (
     "src/orqlet/**",
     "tests/**",
 )
-OWNED_PATTERNS = (*NEW_PATTERNS, ".orqlet/**")
+# The rework of the open pull request: five more patterns, after the fourteen that the file has, in
+# this order.
+REWORK_PATTERNS = (
+    "pyproject.toml",
+    "uv.lock",
+    "tools/**",
+    "docs/design/**",
+    ".github/pull_request_template.md",
+)
+OWNED_PATTERNS = (*NEW_PATTERNS, ".orqlet/**", *REWORK_PATTERNS)
 
 NAME = r"[A-Za-z0-9_][A-Za-z0-9_.-]*"
 OWNER_FORM = re.compile(rf"@{NAME}(?:/{NAME})?|[^@\s]+@[^@\s]+\.[^@\s]+")
@@ -231,27 +244,27 @@ def test_the_file_lists_no_pattern_twice() -> None:
 def test_the_pattern_has_an_owner_that_starts_with_at(pattern: str) -> None:
     """AC-1. expected_behavior_source: AC-1 (each of `src/orqlet/workflow/seeds/**`,
     `.github/CODEOWNERS`, `src/orqlet/**`, `tests/**` and `.orqlet/**` "has at least one owner that
-    starts with `@`") and ADR-004 decision 2 (the paths that need an owner)."""
+    starts with `@`") and ADR-004 decision 2 (the paths that need an owner). Rework criterion C1
+    adds `pyproject.toml`, `uv.lock`, `tools/**`, `docs/design/**` and
+    `.github/pull_request_template.md`; those five fail until the file lists them."""
     owners = [owner for line in owners_of(real_entries(), pattern) for owner in line]
 
     assert any(owner.startswith("@") for owner in owners), f"{pattern} has no owner that is @name"
 
 
-@pytest.mark.parametrize("pattern", NEW_PATTERNS)
-def test_the_new_pattern_has_exactly_the_owner_that_q_32_names(pattern: str) -> None:
-    """AC-1. expected_behavior_source: AC-1 (the owner `@tmishari` for the four paths), Q-32 (the
-    answer: "No second owner. Only @tmishari is a code owner of these paths") and the interface
-    decision C2 (exactly `['@tmishari']`)."""
+@pytest.mark.parametrize("pattern", ORIGINAL_PATTERNS)
+def test_each_of_the_ten_patterns_that_the_file_had_is_still_listed_with_an_owner(
+    pattern: str,
+) -> None:
+    """AC-1. expected_behavior_source: AC-1 ("keeps every line that it has") and the interface
+    decision C3 (the ten patterns of the file at HEAD 1fc9851, written here as literal values),
+    relaxed by rework criterion C4 (the person approved it in conversation; finding F-5 of
+    docs/design/dynamic-model-profiles/reviews/architecture-reviewer-P-12-r3.yaml): the pattern is
+    listed and has at least one owner; neither the order nor the exact owners are pinned. It holds
+    before the file changes."""
     lines = owners_of(real_entries(), pattern)
 
-    assert [list(owners) for owners in lines] == [["@tmishari"]]
-
-
-def test_the_ten_entries_that_the_file_had_are_still_the_first_ten_in_the_same_order() -> None:
-    """AC-1. expected_behavior_source: AC-1 ("keeps every line that it has") and the interface
-    decision C3 (the ten entries of the file at HEAD 1fc9851, written here as literal values). It
-    holds before the file changes."""
-    assert [(entry.pattern, entry.owners) for entry in real_entries()[:10]] == ORIGINAL_ENTRIES
+    assert any(lines), f"{pattern} is not listed with an owner"
 
 
 def test_the_four_new_entries_come_after_the_last_entry_that_the_file_had() -> None:
@@ -260,10 +273,60 @@ def test_the_four_new_entries_come_after_the_last_entry_that_the_file_had() -> N
     below the last original one). Q-32 says the same of "the last matching pattern of the file"."""
     entries = real_entries()
     last_original = max(
-        position for pattern, _ in ORIGINAL_ENTRIES for position in positions_of(entries, pattern)
+        position for pattern in ORIGINAL_PATTERNS for position in positions_of(entries, pattern)
     )
 
     for pattern in NEW_PATTERNS:
         positions = positions_of(entries, pattern)
         assert positions, f"{pattern} is not listed"
         assert min(positions) > last_original, f"{pattern} is listed above an original entry"
+
+
+@pytest.mark.parametrize("pattern", REWORK_PATTERNS)
+def test_the_rework_pattern_is_listed_once_below_the_last_of_the_fourteen_entries(
+    pattern: str,
+) -> None:
+    """AC-1. expected_behavior_source: rework criterion C1 (the person approved it in
+    conversation; it is not in plan.yaml): `pyproject.toml`, `uv.lock`, `tools/**`,
+    `docs/design/**` and `.github/pull_request_template.md` are listed, no pattern twice, after the
+    last of the fourteen entries that the file has today. Q-32 says that the last matching pattern
+    of the file decides the owner, so the position counts. It fails until the file lists them."""
+    entries = real_entries()
+    last_of_the_fourteen = max(
+        position
+        for listed in (*ORIGINAL_PATTERNS, *NEW_PATTERNS)
+        for position in positions_of(entries, listed)
+    )
+
+    positions = positions_of(entries, pattern)
+
+    assert len(positions) == 1, f"{pattern} is listed {len(positions)} times, not once"
+    assert positions[0] > last_of_the_fourteen, f"{pattern} is listed above an older entry"
+
+
+def test_the_five_rework_entries_come_in_the_order_given() -> None:
+    """AC-1. expected_behavior_source: rework criterion C1 (the person approved it in conversation;
+    it is not in plan.yaml): the five entries follow `tests/**` in the order `pyproject.toml`,
+    `uv.lock`, `tools/**`, `docs/design/**`, `.github/pull_request_template.md`. It fails until the
+    file lists them."""
+    entries = real_entries()
+    first_positions = [
+        found[0] for pattern in REWORK_PATTERNS if (found := positions_of(entries, pattern))
+    ]
+
+    assert len(first_positions) == len(REWORK_PATTERNS), "a pattern of the rework is not listed"
+    assert first_positions == sorted(first_positions)
+
+
+def test_the_seeds_entry_stays_below_the_entry_for_the_whole_package() -> None:
+    """AC-1. expected_behavior_source: rework criterion C2 (the person approved it in
+    conversation) and Q-32 ("the last matching pattern of the file decides the owner"): the more
+    specific `src/orqlet/workflow/seeds/**` comes after `src/orqlet/**`. It holds before the file
+    changes and must hold after."""
+    entries = real_entries()
+    package = positions_of(entries, "src/orqlet/**")
+    seeds = positions_of(entries, "src/orqlet/workflow/seeds/**")
+
+    assert package, "src/orqlet/** is not listed"
+    assert seeds, "src/orqlet/workflow/seeds/** is not listed"
+    assert min(seeds) > max(package), "the seeds entry is above the entry for the whole package"

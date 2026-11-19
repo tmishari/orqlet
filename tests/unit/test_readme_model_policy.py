@@ -40,6 +40,17 @@ binding of the code reviewer is built, in the README) and R16 (the same for sect
 proposal). Their numbers repeat the first round's R15 (the options) and R16 (the upgrade
 paragraph), so the new rules are `R15new-binding-built` and the `proposal_10_3_problems` rule.
 
+Rework after round 2 (criteria A and B of the rework of the open pull request; the person approved
+them in conversation and they are not in plan.yaml). A table of (id, old fragment, new fragment)
+for each document pins every text edit: the new fragment occurs exactly once and the old one is
+gone. The ids R-1 to R-3 (the README) and P-1 to P-29 (the proposal) belong to the edits and are
+not phase ids. The two texts are compared with each run of white space squashed to one space, so a
+line wrap never matters; case and the bold markers stay, so `**Q-08**` is not `Q-08`. P-19 only
+appends to its old fragment, so only its new fragment is pinned. The phrase of R9 about a new
+session now reads `does not satisfy the gate unless both sides were observed to run different
+model families` (R-2, P-2a and P-2b). Two strings that the rework leaves as they are are guarded:
+`five specialist agents` of the README and the heading of section 22.0 of the proposal.
+
 Behaviour that the sources require but that no phrase fixes is deliberately NOT pinned here:
 - where the new section sits in the README, its sub-headings and the order of its parts;
 - the words of the one line of meaning of each finding code, except the rows of ORQ-E544 and
@@ -107,13 +118,18 @@ PIN_RULES = (
     "the only pin of the main agent is an explicit assignment of a skill in claude code",
 )
 FABLE_WORDS = ("Fable", "by model identity", "alias", "id pattern", "family tag")
+# A new session of the same client is I1, and I1 does not satisfy the gate, unless both sides were
+# observed to run different model families, which gives I2 (the sentences R-2, P-2a and P-2b).
+SESSION_NOT_GATE = (
+    "does not satisfy the gate unless both sides were observed to run different model families"
+)
 GATE_PHRASES = (
     "the code review gate is required at every phase",
     "independence I2",
     "is `NOT_RUN` when no reviewer qualifies",
     "a human code-owner review",
     "orqlet has no record for a human code-owner review",
-    "a new session of the same client does not satisfy the gate",
+    SESSION_NOT_GATE,
 )
 GATE_CLAIMS_NOT_MADE = (
     "enforced by the host",
@@ -333,9 +349,14 @@ UNITS = re.compile(r"(?<=[.!?])\s+|\n\s*\n|\n(?=\s*(?:[-*+]\s|\d+\.\s|\|))")
 EXIT_NUMBER = re.compile(r"\d+")
 
 
+def squash(text: str) -> str:
+    """The text with every run of white space (a line break too) as one space; the rest is as is."""
+    return " ".join(text.split())
+
+
 def normalize(text: str) -> str:
     """The text as a phrase is matched against it: no bold markers, one space, lower case."""
-    return " ".join(text.replace("**", "").split()).lower()
+    return squash(text.replace("**", "")).lower()
 
 
 def missing(text: str, phrases: Iterable[str]) -> list[str]:
@@ -884,7 +905,8 @@ by family tag.
 
 The code review gate is required at every phase, at independence I2. The review is `NOT_RUN` when
 no reviewer qualifies, and then a human code-owner review takes its place. Orqlet has no record
-for a human code-owner review. A new session of the same client does not satisfy the gate.
+for a human code-owner review.
+A new session of the same client {SESSION_NOT_GATE}; without that it is I1.
 
 {JUDGEMENT_PARAGRAPH} {ROLE_PARAGRAPH}
 
@@ -904,8 +926,8 @@ BREAKS: dict[str, tuple[str, str]] = {
     "R8-fable": ("by model identity", "by name"),
     "R9-gate": ("at independence I2", "at independence I1"),
     "R9-claims-not-made": (
-        "does not satisfy the gate.",
-        "does not satisfy the gate. Branch protection blocks the merge.",
+        "different model families; without that it is I1.",
+        "different model families; without that it is I1. Branch protection blocks the merge.",
     ),
     "R10-awkward-points": ("also when the class is I0", "when it is another class"),
     "R11-not-built": ("workflow 0.5.0", "a later workflow"),
@@ -1007,6 +1029,12 @@ MORE_BREAKS: list[tuple[str, str, str, str]] = [
         "The binding for the role is already built:",
         "Once the package ships the role, the binding for the role is already built:",
         "says: once the package ships the role",
+    ),
+    (
+        "R9-gate",
+        f"{SESSION_NOT_GATE};",
+        "does not satisfy the gate;",
+        f"lacks: {SESSION_NOT_GATE}",
     ),
 ]
 
@@ -1466,7 +1494,13 @@ def test_the_section_says_what_the_gate_is_and_what_stands_in_when_it_cannot_run
     independence I2, NOT_RUN when no reviewer qualifies, and a human code-owner review as the
     fallback"), ADR-006 decisions 3, 4 and 5 (every phase; I2 at every class; NOT_RUN and a human
     code-owner review; "A new session of the same client is I1 and does not satisfy the gate";
-    "Orqlet has no record path for" a human review) and the interface decision R9."""
+    "Orqlet has no record path for" a human review) and the interface decision R9. The sentence
+    about a new session is qualified by the rework after round 2 (criterion A, edit R-2, approved
+    by the person in conversation; it answers finding F-3 of docs/design/dynamic-model-profiles/
+    reviews/architecture-reviewer-P-12-r3.yaml): it "does not satisfy the gate unless both sides
+    were observed to run different model families", for which `derive_independence` in
+    src/orqlet/domain/independence.py gives I2 (`different_family`). The matching squashes white
+    space, so a line wrap in the README does not matter."""
     assert gate_problems(policy_section()) == []
 
 
@@ -2008,3 +2042,400 @@ def test_the_q_07_rows_no_longer_hold_the_old_answer() -> None:
     ]
 
     assert offending == []
+
+
+# --- the rework after round 2: the text edits (criteria A and B) ---------------------------------
+# One edit is its id, the fragment that must be gone and the fragment that takes its place. Each
+# fragment is written on one line; the texts are compared with white space squashed, so the line
+# wraps of the README (about 100 columns) and of the coder's new text never matter.
+
+Edit = tuple[str, str, str]
+
+FIVE_SPECIALIST_AGENTS = "five specialist agents"
+HEADING_22_0 = "### 22.0 Build status and what v0.5 changes in it"
+
+
+def edit_ids(edits: Iterable[Edit]) -> list[str]:
+    return [edit_id for edit_id, _, _ in edits]
+
+
+def appends_only(edit: Edit) -> bool:
+    """True when the new fragment holds the old one, so that the old one stays in the text."""
+    _, old, new = edit
+    return squash(old) in squash(new)
+
+
+def occurrences(text: str, fragment: str) -> int:
+    """How often the fragment stands in the text; case and bold markers count, wraps do not."""
+    return squash(text).count(squash(fragment))
+
+
+def new_fragment_problems(text: str, edit: Edit) -> list[str]:
+    edit_id, _, new = edit
+    found = occurrences(text, new)
+    if found == 1:
+        return []
+    return [f"{edit_id}: the new fragment {squash(new)[:80]!r} stands {found} times, not once"]
+
+
+def old_fragment_problems(text: str, edit: Edit) -> list[str]:
+    edit_id, old, _ = edit
+    found = occurrences(text, old)
+    if found == 0:
+        return []
+    return [f"{edit_id}: the old fragment {squash(old)[:80]!r} still stands {found} times"]
+
+
+README_EDITS: tuple[Edit, ...] = (
+    (
+        "R-1",
+        "A reviewer may also not be of a lower profile than the coder.",
+        "A reviewer may also not be of a lower profile than the coder: `--coder-profile` sets "
+        "that floor for any target, and without it the floor (the profile `engineering`) applies "
+        "only to the role `orqlet-code-reviewer` and only when `--different-family-from` names "
+        "the coder's model.",
+    ),
+    (
+        "R-2",
+        "does not satisfy the gate: it is I1.",
+        "does not satisfy the gate unless both sides were observed to run different model "
+        "families; without that it is I1.",
+    ),
+    (
+        "R-3",
+        "# export the staged snapshot, diff, plan and records for the reviewers",
+        "# export the staged snapshot, diff, plan and the test and knowledge records; earlier "
+        "review records stay out",
+    ),
+)
+
+PROPOSAL_EDITS: tuple[Edit, ...] = (
+    (
+        "P-1",
+        "(six shipped with the protected workflow, one optional)",
+        "(five ship with the protected workflow, the Code Reviewer ships with workflow 0.5.0, "
+        "and the Knowledge drafter is optional)",
+    ),
+    (
+        "P-2a",
+        "and a new session of the same client is I1 and does not satisfy the gate.",
+        "and a new session of the same client is I1 and does not satisfy the gate unless both "
+        "sides were observed to run different model families.",
+    ),
+    (
+        "P-2b",
+        "A new session of the same client is I1 and does not satisfy the gate.",
+        "A new session of the same client is I1 and does not satisfy the gate unless both sides "
+        "were observed to run different model families, which is I2.",
+    ),
+    (
+        "P-3",
+        "(option (1): the Code Reviewer is a provided capability, not a required gate)",
+        "(option (1): the Code Reviewer is a provided capability, not a required gate; task "
+        "`dynamic-model-profiles` re-decided it: the gate is required at every phase, Section "
+        "10.3)",
+    ),
+    (
+        "P-4",
+        "a Code Reviewer capability is provided (gate: Q-07)",
+        "a Code Reviewer capability is provided (gate: Q-07; required at every phase since task "
+        "`dynamic-model-profiles`, §10.3)",
+    ),
+    (
+        "P-5",
+        "(Architecture, Security and the provided Code Reviewer)",
+        "(Architecture, Security and the Code Reviewer, whose gate is required at every phase, "
+        "Section 10.3)",
+    ),
+    (
+        "P-6",
+        "and the Code Reviewer runs as a provided capability (a required gate only where "
+        "decision Q-07 says so)",
+        "and the Code Reviewer runs too: its gate is required at every phase at independence I2 "
+        "(Section 10.3; the role ships with workflow 0.5.0)",
+    ),
+    (
+        "P-7",
+        "the provided Code Reviewer); **the four required gate roles are the Phase 4 Coder, "
+        "Tester, Architecture Reviewer and Security Reviewer** (the Code Reviewer becomes a "
+        "fifth only by decision Q-07)",
+        "the Code Reviewer); **the five required gate roles are the Phase 4 Coder, Tester, "
+        "Architecture Reviewer, Security Reviewer and Code Reviewer** (the Code Reviewer became "
+        "the fifth in task `dynamic-model-profiles`, which re-decided Q-07)",
+    ),
+    (
+        "P-8",
+        "starts the two required reviewers (Architecture and Security) and the provided Code "
+        "Reviewer on the same packet:",
+        "starts the required reviewers (Architecture, Security and, from workflow 0.5.0, the "
+        "Code Reviewer) on the same packet:",
+    ),
+    (
+        "P-9a",
+        "or the Code Reviewer where Q-07 requires it)",
+        "or the Code Reviewer, whose gate is required, Section 10.3)",
+    ),
+    (
+        "P-9b",
+        "| FM-O05 | The policy is `managed`",
+        "| FM-O05 (superseded: Section 14.9.0 says what is built) | The policy is `managed`",
+    ),
+    (
+        "P-10",
+        "| FM-O06 | A vendor alias moves",
+        "| FM-O06 (Section 14.9.0 says what is built) | A vendor alias moves",
+    ),
+    (
+        "P-11",
+        "and the provided code reviewer; the optional knowledge drafter comes with M3)",
+        "and the code reviewer, which ships with workflow 0.5.0 and is not built yet; the "
+        "optional knowledge drafter comes with M3)",
+    ),
+    (
+        "P-12a",
+        "plus a provided Code Reviewer capability (v0.5)**",
+        "plus a provided Code Reviewer capability (v0.5; a required gate since task "
+        "`dynamic-model-profiles`, Section 10.3)**",
+    ),
+    (
+        "P-12b",
+        "a read-only Code Reviewer provided by `/orqlet-review` and required only by decision "
+        "Q-07;",
+        "a read-only Code Reviewer started by `/orqlet-review`, required only by decision Q-07 "
+        "in v0.5 and at every phase since task `dynamic-model-profiles`;",
+    ),
+    (
+        "P-13",
+        "it is not a required gate (Q-07, option (1), answered 2026-10-25)",
+        "it is not a required gate (Q-07, option (1), answered 2026-10-25; re-decided in task "
+        "`dynamic-model-profiles`: a required gate at every phase, Section 10.3)",
+    ),
+    (
+        "P-14",
+        "Partially covered: the Code Reviewer is provided; whether it is a required gate is "
+        "**Q-07**",
+        "Partially covered: the gate is required at every phase (Q-07, re-decided in task "
+        "`dynamic-model-profiles`); the role `orqlet-code-reviewer` is not built yet",
+    ),
+    (
+        "P-15",
+        "the Code Reviewer gate (7.7: Q-07)",
+        "the Code Reviewer role (7.7: not built yet)",
+    ),
+    (
+        "P-16",
+        "**Q-07** (the Code Reviewer gate) and **Q-08** (the approved basis)",
+        "**Q-08** (the approved basis; Q-07, the Code Reviewer gate, was re-decided in task "
+        "`dynamic-model-profiles`)",
+    ),
+    (
+        "P-17",
+        "| §14.9 model refresh | A required role",
+        "| §14.9 model refresh (superseded in part: Section 14.9.0) | A required role",
+    ),
+    (
+        "P-18",
+        "| Model policy and pins | A required role",
+        "| Model policy and pins (superseded in part: Section 14.9.0) | A required role",
+    ),
+    (
+        "P-19",
+        "excluded models; schema and compatibility mismatches. The example schema is in Section "
+        "24.1.",
+        "excluded models; schema and compatibility mismatches. The example schema is in Section "
+        "24.1. **Superseded in part (Section 14.9.0):** the profile, route and required-role "
+        "checks of this paragraph describe the v0.5 policy; Section 14.9.0 says what `orqlet "
+        "validate model-policy` checks.",
+    ),
+    (
+        "P-20",
+        "model_profile: <strong-reviewer> # a logical tier hint; informational (Section 14)",
+        "model_profile: <profile id> # a logical tier hint; informational (Section 14); profile "
+        "ids are the team's (Section 24.1)",
+    ),
+    (
+        "P-21",
+        "| D-47 | Default (new) |",
+        "| D-47 | Default (new; superseded in part: Section 14.9.0) |",
+    ),
+    (
+        "P-22",
+        "| D-51 | Default (new, v0.5) |",
+        "| D-51 | Default (new, v0.5; superseded in part: Section 14.9.0) |",
+    ),
+    (
+        "P-23",
+        "their gates and the four required roles are part of the CLI release",
+        "their gates and the required roles (five since task `dynamic-model-profiles`, Section "
+        "10.3) are part of the CLI release",
+    ),
+    (
+        "P-24",
+        "canonical role contracts (the four required roles and the researchers)",
+        "canonical role contracts (the required roles and the researchers)",
+    ),
+    (
+        "P-25",
+        'the four phases and their approvals, the four required roles, and "NOT_RUN is never '
+        'success"',
+        'the four phases and their approvals, the required roles, and "NOT_RUN is never success"',
+    ),
+    (
+        "P-26",
+        "**the four Phase 4 roles are always activated**",
+        "**the Phase 4 roles (the Coder, the Tester, and the Architecture, Security and Code "
+        "Reviewers) are always activated**",
+    ),
+    (
+        "P-27",
+        "**All four roles are required in every phase**",
+        "**All five roles are required in every phase** (the Code Reviewer from workflow 0.5.0)",
+    ),
+    (
+        "P-28",
+        "the four roles' results",
+        "the roles' results",
+    ),
+    (
+        "P-29",
+        "Status: this rule lands with the v0.5 packet plan. The built `review prepare` (Section "
+        "22.0) exports the staged tree and has no assertion until then, and this text changes no "
+        "code.",
+        "Status: this rule was not built as written. The built `review prepare` (task "
+        "`dynamic-model-profiles`, ADR-007 decision 8) leaves the review records of every task "
+        "(the pattern `docs/design/*/reviews/*`, a folder below included) and the notes that the "
+        "design manifest names at the merge base out of the snapshot, the context copies and the "
+        "diff, and lists none of them as omitted; a note never takes out the manifest, the plan "
+        "or a standards file. The findings that `review prepare` raises itself are ORQ-E440 to "
+        "ORQ-E442, ORQ-I440 and ORQ-I441, and none concerns an invalid review record. This text "
+        "changes no code.",
+    ),
+)
+
+
+# The edits that replace text. P-19 only appends to its old fragment, so it is pinned by its new
+# fragment alone; `test_only_the_edit_p_19_appends_to_its_old_fragment` keeps that list honest.
+REPLACING_PROPOSAL_EDITS = tuple(edit for edit in PROPOSAL_EDITS if not appends_only(edit))
+
+
+# --- the reading of the edits is sound -----------------------------------------------------------
+
+
+def test_a_fragment_is_found_across_a_line_wrap_and_in_a_text_with_crlf_line_endings() -> None:
+    """Rework, criterion A. expected_behavior_source: the criterion (the README is hard-wrapped, so
+    both sides are compared with every run of white space, a line break too, as one space). It
+    passes before the documents change."""
+    text = "one two\r\n  three   four\nfive"
+
+    assert occurrences(text, "two three four five") == 1
+    assert occurrences(text, "two  three\nfour") == 1
+    assert occurrences(text, "two,three") == 0
+    assert occurrences(text.replace("\r\n", "\n"), "one two three") == 1
+
+
+def test_a_fragment_is_matched_in_the_case_and_with_the_bold_markers_of_the_text() -> None:
+    """Rework, criterion A. expected_behavior_source: the criterion (the new fragment stands there
+    exactly; only white space is squashed, so `**Q-08**` is not `Q-08` and `The Gate` is not
+    `the gate`). It passes before the documents change."""
+    assert occurrences("the **Q-08** row", "**Q-08**") == 1
+    assert occurrences("the Q-08 row", "**Q-08**") == 0
+    assert occurrences("The Gate", "the gate") == 0
+
+
+def test_a_new_fragment_that_is_missing_or_repeated_is_a_problem() -> None:
+    """Rework, criterion A. expected_behavior_source: the criterion (the file holds the new
+    fragment exactly once). It passes before the documents change."""
+    edit = ("X-1", "old words", "new words")
+
+    assert new_fragment_problems("a new\r\nwords b", edit) == []
+    assert len(new_fragment_problems("a old words b", edit)) == 1
+    assert len(new_fragment_problems("new words, new\nwords", edit)) == 1
+
+
+def test_an_old_fragment_that_is_still_there_is_a_problem_in_any_wrap() -> None:
+    """Rework, criterion A. expected_behavior_source: the criterion (the file does not contain the
+    old fragment). It passes before the documents change."""
+    edit = ("X-1", "old words", "new words")
+
+    assert old_fragment_problems("a new words b", edit) == []
+    assert len(old_fragment_problems("an old words", edit)) == 1
+    assert len(old_fragment_problems("an old\r\n  words", edit)) == 1
+
+
+def test_an_edit_that_only_appends_keeps_its_old_fragment_and_so_has_no_absence_check() -> None:
+    """Rework, criterion A. expected_behavior_source: the criterion (an entry whose new fragment
+    holds the old one, P-19, gets only the positive check). It passes before the documents
+    change."""
+    assert appends_only(("X-1", "a b.", "a b. And more."))
+    assert appends_only(("X-1", "a b.", "a\nb. And more."))
+    assert not appends_only(("X-1", "a b.", "a c."))
+
+
+def test_the_ids_of_the_edits_are_unique_and_every_edit_changes_its_text() -> None:
+    """Rework, criterion A. expected_behavior_source: the criterion (the table of edits: one id,
+    one old and one new fragment each). It passes before the documents change."""
+    edits = (*README_EDITS, *PROPOSAL_EDITS)
+    ids = edit_ids(edits)
+
+    assert len(ids) == len(set(ids))
+    assert [edit_id for edit_id, old, new in edits if not squash(old) or not squash(new)] == []
+    assert [edit_id for edit_id, old, new in edits if squash(old) == squash(new)] == []
+
+
+def test_only_the_edit_p_19_appends_to_its_old_fragment() -> None:
+    """Rework, criterion A. expected_behavior_source: the criterion (P-19 only appends; every other
+    entry also has its old fragment pinned as gone). It passes before the documents change."""
+    edits = (*README_EDITS, *PROPOSAL_EDITS)
+
+    assert [edit[0] for edit in edits if appends_only(edit)] == ["P-19"]
+
+
+# --- the README and the proposal: the edits of the rework (criterion A) --------------------------
+
+
+@pytest.mark.parametrize("edit", README_EDITS, ids=edit_ids(README_EDITS))
+def test_the_readme_holds_the_new_fragment_of_an_edit_exactly_once(edit: Edit) -> None:
+    """Rework, criterion A. expected_behavior_source: the edit table of the rework (the person
+    approved it in conversation; it is not in plan.yaml). It fails until the README is edited."""
+    assert new_fragment_problems(readme_text(), edit) == []
+
+
+@pytest.mark.parametrize("edit", README_EDITS, ids=edit_ids(README_EDITS))
+def test_the_readme_no_longer_holds_the_old_fragment_of_an_edit(edit: Edit) -> None:
+    """Rework, criterion A. expected_behavior_source: the edit table of the rework (as above; each
+    old fragment stood once in the README before the rework). It fails until the README is
+    edited."""
+    assert old_fragment_problems(readme_text(), edit) == []
+
+
+@pytest.mark.parametrize("edit", PROPOSAL_EDITS, ids=edit_ids(PROPOSAL_EDITS))
+def test_the_proposal_holds_the_new_fragment_of_an_edit_exactly_once(edit: Edit) -> None:
+    """Rework, criterion A. expected_behavior_source: the edit table of the rework (the person
+    approved it in conversation; it is not in plan.yaml). It fails until the proposal is edited."""
+    assert new_fragment_problems(proposal_text(), edit) == []
+
+
+@pytest.mark.parametrize("edit", REPLACING_PROPOSAL_EDITS, ids=edit_ids(REPLACING_PROPOSAL_EDITS))
+def test_the_proposal_no_longer_holds_the_old_fragment_of_an_edit(edit: Edit) -> None:
+    """Rework, criterion A. expected_behavior_source: the edit table of the rework (as above; each
+    old fragment stood once in the proposal before the rework; P-19 only appends and has no such
+    check). It fails until the proposal is edited."""
+    assert old_fragment_problems(proposal_text(), edit) == []
+
+
+# --- the guards: what the rework leaves as it is (criterion B) -----------------------------------
+
+
+def test_the_readme_still_says_that_five_specialist_agents_ship() -> None:
+    """Rework, criterion B. expected_behavior_source: the criterion (the README line about `five
+    specialist agents` is not changed by the rework; it is still true) and README.md, the table
+    row `Agents that follow a process`. It passes before the documents change and must pass after
+    them."""
+    assert occurrences(readme_text(), FIVE_SPECIALIST_AGENTS) > 0
+
+
+def test_the_proposal_still_has_the_heading_of_section_22_0() -> None:
+    """Rework, criterion B. expected_behavior_source: the criterion (the heading `### 22.0 Build
+    status and what v0.5 changes in it` is dated history and is not changed by the rework). It
+    passes before the documents change and must pass after them."""
+    assert section_of(proposal_text(), HEADING_22_0, whole_line=False).strip()
