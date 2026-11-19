@@ -4,18 +4,17 @@ Every test cites its `expected_behavior_source`. AC-1 is the first acceptance cr
 P-12 in docs/design/dynamic-model-profiles/plan.yaml. ADR-004 is the file `adr-004-*.md` under
 docs/design/dynamic-model-profiles/design/ (decision 2, CODEOWNERS). Q-32 and Q-34 are entries of
 docs/design/dynamic-model-profiles/questions.yaml: Q-32 is answered "No second owner. Only
-@tmishari is a code owner" of the four paths, and Q-34 asks what the host enforces. "The interface
-decision C1 to C3" is the reading that the plan author gave the Tester of phase P-12, because the
-plan does not spell out what a malformed line is.
+@tmishari is a code owner" of the four paths, and Q-34 was answered on 2026-11-05: the host enforces
+nothing. "The interface decision C1 to C3" is the reading that the plan author gave the Tester of
+phase P-12, because the plan does not spell out what a malformed line is.
 
 These tests were written first, by the Tester of phase P-12, before the four entries were added.
-The rework of the open pull request (criterion C; the person approved it in conversation and it is
-not in plan.yaml) adds five patterns, keeps `src/orqlet/workflow/seeds/**` below `src/orqlet/**`,
-and stops freezing history: finding F-5 of docs/design/dynamic-model-profiles/reviews/
-architecture-reviewer-P-12-r3.yaml says that the exact owner `["@tmishari"]` and the literal first
-ten lines block a second code owner, which Q-32 and Q-34 leave open. The tests now ask that each
-of the ten patterns of the file at HEAD 1fc9851 is still listed with an owner, in any order and
-with any owners, and that each pattern of `OWNED_PATTERNS` has an owner that starts with `@`.
+Criterion C (the person approved it in conversation; it is not in plan.yaml) adds five patterns,
+keeps `src/orqlet/workflow/seeds/**` below `src/orqlet/**`, and does not freeze the history of the
+file: the exact owner `["@tmishari"]` and the literal first ten lines would block a second code
+owner, which Q-32 leaves open. The tests ask that each of the ten patterns of the file at HEAD
+1fc9851 is still listed with an owner, in any order and with any owners, and that each pattern of
+`OWNED_PATTERNS` has an owner that starts with `@`.
 The parser is a small function of text. It is also run on small texts, including one with CRLF line
 endings, so that a rule that cannot fail would fail here; those tests pass before the file changes.
 
@@ -66,16 +65,15 @@ NEW_PATTERNS = (
     "src/orqlet/**",
     "tests/**",
 )
-# The rework of the open pull request: five more patterns, after the fourteen that the file has, in
-# this order.
-REWORK_PATTERNS = (
+# Criterion C: five more patterns, after the fourteen that the file has, in this order.
+EXTRA_PATTERNS = (
     "pyproject.toml",
     "uv.lock",
     "tools/**",
     "docs/design/**",
     ".github/pull_request_template.md",
 )
-OWNED_PATTERNS = (*NEW_PATTERNS, ".orqlet/**", *REWORK_PATTERNS)
+OWNED_PATTERNS = (*NEW_PATTERNS, ".orqlet/**", *EXTRA_PATTERNS)
 
 NAME = r"[A-Za-z0-9_][A-Za-z0-9_.-]*"
 OWNER_FORM = re.compile(rf"@{NAME}(?:/{NAME})?|[^@\s]+@[^@\s]+\.[^@\s]+")
@@ -244,7 +242,7 @@ def test_the_file_lists_no_pattern_twice() -> None:
 def test_the_pattern_has_an_owner_that_starts_with_at(pattern: str) -> None:
     """AC-1. expected_behavior_source: AC-1 (each of `src/orqlet/workflow/seeds/**`,
     `.github/CODEOWNERS`, `src/orqlet/**`, `tests/**` and `.orqlet/**` "has at least one owner that
-    starts with `@`") and ADR-004 decision 2 (the paths that need an owner). Rework criterion C1
+    starts with `@`") and ADR-004 decision 2 (the paths that need an owner). Criterion C1
     adds `pyproject.toml`, `uv.lock`, `tools/**`, `docs/design/**` and
     `.github/pull_request_template.md`; those five fail until the file lists them."""
     owners = [owner for line in owners_of(real_entries(), pattern) for owner in line]
@@ -258,8 +256,7 @@ def test_each_of_the_ten_patterns_that_the_file_had_is_still_listed_with_an_owne
 ) -> None:
     """AC-1. expected_behavior_source: AC-1 ("keeps every line that it has") and the interface
     decision C3 (the ten patterns of the file at HEAD 1fc9851, written here as literal values),
-    relaxed by rework criterion C4 (the person approved it in conversation; finding F-5 of
-    docs/design/dynamic-model-profiles/reviews/architecture-reviewer-P-12-r3.yaml): the pattern is
+    relaxed by criterion C4 (the person approved it in conversation): the pattern is
     listed and has at least one owner; neither the order nor the exact owners are pinned. It holds
     before the file changes."""
     lines = owners_of(real_entries(), pattern)
@@ -282,11 +279,11 @@ def test_the_four_new_entries_come_after_the_last_entry_that_the_file_had() -> N
         assert min(positions) > last_original, f"{pattern} is listed above an original entry"
 
 
-@pytest.mark.parametrize("pattern", REWORK_PATTERNS)
-def test_the_rework_pattern_is_listed_once_below_the_last_of_the_fourteen_entries(
+@pytest.mark.parametrize("pattern", EXTRA_PATTERNS)
+def test_the_extra_pattern_is_listed_once_below_the_last_of_the_fourteen_entries(
     pattern: str,
 ) -> None:
-    """AC-1. expected_behavior_source: rework criterion C1 (the person approved it in
+    """AC-1. expected_behavior_source: criterion C1 (the person approved it in
     conversation; it is not in plan.yaml): `pyproject.toml`, `uv.lock`, `tools/**`,
     `docs/design/**` and `.github/pull_request_template.md` are listed, no pattern twice, after the
     last of the fourteen entries that the file has today. Q-32 says that the last matching pattern
@@ -304,22 +301,22 @@ def test_the_rework_pattern_is_listed_once_below_the_last_of_the_fourteen_entrie
     assert positions[0] > last_of_the_fourteen, f"{pattern} is listed above an older entry"
 
 
-def test_the_five_rework_entries_come_in_the_order_given() -> None:
-    """AC-1. expected_behavior_source: rework criterion C1 (the person approved it in conversation;
+def test_the_five_extra_entries_come_in_the_order_given() -> None:
+    """AC-1. expected_behavior_source: criterion C1 (the person approved it in conversation;
     it is not in plan.yaml): the five entries follow `tests/**` in the order `pyproject.toml`,
     `uv.lock`, `tools/**`, `docs/design/**`, `.github/pull_request_template.md`. It fails until the
     file lists them."""
     entries = real_entries()
     first_positions = [
-        found[0] for pattern in REWORK_PATTERNS if (found := positions_of(entries, pattern))
+        found[0] for pattern in EXTRA_PATTERNS if (found := positions_of(entries, pattern))
     ]
 
-    assert len(first_positions) == len(REWORK_PATTERNS), "a pattern of the rework is not listed"
+    assert len(first_positions) == len(EXTRA_PATTERNS), "a pattern of the five is not listed"
     assert first_positions == sorted(first_positions)
 
 
 def test_the_seeds_entry_stays_below_the_entry_for_the_whole_package() -> None:
-    """AC-1. expected_behavior_source: rework criterion C2 (the person approved it in
+    """AC-1. expected_behavior_source: criterion C2 (the person approved it in
     conversation) and Q-32 ("the last matching pattern of the file decides the owner"): the more
     specific `src/orqlet/workflow/seeds/**` comes after `src/orqlet/**`. It holds before the file
     changes and must hold after."""

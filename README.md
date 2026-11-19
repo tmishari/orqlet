@@ -459,8 +459,7 @@ lower level without a finding:
 4. the automatic selection of the client.
 
 The constraints hold at every level: the model is not excluded, it is approved, the route has a
-known identifier for the client, the access is not blocked, and the model sits in the profile that
-the work needs. A reviewer may also not be of a lower profile than the coder: `--coder-profile` sets that floor for
+known identifier for the client, and the access is not blocked. A reviewer may also not be of a lower profile than the coder: `--coder-profile` sets that floor for
 any target, and without it the floor (the profile `engineering`) applies only to the role
 `orqlet-code-reviewer` and only when `--different-family-from` names the coder's model.
 `--different-family-from` (a catalog id), `--coder-profile` and `--task` narrow the answer for those

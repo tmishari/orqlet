@@ -16,47 +16,39 @@ heading of the same or a higher level; a line inside a fenced block is never a h
 "paragraph" is a block of text between blank lines. Files are read as UTF-8 and split with
 `splitlines()`, so a CRLF checkout reads the same on Windows.
 
-These tests were written first, by the Tester of phase P-12, before the README and the proposal were
-changed. The reading rules (the section, the tables, the numbered list, the sentences, the policy
-that is read from a fenced block) are small functions of text. Each is also run on small texts that
-obey it and on texts that break it, one of them with CRLF line endings, so a rule that cannot fail
-would fail here; those tests pass before the documents change. The tests of the documents' words
-fail until the documents are written. Four of them pass on the old text and are named as such in
-their docstrings: R12 (the old README has no such sentence), P2 for section 10.3 and for the Q-07
-rows (the old text already holds `required gate`), and the guard of R17 a (the source modules
-define the 27 codes already).
+The tests were written before the README and the proposal were changed. The reading rules (the
+section, the tables, the numbered list, the sentences, the policy that is read from a fenced block)
+are small functions of text. Each is also run on small texts that obey it and on texts that break
+it, one of them with CRLF line endings, so a rule that cannot fail would fail here; those tests pass
+before the documents change. The tests of the documents' words fail until the documents are
+written. Four of them pass on the old text and are named as such in their docstrings: R12 (the old
+README has no such sentence), P2 for section 10.3 and for the Q-07 rows (the old text already holds
+`required gate`), and the guard of R17 a (the source modules define the 27 codes already).
 
-Rework round 1 (the coder wrote sentences that the code does not bear out, and the interface
-decision changed). R10 is revised; R12, R13 and R14 are new. Their numbers repeat the numbers of
-the first round (R12 the "optional" sentences, R13 the Status list, R14 the Commands table), so the
-rules of round 1 carry the key suffix `new` (`R12new-...`, `R13new-...`) and the name of R14 says
-what it reads (the rows of ORQ-E544 and ORQ-E547). The README passes all of them once the coder has
-written the sentences of the decision; the reference texts below are written in those words and
-obey the rules, and each rule has a text that breaks it, so a rule that cannot fail would fail.
+Some numbers of the interface decision belong to two rules. The second rule of such a number carries
+the key suffix `new` (`R12new-...`, `R13new-...`, `R15new-binding-built`), the second rule of R16 is
+`proposal_10_3_problems`, and the name of the rule of R14 says what it reads (the rows of ORQ-E544
+and ORQ-E547). R10'' is the rule that the identity that ORQ-W460 needs is one that "the policy or
+`model_families` names", in the sentence and in the row of ORQ-W460. R15 says that the binding of
+the code reviewer is built, in the README, and R16 says the same for section 10.3 of the proposal.
 
-Rework round 2 revises R10 once more (R10'': the identity that ORQ-W460 needs is one that "the
-policy or `model_families` names", in the sentence and in the row of ORQ-W460) and adds R15 (the
-binding of the code reviewer is built, in the README) and R16 (the same for section 10.3 of the
-proposal). Their numbers repeat the first round's R15 (the options) and R16 (the upgrade
-paragraph), so the new rules are `R15new-binding-built` and the `proposal_10_3_problems` rule.
-
-Rework after round 2 (criteria A and B of the rework of the open pull request; the person approved
-them in conversation and they are not in plan.yaml). A table of (id, old fragment, new fragment)
-for each document pins every text edit: the new fragment occurs exactly once and the old one is
-gone. The ids R-1 to R-3 (the README) and P-1 to P-29 (the proposal) belong to the edits and are
-not phase ids. The two texts are compared with each run of white space squashed to one space, so a
-line wrap never matters; case and the bold markers stay, so `**Q-08**` is not `Q-08`. P-19 only
-appends to its old fragment, so only its new fragment is pinned. The phrase of R9 about a new
-session now reads `does not satisfy the gate unless both sides were observed to run different
-model families` (R-2, P-2a and P-2b). Two strings that the rework leaves as they are are guarded:
-`five specialist agents` of the README and the heading of section 22.0 of the proposal.
+A table of (id, old fragment, new fragment) for each document pins every text edit (criteria A
+and B, which the person approved in conversation and which are not in plan.yaml): the new fragment
+occurs exactly once and the old one is gone. The ids R-1 to R-3 (the README) and P-1 to P-29 (the
+proposal) belong to the edits and are not phase ids. The two texts are compared with each run of
+white space squashed to one space, so a line wrap never matters; case and the bold markers stay, so
+`**Q-08**` is not `Q-08`. P-19 only appends to its old fragment, so only its new fragment is
+pinned. The phrase of R9 about a new session reads `does not satisfy the gate unless both sides were
+observed to run different model families` (R-2, P-2a and P-2b). Two strings that the edits leave as
+they are are guarded: `five specialist agents` of the README and the heading of section 22.0 of the
+proposal.
 
 Behaviour that the sources require but that no phrase fixes is deliberately NOT pinned here:
 - where the new section sits in the README, its sub-headings and the order of its parts;
 - the words of the one line of meaning of each finding code, except the rows of ORQ-E544 and
   ORQ-E547 (R14), and the order of the rows;
-- what the host enforces for a required review (Q-34 is open): the README may not claim it, and no
-  test says what it must say instead;
+- what the host enforces for a required review (Q-34 was answered on 2026-11-05: nothing enforces
+  it): the README may not claim any enforcement, and no test says what it must say instead;
 - the wording of the architecture proposal beyond the phrases of P1 to P7, and the values inside the
   policy of section 24.1 beyond the checks of P5.
 """
@@ -144,10 +136,11 @@ AWKWARD_POINTS = (
     "also when the class is i0",
     "a binding that the staged tree removes stays approved when the base tree approves it",
 )
-# The overclaim of the first rework round: `independence_notes` prints nothing for a record whose
-# client differs when the identities are known and the models differ, so "every record" is untrue.
+# An overclaim that the code does not bear out: `independence_notes` prints nothing for a record
+# whose client differs when the identities are known and the models differ, so "every record" is
+# untrue.
 AWKWARD_CLAIMS_NOT_MADE = ("printed for every record",)
-# Round 2 (R10''): an observed string that matched no catalog model and no family is still unknown
+# R10'': an observed string that matched no catalog model and no family is still unknown
 # (`_is_known` of independence.py), so "no observed identity" alone is imprecise; the text of
 # `_NOTE_TEXT[IDENTITY_UNKNOWN]` in review_identity.py adds what names an identity.
 IDENTITY_NAMED_BY = " that the policy or `model_families` names"
@@ -219,7 +212,7 @@ E547_MEANING = (
     "`validate model-policy`, the base tree holds it; `upgrade` writes nothing until it is "
     "restored"
 )
-# R10'' (round 2): the row of ORQ-W460 says which identities count as known; it is read with the
+# R10'': the row of ORQ-W460 says which identities count as known; it is read with the
 # mechanism of R14 and kept apart from it, so that a failure names the round that asked for it.
 W460_MEANINGS: Meanings = {
     "ORQ-W460": (f"at least one side has no observed identity{IDENTITY_NAMED_BY}",)
@@ -233,7 +226,7 @@ NOT_BUILT_PHRASES = (
     "`review_evidence`",
     "workflow 0.5.0",
 )
-# R15 (new in round 2): the binding of the code reviewer is built, the role is not. Evidence:
+# R15: the binding of the code reviewer is built, the role is not. Evidence:
 # render_all.py (`REVIEW_AGENTS` holds `code-reviewer`; its binding has `independence_capability`
 # I2), tests/unit/application/test_lifecycle.py (`init` seeds the third binding) and upgrade.py
 # (`_proposes_code_reviewer`, `_pin_notes`: ORQ-I540 and "A `code-reviewer` record is ORQ-E415
@@ -253,7 +246,7 @@ ROLE_PARAGRAPH = (
     "never applies that proposal, and until a reviewed edit applies it a record of the role is "
     "ORQ-E415."
 )
-# R16 (new in round 2): the sentence of section 10.3 of the proposal about what is not built.
+# R16: the sentence of section 10.3 of the proposal about what is not built.
 OLD_NOT_BUILT_10_3 = (
     "**What is not built:** the role `orqlet-code-reviewer`, its skill step and its seeded "
     "binding, which ship with workflow 0.5.0."
@@ -804,19 +797,19 @@ def judgement_problems(section: str) -> list[str]:
 
 
 def binding_built_problems(section: str) -> list[str]:
-    """R15 (new, round 2): the binding of the code reviewer is built; only the role is not."""
+    """R15: the binding of the code reviewer is built; only the role is not."""
     return lacks(section, BINDING_BUILT) + says(section, BINDING_CLAIMS_NOT_MADE)
 
 
 def proposal_10_3_problems(section: str) -> list[str]:
-    """R16 (new, round 2): section 10.3 says that the binding is built and the role is not."""
+    """R16: section 10.3 says that the binding is built and the role is not."""
     return lacks(section, PROPOSAL_PRESENT_10_3) + says(section, PROPOSAL_ABSENT_10_3)
 
 
 def code_meaning_problems(text: str, meanings: Meanings = CODE_MEANINGS) -> list[str]:
     """R14 (new): the rows of ORQ-E544 and ORQ-E547 say what the checks find and do not find.
 
-    Round 2 reads the row of ORQ-W460 with the same function and the meanings `W460_MEANINGS`.
+    R10'' reads the row of ORQ-W460 with the same function and the meanings `W460_MEANINGS`.
     """
     rows = {row.cell: row for row in code_rows(text)}
     problems: list[str] = []
@@ -942,7 +935,7 @@ BREAKS: dict[str, tuple[str, str]] = {
     ),
 }
 
-# More ways to break the rules of the first rework round, each with the problem that it must give:
+# More ways to break the rules, each with the problem that it must give:
 # (rule, old text, new text, the problem that the rule reports for the new text).
 MORE_BREAKS: list[tuple[str, str, str, str]] = [
     (
@@ -1047,7 +1040,7 @@ same once, at the upgrade that ships them.
 Start a new session in the client.
 """
 
-# A table of codes in the words of the interface decision R14 (new in rework round 1); the rows of
+# A table of codes in the words of the interface decision R14; the rows of
 # other codes stand next to the two that the rule reads.
 REFERENCE_CODE_ROWS = f"""\
 Finding codes of the model policy.
@@ -1095,7 +1088,7 @@ CODE_BREAKS: list[tuple[str, str, str]] = [
     ),
 ]
 
-# The same for the row of ORQ-W460 (R10'', round 2).
+# The same for the row of ORQ-W460 (R10'').
 W460_BREAKS: list[tuple[str, str, str]] = [
     (
         f"{IDENTITY_NAMED_BY} (`identity-unknown`)",
@@ -1118,7 +1111,7 @@ ROW_BREAK_CASES: list[tuple[Meanings, str, str, str]] = [
     *((W460_MEANINGS, old, new, expected) for old, new, expected in W460_BREAKS),
 ]
 
-# The proposal around section 10.3 in the words of R16 (new in round 2): the sentence stands in the
+# The proposal around section 10.3 in the words of R16: the sentence stands in the
 # paragraph of the real text, next to its neighbours. Section 10.4 holds the old sentence, which
 # the rule must not read, because it reads section 10.3 only.
 REFERENCE_PROPOSAL = f"""\
@@ -1495,12 +1488,11 @@ def test_the_section_says_what_the_gate_is_and_what_stands_in_when_it_cannot_run
     fallback"), ADR-006 decisions 3, 4 and 5 (every phase; I2 at every class; NOT_RUN and a human
     code-owner review; "A new session of the same client is I1 and does not satisfy the gate";
     "Orqlet has no record path for" a human review) and the interface decision R9. The sentence
-    about a new session is qualified by the rework after round 2 (criterion A, edit R-2, approved
-    by the person in conversation; it answers finding F-3 of docs/design/dynamic-model-profiles/
-    reviews/architecture-reviewer-P-12-r3.yaml): it "does not satisfy the gate unless both sides
-    were observed to run different model families", for which `derive_independence` in
-    src/orqlet/domain/independence.py gives I2 (`different_family`). The matching squashes white
-    space, so a line wrap in the README does not matter."""
+    about a new session is qualified by criterion A (edit R-2, approved by the person in
+    conversation): it "does not satisfy the gate unless both sides were observed to run different
+    model families", for which `derive_independence` in src/orqlet/domain/independence.py gives I2
+    (`different_family`). The matching squashes white space, so a line wrap in the README does not
+    matter."""
     assert gate_problems(policy_section()) == []
 
 
@@ -1514,7 +1506,7 @@ def test_the_section_does_not_say_that_the_host_enforces_the_gate() -> None:
 
 
 def test_the_section_states_the_two_awkward_points_of_what_is_built() -> None:
-    """AC-2. expected_behavior_source: the interface decision R10, revised in rework round 1 (open
+    """AC-2. expected_behavior_source: the interface decision R10 (open
     observations 2 and 3 of PR #21); src/orqlet/domain/independence.py `independence_notes`
     (nothing when the clients are equal; ORQ-W460 when the clients differ and at least one side
     has no observed identity; ORQ-W461 when both sides are known and ran the same observed model;
@@ -1527,7 +1519,7 @@ def test_the_section_states_the_two_awkward_points_of_what_is_built() -> None:
 
 
 def test_the_section_says_that_models_resolve_never_prints_the_source_explicit_fallback() -> None:
-    """AC-2. expected_behavior_source: the interface decision R12 (new in rework round 1);
+    """AC-2. expected_behavior_source: the interface decision R12;
     src/orqlet/domain/model_resolution.py (the source `explicit-fallback` is set only when
     `ResolveRequest.fallback` is given); src/orqlet/application/usecases/models_resolve.py
     (`ModelsQuery` has no fallback field and its `ResolveRequest` sets none) and
@@ -1538,7 +1530,7 @@ def test_the_section_says_that_models_resolve_never_prints_the_source_explicit_f
 
 
 def test_the_paragraph_of_what_is_built_says_that_no_tool_verifies_the_recorded_values() -> None:
-    """AC-2. expected_behavior_source: the interface decision R13 (new in rework round 1) and the
+    """AC-2. expected_behavior_source: the interface decision R13 and the
     module docstring of src/orqlet/domain/independence.py ("recorded identifiers, which an
     approver attests and no tool verifies ... A class says how independent a review *claims* to
     be"). The sentences must stand in the paragraph that starts `What is built is the judgement,
@@ -1547,7 +1539,7 @@ def test_the_paragraph_of_what_is_built_says_that_no_tool_verifies_the_recorded_
 
 
 def test_the_section_says_that_the_binding_of_the_code_reviewer_is_built() -> None:
-    """AC-2. expected_behavior_source: the interface decision R15 (new in rework round 2);
+    """AC-2. expected_behavior_source: the interface decision R15;
     src/orqlet/application/usecases/render_all.py (`REVIEW_AGENTS` holds `code-reviewer`, and the
     composition writes its binding with `independence_capability` I2),
     tests/unit/application/test_lifecycle.py lines 164-197 (`init` seeds the third binding) and
@@ -1567,9 +1559,9 @@ def test_the_section_says_what_is_not_built_yet() -> None:
 
 
 def test_a_section_that_follows_the_interface_decision_obeys_every_rule() -> None:
-    """AC-2. expected_behavior_source: the interface decision R2 to R11 and, from rework round 1,
-    R12 and R13 and, from round 2, R15 (new; keys `R12new-...`, `R13new-...` and `R15new-...`: the
-    numbers of the first round name other rules below). The reference text is written in the
+    """AC-2. expected_behavior_source: the interface decision R2 to R11, R12, R13
+    and R15 (keys `R12new-...`, `R13new-...` and `R15new-...`: the same numbers name other rules
+    below). The reference text is written in the
     words that the decision fixes, so the rules can be met together. It passes before the
     documents change."""
     found = {name: rule(REFERENCE_SECTION) for name, rule in SECTION_RULES.items()}
@@ -1578,9 +1570,8 @@ def test_a_section_that_follows_the_interface_decision_obeys_every_rule() -> Non
 
 
 def test_every_rule_of_the_section_has_a_way_to_break_it() -> None:
-    """AC-2. expected_behavior_source: the interface decision R2 to R13 (new in round 1) and R15
-    (new in round 2). It keeps the rules and their broken copies in step and passes before the
-    documents change."""
+    """AC-2. expected_behavior_source: the interface decision R2 to R13 and R15. It keeps the rules
+    and their broken copies in step and passes before the documents change."""
     assert set(SECTION_RULES) == set(BREAKS)
 
 
@@ -1599,12 +1590,12 @@ def test_a_rule_of_the_section_fails_on_a_text_that_breaks_it(name: str) -> None
     MORE_BREAKS,
     ids=[f"{name}-{index}" for index, (name, *_) in enumerate(MORE_BREAKS)],
 )
-def test_a_reworked_rule_gives_its_own_problem_on_each_further_way_to_break_it(
+def test_a_rule_gives_its_own_problem_on_each_further_way_to_break_it(
     name: str, old: str, new: str, expected: str
 ) -> None:
-    """AC-2. expected_behavior_source: the interface decision R10 (revised in rounds 1 and 2), R12
-    and R13 (new in round 1) and R15 (new in round 2): each phrase that the rule pins is needed,
-    and each phrase that it forbids is found. It passes before the documents change."""
+    """AC-2. expected_behavior_source: the interface decision R10, R12, R13 and R15: each phrase
+    that the rule pins is needed, and each phrase that it forbids is found. It passes before the
+    documents change."""
     assert REFERENCE_SECTION.count(old) == 1
 
     problems = SECTION_RULES[name](REFERENCE_SECTION.replace(old, new))
@@ -1613,7 +1604,7 @@ def test_a_reworked_rule_gives_its_own_problem_on_each_further_way_to_break_it(
 
 
 def test_the_old_overclaim_that_a_note_is_printed_for_every_record_fails_the_rule() -> None:
-    """AC-2. expected_behavior_source: the interface decision R10 (revised in rework round 1) and
+    """AC-2. expected_behavior_source: the interface decision R10 and
     src/orqlet/domain/independence.py `independence_notes` (a record whose client differs, whose
     identities are known and whose models differ gets no note, so "every record" is untrue). The
     old sentence put back into the reference text fails the rule, also next to the new one. It
@@ -1729,6 +1720,254 @@ def test_the_options_of_validate_name_the_kind_model_policy() -> None:
     assert missing(row[1], ["`model-policy`"]) == []
 
 
+# --- the README: the sentence about the constraints of every level (AC-2) -----------------------
+# The sentence that starts `The constraints hold at every level:` lists what `models resolve`
+# checks at every level, and nothing that it does not check. In the file
+# src/orqlet/domain/model_resolution.py, `_judge` fails a catalog model on the first of four
+# constraints: the model is excluded, it is not approved, its route for the client has no known
+# identifier, or the access is blocked. `_judge_id` and `_judge_text` call it at every level: for
+# an override, for an assignment that names one model (`_pinned_level`) and for the list of a
+# profile. None of the four is profile membership. The override path and `_pinned_level` check
+# none, and the only profile check is the floor (`_floor_of`, `_meets_floor`), which counts only
+# with `--coder-profile` or, by default, for the role `orqlet-code-reviewer` when
+# `--different-family-from` names the coder's model. The test
+# `test_another_role_has_no_floor_unless_it_is_asked_for`, in the file
+# tests/unit/domain/test_model_resolution.py, shows it. ADR-001 decision 5 says that the
+# constraints apply at every level. The next sentence of the README describes the floor, and it
+# is the only place that does.
+
+CONSTRAINTS_SUBJECT = "The constraints hold"
+CONSTRAINTS_OPENING = f"{CONSTRAINTS_SUBJECT} at every level:"
+# One phrase for each of the four constraints of `_judge`: excluded, approval, route, access.
+CONSTRAINT_PHRASES = (
+    "is not excluded",
+    "it is approved",
+    "known identifier for the client",
+    "access is not blocked",
+)
+PROFILE_WORD = "profile"
+# The sentence is read from the subject `The constraints hold` to the first full stop, and not
+# from the whole opening, so that a sentence that says `at some levels` is still read as this
+# sentence and judged for it, and does not count as a missing one.
+CONSTRAINTS_TO_FULL_STOP = re.compile(re.escape(CONSTRAINTS_SUBJECT) + r"\b.*?\.(?=\s|$)")
+
+CONSTRAINTS_SENTENCE = (
+    "The constraints hold at every level: the model is not excluded, it is approved, the route "
+    "has a known identifier for the client, and the access is not blocked."
+)
+# What the README must not say: `models resolve` checks no profile membership at every level.
+SENTENCE_CLAIMING_PROFILE_MEMBERSHIP = (
+    "The constraints hold at every level: the model is not excluded, it is approved, the route "
+    "has a known identifier for the client, the access is not blocked, and the model sits in the "
+    "profile that the work needs."
+)
+# The same sentence as the README writes it, wrapped over three lines.
+WRAPPED_CONSTRAINTS_SENTENCE = (
+    "The constraints hold at every level: the model is not excluded, it is approved, the route\n"
+    "has a known identifier for the client, and the\n"
+    "access is not blocked."
+)
+# The sentence after it describes the floor, holds the word `profile` and is not read by the rule.
+FLOOR_SENTENCE = (
+    "A reviewer may also not be of a lower profile than the coder: `--coder-profile` sets that "
+    "floor for any target, and without it the floor (the profile `engineering`) applies only to "
+    "the role `orqlet-code-reviewer` and only when `--different-family-from` names the coder's "
+    "model."
+)
+REFERENCE_CONSTRAINTS_TEXT = f"""\
+The order of precedence, highest first:
+
+1. an explicit override;
+2. a team assignment for the role or skill;
+3. a team assignment for the profile;
+4. the automatic selection of the client.
+
+{CONSTRAINTS_SENTENCE} {FLOOR_SENTENCE}
+`--different-family-from` (a catalog id), `--coder-profile` and `--task` narrow the answer for
+those cases.
+"""
+WRAPPED_REFERENCE_CONSTRAINTS_TEXT = REFERENCE_CONSTRAINTS_TEXT.replace(
+    CONSTRAINTS_SENTENCE, WRAPPED_CONSTRAINTS_SENTENCE
+)
+
+# For each way to break the sentence: the text to change in the reference text, the text that
+# takes its place and the problems that the rule must give, and no others.
+CONSTRAINTS_BREAKS: dict[str, tuple[str, str, list[str]]] = {
+    "profile-membership-claimed": (
+        CONSTRAINTS_SENTENCE,
+        SENTENCE_CLAIMING_PROFILE_MEMBERSHIP,
+        ["the word `profile` is in the sentence"],
+    ),
+    "excluded-missing": (
+        "the model is not excluded",
+        "the model is listed",
+        ["lacks: is not excluded"],
+    ),
+    "approval-missing": (
+        "it is approved",
+        "it is reviewed",
+        ["lacks: it is approved"],
+    ),
+    "route-missing": (
+        "the route has a known identifier for the client",
+        "the route exists",
+        ["lacks: known identifier for the client"],
+    ),
+    "access-missing": (
+        "the access is not blocked",
+        "the access is granted",
+        ["lacks: access is not blocked"],
+    ),
+    "not-at-every-level": (
+        "The constraints hold at every level:",
+        "The constraints hold at some levels:",
+        ["the sentence does not start with: The constraints hold at every level:"],
+    ),
+    "sentence-missing": (
+        f"{CONSTRAINTS_SENTENCE} ",
+        "",
+        ["0 sentences start with: The constraints hold"],
+    ),
+    "sentence-twice": (
+        CONSTRAINTS_SENTENCE,
+        f"{CONSTRAINTS_SENTENCE}\n\n{CONSTRAINTS_SENTENCE}",
+        ["2 sentences start with: The constraints hold"],
+    ),
+}
+
+
+def constraints_sentences(text: str) -> list[str]:
+    """The sentences that start `The constraints hold`, each up to and including its full stop.
+
+    Each sentence is read from the text with every run of white space squashed to one space, so a
+    line wrap or a CRLF line ending never matters. A full stop is a `.` that white space follows,
+    or that ends the text.
+    """
+    return CONSTRAINTS_TO_FULL_STOP.findall(squash(text))
+
+
+def constraints_sentence_problems(text: str) -> list[str]:
+    """What is wrong with the sentence about the constraints of every level, in a README text.
+
+    The text holds the sentence exactly once; it starts with `The constraints hold at every
+    level:`; it holds a phrase for each of the four constraints; and it holds no word `profile`.
+    """
+    sentences = constraints_sentences(text)
+    if len(sentences) != 1:
+        return [f"{len(sentences)} sentences start with: {CONSTRAINTS_SUBJECT}"]
+    sentence = sentences[0]
+    problems: list[str] = []
+    if not normalize(sentence).startswith(normalize(CONSTRAINTS_OPENING)):
+        problems.append(f"the sentence does not start with: {CONSTRAINTS_OPENING}")
+    problems += lacks(sentence, CONSTRAINT_PHRASES)
+    if present(sentence, [PROFILE_WORD]):
+        problems.append("the word `profile` is in the sentence")
+    return problems
+
+
+def test_the_readme_lists_the_four_constraints_of_every_level_and_names_no_profile() -> None:
+    """AC-2. expected_behavior_source: src/orqlet/domain/model_resolution.py `_judge` (the first
+    constraint that a catalog model fails: excluded, approval, route, access), which `_judge_id`
+    and `_judge_text` call at every level; `_pinned_level` and the override path check no profile
+    membership, and the only profile check is the floor of `_floor_of` and `_meets_floor`, which
+    applies with `--coder-profile` or, by default, to the role `orqlet-code-reviewer` when
+    `--different-family-from` names the coder's model; tests/unit/domain/test_model_resolution.py
+    (the test `test_another_role_has_no_floor_unless_it_is_asked_for`); ADR-001 decision 5 (the
+    constraints apply at every level). The one sentence of README.md that starts `The constraints
+    hold at every level:` says that four constraints hold at every level (the model is not
+    excluded, it is approved, the route has a known identifier for the client, the access is not
+    blocked) and says nothing about a profile; the next sentence is the only place that describes
+    the profile floor. It fails while that sentence holds the word `profile`."""
+    problems = constraints_sentence_problems(readme_text())
+
+    assert problems == [], (
+        f"README.md: the sentence that starts `{CONSTRAINTS_OPENING}` must list the four "
+        "constraints that every level checks (the model is not excluded, it is approved, the "
+        "route has a known identifier for the client, the access is not blocked) and no profile "
+        f"membership, which `_judge` does not check: {problems}"
+    )
+
+
+def test_the_constraints_sentence_is_read_up_to_its_full_stop_across_wraps_and_crlf() -> None:
+    """AC-2. expected_behavior_source: README.md, where the sentence that starts `The constraints
+    hold at every level:` is wrapped over several lines at about 100 columns and is followed by
+    the sentence about the floor (`A reviewer may also not be of a lower profile than the
+    coder: ...`), which holds the word `profile` and is the only place that describes the floor
+    (`_floor_of` and `_meets_floor` in src/orqlet/domain/model_resolution.py). The reader returns
+    the first sentence only, up to its full stop, in one line, and a text with CRLF line endings
+    reads the same. It reads no file."""
+    assert squash(WRAPPED_CONSTRAINTS_SENTENCE) == CONSTRAINTS_SENTENCE
+    assert WRAPPED_REFERENCE_CONSTRAINTS_TEXT != REFERENCE_CONSTRAINTS_TEXT
+
+    for text in (
+        REFERENCE_CONSTRAINTS_TEXT,
+        WRAPPED_REFERENCE_CONSTRAINTS_TEXT,
+        WRAPPED_REFERENCE_CONSTRAINTS_TEXT.replace("\n", "\r\n"),
+    ):
+        assert constraints_sentences(text) == [CONSTRAINTS_SENTENCE]
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        pytest.param(REFERENCE_CONSTRAINTS_TEXT, id="one-line"),
+        pytest.param(WRAPPED_REFERENCE_CONSTRAINTS_TEXT, id="wrapped"),
+        pytest.param(WRAPPED_REFERENCE_CONSTRAINTS_TEXT.replace("\n", "\r\n"), id="wrapped-crlf"),
+    ],
+)
+def test_the_correct_constraints_sentence_gives_no_problem(text: str) -> None:
+    """AC-2. expected_behavior_source: src/orqlet/domain/model_resolution.py `_judge` (excluded,
+    approval, route, access: four constraints and no profile membership) and ADR-001 decision 5
+    (the constraints apply at every level). The sentence `The constraints hold at every level:
+    the model is not excluded, it is approved, the route has a known identifier for the client,
+    and the access is not blocked.`, once, on one line or wrapped over several lines (with CRLF
+    line endings too), gives no problem, although the sentence after it holds the word
+    `profile`. It reads no file."""
+    assert constraints_sentence_problems(text) == []
+
+
+@pytest.mark.parametrize("name", list(CONSTRAINTS_BREAKS))
+def test_the_rule_of_the_constraints_sentence_gives_its_own_problem_on_each_way_to_break_it(
+    name: str,
+) -> None:
+    """AC-2. expected_behavior_source: src/orqlet/domain/model_resolution.py `_judge` (each of the
+    four constraints is checked at every level, and profile membership is not: `_pinned_level`
+    and the override path check none, and `_floor_of` and `_meets_floor` are the only profile
+    check), the test `test_another_role_has_no_floor_unless_it_is_asked_for` of
+    tests/unit/domain/test_model_resolution.py and ADR-001 decision 5 (the constraints apply at
+    every level). Each change of the correct sentence gives a sentence that the README must not
+    hold, and the rule gives the problem of that change and no other: the profile clause put
+    back; one of the four constraints missing; `at some levels` for `at every level`; no such
+    sentence; the sentence twice. It reads no file."""
+    old, new, expected = CONSTRAINTS_BREAKS[name]
+    assert REFERENCE_CONSTRAINTS_TEXT.count(old) == 1
+
+    assert constraints_sentence_problems(REFERENCE_CONSTRAINTS_TEXT.replace(old, new)) == expected
+
+
+def test_every_constraint_phrase_of_the_rule_has_a_way_to_break_it() -> None:
+    """AC-2. expected_behavior_source: src/orqlet/domain/model_resolution.py `_judge` (the four
+    constraints: excluded, approval, route, access). Each of the four phrases that the rule
+    requires has a copy of the sentence that lacks it, so a phrase that the rule requires cannot
+    stop being checked. It reads no file."""
+    expected = {problem for _, _, problems in CONSTRAINTS_BREAKS.values() for problem in problems}
+
+    assert len(CONSTRAINT_PHRASES) == 4
+    assert {f"lacks: {phrase}" for phrase in CONSTRAINT_PHRASES} <= expected
+
+
+def test_each_way_to_break_the_constraints_sentence_has_its_own_problem() -> None:
+    """AC-2. expected_behavior_source: src/orqlet/domain/model_resolution.py `_judge` (the four
+    constraints: excluded, approval, route, access; no profile membership) and ADR-001 decision 5
+    (the constraints apply at every level). Each copy of the sentence that the README must not
+    hold has a problem of its own, so that a failure names what the README must change. It reads
+    no file."""
+    expected = [tuple(problems) for _, _, problems in CONSTRAINTS_BREAKS.values()]
+
+    assert all(expected)
+    assert len(set(expected)) == len(expected)
+
+
 # --- the README: the upgrade paragraph (AC-3) ----------------------------------------------------
 
 
@@ -1794,7 +2033,7 @@ def test_each_code_row_has_a_meaning_and_is_one_physical_line() -> None:
 
 
 def test_the_rows_of_the_base_exclusions_and_the_deleted_policy_say_what_the_checks_do() -> None:
-    """AC-4. expected_behavior_source: the interface decision R14 (new in rework round 1);
+    """AC-4. expected_behavior_source: the interface decision R14;
     src/orqlet/application/usecases/validate_model_policy.py `_removed_exclusions` ("The
     comparison is by `id`: an entry that kept its id and lost an alias, a pattern or a tag is not
     found"; "not-used" for a file given by path; a skip when no base is located), `_absent` and
@@ -1805,7 +2044,7 @@ def test_the_rows_of_the_base_exclusions_and_the_deleted_policy_say_what_the_che
 
 
 def test_the_reference_table_of_codes_obeys_the_rule_of_the_two_rows() -> None:
-    """AC-4. expected_behavior_source: the interface decision R14 (new in rework round 1; the
+    """AC-4. expected_behavior_source: the interface decision R14 (the
     reference table is written in the words that it fixes). The row of another code may name a
     code: the rule reads the two rows only. It passes before the documents change."""
     assert code_meaning_problems(REFERENCE_CODE_ROWS) == []
@@ -1814,7 +2053,7 @@ def test_the_reference_table_of_codes_obeys_the_rule_of_the_two_rows() -> None:
 
 
 def test_the_row_of_orq_w460_says_which_identities_count_as_known() -> None:
-    """AC-4. expected_behavior_source: the interface decision R10'' (round 2);
+    """AC-4. expected_behavior_source: the interface decision R10'';
     src/orqlet/application/usecases/review_identity.py `_NOTE_TEXT[IDENTITY_UNKNOWN]` ("the class
     rests on a different client, and at least one side has no observed identity that the policy or
     `model_families` names") and src/orqlet/domain/independence.py `_is_known` ("An observed
@@ -1824,7 +2063,7 @@ def test_the_row_of_orq_w460_says_which_identities_count_as_known() -> None:
 
 
 def test_the_reference_table_of_codes_obeys_the_rule_of_the_row_of_orq_w460() -> None:
-    """AC-4. expected_behavior_source: the interface decision R10'' (round 2; the reference row is
+    """AC-4. expected_behavior_source: the interface decision R10'' (the reference row is
     written in the words that it fixes). It passes before the documents change."""
     assert code_meaning_problems(REFERENCE_CODE_ROWS, W460_MEANINGS) == []
     assert code_meaning_problems(REFERENCE_CODE_ROWS.replace("\n", "\r\n"), W460_MEANINGS) == []
@@ -1838,8 +2077,8 @@ def test_the_reference_table_of_codes_obeys_the_rule_of_the_row_of_orq_w460() ->
 def test_the_rule_of_a_code_row_gives_its_own_problem_on_each_way_to_break_it(
     meanings: Meanings, old: str, new: str, expected: str
 ) -> None:
-    """AC-4. expected_behavior_source: the interface decision R14 (new in rework round 1) and
-    R10'' (round 2): each phrase that the rule pins is needed, a row may not be missing and an ORQ
+    """AC-4. expected_behavior_source: the interface decision R14 and
+    R10'': each phrase that the rule pins is needed, a row may not be missing and an ORQ
     code may not be named inside the meanings. It passes before the documents change."""
     assert REFERENCE_CODE_ROWS.count(old) == 1
 
@@ -1959,7 +2198,7 @@ def test_the_gate_sections_no_longer_describe_the_review_as_a_provided_capabilit
 
 
 def test_section_10_3_says_that_the_binding_of_the_code_reviewer_is_built() -> None:
-    """AC-5. expected_behavior_source: the interface decision R16 (new in rework round 2) and the
+    """AC-5. expected_behavior_source: the interface decision R16 and the
     evidence of R15: src/orqlet/application/usecases/render_all.py (the composition writes the
     binding of `code-reviewer`), tests/unit/application/test_lifecycle.py lines 164-197 (`init`
     seeds the third binding) and src/orqlet/application/usecases/upgrade.py
@@ -1970,7 +2209,7 @@ def test_section_10_3_says_that_the_binding_of_the_code_reviewer_is_built() -> N
 
 
 def test_the_reference_proposal_obeys_the_rule_of_section_10_3() -> None:
-    """AC-5. expected_behavior_source: the interface decision R16 (new in round 2; the reference
+    """AC-5. expected_behavior_source: the interface decision R16 (the reference
     text is written in the words that it fixes). Section 10.4 of it holds the old sentence, which
     the rule does not read. It passes before the documents change."""
     assert "its seeded binding" in REFERENCE_PROPOSAL
@@ -1979,7 +2218,7 @@ def test_the_reference_proposal_obeys_the_rule_of_section_10_3() -> None:
 
 
 def test_the_old_sentence_of_section_10_3_put_back_fails_the_rule() -> None:
-    """AC-5. expected_behavior_source: the interface decision R16 (new in round 2): the old
+    """AC-5. expected_behavior_source: the interface decision R16: the old
     sentence ("the role `orqlet-code-reviewer`, its skill step and its seeded binding, which ship
     with workflow 0.5.0") fails the rule, put in the place of the new one and put next to it. It
     passes before the documents change."""
@@ -2021,7 +2260,7 @@ def test_the_old_sentence_of_section_10_3_put_back_fails_the_rule() -> None:
 def test_the_rule_of_section_10_3_gives_its_own_problem_on_each_way_to_break_it(
     old: str, new: str, expected: str
 ) -> None:
-    """AC-5. expected_behavior_source: the interface decision R16 (new in round 2): each phrase of
+    """AC-5. expected_behavior_source: the interface decision R16: each phrase of
     the rule is needed, and `its seeded binding` is found in any case and any place of section
     10.3. It passes before the documents change."""
     assert REFERENCE_PROPOSAL.count(old) == 1
@@ -2044,7 +2283,7 @@ def test_the_q_07_rows_no_longer_hold_the_old_answer() -> None:
     assert offending == []
 
 
-# --- the rework after round 2: the text edits (criteria A and B) ---------------------------------
+# --- the text edits (criteria A and B) ------------------------------------------------------------
 # One edit is its id, the fragment that must be gone and the fragment that takes its place. Each
 # fragment is written on one line; the texts are compared with white space squashed, so the line
 # wraps of the README (about 100 columns) and of the coder's new text never matter.
@@ -2322,7 +2561,7 @@ REPLACING_PROPOSAL_EDITS = tuple(edit for edit in PROPOSAL_EDITS if not appends_
 
 
 def test_a_fragment_is_found_across_a_line_wrap_and_in_a_text_with_crlf_line_endings() -> None:
-    """Rework, criterion A. expected_behavior_source: the criterion (the README is hard-wrapped, so
+    """Criterion A. expected_behavior_source: the criterion (the README is hard-wrapped, so
     both sides are compared with every run of white space, a line break too, as one space). It
     passes before the documents change."""
     text = "one two\r\n  three   four\nfive"
@@ -2334,7 +2573,7 @@ def test_a_fragment_is_found_across_a_line_wrap_and_in_a_text_with_crlf_line_end
 
 
 def test_a_fragment_is_matched_in_the_case_and_with_the_bold_markers_of_the_text() -> None:
-    """Rework, criterion A. expected_behavior_source: the criterion (the new fragment stands there
+    """Criterion A. expected_behavior_source: the criterion (the new fragment stands there
     exactly; only white space is squashed, so `**Q-08**` is not `Q-08` and `The Gate` is not
     `the gate`). It passes before the documents change."""
     assert occurrences("the **Q-08** row", "**Q-08**") == 1
@@ -2343,7 +2582,7 @@ def test_a_fragment_is_matched_in_the_case_and_with_the_bold_markers_of_the_text
 
 
 def test_a_new_fragment_that_is_missing_or_repeated_is_a_problem() -> None:
-    """Rework, criterion A. expected_behavior_source: the criterion (the file holds the new
+    """Criterion A. expected_behavior_source: the criterion (the file holds the new
     fragment exactly once). It passes before the documents change."""
     edit = ("X-1", "old words", "new words")
 
@@ -2353,7 +2592,7 @@ def test_a_new_fragment_that_is_missing_or_repeated_is_a_problem() -> None:
 
 
 def test_an_old_fragment_that_is_still_there_is_a_problem_in_any_wrap() -> None:
-    """Rework, criterion A. expected_behavior_source: the criterion (the file does not contain the
+    """Criterion A. expected_behavior_source: the criterion (the file does not contain the
     old fragment). It passes before the documents change."""
     edit = ("X-1", "old words", "new words")
 
@@ -2363,7 +2602,7 @@ def test_an_old_fragment_that_is_still_there_is_a_problem_in_any_wrap() -> None:
 
 
 def test_an_edit_that_only_appends_keeps_its_old_fragment_and_so_has_no_absence_check() -> None:
-    """Rework, criterion A. expected_behavior_source: the criterion (an entry whose new fragment
+    """Criterion A. expected_behavior_source: the criterion (an entry whose new fragment
     holds the old one, P-19, gets only the positive check). It passes before the documents
     change."""
     assert appends_only(("X-1", "a b.", "a b. And more."))
@@ -2372,7 +2611,7 @@ def test_an_edit_that_only_appends_keeps_its_old_fragment_and_so_has_no_absence_
 
 
 def test_the_ids_of_the_edits_are_unique_and_every_edit_changes_its_text() -> None:
-    """Rework, criterion A. expected_behavior_source: the criterion (the table of edits: one id,
+    """Criterion A. expected_behavior_source: the criterion (the table of edits: one id,
     one old and one new fragment each). It passes before the documents change."""
     edits = (*README_EDITS, *PROPOSAL_EDITS)
     ids = edit_ids(edits)
@@ -2383,59 +2622,59 @@ def test_the_ids_of_the_edits_are_unique_and_every_edit_changes_its_text() -> No
 
 
 def test_only_the_edit_p_19_appends_to_its_old_fragment() -> None:
-    """Rework, criterion A. expected_behavior_source: the criterion (P-19 only appends; every other
+    """Criterion A. expected_behavior_source: the criterion (P-19 only appends; every other
     entry also has its old fragment pinned as gone). It passes before the documents change."""
     edits = (*README_EDITS, *PROPOSAL_EDITS)
 
     assert [edit[0] for edit in edits if appends_only(edit)] == ["P-19"]
 
 
-# --- the README and the proposal: the edits of the rework (criterion A) --------------------------
+# --- the README and the proposal: the edits (criterion A) -----------------------------------------
 
 
 @pytest.mark.parametrize("edit", README_EDITS, ids=edit_ids(README_EDITS))
 def test_the_readme_holds_the_new_fragment_of_an_edit_exactly_once(edit: Edit) -> None:
-    """Rework, criterion A. expected_behavior_source: the edit table of the rework (the person
+    """Criterion A. expected_behavior_source: the edit table (the person
     approved it in conversation; it is not in plan.yaml). It fails until the README is edited."""
     assert new_fragment_problems(readme_text(), edit) == []
 
 
 @pytest.mark.parametrize("edit", README_EDITS, ids=edit_ids(README_EDITS))
 def test_the_readme_no_longer_holds_the_old_fragment_of_an_edit(edit: Edit) -> None:
-    """Rework, criterion A. expected_behavior_source: the edit table of the rework (as above; each
-    old fragment stood once in the README before the rework). It fails until the README is
+    """Criterion A. expected_behavior_source: the edit table (as above; each
+    old fragment stood once in the README before the edits). It fails until the README is
     edited."""
     assert old_fragment_problems(readme_text(), edit) == []
 
 
 @pytest.mark.parametrize("edit", PROPOSAL_EDITS, ids=edit_ids(PROPOSAL_EDITS))
 def test_the_proposal_holds_the_new_fragment_of_an_edit_exactly_once(edit: Edit) -> None:
-    """Rework, criterion A. expected_behavior_source: the edit table of the rework (the person
+    """Criterion A. expected_behavior_source: the edit table (the person
     approved it in conversation; it is not in plan.yaml). It fails until the proposal is edited."""
     assert new_fragment_problems(proposal_text(), edit) == []
 
 
 @pytest.mark.parametrize("edit", REPLACING_PROPOSAL_EDITS, ids=edit_ids(REPLACING_PROPOSAL_EDITS))
 def test_the_proposal_no_longer_holds_the_old_fragment_of_an_edit(edit: Edit) -> None:
-    """Rework, criterion A. expected_behavior_source: the edit table of the rework (as above; each
-    old fragment stood once in the proposal before the rework; P-19 only appends and has no such
+    """Criterion A. expected_behavior_source: the edit table (as above; each
+    old fragment stood once in the proposal before the edits; P-19 only appends and has no such
     check). It fails until the proposal is edited."""
     assert old_fragment_problems(proposal_text(), edit) == []
 
 
-# --- the guards: what the rework leaves as it is (criterion B) -----------------------------------
+# --- the guards: what the edits leave as they are (criterion B) -----------------------------------
 
 
 def test_the_readme_still_says_that_five_specialist_agents_ship() -> None:
-    """Rework, criterion B. expected_behavior_source: the criterion (the README line about `five
-    specialist agents` is not changed by the rework; it is still true) and README.md, the table
+    """Criterion B. expected_behavior_source: the criterion (the README line about `five
+    specialist agents` is not changed by the edits; it is still true) and README.md, the table
     row `Agents that follow a process`. It passes before the documents change and must pass after
     them."""
     assert occurrences(readme_text(), FIVE_SPECIALIST_AGENTS) > 0
 
 
 def test_the_proposal_still_has_the_heading_of_section_22_0() -> None:
-    """Rework, criterion B. expected_behavior_source: the criterion (the heading `### 22.0 Build
-    status and what v0.5 changes in it` is dated history and is not changed by the rework). It
+    """Criterion B. expected_behavior_source: the criterion (the heading `### 22.0 Build
+    status and what v0.5 changes in it` is dated history and is not changed by the edits). It
     passes before the documents change and must pass after them."""
     assert section_of(proposal_text(), HEADING_22_0, whole_line=False).strip()
