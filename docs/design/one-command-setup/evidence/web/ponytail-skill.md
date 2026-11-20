@@ -18,4 +18,4 @@ Excerpts are verbatim, shortened with "..." only.
 7. Tests - "new non-trivial logic (a branch, a loop, a parser, money or security, or a whole new script or app) leaves one small test or an assert-based self-check. Trivial changes need none."
 8. Guard - "Never cut: validation at trust boundaries, error handling that prevents data loss, security, accessibility, the calibration real hardware needs, anything the user asked for."
 9. Reply - "End your reply with one or two lines: what you skipped or did not check, and any risk the user must know."
-10. Levels - "**lite** | Build what was asked. Name the smaller option in one line and let the user pick." / "**ultra** | Also question the request".
+10. Levels - "Levels: lite, full (default), ultra." / "**lite** | Build what was asked. Name the smaller option in one line and let the user pick." / "**full** | The rules above. Default." / "**ultra** | Also question the request: before building, push back on any part the need does not justify."
