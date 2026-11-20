@@ -10,7 +10,7 @@ header:
     standards_lock_hash: 89a225016ff9d8b3ed977df39a70dfbe9dbc5f7c6d3762d0f2208b1b7a037a52
     applicable_rules_hash: 56502a0ec5eda3b13b4c9d97c7d4dfa41df82c86a206e36dd5d2d92aab299b97
     profile_version: 1
-design_ref: docs/design/dynamic-model-profiles/design/manifest.yaml#bb171fdc13d09245599bb6f3c278babd3d50153b5b16c4bd12756804638466ee
+design_ref: docs/design/dynamic-model-profiles/design/manifest.yaml#66bea4ae8b0cd0f2c4beaba81055c1110cd6e21f3ec018b54d6d6873d4391384
 base_revision: 4aa05f2fa1e267d34824e166bb60abbc1aa75849
 knowledge_scope: []
 phases:
@@ -2475,6 +2475,22 @@ self_check:
       "two reviewers", "five specialist" and "four read-only", and for the role names with words of the future. AC-15 to AC-17 name
       what that found; AC-19 names what is left open. The search is by those words: a sentence that says the same in other words is not
       found.
+    result: pass
+  - what: the design that the plan cites is the design amended for P-14 (EC-7 lists the six .orqlet/ files of the upgrade)
+    how: >-
+      design_ref cites the manifest of the design merge f42d0cc1fb3d5e59cd0a433b44fd1b58d889c823 (pull request 29), which the person named
+      with origin/main. orqlet evidence hash printed 66bea4ae8b0cd0f2c4beaba81055c1110cd6e21f3ec018b54d6d6873d4391384. orqlet validate
+      as-is, design and ledger passed; validate plan before the edit gave only ORQ-E371 (the manifest changed after the plan cited it).
+      git merge-base --is-ancestor of base_revision 4aa05f2f and of the merge exits 0 for HEAD; the merge changed the approved files
+      (git diff --quiet from its first parent exits 1), git diff --quiet of the merge against as-is.md and design/ exits 0, none is
+      untracked, and questions.yaml equals the merge. Only Q-35, Q-36 and Q-38 are open and none blocks the plan. orqlet gate status gave
+      ORQ-W390 on the AS-IS file, the design and the plan with the causes workflow_version, protected_set_digest, standards_lock_hash,
+      applicable_rules_hash and base_revision. The person matched them to the stale-input matrix and confirmed that the approval stays
+      valid: the upgrade to 0.5.0 (pull request 28) and the twelve other commits since 4aa05f2f, which carry this task's trailer and
+      signature status E; and the two new MUST rules ORQLET-MODEL-001 and ORQLET-MODEL-002 (P-13), whose impact the person accepted as
+      the one that ADR-006, constraint C-10, P-13 and AC-6 already describe. Nothing in the plan changed except design_ref and this
+      entry: no phase, criterion, file operation or bound value. This amendment settles the first unverified entry below for EC-7: the
+      design now lists the six files, and the upgrade was run for P-14 (pull request 28) before this re-bind.
     result: pass
   unverified:
   - >-
