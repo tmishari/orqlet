@@ -877,4 +877,148 @@ questions:
     answerer: tmishari
     time: '2026-11-20T13:09:04+00:00'
     scope: task
+- id: Q-45
+  key: ad2701ff285c3e50ec27cb4f8090197a57b8fccd56306d01b78e7d49f36fe456
+  subject: Source of the per-client hook and tool citations for the plan
+  raised_by: Cursor
+  phase: plan
+  category: policy
+  text: Constraints K-3 and K-12 need official citations per client (hook command schema,
+    working-directory payload field, post-tool context field, launch and PATH resolution)
+    and for the tool pins, and the stored evidence lacks most of them. Where do the plan's
+    citations come from?
+  why: The plan may not register a hook or fix a pin without a citation, and a stored copy
+    needs a research commit.
+  options:
+  - Pause for a research evidence addendum
+  - Fetch the official public pages now and cite them in the plan's self-check
+  - Plan with stored evidence only and leave every uncited registration out
+  blocks:
+  - plan
+  status: answered
+  answer:
+    value: Fetch the official public pages now and cite them in the plan's self-check with
+      URLs and short quotes; the person stores evidence separately if wanted
+    answerer: tmishari
+    time: '2026-11-20T13:40:00+00:00'
+    scope: task
+- id: Q-46
+  key: 987d3936cefa5be961b47c9a52ca543a3937f6dc6144eac1a318a7828af9b56b
+  subject: Pinned uv version on the pipx route
+  raised_by: Cursor
+  phase: plan
+  category: requirement
+  text: Which exact uv version does `pipx install uv==<pin>` install on the pipx route
+    (ADR-006, constraint K-3)?
+  why: No source in the design or the ledger gives the pin.
+  options:
+  - 0.7.19, the version CI pins and the development machine has
+  - Another version
+  evidence_refs:
+  - .github/workflows/ci.yml:15
+  - docs/design/one-command-setup/as-is.md:A-43
+  blocks:
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: 0.7.19, the version CI pins (ci.yml:15) and the development machine has (A-43)
+    answerer: tmishari
+    time: '2026-11-20T13:40:00+00:00'
+    scope: task
+- id: Q-47
+  key: 62c69ae565fb0b4edcce5365314035f30fd8f9d065f7f5b283d855ed2d8e9209
+  subject: Workflow version of the one-command-setup change
+  raised_by: Cursor
+  phase: plan
+  category: requirement
+  text: ORQLET-DET-002 requires a workflow package version bump with the manifest rebuild.
+    The workflow package is at 0.5.0 and the CLI moves only in the release commit. Which
+    workflow version does this change use?
+  why: The version is a value no source gives, and it is part of the release identity.
+  options:
+  - 0.6.0, with the CLI version left to the release branch
+  - Another version
+  evidence_refs:
+  - src/orqlet/workflow/identity.json:4
+  - src/orqlet/__init__.py:3
+  blocks:
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: 0.6.0 (minor step for new commands, skills and a client); the CLI version is left
+      to the release branch
+    answerer: tmishari
+    time: '2026-11-20T13:40:00+00:00'
+    scope: task
+- id: Q-48
+  key: 4bfa24f0d9f5962ef66b10f7e7a1a7e1fc47f0e0c231bc41f0cc6216371db2e6
+  subject: Plan sequencing before the standards amendments merge
+  raised_by: Cursor
+  phase: plan
+  category: policy
+  text: The amendments of ORQLET-SAFE-001 and ORQLET-ARCH-003 (constraint K-1) have not
+    merged. Is the full plan written now, or does the plan wait for both merges?
+  why: K-1 orders the amendments before any change that writes the user scope or adds the
+    copilot adapter, and their merge changes standards_lock_hash.
+  options:
+  - Write the full plan now; user-scope and Copilot phases state K-1 as a precondition, and
+    the merge triggers the impact review and a plan amendment
+  - Stop the plan until both amendments are merged
+  evidence_refs:
+  - .prompts/rules.yaml:29-37
+  - .prompts/rules.yaml:66-72
+  - pyproject.toml:120-127
+  blocks:
+  - plan
+  status: answered
+  answer:
+    value: Write the full plan now; phases that need no amendment come first, the user-scope
+      and Copilot phases state K-1 as a precondition, and the amendment's merge triggers
+      the impact review and a plan amendment
+    answerer: tmishari
+    time: '2026-11-20T13:40:00+00:00'
+    scope: task
+- id: Q-49
+  key: 820d64b3db83ea273701258a5b89ea61d98b6f6dfbbbb1ad3df4d2878b1a833b
+  subject: Design base revision outside main after the squash merge
+  raised_by: Cursor
+  phase: plan
+  category: policy
+  text: The design is bound to base_revision 8994354 and the AS-IS file to e9b0683, which
+    exist only on origin/timur/one-command-setup-design because pull request 34 was a
+    squash merge (ff9fbf1). The input check's same-project step fails. How does the plan
+    proceed?
+  why: The phase contract stops on a base revision that HEAD does not contain and asks the
+    person; bound values are never changed to pass.
+  options:
+  - Accept it and continue the plan on top of main
+  - Rebind the AS-IS file and the design to a revision on main through a refresh first
+  - Stop
+  blocks:
+  - plan
+  status: answered
+  answer:
+    value: Accept it; the base is published on the design branch and squash-merged as ff9fbf1;
+      continue the plan on top of main
+    answerer: tmishari
+    time: '2026-11-20T13:30:00+00:00'
+    scope: task
+- id: Q-50
+  key: 8a5cc87f5245250a70fc84549a864aa49345a44293db05b8529b3abe8cdb1b9e
+  subject: Workflow controls level of the one-command-setup change
+  raised_by: Cursor
+  phase: plan
+  category: requirement
+  text: The release gate test asks to raise controls_level in identity.json when a control
+    was added. Does this change (advisory hooks, user-scope root checks) raise controls_level
+    from 3, and to which value?
+  why: No source defines which additions count as a control, and P-11 writes identity.json.
+  evidence_refs:
+  - tests/contract/test_release_gate.py:19-20
+  - src/orqlet/workflow/identity.json:2
+  blocks:
+  - implement
+  status: open
 conflicts: []
