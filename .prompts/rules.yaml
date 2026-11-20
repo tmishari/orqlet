@@ -141,3 +141,21 @@ rules:
       comments that explain why, not what.
     scope: {paths: ["src/**", "tests/**"]}
     enforcement: guidance
+
+  - id: ORQLET-MODEL-001
+    level: MUST
+    text: >-
+      A model name appears in a generated or packaged file only when the model policy assigned it,
+      and never when the policy excludes it.
+    scope: {paths: ["src/orqlet/**", "tests/**"]}
+    enforcement: deterministic
+    check_ref: uv run pytest
+
+  - id: ORQLET-MODEL-002
+    level: MUST
+    text: >-
+      A review record for a gated role names the models that ran, or says they are unknown, and
+      states the freshness of its context; a class below the role's minimum is NOT_RUN, never a
+      pass.
+    scope: {paths: ["docs/design/**"]}
+    enforcement: review

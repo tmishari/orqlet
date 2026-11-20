@@ -847,14 +847,13 @@ def loaded(document: Doc) -> ModelPolicy:
 def test_the_premise_the_tester_role_and_the_design_skill_are_names_of_the_workflow() -> None:
     """Not a behaviour of the use case: the assignments of these tests name real workflow names,
     so a refusal is never an accident of a fixture. expected_behavior_source: R-1 (the names are
-    those of the packaged workflow); the P-7 interface item 4 (five roles, six skills); R-2 (the
-    role `orqlet-code-reviewer` is not a workflow role until phase P-10)."""
+    those of the packaged workflow); the P-7 interface item 4 (five roles, six skills); P-13 AC-2
+    and AC-3 (workflow 0.5.0 ships the roles `orqlet-code-reviewer` and `orqlet-pr-writer`)."""
     roles = {role.name for role in load_roles(WORKFLOW)}
     skills = {skill.name for skill in load_skills(WORKFLOW, frozenset())}
 
-    assert roles == set(ROLES)
+    assert roles == set(ROLES) | {"orqlet-code-reviewer", "orqlet-pr-writer"}
     assert skills == set(SKILLS)
-    assert "orqlet-code-reviewer" not in roles
 
 
 def _loaded_documents() -> list[str]:

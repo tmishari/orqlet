@@ -1,0 +1,114 @@
+schema: orqlet.test-record/v1
+task: dynamic-model-profiles
+phase: P-13
+review_input:
+  components:
+    code_tests: 883adad7db4381e1959667c066dd8f38191ea9e5031614cf0ccb3ea8e4afd774
+    plan: 8dc1f96fdd0d265cb21ec69d4c86b679f4706b33d8ca44f5b148a0263364b46a
+  covers:
+  - code_tests
+  - plan
+  digest: 9ad72bd9ebe41495e1395de6d34749db46e884bf93da38edbbc44cb5a5b40a2f
+  merge_base: fdb54a58a700cd7bac8447cb54a58261724bfe26
+  schema: orqlet.review-input/v1
+verdict: NOT_RUN
+evidence_kind: claimed
+commands:
+- id: ruff-check
+  exit_code: 0
+  summary: All checks passed, on the staged tree 47cabc49db37ea32afeb1701019cd1ed2c208e62 (NO_COLOR=1).
+    The digest is of the whole captured output.
+  result_digest: 5b196eb3a6acb50d3fa398d04ca284985cc1ffec870e940264b00780bfd2c971
+- id: ruff-format
+  exit_code: 0
+  summary: 646 files already formatted, on the same tree (NO_COLOR=1). The count includes GRAPH_REPORT.md
+    of the untracked folders graphify-out and src/graphify-out, which are not part of the change.
+  result_digest: e4bc7c6f8958cebc91dda09fba2912222bfd8d92c1b8b8baa220317280b622ef
+- id: mypy
+  exit_code: 0
+  summary: 'Success: no issues found in 390 source files, on the same tree.'
+  result_digest: 43689c3314472d1f83bbc554104537194812568d162cdb6e48f6c44bf49d0224
+- id: import-linter
+  exit_code: 0
+  summary: 'Contracts: 5 kept, 0 broken, on the same tree.'
+  result_digest: 7a2fad1dcc5307402cb04707957884534f62da097ee40c6d6285d0f92e83a48e
+- id: pytest
+  exit_code: 0
+  summary: 'Full suite as the plan gives it, run as three jobs on the same tree because one job took too
+    long: tests/unit 11712 passed; tests/e2e 45 passed; tests/integration, tests/fault and tests/contract
+    1241 passed, 1 skipped (tests/integration/test_junction.py, Windows only). Total 12998 passed, 1 skipped,
+    every job exit 0. The digest is of the three output files joined, each ending with the line exit=0
+    that the job appended. tests/unit/test_existing_records_and_plans_stay_valid.py reads the repository
+    records and was rerun after the P-13 records were staged (see the review step). macOS and one Python
+    only; the CI matrix was not run. The uv.lock was not changed.'
+  result_digest: b7244ce553f5df6a7487019bc328ff29f0e94c77e2ed1411a111fac90d6d747f
+- id: manifest-check
+  exit_code: 0
+  summary: tools/build_manifest.py --check printed nothing and exited 0, on the same tree. The empty output
+    has the digest of the empty string.
+  result_digest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+- id: gate-status-phase
+  exit_code: 5
+  summary: 'NOT_RUN, exit 5, on the staged tree against main fdb54a5. No ORQ-E450, ORQ-E451 and ORQ-E453,
+    so AC-14 holds. ORQ-W390 on as-is, design and plan with cause base_revision (three lines; accepted
+    by the person on #25 and #26), ORQ-I393 offline, EC-1 to EC-9 manual or pending (ORQ-I451). The verdict
+    of this record is NOT_RUN only because of this exit status, as in the records of P-10 to P-12.'
+  result_digest: 254860dd7706569930a766fb97f348982fad492f0aa306dc7bc28c105956425f
+acceptance_coverage:
+- ac: AC-1
+  check_ref: manifest-check
+  result: pass
+- ac: AC-2
+  check_ref: pytest
+  result: pass
+- ac: AC-3
+  check_ref: pytest
+  result: pass
+- ac: AC-4
+  check_ref: pytest
+  result: pass
+- ac: AC-5
+  check_ref: pytest
+  result: pass
+- ac: AC-6
+  check_ref: pytest
+  result: pass
+- ac: AC-7
+  check_ref: pytest
+  result: pass
+- ac: AC-8
+  check_ref: pytest
+  result: pass
+- ac: AC-9
+  check_ref: pytest
+  result: pass
+- ac: AC-10
+  check_ref: pytest
+  result: pass
+- ac: AC-11
+  check_ref: pytest
+  result: pass
+- ac: AC-12
+  check_ref: pytest
+  result: pass
+- ac: AC-13
+  check_ref: pytest
+  result: pass
+- ac: AC-14
+  check_ref: gate-status-phase
+  result: pass
+- ac: AC-15
+  check_ref: pytest
+  result: pass
+- ac: AC-16
+  check_ref: pytest
+  result: pass
+- ac: AC-17
+  check_ref: pytest
+  result: pass
+- ac: AC-18
+  check_ref: pytest
+  result: pass
+- ac: AC-19
+  check_ref: review:documents-diff
+  result: not-run

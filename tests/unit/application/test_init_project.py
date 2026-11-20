@@ -98,6 +98,7 @@ def test_an_existing_project_gets_every_expected_file() -> None:
         ".orqlet/resources.yaml",  # P-3 AC-2: init seeds an empty registry (ADR-002 decision 1)
         ".orqlet/versions.yaml",
         ".orqlet/role-bindings.yaml",
+        ".orqlet/model-policy.yaml",  # P-13 AC-12: init seeds the model policy (ADR-002 decision 1)
         ".orqlet/standards.lock.yaml",
         ".orqlet/workflow.lock",
         ".orqlet/generated.lock.yaml",

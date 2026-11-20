@@ -134,6 +134,12 @@ def write_task(root: Path) -> dict[str, Any]:
     put(root, DESIGN, dump(manifest))
 
     plan_document = plan(base=base)
+    plan_document["phases"][0]["review_evidence"] = [
+        "architecture-reviewer",
+        "security-reviewer",
+        "tester",
+        "code-reviewer",
+    ]
     plan_document["header"] = head
     plan_document["design_ref"] = reference(root, DESIGN)
     put(root, PLAN, dump(plan_document))

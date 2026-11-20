@@ -1,0 +1,113 @@
+schema: orqlet.review-result/v1
+task: dynamic-model-profiles
+phase: P-13
+role: security-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 883adad7db4381e1959667c066dd8f38191ea9e5031614cf0ccb3ea8e4afd774
+    design: 42b7894ffd4a6d18273151d215244f7d5b819097bd9f289b7a342b9c9d24e98b
+    evidence_inputs: c28b36a7710ecff9b2b4d71397d96c65bb76886e949603e9e20e7b0d73017296
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 8dc1f96fdd0d265cb21ec69d4c86b679f4706b33d8ca44f5b148a0263364b46a
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: 20b2417f8fe79a6b504d5edb6aa5876a9d7ae7a5a78a128d2d5e210ff3b835a9
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: bdd503f5cc53b4dc822a4a41c8a2d7eb0281919c507f741bf1c3b3c714e7aac8
+  merge_base: fdb54a58a700cd7bac8447cb54a58261724bfe26
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran in the same client as the Coder (cursor), so independence is I1, not I2.
+- The reviewer was started as a typed subagent in a new context; its prompt held the packet path and the
+  scope of P-13, and no earlier round. The model that ran it is not observed, so model_observed stays
+  empty.
+- 'The reviewer''s session had no shell: it computed no quote digest and ran no orqlet, test or hash command.
+  Every test count and check result in the test record is a claim of the Coder that the reviewer did not
+  repeat. For that reason every finding below is kept as an observation with no quote evidence, and no
+  digest was computed by the Coder.'
+- The proposal docs/design/orqlet-architecture-proposal.md is over the packet limit (ORQ-I440); the reviewer
+  read it through the hunks of diff.patch only.
+- '`orqlet review prepare` printed ORQ-I441: the code-reviewer binding is not printed, so no code-reviewer
+  record can be written or validated in this phase. The code review ran as a general-purpose agent that
+  read the new role text; its findings are in the pull request description.'
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- The review input covers the packet as prepared on the staged tree before the two review records were
+  added; `orqlet validate review` may report a record stale for that reason.
+applicability:
+  examined:
+  - MANIFEST.json
+  - diff.patch
+  - context files
+  - snapshot of the changed files
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: security
+  claim: 'The PR writer is told to treat its three inputs (plan, brief, diff summary) as data, but its
+    tools are Read, Grep and Glob on the whole tree. A hostile line in an input could steer it to read
+    a secret file and put the content into the draft. Mitigations: no write, execute or web tool; Cursor
+    readonly true and Codex sandbox_mode read-only; it never opens the pull request and the person sees
+    the draft first. The read scope equals that of the other reviewers.'
+  suggested_action: Accept, or narrow the PR writer's read scope in a later phase.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: tests
+  claim: ORQLET-MODEL-001 is deterministic with scope src/orqlet/** and tests/**, but the tests the reviewer
+    found cover the two new roles, the six skill bodies and the rendered role files. It found no test
+    that scans the whole packaged workflow (baseline, other roles, references). In the workflow package,
+    'fable' occurs only in the seed's exclusion entry.
+  suggested_action: Add a scan test later, or mark the rule review until one exists.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: New roles are read-only on all three clients and treat inputs as data
+    how: read the three renderings in diff.patch
+    result: pass
+  - what: Seed written once, a changed seed only as a proposal, no credential, no approved model
+    how: read prompts_seed.py, tests and the seed; searched added lines for credential shapes
+    result: pass
+  - what: Model-hint step in six skills, PR-writer step, review diversity step
+    how: read the skill diffs
+    result: pass
+  - what: Six changed test files outside the plan's list weaken no security assertion
+    how: read the diffs
+    result: pass
+  - what: orqlet evidence cite, MANIFEST.json hashes, tests
+    how: no shell in this session
+    result: not-run
+  failures: []
+  unverified:
+  - The proposal beyond the diff hunks read.
+  - The evidence pages the seed cites.
+  - How each client enforces read-only.
+  - Whether the generated copies equal their sources.

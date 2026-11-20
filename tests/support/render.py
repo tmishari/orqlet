@@ -46,7 +46,9 @@ SKILL_REFERENCES = {
 }
 ROLE_NAMES = (
     "orqlet-arch-reviewer",
+    "orqlet-code-reviewer",
     "orqlet-inventory",
+    "orqlet-pr-writer",
     "orqlet-security-reviewer",
     "orqlet-tester",
     "orqlet-tracer",

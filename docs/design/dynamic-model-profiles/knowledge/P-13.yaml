@@ -1,0 +1,79 @@
+schema: orqlet.knowledge-impact/v1
+task: dynamic-model-profiles
+phase: P-13
+review_input:
+  components:
+    candidates: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    code_tests: 883adad7db4381e1959667c066dd8f38191ea9e5031614cf0ccb3ea8e4afd774
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 8dc1f96fdd0d265cb21ec69d4c86b679f4706b33d8ca44f5b148a0263364b46a
+    standards: 20b2417f8fe79a6b504d5edb6aa5876a9d7ae7a5a78a128d2d5e210ff3b835a9
+  covers:
+  - code_tests
+  - knowledge
+  - plan
+  - standards
+  - candidates
+  digest: a880b829a7946b006a35acbf8492ec91d8d3fd43d543d62c5e950530dc4c562b
+  merge_base: fdb54a58a700cd7bac8447cb54a58261724bfe26
+  schema: orqlet.review-input/v1
+outcome: no-impact
+analysis:
+  command: orqlet knowledge impact
+  orqlet_version: 0.3.0
+  candidates_digest: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+  candidate_count: 0
+  input: pre-draft-tree
+  views:
+  - committed:HEAD
+  index_state: not-used
+entries: []
+no_impact:
+  category: already-documented
+  reason: 'This phase builds what the approved design already states: the roles orqlet-code-reviewer and
+    orqlet-pr-writer (ADR-006 decisions 1 and 8), the model hint and the diversity step in the skills
+    (ADR-001, ADR-007), the shipped seed of the model policy and its rendering by init and upgrade (ADR-002
+    decisions 6 and 7, ADR-004), the two rules ORQLET-MODEL-001 and ORQLET-MODEL-002, and the workflow
+    version 0.5.0. README.md and docs/design/orqlet-architecture-proposal.md are changed by the phase
+    itself (AC-15 to AC-18) and are the file list, not a knowledge document. No knowledge source is configured
+    (ORQ-I400) and the plan''s knowledge_scope is empty, so no knowledge document exists that this change
+    could make wrong. Statements that stay incomplete are listed under left open in the absence record;
+    AC-19 keeps them open on purpose. Plan amendments the person must know: the plan lists no test file
+    for AC-9, so its tests sit in tests/unit/test_workflow_model_hint_text.py; the plan lists tests/unit/test_workflow_skill_contracts.py
+    for modify and no pin of it needed a change; the six unlisted test files named in the pull request
+    description are changed because P-13 breaks them (the seed that init writes, the plan rule for workflow
+    0.5.0, the number of roles). Words were cut from the design, onboard and implement skills to keep
+    each body within 900 words (BC-35), with every pinned phrase kept.'
+  absence_record:
+    scopes_searched:
+    - .orqlet/knowledge.yaml sources (none configured)
+    - the plan's knowledge_scope (empty)
+    - README.md, AGENTS.md, .github and docs/ outside docs/design, by the words 73 files, five roles,
+      five specialist, two reviewers and What is built is the judgement
+    - 'left open, README.md line 141: the figure of 73 files that init wrote is not recounted (AC-19 keeps
+      README lines 109, 139, 212 and 330 of the base open; the line numbers moved by the two lines that
+      this phase added)'
+    - 'left open, README.md 515: the sentence ''What is built is the judgement, not the reviewer'' stays
+      as AC-19 says'
+    - 'left open, README.md 595: ''the five roles are told to look nothing up'' counts five roles and
+      is not changed, because no criterion names it'
+    - 'left open, proposal line 3028: ''All five roles are required in every phase'' is outside the sentences
+      that AC-15 to AC-18 name'
+    - left open, the proposal's section 10.3 PR writer, the ORQ-W546 row, the exit-0 row of models resolve
+      and the sentence about what holds at every level (AC-19)
+    views:
+    - committed:HEAD
+    revision: fdb54a58a700cd7bac8447cb54a58261724bfe26
+    method: orqlet knowledge impact on the staged tree (exit 0, no candidate, ORQ-I400 twice) and rg over
+      the places above. Statements in other words may exist. The generated copies under .claude, .cursor
+      and .codex were not searched; tests/golden was regenerated and its diff read against the plan's
+      list of 41 files.
+    index_state: not-used
+    candidates_found: 0
+  already_documented_refs:
+  - path: docs/design/dynamic-model-profiles/design/adr-006-code-review-gate-and-new-roles.md
+    sha256: 799953e2d5847e545f854d396ec9498e90b0d81c8ddfc8fdc5ab51c8ccc53c8b
+  - path: docs/design/dynamic-model-profiles/design/adr-002-model-policy-v2-contract-and-home.md
+    sha256: d43e2d78da80f6a55f7ac887291affdde0bddadab6e0f60d1fe07839e4d0a2bd
+  - path: docs/design/dynamic-model-profiles/design/manifest.yaml
+    sha256: bb171fdc13d09245599bb6f3c278babd3d50153b5b16c4bd12756804638466ee

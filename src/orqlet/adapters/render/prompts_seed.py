@@ -1,4 +1,4 @@
-"""The `.prompts/` seed: written once, then owned by the team (proposal section 12.8)."""
+"""The seeds: written once, then owned by the team (proposal section 12.8)."""
 
 from __future__ import annotations
 
@@ -10,6 +10,8 @@ from orqlet.domain.ownership import OwnerMode
 from orqlet.domain.paths import CanonicalPath
 
 SEED_PREFIX = "seeds/prompts/"
+MODEL_POLICY_SEED = "seeds/orqlet/model-policy.yaml"
+MODEL_POLICY_PATH = ".orqlet/model-policy.yaml"
 
 
 def seed_files(workflow: WorkflowSource, *, base: str = ".prompts") -> tuple[RenderedFile, ...]:
@@ -30,3 +32,15 @@ def seed_files(workflow: WorkflowSource, *, base: str = ".prompts") -> tuple[Ren
             )
         )
     return tuple(files)
+
+
+def model_policy_seed(workflow: WorkflowSource) -> RenderedFile:
+    """The starting model policy, written once to `.orqlet/model-policy.yaml`, then the team's."""
+    data = normalise_text(workflow.read_text(MODEL_POLICY_SEED)).encode("utf-8")
+    return RenderedFile(
+        path=CanonicalPath.parse(MODEL_POLICY_PATH),
+        content=data,
+        owner=OwnerMode.SEEDED,
+        file_class=None,
+        inputs=((MODEL_POLICY_SEED, str(workflow.release.version), sha256_hex(data)),),
+    )

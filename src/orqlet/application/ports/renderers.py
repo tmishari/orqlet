@@ -31,6 +31,10 @@ class FileRenderers(Protocol):
         """The seed of the standards folder, as seeded files below `base`."""
         ...
 
+    def model_policy_seed(self, workflow: WorkflowSource) -> RenderedFile:
+        """The starting model policy, as a seeded file at `.orqlet/model-policy.yaml`."""
+        ...
+
     def workflow_block(self, workflow: WorkflowSource) -> BlockSpec:
         """The `orqlet-workflow` section of the pull-request template."""
         ...

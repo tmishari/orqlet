@@ -1105,6 +1105,7 @@ KEY_SHAPED = "s" + "k-" + body(24)
 
 
 def arrange_directory(env: Env) -> None:
+    env.project.delete(CanonicalPath.parse(POLICY_PATH))  # the seed that init wrote
     env.project.make_dir(CanonicalPath.parse(POLICY_PATH))
 
 
@@ -1138,11 +1139,8 @@ def arrange_credential(env: Env) -> None:
 
 
 def arrange_deleted(env: Env) -> None:
-    """The policy file is gone and a valid lock still lists it as seeded."""
-    lock = LOADER.load(read(env, LOCK_PATH), source="lock")
-    assert isinstance(lock, dict)
-    lock["files"].append({"path": POLICY_PATH, "owner": "seeded", "seeded_sha256": "0" * 64})
-    put(env, LOCK_PATH, json.dumps(lock, indent=2).encode())
+    """The policy file is gone and the lock that init wrote still lists it as seeded."""
+    env.project.delete(CanonicalPath.parse(POLICY_PATH))
 
 
 def arrange_excluded_model(env: Env) -> None:
@@ -1856,4 +1854,16 @@ def test_init_composes_with_no_policy_whatever_the_project_holds(
     expected = tree(plain.project)
     actual = tree(with_policy.project)
     assert actual.pop(POLICY_PATH) == document(pin_two_doc())
+    # Init writes its seed once. Over the team's file it proposes the seed in a diff and records
+    # no lock row for the file; that is the whole difference, apart from the file itself.
+    assert actual.pop(".orqlet/proposals/.orqlet__model-policy.yaml.diff")
+    expected.pop(POLICY_PATH)
+    assert without_policy_row(actual.pop(LOCK_PATH)) == without_policy_row(expected.pop(LOCK_PATH))
     assert actual == expected
+
+
+def without_policy_row(lock: bytes) -> Any:
+    document = LOADER.load(lock, source="lock")
+    assert isinstance(document, dict)
+    document["files"] = [row for row in document["files"] if row["path"] != POLICY_PATH]
+    return document

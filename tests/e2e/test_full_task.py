@@ -134,7 +134,18 @@ def write_task(root: Path) -> None:
         base=base,
         design_bytes=manifest_text.encode(),
         knowledge_scope=["docs/knowledge/**"],
-        phases=[phase(implements=["EC-1"], file_operations=operations)],
+        phases=[
+            phase(
+                implements=["EC-1"],
+                file_operations=operations,
+                review_evidence=[
+                    "architecture-reviewer",
+                    "security-reviewer",
+                    "tester",
+                    "code-reviewer",
+                ],
+            )
+        ],
     )
     document["header"] = head
     s9.put(root, PLAN, dump(document))
