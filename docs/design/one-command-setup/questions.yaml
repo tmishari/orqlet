@@ -1,0 +1,880 @@
+schema: orqlet.question-ledger/v1
+task: one-command-setup
+questions:
+- id: Q-1
+  key: 61643b58a8b3c4792a694f648cb14d75fcca099e8e5a7d707b8ad3b4299971ef
+  subject: Installation and project skill scope
+  raised_by: Codex
+  phase: research
+  category: requirement
+  text: 'Is this the scope you want: one command installs Orqlet and its dependencies,
+    then Orqlet adds the Graphify and Ponytail skills to every project it initializes
+    or upgrades for Cursor, Codex, and Claude Code?'
+  why: Defines the requested installation and bundled-skill behaviour.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Yes, that is the scope
+    answerer: tmishari
+    time: '2026-11-19T18:48:54.538767+00:00'
+    scope: task
+- id: Q-2
+  key: 997b0e9208fba3a10f208e7a3c90f5c916357796afcac37a3869db94b64e5668
+  subject: Automatic prerequisite installation
+  raised_by: Codex
+  phase: research
+  category: requirement
+  text: For a machine missing prerequisites, should setup install uv and a compatible
+    Python automatically, along with Orqlet and the Graphify CLI?
+  why: Defines the requested installation and bundled-skill behaviour.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Yes, install them automatically
+    answerer: tmishari
+    time: '2026-11-19T18:48:54.538767+00:00'
+    scope: task
+- id: Q-3
+  key: f851b98584ca1ae344f2e00ce411d15a4c05420d292fccb9ee15d187713ad980
+  subject: Ponytail skills included
+  raised_by: Codex
+  phase: research
+  category: requirement
+  text: Which Ponytail skills should Orqlet include?
+  why: Defines the requested installation and bundled-skill behaviour.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: All six skills
+    answerer: tmishari
+    time: '2026-11-19T18:48:54.538767+00:00'
+    scope: task
+- id: Q-4
+  key: 46458445079dba9a60669e87753cce128e2e1537efda50c7e3f98151fd685a08
+  subject: Git prerequisite
+  raised_by: Codex
+  phase: research
+  category: requirement
+  text: Should Git remain a prerequisite, or should the installer also install Git?
+    Orqlet requires it, and installing it can involve OS package-manager or administrator
+    steps.
+  why: Defines the requested installation and bundled-skill behaviour.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Keep Git as a prerequisite
+    answerer: tmishari
+    time: '2026-11-19T18:48:54.538767+00:00'
+    scope: task
+- id: Q-5
+  key: 0daf5e10d4c4d7e7912c5fc58ce0f79637493d189ccb01f7ca3e545a8cd292a5
+  subject: Global uv installation and terminal presentation
+  raised_by: Codex
+  phase: design
+  category: requirement
+  text: What installation and terminal experience is requested?
+  why: Records the confirmed global installation and configuration scope, or the documentation
+    access used to verify it.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Install the CLI with uv in global scope, show a terminal graphic, then
+      use orqlet . for configuration.
+    answerer: tmishari
+    time: '2026-11-20T08:02:13.177440+00:00'
+    scope: task
+- id: Q-6
+  key: 35835b14cb41577f0665010d5f3fc9eef5422b8a3b4d2d5aaf2d237eb6d9a14d
+  subject: Configuration scope of the dot command
+  raised_by: Codex
+  phase: design
+  category: requirement
+  text: Should orqlet . create missing global configuration outside a Git repository
+    and create missing global configuration plus initialize or upgrade the project
+    inside one?
+  why: Records the confirmed global installation and configuration scope, or the documentation
+    access used to verify it.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Yes, use that behavior
+    answerer: tmishari
+    time: '2026-11-20T08:02:13.177440+00:00'
+    scope: task
+- id: Q-7
+  key: bdbe3e3a8abe0deff982b8afc49e28e3bad6fd2be2ee99703c683ec40f684185
+  subject: Global client configuration contents
+  raised_by: Codex
+  phase: design
+  category: requirement
+  text: What should global configuration contain?
+  why: Records the confirmed global installation and configuration scope, or the documentation
+    access used to verify it.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Orqlet skills, rules and agents for the three clients
+    answerer: tmishari
+    time: '2026-11-20T08:02:13.177440+00:00'
+    scope: task
+- id: Q-8
+  key: cf681c1032a0829f6ef246e8efc4fcdf206128d468f97b543514ba4a5b928f41
+  subject: Official Codex documentation redirect
+  raised_by: Codex
+  phase: design
+  category: access
+  text: May I follow the official Codex documentation redirect from developers.openai.com
+    to learn.chatgpt.com to verify global configuration support?
+  why: Records the confirmed global installation and configuration scope, or the documentation
+    access used to verify it.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Yes, use learn.chatgpt.com
+    answerer: tmishari
+    time: '2026-11-20T08:02:13.177440+00:00'
+    scope: task
+- id: Q-9
+  key: db41f12ddd3da9572261daaf85029859bf3d16142d8661f04e72e68a3dadec83
+  subject: Cursor global User Rules setup
+  raised_by: Codex
+  phase: design
+  category: requirement
+  text: Cursor User Rules have no verified automatic write route in the inspected
+    documentation. Is one guided Cursor rules setup step acceptable?
+  why: Records the confirmed global installation and configuration scope, or the documentation
+    access used to verify it.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Allow one guided Cursor rules step
+    answerer: tmishari
+    time: '2026-11-20T08:02:13.177440+00:00'
+    scope: task
+- id: Q-10
+  key: 9228e4fd4b19a371378ac2e4d938956d65252ca942f98514a9a15fa4f6160708
+  subject: Terminal installation followed by assistant entry skill
+  raised_by: Codex
+  phase: design
+  category: requirement
+  text: The user clarified the intended terminal/assistant boundary. What is the required
+    quickstart?
+  why: Corrects the earlier interpretation that the dot setup command runs in a terminal;
+    preserves the confirmed client, skill and configuration requirements.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: 'Terminal: uv tool install orqlet (or pipx install orqlet), then orqlet
+      install to detect assistants and register the skill. Inside the AI assistant:
+      invoke the entry skill with the target directory.'
+    answerer: tmishari
+    time: '2026-11-20T09:06:56.288261+00:00'
+    scope: task
+  supersedes:
+  - Q-5
+  - Q-6
+- id: Q-11
+  key: dae54f15f4d0c86f0bb0e57b88af9e1f5f28b93fe9e245ce84ad1e49175bfbf7
+  subject: Entry skill spelling
+  raised_by: Codex
+  phase: design
+  category: requirement
+  text: Should the assistant skill be named /orqlet . or exactly /oqlet . as written?
+  why: Corrects the earlier interpretation that the dot setup command runs in a terminal;
+    preserves the confirmed client, skill and configuration requirements.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: /orqlet .
+    answerer: tmishari
+    time: '2026-11-20T09:06:56.288261+00:00'
+    scope: task
+- id: Q-12
+  key: ed1722cd9896ffbcfc1b06d62c414fed61113272baf06016b5374e2b2b57fdf7
+  subject: Registration when multiple assistants are detected
+  raised_by: Codex
+  phase: design
+  category: requirement
+  text: If orqlet install detects several supported assistants, should it register
+    all of them or ask which to configure?
+  why: Corrects the earlier interpretation that the dot setup command runs in a terminal;
+    preserves the confirmed client, skill and configuration requirements.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Register all detected assistants
+    answerer: tmishari
+    time: '2026-11-20T09:06:56.288261+00:00'
+    scope: task
+- id: Q-13
+  key: 8240193f8a859dfaf28dd2034a85b7b59a2ef0e005fceb5b10d3d82ab3d4394b
+  subject: VS Code agent support
+  raised_by: Codex
+  phase: design
+  category: requirement
+  text: Does VS Code agent support include GitHub Copilot Agent mode, the Codex VS
+    Code extension, or both?
+  why: Records the confirmed usability, automatic lifecycle integration, documentation
+    route and additional client surfaces.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Both
+    answerer: tmishari
+    time: '2026-11-20T09:22:53.910390+00:00'
+    scope: task
+- id: Q-14
+  key: 943369b1bce03b5cdb7667bd9518065023e5e5e9b8e1306801405ea5dc0506df
+  subject: Intuitive everyday developer experience
+  raised_by: Codex
+  phase: design
+  category: requirement
+  text: What is the desired everyday developer experience?
+  why: Records the confirmed usability, automatic lifecycle integration, documentation
+    route and additional client surfaces.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Orqlet should be easy and intuitive; the developer currently finds the
+      workflow too hard. Skills and plugins should integrate with native hooks on
+      each client.
+    answerer: tmishari
+    time: '2026-11-20T09:22:53.910390+00:00'
+    scope: task
+- id: Q-15
+  key: 30980a1ade4be9bbc23858f9d7861ab288dda4a36f4334b297d9ec60841f8970
+  subject: Documentation fallback when Context7 is unavailable
+  raised_by: Codex
+  phase: design
+  category: access
+  text: Should research use official client documentation instead of waiting for Context7
+    to become available?
+  why: Records the confirmed usability, automatic lifecycle integration, documentation
+    route and additional client surfaces.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Use official documentation instead
+    answerer: tmishari
+    time: '2026-11-20T09:22:53.910390+00:00'
+    scope: task
+- id: Q-16
+  key: bb0dc3713e7a753234be3595395b8719980a4cb26d8b3a15c45021104c971951
+  subject: Automatic routine hook integration
+  raised_by: Codex
+  phase: design
+  category: requirement
+  text: Should hooks automate startup guidance and relevant lightweight tool-event
+    checks without repeated skill commands?
+  why: Records the confirmed usability, automatic lifecycle integration, documentation
+    route and additional client surfaces.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Yes, automate those routine steps
+    answerer: tmishari
+    time: '2026-11-20T09:22:53.910390+00:00'
+    scope: task
+- id: Q-17
+  key: 80fbb80931200f1722ca17557b557d904dc289e1b462b9a63918350999e1e59d
+  subject: Reading installed client versions
+  raised_by: Cursor
+  phase: research
+  category: access
+  text: May research run read-only version commands for the installed clients (claude,
+    cursor, codex, code --list-extensions --show-versions)?
+  why: The capability matrix needs the client versions present on the development machine.
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: Yes, run the read-only version commands
+    answerer: tmishari
+    time: '2026-11-20T09:44:04+00:00'
+    scope: task
+- id: Q-18
+  key: d23d706f4d4951045ce927bc4fa3945f518fbeadfd5d030632c05422b6512d6d
+  subject: Ownership of the short package name
+  raised_by: Cursor
+  phase: research
+  category: requirement
+  text: Who controls publication of the package name orqlet on PyPI?
+  why: The quickstart advertises uv tool install orqlet and pipx install orqlet.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: I own/control the PyPI name orqlet
+    answerer: tmishari
+    time: '2026-11-20T09:44:04+00:00'
+    scope: task
+- id: Q-19
+  key: bd812eb63dfc91aaa7ef93c7bf04dfb0bf56aa6f4923324115649d6506952e86
+  subject: Account types to support
+  raised_by: Cursor
+  phase: research
+  category: requirement
+  text: Which account types must the design support, given Cursor Enterprise disables
+    local plugin imports by default and Copilot enterprise settings disable the Claude
+    and Codex harnesses in VS Code?
+  why: Plugin and harness availability differ between individual and administered accounts.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Individual and Team/Enterprise (admin-restricted) accounts
+    answerer: tmishari
+    time: '2026-11-20T09:44:04+00:00'
+    scope: task
+- id: Q-20
+  key: 42b1a93d44f00883468a8c4a83584cfbcdcda4b8729144b10911a0c0c5f12085
+  subject: Timing of Codex IDE extension hook qualification
+  raised_by: Cursor
+  phase: research
+  category: requirement
+  text: Should research settle Codex IDE extension hook support with a disposable native
+    test, or leave it to design/plan qualification?
+  why: The official Codex pages do not state hook support or trust handling in the IDE
+    extension.
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: Leave it as an unknown for design/plan qualification
+    answerer: tmishari
+    time: '2026-11-20T09:44:04+00:00'
+    scope: task
+- id: Q-21
+  key: 35923a433ee43d6a9c5f32ae1dd3e4f765682bb1772157a47aaaa75388e4f37e
+  subject: Supported client surfaces
+  raised_by: Cursor
+  phase: research
+  category: requirement
+  text: Which assistant surfaces are supported?
+  why: Recorded from the person's request of 2026-11-20; extends the three clients of
+    Q-1 and Q-7 with the surfaces confirmed in Q-13.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Claude Code; Cursor; Codex on its existing supported surfaces including its
+      VS Code extension; GitHub Copilot Agent mode in VS Code. Register all detected
+      assistants without asking; never choose a default when none is detected.
+    answerer: tmishari
+    time: '2026-11-20T09:39:00+00:00'
+    scope: task
+- id: Q-22
+  key: a3b64d401fd03595fd3b16f5cb2cf2b2b6e0cc0720a909d1929ab5d303209006
+  subject: Changes to phase invocation and stop contracts
+  raised_by: Cursor
+  phase: research
+  category: requirement
+  text: May the explicit-invocation and stop conditions of the phase skills change?
+  why: Recorded from the person's request of 2026-11-20.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Only through an explicitly designed and reviewed change; hooks never silently
+      bypass them. Human approvals of design and plan, independent reviews, model policy
+      and NOT_RUN reporting stay.
+    answerer: tmishari
+    time: '2026-11-20T09:39:00+00:00'
+    scope: task
+- id: Q-23
+  key: be3ffa8d6d654611e97f61f38daef1094e8137a150645121c4ffd3dc77176da9
+  subject: Python requirement
+  raised_by: Cursor
+  phase: research
+  category: requirement
+  text: Which Python requirement does Orqlet keep?
+  why: Recorded from the person's request of 2026-11-20.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Keep the repository's current requirement unless an approved design changes
+      it; Graphify's floor is not Orqlet's.
+    answerer: tmishari
+    time: '2026-11-20T09:39:00+00:00'
+    scope: task
+- id: Q-24
+  key: d1437bfbf3f4811890b87e67ad0c2692c1bc55f6a2f795bd3075b93cac66958a
+  subject: Qualification environment
+  raised_by: Cursor
+  phase: research
+  category: requirement
+  text: Where may native-client qualification write?
+  why: Recorded from the person's request of 2026-11-20.
+  blocks:
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Never change the developer's real global client configuration to demonstrate
+      progress; use temporary scoped roots and approved disposable test sessions.
+    answerer: tmishari
+    time: '2026-11-20T09:39:00+00:00'
+    scope: task
+- id: Q-25
+  key: d2aeb7546c85fc43cb57b25f367cfadee78d5783400df779fd3d5bda1768e079
+  subject: Package publication authority
+  raised_by: Cursor
+  phase: research
+  category: requirement
+  text: May the work publish the package?
+  why: Recorded from the person's request of 2026-11-20.
+  blocks:
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Prepare publication and release artifacts but do not publish externally without
+      the required authorization; keep the pinned Git-source route documented until
+      distribution is verified.
+    answerer: tmishari
+    time: '2026-11-20T09:39:00+00:00'
+    scope: task
+- id: Q-26
+  key: a601cda4211f48c5b6d99a13d35f50d26614617a9d2f9f4eb61b39c0405989fb
+  subject: Hook cost and runtime limits
+  raised_by: Cursor
+  phase: research
+  category: requirement
+  text: What may a startup or tool-event hook do?
+  why: Recorded from the person's request of 2026-11-20.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Cheap, narrowly scoped deterministic work only; no full test suite, full graph
+      rebuild, package download, paid model call, session or background agent; no daemon,
+      watcher, generic hook engine or plugin framework; no claim of enforcement a client
+      contract does not support.
+    answerer: tmishari
+    time: '2026-11-20T09:39:00+00:00'
+    scope: task
+- id: Q-27
+  key: cbed8b351a17aabd84f0486320c46b4fd0e2429c0140dc7426566f5e1195e7c0
+  subject: Licence handling of the Karpathy-inspired guidance
+  raised_by: Cursor
+  phase: research
+  category: requirement
+  text: multica-ai/andrej-karpathy-skills declares MIT in metadata but has no LICENSE
+    file and names no copyright holder. How should Orqlet treat its text?
+  why: Vendoring needs a resolvable licence and attribution.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Do not vendor its text; write Orqlet's own wording of any genuinely new points,
+      with an attribution link
+    answerer: tmishari
+    time: '2026-11-20T09:50:50+00:00'
+    scope: task
+- id: Q-28
+  key: 070dad4cd151b7ce905e91082cdb61e98dc8857f23c6c8ccef52448ada3ce047
+  subject: Behavioural guidance foundation
+  raised_by: Cursor
+  phase: research
+  category: requirement
+  text: How should the Karpathy-inspired principles relate to Orqlet's baseline, standards
+    and Ponytail?
+  why: Recorded from the person's request of 2026-11-20.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: One coherent behavioural foundation; no three overlapping instruction sets
+      in every session, no new mandatory command and no separate workflow for this
+      source. Simplicity guidance keeps validation at trust boundaries, meaningful
+      error handling, accessibility and required approvals. The integration route
+      is a design decision.
+    answerer: tmishari
+    time: '2026-11-20T09:49:00+00:00'
+    scope: task
+- id: Q-29
+  key: 00627a04411aced9cb0f9250276a9a131610d3045a216744080ef7e5f25e10b8
+  subject: Terminal presentation of orqlet install
+  raised_by: Cursor
+  phase: research
+  category: requirement
+  text: What terminal experience does orqlet install give?
+  why: Recorded from the person's request of 2026-11-20; refines the terminal graphic
+    of Q-5.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: A recognisable Orqlet ASCII/ANSI banner, clear icons each with a text label,
+      readable feedback that distinguishes detected, already configured, installed or
+      registered, host trust or manual step, and conflict or failure with a recovery
+      action; wide and narrow terminals; bash, zsh and PowerShell; ASCII fallback;
+      NO_COLOR and colour-disabled terminals; plain output when non-interactive, redirected
+      or in CI; JSON without artwork, animation or ANSI; no constant banners, repeated
+      notifications or artificial delays; quiet hooks; no bitmap images or terminal
+      image protocols; reuse installed libraries before adding one.
+    answerer: tmishari
+    time: '2026-11-20T09:49:00+00:00'
+    scope: task
+- id: Q-30
+  key: 8fbf5f77c253bf5a3c77c5f12db835394ebdf60c720c62fbe5935a058be93899
+  subject: Scaling ceremony to the size of the work
+  raised_by: Cursor
+  phase: research
+  category: requirement
+  text: How are changes to the ceremony required for small work handled?
+  why: Recorded from the person's request of 2026-11-20.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Research documents how Orqlet classifies work and which requirements cause
+      unnecessary ceremony; any policy change is a separate design decision that needs
+      approval.
+    answerer: tmishari
+    time: '2026-11-20T09:49:00+00:00'
+    scope: task
+- id: Q-31
+  key: bff92a163a4bffba49bce3ec95639a0a5f4a7d5afd7ece8d3370d87f0c82d633
+  subject: Phase workflow for other work
+  raised_by: Cursor
+  phase: research
+  category: policy
+  text: The profile's branch convention separates task work from other work (fix-*).
+    Does small other work go through research, design, plan and implement today?
+  why: Locates where ceremony applies to small changes.
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: 'Yes: every change goes through all four phases'
+    answerer: tmishari
+    time: '2026-11-20T09:51:38+00:00'
+    scope: task
+- id: Q-32
+  key: 72d42a5f7312db59953d681a603928f31a77f97d4739a004deb05af34ddeb3c4
+  subject: Writes outside the project root
+  raised_by: Cursor
+  phase: design
+  category: policy
+  text: ORQLET-SAFE-001 (MUST) keeps every write inside the project root, while orqlet
+    install must write user-home client folders (Q-7, Q-10). How is this resolved?
+  why: The design may not relax a MUST rule.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Amend SAFE-001 in a separate reviewed standards change to allow a second,
+      allow-listed user-home root of fixed client folders with its own journal, backup
+      and manifest
+    answerer: tmishari
+    time: '2026-11-20T12:36:40+00:00'
+    scope: task
+- id: Q-33
+  key: 6456cb4f6687c45d8c8fdbcc26cc9b5319f58e39d97de013fa1e1988ca52ced0
+  subject: Fourth client adapter for GitHub Copilot
+  raised_by: Cursor
+  phase: design
+  category: policy
+  text: ORQLET-ARCH-003 (MUST) and the import contract name three client adapters; Q-21
+    adds GitHub Copilot Agent mode in VS Code (C-4). How is Copilot supported?
+  why: The design may not relax a MUST rule.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Add a fourth independent adapter and amend ARCH-003 and the import contract
+      to name four
+    answerer: tmishari
+    time: '2026-11-20T12:36:40+00:00'
+    scope: task
+- id: Q-34
+  key: 6269357dc964b164f9f8788fe1a1b2b2f520a307512d30e6b518da8cc5fa1208
+  subject: Phase skill invocation in this design
+  raised_by: Cursor
+  phase: design
+  category: requirement
+  text: Does this design change the person-started invocation of the phase skills (A-19,
+    Q-22)?
+  why: Q-22 allows the change only through an explicit, reviewed design.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Keep phase skills person-started; hooks and the orqlet entry skill only tell
+      the person which command comes next
+    answerer: tmishari
+    time: '2026-11-20T12:36:40+00:00'
+    scope: task
+- id: Q-35
+  key: f53c5b6830aa66ba6412a421733ecf021cc819450e227812678376bb24c0296c
+  subject: Meaning of automatic prerequisite installation after Q-10
+  raised_by: Cursor
+  phase: design
+  category: requirement
+  text: Q-2 asks for automatic uv and Python installation, while the Q-10 quickstart
+    starts with uv tool install orqlet. What does Q-2 mean now?
+  why: The two answers overlap; a bootstrap script would fetch from the network.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: No bootstrap script; on the pipx route orqlet install prepares a missing uv
+      so Graphify can be installed, and uv provides Python
+    answerer: tmishari
+    time: '2026-11-20T12:36:40+00:00'
+    scope: task
+- id: Q-36
+  key: af8192d1b0468203632cee793a2a75526a1df18376fe393c22e058e97f6a89cf
+  subject: Ceremony change in this design
+  raised_by: Cursor
+  phase: design
+  category: requirement
+  text: Is a change to the four-phase ceremony for small work part of this design (Q-30)?
+  why: Q-30 makes any ceremony change a separate decision needing approval.
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: No; out of scope, a later task
+    answerer: tmishari
+    time: '2026-11-20T12:36:40+00:00'
+    scope: task
+- id: Q-37
+  key: fb4d62b69f2d721a19449347da7a4d94f837cb73cd5f054a987cadc41fe7424f
+  subject: Design scope split
+  raised_by: Cursor
+  phase: design
+  category: requirement
+  text: Is the work one D3 design, or split into installer and follow-up tasks?
+  why: The request combines installer, global writes, hooks, bundled skills, guidance
+    and terminal output.
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: One D3 design with separate ADRs per concern
+    answerer: tmishari
+    time: '2026-11-20T12:36:40+00:00'
+    scope: task
+- id: Q-38
+  key: 4a3aa245ea910274d6a6f29938cb6568146d708d2f7135204aa717b18ca3e267
+  subject: Contents of the user-home client folders
+  raised_by: Cursor
+  phase: design
+  category: requirement
+  text: Claude Code lets a personal skill win over a project skill of the same name (A-42,
+    I-3). Does orqlet install write every Q-7 item (phase skills, agents, bundled skills,
+    rules) globally, or only the entry skill, guidance and hooks?
+  why: Narrowing Q-7 needs the person; writing everything can shadow pinned project copies.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Everything named in Q-7, including phase skills and agents; accept that a global
+      copy may override the project copy in some clients
+    answerer: tmishari
+    time: '2026-11-20T12:37:52+00:00'
+    scope: task
+- id: Q-39
+  key: 207365a2ae06fae78ed75035736c4cde85f2085fea066552b0bf865080e5a5e2
+  subject: Residual supply-chain risk of tool preparation
+  raised_by: Cursor
+  phase: design
+  category: policy
+  text: Tool preparation pins top-level versions (graphifyy, uv) but resolves transitive
+    dependencies, the uv-managed Python download and pipx install uv from the package index
+    without hash pinning. Is this residual risk accepted for this release?
+  why: Accepting a supply-chain risk is the person's decision, not the design's (security
+    review round 2, F-7).
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Accept it for this release, stated in the design and in install output
+    answerer: tmishari
+    time: '2026-11-20T12:50:25+00:00'
+    scope: task
+- id: Q-40
+  key: eb979daa81acfc74d8bcaaadc5e427f7f29c7ea10b48fa7fbfe72f98b2d17465
+  subject: Retention of user-scope backups
+  raised_by: Cursor
+  phase: design
+  category: policy
+  text: Install backs up full shared client files, which may hold credentials, under the
+    data directory before rewriting them. How long are these backups kept?
+  why: Accumulating credential-bearing copies is a data-exposure trade-off for the person
+    (security review round 3, F-4).
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Keep the backups of the last 3 user-scope changes; a successful install or
+      uninstall prunes older and superseded ones
+    answerer: tmishari
+    time: '2026-11-20T12:58:32+00:00'
+    scope: task
+- id: Q-41
+  key: 4027bc1d5a07946a472f29c041e1c69400014cd73c00e55eb1509d91b2096f41
+  subject: Data directory outside home on Windows
+  raised_by: Cursor
+  phase: design
+  category: policy
+  text: On Windows Orqlet cannot check the access control list of an ORQLET_DATA_DIR outside
+    the home directory. Does install refuse such a data directory or allow it?
+  why: The data directory holds credential-bearing backups (security review round 3, F-4).
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Allow it, with a warning in the preview
+    answerer: tmishari
+    time: '2026-11-20T12:58:32+00:00'
+    scope: task
+- id: Q-42
+  key: a2b442e616ac093ca1592f6757e68b0785019ea033e82c3d769e3a99fa4762ad
+  subject: Hook command resolved through an uninspected launch PATH
+  raised_by: Cursor
+  phase: design
+  category: policy
+  text: A client started from a desktop launcher may resolve the bare orqlet hook command
+    through a PATH that install and status cannot inspect. Is this residual risk accepted?
+  why: A hijacked orqlet would run at every session start; accepting it is the person's
+    decision (security review round 6, F-1).
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Accept it; install reports a host step where the launch PATH may differ
+    answerer: tmishari
+    time: '2026-11-20T13:09:04+00:00'
+    scope: task
+- id: Q-43
+  key: cca338d99325927a8d5b70c3a7f71f9948012c59e83f95d9baacc4f26e36ebe6
+  subject: Repository switching off the global foundation
+  raised_by: Cursor
+  phase: design
+  category: policy
+  text: A repository whose AGENTS.md carries the Orqlet baseline block makes the global
+    foundation defer to it, and under Copilot suppresses the packaged text. Is it accepted
+    that a hostile repository can switch the global foundation off for its own sessions?
+  why: The trade-off between a pinned project baseline and an always-on global text is the
+    person's (security review round 6, F-1).
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Accept it, so a project's pinned baseline wins
+    answerer: tmishari
+    time: '2026-11-20T13:09:04+00:00'
+    scope: task
+- id: Q-44
+  key: a7c4e7180e8b8f750251266ce6d286c4957f2b8bf85ed8b59f94f3d7a1bf0152
+  subject: Bare-repository dotfiles home not detected
+  raised_by: Cursor
+  phase: design
+  category: policy
+  text: A home directory tracked by a bare-repository dotfiles setup is not detected as a Git
+    work tree, so install writes into tracked client folders. Is this accepted?
+  why: Refusing more setups or accepting the gap is the person's decision (security review
+    round 6, F-1).
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Accept it; it is reported in the documentation
+    answerer: tmishari
+    time: '2026-11-20T13:09:04+00:00'
+    scope: task
+conflicts: []
