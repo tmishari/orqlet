@@ -1,0 +1,35 @@
+schema: orqlet.knowledge-impact/v1
+task: dynamic-model-profiles
+phase: P-14
+review_input:
+  schema: orqlet.review-input/v1
+  covers: [code_tests, knowledge, plan, standards, candidates]
+  components:
+    candidates: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    code_tests: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: b9552626c1dc616566404c5ac91cbbb3fd1afb8193205ac573e268745440e9c5
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+  digest: f96e745426c814d59171942f518ce2dd4d2715b3126104b86d44041a13016889
+  merge_base: 58e152822a7d265f2a904f3923ad3dcb3d65ef26
+outcome: no-impact
+analysis:
+  command: orqlet knowledge impact
+  orqlet_version: 0.3.0
+  candidates_digest: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+  candidate_count: 0
+  input: pre-draft-tree
+  views: [committed:HEAD]
+  index_state: not-used
+entries:
+  []
+no_impact:
+  category: behaviour-unchanged
+  reason: "This phase changes no file of the repository except its own three records (the tester's record, this record and the review records). The operations of its list were written by `orqlet upgrade` in pull request 28 (commit 9b2f9dd, before the design amendment of pull request 29 and the plan bind of pull request 30), so at the base 58e1528 the working tree already holds all 37 files and `uv run orqlet upgrade --dry-run` reports `Already up to date. Workflow 0.5.0 -> 0.5.0`. No source, test, schema, seed, rule or document is added, changed or removed here, and so no statement in any document can have become wrong because of this phase. The plan's knowledge_scope is empty and no knowledge source is configured (ORQ-I400)."
+  absence_record:
+    scopes_searched: [".orqlet/knowledge.yaml sources (none configured)", "the plan's knowledge_scope (empty)", "the staged change of the phase (the records of docs/design/dynamic-model-profiles/tests, knowledge and reviews only)"]
+    views: [committed:HEAD]
+    revision: 58e152822a7d265f2a904f3923ad3dcb3d65ef26
+    method: "orqlet knowledge impact dynamic-model-profiles P-14 --base origin/main --head staged (exit 0, 0 candidates, ORQ-I400 twice: no public_api packages named by the design, no knowledge source configured); git status showed no change other than the two untracked folders graphify-out and src/graphify-out, which are not part of the change. Not searched: the text of the 37 generated files and of the documents for statements that a later change could make wrong, since this phase changes none of them."
+    index_state: not-used
+    candidates_found: 0

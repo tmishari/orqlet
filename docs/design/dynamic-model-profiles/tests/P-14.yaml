@@ -1,0 +1,68 @@
+schema: orqlet.test-record/v1
+task: dynamic-model-profiles
+phase: P-14
+review_input:
+  schema: orqlet.review-input/v1
+  covers: [code_tests, plan]
+  components:
+    code_tests: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: b9552626c1dc616566404c5ac91cbbb3fd1afb8193205ac573e268745440e9c5
+  digest: 1929c5a109ba65a6c3afb98017deabcd9d5d634851072a168a893f3570ffaa8a
+  merge_base: 58e152822a7d265f2a904f3923ad3dcb3d65ef26
+verdict: NOT_RUN
+evidence_kind: claimed
+commands:
+  - id: orqlet-upgrade-dry-run
+    exit_code: 0
+    summary: "uv run orqlet upgrade --dry-run (NO_COLOR=1, the command line built from this working tree, with the person's yes to uv run): 'Already up to date. Workflow 0.5.0 -> 0.5.0', then the client limits ORQ-L001 to ORQ-L006 and ORQ-I031 and ORQ-I020. No file would be written, so the preview that AC-1 asks for is empty, `uv run orqlet upgrade --yes` was NOT run and no file was written by hand. All 37 files of the phase's list were written by pull request 28 (9b2f9dd), before the design amendment of pull request 29 and the plan bind of pull request 30. The actions of AC-1 (a preview of exactly the files, the person's approval of it, the write) did not happen in this phase, so AC-1 is recorded as not-run, not as pass. The digest is of the whole captured output."
+    result_digest: 3bd2f0bccb9a2a1e77afbacbc5c50cfeb19ef02c76d28a9b2e7644fe3a4372c7
+  - id: orqlet-upgrade-check
+    exit_code: 0
+    summary: "uv run orqlet upgrade --check: exit 0 and the same output as the dry run, so the same digest; nothing to upgrade (AC-2). The digest is of the whole captured output."
+    result_digest: 3bd2f0bccb9a2a1e77afbacbc5c50cfeb19ef02c76d28a9b2e7644fe3a4372c7
+  - id: orqlet-doctor
+    exit_code: 0
+    summary: "uv run orqlet doctor: 0 errors, 0 warnings, 3 notes (ORQ-I503, ORQ-I200, ORQ-I020) and NOT RUN for the client versions, which this release does not detect; no ORQ-E150 and no ORQ-W152 (AC-2). The digest is of the whole captured output."
+    result_digest: fbf74f9fce13d0fcb5138cb6cadc8cbbe5a1ddb717eaa49d6e5324ca243f324a
+  - id: orqlet-validate-model-policy
+    exit_code: 0
+    summary: "uv run orqlet validate model-policy: PASS on .orqlet/model-policy.yaml (AC-3). The digest is of the whole captured output."
+    result_digest: b9a09f678a6865c423a69112e717b04865130fb7968c4091ab6cf434cf01e3c1
+  - id: orqlet-models-resolve
+    exit_code: 1
+    summary: "uv run orqlet models resolve --client claude-code --role orqlet-code-reviewer --different-family-from claude-opus-5-5: exit 1, 'selected: no candidate qualifies', rejected claude-sonnet-5-5: not-approved. This is the exit status that AC-3 names; the check_ref of AC-3 is the id of this entry, and the run without the flag is the next entry. The digest is of the whole captured output."
+    result_digest: 7efcc83482cc0fb8767afa44c6e3c3293f93f8e732040f8d414a1b3e1a2762a4
+  - id: orqlet-models-resolve-without-family
+    exit_code: 0
+    summary: "The same command without --different-family-from: exit 0, 'selected: the client chooses'. This is the exit status that AC-3 names. A search of .claude/agents, .cursor/agents and .codex/agents with rg for a model, effort or reasoning key found only `model: inherit` in the Claude Code and Cursor files and no key in the Codex files, so no pin appears. The digest is of the whole captured output."
+    result_digest: 47a974d0f5aa1736c71de0dd74fc8b231ba9f93fab9643094f5e4a1d452d096c
+  - id: orqlet-gate-status
+    exit_code: 5
+    summary: "uv run orqlet gate status dynamic-model-profiles: NOT_RUN, exit 5. ORQ-W390 on as-is, design and plan with the causes workflow_version, protected_set_digest, standards_lock_hash, applicable_rules_hash and base_revision (AC-6 names the first, the second and the fourth; the other two are also reported, and the person confirmed at the start of this phase that the approval stays valid). ORQ-I393 offline: the approval needs host evidence. EC-1 to EC-9 are manual or pending (ORQ-I451). No artifact was edited to hide the staleness. The digest is of the whole captured output."
+    result_digest: d0701d4f11a65fd5160b58b046a018764384a86d5b1c1e27fc21b3314c111587
+  - id: gate-status-phase
+    exit_code: 5
+    summary: "uv run orqlet gate status dynamic-model-profiles --phase P-14 --head staged, run before any record was staged and again with the knowledge, test and review records staged (the output is byte for byte the same, so the digest is the same): NOT_RUN, exit 5, only because of ORQ-I393 and the ORQ-W390 lines above. No ORQ-E450, ORQ-E451 or ORQ-E453, so AC-9 holds. EC-7 prints as pending ('no security path was touched'), not as implemented, because the six .orqlet files that it lists were written before the base 58e1528: this phase adds no extractor evidence that EC-7 holds. The digest is of the whole captured output."
+    result_digest: 04375c7454d1d4a2224a873555cefb08e745069f266f1499cdbbc1ebc2c707cc
+  - id: git-diff-conftest
+    exit_code: 0
+    summary: "git diff --quiet 4aa05f2fa1e267d34824e166bb60abbc1aa75849 HEAD -- tests/conftest.py: exit 0, no output, so the refusal of --update-golden in CI is unchanged since the plan's base (AC-7). The digest is that of empty output."
+    result_digest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  - id: git-diff-seeded-versions-and-bindings
+    exit_code: 0
+    summary: "git diff --quiet 4aa05f2fa1e267d34824e166bb60abbc1aa75849 HEAD -- .orqlet/versions.yaml .orqlet/role-bindings.yaml: exit 0, no output, so the two seeded files are unchanged. git ls-files lists the two proposal files .orqlet/proposals/.orqlet__versions.yaml.diff and .orqlet/proposals/.orqlet__role-bindings.yaml.diff, and the 13 new files of AC-4 and AC-3 were each tested to exist (ls); the lock rows of the new role files hold owner orqlet and class protected, and those of the two rule files owner orqlet and class generated (read with rg). Those last reads are not command runs with a digest. The digest is that of empty output (AC-4)."
+    result_digest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  - id: pytest
+    exit_code: 0
+    summary: "uv run pytest as the plan gives it, on the tree at HEAD 58e1528 with no change but the untracked folders graphify-out and src/graphify-out: 12998 passed, 1 skipped in 927.91s (0:15:27), exit 0; the skip is tests/integration/test_junction.py, Windows only. The sources were cited again before the run (ci.yml:84, AGENTS.md:71-74 and pyproject.toml:69-80 at HEAD have the sha256 of the plan) and git diff --quiet HEAD found no difference in the cited files. AGENTS.md changed since 4aa05f2 in 9b2f9dd (pull request 28), in the managed blocks, and the cited lines are unchanged. macOS and one Python only; the CI matrix was not run. The digest is of the output file, which does not end with a line for the exit status; the exit status was read from the tool."
+    result_digest: e109a76e5eb10ce2c371bdc2fd06ba5f4eb70b9108de881ea12930f85c08d1fc
+acceptance_coverage:
+  - {ac: AC-1, check_ref: orqlet-upgrade-dry-run, result: not-run}
+  - {ac: AC-2, check_ref: orqlet-upgrade-check, result: pass}
+  - {ac: AC-3, check_ref: orqlet-models-resolve, result: pass}
+  - {ac: AC-4, check_ref: "review:upgrade-outputs", result: pass}
+  - {ac: AC-5, check_ref: "review:role-bindings-note", result: not-run}
+  - {ac: AC-6, check_ref: orqlet-gate-status, result: pass}
+  - {ac: AC-7, check_ref: "review:conftest", result: pass}
+  - {ac: AC-8, check_ref: ci, result: not-run}
+  - {ac: AC-9, check_ref: gate-status-phase, result: pass}
