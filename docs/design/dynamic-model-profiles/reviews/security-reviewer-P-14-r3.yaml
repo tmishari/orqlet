@@ -1,0 +1,123 @@
+schema: orqlet.review-result/v1
+task: dynamic-model-profiles
+phase: P-14
+role: security-reviewer
+round: 3
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    design: 94d7b5110a42d4a0cb20f27ef6eb561c752afcff5af2f3862381212f42a8e01d
+    evidence_inputs: 8aa72b697f7509e5947e4c9d92539cd1f7b4711c0dcc711d339fd7b4817c688c
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: b9552626c1dc616566404c5ac91cbbb3fd1afb8193205ac573e268745440e9c5
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: a746e398354c23c35656a977317177dfb1e050a2ddb8a5d0ae63eab5f4ecac93
+  merge_base: 58e152822a7d265f2a904f3923ad3dcb3d65ef26
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- 'The reviewer ran in the same client as the Coder (cursor), so independence is I1, not I2. The change class is D3, which requires I2, so the verdict of this record
+  is NOT_RUN: ORQLET-MODEL-002 says that a class below the role''s minimum is NOT_RUN, never a pass. The reviewer''s own conclusion is in the first line of the claims
+  below.'
+- 'The reviewer''s own conclusion was that the staged change (two records) has no security-relevant change and no defect, with an absence record in place of findings:
+  it read diff.patch, both records, the policy, role bindings and proposal, the agent folders, CODEOWNERS and the P-14 section of the plan.'
+- The reviewer was started as a typed subagent in a new session; its prompt held the packet path and nothing else. That the context is fresh is the claim of the Coder
+  from how the subagent was started, which Orqlet does not check. The model that ran it is not observed, so model_observed stays empty and the identity is unknown.
+- 'The reviewer''s session was read-only and had no shell: it ran no orqlet, test or hash command, computed no quote digest and wrote no review-result file. The Coder
+  wrote this record from its returned text, so every finding is an observation without quote evidence. The packet was prepared with `uv run orqlet review prepare`,
+  the command line built from this working tree; the packets of rounds 1 and 2 were prepared by the older orqlet 0.3.0 on the path, and those two rounds are superseded.'
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+applicability:
+  examined:
+  - MANIFEST.json
+  - diff.patch
+  - context files
+  - snapshot of the changed files
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: security
+  claim: 'Approvals are not verified: gate status exits 5 (NOT_RUN) with ORQ-W390 on the design and plan, with the causes workflow_version, protected_set_digest,
+    standards_lock_hash, applicable_rules_hash and base_revision, and ORQ-I393 says that the approvals need host evidence, which an offline run does not have. The
+    test record says that the person confirmed that the approval stays valid, and the reviewer cannot check that.'
+  suggested_action: None in this phase.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: security
+  claim: The test record is claimed evidence (verdict NOT_RUN, evidence_kind claimed); the reviewer cannot reproduce its digests inside the packet. AC-1, AC-5 and
+    AC-8 are not-run, and AC-4 and AC-7 have no command digest.
+  suggested_action: Confirm AC-8 with the CI matrix on the implementation pull request.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: security
+  claim: Applying .orqlet/proposals/.orqlet__role-bindings.yaml.diff would add a code-reviewer binding with independence_capability I2 and so change which reviewers
+    are accepted. Until the team applies it, a code-reviewer record is ORQ-E415, as the plan says.
+  suggested_action: A person reviews the proposal before it is applied.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: no secret or private data in the staged change
+    how: 'read the full diff.patch and searched it with ripgrep for secret, token, password, api key, private-key headers, AWS key IDs and absolute /Users/ paths:
+      no match'
+    result: pass
+  - what: agent permissions grant no more than intended
+    how: 'read the agent files in the snapshot: Read, Grep, Glob for the Claude Code reviewer, tracer, inventory and pr-writer, readonly true for Cursor and read-only
+      sandbox for Codex; the tester is the only role that can write; no model, effort or reasoning pin'
+    result: pass
+  - what: the model policy approves nothing
+    how: 'read .orqlet/model-policy.yaml: every model proposed, approved_by null, callable not-run; fable and best excluded'
+    result: pass
+  - what: reviewer independence not changed
+    how: 'read .orqlet/role-bindings.yaml and the proposal: only two bindings, the third is in the proposal'
+    result: pass
+  - what: ownership kept
+    how: 'read .github/CODEOWNERS: .orqlet/**, .claude/**, .cursor/**, .codex/**, .agents/**, AGENTS.md and docs/design/** have entries'
+    result: pass
+  - what: orqlet, hash or test commands
+    how: no shell in this session
+    result: not-run
+  failures: []
+  unverified:
+  - The standards files and orqlet standards output.
+  - Whether the lock rows have the owner and class that the records claim.
+  - The generated files beyond the agent files, the policy and the role bindings.
+  - CI results.

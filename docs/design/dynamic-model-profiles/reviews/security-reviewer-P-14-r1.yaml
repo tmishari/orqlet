@@ -1,0 +1,73 @@
+schema: orqlet.review-result/v1
+task: dynamic-model-profiles
+phase: P-14
+role: security-reviewer
+round: 1
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  schema: orqlet.review-input/v1
+  covers: [code_tests, knowledge, design, plan, standards, reviewer_definition, evidence_inputs]
+  components:
+    code_tests: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    design: 94d7b5110a42d4a0cb20f27ef6eb561c752afcff5af2f3862381212f42a8e01d
+    evidence_inputs: 9426f8dd26f7527c89e23de47e38b5a6ca0720387aae4b37d820ea562a04ee39
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: b9552626c1dc616566404c5ac91cbbb3fd1afb8193205ac573e268745440e9c5
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+  digest: 234b373848a85299fb0e588eab86bf2ce3a9046014c23356b9c652a8df25c881
+  merge_base: 58e152822a7d265f2a904f3923ad3dcb3d65ef26
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+  - "The packet of this round was prepared by the orqlet 0.3.0 on the path, not by the command line built from this working tree, so the review_input block and the packet differ from what `uv run orqlet review prepare` prints. Round 3 supersedes this round on a packet from the working tree."
+  - "The reviewer found no blocking finding and returned a pass in its own words. The verdict of this record is NOT_RUN because the change class is D3, which requires independence I2, and this review is I1; ORQLET-MODEL-002 says that a class below the role's minimum is NOT_RUN, never a pass. The Coder corrected the verdict from PASS to NOT_RUN after the architecture reviewer raised this in round 2."
+  - "The reviewer ran in the same client as the Coder (cursor), so independence is I1, not I2."
+  - "The reviewer was started as a typed subagent in a new context; its prompt held the packet path and nothing else. The model that ran it is not observed, so model_observed stays empty."
+  - "The reviewer's session was read-only (Ask mode) and had no shell: it ran no orqlet, test or hash command and computed no quote digest, and it did not write a review-result file; the Coder wrote this record from its returned text. Every test count and check result in the test record is a claim of the Coder that the reviewer did not repeat, so its findings are observations with no quote evidence."
+  - "The packet has no .git directory, so the reviewer could not confirm that the 37 files of the upgrade were already in the base; the diff is consistent with that."
+  - "Read-only is declared by the agent definition, not enforced by Orqlet."
+applicability:
+  examined: [MANIFEST.json, diff.patch, context files, snapshot of the changed files]
+  conclusion: findings
+findings:
+  - schema: orqlet.finding/v1
+    id: F-1
+    kind: observation
+    severity: non-blocking
+    category: security
+    claim: "P-14's file list covers six files under .orqlet/**, which the design treats as a security glob, and EC-7 names only .github/CODEOWNERS. This phase stages none of those files, so the gate reports EC-7 as pending and no ORQ-E450, ORQ-E451 or ORQ-E453. The plan's own unverified entries record that the gate could reject the phase for these files."
+    suggested_action: "No action in this phase. If the person wants EC-7 to cover the .orqlet/** files, that is a design amendment."
+    confidence: medium
+  - schema: orqlet.finding/v1
+    id: F-2
+    kind: observation
+    severity: non-blocking
+    category: security
+    claim: "The test record has verdict NOT_RUN, evidence_kind claimed and AC-8 (CI) as not-run. Its command results, such as 12998 passed, and the output digests cannot be checked from the packet. The record says it ran on macOS with one Python only."
+    suggested_action: "Treat the record as claimed evidence. Confirm AC-8 on the implementation pull request with the CI matrix."
+    confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against: {role: security-reviewer, phase: implement}
+  checks:
+    - {what: staged change holds no secret, how: "searched the whole packet for AWS key IDs, PEM private-key headers and ghp_, sk-, xoxb- and xoxp- tokens; the only hit is the prefixes of a secret detector in snapshot/src/orqlet/domain/resources.py lines 111-112; both staged records hold command names, exit codes and digests only", result: pass}
+    - {what: no model pin in the Claude Code agent files, how: "searched snapshot/.claude/agents for model, effort and reasoning: only `model: inherit` in seven files; the .cursor and .codex files were not checked", result: pass}
+    - {what: review ownership kept, how: "read snapshot/.github/CODEOWNERS: .orqlet/**, .claude/**, .cursor/**, .codex/**, .agents/**, .github/workflows/**, AGENTS.md, .mcp.json, src/orqlet/** and the seeds are owned by @tmishari; nothing removed", result: pass}
+    - {what: "no code path for auth, injection, file or process access, logging or dependencies", how: "the staged change holds two YAML records; uv.lock and pyproject.toml are unchanged in the diff", result: pass}
+    - {what: "orqlet, hash or test commands", how: "no shell in this session", result: not-run}
+  failures: []
+  unverified:
+    - "The contents of the 37 generated files at the base, beyond the model-pin search."
+    - "The truth of the claimed command outputs and digests."
+    - "The behaviour of orqlet upgrade itself, since this phase does not change it."

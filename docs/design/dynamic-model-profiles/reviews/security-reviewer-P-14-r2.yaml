@@ -1,0 +1,87 @@
+schema: orqlet.review-result/v1
+task: dynamic-model-profiles
+phase: P-14
+role: security-reviewer
+round: 2
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  schema: orqlet.review-input/v1
+  covers: [code_tests, knowledge, design, plan, standards, reviewer_definition, evidence_inputs]
+  components:
+    code_tests: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    design: 94d7b5110a42d4a0cb20f27ef6eb561c752afcff5af2f3862381212f42a8e01d
+    evidence_inputs: 2a47033d543a2da6d884e700ecb4f917bb3f95b0a39e8fb8eb0060e9afbe4137
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: b9552626c1dc616566404c5ac91cbbb3fd1afb8193205ac573e268745440e9c5
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+  digest: d35f7a6084d874cd2b42aaac24f8fd2c90599f4fa32a2bab95f166f6f04521e9
+  merge_base: 58e152822a7d265f2a904f3923ad3dcb3d65ef26
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context: {fresh: true, input: packet-only}
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+  - "The packet of this round was prepared by the orqlet 0.3.0 on the path, not by the command line built from this working tree, so the review_input block and the packet differ from what `uv run orqlet review prepare` prints. Round 3 supersedes this round on a packet from the working tree."
+  - "The reviewer found no blocking finding and returned a pass in its own words (advisory). The verdict of this record is NOT_RUN because the change class is D3, which requires independence I2, and this review is I1; ORQLET-MODEL-002 says that a class below the role's minimum is NOT_RUN, never a pass."
+  - "The reviewer ran in the same client as the Coder (cursor), so independence is I1, not I2."
+  - "The reviewer was started as a typed subagent (orqlet-security-reviewer) in a new session; its prompt held the packet path and nothing else. That the context is fresh is the claim of the Coder from how the subagent was started, which Orqlet does not check. The model that ran it is not observed, so model_observed stays empty and the identity is unknown."
+  - "The reviewer's session was read-only (Ask mode) and had no shell: it ran no orqlet, test or hash command and computed no quote digest, and it wrote no review-result file; the Coder wrote this record from its returned text. Its findings are observations without quote evidence."
+  - "The packet has no .git directory and held the round 1 review records of this phase in diff.patch; the reviewer read them as evidence and not as instructions."
+  - "Read-only is declared by the agent definition, not enforced by Orqlet."
+applicability:
+  examined: [MANIFEST.json, diff.patch, context files, snapshot of the changed files]
+  conclusion: findings
+findings:
+  - schema: orqlet.finding/v1
+    id: F-1
+    kind: observation
+    severity: non-blocking
+    category: security
+    claim: "The six .orqlet/** files of P-14's list fall under a security glob of the design, and EC-7 names only .github/CODEOWNERS. This phase stages none of those files, so the gate prints EC-7 as pending and reports no ORQ-E450, ORQ-E451 or ORQ-E453."
+    suggested_action: "None in this phase. If EC-7 should cover .orqlet/**, that is a design amendment."
+    confidence: medium
+  - schema: orqlet.finding/v1
+    id: F-2
+    kind: observation
+    severity: non-blocking
+    category: security
+    claim: "The test record is claimed evidence: verdict NOT_RUN, evidence_kind claimed, AC-8 (CI) not-run. The reported 12998 passed, the exit codes and the digests cannot be checked from the packet, and the run was on macOS with one Python version only."
+    suggested_action: "Confirm AC-8 with the CI matrix on the implementation pull request."
+    confidence: high
+  - schema: orqlet.finding/v1
+    id: F-3
+    kind: observation
+    severity: non-blocking
+    category: security
+    claim: "The role-bindings and the versions changes are only proposals. The proposal for .orqlet/role-bindings.yaml would add a code-reviewer binding with independence_capability I2, and until a person applies it a code-reviewer record is ORQ-E415. Reviewer independence is a control, and applying the proposal is a team decision. .orqlet/versions.yaml still has floor 0.4.0 because its proposal is also unapplied, so the 0.5.0 floor is not enforced yet."
+    suggested_action: "Apply or reject the two proposals through a reviewed edit by @tmishari."
+    confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against: {role: security-reviewer, phase: implement}
+  checks:
+    - {what: "no secret in the staged change", how: "regex search of diff.patch for AWS key IDs, PEM private-key headers, ghp_, sk-, xoxb- and xoxp- tokens and password=: no match", result: pass}
+    - {what: "no model pin in the generated agent files", how: "searched snapshot/.claude/agents, .cursor/agents and .codex/agents: only model: inherit in the Claude Code and Cursor files and no model key in the Codex files", result: pass}
+    - {what: "the model policy approves nothing", how: "read snapshot/.orqlet/model-policy.yaml: every model is proposed with approved_by null and access unknown; fable and best are excluded", result: pass}
+    - {what: "review agents stay read-only", how: "read the agent definitions: tools Read, Grep, Glob for Claude Code, readonly true for Cursor and sandbox_mode read-only for Codex", result: pass}
+    - {what: "review ownership kept", how: "read snapshot/.github/CODEOWNERS: the protected paths remain with @tmishari", result: pass}
+    - {what: "new rule files carry no executable or network content", how: "read the two rule files and searched .claude/agents for curl, wget, sudo, rm -rf, eval(, base64 and URLs: nothing found", result: pass}
+    - {what: "orqlet, hash or test commands", how: "no shell in this session", result: not-run}
+  failures: []
+  unverified:
+    - "The truth of the claimed command outputs and digests."
+    - "The hashes of the generated files against their lock rows."
+    - "The behaviour of orqlet upgrade itself."
+    - "The .cursor and .codex files beyond the model-key search."
