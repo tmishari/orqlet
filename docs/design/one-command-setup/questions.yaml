@@ -78,4 +78,104 @@ questions:
     answerer: tmishari
     time: '2026-11-19T18:48:54.538767+00:00'
     scope: task
+- id: Q-5
+  key: 0daf5e10d4c4d7e7912c5fc58ce0f79637493d189ccb01f7ca3e545a8cd292a5
+  subject: Global uv installation and terminal presentation
+  raised_by: Codex
+  phase: design
+  category: requirement
+  text: What installation and terminal experience is requested?
+  why: Records the confirmed global installation and configuration scope, or the documentation
+    access used to verify it.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Install the CLI with uv in global scope, show a terminal graphic, then
+      use orqlet . for configuration.
+    answerer: tmishari
+    time: '2026-11-20T08:02:13.177440+00:00'
+    scope: task
+- id: Q-6
+  key: 35835b14cb41577f0665010d5f3fc9eef5422b8a3b4d2d5aaf2d237eb6d9a14d
+  subject: Configuration scope of the dot command
+  raised_by: Codex
+  phase: design
+  category: requirement
+  text: Should orqlet . create missing global configuration outside a Git repository
+    and create missing global configuration plus initialize or upgrade the project
+    inside one?
+  why: Records the confirmed global installation and configuration scope, or the documentation
+    access used to verify it.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Yes, use that behavior
+    answerer: tmishari
+    time: '2026-11-20T08:02:13.177440+00:00'
+    scope: task
+- id: Q-7
+  key: bdbe3e3a8abe0deff982b8afc49e28e3bad6fd2be2ee99703c683ec40f684185
+  subject: Global client configuration contents
+  raised_by: Codex
+  phase: design
+  category: requirement
+  text: What should global configuration contain?
+  why: Records the confirmed global installation and configuration scope, or the documentation
+    access used to verify it.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Orqlet skills, rules and agents for the three clients
+    answerer: tmishari
+    time: '2026-11-20T08:02:13.177440+00:00'
+    scope: task
+- id: Q-8
+  key: cf681c1032a0829f6ef246e8efc4fcdf206128d468f97b543514ba4a5b928f41
+  subject: Official Codex documentation redirect
+  raised_by: Codex
+  phase: design
+  category: access
+  text: May I follow the official Codex documentation redirect from developers.openai.com
+    to learn.chatgpt.com to verify global configuration support?
+  why: Records the confirmed global installation and configuration scope, or the documentation
+    access used to verify it.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Yes, use learn.chatgpt.com
+    answerer: tmishari
+    time: '2026-11-20T08:02:13.177440+00:00'
+    scope: task
+- id: Q-9
+  key: db41f12ddd3da9572261daaf85029859bf3d16142d8661f04e72e68a3dadec83
+  subject: Cursor global User Rules setup
+  raised_by: Codex
+  phase: design
+  category: requirement
+  text: Cursor User Rules have no verified automatic write route in the inspected
+    documentation. Is one guided Cursor rules setup step acceptable?
+  why: Records the confirmed global installation and configuration scope, or the documentation
+    access used to verify it.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Allow one guided Cursor rules step
+    answerer: tmishari
+    time: '2026-11-20T08:02:13.177440+00:00'
+    scope: task
 conflicts: []
