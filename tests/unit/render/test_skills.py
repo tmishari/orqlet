@@ -233,9 +233,11 @@ def test_before_the_records_exist_the_implement_skill_drops_the_steps_that_need_
     assert "/orqlet-review" not in implement.body
     assert "orqlet validate test" not in implement.body
     assert re.findall(r"^(\d+)\. ", implement.body, re.MULTILINE) == [
-        str(n) for n in range(1, 8)
-    ]  # three steps are gone (of 10) and the list is numbered again without a gap; the lookup
-    # step stays, because `resources list` is not one of the commands that came with the records
+        str(n) for n in range(1, 9)
+    ]  # three steps are gone (of 11) and the list is numbered again without a gap; the lookup
+    # step stays, because `resources list` is not one of the commands that came with the records,
+    # and so does the PR-text step, which needs no command (P-13 AC-8)
+    assert "orqlet-pr-writer" in implement.body
 
 
 def test_in_this_release_the_implement_skill_is_complete() -> None:
@@ -245,13 +247,14 @@ def test_in_this_release_the_implement_skill_is_complete() -> None:
     assert "no independent review" not in implement.body
 
 
-def test_with_every_command_the_implement_skill_has_all_ten_steps() -> None:
-    """phase-skill-contracts P-2, AC-2 and AC-19. expected_behavior_source: ADR-001 consequences
-    (the step count with every command takes the new count) and the interface that the Coder gave
-    (10 steps with every command)."""
+def test_with_every_command_the_implement_skill_has_all_eleven_steps() -> None:
+    """phase-skill-contracts P-2, AC-2 and AC-19; dynamic-model-profiles P-13, AC-8.
+    expected_behavior_source: ADR-001 consequences of phase-skill-contracts (the step count with
+    every command takes the new count) and the interface that the Coder gave for P-13 (11 steps
+    with every command: the PR-text step of ADR-006 decision 8 comes before the stop step)."""
     implement = next(s for s in request_with(EVERY_COMMAND).skills if s.name == "orqlet-implement")
 
-    assert re.findall(r"^(\d+)\. ", implement.body, re.MULTILINE) == [str(n) for n in range(1, 11)]
+    assert re.findall(r"^(\d+)\. ", implement.body, re.MULTILINE) == [str(n) for n in range(1, 12)]
     assert "orqlet knowledge impact" in implement.body
     assert "/orqlet-review" in implement.body
 
@@ -634,7 +637,8 @@ def test_the_tester_writes_tests_and_says_its_statement_is_never_evidence() -> N
 def test_the_reviewers_receive_the_packet_only_and_are_an_additional_check() -> None:
     roles = {r.name: r for r in packaged_request().roles}
 
-    for name in ("orqlet-arch-reviewer", "orqlet-security-reviewer"):
+    # P-13 AC-2 (source: ADR-006 decision 2): the code reviewer is a third reviewer on the packet.
+    for name in ("orqlet-arch-reviewer", "orqlet-code-reviewer", "orqlet-security-reviewer"):
         body = roles[name].body
         assert "the path of a read-only packet" in body
         assert "do not receive the Coder" in body
@@ -642,9 +646,12 @@ def test_the_reviewers_receive_the_packet_only_and_are_an_additional_check() -> 
         assert "absence record" in body
 
 
-def test_the_review_skill_names_both_reviewers_and_refuses_a_fork_or_a_persona() -> None:
+def test_the_review_skill_names_three_reviewers_and_refuses_a_fork_or_a_persona() -> None:
+    """dynamic-model-profiles P-13, AC-7. expected_behavior_source: BC-15 and ADR-006 decision 2
+    (`/orqlet-review` starts three reviewers: the code reviewer joins the two old ones)."""
     review = next(s for s in packaged_request().skills if s.name == "orqlet-review")
 
+    assert "orqlet-code-reviewer" in review.body
     assert "orqlet-arch-reviewer" in review.body
     assert "orqlet-security-reviewer" in review.body
     assert "is a fork, not an independent reviewer" in review.body

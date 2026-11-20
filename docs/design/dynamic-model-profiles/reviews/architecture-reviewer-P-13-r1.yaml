@@ -1,0 +1,166 @@
+schema: orqlet.review-result/v1
+task: dynamic-model-profiles
+phase: P-13
+role: architecture-reviewer
+round: 1
+verdict: PASS
+assurance: advisory
+review_input:
+  components:
+    code_tests: 883adad7db4381e1959667c066dd8f38191ea9e5031614cf0ccb3ea8e4afd774
+    design: 42b7894ffd4a6d18273151d215244f7d5b819097bd9f289b7a342b9c9d24e98b
+    evidence_inputs: c28b36a7710ecff9b2b4d71397d96c65bb76886e949603e9e20e7b0d73017296
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 8dc1f96fdd0d265cb21ec69d4c86b679f4706b33d8ca44f5b148a0263364b46a
+    reviewer_definition: 865c226ebceab22ee09b34b63c1673887024997f3f719d0236956406deecdfcd
+    standards: 20b2417f8fe79a6b504d5edb6aa5876a9d7ae7a5a78a128d2d5e210ff3b835a9
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: a324e119db946846f69894297668ae13cd36e9eb19e7bcc5927db55ea54ae1b0
+  merge_base: fdb54a58a700cd7bac8447cb54a58261724bfe26
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: bb870c5236ad9b2cb5f0f6b0f8568baf499d9bd1727a18254303b9b1e797e7f4
+  client: cursor
+  model_requested: null
+  model_observed: null
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran in the same client as the Coder (cursor), so independence is I1, not I2.
+- The reviewer was started as a typed subagent in a new context; its prompt held the packet path and the
+  scope of P-13, and no earlier round. The model that ran it is not observed, so model_observed stays
+  empty.
+- 'The reviewer''s session had no shell: it computed no quote digest and ran no orqlet, test or hash command.
+  Every test count and check result in the test record is a claim of the Coder that the reviewer did not
+  repeat. For that reason every finding below is kept as an observation with no quote evidence, and no
+  digest was computed by the Coder.'
+- The proposal docs/design/orqlet-architecture-proposal.md is over the packet limit (ORQ-I440); the reviewer
+  read it through the hunks of diff.patch only.
+- '`orqlet review prepare` printed ORQ-I441: the code-reviewer binding is not printed, so no code-reviewer
+  record can be written or validated in this phase. The code review ran as a general-purpose agent that
+  read the new role text; its findings are in the pull request description.'
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- The review input covers the packet as prepared on the staged tree before the two review records were
+  added; `orqlet validate review` may report a record stale for that reason.
+applicability:
+  examined:
+  - MANIFEST.json
+  - diff.patch
+  - context/plan.yaml
+  - design notes ADR-002, ADR-004, ADR-007
+  - snapshot of the changed files
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: standards
+  claim: 'To keep three skill bodies within 900 words, the Coder rewrote existing sentences in the design,
+    onboard and implement skills beyond the one continuation line that AC-6 names. Some cuts remove instructions:
+    design step 5 no longer asks an ADR to name its trade-offs; onboard step 5 drops the data-flow parenthetical;
+    implement step 4 drops the duty to report an evidence folder the plan omits; implement step 7 drops
+    the list of outcomes. The plan names a design revision for a skill that does not fit and names no
+    trimming. The knowledge record discloses the cuts. No test pins the dropped wording.'
+  suggested_action: 'The person decides: accept the trimming through a plan amendment, or restore the
+    cut instructions and take a design revision for the word budget.'
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: docs
+  claim: After P-13 the package has seven roles, but README line 595 still says 'the five roles'; the
+    Coder's knowledge record also names proposal line 3028 ('All five roles are required in every phase').
+    AC-19 forbids changing sentences outside AC-15 to AC-17, so leaving them is correct. The reviewer
+    could not read proposal line 3028 (the proposal is not in the snapshot).
+  suggested_action: Raise a plan amendment question for these two sentences; do not change them in P-13.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: docs
+  claim: The example in plan-format.md still shows review_evidence with three entries, which a plan whose
+    header names workflow 0.5.0 or higher would be refused on. AC-9 names only the rule line, and the
+    rule line is correct.
+  suggested_action: None in P-13; the person may want a note for the example.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: tests
+  claim: The plan lists tests/unit/test_workflow_skill_contracts.py as a modify and the diff does not
+    touch it. The knowledge record says no pin of it needed a change. The AC-6 to AC-9 tests sit in the
+    new test_workflow_model_hint_text.py, which the plan lists as create.
+  suggested_action: None; the person may want the plan's list to say so.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: architecture
+  claim: 'Amendment question on the six test files outside the plan''s list: the reviewer sees no design
+    problem. The three e2e files add code-reviewer to review_evidence (EC-4); test_models_resolve counts
+    seven roles (EC-9); test_upgrade_model_policy and test_explain_model_selection start from the seed
+    that init now writes (EC-8, AC-12). Their assertions keep their intent.'
+  suggested_action: Amend the plan's file list for the six files; no code change.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: info
+  category: standards
+  claim: The shipped seed cites evidence paths inside this repository, which do not exist in a downstream
+    project. ADR-004 decision 4 says a downstream team's documented reference is a citation it keeps,
+    not a file Orqlet resolves. Not a defect.
+  suggested_action: None.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: info
+  category: standards
+  claim: ORQLET-MODEL-001 is marked deterministic with check_ref uv run pytest. The tests the reviewer
+    saw pin the vendor-word absence only for the two new roles and for the skills; the reviewer found
+    no test that scans every packaged file. It did not read all new test bodies, so coverage may be wider.
+  suggested_action: The person may ask the Tester which test carries the rule beyond the roles and skills.
+  confidence: low
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+  checks:
+  - what: File operations of the plan against the diff headers
+    how: listed every diff --git header
+    result: pass
+  - what: Documents diff of AC-15 to AC-19 (README, proposal) against the plan
+    how: read the hunks of diff.patch
+    result: pass
+  - what: No generated file under .claude, .cursor, .agents, .codex or .orqlet edited by hand
+    how: diff --git headers
+    result: pass
+  - what: Roles, seed, rules and skills against AC-2 to AC-13
+    how: read diff and snapshot
+    result: pass
+  - what: Any check, MANIFEST.json recompute, golden regeneration, word count
+    how: no shell in this session
+    result: not-run
+  failures: []
+  unverified:
+  - The proposal outside the diff hunks, including proposal line 3028.
+  - The full bodies of the new tests.
+  - Security and code correctness, which belong to the other reviewers.

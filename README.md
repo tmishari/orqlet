@@ -18,7 +18,7 @@ have not drifted, and validates the documents that an agent produces.
 | To notice drift | A report of files that are missing, edited, stale or unknown | `sync`, `doctor`, `explain` |
 | To keep your own edits | Managed blocks in `AGENTS.md`, `CLAUDE.md` and the pull request template; seeded files that are yours after the first write; generated files that you can hand over | `release`, `upgrade` |
 | A profile of the project | The language, package manager, frameworks and conventions, each with its evidence, approved by a person | `profile` |
-| Agents that follow a process | Six workflow skills (onboard, research, design, plan, implement, review) and five specialist agents; each skill stops at a person | the skills in your client |
+| Agents that follow a process | Six workflow skills (onboard, research, design, plan, implement, review) and seven specialist agents; each skill stops at a person | the skills in your client |
 | Agent output that is checked | Validators for the AS-IS facts, design, plan, review, test and knowledge records, and a gate status | `validate`, `gate`, `evidence`, `knowledge`, `review`, `standards` |
 | Team knowledge that agents read | A registry of links to API guidelines, tool documentation and team pages, with stored copies | `resources` |
 | Team conventions that CI checks | Branch naming and commit subjects, checked against the profile | `conventions check` |
@@ -42,13 +42,15 @@ Version 0.3.0. What is built and tested in this repository:
   `orqlet validate model-policy`, the pins that `upgrade` renders in the mode `manual`, the exclusion
   of a model by its identity, and the checks of `validate review` that derive the independence class
   from the recorded model identities. The section "Model policy and the code review gate" says what
-  that covers and where it is awkward.
+  that covers and where it is awkward;
+- the roles `orqlet-code-reviewer` and `orqlet-pr-writer`, the skill steps that use them
+  (`/orqlet-review` starts three reviewers, and `/orqlet-implement` has the PR writer draft the
+  pull-request text), and the seed of the model policy, which `init` writes to
+  `.orqlet/model-policy.yaml`.
 
 What is **not** built yet: `orqlet ci check` and the merge-time gate, local Git hooks, the
 knowledge index and module catalogue, and MCP files for Cursor and Codex or for a server other
-than Atlassian. Also not built: the roles `orqlet-code-reviewer` and `orqlet-pr-writer`, the seed of
-the model policy and the skill steps that use them (so `/orqlet-review` starts two reviewers, not
-three), and `orqlet models refresh`. Approval cannot be verified by the
+than Atlassian. Also not built: `orqlet models refresh`. Approval cannot be verified by the
 tool today: `orqlet gate status <task>` always ends `NOT_RUN` for approval, because approval is meant
 to be a merge on the protected branch and that evidence comes from the code host. The generated files
 follow each client's published documentation; the tests check the files, not the clients.
@@ -334,8 +336,8 @@ merging them. Design, plan and implement check their inputs first: that the earl
 there, belongs to this task, is approved and is still current. A check that fails stops the skill,
 which names the cause and what resolves it. The rules that the four phase skills share are in
 `references/phase-contract.md`, the same file in each of research, design, plan and implement.
-The skills start subagents where the client has them: four read-only ones (an
-inventory researcher, a tracer, an architecture reviewer and a security reviewer) and a tester that
+The skills start subagents where the client has them: six read-only ones (an
+inventory researcher, a tracer, an architecture reviewer, a security reviewer, a code reviewer and a PR writer) and a tester that
 writes the test files named in the plan. A review that runs in the same client as the author gets
 the independence class I1, and a change of class D3 needs I2, so `orqlet validate review` reports
 it as `NOT_RUN`: run the reviewers in another client (or a different model family, when
@@ -378,7 +380,7 @@ work, show that choice on request, and write it into the generated agent files w
 for it. A team keeps the choice in one file, `.orqlet/model-policy.yaml` (schema
 `orqlet.model-policy/v2`; the JSON schema is `src/orqlet/workflow/schemas/orqlet.model-policy.v2.json`,
 and Section 24.1 of the architecture proposal has an example). The file belongs to the team and
-changes by a reviewed edit. Orqlet does not seed it yet, so a team writes it. A project without the
+changes by a reviewed edit. `init` writes the seed once, `upgrade` writes it to a project that lacks it, every model in it is `proposed` and none is approved, and the file is the team's from then on. A project without the
 file has no policy: the role files stay as they are (`model: inherit`, or no key for Codex) and the
 client chooses.
 
@@ -488,7 +490,7 @@ selection, which rejects an excluded candidate; in `validate model-policy`, wher
 (ORQ-E543, ORQ-E548) and where an entry that the base tree had and the file lost is an error too
 (ORQ-E544); and in `validate review`, where a record that names an excluded model is invalid
 evidence of class I0 (ORQ-E460). The policy file holds the list, and Orqlet has no built-in list:
-the entry for Fable arrives with the seed, which is not built yet. The exclusion is defence in
+the seed holds the entry for Fable. The exclusion is defence in
 depth behind a block that the company sets in the client, not a replacement for it.
 
 ### The code review gate
@@ -514,9 +516,8 @@ What is built is the judgement, not the reviewer. `orqlet validate review` deriv
 class from the recorded values and judges the record against the minimum of its role. The recorded
 values are statements of whoever writes the record, and no tool verifies them: a class says how
 independent a review claims to be. `orqlet validate plan` requires `code-reviewer` in the `review_evidence` of every phase of a plan
-whose header names workflow 0.5.0 or later (and in no phase of an earlier plan). The workflow package
-has no `orqlet-code-reviewer` role yet, so the skill `/orqlet-review` starts two reviewers and the
-shipped workflow produces no record of the role. The binding for the role is already built: `init`
+whose header names workflow 0.5.0 or later (and in no phase of an earlier plan). The role
+`orqlet-code-reviewer` ships with workflow 0.5.0, and the skill `/orqlet-review` starts three reviewers (Code, Architecture and Security). The binding for the role is already built: `init`
 writes it to `.orqlet/role-bindings.yaml`, and `upgrade` proposes it to a project whose bindings lack
 it and says so (ORQ-I540). Orqlet never applies that proposal, and until a reviewed edit applies it a
 record of the role is ORQ-E415.

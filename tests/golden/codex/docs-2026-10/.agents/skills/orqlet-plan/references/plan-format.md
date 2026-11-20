@@ -72,6 +72,6 @@ Rules the validator checks:
 - `moved_from` belongs on a `create` whose source is deleted in the same phase.
 - Every phase has acceptance criteria. A criterion's `check_ref` is one of the phase's `checks`, a reviewer role or `review:<item>`.
 - `implements` names expected changes of the design (`EC-n`, or `EC-n@S-n` for a stage).
-- `review_evidence` is always the three roles, and `knowledge_step` is always `required`.
+- `review_evidence` is `architecture-reviewer`, `security-reviewer` and `tester`, and also `code-reviewer` for a plan whose header names workflow version 0.5.0 or higher, and `orqlet validate plan` enforces it at the plan level. `knowledge_step` is always `required`.
 - The plan cannot trigger a higher change class than the approved design.
 - `knowledge_scope` may only cover documentation files outside agent configuration and workflow files.

@@ -39,9 +39,22 @@ proposal) belong to the edits and are not phase ids. The two texts are compared 
 white space squashed to one space, so a line wrap never matters; case and the bold markers stay, so
 `**Q-08**` is not `Q-08`. P-19 only appends to its old fragment, so only its new fragment is
 pinned. The phrase of R9 about a new session reads `does not satisfy the gate unless both sides were
-observed to run different model families` (R-2, P-2a and P-2b). Two strings that the edits leave as
-they are are guarded: `five specialist agents` of the README and the heading of section 22.0 of the
-proposal.
+observed to run different model families` (R-2, P-2a and P-2b). One string that the edits leave as
+it is is guarded: the heading of section 22.0 of the proposal.
+
+Phase P-13 (AC-15 to AC-19) builds the roles `orqlet-code-reviewer` and `orqlet-pr-writer`, the
+skill steps that use them and the seed of the model policy, so the documents stop saying that they
+are not built. AC-15 and AC-16 name six sentences of the README and AC-17 eight of the proposal;
+AC-18 says how the file pins them. R-4 (the count of the specialist agents, a guard test below),
+R-5 to R-9 and P-30 to P-34 are the edits that are new in this phase. P-11, P-14 and P-15 are
+edited again: their old fragment is the sentence that phase P-12 wrote and that is now false, and
+their new fragment is the sentence of phase P-13. The sentences that AC-19 lists as open are not
+pinned and the rules below keep passing on them as they are: the row of ORQ-W546, the exit-0 row of
+`models resolve`, the sentence about what holds at every level, the list of seeded files, the
+count of the files that `init` wrote, the example marker of the workflow version, the row of
+`orqlet-review` in the table of commands and the role catalogue of section 10.3 of the proposal
+(which lists no PR writer). The new bullet of the Status list is pinned by the words that AC-15
+names and by no others.
 
 Behaviour that the sources require but that no phrase fixes is deliberately NOT pinned here:
 - where the new section sits in the README, its sub-headings and the order of its parts;
@@ -221,12 +234,20 @@ W460_MEANING = (
     "The class rests on a different client and at least one side has no observed identity"
     f"{IDENTITY_NAMED_BY} (`identity-unknown`)"
 )
+# R11 (changed by AC-15 (3)): the role `orqlet-code-reviewer` ships with workflow 0.5.0 and the
+# skill starts three reviewers. The old sentence said that the package had no such role yet and that
+# the skill started two reviewers.
+ROLE_SHIPS = "the role `orqlet-code-reviewer` ships with workflow 0.5.0"
+THREE_REVIEWERS = (
+    "the skill `/orqlet-review` starts three reviewers (Code, Architecture and Security)"
+)
 NOT_BUILT_PHRASES = (
-    "has no `orqlet-code-reviewer` role yet",
+    ROLE_SHIPS,
+    THREE_REVIEWERS,
     "`review_evidence`",
     "workflow 0.5.0",
 )
-# R15: the binding of the code reviewer is built, the role is not. Evidence:
+# R15: the binding of the code reviewer is built, and so is the role. Evidence:
 # render_all.py (`REVIEW_AGENTS` holds `code-reviewer`; its binding has `independence_capability`
 # I2), tests/unit/application/test_lifecycle.py (`init` seeds the third binding) and upgrade.py
 # (`_proposes_code_reviewer`, `_pin_notes`: ORQ-I540 and "A `code-reviewer` record is ORQ-E415
@@ -238,26 +259,33 @@ BINDING_BUILT = (
     "until a reviewed edit applies it a record of the role is orq-e415",
 )
 BINDING_CLAIMS_NOT_MADE = ("once the package ships the role",)
-ROLE_PARAGRAPH = (
+OLD_ROLE_SENTENCE = (
     "The workflow package has no `orqlet-code-reviewer` role yet, so the skill `/orqlet-review` "
-    "starts two reviewers and the shipped workflow produces no record of the role. The binding "
-    "for the role is already built: `init` writes it to `.orqlet/role-bindings.yaml`, and "
-    "`upgrade` proposes it to a project whose bindings lack it and says so (ORQ-I540). Orqlet "
-    "never applies that proposal, and until a reviewed edit applies it a record of the role is "
-    "ORQ-E415."
+    "starts two reviewers and the shipped workflow produces no record of the role."
 )
-# R16: the sentence of section 10.3 of the proposal about what is not built.
+ROLE_SENTENCE = (
+    "The role `orqlet-code-reviewer` ships with workflow 0.5.0, and the skill `/orqlet-review` "
+    "starts three reviewers (Code, Architecture and Security)."
+)
+ROLE_PARAGRAPH = (
+    f"{ROLE_SENTENCE} The binding for the role is already built: `init` writes it to "
+    "`.orqlet/role-bindings.yaml`, and `upgrade` proposes it to a project whose bindings lack "
+    "it and says so (ORQ-I540). Orqlet never applies that proposal, and until a reviewed edit "
+    "applies it a record of the role is ORQ-E415."
+)
+# R16 (changed by AC-17 (1)): the sentence of section 10.3 of the proposal about the role. The
+# label `What is not built` goes with the sentence that it introduced.
 OLD_NOT_BUILT_10_3 = (
     "**What is not built:** the role `orqlet-code-reviewer`, its skill step and its seeded "
     "binding, which ship with workflow 0.5.0."
 )
-NOT_BUILT_10_3 = (
-    "**What is not built:** the role `orqlet-code-reviewer` and its skill step, which ship with "
-    "workflow 0.5.0. The binding for the role is built: `init` seeds it in "
-    "`.orqlet/role-bindings.yaml` and `upgrade` proposes it to a project that lacks it."
+BUILT_10_3 = (
+    "The role `orqlet-code-reviewer` and its skill step are built and ship with workflow 0.5.0. "
+    "The binding for the role is built: `init` seeds it in `.orqlet/role-bindings.yaml` and "
+    "`upgrade` proposes it to a project that lacks it."
 )
 PROPOSAL_PRESENT_10_3 = (
-    "the role `orqlet-code-reviewer` and its skill step, which ship with workflow 0.5.0",
+    "the role `orqlet-code-reviewer` and its skill step are built and ship with workflow 0.5.0",
     "the binding for the role is built",
 )
 PROPOSAL_ABSENT_10_3 = ("its seeded binding",)
@@ -279,6 +307,15 @@ OPTION_FLAGS = (
     "--coder-profile",
 )
 NOT_BUILT = "what is not built yet"
+# AC-15 (2): the bullets of what is built name both roles, the skill step of the review and the
+# seed, which `init` writes to the policy file.
+STATUS_BUILT_PHRASES = (
+    "`orqlet-code-reviewer`",
+    "`orqlet-pr-writer`",
+    "`/orqlet-review` starts three reviewers",
+    "the seed of the model policy",
+    "`init` writes to `.orqlet/model-policy.yaml`",
+)
 
 # AC-4: the 27 finding codes of the 54x and 46x families, and the modules that define them.
 EXPECTED_CODES = frozenset(
@@ -797,7 +834,7 @@ def judgement_problems(section: str) -> list[str]:
 
 
 def binding_built_problems(section: str) -> list[str]:
-    """R15: the binding of the code reviewer is built; only the role is not."""
+    """R15: the binding of the code reviewer is built, and the role ships with workflow 0.5.0."""
     return lacks(section, BINDING_BUILT) + says(section, BINDING_CLAIMS_NOT_MADE)
 
 
@@ -1024,6 +1061,24 @@ MORE_BREAKS: list[tuple[str, str, str, str]] = [
         "says: once the package ships the role",
     ),
     (
+        "R11-not-built",
+        "The role `orqlet-code-reviewer` ships with workflow 0.5.0, and",
+        "The role `orqlet-code-reviewer` ships with a later workflow, and",
+        f"lacks: {ROLE_SHIPS}",
+    ),
+    (
+        "R11-not-built",
+        "starts three reviewers (Code, Architecture and Security)",
+        "starts two reviewers (Architecture and Security)",
+        f"lacks: {THREE_REVIEWERS}",
+    ),
+    (
+        "R11-not-built",
+        ROLE_SENTENCE,
+        OLD_ROLE_SENTENCE,
+        f"lacks: {ROLE_SHIPS}",
+    ),
+    (
         "R9-gate",
         f"{SESSION_NOT_GATE};",
         "does not satisfy the gate;",
@@ -1121,7 +1176,7 @@ REFERENCE_PROPOSAL = f"""\
 
 The **required roles** of Phase 4 are the Coder, the Tester, the Architecture Reviewer, the Security
 Reviewer and the Code Reviewer. The code review gate is a required gate. **What is built:** the
-validators. {NOT_BUILT_10_3} Phase 1 uses specialist researchers.
+validators. {BUILT_10_3} Phase 1 uses specialist researchers.
 
 ### 10.4 Parallelism, reviewer independence and substitution
 
@@ -1546,15 +1601,19 @@ def test_the_section_says_that_the_binding_of_the_code_reviewer_is_built() -> No
     src/orqlet/application/usecases/upgrade.py `_proposes_code_reviewer` and `_pin_notes` (`upgrade`
     proposes the binding to a project whose bindings lack it and prints ORQ-I540: "A
     `code-reviewer` record is ORQ-E415 until a reviewed edit applies it. Orqlet never applies the
-    proposal."). The section may not say "once the package ships the role"; that the role is not
-    built stays pinned by R11."""
+    proposal."). The section may not say "once the package ships the role"; that the role ships
+    stays pinned by R11."""
     assert binding_built_problems(policy_section()) == []
 
 
-def test_the_section_says_what_is_not_built_yet() -> None:
-    """AC-2. expected_behavior_source: the interface decision R11, ADR-006 decision 1 (the role
-    `orqlet-code-reviewer` is a new role of the protected workflow, shipped by plan phase P-13) and
-    plan P-13 (workflow version 0.5.0; the phase `review_evidence` that gains `code-reviewer`)."""
+def test_the_section_says_that_the_code_reviewer_role_ships_and_what_the_plan_requires() -> None:
+    """AC-2, AC-15 (3), AC-18. expected_behavior_source: the interface decision R11, ADR-006
+    decision 1 (the role `orqlet-code-reviewer` is a new role of the protected workflow, shipped
+    by plan phase P-13), AC-15 (the section says that the role ships with workflow 0.5.0 and
+    that `/orqlet-review` starts three reviewers, Code, Architecture and Security), BC-26, C-9 and
+    plan P-13 (workflow version 0.5.0; the phase `review_evidence` that gains `code-reviewer`).
+    The old sentence, "has no `orqlet-code-reviewer` role yet", is pinned as gone by the edit
+    R-6."""
     assert not_built_problems(policy_section()) == []
 
 
@@ -1651,13 +1710,29 @@ def test_the_status_list_of_what_is_built_names_the_two_commands() -> None:
     assert missing(" ".join(built), [RESOLVE, VALIDATE]) == []
 
 
-def test_the_status_paragraph_of_what_is_not_built_names_the_code_reviewer_role() -> None:
-    """AC-2. expected_behavior_source: ADR-006 decision 1 and plan P-13 (the role
-    `orqlet-code-reviewer` does not exist until phase P-13) and the interface decision R13 (the
-    paragraph that starts `What is not built yet` names `orqlet-code-reviewer`)."""
+def test_the_status_paragraph_of_what_is_not_built_names_models_refresh_and_neither_role() -> None:
+    """AC-15 (2), AC-18. expected_behavior_source: AC-15 ("Also not built: `orqlet models
+    refresh`."; the paragraph keeps its first words "What is **not** built yet:", which
+    status_parts reads and which tests/unit/test_readme_integrations.py reads too), BC-26, C-9
+    and ADR-006 decisions 1 and 8 (phase P-13 builds the roles `orqlet-code-reviewer` and
+    `orqlet-pr-writer`, so the paragraph of what is not built names neither). It fails until the
+    README is edited."""
     _, not_built = status_parts()
 
-    assert missing(not_built, ["`orqlet-code-reviewer`"]) == []
+    assert missing(not_built, ["`orqlet models refresh`"]) == []
+    assert present(not_built, ["`orqlet-code-reviewer`", "`orqlet-pr-writer`"]) == []
+
+
+def test_the_status_list_of_what_is_built_names_the_two_roles_and_the_seed() -> None:
+    """AC-15 (2), AC-18. expected_behavior_source: AC-15 (the bullets of what is built, before the
+    paragraph of what is not, name the roles `orqlet-code-reviewer` and `orqlet-pr-writer`, the
+    skill steps that use them (`/orqlet-review` starts three reviewers) and the seed that `init`
+    writes to `.orqlet/model-policy.yaml`), BC-26, C-9 and ADR-006 decisions 1, 8 and 9. Only
+    those words are pinned; where the bullet sits in the list and how it goes on are not. It fails
+    until the README is edited."""
+    built, _ = status_parts()
+
+    assert missing(" ".join(built), STATUS_BUILT_PHRASES) == []
 
 
 def commands_table_row(first_cell: str) -> list[str]:
@@ -2203,8 +2278,10 @@ def test_section_10_3_says_that_the_binding_of_the_code_reviewer_is_built() -> N
     binding of `code-reviewer`), tests/unit/application/test_lifecycle.py lines 164-197 (`init`
     seeds the third binding) and src/orqlet/application/usecases/upgrade.py
     `_proposes_code_reviewer` and `_pin_notes` (`upgrade` proposes the binding to a project that
-    lacks it). The role and its skill step ship with workflow 0.5.0; the binding is built; the
-    phrase `its seeded binding` no longer stands in section 10.3."""
+    lacks it) and AC-17 (1) (BC-26, C-9, ADR-006 decisions 1 and 9): the role and its skill step
+    are built and ship with workflow 0.5.0, the binding is built, and the phrase `its seeded
+    binding` no longer stands in section 10.3. The old label `What is not built` is pinned as
+    gone by the edit P-30."""
     assert proposal_10_3_problems(proposal_section("s10_3")) == []
 
 
@@ -2222,10 +2299,10 @@ def test_the_old_sentence_of_section_10_3_put_back_fails_the_rule() -> None:
     sentence ("the role `orqlet-code-reviewer`, its skill step and its seeded binding, which ship
     with workflow 0.5.0") fails the rule, put in the place of the new one and put next to it. It
     passes before the documents change."""
-    assert NOT_BUILT_10_3 in REFERENCE_PROPOSAL
+    assert BUILT_10_3 in REFERENCE_PROPOSAL
 
-    replaced = REFERENCE_PROPOSAL.replace(NOT_BUILT_10_3, OLD_NOT_BUILT_10_3)
-    added = REFERENCE_PROPOSAL.replace(NOT_BUILT_10_3, f"{NOT_BUILT_10_3} {OLD_NOT_BUILT_10_3}")
+    replaced = REFERENCE_PROPOSAL.replace(BUILT_10_3, OLD_NOT_BUILT_10_3)
+    added = REFERENCE_PROPOSAL.replace(BUILT_10_3, f"{BUILT_10_3} {OLD_NOT_BUILT_10_3}")
 
     assert proposal_10_3_problems(reference_10_3(replaced)) == [
         f"lacks: {PROPOSAL_PRESENT_10_3[0]}",
@@ -2239,9 +2316,9 @@ def test_the_old_sentence_of_section_10_3_put_back_fails_the_rule() -> None:
     ("old", "new", "expected"),
     [
         (
-            "the role `orqlet-code-reviewer` and its skill step, which ship",
-            "the role `orqlet-code-reviewer`, which ships",
-            "lacks: the role `orqlet-code-reviewer` and its skill step, which ship",
+            "The role `orqlet-code-reviewer` and its skill step are built and ship",
+            "The role `orqlet-code-reviewer`, which ships",
+            "lacks: the role `orqlet-code-reviewer` and its skill step are built and ship",
         ),
         (
             " The binding for the role is built: `init` seeds it in `.orqlet/role-bindings.yaml`"
@@ -2290,7 +2367,6 @@ def test_the_q_07_rows_no_longer_hold_the_old_answer() -> None:
 
 Edit = tuple[str, str, str]
 
-FIVE_SPECIALIST_AGENTS = "five specialist agents"
 HEADING_22_0 = "### 22.0 Build status and what v0.5 changes in it"
 
 
@@ -2325,6 +2401,11 @@ def old_fragment_problems(text: str, edit: Edit) -> list[str]:
     return [f"{edit_id}: the old fragment {squash(old)[:80]!r} still stands {found} times"]
 
 
+# AC-15 (1): the row `Agents that follow a process` counts seven specialist agents. The edit is
+# pinned by the guard test of the specialist agents below, in the form of the edits, and not by the
+# table, so that the guard of the old count stays one test.
+SPECIALIST_AGENTS_EDIT: Edit = ("R-4", "five specialist agents", "seven specialist agents")
+
 README_EDITS: tuple[Edit, ...] = (
     (
         "R-1",
@@ -2345,6 +2426,35 @@ README_EDITS: tuple[Edit, ...] = (
         "# export the staged snapshot, diff, plan and records for the reviewers",
         "# export the staged snapshot, diff, plan and the test and knowledge records; earlier "
         "review records stay out",
+    ),
+    # The edits of phase P-13 (AC-15 (2) and (3), AC-16): the six sentences of the README that
+    # said that the roles or the seed were not built, or that counted the roles. The Status
+    # paragraph of what is built gains a bullet; it is pinned by its own test and not here.
+    (
+        "R-5",
+        "Also not built: the roles `orqlet-code-reviewer` and `orqlet-pr-writer`, the seed of the "
+        "model policy and the skill steps that use them (so `/orqlet-review` starts two "
+        "reviewers, not three), and `orqlet models refresh`.",
+        "Also not built: `orqlet models refresh`.",
+    ),
+    ("R-6", OLD_ROLE_SENTENCE, ROLE_SENTENCE),
+    (
+        "R-7",
+        "four read-only ones (an inventory researcher, a tracer, an architecture reviewer and a "
+        "security reviewer) and a tester",
+        "six read-only ones (an inventory researcher, a tracer, an architecture reviewer, a "
+        "security reviewer, a code reviewer and a PR writer) and a tester",
+    ),
+    (
+        "R-8",
+        "Orqlet does not seed it yet, so a team writes it.",
+        "`init` writes the seed once, `upgrade` writes it to a project that lacks it, every "
+        "model in it is `proposed` and none is approved, and the file is the team's from then on.",
+    ),
+    (
+        "R-9",
+        "the entry for Fable arrives with the seed, which is not built yet.",
+        "the seed holds the entry for Fable.",
     ),
 )
 
@@ -2426,9 +2536,10 @@ PROPOSAL_EDITS: tuple[Edit, ...] = (
     ),
     (
         "P-11",
-        "and the provided code reviewer; the optional knowledge drafter comes with M3)",
         "and the code reviewer, which ships with workflow 0.5.0 and is not built yet; the "
         "optional knowledge drafter comes with M3)",
+        "and the code reviewer, which ships with workflow 0.5.0; the optional knowledge drafter "
+        "comes with M3)",
     ),
     (
         "P-12a",
@@ -2451,15 +2562,16 @@ PROPOSAL_EDITS: tuple[Edit, ...] = (
     ),
     (
         "P-14",
-        "Partially covered: the Code Reviewer is provided; whether it is a required gate is "
-        "**Q-07**",
         "Partially covered: the gate is required at every phase (Q-07, re-decided in task "
         "`dynamic-model-profiles`); the role `orqlet-code-reviewer` is not built yet",
+        "Partially covered: the gate is required at every phase (Q-07, re-decided in task "
+        "`dynamic-model-profiles`); the role `orqlet-code-reviewer` ships with workflow 0.5.0, "
+        "and Orqlet runs no check at merge time (`orqlet ci check` is not built)",
     ),
     (
         "P-15",
-        "the Code Reviewer gate (7.7: Q-07)",
         "the Code Reviewer role (7.7: not built yet)",
+        "the Code Reviewer gate (7.7: no merge-time check)",
     ),
     (
         "P-16",
@@ -2549,6 +2661,37 @@ PROPOSAL_EDITS: tuple[Edit, ...] = (
         "ORQ-E442, ORQ-I440 and ORQ-I441, and none concerns an invalid review record. This text "
         "changes no code.",
     ),
+    # The edits of phase P-13 (AC-17): the sentences of the proposal that said that the code
+    # reviewer role, its skill step or the seed were not built. P-11, P-14 and P-15 above are the
+    # other three. The old fragment of each is the sentence as it stands before the phase.
+    (
+        "P-30",
+        "**What is not built:** the role `orqlet-code-reviewer` and its skill step, which ship "
+        "with workflow 0.5.0.",
+        "The role `orqlet-code-reviewer` and its skill step are built and ship with workflow "
+        "0.5.0.",
+    ),
+    (
+        "P-31",
+        "ship with workflow 0.5.0 (not built yet), `/orqlet-review` will start the role on the "
+        "same packet",
+        "ship with workflow 0.5.0, `/orqlet-review` starts the role on the same packet",
+    ),
+    (
+        "P-32",
+        "(its seed is not built yet)",
+        "(its seed ships with workflow 0.5.0, and `init` writes it)",
+    ),
+    (
+        "P-33",
+        "The seed of the file is not built yet.",
+        "The seed of the file ships with workflow 0.5.0, and `init` writes it.",
+    ),
+    (
+        "P-34",
+        "The role `orqlet-code-reviewer` is not built yet; it ships with workflow 0.5.0",
+        "The role `orqlet-code-reviewer` ships with workflow 0.5.0",
+    ),
 )
 
 
@@ -2634,43 +2777,53 @@ def test_only_the_edit_p_19_appends_to_its_old_fragment() -> None:
 
 @pytest.mark.parametrize("edit", README_EDITS, ids=edit_ids(README_EDITS))
 def test_the_readme_holds_the_new_fragment_of_an_edit_exactly_once(edit: Edit) -> None:
-    """Criterion A. expected_behavior_source: the edit table (the person
-    approved it in conversation; it is not in plan.yaml). It fails until the README is edited."""
+    """Criterion A, AC-15 and AC-16, AC-18. expected_behavior_source: the edit table (R-1 to R-3
+    were approved by the person in conversation and are not in plan.yaml; R-5 to R-9 are the
+    sentences of AC-15 (2) and (3) and AC-16 (4) to (6) of phase P-13 in plan.yaml, BC-26 and
+    C-9). It fails until the README is edited."""
     assert new_fragment_problems(readme_text(), edit) == []
 
 
 @pytest.mark.parametrize("edit", README_EDITS, ids=edit_ids(README_EDITS))
 def test_the_readme_no_longer_holds_the_old_fragment_of_an_edit(edit: Edit) -> None:
-    """Criterion A. expected_behavior_source: the edit table (as above; each
-    old fragment stood once in the README before the edits). It fails until the README is
+    """Criterion A, AC-15 and AC-16, AC-18. expected_behavior_source: the edit table (as above;
+    each old fragment stood once in the README before the edits). It fails until the README is
     edited."""
     assert old_fragment_problems(readme_text(), edit) == []
 
 
 @pytest.mark.parametrize("edit", PROPOSAL_EDITS, ids=edit_ids(PROPOSAL_EDITS))
 def test_the_proposal_holds_the_new_fragment_of_an_edit_exactly_once(edit: Edit) -> None:
-    """Criterion A. expected_behavior_source: the edit table (the person
-    approved it in conversation; it is not in plan.yaml). It fails until the proposal is edited."""
+    """Criterion A, AC-17, AC-18. expected_behavior_source: the edit table (P-1 to P-29 were
+    approved by the person in conversation and are not in plan.yaml; P-11, P-14, P-15 and P-30 to
+    P-34 are the eight sentences of AC-17 of phase P-13 in plan.yaml, BC-26 and C-9). It fails
+    until the proposal is edited."""
     assert new_fragment_problems(proposal_text(), edit) == []
 
 
 @pytest.mark.parametrize("edit", REPLACING_PROPOSAL_EDITS, ids=edit_ids(REPLACING_PROPOSAL_EDITS))
 def test_the_proposal_no_longer_holds_the_old_fragment_of_an_edit(edit: Edit) -> None:
-    """Criterion A. expected_behavior_source: the edit table (as above; each
-    old fragment stood once in the proposal before the edits; P-19 only appends and has no such
-    check). It fails until the proposal is edited."""
+    """Criterion A, AC-17, AC-18. expected_behavior_source: the edit table (as above; each old
+    fragment stood once in the proposal before the edits of its phase; P-19 only appends and has
+    no such check). It fails until the proposal is edited."""
     assert old_fragment_problems(proposal_text(), edit) == []
 
 
+# --- the README: the count of the specialist agents (AC-15 (1)) -----------------------------------
+
+
+def test_the_readme_says_that_seven_specialist_agents_ship() -> None:
+    """AC-15 (1), AC-18. expected_behavior_source: AC-15 (the row `Agents that follow a process`
+    says `seven specialist agents` where it said `five specialist agents`; the seven are
+    `orqlet-inventory`, `orqlet-tracer`, `orqlet-tester`, `orqlet-arch-reviewer`,
+    `orqlet-security-reviewer`, `orqlet-code-reviewer` and `orqlet-pr-writer`), BC-26, C-9 and
+    ADR-006 decisions 1 and 8. The new phrase stands once and the old one is gone, as the table of
+    edits reads a fragment. It fails until the README is edited."""
+    assert new_fragment_problems(readme_text(), SPECIALIST_AGENTS_EDIT) == []
+    assert old_fragment_problems(readme_text(), SPECIALIST_AGENTS_EDIT) == []
+
+
 # --- the guards: what the edits leave as they are (criterion B) -----------------------------------
-
-
-def test_the_readme_still_says_that_five_specialist_agents_ship() -> None:
-    """Criterion B. expected_behavior_source: the criterion (the README line about `five
-    specialist agents` is not changed by the edits; it is still true) and README.md, the table
-    row `Agents that follow a process`. It passes before the documents change and must pass after
-    them."""
-    assert occurrences(readme_text(), FIVE_SPECIALIST_AGENTS) > 0
 
 
 def test_the_proposal_still_has_the_heading_of_section_22_0() -> None:

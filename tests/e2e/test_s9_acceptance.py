@@ -162,7 +162,17 @@ def build_project(root: Path) -> Path:
     plan_document = plan(
         base=head["bound"]["base_revision"],
         knowledge_scope=["docs/knowledge/**"],
-        phases=[phase(implements=["EC-1"])],
+        phases=[
+            phase(
+                implements=["EC-1"],
+                review_evidence=[
+                    "architecture-reviewer",
+                    "security-reviewer",
+                    "tester",
+                    "code-reviewer",
+                ],
+            )
+        ],
     )
     plan_document["header"] = head
     put(root, f"{TASK_DIR}/plan.yaml", dump(plan_document))

@@ -42,6 +42,7 @@ def test_the_wheel_carries_the_workflow_package_and_the_entry_point(
         "orqlet/workflow/MANIFEST.json",
         "orqlet/workflow/baseline/baseline.md",
         "orqlet/workflow/seeds/prompts/rules.yaml",
+        "orqlet/workflow/seeds/orqlet/model-policy.yaml",
         "orqlet/workflow/schemas/orqlet.versions.v1.json",
     } <= names
     assert "orqlet = orqlet.interface.cli.app:main" in entry_points

@@ -158,6 +158,7 @@ def compose(
     team = team_template(resolution.loaded, findings)
     desired += pr_template_files(services, pr_targets, team)
     desired += seed_files(services, prompts_dir, findings)
+    desired.append(to_desired(services.renderers.model_policy_seed(services.workflow)))
     desired += data_files(services, profile_bytes, resources_bytes, resolution)
     desired = [item for item in desired if str(item.path) not in released]
     if released_record is not None:

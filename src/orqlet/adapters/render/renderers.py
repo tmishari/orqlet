@@ -12,6 +12,9 @@ class PackagedRenderers:
     def seed_files(self, workflow: WorkflowSource, *, base: str) -> tuple[RenderedFile, ...]:
         return prompts_seed.seed_files(workflow, base=base)
 
+    def model_policy_seed(self, workflow: WorkflowSource) -> RenderedFile:
+        return prompts_seed.model_policy_seed(workflow)
+
     def workflow_block(self, workflow: WorkflowSource) -> BlockSpec:
         return pr_template.workflow_block(workflow)
 

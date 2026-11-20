@@ -1,5 +1,11 @@
 """The text of the five role prompts (task phase-skill-contracts, phase P-5).
 
+Since phase P-13 of the task dynamic-model-profiles the package ships seven roles. The pins below
+stay for the five old roles; the two new roles, `orqlet-code-reviewer` and `orqlet-pr-writer`, and
+the check that left `orqlet-arch-reviewer` are pinned in
+tests/unit/test_workflow_code_review_roles.py. `ROLE_NAMES` lists seven roles, so the
+technology-word test at the end covers the new sources too.
+
 Every test cites its `expected_behavior_source`: BC-n are the behaviour criteria of
 docs/design/phase-skill-contracts/design/component.md, ADR-002 and ADR-004 are the files
 `adr-00n-*.md` in the same folder, Q-n are the questions of

@@ -384,6 +384,7 @@ def valid_doc() -> dict[str, Any]:
 
 
 def arrange_directory(env: Env) -> None:
+    env.project.delete(CanonicalPath.parse(POLICY_PATH))  # the seed that init wrote
     env.project.make_dir(CanonicalPath.parse(POLICY_PATH))
 
 
@@ -407,11 +408,8 @@ def arrange_credential(env: Env) -> None:
 
 
 def arrange_deleted(env: Env) -> None:
-    """The policy file is gone and a valid lock still lists it as seeded."""
-    lock = LOADER.load(read(env, LOCK_PATH), source="lock")
-    assert isinstance(lock, dict)
-    lock["files"].append({"path": POLICY_PATH, "owner": "seeded", "seeded_sha256": "0" * 64})
-    put(env, LOCK_PATH, json.dumps(lock, indent=2).encode())
+    """The policy file is gone and the lock that init wrote still lists it as seeded."""
+    env.project.delete(CanonicalPath.parse(POLICY_PATH))
 
 
 def arrange_excluded_model(env: Env) -> None:
@@ -643,7 +641,8 @@ def test_explain_with_no_policy_has_no_row_and_no_finding() -> None:
 def test_explain_composes_with_the_policy_that_it_loaded(monkeypatch: pytest.MonkeyPatch) -> None:
     """AC-7. expected_behavior_source: the interface item 6 ("Loads the policy and calls
     `compose(policy=...)`") and item 1. A valid policy file is passed to `compose` as a loaded
-    state; no file is passed as nothing or as an absent state.
+    state. A project that `init` made holds the seed (P-13 AC-12), so the plain project loads the
+    seed and the other one loads its own file.
     """
     calls: list[dict[str, Any]] = []
 
@@ -661,8 +660,9 @@ def test_explain_composes_with_the_policy_that_it_loaded(monkeypatch: pytest.Mon
 
     assert len(calls) == 2
     assert "policy" in calls[0]
-    assert calls[0]["policy"] is None or type(calls[0]["policy"]).__name__ == "PolicyAbsent"
+    assert isinstance(calls[0]["policy"], PolicyLoaded)
     assert isinstance(calls[1]["policy"], PolicyLoaded)
+    assert calls[0]["policy"].policy != calls[1]["policy"].policy
 
 
 @pytest.mark.parametrize("case", list(UNUSABLE))

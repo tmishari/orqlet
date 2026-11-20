@@ -9,7 +9,6 @@ Check, with evidence from the packet:
 
 - the change implements the phase and stays inside its file list;
 - boundaries, patterns, contracts and compatibility of the approved design hold, and the standards that apply are met;
-- the code is correct against the acceptance criteria, including failure handling;
 - the tests are meaningful and cover the criteria;
 - the knowledge diff and the knowledge-impact record are accurate: every claim cites evidence that supports it, and nothing was written only to satisfy the rule.
 
