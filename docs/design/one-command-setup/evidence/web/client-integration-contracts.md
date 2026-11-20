@@ -141,6 +141,15 @@ URLs: https://code.claude.com/docs/en/skills.md, https://code.claude.com/docs/en
 11.3 Shell install - "Run `claude plugin install` in your shell to install a plugin without starting a Claude Code session, for example from a setup script."
 11.4 Scope - "**User scope**: the plugin is enabled for you in every project on this machine. The entry goes in `enabledPlugins` in `~/.claude/settings.json`."
 
+## 12. Cursor plugins reference
+
+URL: https://cursor.com/docs/reference/plugins.md (curl, Markdown twin)
+
+12.1 Discovery - "Rules | `rules/` | All `.md`, `.mdc`, or `.markdown` files" and "Hooks | `hooks/hooks.json` | Parsed for hook event names"
+12.2 Always-applied rule - "`alwaysApply` | boolean | If `true`, rule applies to all files. If `false`, rule is available on request."
+12.3 Root variable - "Cursor expands `${CURSOR_PLUGIN_ROOT}` and `${CLAUDE_PLUGIN_ROOT}` to the plugin's install path in `command`, `args`, `env` values, and `cwd`."
+12.4 Not stated - The page does not say whether an always-applied plugin rule and a User Rule are presented to the agent in the same way.
+
 ## Not run
 
 - No hook, plugin or skill was installed or executed; no client version on this machine was read.
