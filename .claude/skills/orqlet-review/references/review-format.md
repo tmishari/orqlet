@@ -2,7 +2,7 @@
 
 # A review record
 
-`docs/design/<task>/reviews/<role>-<phase>-r<round>.yaml` is one review round of one role. It states the digest of exactly the inputs the reviewer examined, so that committing it does not change what it states.
+`docs/design/<task>/reviews/<role>-<phase>-r<round>.yaml` is one review round of one role: `architecture-reviewer`, `security-reviewer` or `code-reviewer`. It states the digest of exactly the inputs the reviewer examined, so that committing it does not change what it states.
 
 ```yaml
 schema: orqlet.review-result/v1
@@ -55,12 +55,24 @@ self_check:
     - {what: packet read, how: "orqlet review prepare", result: pass}
 ```
 
+The `agent` block may also carry three optional fields. A record without them still loads, and a missing `identity_source` means `unknown`:
+
+```yaml
+agent:
+  identity_source: client-reported   # or person-observed, unknown
+  selection_source: role-assignment  # or task-override, profile-assignment, automatic, explicit-fallback
+  context: {fresh: true, input: packet-only}
+```
+
 Rules the validator checks:
 
-- The path is exact: `<role>` is `architecture-reviewer` or `security-reviewer`, the phase is `P-n`, the round starts at 1 and has no gap. The task, phase, role and round in the file equal the ones in the path.
+- The path is exact: `<role>` is `architecture-reviewer`, `security-reviewer` or `code-reviewer` (`docs/design/<task>/reviews/code-reviewer-<phase>-r<round>.yaml`), the phase is `P-n`, the round starts at 1 and has no gap. The task, phase, role and round in the file equal the ones in the path.
 - `review_input` covers `code_tests`, `knowledge`, `design`, `plan`, `standards`, `reviewer_definition` and `evidence_inputs`, and its digest follows from its components. `orqlet review prepare` prints the block.
 - `agent.binding_ref` is an approved binding for this role and client in `.orqlet/role-bindings.yaml`, and `agent.definition_sha256` is the hash of the agent definition file in the tree.
-- `independence` cannot be higher than the recorded identifiers give: an approved binding is I1, a different client or model family from the Coder is I2. Nothing a record states can show a human reviewer (I3). An I0 review is never a PASS.
+- `independence` cannot be higher than the recorded identifiers give: an approved binding is I1, a different client or model family from the Coder is I2, and only an observed identity shows a family difference. Nothing a record states can show a human reviewer (I3). An I0 review is never a PASS.
+- `context` records `fresh` and `input: packet-only`: the reviewer started in a new session and read the packet and nothing else; a `code-reviewer` record needs `context.fresh: true` and is NOT_RUN below I2 at every change class.
+- A Codex record states in `capability_limits` that read-only is not enforced by this client.
+- Six closed warnings can appear. `model-requested-differs-from-observed`: the model asked for is not the model observed. `identity-unknown`: a different client carries the class, and a side has no observed identity that the policy names. `same-model-different-client`: the same observed model ran on two clients. `policy-changed-in-this-change` and `binding-added-in-this-change`: the change itself edits the policy or adds the binding. `codex-read-only-not-stated`: a Codex record lacks the phrase above.
 - A PASS holds no blocking finding. A FAIL holds at least one.
 - `self_check` is required.
 

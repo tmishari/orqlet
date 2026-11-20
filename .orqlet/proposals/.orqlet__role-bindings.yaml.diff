@@ -1,1 +1,19 @@
-
+--- a/.orqlet/role-bindings.yaml
++++ b/.orqlet/role-bindings.yaml
+@@ -23,5 +23,16 @@
+       input: review-packet
+       write_access: none-or-recorded-limit
+     independence_capability: I1
++  - role: code-reviewer
++    id: orqlet-code-reviewer
++    clients:
++      - claude-code
++      - codex
++      - cursor
++    minimum_capability:
++      context: fresh
++      input: review-packet
++      write_access: none-or-recorded-limit
++    independence_capability: I2
+ model_families: []
+ not_accepted_for_review_roles: []
