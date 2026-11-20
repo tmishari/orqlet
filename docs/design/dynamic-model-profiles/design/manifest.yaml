@@ -94,10 +94,10 @@ expected_changes:
   - id: EC-7
     surface: security
     action: change
-    identity: ".github/CODEOWNERS entries for the seed of the policy and CODEOWNERS itself (.orqlet/** already owns the policy path)"
+    identity: ".github/CODEOWNERS entries for the seed of the policy and CODEOWNERS itself (.orqlet/** already owns the policy path), and the six files under .orqlet/ that orqlet upgrade writes when it installs the workflow 0.5.0: the three lock files, the seeded policy file and the two proposal files"
     expected_after:
       kind: declaration
-      value: ".github/CODEOWNERS"
+      value: ".github/CODEOWNERS, .orqlet/generated.lock.yaml, .orqlet/model-policy.yaml, .orqlet/standards.lock.yaml, .orqlet/workflow.lock, .orqlet/proposals/.orqlet__role-bindings.yaml.diff, .orqlet/proposals/.orqlet__versions.yaml.diff"
     verification: extractor
   - id: EC-8
     surface: public-api
@@ -161,6 +161,8 @@ reviews:
   - {role: security-reviewer, note: docs/design/dynamic-model-profiles/reviews/security-reviewer-design-r3.md}
   - {role: architecture-reviewer, note: docs/design/dynamic-model-profiles/reviews/architecture-reviewer-design-r4.md}
   - {role: security-reviewer, note: docs/design/dynamic-model-profiles/reviews/security-reviewer-design-r4.md}
+  - {role: architecture-reviewer, note: docs/design/dynamic-model-profiles/reviews/architecture-reviewer-design-r5.md}
+  - {role: security-reviewer, note: docs/design/dynamic-model-profiles/reviews/security-reviewer-design-r5.md}
 self_check:
   schema: orqlet.self-check/v1
   checked_against:
@@ -192,10 +194,12 @@ self_check:
     - {what: "Citations of code lines in the ADRs resolve", how: "rg -n on independence.py, render_all.py, release.py", result: pass}
     - {what: "No command found in a project file was run", how: "only orqlet standards, validate, gate, evidence hash and ledger commands and read-only git commands ran", result: pass}
     - {what: "The architecture and security reviewers each returned a note in four rounds, saved unchanged with the author's responses", how: "docs/design/dynamic-model-profiles/reviews/architecture-reviewer-design-r1.md, -r2.md, -r3.md, -r4.md and security-reviewer-design-r1.md, -r2.md, -r3.md, -r4.md; round 4 reviewed an amendment of EC-7 and the whole design", result: pass}
+    - {what: "EC-7 was amended so that it also lists the six .orqlet/ files that orqlet upgrade writes in P-14 (cause: ORQ-E450 on gate status --phase P-14 --head staged)", how: "orqlet validate design passed. A detached scratch tree with this amendment committed as its base and the staged P-14 upgrade (37 files) on top printed EC-7 security: implemented as designed and no ORQ-E450. The same staged change on the unamended base printed ORQ-E450 for the same six paths. Nothing else in the design changed: the artifact hashes are those of the approved design.", result: pass}
     - {what: "The design that will merge is the design a reviewer read", how: "the files were changed after rounds 1, 2 and 3 to answer them; every round-3 finding was answered by a text change and the result was not reviewed again, so the hashes in the round-3 notes differ from the manifest's; round 4 was answered the same way (ADR-007, the brief and the ledger changed afterwards, and the amended text was not reviewed again)", result: fail}
   failures:
     - "Every review round ended NOT PASS (round 1: 5 and 4 blocking findings; round 2: 3 and 1; round 3: 2 and 2). Each blocking finding was checked against the code, accepted and answered in the design; the answers of round 3 were not reviewed again."
     - "Round 4 (the amendment of EC-7) ended NOT PASS in both reviews: architecture two blocking findings, security one. The note-path finding, raised by both, was answered by a text change that records what the build does; the architecture finding on the meaning of family is Q-38, which blocks nothing and is open, so that blocking finding stands until the person answers. The non-blocking findings were deferred with reasons in the notes."
+    - "Round 5 (the amendment of EC-7 for the six .orqlet/ files of P-14) ended NOT PASS in both reviews: architecture one blocking finding (F-1, the meaning of family, which is Q-38 and the round-4 finding unchanged), security one (SEC-1, EC-7 does not list the src/orqlet/domain/** paths that earlier phases changed). Both reviewers read the new EC-7 value as checkable and found no defect in the six paths. Neither blocking finding was answered by a design change, because the request was to change EC-7 for the six files only; the notes carry the responses and the person decides. The manifest was changed after the reviewers read it, to list the two notes and this entry; no artifact hash changed."
   unverified:
     - "That the final revision has no remaining blocking finding: it was not reviewed after the round-3 responses. The person decides whether to arrange another review round in a fresh session or to rely on the review of the design pull request."
     - "Every reviewer ran without a shell, so no reviewer ran orqlet validate, standards, evidence cite or a test; the author ran orqlet validate design, validate ledger and evidence hash."
