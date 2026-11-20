@@ -1,89 +1,161 @@
-# One-command setup and bundled skills
+# Install the CLI, register the assistant skill, invoke it in the assistant
 
-Status: preliminary design for human review. This is not an approved plan or a validated Orqlet design set. No implementation is included. The AS-IS file remains a draft awaiting human acceptance.
+Status: design draft for human review. No product implementation, native-client qualification, approved plan or validated formal design set is claimed. The research is also a draft awaiting human acceptance.
+
+## Latest scope revision: intuitive native integration
+
+The person confirmed both GitHub Copilot Agent mode in VS Code and the Codex VS Code extension (Q-13). They also confirmed that routine startup guidance and lightweight checks should run through native client hooks without repeated manual skill commands (Q-14, Q-16). Official documentation was approved as the fallback for unavailable Context7 access (Q-15). See evidence/web/client-hooks.md.
+
+The desired everyday experience is install once, open the supported assistant and describe the task normally. Keep the explicit `orqlet` entry skill for setup, help and recovery. Skills remain reusable instructions, hooks are native lifecycle triggers, and plugins are optional client-supported distribution mechanisms. The core validators remain deterministic. This revision supersedes any implication below that repeatedly invoking separate skills is the desired daily interaction or that plugin/hook delivery is categorically excluded.
+
+Research and design must distinguish required human approval from accidental command/record-management work. Propose reviewed changes to current explicit-invocation contracts where necessary; do not bypass them through a startup hook. Preserve facts-only research, design/plan approval, approved implementation scope, independent review, model-policy controls and evidence-bound checks.
+
+Each client needs a verified capability/event mapping. Use native plugins/hooks where supported and documented file-based integration where necessary. In particular, do not equate the separate Codex VS Code extension with VS Code's Copilot harness or assume plugin support in that extension. Installation/trust prompts belong to the host and must not be bypassed.
+
+Keep startup output/context small. Scope checks to relevant changed inputs; do not run full test suites, build a complete graph, download packages, call models or nag the user at every tool event. Define deduplication, loop prevention, time/output limits, input validation, failure behavior, version handling and a safe way to disable or remove only Orqlet's hooks. No new generic plugin framework, background daemon or upstream runtime is justified merely to connect existing checks.
+
+This is an expanded draft scope. The detailed lifecycle design, AS-IS refresh, formal design/reviews and implementation plan remain incomplete; the following earlier sections must be reconciled with this revision before approval.
 
 ## Scope and requirements
 
-The proposed change adds a bootstrap installer and seven bundled skills, using the current project rendering and lifecycle operations. The installer prepares the machine and initializes or upgrades the current project in one invocation.
+Use the three-step experience the person requested:
+
+**In the terminal:**
+
+```sh
+uv tool install orqlet       # alternative: pipx install orqlet
+orqlet install
+```
+
+**Then, inside the AI assistant:**
+
+```text
+/orqlet .
+```
+
+These are target quickstart examples. The official package's publication/ownership has not been verified, and the new installer/entry skill do not exist yet. Retain the documented pinned Git-source installation until the package distribution is established. Orqlet currently requires Python 3.12+, not Graphify's Python 3.11+ floor.
 
 | Requirement | Confirmed source |
 |---|---|
-| R-1 One command installs Orqlet and prepares the project for Cursor, Codex and Claude Code | questions.yaml Q-1 |
-| R-2 Install missing uv and a compatible Python, plus the Graphify CLI | Q-2 |
-| R-3 Include Graphify and all six Ponytail skills in initialized/upgraded projects | Q-1, Q-3 |
-| R-4 Require Git; do not install it | Q-4 |
+| R-1 Install Orqlet user-wide with uv, with pipx as an alternative | Q-10 |
+| R-2 `orqlet install` detects supported assistants and registers the entry skill | Q-10 |
+| R-3 Register all detected supported assistants if several are present | Q-12 |
+| R-4 Invoke the skill as `/orqlet .` inside the assistant | Q-11 |
+| R-5 Supply missing global defaults and project-specific configuration in their confirmed scopes | Q-1, Q-7, Q-10 |
+| R-6 Include Graphify and all six Ponytail skills | Q-1, Q-3 |
+| R-7 Keep Git as a prerequisite; retain the separately requested missing-uv/Python bootstrap | Q-2, Q-4 |
+| R-8 Provide a terminal graphic and allow one guided Cursor User Rules step | Q-5's graphic requirement, Q-9 |
 
-The smallest proposed delivery supports macOS/Linux shell and Windows PowerShell entry points. It does not install editors, sign into services, run a graph build, install Graphify optional extras, or install Ponytail's executable plugin runtime. These are outside the confirmed skill-and-installer scope.
+Q-10 supersedes the earlier terminal-dot-command interpretation in Q-5/Q-6. Support remains Cursor, Codex and Claude Code. Installation does not install editors, sign into services, run graph analysis, start an agent or install Ponytail's executable plugin runtime.
 
-## Proposed behaviour
+## Observable behaviour
 
-A published setup command downloads the installer from an immutable, approved Orqlet commit and passes that same revision to the installer. A checkout also offers the corresponding local script. The final command and its revision are published only after the implementation is tested; no installer URL in this document is a working installation claim.
+### CLI package installation
 
-The installer checks Git before changing the machine. It obtains missing uv from its official, version-pinned distribution, obtains Python 3.12 through uv, and installs Orqlet and Graphify in separate uv tool environments. Python 3.12 is a proposed shared runtime choice because it falls inside both inspected projects' declared ranges (AS-IS A-1, A-7, A-8). It does not reduce Orqlet's supported Python range.
+uv/pipx installs the CLI in its normal isolated, user-wide tool environment. No project configuration or assistant session is launched as a package-install side effect. The optional prerequisite bootstrap is an additional route for a machine missing uv/Python, not the primary quickstart.
 
-The installer then runs existing project lifecycle commands: `init` for a project without an Orqlet installation, `upgrade` for an existing installation. It uses the CLI's normal validation, displays its changes and forwards its result. The installer may request the existing noninteractive apply behaviour because the user explicitly invoked setup; it never supplies invented project-profile answers or approves a profile, design or plan. Missing repository/branch information is reported through the existing CLI instead of guessed. Existing `init` options for new repositories remain the way to supply those choices.
+### Terminal: `orqlet install`
 
-Direct `orqlet init` and `orqlet upgrade` also distribute the new skills using packaged sources. They remain offline file operations. On another developer's machine, the same bootstrap command prepares the required executables; copying a project's skill files alone does not install software on that machine.
+Show the Orqlet terminal banner, detect supported assistants from documented configuration locations and installed-client indicators, and report the evidence for each detection. Register the entry skill and applicable packaged global skills, agents and rules for every detected supported client. A directory is a detection signal, not proof that a native client is usable. No detected client produces an explicit needs-input result, not a silently chosen default assistant.
 
-Running setup again must be safe. Compatible installed tools are reused; an incompatible existing installation is reported with its path and required version rather than silently replaced. The installer must not report success unless all tool checks and the project operation succeed. CLI/profile pins and owned project files retain their existing checks.
+Create missing global Orqlet components, preserve existing personal files and unrelated instruction text, and refuse unowned/edited collisions. Add only a missing managed block after preview; do not silently replace an existing global block. Reruns do not duplicate registrations or reinstall compatible tools. Running this command inside a repository still performs global registration; the assistant invocation is the project-setup entry point.
 
-## Responsibilities and boundaries
+Ensure the pinned Graphify executable is available through a separate uv tool installation when needed. Installing a package's dependency alone does not expose its executable (evidence/web/global-setup.md). A pipx installation of Orqlet must reach the same usable Graphify state through the approved tool-preparation path, including preparation of missing uv under Q-2. Never mutate the user's project environment or install Graphify into Orqlet's tool environment using pip. Graphify's proposed runtime is managed Python 3.12, which fits both inspected projects without reducing Orqlet's own supported range.
+
+Use documented global client destinations and an explicitly scoped writer/journal. The accepted Cursor exception generates the reviewed User Rules text and guides the person to Customize / Rules; no internal settings database or undocumented global rules folder is written. Report that step as outstanding until the person acknowledges it. An acknowledgement is not automated native-client verification.
+
+Finish by showing the native invocation for each registered client. Claude Code and Cursor use `/orqlet .`; Codex CLI/IDE skill invocation uses `$orqlet .` (or its skill picker). Keep the skill's name `orqlet` in every client; do not advertise an unsupported slash invocation as verified on Codex.
+
+### Inside the assistant: `/orqlet .`
+
+The registered entry skill resolves `.` in the assistant's current workspace, checks the installed CLI and inspects project state. It guides the developer and invokes existing deterministic CLI operations through the host client's tools. Orqlet itself still takes no prompt, calls no model and starts no agent.
+
+| Target state | Entry skill behaviour |
+|---|---|
+| Outside a Git worktree | Ensure missing global setup through the installer when necessary; do not turn the current directory into a project |
+| Git worktree without Orqlet | Ensure missing globals, then invoke the existing initialization flow for that repository |
+| Initialized Git worktree | Ensure missing globals, then invoke the existing upgrade/status flow for that repository |
+
+Nested directories and linked worktrees resolve through the hardened Git adapter. A Git error other than an ordinary non-repository result is an error, not a reason to guess global-only mode. Do not invent profile facts, target branches or approvals. After setup, report status and the relevant existing workflow entry points; do not automatically run research, design, plan and implementation past their human gates.
+
+The public CLI addition is the ordinary named subcommand `install`, and the workflow addition is the assistant entry skill `orqlet`. No terminal `orqlet .` route or custom positional-argument parser is part of this design. Existing named CLI commands keep their behaviour.
+
+### Terminal presentation
+
+Show a compact banner and readable results during interactive `orqlet install`. Example appearance only:
+
+```text
+    o
+   / \
+  o---o   ORQLET
+          AI development setup
+
+  Claude Code           skill registered
+  Codex                 skill registered
+  Cursor User Rules     one setup step needed
+
+  Next: open your assistant and invoke the Orqlet skill.
+```
+
+uv/pipx retain their own installation output. Reuse existing terminal facilities; add no graphics dependency. Keep JSON output free of banners/control codes and non-TTY output plain. `--dry-run`, `--json` and `--yes` follow current CLI conventions. Dry-run performs no download, package installation, global write or project write.
+
+## Responsibilities and interfaces
 
 ```mermaid
 flowchart LR
-    U[Developer runs setup] --> B[Shell or PowerShell bootstrap]
-    B --> V[uv and managed Python]
-    V --> O[Isolated Orqlet tool]
-    V --> G[Isolated Graphify tool]
-    B --> L[Existing init or upgrade]
-    O --> L
-    S[Packaged reviewed skills] --> L
-    L --> C[Claude Code project skills]
-    L --> A[Shared Cursor and Codex project skills]
+    P[uv or pipx installs CLI] --> I[Terminal: orqlet install]
+    I --> D[Detect supported assistants]
+    D --> G[Register global entry skill and defaults]
+    I --> T[Prepare pinned Graphify tool]
+    G --> A[Developer invokes skill inside assistant]
+    A --> H[Host assistant reads entry skill]
+    H --> C[Existing Orqlet init, upgrade and status commands]
+    C --> R[Project configuration and status]
 ```
 
-- The bootstrap owns network installation and executable discovery. Installation runs from a private temporary directory and does not consume package-manager configuration or executable paths from the target repository. Package sources and tool pins come from the trusted release, not project files. Existing shell configuration is preserved when making user executables available.
-- Orqlet's existing workflow package, skill loader, renderer and change planner own project files (A-3–A-5, A-11). No plugin marketplace, background updater, generic package manager, or new dependency framework is introduced.
-- Installer code is a separate entry point outside `src/orqlet`. Any new process started inside Orqlet must use `ProcessRunner`; Git continues through `GitRunner`. No model SDK is added to Orqlet (ORQLET-SEC-001, ORQLET-NOMODEL-001).
+- Interface code registers `install` and renders progress. Application use cases coordinate detection, scope and tool preparation. Adapters perform I/O; domain code remains independent of processes, terminal output and home paths.
+- Detection uses a fixed, documented set of non-secret indicators. Do not scan arbitrary home content, read credential stores, launch clients or treat a project's files as executable discovery instructions.
+- Global and project filesystem/journal roots are distinct and allowlisted. Reuse ownership, managed blocks and change planning. Global defaults do not require a fake project profile or unrestricted home access.
+- Tool installation uses bounded `ProcessRunner` calls, fixed trusted package sources and a private working directory. Ignore target-project package-manager configuration. Git remains behind `GitRunner`. Direct `init`/`upgrade` remain offline.
+- Global defaults come from packaged content, not a project's profile, company links, model assignments or credentials. Project outputs are rendered from that project's own reviewed inputs. Native-client precedence is not assumed identical: Codex documents that same-named skills can both appear in selectors.
 
-## Skill integration
+## Packaged skill integration and compatibility
 
-Bundle reviewed, fixed upstream snapshots with their original names: `graphify`, `ponytail`, `ponytail-review`, `ponytail-audit`, `ponytail-debt`, `ponytail-gain`, and `ponytail-help`. Record upstream commit, file hashes, licences, attribution and local modifications. Deliver the required licence/notice material with the skills. Normalize their front matter into the existing source format instead of broadening the parser merely to copy metadata (A-3, A-9).
+Add the entry skill `orqlet` alongside the existing phase skills. Preserve explicit invocation controls, protected ownership, workflow versioning, manifest hashes and model-policy checks.
 
-Use one shared Graphify entry skill that selects the appropriate bundled client reference. This accommodates the current shared Cursor/Codex destination without pretending their agent tools are interchangeable (A-4, A-8). Retain the corresponding upstream reference material and adapt relative links. Review every adaptation against its pinned source.
+Also bundle reviewed upstream snapshots named `graphify`, `ponytail`, `ponytail-review`, `ponytail-audit`, `ponytail-debt`, `ponytail-gain` and `ponytail-help`. Record source commits, hashes, attribution, licences/notices and local adaptations. Use the existing front-matter format rather than expanding its parser just to preserve upstream metadata.
 
-Adapt Graphify's dependency-install step to check the installed pinned CLI and point to setup on failure. Remove automatic upgrades, system-pip fallbacks and instructions to override host-client policy. Client-specific extraction remains subject to available tools and the person's permissions. Graph results remain navigation aids: inferred/stale relationships do not replace source-line evidence. Installing a skill never builds a graph, calls a model, registers hooks or starts an agent.
+The Graphify entry loads the appropriate client reference; shared Cursor/Codex files must not assume interchangeable agent tools. Replace automatic/unpinned dependency installation and system-pip fallbacks with checks of the tool prepared by `orqlet install`. Graph relationships remain navigation aids, with source verification for evidence. Installing a skill does not build a graph or call a model.
 
-Keep all seven skills available through explicit invocation, following current Orqlet skill behaviour. Ponytail's simplicity guidance cannot remove required tests, approvals, phase boundaries, output contracts or independent reviews. Its review and audit commands provide supplementary reports rather than satisfying Orqlet review records. Adapt help to describe the delivered skills accurately; identify the band, lifecycle hooks and persistent mode configuration as separate upstream-plugin features. Include the benchmark source used by `ponytail-gain`, clearly attributed as an upstream measurement, not an Orqlet result.
+Ponytail cannot remove required tests, approvals, phase boundaries or independent review. Its audits/reviews supplement Orqlet's required review records. Adapt help to describe delivered skills accurately; the upstream band, hooks and persistent plugin configuration are separate features. Attribute benchmark results to their upstream source, never to the receiving repository.
 
-Skill files participate in the current workflow manifest, release identity, generated ownership, drift detection and rollback. Initialization or upgrade refuses a pre-existing, unowned skill at a conflicting path rather than silently taking it over. Existing projects receive the skills when upgraded; setup does not discover and change other repositories on the computer.
+Apply ORQLET-MODEL-001 to imported skill text: remove upstream operational model defaults and hard-coded model names unless assigned by the applicable policy. Preserve benchmark methodology/provenance through upstream links where verbatim metadata cannot be bundled under that rule.
 
-## Failure and recovery
+Existing `init`/`upgrade` projects continue to receive reviewed project skill files without requiring a global installation on every teammate's machine. Global/project overlap and source selection need native-client evidence; directory documentation alone does not prove correct precedence or remove the need for project pins.
 
-| Trigger | Observable outcome and recovery |
+## Failure, recovery and acceptance criteria
+
+Machine tool installation, global registration and project writes are separate transactions. Preflight known path/ownership conflicts; report completed scopes on a later failure. Project rollback does not uninstall shared tools or erase global defaults. Never remove pre-existing tools to hide a failed setup.
+
+| Trigger | Result and recovery |
 |---|---|
-| Git missing | Stop before installation; name Git as the prerequisite |
-| Download, package verification or installation fails | Nonzero result; identify the failed step without exposing credentials; rerun after resolving it |
-| Unsupported OS/architecture or no compatible binary package | Stop with the supported target information; do not install compilers or OS packages automatically |
-| Existing tool is incompatible or belongs to another installation | Report its path and required version; preserve it; require an explicit repair/replacement choice |
-| Project lifecycle operation refuses input or reports a conflict | Preserve the CLI's result and recovery instructions; do not call setup complete |
-| Project write interrupted | Existing journal/resume/rollback behaviour applies; rerun through the existing CLI |
+| Missing prerequisite or no supported assistant detected | Explicit needs-input result; name the missing condition, with no default guess |
+| Failed download, unavailable platform binary or incompatible existing tool | Nonzero result naming the failed step and tool path; preserve prior installations |
+| Unowned/edited file, escaping path or symlink collision | Refuse the affected write; report the conflict without broadening scope |
+| Cursor User Rules step pending | Distinguish installed files from the outstanding guided action |
+| Project facts, pin or approval missing | Preserve the existing CLI result and recovery instructions |
+| Interrupted write | Recover within the correct global/project journal; do not claim cross-scope atomicity |
 
-Machine installations and project writes are separate transactions. Project rollback does not uninstall shared user tools. On failure, report which tools were installed; do not remove pre-existing tools or shared uv/Python. The plan must specify verification of downloaded bootstrap artefacts, exact pins, the platform matrix and safe replacement behaviour before implementation.
+- BC-1 The documented uv and pipx quickstarts install a runnable user-wide CLI; `orqlet install` is the terminal registration command (R-1, R-2).
+- BC-2 Detection covers supported clients, multiple detections, configured roots and no detections; all detected clients are registered without reading secrets or launching agents (R-3).
+- BC-3 Each client discovers the entry skill and receives the correct native invocation instructions. The skill resolves `.` and reaches the existing CLI setup/status path through host tools (R-4, R-5).
+- BC-4 Missing globals are supplied safely; outside a repository no project is created, and nested/linked worktree setup affects only its resolved repository (R-5).
+- BC-5 Both scopes receive the applicable packaged skills, agents, references and attribution, including Graphify and all six Ponytail skills; model-policy isolation and source overlap are checked (R-6; ORQLET-MODEL-001).
+- BC-6 Existing user content survives reruns and conflicts. Dry-run has no machine/home/project side effects. JSON remains parseable and the banner appears only in suitable human output (R-8; ORQLET-SEC-002).
+- BC-7 The accepted Cursor step distinguishes user acknowledgement from automated verification; no model run, agent session or approval bypass is caused by CLI installation/registration (R-8; ORQLET-NOMODEL-001).
 
-## Acceptance criteria and validation
+Use existing fake-backed unit tests, renderer/golden tests, CLI routing/output tests, lifecycle tests and wheel smoke tests. Test home writes only in temporary scoped roots. Add installer checks with stubbed downloads, separate clean-machine uv/pipx checks and real-client checks for discovery/invocation/precedence. Lint, typing, architecture, tests and build checks precede a ready PR.
 
-- BC-1 A supported clean machine with Git but without uv/Python completes one setup invocation and can run both CLIs (R-1, R-2, R-4).
-- BC-2 New and upgraded projects receive all seven skills for their selected clients with complete references and attribution; the CLI-only install remains usable (R-1, R-3; A-4).
-- BC-3 Reruns, tool conflicts, paths with spaces, interrupted/network-failed installs and an unowned skill collision preserve existing installations and user files (R-1; ORQLET-SEC-002).
-- BC-4 Dry-run, deterministic rendering, rollback and seeded-file ownership retain their contracts. CLI-only init/upgrade make no new network calls (A-4–A-7, A-11).
-- BC-5 Native-client checks demonstrate explicit skill discovery and invocation for all three clients, including Graphify tool dispatch and unavailable-agent capabilities. No automatic model run or approval bypass occurs (R-1; ORQLET-NOMODEL-001).
-- BC-6 Tests cover every skill reference, source pin and licence; the packaged wheel contains the reviewed sources. Upstream updates require a reviewed Orqlet release (R-3; A-6, A-11).
+## Review status
 
-Use the existing fake-backed unit tests, renderer/golden tests, lifecycle tests and wheel smoke tests. Add focused installer self-checks with stubbed downloads/executables and real clean-machine smoke checks on the supported OS matrix. Run the repository's lint, typing, architecture, test and build checks before a PR is ready. Native-client and real-download checks require separate evidence; passing renderer tests is not proof of client behaviour.
-
-## Decisions for review and remaining work
-
-The proposed choices are a separate bootstrap, isolated tool environments on Python 3.12, reviewed packaged skill copies, explicit skill invocation, and no executable upstream-plugin installation. The alternative of invoking upstream installers directly is rejected because their writes would bypass Orqlet's ownership/journal and their platform defaults do not cover Orqlet's client selection. Fetching moving upstream skills during every upgrade is rejected because it prevents reproducible, reviewed project output.
-
-All four requirement questions are answered. Exact release/tool pins and download verification, installer failure details, formal D3 design views/manifest, independent architecture/security review, and an exact-file implementation plan remain to be completed. This draft introduces a network installation boundary and is D3 under Orqlet's design classification. This document does not claim that any of those checks or approvals has occurred.
+All sixteen ledger questions are answered. The native-hook usability scope is captured above and still requires a full artifact refresh. The current design remains a draft: official package publication/ownership, exact release/tool pins, scoped global recovery, formal D3 views/manifest, independent reviews and an approved exact-file plan remain outstanding. Network installation plus global home writes make this a D3 change. Preparing these documents changed no product code, installed package, assistant configuration or home setting.

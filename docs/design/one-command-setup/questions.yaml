@@ -620,4 +620,261 @@ questions:
     answerer: tmishari
     time: '2026-11-20T09:51:38+00:00'
     scope: task
+- id: Q-32
+  key: 72d42a5f7312db59953d681a603928f31a77f97d4739a004deb05af34ddeb3c4
+  subject: Writes outside the project root
+  raised_by: Cursor
+  phase: design
+  category: policy
+  text: ORQLET-SAFE-001 (MUST) keeps every write inside the project root, while orqlet
+    install must write user-home client folders (Q-7, Q-10). How is this resolved?
+  why: The design may not relax a MUST rule.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Amend SAFE-001 in a separate reviewed standards change to allow a second,
+      allow-listed user-home root of fixed client folders with its own journal, backup
+      and manifest
+    answerer: tmishari
+    time: '2026-11-20T12:36:40+00:00'
+    scope: task
+- id: Q-33
+  key: 6456cb4f6687c45d8c8fdbcc26cc9b5319f58e39d97de013fa1e1988ca52ced0
+  subject: Fourth client adapter for GitHub Copilot
+  raised_by: Cursor
+  phase: design
+  category: policy
+  text: ORQLET-ARCH-003 (MUST) and the import contract name three client adapters; Q-21
+    adds GitHub Copilot Agent mode in VS Code (C-4). How is Copilot supported?
+  why: The design may not relax a MUST rule.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Add a fourth independent adapter and amend ARCH-003 and the import contract
+      to name four
+    answerer: tmishari
+    time: '2026-11-20T12:36:40+00:00'
+    scope: task
+- id: Q-34
+  key: 6269357dc964b164f9f8788fe1a1b2b2f520a307512d30e6b518da8cc5fa1208
+  subject: Phase skill invocation in this design
+  raised_by: Cursor
+  phase: design
+  category: requirement
+  text: Does this design change the person-started invocation of the phase skills (A-19,
+    Q-22)?
+  why: Q-22 allows the change only through an explicit, reviewed design.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Keep phase skills person-started; hooks and the orqlet entry skill only tell
+      the person which command comes next
+    answerer: tmishari
+    time: '2026-11-20T12:36:40+00:00'
+    scope: task
+- id: Q-35
+  key: f53c5b6830aa66ba6412a421733ecf021cc819450e227812678376bb24c0296c
+  subject: Meaning of automatic prerequisite installation after Q-10
+  raised_by: Cursor
+  phase: design
+  category: requirement
+  text: Q-2 asks for automatic uv and Python installation, while the Q-10 quickstart
+    starts with uv tool install orqlet. What does Q-2 mean now?
+  why: The two answers overlap; a bootstrap script would fetch from the network.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: No bootstrap script; on the pipx route orqlet install prepares a missing uv
+      so Graphify can be installed, and uv provides Python
+    answerer: tmishari
+    time: '2026-11-20T12:36:40+00:00'
+    scope: task
+- id: Q-36
+  key: af8192d1b0468203632cee793a2a75526a1df18376fe393c22e058e97f6a89cf
+  subject: Ceremony change in this design
+  raised_by: Cursor
+  phase: design
+  category: requirement
+  text: Is a change to the four-phase ceremony for small work part of this design (Q-30)?
+  why: Q-30 makes any ceremony change a separate decision needing approval.
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: No; out of scope, a later task
+    answerer: tmishari
+    time: '2026-11-20T12:36:40+00:00'
+    scope: task
+- id: Q-37
+  key: fb4d62b69f2d721a19449347da7a4d94f837cb73cd5f054a987cadc41fe7424f
+  subject: Design scope split
+  raised_by: Cursor
+  phase: design
+  category: requirement
+  text: Is the work one D3 design, or split into installer and follow-up tasks?
+  why: The request combines installer, global writes, hooks, bundled skills, guidance
+    and terminal output.
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: One D3 design with separate ADRs per concern
+    answerer: tmishari
+    time: '2026-11-20T12:36:40+00:00'
+    scope: task
+- id: Q-38
+  key: 4a3aa245ea910274d6a6f29938cb6568146d708d2f7135204aa717b18ca3e267
+  subject: Contents of the user-home client folders
+  raised_by: Cursor
+  phase: design
+  category: requirement
+  text: Claude Code lets a personal skill win over a project skill of the same name (A-42,
+    I-3). Does orqlet install write every Q-7 item (phase skills, agents, bundled skills,
+    rules) globally, or only the entry skill, guidance and hooks?
+  why: Narrowing Q-7 needs the person; writing everything can shadow pinned project copies.
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Everything named in Q-7, including phase skills and agents; accept that a global
+      copy may override the project copy in some clients
+    answerer: tmishari
+    time: '2026-11-20T12:37:52+00:00'
+    scope: task
+- id: Q-39
+  key: 207365a2ae06fae78ed75035736c4cde85f2085fea066552b0bf865080e5a5e2
+  subject: Residual supply-chain risk of tool preparation
+  raised_by: Cursor
+  phase: design
+  category: policy
+  text: Tool preparation pins top-level versions (graphifyy, uv) but resolves transitive
+    dependencies, the uv-managed Python download and pipx install uv from the package index
+    without hash pinning. Is this residual risk accepted for this release?
+  why: Accepting a supply-chain risk is the person's decision, not the design's (security
+    review round 2, F-7).
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Accept it for this release, stated in the design and in install output
+    answerer: tmishari
+    time: '2026-11-20T12:50:25+00:00'
+    scope: task
+- id: Q-40
+  key: eb979daa81acfc74d8bcaaadc5e427f7f29c7ea10b48fa7fbfe72f98b2d17465
+  subject: Retention of user-scope backups
+  raised_by: Cursor
+  phase: design
+  category: policy
+  text: Install backs up full shared client files, which may hold credentials, under the
+    data directory before rewriting them. How long are these backups kept?
+  why: Accumulating credential-bearing copies is a data-exposure trade-off for the person
+    (security review round 3, F-4).
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Keep the backups of the last 3 user-scope changes; a successful install or
+      uninstall prunes older and superseded ones
+    answerer: tmishari
+    time: '2026-11-20T12:58:32+00:00'
+    scope: task
+- id: Q-41
+  key: 4027bc1d5a07946a472f29c041e1c69400014cd73c00e55eb1509d91b2096f41
+  subject: Data directory outside home on Windows
+  raised_by: Cursor
+  phase: design
+  category: policy
+  text: On Windows Orqlet cannot check the access control list of an ORQLET_DATA_DIR outside
+    the home directory. Does install refuse such a data directory or allow it?
+  why: The data directory holds credential-bearing backups (security review round 3, F-4).
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Allow it, with a warning in the preview
+    answerer: tmishari
+    time: '2026-11-20T12:58:32+00:00'
+    scope: task
+- id: Q-42
+  key: a2b442e616ac093ca1592f6757e68b0785019ea033e82c3d769e3a99fa4762ad
+  subject: Hook command resolved through an uninspected launch PATH
+  raised_by: Cursor
+  phase: design
+  category: policy
+  text: A client started from a desktop launcher may resolve the bare orqlet hook command
+    through a PATH that install and status cannot inspect. Is this residual risk accepted?
+  why: A hijacked orqlet would run at every session start; accepting it is the person's
+    decision (security review round 6, F-1).
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Accept it; install reports a host step where the launch PATH may differ
+    answerer: tmishari
+    time: '2026-11-20T13:09:04+00:00'
+    scope: task
+- id: Q-43
+  key: cca338d99325927a8d5b70c3a7f71f9948012c59e83f95d9baacc4f26e36ebe6
+  subject: Repository switching off the global foundation
+  raised_by: Cursor
+  phase: design
+  category: policy
+  text: A repository whose AGENTS.md carries the Orqlet baseline block makes the global
+    foundation defer to it, and under Copilot suppresses the packaged text. Is it accepted
+    that a hostile repository can switch the global foundation off for its own sessions?
+  why: The trade-off between a pinned project baseline and an always-on global text is the
+    person's (security review round 6, F-1).
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Accept it, so a project's pinned baseline wins
+    answerer: tmishari
+    time: '2026-11-20T13:09:04+00:00'
+    scope: task
+- id: Q-44
+  key: a7c4e7180e8b8f750251266ce6d286c4957f2b8bf85ed8b59f94f3d7a1bf0152
+  subject: Bare-repository dotfiles home not detected
+  raised_by: Cursor
+  phase: design
+  category: policy
+  text: A home directory tracked by a bare-repository dotfiles setup is not detected as a Git
+    work tree, so install writes into tracked client folders. Is this accepted?
+  why: Refusing more setups or accepting the gap is the person's decision (security review
+    round 6, F-1).
+  blocks:
+  - design
+  - plan
+  - implement
+  status: answered
+  answer:
+    value: Accept it; it is reported in the documentation
+    answerer: tmishari
+    time: '2026-11-20T13:09:04+00:00'
+    scope: task
 conflicts: []
