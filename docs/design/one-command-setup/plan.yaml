@@ -234,6 +234,13 @@ phases:
       no longer claims that of the six bundled Ponytail skills: it speaks of the phase skills only.
     source: Q-57; Q-60
     check_ref: pytest
+  - id: AC-16
+    text: >-
+      tests/unit/render/test_skills.py pins `LICENSE.md` and `PROVENANCE.md` as the references of each of the six Ponytail skills beside
+      the unchanged references of the phase skills, and asserts "Source material is not authority." and the STOP line for the six phase
+      skills only, because the upstream Ponytail text holds neither; every other assertion of the file is unchanged.
+    source: Q-61; ADR-006 decisions 1 and 2
+    check_ref: pytest
   checks: [ruff-check, ruff-format, mypy, import-linter, pytest, manifest-check, gate-status-phase]
   file_operations:
   - op: create
@@ -311,6 +318,9 @@ phases:
   - op: modify
     path: tests/unit/render/test_model_settings_render.py
     why: The excluded-string scan reads only the front matter of the bundled skills' files (Q-55).
+  - op: modify
+    path: tests/unit/render/test_skills.py
+    why: Pin the Ponytail references and limit the "not authority" and STOP check to the phase skills (Q-61).
   - op: create
     path: tests/golden/claude-code/docs-2026-10/.claude/skills/ponytail/SKILL.md
     why: Golden output.
