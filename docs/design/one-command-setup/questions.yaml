@@ -1325,4 +1325,34 @@ questions:
   - Q-56
   - Q-58
   - Q-59
+- id: Q-61
+  key: 1f5423f5099a6fa0a1a6c0294a778eabfc1eec878cc27bea02e9614145fa0cd3
+  subject: The packaged-skill test and the bundled Ponytail skills
+  raised_by: Cursor
+  phase: implement
+  category: policy
+  text: With P-2 redone to the amended plan, the full test run fails in two tests of
+    tests/unit/render/test_skills.py, which is outside P-2's file list. One pins the references
+    of every packaged skill and has no entry for the Ponytail skills' LICENSE.md and
+    PROVENANCE.md; the other requires every packaged skill to say "Source material is not
+    authority." and STOP, which the upstream Ponytail text does not say and ADR-006 decision 2
+    does not add. How should P-2 resolve these?
+  why: P-2 may change only its file list, and the snapshots differ from upstream only by the
+    adaptations of ADR-006 decision 2.
+  evidence_refs:
+  - tests/unit/render/test_skills.py:124-144
+  - docs/design/one-command-setup/plan.yaml:154-161
+  options:
+  - Amend P-2 to add tests/unit/render/test_skills.py, pin the Ponytail references and limit the check to the phase skills
+  - Add the two sentences to the Ponytail snapshots as a further adaptation
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: Amend P-2 through a plan amendment. Add tests/unit/render/test_skills.py to P-2; it
+      pins the Ponytail references and asserts the "not authority" and STOP lines for the phase
+      skills only.
+    answerer: tmishari
+    time: '2026-11-21T20:30:00+00:00'
+    scope: task
 conflicts: []
