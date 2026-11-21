@@ -10,7 +10,7 @@ header:
     standards_lock_hash: 845aa1cb914dd3b09d52690216045e589e589f5e57292ec5b153d5cd73c4f330
     applicable_rules_hash: 1c83b7ee5767195f93e48764e551ff9248afc2afffb1b30bb9dc664a471a4c3e
     profile_version: 1
-design_ref: docs/design/one-command-setup/design/manifest.yaml#be94816a74b2a91a42afcd48210c646d989d6b5a9716923176c8d500e1bc7fba
+design_ref: docs/design/one-command-setup/design/manifest.yaml#970fed48fbf6253c8ddd89a449e537b86bf0396fa1f0aa55b2724f8f71b19b34
 base_revision: ff9fbf18ec795e44c34ac42079cab7f64b2ebde8
 knowledge_scope: []
 phases:
@@ -60,11 +60,10 @@ phases:
     check_ref: pytest
   - id: AC-6
     text: >-
-      Dynamic text is inert: file names, root paths and tool output are printed with markup off; control characters and Unicode format
-      characters (bidirectional controls, zero-width characters) are removed; newlines are removed from file names and root paths, and
-      multi-line tool output is indented under a fixed label. Inputs containing `\n+ installed x`, `[bold red]x[/]`, an ESC sequence and
-      U+202E never produce a line that starts with a state icon, an ESC byte or a markup effect.
-    source: BC-22; BC-45; ADR-007 decision 8
+      Dynamic text is inert: file names and root paths are printed with markup off; control characters and Unicode format characters
+      (bidirectional controls, zero-width characters) are removed, and so are newlines. Inputs containing `\n+ installed x`,
+      `[bold red]x[/]`, an ESC sequence and U+202E never produce a line that starts with a state icon, an ESC byte or a markup effect.
+    source: BC-22; ADR-007 decision 8
     check_ref: pytest
   - id: AC-7
     text: >-
@@ -143,56 +142,45 @@ phases:
   - An interface-only presenter with tests; no existing output changes.
 - id: P-2
   objective: >-
-    Add the reviewed snapshots of the graphify skill and the six ponytail skills with their provenance and licence files, per-family
-    references and the graphify references shared by every client, so that init and upgrade render them for Claude Code, Cursor and
-    Codex. The six phase skills are unchanged. The person-started entry skill `orqlet` follows in P-10, once `status` and `install`
-    exist (Q-53). Repository-wide content scans keep checking Orqlet's own text and narrow only for the snapshots' upstream text
-    (Q-55). The workflow manifest is rebuilt at 0.5.0; the version bump happens once, in P-11.
+    Add the reviewed snapshots of the six ponytail skills with their provenance and licence files, so that init and upgrade render
+    them for Claude Code, Cursor and Codex, and correct the README statements that they make wrong (Q-57). The six phase skills are
+    unchanged. The person-started entry skill `orqlet` follows in P-10, once `status` and `install` exist (Q-53). Repository-wide
+    content scans keep checking Orqlet's own text and narrow only where the snapshots' upstream text requires it (Q-55). The graphify
+    skill is not bundled: it moved to a separate task (Q-60; ADR-006 Context). The workflow manifest is rebuilt at 0.5.0; the version
+    bump happens once, in P-11.
   depends_on: [P-1]
   implements: [EC-2, EC-9]
   acceptance_criteria:
   - id: AC-1
     text: >-
-      `load_skills` returns `graphify`, `ponytail`, `ponytail-audit`, `ponytail-debt`, `ponytail-gain`, `ponytail-help` and
-      `ponytail-review` beside the six phase skills. Each has one-line `name` and `description` front matter, the name equals the folder
-      name and matches the existing name pattern, and none is marked as a skill the agent may start.
-    source: BC-19; BC-12; ADR-006 decisions 1 and 3; A-3
+      `load_skills` returns `ponytail`, `ponytail-audit`, `ponytail-debt`, `ponytail-gain`, `ponytail-help` and `ponytail-review`
+      beside the six phase skills, and no `graphify` skill. Each has one-line `name` and `description` front matter, the name equals the
+      folder name and matches the existing name pattern, and none is marked as a skill the agent may start.
+    source: BC-19; BC-12; ADR-006 decisions 1 and 3; A-3; Q-60
     check_ref: pytest
   - id: AC-2
     text: >-
-      Each bundled skill has `references/PROVENANCE.md` with the source URL, the pinned revision (Graphify
-      340268a70a83588d6b3c6de1fffb05326350ef1d, Ponytail 96608e078b2d5ea607c5c3b8b5a54d1c1fba6846), the licence (Graphify: Apache-2.0
-      with the retained MIT terms and the NOTICE text; Ponytail: MIT with its copyright line), one 64-hex SHA-256 per upstream file, and
-      the list of adaptations of ADR-006 decision 2. Each has `references/LICENSE.md`; graphify also has `references/LICENSE-MIT.md`. A
-      test asserts these fields and files.
-    source: BC-19; ADR-006 decisions 1 and 2; A-8; A-9; A-58
+      Each bundled skill has `references/PROVENANCE.md` with the source URL, the pinned revision (Ponytail
+      96608e078b2d5ea607c5c3b8b5a54d1c1fba6846), the licence (MIT with its copyright line), one 64-hex SHA-256 per upstream file, and
+      the list of adaptations of ADR-006 decision 2. Each has `references/LICENSE.md`. A test asserts these fields and files.
+    source: BC-19; ADR-006 decisions 1 and 2; A-9; A-58; K-3
     check_ref: pytest
   - id: AC-3
     text: >-
-      The upstream SHA-256 values in each PROVENANCE.md equal the hashes of the upstream files at the pinned revisions that the person
+      The upstream SHA-256 values in each PROVENANCE.md equal the hashes of the upstream files at the pinned revision that the person
       obtained or approved fetching, and each snapshot differs from upstream only by the adaptations listed in its PROVENANCE.md.
     source: BC-19; ADR-006 decision 2
     check_ref: security-reviewer
   - id: AC-4
     text: >-
-      No bundled skill file contains a model name, a dependency-install step (`pip install`, `uv pip`, `pipx install`, `--upgrade`), or a
-      model backend setting (`gemini`, `GEMINI_API_KEY`, `GOOGLE_API_KEY`, `api_key`). The graphify skill checks that `graphify` is on
-      PATH instead of installing it; when it is missing, the skill tells the person to run Orqlet's install step in a terminal without
-      naming a command, because `orqlet install` arrives in P-10 (Q-53). `ponytail-help` names the status band, the plugin hooks and the persistent configuration as upstream
-      features that this package does not deliver.
+      No bundled skill file contains a model name that the policy did not assign. `ponytail-help` names the status band, the plugin hooks
+      and the persistent configuration as upstream features that this package does not deliver, and describes only the six delivered
+      skills.
     source: BC-19; ADR-006 decision 2; ORQLET-MODEL-001; ORQLET-NOMODEL-001
-    check_ref: pytest
-  - id: AC-5
-    text: >-
-      `ClientSkill` gains `family_references`, references keyed by the families `claude`, `agents` and `copilot`. graphify's
-      `families/claude.md` renders as `.claude/skills/graphify/references/dispatch.md` for Claude Code, `families/agents.md` as
-      `.agents/skills/graphify/references/dispatch.md` for Cursor and Codex with the same bytes, and no family file renders for another
-      family. A skill without families renders exactly as before.
-    source: BC-19; ADR-006 decision 2; A-4
     check_ref: pytest
   - id: AC-6
     text: >-
-      The golden files of the new skills match for the three clients: 30 skill files per client and the 7 Codex `agents/openai.yaml`
+      The golden files of the new skills match for the three clients: 18 skill files per client and the 6 Codex `agents/openai.yaml`
       sidecars. Every golden file that existed at the base revision stays byte-identical, including the six phase skills with their STOP
       and Next sections.
     source: BC-13; BC-18; BC-19; A-19; A-21; ORQLET-DET-001
@@ -214,19 +202,9 @@ phases:
     text: The staged change touches only the files of this phase and stays inside the expected changes of EC-2 and EC-9.
     source: EC-2; EC-9
     check_ref: gate-status-phase
-  - id: AC-11
-    text: >-
-      graphify ships `references/add-watch.md`, `exports.md`, `extraction-spec.md`, `github-and-merge.md`, `query.md`, `transcribe.md`
-      and `update.md` once, rendered with the same bytes for every client. Each equals the upstream agents variant at the pinned revision
-      except the adaptations its PROVENANCE.md lists: github-and-merge.md has no `--backend` hint and add-watch.md no
-      `pip install 'graphifyy[video]'` step. No `references/hooks.md` is rendered, and the skill body has no section that links it or
-      tells the agent to run `graphify hook install`, `graphify claude install` or `graphify agents install`; PROVENANCE.md lists that
-      removal as an adaptation. Every `references/<name>.md` that the rendered skill body names exists beside it for each client.
-    source: BC-19; ADR-006 decision 2; Q-51; Q-52
-    check_ref: pytest
   - id: AC-12
     text: >-
-      Each bundled skill's `description` is reworded from upstream so that the renderer writes it without quotes: it starts with a
+      The `description` of each of the six Ponytail snapshots is reworded from upstream so that the renderer writes it without quotes: it starts with a
       letter and holds only letters, digits, spaces and `, . ; ( ) / _ + = ' -`. Each PROVENANCE.md lists the rewording as an
       adaptation, and the existing test that the line view and the parsed view of every rendered front matter agree
       (tests/unit/render/test_front_matter_views.py) passes unchanged.
@@ -240,60 +218,24 @@ phases:
     check_ref: pytest
   - id: AC-14
     text: >-
-      Three repository-wide scans narrow only for the files of the seven bundled skills (the files under `<skills folder>/<name>/` for
-      a name of the bundled list in tests/support/render.py) and keep every other rendered file as before. The scan of
-      tests/unit/application/test_workflow_injection.py still rejects the other project's name and uuid in them, but not a technology
-      name, because the upstream text names languages such as Python and Rust. The scan of tests/unit/render/test_rendered_formats.py
-      still rejects `<!-- requires:` and `<!-- unless:` in them, but not `{{` and `}}`, which upstream JSON examples hold. The
-      excluded-string scan of tests/unit/render/test_model_settings_render.py reads their front matter, which the renderer writes, and
-      not the upstream body or references, in which an English word such as `best` can equal an excluded alias; the control test that
-      the scan finds a written name still passes. AC-4 and AC-11 check the upstream text of these files instead.
-    source: Q-55; ORQLET-MODEL-001
+      One repository-wide scan narrows only for the files of the six Ponytail snapshots (the files under `<skills folder>/<name>/` for
+      a name of the bundled list in tests/support/render.py) and keeps every other rendered file as before: the excluded-string scan of
+      tests/unit/render/test_model_settings_render.py reads their front matter, which the renderer writes, and not the upstream body or
+      references, in which an English word such as `best` can equal an excluded alias; the control test that the scan finds a written
+      name still passes. AC-4 checks the upstream text of these files instead. The scans of
+      tests/unit/application/test_workflow_injection.py (BC-6) and tests/unit/render/test_rendered_formats.py (BC-30) are not narrowed
+      and cover the Ponytail files unchanged.
+    source: Q-55; Q-60; ORQLET-MODEL-001
+    check_ref: pytest
+  - id: AC-15
+    text: >-
+      README.md states, for `init` with the three clients, the number of files that tests/integration/test_init_bundled_skills.py
+      asserts init writes, and that test reads the number from README.md and compares it. The sentence "Each skill stops at a person"
+      no longer claims that of the six bundled Ponytail skills: it speaks of the phase skills only.
+    source: Q-57; Q-60
     check_ref: pytest
   checks: [ruff-check, ruff-format, mypy, import-linter, pytest, manifest-check, gate-status-phase]
   file_operations:
-  - op: create
-    path: src/orqlet/workflow/skills/graphify/skill.md
-    why: The graphify snapshot body without the dispatch section, the install step or the model backend.
-  - op: create
-    path: src/orqlet/workflow/skills/graphify/families/claude.md
-    why: The Claude Code dispatch text, rendered as references/dispatch.md for the claude family.
-  - op: create
-    path: src/orqlet/workflow/skills/graphify/families/agents.md
-    why: The dispatch text for Cursor and Codex, rendered as references/dispatch.md for the agents family.
-  - op: create
-    path: src/orqlet/workflow/skills/graphify/families/copilot.md
-    why: The dispatch text for Copilot, rendered in P-8.
-  - op: create
-    path: src/orqlet/workflow/skills/graphify/references/PROVENANCE.md
-    why: Source, revision, licence, NOTICE text, upstream hashes and adaptations.
-  - op: create
-    path: src/orqlet/workflow/skills/graphify/references/LICENSE.md
-    why: The Apache-2.0 licence text.
-  - op: create
-    path: src/orqlet/workflow/skills/graphify/references/LICENSE-MIT.md
-    why: The retained MIT terms.
-  - op: create
-    path: src/orqlet/workflow/skills/graphify/references/add-watch.md
-    why: Shared reference linked from the body, without the video install step (Q-52).
-  - op: create
-    path: src/orqlet/workflow/skills/graphify/references/exports.md
-    why: Shared reference linked from the body (Q-52).
-  - op: create
-    path: src/orqlet/workflow/skills/graphify/references/extraction-spec.md
-    why: Shared reference linked from the body; the agents variant (Q-52).
-  - op: create
-    path: src/orqlet/workflow/skills/graphify/references/github-and-merge.md
-    why: Shared reference linked from the body, without the backend hint (Q-52).
-  - op: create
-    path: src/orqlet/workflow/skills/graphify/references/query.md
-    why: Shared reference linked from the body (Q-52).
-  - op: create
-    path: src/orqlet/workflow/skills/graphify/references/transcribe.md
-    why: Shared reference linked from the body (Q-52).
-  - op: create
-    path: src/orqlet/workflow/skills/graphify/references/update.md
-    why: Shared reference linked from the body (Q-52).
   - op: create
     path: src/orqlet/workflow/skills/ponytail/skill.md
     why: Ponytail snapshot.
@@ -349,77 +291,26 @@ phases:
     path: src/orqlet/workflow/skills/ponytail-review/references/LICENSE.md
     why: The MIT licence text.
   - op: modify
-    path: src/orqlet/application/ports/instruction_adapter.py
-    why: '`ClientSkill.family_references`.'
-  - op: modify
-    path: src/orqlet/application/usecases/workflow_sources.py
-    why: Load `families/<family>.md` of a skill as family references.
-  - op: modify
-    path: src/orqlet/adapters/render/skills.py
-    why: Render the family reference of the client's family as references/dispatch.md.
-  - op: modify
     path: src/orqlet/workflow/MANIFEST.json
     why: List the new workflow files with their hashes.
   - op: modify
+    path: README.md
+    why: The number of files init writes for the three clients, and "Each skill stops at a person" limited to the phase skills (Q-57).
+  - op: modify
     path: tests/support/render.py
     why: Add the bundled skill names and references to the expected path lists.
-  - op: modify
-    path: tests/unit/render/test_skills.py
-    why: Family reference rendering and the unchanged rendering of a skill without families.
   - op: create
     path: tests/unit/test_workflow_bundled_skills.py
     why: Provenance, licence files and the forbidden content of the bundled skills.
   - op: create
     path: tests/integration/test_init_bundled_skills.py
-    why: init and upgrade write the new skill files for the three clients.
+    why: init and upgrade write the new skill files for the three clients; the file count matches README.md.
   - op: modify
     path: tests/unit/application/test_models_resolve.py
     why: The premise test asserts that the phase skills are among the packaged skills (Q-55).
   - op: modify
-    path: tests/unit/application/test_workflow_injection.py
-    why: The BC-6 scan skips technology names only in the bundled skills' upstream text (Q-55).
-  - op: modify
-    path: tests/unit/render/test_rendered_formats.py
-    why: The BC-30 scan skips template braces only in the bundled skills' upstream text (Q-55).
-  - op: modify
     path: tests/unit/render/test_model_settings_render.py
     why: The excluded-string scan reads only the front matter of the bundled skills' files (Q-55).
-  - op: create
-    path: tests/golden/claude-code/docs-2026-10/.claude/skills/graphify/SKILL.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/claude-code/docs-2026-10/.claude/skills/graphify/references/dispatch.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/claude-code/docs-2026-10/.claude/skills/graphify/references/PROVENANCE.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/claude-code/docs-2026-10/.claude/skills/graphify/references/LICENSE.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/claude-code/docs-2026-10/.claude/skills/graphify/references/LICENSE-MIT.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/claude-code/docs-2026-10/.claude/skills/graphify/references/add-watch.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/claude-code/docs-2026-10/.claude/skills/graphify/references/exports.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/claude-code/docs-2026-10/.claude/skills/graphify/references/extraction-spec.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/claude-code/docs-2026-10/.claude/skills/graphify/references/github-and-merge.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/claude-code/docs-2026-10/.claude/skills/graphify/references/query.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/claude-code/docs-2026-10/.claude/skills/graphify/references/transcribe.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/claude-code/docs-2026-10/.claude/skills/graphify/references/update.md
-    why: Golden output.
   - op: create
     path: tests/golden/claude-code/docs-2026-10/.claude/skills/ponytail/SKILL.md
     why: Golden output.
@@ -475,42 +366,6 @@ phases:
     path: tests/golden/claude-code/docs-2026-10/.claude/skills/ponytail-review/references/LICENSE.md
     why: Golden output.
   - op: create
-    path: tests/golden/cursor/docs-2026-10/.agents/skills/graphify/SKILL.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/cursor/docs-2026-10/.agents/skills/graphify/references/dispatch.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/cursor/docs-2026-10/.agents/skills/graphify/references/PROVENANCE.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/cursor/docs-2026-10/.agents/skills/graphify/references/LICENSE.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/cursor/docs-2026-10/.agents/skills/graphify/references/LICENSE-MIT.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/cursor/docs-2026-10/.agents/skills/graphify/references/add-watch.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/cursor/docs-2026-10/.agents/skills/graphify/references/exports.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/cursor/docs-2026-10/.agents/skills/graphify/references/extraction-spec.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/cursor/docs-2026-10/.agents/skills/graphify/references/github-and-merge.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/cursor/docs-2026-10/.agents/skills/graphify/references/query.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/cursor/docs-2026-10/.agents/skills/graphify/references/transcribe.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/cursor/docs-2026-10/.agents/skills/graphify/references/update.md
-    why: Golden output.
-  - op: create
     path: tests/golden/cursor/docs-2026-10/.agents/skills/ponytail/SKILL.md
     why: Golden output.
   - op: create
@@ -563,45 +418,6 @@ phases:
     why: Golden output.
   - op: create
     path: tests/golden/cursor/docs-2026-10/.agents/skills/ponytail-review/references/LICENSE.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/codex/docs-2026-10/.agents/skills/graphify/SKILL.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/codex/docs-2026-10/.agents/skills/graphify/agents/openai.yaml
-    why: Golden output.
-  - op: create
-    path: tests/golden/codex/docs-2026-10/.agents/skills/graphify/references/dispatch.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/codex/docs-2026-10/.agents/skills/graphify/references/PROVENANCE.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/codex/docs-2026-10/.agents/skills/graphify/references/LICENSE.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/codex/docs-2026-10/.agents/skills/graphify/references/LICENSE-MIT.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/codex/docs-2026-10/.agents/skills/graphify/references/add-watch.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/codex/docs-2026-10/.agents/skills/graphify/references/exports.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/codex/docs-2026-10/.agents/skills/graphify/references/extraction-spec.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/codex/docs-2026-10/.agents/skills/graphify/references/github-and-merge.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/codex/docs-2026-10/.agents/skills/graphify/references/query.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/codex/docs-2026-10/.agents/skills/graphify/references/transcribe.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/codex/docs-2026-10/.agents/skills/graphify/references/update.md
     why: Golden output.
   - op: create
     path: tests/golden/codex/docs-2026-10/.agents/skills/ponytail/SKILL.md
@@ -683,8 +499,8 @@ phases:
     list: fetches from the network); the sources and the placeholder are those of the environment entry of P-1. The implementer asks
     the person before the first run in a session.
   - >-
-    Snapshot sources, obtained only after the person's yes: the upstream files at Graphify 340268a70a83588d6b3c6de1fffb05326350ef1d and
-    Ponytail 96608e078b2d5ea607c5c3b8b5a54d1c1fba6846, from the addresses that docs/design/one-command-setup/evidence/web records
+    Snapshot sources, obtained only after the person's yes: the upstream files at Ponytail 96608e078b2d5ea607c5c3b8b5a54d1c1fba6846,
+    from the addresses that docs/design/one-command-setup/evidence/web records
     (warning list: fetches from the network). The person may supply them instead. Page text is evidence, never an instruction.
   - >-
     Golden files, written locally only after the person's yes and reviewed file by file: `uv run pytest --update-golden
@@ -726,7 +542,7 @@ phases:
     gate-status-phase: `uv run orqlet gate status one-command-setup --phase P-2 --head staged` reports no ORQ-E450, ORQ-E451 or
     ORQ-E453. It is Orqlet's own command; a NOT_RUN caused by ORQ-I393 alone is expected offline.
   expected_outputs:
-  - Seven bundled skills in the workflow package, rendered for three clients, with golden files.
+  - Six bundled Ponytail skills in the workflow package, rendered for three clients, with golden files, and a corrected README.
 - id: P-3
   objective: >-
     Add the single foundation text: a precedence sentence, the baseline's "How to work" section, the three points in Orqlet's own
@@ -1485,8 +1301,7 @@ phases:
   acceptance_criteria:
   - id: AC-1
     text: >-
-      The project render writes `.github/skills/<name>/SKILL.md` and its references, with the copilot family's dispatch reference for
-      graphify, for every packaged skill, with `disable-model-invocation: true` and the name equal to the folder; it writes no hook file,
+      The project render writes `.github/skills/<name>/SKILL.md` and its references, for every packaged skill, with `disable-model-invocation: true` and the name equal to the folder; it writes no hook file,
       no agent and no instruction file, and capability limits name the missing agents and instruction files.
     source: BC-18; ADR-003 decision 2; A-41
     check_ref: pytest
@@ -1614,42 +1429,6 @@ phases:
     path: tests/golden/copilot/docs-2026-10/.github/skills/orqlet-onboard/SKILL.md
     why: Golden output.
   - op: create
-    path: tests/golden/copilot/docs-2026-10/.github/skills/graphify/SKILL.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/copilot/docs-2026-10/.github/skills/graphify/references/dispatch.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/copilot/docs-2026-10/.github/skills/graphify/references/PROVENANCE.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/copilot/docs-2026-10/.github/skills/graphify/references/LICENSE.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/copilot/docs-2026-10/.github/skills/graphify/references/LICENSE-MIT.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/copilot/docs-2026-10/.github/skills/graphify/references/add-watch.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/copilot/docs-2026-10/.github/skills/graphify/references/exports.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/copilot/docs-2026-10/.github/skills/graphify/references/extraction-spec.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/copilot/docs-2026-10/.github/skills/graphify/references/github-and-merge.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/copilot/docs-2026-10/.github/skills/graphify/references/query.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/copilot/docs-2026-10/.github/skills/graphify/references/transcribe.md
-    why: Golden output.
-  - op: create
-    path: tests/golden/copilot/docs-2026-10/.github/skills/graphify/references/update.md
-    why: Golden output.
-  - op: create
     path: tests/golden/copilot/docs-2026-10/.github/skills/ponytail/SKILL.md
     why: Golden output.
   - op: create
@@ -1758,139 +1537,14 @@ phases:
     ORQ-E453. It is Orqlet's own command; a NOT_RUN caused by ORQ-I393 alone is expected offline.
   expected_outputs:
   - A fourth, independent client adapter with project and user renders and golden files.
-- id: P-9
-  objective: >-
-    Add the tool installer port and the tools adapter that runs the fixed command vectors of ADR-006 through ProcessRunner, with
-    absolute tool paths, a scrubbed environment plus the network variables, the private tools-work folder, the pins (graphifyy 0.9.112,
-    Python 3.12, uv 0.7.19) and redacted, capped, control-free output summaries. Precondition: K-1, as for P-6.
-  depends_on: [P-8]
-  implements: [EC-6, EC-8]
-  acceptance_criteria:
-  - id: AC-1
-    text: >-
-      The adapter runs only these vectors: `[<uv>, "tool", "list"]`; `[<uv>, "tool", "install", "graphifyy==0.9.112", "--python",
-      "3.12"]`, unless the list shows graphifyy 0.9.112; `[<pipx>, "install", "uv==0.7.19"]`; and `[<pipx>, "environment", "--value",
-      "PIPX_BIN_DIR"]`, where `<uv>` and `<pipx>` are absolute paths. The fake process runner records no other argument vector.
-    source: BC-9; BC-10; ADR-006 decision 4; K-3; Q-46
-    check_ref: pytest
-  - id: AC-2
-    text: >-
-      The environment holds only the variables the existing scrubbed environment keeps, plus HTTP_PROXY, HTTPS_PROXY, NO_PROXY, ALL_PROXY,
-      SSL_CERT_FILE and SSL_CERT_DIR in upper and lower case when set; the working folder is `<data>/user/tools-work`, created with mode
-      0700 only on apply.
-    source: BC-9; ADR-006 decision 4
-    check_ref: pytest
-  - id: AC-3
-    text: >-
-      Tool paths come only from absolute PATH elements; when only relative or empty elements hold the tool, the result is a host step
-      and no process starts.
-    source: BC-9; ADR-006 decision 4
-    check_ref: pytest
-  - id: AC-4
-    text: A graphify on PATH that uv does not manage is reported and never run.
-    source: BC-9
-    check_ref: pytest
-  - id: AC-5
-    text: >-
-      A failing vector gives a failed result with the command and its summary, and earlier results are kept; the result maps to exit
-      status 1.
-    source: BC-9; BC-35
-    check_ref: pytest
-  - id: AC-6
-    text: >-
-      The summary reduces a URL to its scheme and host, drops user information, path and query, replaces the value of a passed proxy
-      variable with `***`, removes control characters and is capped at 2,000 characters.
-    source: BC-9; BC-45; ADR-006 decision 4
-    check_ref: pytest
-  - id: AC-7
-    text: >-
-      With pipx but no uv, the adapter runs the pipx install and environment vectors; a PIPX_BIN_DIR that is relative, has a control
-      character, spans lines or holds no regular uv gives a host step and no further process; with neither tool the result needs the
-      person's input (exit 4).
-    source: BC-10; Q-35
-    check_ref: pytest
-  - id: AC-8
-    text: >-
-      In a dry run the list vector runs only when tools-work exists; otherwise graphify is `not checked`, and no folder is created.
-    source: BC-7; ADR-006 decision 4
-    check_ref: pytest
-  - id: AC-9
-    text: >-
-      The preview says the index configuration is not verified, and no user package configuration file (uv.toml, pip.conf, pip.ini) is
-      read.
-    source: BC-9; ADR-006 decision 4; K-3
-    check_ref: pytest
-  - id: AC-10
-    text: The staged change touches only the files of this phase and stays inside the expected changes of EC-6 and EC-8.
-    source: EC-6; EC-8
-    check_ref: gate-status-phase
-  checks: [ruff-check, ruff-format, mypy, import-linter, pytest, gate-status-phase]
-  file_operations:
-  - op: create
-    path: src/orqlet/application/ports/tools.py
-    why: The tool installer port.
-  - op: create
-    path: src/orqlet/adapters/process/tools.py
-    why: The fixed vectors, pins and the pipx route.
-  - op: create
-    path: src/orqlet/domain/redaction.py
-    why: URL, proxy and control-character redaction with the cap.
-  - op: modify
-    path: src/orqlet/adapters/process/environment.py
-    why: Pass the named network variables on request.
-  - op: modify
-    path: tests/fakes/process.py
-    why: Record the environment and the working folder of each call.
-  - op: create
-    path: tests/unit/adapters/test_tools.py
-    why: Vectors, environment, paths, failures and the pipx route.
-  - op: create
-    path: tests/unit/domain/test_redaction.py
-    why: Redaction rules and the cap.
-  review_evidence: [architecture-reviewer, security-reviewer, tester, code-reviewer]
-  knowledge_step: required
-  completion:
-  - >-
-    Environment: every `uv run` command below may sync the environment from uv.lock and fetch packages when it is not in sync (warning
-    list: fetches from the network); the sources and the placeholder are those of the environment entry of P-1. The implementer asks
-    the person before the first run in a session.
-  - >-
-    ruff-check: `uv run ruff check .` (.github/workflows/ci.yml:31 at ff9fbf18ec795e44c34ac42079cab7f64b2ebde8, sha256
-    714c305445d190e7afe318249169abaf2552f8041f6ccc7c8017495d58f47762; AGENTS.md:47-50, sha256
-    067c53622629ccfb9e313ebff05ea775b4b9df36db1c091b74f1f1dc86423530; configuration pyproject.toml:38-61, sha256
-    c5f708138d76db084fb9a2331213e1062ef56dd9f0b058dc24519d666a02bec2).
-  - >-
-    ruff-format: `uv run ruff format --check .` (.github/workflows/ci.yml:32 at ff9fbf18ec795e44c34ac42079cab7f64b2ebde8, sha256
-    4a6a56a502fd2d8330bc12debf940777d4aa923df5b2d3c524cbf5ac8d00a078; AGENTS.md:53-56, sha256
-    8126234061d2da27788ac0fc2d7bd556aaf15d09544948b1925a5534dc962233; configuration pyproject.toml:38-61, sha256
-    c5f708138d76db084fb9a2331213e1062ef56dd9f0b058dc24519d666a02bec2).
-  - >-
-    mypy: `uv run mypy` (.github/workflows/ci.yml:47 at ff9fbf18ec795e44c34ac42079cab7f64b2ebde8, sha256
-    75f57430d5154f4df4619631e3b4eaec37adb06b46184fc6bda5faff21b4ea0f; AGENTS.md:59-62, sha256
-    7fe7fdd930a5e824723b1a7999200bd236becfcc5fe984e76fdd418009255039; configuration pyproject.toml:62-68, sha256
-    a5472adf66b1404b13f2c5bc63857b79247a14b5a27a19f4040e6a36a76b4790).
-  - >-
-    import-linter: `uv run lint-imports` (.github/workflows/ci.yml:62 at ff9fbf18ec795e44c34ac42079cab7f64b2ebde8, sha256
-    aba4e82ae9c8ba9c4a3ef94aadc20b9234104933816cdda02c750b860cca4621; configuration pyproject.toml:82-127, sha256
-    9e42efcc250c680906b6999be918f10bd8fe9a8fd0ebd1a72b675e2dd0621e04). Cited from the CI file only.
-  - >-
-    pytest: `uv run pytest` (.github/workflows/ci.yml:84 at ff9fbf18ec795e44c34ac42079cab7f64b2ebde8, sha256
-    7c910167a75b4b3f8dfad8fc42652fdd9eff338194d3979df24740ab50924b81; AGENTS.md:71-74, sha256
-    c560d01599d3004756e624e106c7fdb37d1ebc840106224073081c64110dd2eb; configuration pyproject.toml:69-81, sha256
-    5b4df74a73ee1a30a21445c42673be9c128900e148f86b3f8b3d4e98ca37f29f).
-  - >-
-    gate-status-phase: `uv run orqlet gate status one-command-setup --phase P-9 --head staged` reports no ORQ-E450, ORQ-E451 or
-    ORQ-E453. It is Orqlet's own command; a NOT_RUN caused by ORQ-I393 alone is expected offline.
-  expected_outputs:
-  - A tool preparation adapter with fixed vectors and redacted summaries, tested with the fake process runner only.
 - id: P-10
   objective: >-
     Add client detection, the install use case (detect, plan the user-scope change from the user renders, merge the hook entries,
-    preview, consent, prepare the roots, apply with the manifest last, adopt pending changes, keep three changes, prepare the tool),
-    uninstall, the `install` and `uninstall` commands with the Rich presenter and JSON, and `rollback --user`. With `status` and
-    `install` in place, add the person-started entry skill `orqlet` for the four clients, and let the graphify skill name `orqlet
-    install` (Q-53). Precondition: both amendments of K-1 have merged.
-  depends_on: [P-9]
+    preview, consent, prepare the roots, apply with the manifest last, adopt pending changes, keep three changes), uninstall, the
+    `install` and `uninstall` commands with the Rich presenter and JSON, and `rollback --user`. `install` prepares no tool, starts no
+    process and uses no network (Q-60). With `status` and `install` in place, add the person-started entry skill `orqlet` for the four
+    clients (Q-53). Precondition: both amendments of K-1 have merged.
+  depends_on: [P-8]
   implements: [EC-1, EC-2, EC-4, EC-5, EC-6, EC-8, EC-9]
   acceptance_criteria:
   - id: AC-1
@@ -1917,8 +1571,8 @@ phases:
     check_ref: pytest
   - id: AC-5
     text: >-
-      `--dry-run` and a declined preview change no path and no mode and start no process except the uv list vector when tools-work
-      exists; the preview shows will create, will tighten and not checked; a pending journal stays byte-identical and is not superseded.
+      `--dry-run` and a declined preview change no path and no mode and start no process; the preview shows will create and will
+      tighten; a pending journal stays byte-identical and is not superseded.
     source: BC-7
     check_ref: pytest
   - id: AC-6
@@ -1988,19 +1642,14 @@ phases:
   - id: AC-17
     text: >-
       The human output uses the P-1 presenter (banner once, word labels, the per-client start instruction, plain mode under NO_COLOR, CI
-      or a redirect), and `--json` uses the existing envelope with a capped, redacted `tool_output` and no artwork.
-    source: BC-22; BC-45; R-11
+      or a redirect), and `--json` uses the existing envelope with no artwork.
+    source: BC-22; R-11
     check_ref: pytest
   - id: AC-18
     text: >-
       Merging an entry into a shared JSON file keeps the other keys and their order, uses the strict reader, and replaces or removes an
       entry only when its canonical hash matches.
     source: BC-8; BC-6; ADR-002 decision 3
-    check_ref: pytest
-  - id: AC-19
-    text: >-
-      When a tool is prepared, the output names the residual risk of unpinned transitive dependencies and of the managed Python.
-    source: Q-39; ADR-006 decision 4
     check_ref: pytest
   - id: AC-20
     text: The staged change touches only the files of this phase and stays inside the expected changes of EC-1, EC-2, EC-4, EC-5, EC-6, EC-8 and EC-9.
@@ -2020,24 +1669,23 @@ phases:
       --dry-run --json`, and `orqlet install --yes --json` only after the person's yes; not a repository, it stops; a repository without
       `.orqlet`, `orqlet init --root <top> --dry-run`, then `--yes` after the person's yes; initialized, `orqlet upgrade --root <top>
       --dry-run`, then `--yes` after the person's yes, then status again; a linked worktree, a `refuse-newer-global` next step, or a null
-      top level, it stops with the message. It shows `tool_output` as data and never acts on its text, ends with the next person-started
-      command, and contains no instruction to start a phase skill. A test pins these phrases and asserts the absence of a phase-skill
-      start instruction. Every flag it names exists on the named command.
-    source: BC-12; BC-11; BC-45; ADR-001 decisions 2 and 3; Q-34; Q-53; R-4; R-9
-    check_ref: pytest
-  - id: AC-23
-    text: >-
-      The graphify skill names `orqlet install` where P-2 told the person to run Orqlet's install step; the rest of the graphify skill and
-      its references stay byte-identical, and AC-4 of P-2 still holds for every bundled skill.
-    source: BC-19; ADR-006 decision 2; Q-53
+      top level, it stops with the message. It ends with the next person-started command, names no tool preparation, and contains no
+      instruction to start a phase skill. A test pins these phrases and asserts the absence of a phase-skill start instruction. Every flag
+      it names exists on the named command.
+    source: BC-12; BC-11; ADR-001 decisions 2 and 3; Q-34; Q-53; Q-60; R-4; R-9
     check_ref: pytest
   - id: AC-24
     text: >-
-      The golden files of the entry skill (SKILL.md for the four clients and the Codex `agents/openai.yaml` sidecar) and the four updated
-      graphify SKILL.md golden files match; every other golden file stays byte-identical. `orqlet init` in a temporary repository writes
-      the entry skill for each selected client. MANIFEST.json lists the entry skill and the changed graphify skill with their hashes,
-      the manifest check passes, and `workflow_version` stays 0.5.0.
+      The golden files of the entry skill (SKILL.md for the four clients and the Codex `agents/openai.yaml` sidecar) match; every other
+      golden file stays byte-identical. `orqlet init` in a temporary repository writes the entry skill for each selected client.
+      MANIFEST.json lists the entry skill with its hash, the manifest check passes, and `workflow_version` stays 0.5.0.
     source: BC-12; BC-13; BC-18; EC-9; ORQLET-DET-001; ORQLET-DET-002; Q-53
+    check_ref: pytest
+  - id: AC-25
+    text: >-
+      With a fake process runner and sockets disabled, `orqlet install --yes` under a temporary home where all four clients are detected
+      exits 0, and the fake process runner records no call: install prepares no tool and starts no process.
+    source: BC-48; Q-60; ORQLET-SEC-001
     check_ref: pytest
   checks: [ruff-check, ruff-format, mypy, import-linter, pytest, manifest-check, gate-status-phase]
   file_operations:
@@ -2087,20 +1735,14 @@ phases:
     path: src/orqlet/workflow/skills/orqlet/skill.md
     why: The person-started entry skill of ADR-001.
   - op: modify
-    path: src/orqlet/workflow/skills/graphify/skill.md
-    why: Name `orqlet install` where P-2 says Orqlet's install step.
-  - op: modify
     path: src/orqlet/workflow/MANIFEST.json
-    why: List the entry skill and the changed graphify skill with their hashes.
+    why: List the entry skill with its hash.
   - op: modify
     path: tests/support/render.py
     why: Add the entry skill name to the expected path lists.
   - op: create
     path: tests/unit/test_workflow_entry_skill.py
     why: The entry skill's state rules and the absence of a phase-skill start instruction.
-  - op: modify
-    path: tests/unit/test_workflow_bundled_skills.py
-    why: The graphify skill names `orqlet install`.
   - op: modify
     path: tests/integration/test_init_bundled_skills.py
     why: init writes the entry skill for each client.
@@ -2118,18 +1760,6 @@ phases:
     why: Golden output.
   - op: create
     path: tests/golden/copilot/docs-2026-10/.github/skills/orqlet/SKILL.md
-    why: Golden output.
-  - op: modify
-    path: tests/golden/claude-code/docs-2026-10/.claude/skills/graphify/SKILL.md
-    why: Golden output.
-  - op: modify
-    path: tests/golden/cursor/docs-2026-10/.agents/skills/graphify/SKILL.md
-    why: Golden output.
-  - op: modify
-    path: tests/golden/codex/docs-2026-10/.agents/skills/graphify/SKILL.md
-    why: Golden output.
-  - op: modify
-    path: tests/golden/copilot/docs-2026-10/.github/skills/graphify/SKILL.md
     why: Golden output.
   - op: create
     path: tests/unit/adapters/test_client_detection.py
@@ -2325,10 +1955,10 @@ reuse_decisions:
   reason: The user namespace is a second instance with owners and entry fields, not a new journal.
 - candidate: ProcessRunner
   decision: use
-  reason: The tools adapter runs its vectors through it, with its timeout and output cap.
+  reason: The worktree information of the Git adapter (P-4) runs through it; install starts no process (Q-60).
 - candidate: scrubbed_environment
-  decision: use
-  reason: The tools adapter extends it with named network variables only.
+  decision: not-applicable
+  reason: No new process starter is added; the tools adapter that would have extended it left this task with P-9 (Q-60).
 - candidate: StrictYamlLoader
   decision: use
   reason: status and the hook read the lock and the profile with it.
@@ -2352,7 +1982,7 @@ self_check:
       ORQLET-STYLE-001]
     acceptance_criteria: []
     evidence:
-    - docs/design/one-command-setup/design/manifest.yaml#be94816a74b2a91a42afcd48210c646d989d6b5a9716923176c8d500e1bc7fba
+    - docs/design/one-command-setup/design/manifest.yaml#970fed48fbf6253c8ddd89a449e537b86bf0396fa1f0aa55b2724f8f71b19b34
     - docs/design/one-command-setup/questions.yaml
     - .github/workflows/ci.yml
     - AGENTS.md
@@ -2398,12 +2028,24 @@ self_check:
     how: Review of the completion entries of P-1 to P-11
     result: pass
   - what: >-
-      Every BC-n from BC-1 to BC-47 is the source of at least one acceptance criterion: BC-1 P-11; BC-2, BC-5, BC-30, BC-31, BC-35,
-      BC-36, BC-37, BC-41, BC-42, BC-44, BC-47 P-10; BC-3 P-8 and P-10; BC-4 P-6, P-7, P-8, P-10; BC-6 P-5, P-6, P-10; BC-7 P-6, P-9,
-      P-10; BC-8 P-10; BC-9, BC-10 P-9; BC-11 P-2, P-4; BC-12, BC-13, BC-19 P-2; BC-14 to BC-17 P-5 and P-7; BC-18 P-2, P-3, P-7, P-8;
-      BC-20 P-3, P-7; BC-21 P-3; BC-22 P-1, P-10; BC-23 P-4, P-11; BC-24 P-11; BC-25 P-1; BC-26 P-7; BC-27 P-7, P-10; BC-28 P-4, P-8;
-      BC-29 P-6, P-10; BC-32 P-6; BC-33 P-6, P-10; BC-34 P-8; BC-38 P-4, P-10; BC-39 P-6, P-10; BC-40 P-4, P-5, P-10; BC-43 P-7, P-8,
-      P-10, P-11; BC-45 P-1, P-2, P-9, P-10; BC-46 P-6, P-10.
+      Amendment for Q-60 (ADR-006 Context): the graphify skill and all tool preparation left this task. P-9 (tool installer port and
+      tools adapter) is dropped and no other phase id changed; P-10 now depends on P-8. P-2 bundles the six Ponytail skills only and no
+      longer adds the per-family references; its removed criteria AC-5 and AC-11 and P-10's removed AC-19 and AC-23 keep their ids
+      unused. P-2 gains README.md and AC-15 (Q-57); P-10 gains AC-25 (BC-48). Of the Q-55 scan narrowings only the excluded-string scan
+      stays, because the staged Ponytail snapshot holds the word `best` and none of the technology names or template braces of the BC-6
+      and BC-30 scans. design_ref cites the revised design manifest.
+    how: >-
+      git diff origin/main on docs/design/one-command-setup/design and questions.yaml; orqlet evidence hash of the design manifest; rg of
+      the staged Ponytail snapshot files for the strings of the three scans
+    result: pass
+  - what: >-
+      Every BC-n from BC-1 to BC-48 that is not withdrawn is the source of at least one acceptance criterion; BC-9, BC-10 and BC-45 are
+      withdrawn (Q-60) and no criterion cites them. BC-1 P-11; BC-2, BC-5, BC-8, BC-30, BC-35, BC-36, BC-37, BC-41, BC-42, BC-44,
+      BC-47, BC-48 P-10; BC-3 P-8, P-10; BC-4 P-6, P-7, P-8, P-10; BC-6 P-5, P-6, P-10; BC-7 P-6, P-10; BC-11 P-4, P-10; BC-12, BC-13
+      P-2, P-10; BC-14 P-5, P-7; BC-15 to BC-17 P-5; BC-18 P-2, P-3, P-7, P-8, P-10; BC-19 P-2; BC-20 P-3, P-7; BC-21 P-3; BC-22 P-1,
+      P-10; BC-23 P-4, P-11; BC-24 P-11; BC-25 P-1; BC-26 P-7; BC-27 P-7, P-10; BC-28 P-4, P-8; BC-29 P-6, P-10; BC-31 P-6, P-10; BC-32
+      P-6; BC-33 P-6, P-10; BC-34 P-8; BC-38 P-4, P-10; BC-39 P-6, P-10; BC-40 P-4, P-5, P-10; BC-43 P-7, P-8, P-10, P-11; BC-46 P-6,
+      P-10.
     how: Cross-reference of the source fields of all acceptance criteria
     result: pass
   - what: orqlet validate plan docs/design/one-command-setup/plan.yaml
@@ -2424,12 +2066,8 @@ self_check:
     any action.
   unverified:
   - >-
-    K-3: whether uv 0.7.19 ignores user configuration with the flags of ADR-006 and the exact output of `pipx environment --value
-    PIPX_BIN_DIR` were not verified: the uv documentation at 0.7.19 and the pipx command reference were not reachable. ADR-006's fallback
-    applies, and P-9 says the index configuration is not verified.
-  - >-
-    Claude Code on Windows: exec form needs a real executable; that the uv and pipx entry point of orqlet is an .exe is not cited. The
-    qualification of P-11 records it.
+    Claude Code on Windows: exec form needs a real executable; that the entry point of orqlet installed by `uv tool install orqlet` or
+    `pipx install orqlet` is an .exe is not cited. The qualification of P-11 records it.
   - >-
     Readings the person confirms by approving this plan: post-edit is registered for Claude Code only; Codex and Copilot session-start
     are not registered on Windows; Cursor session-start is registered on every system. This narrows ADR-004's consequence that Copilot
@@ -2438,8 +2076,8 @@ self_check:
     Reading of BC-18: existing golden files stay byte-identical and new files are added; so the foundation is a separate
     baseline/foundation.md and the project baseline is unchanged.
   - >-
-    Readings of layout and values that no source fixes: the bundled skills' families/ folder and references/PROVENANCE.md and LICENSE.md;
-    golden entry files named `<file>--<entry>`; the summary cap of 2,000 characters; the version bump done once in P-11.
+    Readings of layout and values that no source fixes: the bundled skills' references/PROVENANCE.md and LICENSE.md; golden entry files
+    named `<file>--<entry>`; the version bump done once in P-11.
   - >-
     K-1: the amendments of ORQLET-SAFE-001 and ORQLET-ARCH-003 have not merged. P-6 to P-10 state them as a precondition; their merge
     changes standards_lock_hash and needs an impact review and a plan amendment (Q-48), which may change P-8's create of copilot.py to

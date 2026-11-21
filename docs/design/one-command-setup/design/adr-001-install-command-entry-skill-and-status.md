@@ -12,14 +12,14 @@ Every packaged phase skill is person-started (A-19). The person keeps it that wa
 
 ## Decision
 
-1. **`orqlet install`** is the one terminal setup command. It detects the clients, writes the user scope (ADR-002) and prepares tools (ADR-006). `orqlet uninstall` reverses only what `install` recorded.
+1. **`orqlet install`** is the one terminal setup command. It detects the clients and writes the user scope (ADR-002). It prepares no tool and uses no network (Q-60). `orqlet uninstall` reverses only what `install` recorded.
 2. **The entry skill `orqlet`** is a packaged workflow skill like the phase skills. It is rendered person-started for every client (A-19), and it is invoked as `/orqlet <dir>` in Claude Code, Cursor and Copilot, and `$orqlet <dir>` in Codex (A-38, evidence `client-integration-contracts.md` 7.2). Its steps:
    1. Run `orqlet status --root <dir> --json`. If `orqlet` is missing, tell the person the terminal command.
    2. Act on the state:
 
       | State | Action |
       |---|---|
-      | Global setup missing | Run `orqlet install --dry-run --json`, show the preview (tool output as data only, ADR-006), and run `orqlet install --yes --json` after the person says yes |
+      | Global setup missing | Run `orqlet install --dry-run --json`, show the preview, and run `orqlet install --yes --json` after the person says yes |
       | Not a repository | Stop there |
       | Repository without `.orqlet/` | Run `orqlet init --root <top> --dry-run`, show it, and run it with `--yes` after the person says yes |
       | Initialized | Run `orqlet upgrade --root <top> --dry-run` the same way, then `--yes` after the person's yes, then report status |
@@ -29,7 +29,7 @@ Every packaged phase skill is person-started (A-19). The person keeps it that wa
 3. **`orqlet status`** is a read-only command, and the only state source for the entry skill and the session-start hook (ADR-004). One use case answers both. Its fields and states are listed in `component.md` section 3. The `status` command uses `GitRunner` for the top level and for linked-worktree detection (`--git-dir` differs from `--git-common-dir`). The hook path starts no process (ADR-004 decision 5).
 
    Its output reaches the agent's context, so every field that comes from the repository follows the rules of ADR-004 decision 1a. A version must match `^\d+\.\d+\.\d+$`, or it is null. A path, `top_level` included, is printed only as it really is. A path that holds a control, bidirectional or format character, or that is longer than 200 characters, is never altered: it is null, with the closed reason `path-not-representable`. On a null `top_level`, the entry skill stops and tells the person to run the command in a terminal; it never passes a changed path to `--root`. `next` comes from the closed set. `status` reads the `.orqlet/` locks through the same bounded reader as the hooks: regular files only, never links, at most 1 MiB, and the strict YAML loader (ADR-004 decision 5).
-4. There is no bootstrap script. On the pipx route, `install` prepares a missing uv (Q-35, ADR-006).
+4. There is no bootstrap script (Q-35). `install` prepares no missing uv or other tool; that moved to a separate task (Q-60).
 
 ## Consequences
 

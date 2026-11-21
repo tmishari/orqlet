@@ -34,8 +34,8 @@ Orqlet's renderer prints plain text with no colour (A-50). Rich 15.0.0 is alread
    Unicode is used only when the console encoding is UTF-8 and Rich does not report a legacy Windows console.
 5. **Plain mode** is used when output is not a terminal, `NO_COLOR` is set and non-empty, `TERM` is `dumb`, or a CI variable is set: no banner, no ANSI codes, ASCII icons. An interactive prompt is never shown in plain mode; `--yes` is required there (exit 4 otherwise).
 6. **Narrow mode.** Below 60 columns the banner is replaced by the one-line title `orqlet install`, and each state line wraps under its label.
-7. **No animation, no spinner, no delay.** Long steps (tool preparation) print one line when they start and one when they end.
-8. **Dynamic text is inert.** File names, root paths and tool output summaries are printed with Rich markup off. Before printing, control characters and Unicode bidirectional and format characters (category Cf) are removed. File names and root paths also lose newlines. Multi-line tool output is printed only indented under a fixed label. So neither a file name nor a subprocess can restyle the terminal, reorder text or forge a status line.
+7. **No animation, no spinner, no delay.**
+8. **Dynamic text is inert.** File names and root paths are printed with Rich markup off. Before printing, control characters and Unicode bidirectional and format characters (category Cf) are removed, and newlines too. So a file name cannot restyle the terminal, reorder text or forge a status line.
 
 ## Consequences
 

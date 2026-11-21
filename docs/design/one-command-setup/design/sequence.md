@@ -8,7 +8,6 @@ sequenceDiagram
     participant T as Terminal
     participant O as Orqlet CLI
     participant FS as User client folders
-    participant P as uv / pipx
     participant A as Assistant
     participant R as Repository
 
@@ -16,11 +15,9 @@ sequenceDiagram
     Dev->>T: orqlet install
     T->>O: install
     O->>O: detect clients (names only)
-    O-->>Dev: banner, preview per client and tool
+    O-->>Dev: banner, preview per client
     Dev->>O: yes
     O->>FS: journalled writes (skills, agents, foundation, hook entries)
-    O->>P: uv tool install graphifyy==0.9.112 --python 3.12
-    P-->>O: result
     O-->>Dev: states per client, host steps, invocations; exit 0 or 1
     Dev->>A: /orqlet .
     A->>O: orqlet status --root . --json
