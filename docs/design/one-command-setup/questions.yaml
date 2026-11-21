@@ -1082,4 +1082,64 @@ questions:
     answerer: tmishari
     time: '2026-11-20T16:10:00+00:00'
     scope: task
+- id: Q-53
+  key: e99ee47e74b7f9555e8dc7bb27435a5e40490b6faccb134547e9f1e5780271be
+  subject: Entry skill before the commands it names
+  raised_by: Cursor
+  phase: implement
+  category: requirement
+  text: P-2 adds the entry skill `orqlet`, which names `orqlet status` and `orqlet install`, and the
+    graphify skill points to `orqlet install`; those commands arrive in P-4 and P-10. Two existing
+    tests fail any skill that names a command missing from IMPLEMENTED_COMMANDS, and the equality
+    test between IMPLEMENTED_COMMANDS and the registered commands fails once P-4, P-5 or P-10
+    registers a command, yet no phase lists capabilities.py. How does the plan change?
+  why: P-2 cannot pass its own pytest check, and P-4, P-5 and P-10 would fail the equality test.
+  evidence_refs:
+  - src/orqlet/application/usecases/capabilities.py:12-49
+  - tests/unit/render/test_skills.py:196-224
+  - tests/integration/test_validate_cli.py:208-209
+  - docs/design/one-command-setup/plan.yaml:144-690
+  options:
+  - Move the entry skill and its golden files to P-10; list capabilities.py in P-4, P-5 and P-10;
+    graphify names Orqlet's install step without a command in P-2 and `orqlet install` in P-10
+  - List `status` and `install` as planned commands in P-2
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: Move the entry skill `orqlet` and its golden files to P-10. List capabilities.py in the
+      phases that register a command (P-4 status, P-5 hook, P-10 install and uninstall). In P-2
+      graphify tells the person to run Orqlet's install step in a terminal without naming the
+      command, and P-10 changes that to `orqlet install`.
+    answerer: tmishari
+    time: '2026-11-21T10:00:00+00:00'
+    scope: task
+- id: Q-54
+  key: b6d13237cce03a000d3b306d9da4d3c75f0298fd5e4497d49c1253bbad6e5569
+  subject: Line ranges shifted by an earlier committed phase
+  raised_by: Cursor
+  phase: implement
+  category: policy
+  text: P-1 added one line to pyproject.toml before line 38, so the ranges the plan cites at 38-61,
+    62-68 and 69-81 now hold their content one line lower with the cited hash. P-1 also added the
+    contract "Rich stays in the interface layer" inside the import-linter range 82-127, which P-1
+    lists as its own operation, so that range now hashes differently. Do these count as current? Does a pure line shift from an earlier
+    committed phase count as the same source?
+  why: The completion entries cite pyproject.toml by line range and hash.
+  evidence_refs:
+  - docs/design/one-command-setup/plan.yaml:658-682
+  - docs/design/one-command-setup/plan.yaml:673-676
+  options:
+  - Yes, when the content hash is unchanged
+  - No, amend every citation
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: Yes. A pure line shift from an earlier committed phase, with the cited hash unchanged,
+      is the same source. A cited source changed only by an earlier committed phase's own listed
+      operation is current; the re-citation names that phase's commit and the new hash.
+    answerer: tmishari
+    time: '2026-11-21T10:00:00+00:00'
+    scope: task
 conflicts: []
