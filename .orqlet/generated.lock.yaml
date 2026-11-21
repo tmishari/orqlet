@@ -1,6 +1,6 @@
 schema: orqlet.generated-lock/v1
 generator:
-  orqlet: "0.3.0"
+  orqlet: "0.4.0"
 standards_lock: "845aa1cb914dd3b09d52690216045e589e589f5e57292ec5b153d5cd73c4f330"
 files:
   - path: ".agents/skills/orqlet-design/SKILL.md"
