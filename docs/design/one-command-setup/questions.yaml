@@ -1142,4 +1142,35 @@ questions:
     answerer: tmishari
     time: '2026-11-21T10:00:00+00:00'
     scope: task
+- id: Q-55
+  key: ca14a7be906fee678a826f9c122fb4eda427b8e48ba6cc9007a6aaca9082bbaa
+  subject: Repository-wide content scans and the upstream text of the bundled skills
+  raised_by: Cursor
+  phase: implement
+  category: policy
+  text: With P-2's snapshots in place, the full test run fails in five test files outside P-2's
+    file list. The BC-6 scan finds Python and Rust in the upstream text, the BC-30 scan finds `}}`
+    in a JSON example of extraction-spec.md, the excluded-model-string scan finds the English word
+    "best" (an excluded alias of its fixture), the premise test expects exactly the six phase
+    skills, and the front-matter view test fails because each upstream description needs YAML
+    quoting. AC-11 allows no further adaptation of the shared references. How should P-2 resolve
+    these?
+  why: P-2 may change only its file list, and AC-4 and AC-11 fix the upstream text.
+  evidence_refs:
+  - docs/design/one-command-setup/plan.yaml:217-226
+  - docs/design/one-command-setup/plan.yaml:227-252
+  options:
+  - Amend P-2 to add the test files, narrow the scans for the bundled snapshots and reword the descriptions
+  - Adapt the upstream text instead
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: Amend P-2 through a plan amendment. Add the test files to P-2. The premise test lists
+      the phase skills among the packaged skills. The BC-6, BC-30 and excluded-model-string scans
+      skip the seven bundled snapshots' upstream text, which AC-4 and AC-11 check instead. The
+      descriptions are reworded so they need no YAML quoting, and PROVENANCE lists that.
+    answerer: tmishari
+    time: '2026-11-21T12:00:00+00:00'
+    scope: task
 conflicts: []
