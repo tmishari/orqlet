@@ -1173,4 +1173,156 @@ questions:
     answerer: tmishari
     time: '2026-11-21T12:00:00+00:00'
     scope: task
+- id: Q-56
+  key: ab7c864d39851768c6e7291eec04bc641b2d98dca1731756d5d6532dcbf12067
+  subject: Graphify runs the interpreter named in a repository file
+  raised_by: Cursor
+  phase: implement
+  category: policy
+  text: The P-2 security review found that every graphify step runs `$(cat graphify-out/.graphify_python)`,
+    and that the skill rewrites that file only when it is missing. The quick path for questions and
+    the subcommands skip the step that writes it, so a cloned repository that commits the file gets its
+    content run when the person asks /graphify a question there. ADR-006 decision 2 lists no adaptation
+    for this. How should it be resolved?
+  why: The design treats repository content as untrusted (ORQLET-SEC-002), and P-2 ships the skill into
+    every project.
+  evidence_refs:
+  - src/orqlet/workflow/skills/graphify/skill.md:58
+  - src/orqlet/workflow/skills/graphify/skill.md:731-745
+  - src/orqlet/workflow/skills/graphify/references/query.md:13-19
+  options:
+  - Rewrite the file from the graphify on PATH at every invocation, body only
+  - The same, plus quoting, an extraction-prompt guard and removal of the Graphify Cloud prompts
+  - Leave graphify out of P-2
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: Rewrite the file from the graphify on PATH at every invocation, the quick path and every
+      subcommand included, before any step reads it, and never trust an existing file; with no graphify
+      on PATH, stop and point to Orqlet's install step. Body only, listed in PROVENANCE, with a test.
+      The other security observations of the review stay as they are.
+    answerer: tmishari
+    time: '2026-11-21T16:10:00+00:00'
+    scope: task
+- id: Q-57
+  key: 710ca458a2891252a1a94567a2bc5d26b37fa4a507eca3ef1a61a88b16058c3f
+  subject: README statements that the bundled skills make wrong
+  raised_by: Cursor
+  phase: implement
+  category: policy
+  text: With P-2, init writes 67 more files, so README.md's statement that init wrote 73 files for the
+    three clients is wrong, and "Each skill stops at a person" is not true of the seven bundled skills.
+    README.md is not in P-2's file list, and P-11's README criterion covers neither statement. Which phase
+    fixes them?
+  why: The baseline requires the documentation that a change makes wrong to be updated in the same change.
+  evidence_refs:
+  - README.md:141
+  - README.md:334
+  options:
+  - P-2
+  - P-11
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: P-2. Add README.md to P-2 and fix both statements there.
+    answerer: tmishari
+    time: '2026-11-21T16:10:00+00:00'
+    scope: task
+- id: Q-58
+  key: 65f5064ea53a01590b0ca24e84483fa7030085d379273e8603b19f71d24e8bfd
+  subject: A committed graphify root redirects update and watch
+  raised_by: Cursor
+  phase: design
+  category: policy
+  text: The round 9 design reviews found that graphify-out/.graphify_root is also persisted and read
+    across invocations without Step 1 (references/update.md and add-watch.md). A committed copy runs no
+    code, but it can point --update and watch at another folder, whose content then enters the graph and
+    the agent's context. Should the skill stop trusting an existing .graphify_root as well?
+  why: Q-56 covers only .graphify_python.
+  evidence_refs:
+  - src/orqlet/workflow/skills/graphify/references/update.md:21
+  - src/orqlet/workflow/skills/graphify/references/add-watch.md:44
+  options:
+  - Accept it as a residual risk
+  - Never trust an existing .graphify_root
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: Accept it as a residual risk, recorded in the ledger and in ADR-006's consequences; no
+      further adaptation.
+    answerer: tmishari
+    time: '2026-11-21T16:20:00+00:00'
+    scope: task
+- id: Q-59
+  key: 7d3dcb1355de2983f37491cf527b83e0bd3333d2e9662b9a81e5653e920f9441
+  subject: Committed links under graphify-out and graphify on Windows
+  raised_by: Cursor
+  phase: design
+  category: policy
+  text: The round 10 design reviews found that the skill and the graphify command also write
+    .graphify_root, graph.json, the report and memory/ query files under graphify-out, each through a
+    symbolic link that a repository committed, and that the interpreter routine, written for a POSIX
+    shell and a text first line, would always stop on Windows. How should the design handle committed
+    links under graphify-out, and Windows?
+  why: ADR-006 decision 2 claims that no write follows a committed link, and Windows is in CI.
+  evidence_refs:
+  - docs/design/one-command-setup/design/adr-006-bundled-skills-and-tool-preparation.md:36-43
+  - src/orqlet/workflow/skills/graphify/skill.md:100
+  options:
+  - Stop when graphify-out or any entry under it is a link; graphify is POSIX-only
+  - Narrow the claim and accept the rest as a residual risk; find the interpreter from uv's tool folder
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: The routine stops when graphify-out or anything under it is a symbolic link, in every folder
+      a step uses, clones included, and BC-48 covers it. The bundled graphify skill is POSIX-only for now
+      and stops on Windows with a message that says so; the Ponytail skills are unaffected.
+    answerer: tmishari
+    time: '2026-11-21T16:35:00+00:00'
+    scope: task
+- id: Q-60
+  key: 832fe4954c0d86d58c3d97b0416b73c43a8415239a6ba24accaf2d1df0d5c9ff
+  subject: Graphify and tool preparation leave this task
+  raised_by: Cursor
+  phase: design
+  category: policy
+  text: The round 11 security findings show that upstream graphify, run in a cloned repository, still
+    lets that repository run code. Every step runs `$(cat graphify-out/.graphify_python) -c ...` from
+    the repository root, and Python puts the working folder first on sys.path for -c, so a committed
+    `json.py` or `graphify/__init__.py` is imported and run even when the interpreter file is
+    rewritten (confirmed locally). Committed symbolic links above graphify-out also redirect its
+    writes. Closing these amounts to a fork of the skill. Should the design harden graphify further,
+    or move it out of this task?
+  why: The design treats repository content as untrusted (ORQLET-SEC-002), and Q-56 and Q-59 did not
+    close these paths.
+  evidence_refs:
+  - docs/design/one-command-setup/reviews/security-reviewer-design-r10.md
+  - docs/design/one-command-setup/reviews/architecture-reviewer-design-r10.md
+  options:
+  - Move the graphify skill and tool preparation to a separate task
+  - Move only the graphify skill
+  - Harden graphify in this task
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: Move the graphify skill and tool preparation to a separate task with a security-first
+      design. In this task install prepares no tool and uses no network, P-9 is dropped, and R-6
+      and R-7 are narrowed to Ponytail. Q-56, Q-58 and Q-59 are superseded for this task.
+    answerer: tmishari
+    time: '2026-11-21T17:00:00+00:00'
+    scope: task
+  supersedes:
+  - Q-2
+  - Q-39
+  - Q-46
+  - Q-51
+  - Q-52
+  - Q-56
+  - Q-58
+  - Q-59
 conflicts: []

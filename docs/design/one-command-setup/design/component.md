@@ -1,10 +1,10 @@
 # One-command setup: design brief and components
 
-Task `one-command-setup`. Class D3. Reads the accepted AS-IS file `docs/design/one-command-setup/as-is.md` and the ledger `docs/design/one-command-setup/questions.yaml` (Q-1 to Q-44).
+Task `one-command-setup`. Class D3. Reads the accepted AS-IS file `docs/design/one-command-setup/as-is.md` and the ledger `docs/design/one-command-setup/questions.yaml` (Q-1 to Q-44, and Q-60).
 
 ## 1. Summary
 
-A developer installs the CLI once (`uv tool install orqlet` or `pipx install orqlet`) and runs `orqlet install` once in a terminal. That command detects every supported assistant on the machine, writes Orqlet's skills, agents, guidance and hooks into each assistant's documented user-level folders, and prepares the Graphify tool. From then on the developer works in the assistant. The person-started entry skill `orqlet` (`/orqlet .`, Codex `$orqlet .`) initializes or upgrades a repository and is the help and recovery route. A session-start hook shows a short status, and an advisory post-edit hook warns when an Orqlet-generated file is edited by hand.
+A developer installs the CLI once (`uv tool install orqlet` or `pipx install orqlet`) and runs `orqlet install` once in a terminal. That command detects every supported assistant on the machine, writes Orqlet's skills, agents, guidance and hooks into each assistant's documented user-level folders. It prepares no tool and uses no network. From then on the developer works in the assistant. The person-started entry skill `orqlet` (`/orqlet .`, Codex `$orqlet .`) initializes or upgrades a repository and is the help and recovery route. A session-start hook shows a short status, and an advisory post-edit hook warns when an Orqlet-generated file is edited by hand.
 
 Recommended approach:
 
@@ -23,8 +23,8 @@ Recommended approach:
 | R-3 | Supported surfaces are Claude Code, Cursor, Codex (CLI and VS Code extension) and GitHub Copilot Agent mode in VS Code, for individual and admin-restricted accounts. | Q-13, Q-19, Q-21, Q-33 |
 | R-4 | The entry skill is named `orqlet` and is invoked with the target directory: `/orqlet .`, or `$orqlet .` in Codex. Outside a Git repository it ensures global setup only. In a repository without Orqlet it initializes the repository; in an initialized one it upgrades it and reports status. | Q-1, Q-10, Q-11 |
 | R-5 | Global configuration holds Orqlet's skills, rules and agents for every supported client, including phase skills and agents. A global copy may shadow the project copy. One guided Cursor User Rules step is allowed. | Q-7, Q-9, Q-38 |
-| R-6 | Graphify and all six Ponytail skills reach every project that Orqlet initializes or upgrades, and the global folders. | Q-1, Q-3, Q-38 |
-| R-7 | Git stays a prerequisite. On the pipx route, a missing uv is prepared, and uv provides Python. The Graphify CLI is prepared. Orqlet's Python requirement stays as it is. | Q-2, Q-4, Q-23, Q-35 |
+| R-6 | All six Ponytail skills reach every project that Orqlet initializes or upgrades, and the global folders. | Q-1, Q-3, Q-38, Q-60 |
+| R-7 | Git stays a prerequisite. Orqlet's Python requirement stays as it is. | Q-4, Q-23, Q-60 |
 | R-8 | Native hooks automate startup guidance and lightweight tool-event checks, within the cost limits of Q-26. | Q-14, Q-16, Q-26 |
 | R-9 | Phase skills stay person-started. Approvals, independent reviews, model policy and NOT_RUN reporting are unchanged. | Q-22, Q-34 |
 | R-10 | There is one behavioural foundation, with no vendored Karpathy text: Orqlet's own wording plus an attribution link. Simplicity keeps validation, error handling, accessibility and approvals. | Q-27, Q-28 |
@@ -48,16 +48,16 @@ Recommended approach:
    | `codex` | `codex` on `PATH`, `$CODEX_HOME` or `~/.codex/`, or an OpenAI Codex extension folder under `~/.vscode/extensions/` |
    | `copilot` | a GitHub Copilot Chat extension folder under `~/.vscode/extensions/`, `$COPILOT_HOME` or `~/.copilot/` |
 
-2. A preview lists, per client, each file and entry to create, update or leave alone, and each tool to prepare. Without `--yes`, an interactive terminal asks once. A non-interactive run without `--yes` exits 4.
-3. Apply writes the user scope through one journalled change (ADR-002), then prepares tools (ADR-006).
-4. Output is a result line per client and per tool, in one of these states: `detected`, `already configured`, `installed`, `registered`, `host step` (a trust prompt, the Cursor User Rules step, an unverified surface or a documented gap), `conflict` and `failed`. The last two carry a recovery action. Then comes the invocation for each registered client.
-5. Exit status: 0 when everything is done; 1 when at least one client or tool failed and the rest were applied; 3 when it refused because of a conflict on an owned or edited file, or an invalid root; 4 when it needs input (no supported assistant detected, neither uv nor pipx present, or non-interactive without `--yes`); 2 for a usage error; 70 for an internal error. When a run both refuses and fails, 3 wins.
-6. `--dry-run` downloads nothing, installs nothing and writes nothing, in the user scope, a project or the data directory. It creates no folder and changes no mode. Missing roots and folders appear as `will create`, and wide folder modes as `will tighten` (ADR-002 decision 1a). The only process it starts is the read-only `uv tool list`, and only when `tools-work/` already exists (ADR-006). A declined interactive preview behaves the same. `--json` prints the existing envelope (A-14) with no banner, colour or icons.
+2. A preview lists, per client, each file and entry to create, update or leave alone. Without `--yes`, an interactive terminal asks once. A non-interactive run without `--yes` exits 4.
+3. Apply writes the user scope through one journalled change (ADR-002). `install` prepares no tool and uses no network (Q-60).
+4. Output is a result line per client, in one of these states: `detected`, `already configured`, `installed`, `registered`, `host step` (a trust prompt, the Cursor User Rules step, an unverified surface or a documented gap), `conflict` and `failed`. The last two carry a recovery action. Then comes the invocation for each registered client.
+5. Exit status: 0 when everything is done; 1 when at least one client failed and the rest were applied; 3 when it refused because of a conflict on an owned or edited file, or an invalid root; 4 when it needs input (no supported assistant detected, or non-interactive without `--yes`); 2 for a usage error; 70 for an internal error. When a run both refuses and fails, 3 wins.
+6. `--dry-run` writes nothing, in the user scope, a project or the data directory. It creates no folder, changes no mode and starts no process. Missing roots and folders appear as `will create`, and wide folder modes as `will tighten` (ADR-002 decision 1a). A declined interactive preview behaves the same. `--json` prints the existing envelope (A-14) with no banner, colour or icons.
 7. The preview and the result name each root's resolved path (ADR-002 decision 1a), and the `orqlet` that `PATH` resolves to, flagged when it is not the running executable or when an empty, `.` or relative `PATH` element comes before it (ADR-004 decision 7).
 8. Unfinished user-scope changes from interrupted runs (every journal later than the change recorded in the manifest) are named in the preview. Their recorded writes are adopted, oldest first, when their hashes match, whether or not they were marked done, and the run plans again. Planning reads these journals read-only; only the consented apply marks them superseded (ADR-002 decision 4). The preview also names the backups that retention will prune (Q-40).
 9. When `user/manifest.json` holds a workflow version above the running Orqlet's, `install` refuses with exit 3 unless `--allow-weaker` is given, as `upgrade` does (ADR-002 decision 2).
 
-**`orqlet uninstall [--client C]... [--yes] [--dry-run] [--json]`** removes each named client from the owner set of its user-scope entries. With no `--client`, it acts on every owner recorded in `user/manifest.json`, detected or not. It deletes an entry only when no owner remains and the entry's content still matches the manifest. An edited entry is reported as a conflict and kept. Tools prepared with uv stay installed, because they may be shared. The exit statuses are those of `install`, except that exit 4 for "no supported assistant detected" does not apply. With no recorded owner, it reports `nothing to remove` and exits 0.
+**`orqlet uninstall [--client C]... [--yes] [--dry-run] [--json]`** removes each named client from the owner set of its user-scope entries. With no `--client`, it acts on every owner recorded in `user/manifest.json`, detected or not. It deletes an entry only when no owner remains and the entry's content still matches the manifest. An edited entry is reported as a conflict and kept. The exit statuses are those of `install`, except that exit 4 for "no supported assistant detected" does not apply. With no recorded owner, it reports `nothing to remove` and exits 0.
 
 **`orqlet rollback --user <change-id> [--allow-weaker] [--yes] [--dry-run] [--json]`** undoes one user-scope change. It works from any directory, and `--user` with `--root` or `--project-id` is a usage error (exit 2). It writes `user/manifest.json` last. Otherwise it behaves as today's `rollback`, with the same exit statuses (ADR-002 decision 5).
 
@@ -80,16 +80,16 @@ The top level and a linked worktree are found with `GitRunner` (`rev-parse --sho
 
 User scope, through the composite user-scope file system (ADR-002). The files are those the project adapters already render, from a user-scope render request with no model settings (ADR-002 decision 7), written to each client's documented user location:
 
-| Client | Skills (phase, `orqlet`, `graphify`, six `ponytail*`) | Agents | Guidance | Hooks |
+| Client | Skills (phase, `orqlet`, six `ponytail*`) | Agents | Guidance | Hooks |
 |---|---|---|---|---|
 | Claude Code | `~/.claude/skills/<name>/` | `~/.claude/agents/` | `~/.claude/rules/orqlet-foundation.md` | entries in `~/.claude/settings.json` |
 | Cursor | `~/.agents/skills/<name>/`, one shared render with Codex including `agents/openai.yaml`, like `.agents/skills` in a project (A-4) | `~/.cursor/agents/` | guided User Rules step; the text is saved under the data directory | entries in `~/.cursor/hooks.json` (session start only, ADR-004) |
 | Codex | the same shared `~/.agents/skills/<name>/` | `$CODEX_HOME/agents/` | managed block in `$CODEX_HOME/AGENTS.md` | entries in `$CODEX_HOME/hooks.json` (session start only, ADR-004) |
 | Copilot | `~/.copilot/skills/<name>/` | not written until a documented location is cited (section 8) | session-start `additionalContext` | `~/.copilot/hooks/orqlet.json` |
 
-Data directory (A-27), created 0700: `user/manifest.json`, `user/apply.lock`, `user/journal/<change-id>.json`, `user/backups/<change-id>/…` (files 0600), `user/cursor-user-rules.md`, and the scratch folder `user/tools-work/`.
+Data directory (A-27), created 0700: `user/manifest.json`, `user/apply.lock`, `user/journal/<change-id>.json`, `user/backups/<change-id>/…` (files 0600) and `user/cursor-user-rules.md`.
 
-Project scope: `init` and `upgrade` also render `graphify` and the six `ponytail*` skills, and the `copilot` adapter's project files when the profile lists `copilot`. No project hook or settings file is written (ADR-004).
+Project scope: `init` and `upgrade` also render the six `ponytail*` skills, and the `copilot` adapter's project files when the profile lists `copilot`. No project hook or settings file is written (ADR-004).
 
 ### Logs and output
 
@@ -117,7 +117,6 @@ flowchart LR
         P2{{FileSystem: composite user scope, writes}}
         P9{{FileSystem readers: home, project, data dir}}
         P3{{ChangeJournal: user namespace}}
-        P4{{ToolInstaller}}
         P5{{Vcs}}
         P6{{WorkflowSource}}
         P7{{InstructionAdapter with RenderScope}}
@@ -128,7 +127,6 @@ flowchart LR
         D[scan.client_detection]
         U[fs.user_scope]
         J[fs.journal]
-        T[process.tools]
         G[git.GitRunner]
         WP[workflow_package]
         C[clients x4]
@@ -141,7 +139,6 @@ flowchart LR
     UI --> P1
     UI --> P7
     UI --> AP
-    UI --> P4
     AP --> P2
     AP --> P3
     US --> P9
@@ -156,7 +153,6 @@ flowchart LR
     U -. implements .-> P2
     U -. implements .-> P9
     J -. implements .-> P3
-    T -. implements .-> P4
     G -. implements .-> P5
     WP -. implements .-> P6
     C -. implements .-> P7
@@ -165,7 +161,7 @@ flowchart LR
 | Component | Layer | Responsibility |
 |---|---|---|
 | `install`, `uninstall`, `status`, `hook` commands | interface | Parse options and wire services, including the injected `UserHome`. Render human output (Rich, ADR-007) or JSON. |
-| Install use case | application | Detect clients, then build the user-scope change plan from user-scope render requests. Merge the hook entries that the adapters render into `settings.json` and `hooks.json` through a pure entry-merge helper (ADR-002 decision 3). Preview, apply through `apply_plan`, then call tool preparation. |
+| Install use case | application | Detect clients, then build the user-scope change plan from user-scope render requests. Merge the hook entries that the adapters render into `settings.json` and `hooks.json` through a pure entry-merge helper (ADR-002 decision 3). Preview, then apply through `apply_plan`. |
 | Status use case | application | Two modes. `full` (the `status` command) reads the user manifest, uses `Vcs` for the top level and worktree, and reads `.orqlet/` and versions. `hook` (session start) finds the root by an upward `.orqlet/` search through the FileSystem port and starts no process. |
 | Hook use case | application | Validate the payload (`hook_payload` contract: fields and sizes only), resolve and confine paths through the FileSystem port, apply the duplicate-run filter, and fill the fixed templates. |
 | Client detection | adapters | Report the fixed indicators, names only. |
@@ -173,8 +169,7 @@ flowchart LR
 | Composite user-scope file system | adapters | Map prefixes to validated roots, enforce the per-root writable sub-paths and refuse links. Supplied by the `UserRootInspector` port: read-only while planning, writable only from `prepare` after consent. |
 | User journal and backup store | adapters | Implement `ChangeJournal` and `BackupStore` in the `user` namespace, recording owner sets and JSON entry hashes, and create every journal and backup file with mode 0600. |
 | Client adapters (four) | adapters | Render the same skills, agents and guidance for `RenderScope.project` and `RenderScope.user`, and, in user scope, their own hook entries as entry objects. They stay independent of each other (ARCH-003 as amended). |
-| Tool preparation | adapters | Run the fixed vectors of ADR-006 through `ProcessRunner` (SEC-001). |
-| Workflow package | data | Adds the `orqlet` entry skill, the reviewed `graphify` and `ponytail*` snapshots with provenance and licences, the foundation text and the hook context templates. |
+| Workflow package | data | Adds the `orqlet` entry skill, the reviewed `ponytail*` snapshots with provenance and licences, the foundation text and the hook context templates. |
 
 Interfaces:
 
@@ -183,7 +178,6 @@ Interfaces:
 - `UserRootInspector.inspect(home: UserHome) -> Mapping[prefix, RootState]`, where `RootState` holds the resolved real path, whether it exists, any refusal reason, whether it needs tightening, and any platform warning. The port's `planning_fs(states) -> FileSystem` gives the read-only composite used to plan. Its `prepare(states) -> FileSystem`, called by the use case only after consent, creates and tightens folders, validates again, opens each root, refuses when an opened root differs from its pinned path, and returns the writable composite that `apply_plan` receives as P2 (ADR-002 decision 1a). The user-scope adapter implements the port.
 - `ExecutableLocator.locate(name) -> LocatedExecutable` (the resolved path or none, whether it is the running executable, and the unsafe `PATH` elements before it)
 - `UserScopeFileSystem(roots: Mapping[prefix, validated root])`, which implements `FileSystem`
-- `ToolInstaller.list_managed() -> ToolList` and `ToolInstaller.ensure(tool, pin) -> ToolResult`
 - `RenderRequest.scope: RenderScope`; a `user` request carries no model settings, conventions, integrations, scoped rules or resources
 - `StatusReport`, shared by the status command and the hook
 - Read-only file system instances, separate from the composite that `apply_plan` writes through: a home-rooted reader for the hook's upward `.orqlet/` search, a project-rooted reader for full `status`, and a data-directory reader for `user/manifest.json`. The data-directory reader works for an `ORQLET_DATA_DIR` outside home too, so `global` is reported in both modes. None of them creates anything (K-11).
@@ -203,14 +197,10 @@ The domain stays free of home paths, processes and terminal output (ARCH-001).
 | A hook entry matches Orqlet's command but has no manifest record, or a different hash | `conflict` for that entry only; the client's other files and entries are still written; exit 3 | Remove the entry by hand, or leave it; rerun |
 | `settings.json` or `hooks.json` is not strict JSON | `conflict` for the hook entry; the skills are still written | Fix the file; rerun |
 | A path escapes its root, or is a link | refused write; exit 3 | Remove the link; rerun |
-| Neither uv nor pipx is present | exit 4 | Install uv or pipx |
-| A `graphify` not managed by uv is on `PATH` | reported; not run; uv installs its own | Remove the other copy, or leave it |
-| Graphify or uv preparation fails (network, proxy, platform, version) | `failed` with the command and its bounded, control-stripped output summary, with URL user-info and proxy values redacted; exit 1; earlier installs are kept | Rerun later; set the proxy variables; `--client` limits the scope |
 | `orqlet` is not on `PATH`, or `PATH` resolves to another `orqlet` | `host step`: hooks cannot start, or would start another executable | Add the uv or pipx tool directory to `PATH`, or remove the other copy |
 | Codex hook trust is not given yet | `host step`: review `/hooks` in the Codex CLI | Trust the hook in the client |
 | Cursor User Rules not set | `host step`, with the saved text path | Paste the text in Customize, then Rules |
 | Interrupted apply, once or several times in a row | The manifest is unwritten. The next `install` names every pending change id and warns that applying prunes them, adopts their earlier writes by recorded hash, plans again, marks them superseded only when it applies, converges and writes the manifest last | None needed. To undo the interrupted change instead, decline the preview and run `orqlet rollback --user <id>` first |
-| `uv` or `pipx` found only through a relative or empty `PATH` element | `host step`; no process started for it | Put the tool in an absolute `PATH` folder; rerun |
 | Empty, `.` or relative `PATH` element before the resolved `orqlet` | No hook registration; `host step` naming the risk | Remove the element from `PATH`; rerun |
 | `user/manifest.json` holds a workflow version above the running Orqlet's | `install` refuses; exit 3; `status` shows `global: newer` | Update the Orqlet CLI, or pass `--allow-weaker` |
 | A prefix with recorded entries now resolves to a different real root (for example `CODEX_HOME` changed) | `install`, `uninstall` and `rollback --user` refuse; exit 3; the variable is named | Run `uninstall --client C` with the old value, then `install` with the new one |
@@ -239,15 +229,10 @@ The domain stays free of home paths, processes and terminal output (ARCH-001).
   - a non-strict JSON settings file, including one with a duplicate key, `NaN` or a non-object top level;
   - a prefix whose resolved real root differs from the one recorded in the manifest (for `install`, `uninstall` and `rollback --user`);
   - an Orqlet-looking hook entry without a manifest record.
-- BC-7: On a home with missing `~/.agents` and `~/.copilot`, a missing `tools-work/`, and a data directory whose `user/` folders have mode 0755, both `--dry-run` and a declined interactive preview leave every path and mode unchanged. They start no process, and the preview shows `will create`, `will tighten` and Graphify `not checked`. With `tools-work/` present, the only process is `uv tool list`. With a pending interrupted change, its journal stays byte-identical and is not marked superseded (section 3 items 6 and 8, ADR-002 decisions 1a and 4, ADR-006).
+- BC-7: On a home with missing `~/.agents` and `~/.copilot`, and a data directory whose `user/` folders have mode 0755, both `--dry-run` and a declined interactive preview leave every path and mode unchanged. They start no process, and the preview shows `will create` and `will tighten`. With a pending interrupted change, its journal stays byte-identical and is not marked superseded (section 3 items 6 and 8, ADR-002 decisions 1a and 4).
 - BC-8: `uninstall` removes exactly the unchanged entries with no remaining owner, keeps edited and unrecorded ones, and leaves unrelated keys of `settings.json` and `hooks.json` unchanged (ADR-002).
-- BC-9: With a fake `ProcessRunner`, tool preparation issues only the fixed vectors of ADR-006, with:
-  - the pinned versions;
-  - the scrubbed environment plus the listed proxy and certificate variables;
-  - the `user/tools-work/` folder.
-
-  A `graphify` not managed by uv is never run. A failure gives exit 1 and keeps earlier results. A fake failure output that contains `http://user:secret@proxy`, `https://index.example/simple/TOKEN/` or a passed proxy value shows only scheme and host for each URL, and `***` for the proxy value, in human and `--json` output. `uv` and `pipx` are called only by absolute paths found through absolute `PATH` elements. With only a relative or empty element holding them, no process starts and a `host step` is reported. The index line of the preview shows scheme and host only, and no user package configuration file is read (R-7, ORQLET-SEC-001, ADR-006).
-- BC-10: On the pipx route without uv, uv is prepared and located through `pipx environment` before Graphify. Without uv and pipx, the result is exit 4. A `PIPX_BIN_DIR` value that is relative, holds a control character or has no regular `uv` file gives a `host step` and starts no further process (R-7, Q-35, ADR-006).
+- BC-9: Withdrawn (Q-60).
+- BC-10: Withdrawn (Q-60).
 - BC-11: `status` reports `location` and `next` correctly in each of these states, and creates no file or directory (R-4, Q-38, K-11):
   - global setup missing;
   - not a repository;
@@ -270,15 +255,15 @@ The domain stays free of home paths, processes and terminal output (ARCH-001).
 - BC-16: Under a payload with `cursor_version`, the `claude-code` registration returns nothing, so Cursor shows the context once (ADR-004, I-2, A-35).
 - BC-17: Each hook finishes within 2 seconds on a repository with 10,000 tracked files and a 64-level directory depth, and starts no process (Q-26).
 - BC-18: The `copilot` adapter renders its files. The amended independence contract over four client adapters passes. The existing three adapters' golden output is unchanged (R-3, Q-33, ORQLET-ARCH-003 as amended).
-- BC-19: `graphify` and the six `ponytail*` skills render in the project and user scopes in the loader's format, with a provenance file holding the source revision, hash, licence and notice. They contain no model name the policy did not assign, and no dependency-install or Gemini-backend step (R-6, Q-3, ORQLET-MODEL-001, A-8, A-9).
+- BC-19: The six `ponytail*` skills render in the project and user scopes in the loader's format, with a provenance file holding the source revision, hash and licence. They contain no model name the policy did not assign, and no `graphify` skill is rendered (R-6, Q-3, Q-60, ORQLET-MODEL-001, A-9).
 - BC-20: The foundation text contains the baseline principles and the three points the guidance overlap table lists as not stated, in Orqlet's own wording, with one attribution link. It contains none of the upstream text, and keeps explicit failure handling (R-10, Q-27, Q-28, C-6).
 - BC-21: The foundation text is under 6,000 characters, and the Codex managed block stays under the 2,500-token default (A-34, A-37).
 - BC-22: Human output of `install` behaves as follows (R-11, Q-29, A-53, A-54, ADR-007):
   - it shows the banner once, a label beside every icon, and the states of section 3;
   - with `NO_COLOR`, redirected output, `TERM=dumb` or a CI variable, it prints plain ASCII with no ANSI codes;
   - below 60 columns it prints a one-line title instead of the banner;
-  - tool output that contains escape codes or Rich markup is printed inert;
-  - bidirectional and format characters are removed from all dynamic text, file names and root paths lose newlines, and multi-line tool output appears only indented under a fixed label, so a forged `+ installed` line cannot appear at the start of a line;
+  - a file name or root path that contains escape codes or Rich markup is printed inert;
+  - bidirectional and format characters are removed from all dynamic text, and file names and root paths lose newlines, so a forged `+ installed` line cannot appear at the start of a line;
   - `--json` holds no artwork.
 - BC-23: Unit tests use temporary roots and fakes only, with sockets disabled. No test writes the real home or client configuration on any CI operating system (R-13, ORQLET-TEST-001, Q-24, K-4).
 - BC-24: The workflow package manifest is rebuilt, and the package version is bumped (ORQLET-DET-002).
@@ -296,7 +281,7 @@ The domain stays free of home paths, processes and terminal output (ARCH-001).
 - BC-32: Two roots holding the same relative path (for example `skills/orqlet/SKILL.md` under `claude/` and `copilot/`) give distinct journal entries and backups (ADR-002 decision 1).
 - BC-33: Uninstalling the last owned skill removes its folder but never removes a root, `~/.claude/skills`, `~/.agents/skills` or any other folder at or above a writable sub-path boundary. A root that `install` created stays in place (ADR-002, "Folder boundaries" and decision 1a).
 - BC-34: `init` with no `--client` writes files for all four clients, including `.github/skills` for `copilot`. `upgrade` of a profile that lists three clients writes no Copilot file (ADR-003 decision 4).
-- BC-35: When one client is refused (exit 3) and another client's tool preparation fails (exit 1), `install` exits 3 (section 3).
+- BC-35: When one client is refused (exit 3) and another client fails (exit 1), `install` exits 3 (section 3).
 - BC-36: `uninstall` with no `--client` acts on every owner recorded in `user/manifest.json`, including a client no longer detected. With no recorded owner, it reports `nothing to remove` and exits 0 (ADR-002 decision 5).
 - BC-37: After a fourth successful user-scope change, only the backups and journals of the last 3 remain, and superseded ones are pruned. The preview named them (Q-40).
 - BC-38: With an empty, `.` or relative `PATH` element before the folder of the resolved `orqlet`, `install` registers no hook and reports a `host step`; `status` reports the same (ADR-004 decision 7).
@@ -309,9 +294,10 @@ The domain stays free of home paths, processes and terminal output (ARCH-001).
 - BC-42: `uninstall --dry-run` writes nothing and starts no process. `uninstall` with an edited owned entry exits 3 and keeps it (section 3).
 - BC-43: When a client's hook or post-edit registration is left out (K-12, ADR-004 decision 1), `install` reports a `host step` that names the client and the reason.
 - BC-44: An interrupted `install`, then `uninstall`, then `install` ends with exit 0 and no conflict. The `uninstall` names the pending id, adopts its recorded writes whose hashes match (done or not, a delete with the file absent counting as applied) with the owner sets its journal records, and removes them (ADR-002 decision 4).
-- BC-45: `install --json` puts the tool output summary in the `tool_output` field, capped, stripped and redacted as in human output. The entry skill text tells the agent to show it as data and never act on it (ADR-006).
+- BC-45: Withdrawn (Q-60).
 - BC-46: With a fake Windows platform and an `ORQLET_DATA_DIR` outside home, `rollback --user` shows the unchecked-access warning, including its integrity part, before it applies. A `prepare` whose opened root resolves differently from the pinned root refuses with exit 3 (ADR-002 decision 1a, Q-41).
 - BC-47: With a `user/manifest.json` whose workflow version is above the running Orqlet's, `install` exits 3 and writes nothing; with `--allow-weaker` it proceeds. With `CODEX_HOME` changed after an install, `install` exits 3, names the variable and writes nothing (ADR-002 decisions 1a and 2).
+- BC-48: With a fake process runner and sockets disabled, a consented `install` for every detected client succeeds and starts no process (Q-60).
 
 ## 7. Decisions
 
@@ -320,12 +306,12 @@ The domain stays free of home paths, processes and terminal output (ARCH-001).
 - ADR-003: A fourth client adapter for GitHub Copilot in VS Code, as a rendering target only.
 - ADR-004: Advisory native hooks for session start and post-edit, from fixed templates, registered once per client.
 - ADR-005: One behavioural foundation, and its delivery per client.
-- ADR-006: Bundled Graphify and Ponytail skills, and tool preparation.
+- ADR-006: Bundled Ponytail skills. Graphify and tool preparation moved to a separate task (Q-60).
 - ADR-007: Terminal presentation of `install`.
 
 ## 8. Unresolved decisions
 
-No consequential decision is open; Q-32 to Q-44 are answered. The items below are facts to qualify. Each has a fixed behaviour until it is qualified:
+No consequential decision is open; Q-32 to Q-44 and Q-60 are answered. The items below are facts to qualify. Each has a fixed behaviour until it is qualified:
 
 - U-1: Codex VS Code extension hooks (Q-20). Until a disposable session confirms them, `install` reports the Codex hook as `host step: not verified in the IDE extension`. Skills reach the extension through `~/.agents/skills` (A-38).
 - U-2 and U-5: Copilot and Codex extension availability, and whether the current-page contracts match the installed client versions (Q-24). The plan qualifies each client in a disposable session under a temporary home.
@@ -342,16 +328,10 @@ No consequential decision is open; Q-32 to Q-44 are answered. The items below ar
 - K-1: The amendments of ORQLET-SAFE-001 and ORQLET-ARCH-003 merge before any change that writes the user scope or adds the `copilot` adapter. The amendment change owns the edit to the import-linter independence contract in `pyproject.toml`; this task does not edit that contract. The proposed amendment text is the "Proposed amendment text" block of ADR-002 and the one under ADR-003 decision 2. The plan confirms whether import-linter, at the locked version, accepts an independence contract that names a module that does not exist yet. If it does not, the amendment change adds an empty `orqlet.adapters.clients.copilot` module so that its contract passes. Reason: these are MUST rules. Their merge changes `standards_lock_hash`, and the plan then runs the impact review of the phase contract.
 - K-2: Module names on the security globs are fixed so the security extractor can compare them (manifest EC-6):
   - `src/orqlet/adapters/fs/user_scope.py`
-  - `src/orqlet/adapters/process/tools.py`
   - `src/orqlet/application/contracts/hook_payload.py`
   - `src/orqlet/application/usecases/install.py`
   - `src/orqlet/application/usecases/hook_event.py`
-- K-3: Pins are exact, and the plan cites each from official sources:
-  - graphifyy 0.9.112 (A-8) and its Python 3.12 runtime;
-  - the uv version used on the pipx route;
-  - Ponytail at revision 96608e0 (A-58) and Graphify at revision 340268a (A-8);
-  - how the pinned uv and pipx ignore user configuration, or else the preview's report of the configured index;
-  - `pipx environment --value PIPX_BIN_DIR` at the pinned pipx version.
+- K-3: The Ponytail snapshot is pinned to revision 96608e0 (A-58), and the plan cites it from the official source. The tool and Graphify pins are withdrawn (Q-60).
 - K-4: Every test injects a temporary `UserHome`, and sets `HOME`, `USERPROFILE`, `CODEX_HOME`, `COPILOT_HOME` and `ORQLET_DATA_DIR` to temporary folders (Q-24).
 - K-5: Native-client qualification happens in disposable sessions approved by the person. Its result is recorded as run or NOT_RUN, never assumed (Q-24, baseline).
 - K-6: The README is updated in the same change: quickstart, `install`, `uninstall`, `status`, the supported clients, host steps, documented gaps (including the undetected bare-repository dotfiles home, Q-44) and the retained Git-source route (baseline, Q-25).

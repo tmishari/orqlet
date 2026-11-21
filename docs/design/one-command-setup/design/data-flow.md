@@ -19,10 +19,9 @@ flowchart LR
     apply --> jr[(user/journal)]
     apply --> files[(User client folders)]
     apply --> man
-    apply -- "then the install use case" --> tools[Tool preparation<br/>ProcessRunner, fixed vectors]
-    tools --> idx[(Package index)]
-    tools --> bin[(uv tool environments<br/>graphify executable)]
 ```
+
+No data flows from `install` to a process or the network (Q-60).
 
 ## Session time
 
