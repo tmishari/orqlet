@@ -85,6 +85,9 @@ class ClientSkill:
     # Client id to setting. Only the Claude Code skill file reads it; the file that Cursor and
     # Codex share never does.
     model_settings: Mapping[str, ModelSetting] = field(default_factory=dict)
+    # Family (`claude`, `agents`, `copilot`) to the text of `families/<family>.md`; each client
+    # renders only its own family's text, as `references/dispatch.md`.
+    family_references: Mapping[str, str] = field(default_factory=dict)
 
 
 @dataclass(frozen=True, slots=True)

@@ -61,7 +61,12 @@ from tests.fakes.ids import SequentialIds
 from tests.fakes.vcs import FakeVcs
 from tests.fakes.workflow import PINNED, ChangedWorkflow, SkillChange
 from tests.support.init_env import Env, read, tree
-from tests.support.render import ROLE_NAMES, SKILL_NAMES, skill_files
+from tests.support.render import (
+    ROLE_NAMES,
+    SKILL_NAMES,
+    in_bundled_skill,
+    skill_files,
+)
 from tests.support.trees import repo
 
 pytestmark = pytest.mark.unit
@@ -142,6 +147,15 @@ def names_word(text: str, word: str) -> bool:
     return re.search(rf"(?<!\w){re.escape(word)}(?!\w)", text) is not None
 
 
+def other_project_hits(path: str, text: str, values: tuple[str, ...], names: set[str]) -> list[str]:
+    """The other project's name and uuid (`values`) anywhere in `text`, and its technology names
+    as words, except in a bundled skill's file, whose upstream text names languages."""
+    hits = [value for value in values if value in text]
+    if not in_bundled_skill(path):
+        hits += sorted(name for name in names if names_word(text, name))
+    return hits
+
+
 def codes_at(findings: tuple[Finding, ...], path: str) -> set[str]:
     return {finding.code for finding in findings if finding.path == path}
 
@@ -206,20 +220,35 @@ def test_bc6_no_workflow_file_of_one_project_names_the_other_project(
 ) -> None:
     """AC-1. expected_behavior_source: BC-6 ("No workflow skill, reference or role file written into
     one contains the other's project name, uuid or a technology that only the other declares"),
-    for each of the two projects."""
+    for each of the two projects; one-command-setup plan P-2 AC-14 and Q-55 (in the files of the
+    bundled skills the name and the uuid are still rejected, a technology name is not, because the
+    upstream text names Python and Rust; AC-4 and AC-11 check that text)."""
     here, there = profile_of(two_projects[mine]), profile_of(two_projects[theirs])
     only_there = technologies(there) - technologies(here)
+    values = (there.project.name, there.project.uuid)
     found: dict[str, list[str]] = {}
 
     for path in ALL_WORKFLOW_FILES:
         text = read(two_projects[mine].project, path)
-        hits = [value for value in (there.project.name, there.project.uuid) if value in text]
-        hits += sorted(name for name in only_there if names_word(text, name))
+        hits = other_project_hits(path, text, values, only_there)
         if hits:
             found[path] = hits
 
     assert only_there
     assert found == {}
+
+
+def test_bc6_the_scan_still_finds_a_technology_outside_and_a_name_inside_a_bundled_skill() -> None:
+    """A control, not a rule. expected_behavior_source: one-command-setup plan P-2 AC-14 and Q-55
+    (the scan narrows only for the bundled skills' files, and only for technology names)."""
+    text = f"Written for {BETA} with Rust."
+    values = (BETA, "0000-uuid")
+
+    assert other_project_hits(".claude/skills/orqlet-plan/SKILL.md", text, values, {"Rust"}) == [
+        BETA,
+        "Rust",
+    ]
+    assert other_project_hits(".agents/skills/graphify/SKILL.md", text, values, {"Rust"}) == [BETA]
 
 
 # --- AC-2: a skill and a reference change, then two upgrades in a row (BC-27) --------------------

@@ -24,6 +24,7 @@ class SourceError(OrqletError):
 _MARKER = re.compile(r"\s*<!--\s*(requires|unless):\s*([a-z][a-z -]*[a-z])\s*-->\s*$")
 _NUMBERED = re.compile(r"^(\d+)\.(\s)")
 _NAME = re.compile(r"[a-z0-9][a-z0-9-]*")
+FAMILIES = ("agents", "claude", "copilot")
 
 
 def parse_source(
@@ -102,7 +103,8 @@ def _collapse_blank_lines(lines: list[str]) -> str:
 
 
 def load_skills(workflow: WorkflowSource, available: Collection[str]) -> tuple[ClientSkill, ...]:
-    """One skill per `skills/<name>/skill.md`, with its `references/` files, in name order."""
+    """One skill per `skills/<name>/skill.md`, with its `references/` and `families/` files, in
+    name order. A family file is plain text, read unchanged."""
     version = str(workflow.release.version)
     skills = []
     for path in workflow.paths():
@@ -132,9 +134,24 @@ def load_skills(workflow: WorkflowSource, available: Collection[str]) -> tuple[C
                 body=rendered,
                 references=references,
                 inputs=((f"skills/{name}", version, sha256_hex(rendered.encode("utf-8"))),),
+                family_references=_family_references(workflow, name),
             )
         )
-    return tuple(skills)
+    # Path order puts `ponytail-audit/` before `ponytail/`, so sort by the name itself.
+    return tuple(sorted(skills, key=lambda skill: skill.name))
+
+
+def _family_references(workflow: WorkflowSource, name: str) -> dict[str, str]:
+    prefix = f"skills/{name}/families/"
+    texts = {}
+    for path in workflow.paths():
+        if not path.startswith(prefix):
+            continue
+        family = path.removeprefix(prefix).removesuffix(".md")
+        if family not in FAMILIES or path != f"{prefix}{family}.md":
+            raise SourceError(f"{path}: a family file is one of {', '.join(FAMILIES)} with .md")
+        texts[family] = workflow.read_text(path)
+    return texts
 
 
 def load_roles(workflow: WorkflowSource) -> tuple[ClientRole, ...]:

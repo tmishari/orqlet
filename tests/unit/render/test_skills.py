@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+import dataclasses
 import re
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 
 import pytest
 import typer
@@ -12,6 +13,8 @@ from orqlet.adapters.clients.claude_code import ClaudeCodeAdapter
 from orqlet.adapters.clients.codex import CodexAdapter
 from orqlet.adapters.clients.cursor import CursorAdapter
 from orqlet.adapters.fs.yaml_loader import StrictYamlLoader
+from orqlet.adapters.render.emit import normalise_text
+from orqlet.adapters.render.instructions import GENERATED_NOTICE
 from orqlet.adapters.render.roles import claude_role, codex_role, cursor_role
 from orqlet.adapters.render.rules import claude_command
 from orqlet.adapters.render.skills import agents_skill_files, claude_skill_files
@@ -23,6 +26,8 @@ from orqlet.application.ports.instruction_adapter import (
     ClientCommand,
     ClientRole,
     ClientSkill,
+    InstructionAdapter,
+    RenderedFile,
     RenderRequest,
 )
 from orqlet.application.usecases.capabilities import IMPLEMENTED_COMMANDS, PLANNED_COMMANDS
@@ -31,18 +36,26 @@ from orqlet.application.usecases.model_selection import ModelSelection, select_m
 from orqlet.application.usecases.render_request import build_render_request
 from orqlet.application.usecases.workflow_sources import (
     SourceError,
+    load_skills,
     markers,
     parse_source,
     render_steps,
 )
+from orqlet.domain.digest import sha256_hex
 from orqlet.domain.ownership import FileClass, OwnerMode
 from orqlet.interface.cli.app import app
 from tests.support.render import (
+    BUNDLED_SKILL_NAMES,
     EMPTY_RESOURCES,
+    GRAPHIFY_REFERENCES,
+    PONYTAIL_REFERENCES,
+    PONYTAIL_SKILL_NAMES,
     READ_ONLY_ROLES,
     ROLE_NAMES,
     SKILL_NAMES,
+    TemplatedWorkflow,
     packaged_request,
+    skill_files,
 )
 
 pytestmark = pytest.mark.unit
@@ -122,24 +135,36 @@ def test_a_malformed_source_is_a_release_defect(text: str) -> None:
 
 # --- what the package ships ---------------------------------------------------------------------
 def test_the_package_ships_the_expected_skills_roles_and_references() -> None:
-    """phase-skill-contracts P-2, AC-5. expected_behavior_source: ADR-001 decision 3 (research,
-    design, plan and implement each carry `references/phase-contract.md`; onboard and review do
-    not) and BC-4. References are attached in path order."""
+    """phase-skill-contracts P-2, AC-5; one-command-setup P-2, AC-1, AC-2 and AC-11.
+    expected_behavior_source: ADR-001 decision 3 of phase-skill-contracts (research, design, plan
+    and implement each carry `references/phase-contract.md`; onboard and review do not) and BC-4;
+    one-command-setup ADR-006 decision 1 (each bundled skill carries PROVENANCE.md and its licence
+    file), Q-52 (graphify's seven shared references) and the interface that the Coder gave (the
+    family files are not references). References are attached in path order, upper case first."""
     request = packaged_request()
 
     assert tuple(s.name for s in request.skills) == SKILL_NAMES
     assert tuple(r.name for r in request.roles) == ROLE_NAMES
     assert {s.name: [n for n, _ in s.references] for s in request.skills if s.references} == {
+        "graphify": list(GRAPHIFY_REFERENCES),
         "orqlet-design": ["design-format.md", "phase-contract.md"],
         "orqlet-implement": ["phase-contract.md"],
         "orqlet-plan": ["phase-contract.md", "plan-format.md"],
         "orqlet-research": ["as-is-format.md", "phase-contract.md"],
         "orqlet-review": ["review-format.md"],
+        **{name: list(PONYTAIL_REFERENCES) for name in PONYTAIL_SKILL_NAMES},
     }
 
 
-def test_every_skill_says_that_source_material_is_not_authority_and_stops_for_a_person() -> None:
+def test_every_orqlet_skill_says_that_source_material_is_not_authority_and_stops_for_a_person() -> (
+    None
+):
+    """Every packaged skill except the bundled upstream snapshots. expected_behavior_source:
+    one-command-setup P-2, AC-3 and ADR-006 decision 2 (a bundled snapshot differs from upstream
+    only by the adaptations its PROVENANCE.md lists, so Orqlet's sentences are not added to it)."""
     for skill in packaged_request().skills:
+        if skill.name in BUNDLED_SKILL_NAMES:
+            continue
         assert NOT_AUTHORITY in skill.body, skill.name
         assert "STOP." in skill.body, skill.name
 
@@ -672,3 +697,246 @@ def test_rendering_skills_twice_gives_identical_bytes() -> None:
     ]
 
     assert first == second
+
+
+# --- one-command-setup, phase P-2: family references (AC-5) and the bundled skills' files (AC-6) -
+# Every test cites its `expected_behavior_source`: AC-n is a criterion of phase P-2 in
+# docs/design/one-command-setup/plan.yaml, ADR-006 is adr-006-*.md under
+# docs/design/one-command-setup/design/, and "the interface" is the one that the Coder gave for
+# P-2: `ClientSkill.family_references` maps a family (`claude`, `agents`, `copilot`) to a text that
+# `load_skills` reads unchanged from `skills/<name>/families/<family>.md`; the renderer writes the
+# client's family as `references/dispatch.md`, built like a reference, after the other references,
+# with the input id `skills/<name>/families/<family>.md`.
+FAMILIES = ("agents", "claude", "copilot")
+FAMILY_TEXT = {
+    "claude": "Dispatch for Claude Code.\r\nUse its subagents.",
+    "agents": "Dispatch for Cursor and Codex.\n",
+    "copilot": "Dispatch for Copilot.\n",
+}
+CLIENT_BASES = {
+    "claude-code": ".claude/skills",
+    "cursor": ".agents/skills",
+    "codex": ".agents/skills",
+}
+CLIENT_ADAPTERS: tuple[InstructionAdapter, ...] = (
+    ClaudeCodeAdapter(),
+    CursorAdapter(),
+    CodexAdapter(),
+)
+
+
+def family_skill() -> ClientSkill:
+    """SKILL with the three families."""
+    return dataclasses.replace(SKILL, family_references=FAMILY_TEXT)
+
+
+def family_file_text(text: str) -> str:
+    """A family reference as the interface builds it: the text of a normal reference."""
+    return f"{GENERATED_NOTICE}\n\n{normalise_text(text)}"
+
+
+@pytest.mark.parametrize(
+    ("render", "base", "family"),
+    [(claude_skill_files, ".claude", "claude"), (agents_skill_files, ".agents", "agents")],
+    ids=["claude", "agents"],
+)
+def test_ac5_the_family_of_the_client_renders_as_dispatch_md_after_the_other_references(
+    render: Callable[[ClientSkill], tuple[RenderedFile, ...]], base: str, family: str
+) -> None:
+    """AC-5. expected_behavior_source: AC-5 (`families/claude.md` renders as
+    `.claude/skills/<name>/references/dispatch.md`, `families/agents.md` as
+    `.agents/skills/<name>/references/dispatch.md`); ADR-006 decision 2 (client references chosen
+    per adapter); the interface (built like a reference, last, Orqlet-owned and protected, input
+    id `skills/<name>/families/<family>.md`)."""
+    files = render(family_skill())
+
+    assert [str(f.path) for f in files] == [
+        f"{base}/skills/orqlet-sample/SKILL.md",
+        f"{base}/skills/orqlet-sample/references/notes.md",
+        f"{base}/skills/orqlet-sample/references/dispatch.md",
+    ]
+    dispatch = files[-1]
+    text = family_file_text(FAMILY_TEXT[family])
+    assert dispatch.content == text.encode("utf-8")
+    assert dispatch.owner is OwnerMode.ORQLET
+    assert dispatch.file_class is FileClass.PROTECTED
+    assert dispatch.inputs == (
+        (
+            f"skills/orqlet-sample/families/{family}.md",
+            SKILL.inputs[0][1],
+            sha256_hex(text.encode("utf-8")),
+        ),
+    )
+    assert files[:2] == render(SKILL)
+
+
+def test_ac5_no_family_file_renders_for_another_family() -> None:
+    """AC-5. expected_behavior_source: AC-5 ("no family file renders for another family") and the
+    interface (`copilot` renders for no current client; Copilot arrives in P-8): neither folder
+    holds the text of another family, and a skill whose only family is `copilot` renders as one
+    without families."""
+    contents = {
+        "claude": [f.content for f in claude_skill_files(family_skill())],
+        "agents": [f.content for f in agents_skill_files(family_skill())],
+    }
+    for family, rendered in contents.items():
+        for other in FAMILIES:
+            if other != family:
+                assert family_file_text(FAMILY_TEXT[other]).encode("utf-8") not in rendered
+
+    only_copilot = dataclasses.replace(SKILL, family_references={"copilot": "Copilot only.\n"})
+    assert claude_skill_files(only_copilot) == claude_skill_files(SKILL)
+    assert agents_skill_files(only_copilot) == agents_skill_files(SKILL)
+
+
+def test_ac5_a_skill_without_families_renders_exactly_as_before() -> None:
+    """AC-5. expected_behavior_source: AC-5 ("A skill without families renders exactly as
+    before"): the default is no family, and the files, their order and their bytes are those of the
+    base revision (SKILL.md and one reference built as GENERATED_NOTICE, a blank line, the text)."""
+    assert dict(SKILL.family_references) == {}
+    claude = claude_skill_files(SKILL)
+
+    assert [str(f.path) for f in claude] == [
+        ".claude/skills/orqlet-sample/SKILL.md",
+        ".claude/skills/orqlet-sample/references/notes.md",
+    ]
+    assert claude[1].content == f"{GENERATED_NOTICE}\n\nNotes\n".encode()
+    assert claude[1].inputs == (
+        (
+            "skills/orqlet-sample/references/notes.md",
+            "0.2.0",
+            sha256_hex(f"{GENERATED_NOTICE}\n\nNotes\n".encode()),
+        ),
+    )
+    assert claude_skill_files(dataclasses.replace(SKILL, family_references={})) == claude
+    assert [f.content for f in agents_skill_files(SKILL)] == [f.content for f in claude]
+
+
+SAMPLE_SOURCE = "---\nname: orqlet-sample\ndescription: A sample\n---\n# Sample\n\n1. Do it.\n"
+# Family text is plain text: no front matter and no step rendering, so a marker line stays.
+SAMPLE_FAMILY = "Run the extraction. <!-- requires: no-such-command -->\n1. kept\n"
+
+
+def sample_workflow(families: dict[str, str]) -> TemplatedWorkflow:
+    return TemplatedWorkflow(
+        {
+            "skills/orqlet-sample/skill.md": SAMPLE_SOURCE,
+            "skills/orqlet-sample/references/notes.md": "Notes\n",
+            **{f"skills/orqlet-sample/families/{name}": text for name, text in families.items()},
+        }
+    )
+
+
+def sample_skill(families: dict[str, str]) -> ClientSkill:
+    skills = load_skills(sample_workflow(families), IMPLEMENTED_COMMANDS)
+    return next(skill for skill in skills if skill.name == "orqlet-sample")
+
+
+def test_ac5_load_skills_reads_each_family_file_unchanged_and_not_as_a_reference() -> None:
+    """AC-5. expected_behavior_source: AC-5 (`ClientSkill` gains `family_references` keyed by the
+    families) and the interface (`load_skills` reads `families/<family>.md` as plain text, with no
+    front matter and no step rendering; family files are not part of `references`)."""
+    skill = sample_skill({"claude.md": SAMPLE_FAMILY, "agents.md": "Agents.\n"})
+
+    assert skill.references == (("notes.md", "Notes\n"),)
+    assert dict(skill.family_references) == {"agents": "Agents.\n", "claude": SAMPLE_FAMILY}
+
+
+def test_ac5_a_skill_without_a_families_folder_has_no_family_reference() -> None:
+    """AC-5. expected_behavior_source: AC-5 ("A skill without families renders exactly as
+    before") and the interface."""
+    assert dict(sample_skill({}).family_references) == {}
+
+
+@pytest.mark.parametrize("name", ["vscode.md", "Claude.md", "copilot-chat.md", "codex.md"])
+def test_ac5_a_family_file_outside_the_three_families_is_a_release_defect(name: str) -> None:
+    """AC-5. expected_behavior_source: AC-5 (the families `claude`, `agents` and `copilot`) and
+    the interface (a family file whose name is not one of the three raises `SourceError`)."""
+    with pytest.raises(SourceError):
+        sample_skill({name: "Text.\n"})
+
+
+def test_ac5_only_graphify_has_family_references_and_it_has_the_three_families() -> None:
+    """AC-5. expected_behavior_source: plan P-2 file operations (graphify's `families/claude.md`,
+    `families/agents.md` and `families/copilot.md`; no other skill has a families folder)."""
+    skills = {skill.name: skill for skill in packaged_request().skills}
+
+    assert set(skills["graphify"].family_references) == set(FAMILIES)
+    assert all(text.strip() for text in skills["graphify"].family_references.values())
+    assert {name for name, s in skills.items() if s.family_references} == {"graphify"}
+
+
+def test_ac5_graphify_dispatch_md_is_its_client_family_and_cursor_and_codex_share_the_bytes() -> (
+    None
+):
+    """AC-5. expected_behavior_source: AC-5 (`families/claude.md` renders as
+    `.claude/skills/graphify/references/dispatch.md` for Claude Code, `families/agents.md` as
+    `.agents/skills/graphify/references/dispatch.md` for Cursor and Codex with the same bytes, and
+    no family file renders for another family); the interface (copilot renders for no client)."""
+    source = {
+        family: WORKFLOW.read_text(f"skills/graphify/families/{family}.md") for family in FAMILIES
+    }
+    request = packaged_request()
+    rendered = {
+        adapter.client_id: {str(f.path): f.content for f in adapter.render(request).files}
+        for adapter in CLIENT_ADAPTERS
+    }
+    claude = rendered["claude-code"][".claude/skills/graphify/references/dispatch.md"]
+    cursor = rendered["cursor"][".agents/skills/graphify/references/dispatch.md"]
+    codex = rendered["codex"][".agents/skills/graphify/references/dispatch.md"]
+
+    assert claude == family_file_text(source["claude"]).encode("utf-8")
+    assert cursor == codex == family_file_text(source["agents"]).encode("utf-8")
+    copilot = family_file_text(source["copilot"]).encode("utf-8")
+    for client, files in rendered.items():
+        dispatch = [path for path in files if path.endswith("/references/dispatch.md")]
+        assert dispatch == [f"{CLIENT_BASES[client]}/graphify/references/dispatch.md"], client
+        if source["copilot"] not in (source["claude"], source["agents"]):
+            assert copilot not in files.values(), client
+
+
+@pytest.mark.parametrize("adapter", CLIENT_ADAPTERS, ids=lambda adapter: adapter.client_id)
+def test_ac6_each_client_gets_30_files_of_the_bundled_skills_in_render_order(
+    adapter: InstructionAdapter,
+) -> None:
+    """AC-6. expected_behavior_source: AC-6 ("30 skill files per client"); the interface (graphify
+    SKILL.md, 10 references and dispatch.md; six ponytail skills with SKILL.md, LICENSE.md and
+    PROVENANCE.md; dispatch.md after the other references)."""
+    base = CLIENT_BASES[adapter.client_id]
+    prefixes = tuple(f"{base}/{name}/" for name in BUNDLED_SKILL_NAMES)
+    paths = [
+        str(f.path)
+        for f in adapter.render(packaged_request()).files
+        if str(f.path).startswith(prefixes) and not str(f.path).endswith("/agents/openai.yaml")
+    ]
+
+    assert len(paths) == 30
+    assert paths == skill_files(base, BUNDLED_SKILL_NAMES)
+
+
+def test_ac6_codex_gets_a_sidecar_for_each_of_the_seven_bundled_skills() -> None:
+    """AC-6, AC-1. expected_behavior_source: AC-6 ("the 7 Codex `agents/openai.yaml` sidecars"),
+    AC-1 ("none is marked as a skill the agent may start") and ADR-006 decision 3 (the bundled
+    skills render as the other packaged skills do)."""
+    rendered = CodexAdapter().render(packaged_request()).files
+    files = {str(f.path): f.content.decode() for f in rendered}
+    sidecars = {
+        path: text
+        for path, text in files.items()
+        if path.endswith("/agents/openai.yaml") and path.split("/")[2] in BUNDLED_SKILL_NAMES
+    }
+
+    assert set(sidecars) == {f".agents/skills/{n}/agents/openai.yaml" for n in BUNDLED_SKILL_NAMES}
+    for path, text in sidecars.items():
+        assert "allow_implicit_invocation: false" in text, path
+
+
+def test_ac1_no_bundled_skill_may_be_started_by_the_agent() -> None:
+    """AC-1. expected_behavior_source: AC-1 ("none is marked as a skill the agent may start") and
+    ADR-006 decision 3: each renders `disable-model-invocation: true` for Claude Code and
+    Cursor."""
+    skills = {skill.name: skill for skill in packaged_request().skills}
+    for name in BUNDLED_SKILL_NAMES:
+        assert not skills[name].agent_may_start, name
+        for files in (claude_skill_files(skills[name]), agents_skill_files(skills[name])):
+            assert "disable-model-invocation: true" in files[0].content.decode().splitlines(), name
