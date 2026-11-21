@@ -144,8 +144,8 @@ phases:
 - id: P-2
   objective: >-
     Add the reviewed snapshots of the graphify skill and the six ponytail skills with their provenance and licence files, the
-    person-started entry skill `orqlet`, and per-family references, so that init and upgrade render them for Claude Code, Cursor and
-    Codex. The six phase skills are unchanged. The workflow manifest is rebuilt at 0.5.0; the version bump happens once, in P-11.
+    person-started entry skill `orqlet`, per-family references and the graphify references shared by every client, so that init and
+    upgrade render them for Claude Code, Cursor and Codex. The six phase skills are unchanged. The workflow manifest is rebuilt at 0.5.0; the version bump happens once, in P-11.
   depends_on: [P-1]
   implements: [EC-2, EC-9]
   acceptance_criteria:
@@ -189,7 +189,7 @@ phases:
     check_ref: pytest
   - id: AC-6
     text: >-
-      The golden files of the new skills match for the three clients: 24 skill files per client and the 8 Codex `agents/openai.yaml`
+      The golden files of the new skills match for the three clients: 31 skill files per client and the 8 Codex `agents/openai.yaml`
       sidecars. Every golden file that existed at the base revision stays byte-identical, including the six phase skills with their STOP
       and Next sections.
     source: BC-13; BC-18; BC-19; A-19; A-21; ORQLET-DET-001
@@ -224,6 +224,16 @@ phases:
     text: The staged change touches only the files of this phase and stays inside the expected changes of EC-2 and EC-9.
     source: EC-2; EC-9
     check_ref: gate-status-phase
+  - id: AC-11
+    text: >-
+      graphify ships `references/add-watch.md`, `exports.md`, `extraction-spec.md`, `github-and-merge.md`, `query.md`, `transcribe.md`
+      and `update.md` once, rendered with the same bytes for every client. Each equals the upstream agents variant at the pinned revision
+      except the adaptations its PROVENANCE.md lists: github-and-merge.md has no `--backend` hint and add-watch.md no
+      `pip install 'graphifyy[video]'` step. No `references/hooks.md` is rendered, and the skill body has no section that links it or
+      tells the agent to run `graphify hook install`, `graphify claude install` or `graphify agents install`; PROVENANCE.md lists that
+      removal as an adaptation. Every `references/<name>.md` that the rendered skill body names exists beside it for each client.
+    source: BC-19; ADR-006 decision 2; Q-51; Q-52
+    check_ref: pytest
   checks: [ruff-check, ruff-format, mypy, import-linter, pytest, manifest-check, gate-status-phase]
   file_operations:
   - op: create
@@ -247,6 +257,27 @@ phases:
   - op: create
     path: src/orqlet/workflow/skills/graphify/references/LICENSE-MIT.md
     why: The retained MIT terms.
+  - op: create
+    path: src/orqlet/workflow/skills/graphify/references/add-watch.md
+    why: Shared reference linked from the body, without the video install step (Q-52).
+  - op: create
+    path: src/orqlet/workflow/skills/graphify/references/exports.md
+    why: Shared reference linked from the body (Q-52).
+  - op: create
+    path: src/orqlet/workflow/skills/graphify/references/extraction-spec.md
+    why: Shared reference linked from the body; the agents variant (Q-52).
+  - op: create
+    path: src/orqlet/workflow/skills/graphify/references/github-and-merge.md
+    why: Shared reference linked from the body, without the backend hint (Q-52).
+  - op: create
+    path: src/orqlet/workflow/skills/graphify/references/query.md
+    why: Shared reference linked from the body (Q-52).
+  - op: create
+    path: src/orqlet/workflow/skills/graphify/references/transcribe.md
+    why: Shared reference linked from the body (Q-52).
+  - op: create
+    path: src/orqlet/workflow/skills/graphify/references/update.md
+    why: Shared reference linked from the body (Q-52).
   - op: create
     path: src/orqlet/workflow/skills/ponytail/skill.md
     why: Ponytail snapshot.
@@ -347,6 +378,27 @@ phases:
     path: tests/golden/claude-code/docs-2026-10/.claude/skills/graphify/references/LICENSE-MIT.md
     why: Golden output.
   - op: create
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/graphify/references/add-watch.md
+    why: Golden output.
+  - op: create
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/graphify/references/exports.md
+    why: Golden output.
+  - op: create
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/graphify/references/extraction-spec.md
+    why: Golden output.
+  - op: create
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/graphify/references/github-and-merge.md
+    why: Golden output.
+  - op: create
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/graphify/references/query.md
+    why: Golden output.
+  - op: create
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/graphify/references/transcribe.md
+    why: Golden output.
+  - op: create
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/graphify/references/update.md
+    why: Golden output.
+  - op: create
     path: tests/golden/claude-code/docs-2026-10/.claude/skills/ponytail/SKILL.md
     why: Golden output.
   - op: create
@@ -417,6 +469,27 @@ phases:
     why: Golden output.
   - op: create
     path: tests/golden/cursor/docs-2026-10/.agents/skills/graphify/references/LICENSE-MIT.md
+    why: Golden output.
+  - op: create
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/graphify/references/add-watch.md
+    why: Golden output.
+  - op: create
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/graphify/references/exports.md
+    why: Golden output.
+  - op: create
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/graphify/references/extraction-spec.md
+    why: Golden output.
+  - op: create
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/graphify/references/github-and-merge.md
+    why: Golden output.
+  - op: create
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/graphify/references/query.md
+    why: Golden output.
+  - op: create
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/graphify/references/transcribe.md
+    why: Golden output.
+  - op: create
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/graphify/references/update.md
     why: Golden output.
   - op: create
     path: tests/golden/cursor/docs-2026-10/.agents/skills/ponytail/SKILL.md
@@ -492,6 +565,27 @@ phases:
     why: Golden output.
   - op: create
     path: tests/golden/codex/docs-2026-10/.agents/skills/graphify/references/LICENSE-MIT.md
+    why: Golden output.
+  - op: create
+    path: tests/golden/codex/docs-2026-10/.agents/skills/graphify/references/add-watch.md
+    why: Golden output.
+  - op: create
+    path: tests/golden/codex/docs-2026-10/.agents/skills/graphify/references/exports.md
+    why: Golden output.
+  - op: create
+    path: tests/golden/codex/docs-2026-10/.agents/skills/graphify/references/extraction-spec.md
+    why: Golden output.
+  - op: create
+    path: tests/golden/codex/docs-2026-10/.agents/skills/graphify/references/github-and-merge.md
+    why: Golden output.
+  - op: create
+    path: tests/golden/codex/docs-2026-10/.agents/skills/graphify/references/query.md
+    why: Golden output.
+  - op: create
+    path: tests/golden/codex/docs-2026-10/.agents/skills/graphify/references/transcribe.md
+    why: Golden output.
+  - op: create
+    path: tests/golden/codex/docs-2026-10/.agents/skills/graphify/references/update.md
     why: Golden output.
   - op: create
     path: tests/golden/codex/docs-2026-10/.agents/skills/ponytail/SKILL.md
@@ -1508,6 +1602,27 @@ phases:
     why: Golden output.
   - op: create
     path: tests/golden/copilot/docs-2026-10/.github/skills/graphify/references/LICENSE-MIT.md
+    why: Golden output.
+  - op: create
+    path: tests/golden/copilot/docs-2026-10/.github/skills/graphify/references/add-watch.md
+    why: Golden output.
+  - op: create
+    path: tests/golden/copilot/docs-2026-10/.github/skills/graphify/references/exports.md
+    why: Golden output.
+  - op: create
+    path: tests/golden/copilot/docs-2026-10/.github/skills/graphify/references/extraction-spec.md
+    why: Golden output.
+  - op: create
+    path: tests/golden/copilot/docs-2026-10/.github/skills/graphify/references/github-and-merge.md
+    why: Golden output.
+  - op: create
+    path: tests/golden/copilot/docs-2026-10/.github/skills/graphify/references/query.md
+    why: Golden output.
+  - op: create
+    path: tests/golden/copilot/docs-2026-10/.github/skills/graphify/references/transcribe.md
+    why: Golden output.
+  - op: create
+    path: tests/golden/copilot/docs-2026-10/.github/skills/graphify/references/update.md
     why: Golden output.
   - op: create
     path: tests/golden/copilot/docs-2026-10/.github/skills/ponytail/SKILL.md

@@ -1020,5 +1020,66 @@ questions:
   - src/orqlet/workflow/identity.json:2
   blocks:
   - implement
-  status: open
+  status: answered
+  answer:
+    value: Yes, raise controls_level from 3 to 4
+    answerer: tmishari
+    time: '2026-11-20T13:50:00+00:00'
+    scope: task
+- id: Q-51
+  key: 1c22bcb89a6db9f0e9dc5216823d64bad365e3c5b0d7469f060f1b422d0b1fbc
+  subject: Graphify hooks reference and the registration section of the skill body
+  raised_by: Cursor
+  phase: implement
+  category: policy
+  text: Graphify's references/hooks.md, linked from the last section of its skill body, tells
+    the agent to install a git post-commit hook and to run `graphify claude install` or
+    `graphify agents install`, which write a section into CLAUDE.md or AGENTS.md. Does the
+    snapshot ship it?
+  why: ADR-006 rejects Graphify writing instruction registrations and hooks itself, and Orqlet
+    owns AGENTS.md; P-2 lists no hooks reference, so the answer decides a plan amendment.
+  evidence_refs:
+  - docs/design/one-command-setup/design/adr-006-bundled-skills-and-tool-preparation.md:72
+  - docs/design/one-command-setup/plan.yaml:229-249
+  options:
+  - Drop hooks.md and the body section that links it, listed as an adaptation in PROVENANCE.md
+  - Ship hooks.md per family as upstream has it
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: Drop hooks.md and the body section that links it, and list that as an adaptation in
+      PROVENANCE.md
+    answerer: tmishari
+    time: '2026-11-20T16:10:00+00:00'
+    scope: task
+- id: Q-52
+  key: 96e47514851b7ccade73756af00981a7da4050bd26737832a8913d63b6df1fc1
+  subject: Graphify reference files shared by every client
+  raised_by: Cursor
+  phase: implement
+  category: requirement
+  text: The graphify skill body links seven more references (add-watch, exports,
+    extraction-spec, github-and-merge, query, transcribe, update) that P-2 does not list.
+    Upstream they are identical for the claude, agents and copilot variants; only Codex has a
+    compact extraction-spec, and the plan gives Codex the agents bytes. github-and-merge.md
+    names model backends and add-watch.md a pip install step. How do they ship?
+  why: Without them the rendered skill links files that do not exist; AC-4 forbids the backend
+    and install text.
+  evidence_refs:
+  - docs/design/one-command-setup/plan.yaml:182-189
+  - docs/design/one-command-setup/plan.yaml:174-181
+  options:
+  - Once under graphify/references/ for every client, without the backend hint and the video
+    install step, with golden files
+  - Per family
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: Once under graphify/references/ for every client, without the `--backend` hint and
+      the `pip install 'graphifyy[video]'` step, with their golden files for every client
+    answerer: tmishari
+    time: '2026-11-20T16:10:00+00:00'
+    scope: task
 conflicts: []
