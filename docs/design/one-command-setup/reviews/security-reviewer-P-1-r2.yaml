@@ -1,0 +1,73 @@
+schema: orqlet.review-result/v1
+task: one-command-setup
+phase: P-1
+role: security-reviewer
+round: 2
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  schema: orqlet.review-input/v1
+  covers: [code_tests, knowledge, design, plan, standards, reviewer_definition, evidence_inputs]
+  components:
+    code_tests: 2ed578a9dd688c0d759e2aebc2765ff8c7bc05811389711cbd7dbad0b6c0873c
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    design: 186bc16c21cdc626b44e0ef17c0e725cb0ec6dc60c315810e2be0a4a065df09e
+    plan: 7645c75fb1b104adaf1f73b357c3c0af0343403c9777fc5f27b1598c163f0564
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    evidence_inputs: 84bea9a346a965cdb205be7a7b3d796c700f6eb98e4962ee99892f8d5afae289
+  digest: 9f9f68d6bbcc1c7270615e652d523e23120bb8d1a7d45ab920766d7a7ee8a1fc
+  merge_base: 4ccd0a2ca2dfc09501c95e6b116dd79a4eaed77f
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context: {fresh: true, input: packet-only}
+coder_binding: {client: cursor, model_requested: null, model_observed: null}
+independence: I1
+capability_limits:
+  - "The reviewer ran in the same client as the Coder (cursor), so independence is I1. The change class is D3, which requires I2, so the verdict of this record is NOT_RUN: ORQLET-MODEL-002 says that a class below the role's minimum is NOT_RUN, never a pass."
+  - "The reviewer's own conclusion was no blocking finding: the injection defences hold (markup, emoji and highlight off; Cc, Cf, Zl and Zp removed; wrapped dynamic text never starts at column 0, tested at widths 40 and 80), no secrets, no process, file or network access, and the rich pin adds no package to the lock."
+  - "It was started as a typed subagent in a new session with the packet path one-command-setup-P-1-81b2c3bb as its only prompt; that the context is fresh is the Coder's claim from how it was started. Its session had no shell or web access: no quote digest, no advisory lookup. The Coder wrote this record from its returned text."
+  - "Read-only is declared by the agent definition, not enforced by Orqlet."
+applicability:
+  examined: [diff.patch, src/orqlet/interface/cli/render_rich.py, tests/unit/test_render_rich.py, tests/unit/test_package.py, pyproject.toml, uv.lock, context/plan.yaml, context/standards]
+  conclusion: findings
+findings:
+  - schema: orqlet.finding/v1
+    id: F-1
+    kind: observation
+    severity: non-blocking
+    category: security
+    rule_ref: ORQLET-SEC-002
+    claim: "inert keeps lone surrogates (category Cs), which Python produces for file names that are not valid UTF-8 on POSIX; writing one to a strict UTF-8 stdout raises UnicodeEncodeError, so a file name could stop install output part-way. It cannot forge a line, and no command calls the presenter before P-10."
+    suggested_action: "In P-10, show a lone surrogate as U+FFFD or a visible escape and test a subject decoded from b'\\xff.md' with surrogateescape."
+    confidence: medium
+  - schema: orqlet.finding/v1
+    id: F-2
+    kind: observation
+    severity: info
+    category: security
+    claim: "tool_output prints its label at column 0 after inert and a one-line cut; AC-6 relies on the label being fixed, but the API accepts any string."
+    suggested_action: "In P-10 pass only constant labels, or type the parameter as a Literal or an enum."
+    confidence: high
+  - schema: orqlet.finding/v1
+    id: F-3
+    kind: observation
+    severity: info
+    category: security
+    claim: "markdown-it-py 4.2.0 and pygments 2.21.0 now install for every user through rich; the lock pins them by sha256 from pypi.org, but no advisory check was possible in this review."
+    suggested_action: "Ask the person whether an advisory scan is expected before release."
+    confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against: {role: security-reviewer, phase: implement}
+  checks:
+    - {what: packet read, how: "all 8 files of diff.patch, the snapshot files they cite, plan P-1, standards", result: pass}
+    - {what: "secrets, processes, files and network", how: "read every added line", result: pass}
+    - {what: terminal injection and forged lines, how: "traced subject, label and tool output through inert and the grid print", result: pass}
+    - {what: quote hashes and advisories, how: "no shell and no web in the reviewer session", result: not-run}

@@ -1,0 +1,74 @@
+schema: orqlet.review-result/v1
+task: one-command-setup
+phase: P-1
+role: security-reviewer
+round: 1
+verdict: FAIL
+assurance: advisory
+review_input:
+  schema: orqlet.review-input/v1
+  covers: [code_tests, knowledge, design, plan, standards, reviewer_definition, evidence_inputs]
+  components:
+    code_tests: f1279c91526dec7606f0521b574d35e44ee44b998417e50a9774d553062d4cfc
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    design: 186bc16c21cdc626b44e0ef17c0e725cb0ec6dc60c315810e2be0a4a065df09e
+    plan: 7645c75fb1b104adaf1f73b357c3c0af0343403c9777fc5f27b1598c163f0564
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    evidence_inputs: f9495077dd90e3fdfe4d9aa7ad8ae4102280276910dc45b8761f88e555d1f742
+  digest: c8f302e38ca9fab06ccfe8f36cc1d817bc44ebb6b7f5fff84b1f90f080ac3775
+  merge_base: 4ccd0a2ca2dfc09501c95e6b116dd79a4eaed77f
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context: {fresh: true, input: packet-only}
+coder_binding: {client: cursor, model_requested: null, model_observed: null}
+independence: I1
+capability_limits:
+  - "The reviewer ran in the same client as the Coder (cursor), so independence is I1. It was started as a typed subagent in a new session with the packet path one-command-setup-P-1-0f3efac1 as its only prompt; that the context is fresh is the Coder's claim from how it was started."
+  - "The reviewer's session had no shell: it computed no quote digest and wrote no file. The Coder wrote this record from its returned text; quote evidence is replaced by absence records or the finding is kept as an observation."
+  - "Read-only is declared by the agent definition, not enforced by Orqlet."
+applicability:
+  examined: [diff.patch, src/orqlet/interface/cli/render_rich.py, tests/unit/test_render_rich.py, uv.lock, docs/design/one-command-setup/design/adr-007-terminal-presentation.md, context records]
+  conclusion: findings
+findings:
+  - schema: orqlet.finding/v1
+    id: F-1
+    kind: finding
+    severity: blocking
+    category: security
+    rule_ref: "ADR-007 decision 8; P-1 AC-6"
+    evidence:
+      - {kind: absence, searched: ["tests/unit/test_render_rich.py"], method: "read every test; none passes a subject or tool-output line longer than the console width, and none sets soft_wrap, no_wrap or overflow", revision: 4ccd0a2ca2dfc09501c95e6b116dd79a4eaed77f}
+    claim: "_print leaves Rich's default wrapping on, so a subject or tool-output line padded to the console width and followed by an icon and label wraps to a new line that starts at column 0 with a forged status line, in interactive and plain mode; tool-output continuations also lose their indent."
+    suggested_action: "Keep continuation lines from starting at column 0 (hanging indent under the label, indented tool output) and add tests at widths 40 and 80 with long hostile input."
+    confidence: medium
+  - schema: orqlet.finding/v1
+    id: F-2
+    kind: observation
+    severity: non-blocking
+    category: security
+    claim: "inert removes only categories Cc and Cf, so U+2028 and U+2029 survive in state() subjects; some log viewers break lines on them."
+    suggested_action: "Add Zl and Zp to the removed categories, with a test."
+    confidence: medium
+  - schema: orqlet.finding/v1
+    id: F-3
+    kind: observation
+    severity: info
+    category: security
+    claim: "The dependency change adds no new package: rich 15.0.0 and its dependencies were already locked with sha256 hashes; only the orqlet entry gains rich. No model provider SDK is added."
+    suggested_action: None.
+    confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against: {role: security-reviewer, phase: implement}
+  checks:
+    - {what: packet read, how: "diff.patch, plan P-1, render_rich.py, ADR-007, uv.lock entries, standards", result: pass}
+    - {what: "secrets in code, tests and records", how: "read every added line of diff.patch", result: pass}
+    - {what: injection into terminal output, how: "traced subject, label and tool output through inert and Console.print", result: fail}
+    - {what: quote hashes, how: "no shell in the reviewer session", result: not-run}

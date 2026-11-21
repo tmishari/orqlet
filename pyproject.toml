@@ -13,6 +13,7 @@ dependencies = [
   "PyYAML==6.0.3",
   "filelock==4.2.4",
   "platformdirs==4.13.5",
+  "rich==15.0.0",
 ]
 
 [project.scripts]
@@ -116,6 +117,12 @@ name = "The workflow package is read-only data used by adapters and the interfac
 type = "forbidden"
 source_modules = ["orqlet.domain", "orqlet.application"]
 forbidden_modules = ["orqlet.workflow"]
+
+[[tool.importlinter.contracts]]
+name = "Rich stays in the interface layer"
+type = "forbidden"
+source_modules = ["orqlet.domain", "orqlet.application", "orqlet.adapters"]
+forbidden_modules = ["rich"]
 
 [[tool.importlinter.contracts]]
 name = "Client adapters do not know about one another"

@@ -1,0 +1,51 @@
+schema: orqlet.test-record/v1
+task: one-command-setup
+phase: P-1
+review_input:
+  schema: orqlet.review-input/v1
+  covers: [code_tests, plan]
+  components:
+    code_tests: 2ed578a9dd688c0d759e2aebc2765ff8c7bc05811389711cbd7dbad0b6c0873c
+    plan: 7645c75fb1b104adaf1f73b357c3c0af0343403c9777fc5f27b1598c163f0564
+  digest: a712f62ecfdcf862eb57f2672dd5a21921f3ca84343a8f35316379879f5e81a6
+  merge_base: 4ccd0a2ca2dfc09501c95e6b116dd79a4eaed77f
+verdict: NOT_RUN
+evidence_kind: claimed
+commands:
+  - id: ruff-check
+    exit_code: 0
+    summary: "uv run ruff check . (ci.yml:31, AGENTS.md:47-50; sha256 of both match the plan): All checks passed. The digest is of the whole captured output."
+    result_digest: 5b196eb3a6acb50d3fa398d04ca284985cc1ffec870e940264b00780bfd2c971
+  - id: ruff-format
+    exit_code: 0
+    summary: "uv run ruff format --check . (ci.yml:32, AGENTS.md:53-56; sha256 of both match the plan): 696 files already formatted. The digest is of the whole captured output."
+    result_digest: 82826f7536e93bfa53ca8d14cc3fe523dea29a99550ce256aeacc79ff864c0f1
+  - id: mypy
+    exit_code: 0
+    summary: "uv run mypy (ci.yml:47, AGENTS.md:59-62; sha256 of both match the plan): Success, no issues found in 392 source files. The digest is of the whole captured output."
+    result_digest: 11225d11c7e82153478757e18e79fa97b0ee848e565ecaa15d9b60903cb0a553
+  - id: import-linter
+    exit_code: 0
+    summary: "uv run lint-imports (ci.yml:62; sha256 matches the plan): 6 contracts kept, 0 broken, among them the new forbidden contract 'Rich stays in the interface layer' (orqlet.domain, orqlet.application, orqlet.adapters may not import rich); the independence contract of the client adapters is unchanged (AC-2). The digest is of the whole captured output."
+    result_digest: 2627d5a037d0e070b3944903baa222f61673bcd0b37d0a790fb66d171e79de10
+  - id: pytest
+    exit_code: 0
+    summary: "uv run pytest (ci.yml:84, AGENTS.md:71-74; sha256 of both match the plan) on the staged P-1 tree after rework round 1 (hanging indent for wrapped dynamic text, Zl and Zp removed, UTF-8 only for Unicode icons, AST import scan; tests changed in that round as the review records r1 say): 13095 passed, 1 skipped in 1218.49s; the skip is tests/integration/test_junction.py, Windows only. The new tests of tests/unit/test_render_rich.py and tests/unit/test_package.py pass, and every existing integration test passes without change (AC-7). pyproject.toml, a cited configuration file, was changed by this phase's own operation (the rich pin and the import contract); the person saw the diff and said yes before the run. macOS and one Python only; the CI matrix was not run. The digest is of the captured tail of the output."
+    result_digest: 07a507b75026b352b1c6e2e597b772d732d10a72eb6e042c93994a6692adc477
+  - id: gate-status-phase
+    exit_code: 5
+    summary: "uv run orqlet gate status one-command-setup --phase P-1 --head staged: NOT_RUN, exit 5, only because of ORQ-I393 (offline approval evidence) and ORQ-W390 base_revision on as-is and design, which the person confirmed keeps the approval valid; the plan accepts a NOT_RUN caused by ORQ-I393 alone, so AC-8 is recorded as not-run. No ORQ-E450, ORQ-E451 or ORQ-E453. EC-7 reports 'implemented as designed. rich==15.0.0' (AC-8). The digest is of the whole captured output."
+    result_digest: 6a359c5b132096005486667ed259f445a9098e7e6d52fc684d96abba829d01da
+  - id: uv-lock
+    exit_code: 0
+    summary: "uv lock, run after the person's yes (warning list: network): it printed 'Resolved 34 packages'; that console output was not captured. The digest is of `git diff --cached -- uv.lock`, the staged lock change: only rich is added to the orqlet entry's dependencies and requires-dist (2 lines); no package was added, removed or changed in version (AC-1)."
+    result_digest: f433ddff82784844afb28dd0f1eb884d9c5959709880ce8097800ceef9f1471d
+acceptance_coverage:
+  - {ac: AC-1, check_ref: pytest, result: pass}
+  - {ac: AC-2, check_ref: import-linter, result: pass}
+  - {ac: AC-3, check_ref: pytest, result: pass}
+  - {ac: AC-4, check_ref: pytest, result: pass}
+  - {ac: AC-5, check_ref: pytest, result: pass}
+  - {ac: AC-6, check_ref: pytest, result: pass}
+  - {ac: AC-7, check_ref: pytest, result: pass}
+  - {ac: AC-8, check_ref: gate-status-phase, result: not-run}
