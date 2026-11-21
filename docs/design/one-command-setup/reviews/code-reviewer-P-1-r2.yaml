@@ -1,0 +1,96 @@
+schema: orqlet.review-result/v1
+task: one-command-setup
+phase: P-1
+role: code-reviewer
+round: 2
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  schema: orqlet.review-input/v1
+  covers: [code_tests, knowledge, design, plan, standards, reviewer_definition, evidence_inputs]
+  components:
+    code_tests: 2ed578a9dd688c0d759e2aebc2765ff8c7bc05811389711cbd7dbad0b6c0873c
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    design: 186bc16c21cdc626b44e0ef17c0e725cb0ec6dc60c315810e2be0a4a065df09e
+    plan: 7645c75fb1b104adaf1f73b357c3c0af0343403c9777fc5f27b1598c163f0564
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+    reviewer_definition: 6660b181a2ba46a0bbd8225a3449e2322f0030dea1fa146cb15dfd0e3ffcd94e
+    evidence_inputs: 84bea9a346a965cdb205be7a7b3d796c700f6eb98e4962ee99892f8d5afae289
+  digest: 010ac1719b77759b3b63e00f3b67122ad0f6ab519ebdf48cc692b33b814d8ad4
+  merge_base: 4ccd0a2ca2dfc09501c95e6b116dd79a4eaed77f
+agent:
+  binding_ref: orqlet-code-reviewer
+  definition_sha256: d807b6881723a0c72151d12a514eb0506a2356d9e94d170daff3f53178dff488
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context: {fresh: true, input: packet-only}
+coder_binding: {client: cursor, model_requested: null, model_observed: null}
+independence: I0
+capability_limits:
+  - "orqlet models resolve --role orqlet-code-reviewer --client cursor --different-family-from claude-opus-5-5 exited 1 (no candidate qualifies); the engineering profile lists no candidates, so the flag was left out and the client chose the model, which is not observed."
+  - "The reviewer ran in the same client as the Coder (cursor), and .orqlet/role-bindings.yaml holds no approved code-reviewer binding for cursor (the role-bindings proposal is unapplied), so independence is I0, below the I2 a code review needs at every change class; the verdict is NOT_RUN."
+  - "The reviewer's own conclusion was no blocking code defect: AC-1 to AC-7 are met, each with a test that would fail if the behaviour were wrong."
+  - "It was started as a typed subagent in a new session with the packet path one-command-setup-P-1-81b2c3bb as its only prompt. Its session had no shell: no quote digest. The Coder wrote this record from its returned text."
+  - "Read-only is declared by the agent definition, not enforced by Orqlet."
+applicability:
+  examined: [diff.patch, src/orqlet/interface/cli/render_rich.py, tests/unit/test_render_rich.py, tests/unit/test_package.py, uv.lock, context records]
+  conclusion: findings
+findings:
+  - schema: orqlet.finding/v1
+    id: F-1
+    kind: observation
+    severity: non-blocking
+    category: tests
+    claim: "The test record's uv-lock entry carries the digest of empty input while its summary reports 'Resolved 34 packages', and no test checks the uv.lock half of AC-1; the staged uv.lock itself adds only the two rich lines."
+    suggested_action: "Record a real digest for the lock evidence."
+    confidence: high
+  - schema: orqlet.finding/v1
+    id: F-2
+    kind: observation
+    severity: non-blocking
+    category: correctness
+    claim: "Below about 22 columns the no-wrap prefix column may be cut, hiding the word label that AC-3 requires; the tests go down to 40 columns and ADR-007 leaves the narrowest width open (U-7)."
+    suggested_action: "Decide the narrowest supported width during qualification."
+    confidence: low
+  - schema: orqlet.finding/v1
+    id: F-3
+    kind: observation
+    severity: non-blocking
+    category: correctness
+    claim: "A tool-output label cut with overflow ellipsis gains the non-ASCII character U+2026 in plain mode."
+    suggested_action: "Use an ASCII cut in plain mode, or keep labels constant and short."
+    confidence: medium
+  - schema: orqlet.finding/v1
+    id: F-4
+    kind: observation
+    severity: info
+    category: correctness
+    claim: "inert deletes tabs instead of turning them into spaces, so tab-separated tool output runs together; ADR-007 says to remove control characters."
+    suggested_action: "A person's decision."
+    confidence: medium
+  - schema: orqlet.finding/v1
+    id: F-5
+    kind: observation
+    severity: info
+    category: correctness
+    claim: "The UTF-8 check misses the spellings utf_8 and utf-8-sig, which then get ASCII icons; that is safe."
+    suggested_action: None.
+    confidence: medium
+  - schema: orqlet.finding/v1
+    id: F-6
+    kind: observation
+    severity: info
+    category: architecture
+    claim: "questions.yaml (the Q-50 answer) is outside P-1's file list."
+    suggested_action: "For the architecture reviewer to confirm."
+    confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against: {role: code-reviewer, phase: implement}
+  checks:
+    - {what: packet read, how: "diff, snapshot of the changed files, plan P-1, records", result: pass}
+    - {what: acceptance criteria against tests, how: "mapped AC-1 to AC-8 to tests", result: pass}
+    - {what: quote hashes, how: "no shell in the reviewer session", result: not-run}

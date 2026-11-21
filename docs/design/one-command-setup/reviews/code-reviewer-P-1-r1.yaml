@@ -1,0 +1,90 @@
+schema: orqlet.review-result/v1
+task: one-command-setup
+phase: P-1
+role: code-reviewer
+round: 1
+verdict: FAIL
+assurance: advisory
+review_input:
+  schema: orqlet.review-input/v1
+  covers: [code_tests, knowledge, design, plan, standards, reviewer_definition, evidence_inputs]
+  components:
+    code_tests: f1279c91526dec7606f0521b574d35e44ee44b998417e50a9774d553062d4cfc
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    design: 186bc16c21cdc626b44e0ef17c0e725cb0ec6dc60c315810e2be0a4a065df09e
+    plan: 7645c75fb1b104adaf1f73b357c3c0af0343403c9777fc5f27b1598c163f0564
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+    reviewer_definition: 6660b181a2ba46a0bbd8225a3449e2322f0030dea1fa146cb15dfd0e3ffcd94e
+    evidence_inputs: f9495077dd90e3fdfe4d9aa7ad8ae4102280276910dc45b8761f88e555d1f742
+  digest: 3bee92c81a974039267164c1a02b6476190c451ae0ef6e96f23e0f842859ccc6
+  merge_base: 4ccd0a2ca2dfc09501c95e6b116dd79a4eaed77f
+agent:
+  binding_ref: orqlet-code-reviewer
+  definition_sha256: d807b6881723a0c72151d12a514eb0506a2356d9e94d170daff3f53178dff488
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context: {fresh: true, input: packet-only}
+coder_binding: {client: cursor, model_requested: null, model_observed: null}
+independence: I0
+capability_limits:
+  - "orqlet models resolve --role orqlet-code-reviewer --client cursor --different-family-from claude-opus-5-5 exited 1 (no candidate qualifies); the engineering profile lists no candidates, so the Coder's model matches no catalog id and the flag was left out. The client chose the model; it is not observed."
+  - "The reviewer ran in the same client as the Coder (cursor), and .orqlet/role-bindings.yaml holds no approved code-reviewer binding for cursor (the role-bindings proposal is unapplied), so independence is I0, below the I2 a code review needs. It was started as a typed subagent in a new session with the packet path one-command-setup-P-1-0f3efac1 as its only prompt."
+  - "The reviewer's session had no shell: it computed no quote digest and wrote no file. The Coder wrote this record from its returned text."
+  - "Read-only is declared by the agent definition, not enforced by Orqlet."
+applicability:
+  examined: [diff.patch, src/orqlet/interface/cli/render_rich.py, tests/unit/test_render_rich.py, tests/unit/test_package.py, context records]
+  conclusion: findings
+findings:
+  - schema: orqlet.finding/v1
+    id: F-1
+    kind: finding
+    severity: blocking
+    category: correctness
+    rule_ref: "P-1 AC-6"
+    evidence:
+      - {kind: absence, searched: ["tests/unit/test_render_rich.py"], method: "read the tests for any input longer than the console width", revision: 4ccd0a2ca2dfc09501c95e6b116dd79a4eaed77f}
+    claim: "The presenter prints with Rich's default wrapping, which breaks long text with real newlines, so a padded subject can start a new line with '+ installed x' and wrapped tool output loses its indent; no test uses input longer than the width."
+    suggested_action: "Prevent column-0 continuations and add tests with input longer than a narrow fixed width."
+    confidence: medium
+  - schema: orqlet.finding/v1
+    id: F-2
+    kind: observation
+    severity: non-blocking
+    category: correctness
+    claim: "U+2028 and U+2029 are not removed, and the property test fixes that gap in place."
+    suggested_action: "Remove the line and paragraph separators too."
+    confidence: medium
+  - schema: orqlet.finding/v1
+    id: F-3
+    kind: observation
+    severity: non-blocking
+    category: tests
+    claim: "test_hostile_subject_cannot_forge_a_line_or_restyle_the_terminal builds its expected line with inert, the function under test."
+    suggested_action: "Use literal expected values."
+    confidence: medium
+  - schema: orqlet.finding/v1
+    id: F-4
+    kind: observation
+    severity: non-blocking
+    category: tests
+    claim: "The rich import scan misses forms such as 'import os, rich'."
+    suggested_action: "Scan with the ast module."
+    confidence: medium
+  - schema: orqlet.finding/v1
+    id: F-5
+    kind: observation
+    severity: info
+    category: tests
+    claim: "No test checks the uv.lock part of AC-1."
+    suggested_action: "Optional."
+    confidence: low
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against: {role: code-reviewer, phase: implement}
+  checks:
+    - {what: packet read, how: "diff and snapshot of the changed files, plan P-1, records", result: pass}
+    - {what: acceptance criteria against tests, how: "mapped AC-1 to AC-8 to tests", result: fail}
+    - {what: quote hashes, how: "no shell in the reviewer session", result: not-run}

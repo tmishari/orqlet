@@ -1,0 +1,16 @@
+# Provenance of ponytail-review
+
+Source: https://github.com/DietrichGebert/ponytail
+Revision: 96608e078b2d5ea607c5c3b8b5a54d1c1fba6846
+Licence: MIT, Copyright (c) 2026 DietrichGebert (references/LICENSE.md)
+
+## Upstream files
+
+| File | SHA-256 |
+|---|---|
+| `skills/ponytail-review/SKILL.md` | `33fe4ebe22a460924e5d4a261e223df22e409cc94ab76182bee9fb91a3ef022e` |
+| `LICENSE` | `fb1bc6909ac3ef82d5c22106e32ef682b0cff66788fa915fb9b53b15c9d2f3ab` |
+
+## Adaptations
+
+- The front matter is the one-line `name` and `description` that Orqlet's skill loader reads: the folded `description` is joined into one line; the `description` is reworded so that it needs no YAML quoting: colons, double quotes, backticks and dashes become plain punctuation or single quotes, with the same meaning.

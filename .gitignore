@@ -15,3 +15,11 @@ build/
 # graphify output too large for the review packet (16 MB git output cap)
 graphify-out/graph.json
 graphify-out/graph.html
+
+# local graphify state: caches, cost log and this machine's interpreter and root paths
+graphify-out/.graphify_*
+graphify-out/cache/
+graphify-out/memory/
+graphify-out/cost.json
+graphify-out/manifest.json
+src/graphify-out/

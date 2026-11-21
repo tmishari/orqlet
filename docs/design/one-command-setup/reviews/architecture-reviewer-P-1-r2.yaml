@@ -1,0 +1,96 @@
+schema: orqlet.review-result/v1
+task: one-command-setup
+phase: P-1
+role: architecture-reviewer
+round: 2
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  schema: orqlet.review-input/v1
+  covers: [code_tests, knowledge, design, plan, standards, reviewer_definition, evidence_inputs]
+  components:
+    code_tests: 2ed578a9dd688c0d759e2aebc2765ff8c7bc05811389711cbd7dbad0b6c0873c
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    design: 186bc16c21cdc626b44e0ef17c0e725cb0ec6dc60c315810e2be0a4a065df09e
+    plan: 7645c75fb1b104adaf1f73b357c3c0af0343403c9777fc5f27b1598c163f0564
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+    reviewer_definition: 83e52f1a68fceddc7beb1d83654661fd34a1e3b3028c4fcc3dd7b6dadd8f3463
+    evidence_inputs: 84bea9a346a965cdb205be7a7b3d796c700f6eb98e4962ee99892f8d5afae289
+  digest: c58f6517ad5f0f6f5fd83585b0363287263b1bd750b25b05022076810c18cf0c
+  merge_base: 4ccd0a2ca2dfc09501c95e6b116dd79a4eaed77f
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: 751953d100777e7ad1ae8ea41d8f096972ff2d2818b84213b87d027c1a3f9beb
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context: {fresh: true, input: packet-only}
+coder_binding: {client: cursor, model_requested: null, model_observed: null}
+independence: I1
+capability_limits:
+  - "The reviewer ran in the same client as the Coder (cursor), so independence is I1. The change class is D3, which requires I2, so the verdict of this record is NOT_RUN (ORQLET-MODEL-002)."
+  - "The reviewer's own conclusion was no blocking finding: the five code files match the file list, rich is confined to orqlet.interface.cli.render_rich by the new contract and an AST test, no existing renderer changed, and ADR-007 decisions 1 to 8 are implemented."
+  - "It was started as a typed subagent in a new session with the packet path one-command-setup-P-1-81b2c3bb as its only prompt. Its session could not run commands: no quote digest. The Coder wrote this record from its returned text, and keeps findings with quote evidence as observations."
+  - "Read-only is declared by the agent definition, not enforced by Orqlet."
+applicability:
+  examined: [diff.patch, context/plan.yaml, context/design-manifest.yaml, docs/design/one-command-setup/design/adr-007-terminal-presentation.md, docs/design/one-command-setup/design/component.md, docs/design/one-command-setup/design/container.md, context/standards, context records, pyproject.toml, uv.lock]
+  conclusion: findings
+findings:
+  - schema: orqlet.finding/v1
+    id: F-1
+    kind: observation
+    severity: non-blocking
+    category: tests
+    claim: "The test record's uv-lock result_digest is the SHA-256 of empty input while its summary quotes output, so it is not evidence for AC-1."
+    suggested_action: "Record the digest of the captured lock evidence, or say the output was not captured."
+    confidence: high
+  - schema: orqlet.finding/v1
+    id: F-2
+    kind: observation
+    severity: non-blocking
+    category: standards
+    claim: "The plan accepts a NOT_RUN of gate-status-phase only when ORQ-I393 is its sole cause; the run also shows ORQ-W390, yet AC-8 is recorded as pass."
+    suggested_action: "Record AC-8 as not-run, citing the person's confirmation that the approval stays valid."
+    confidence: medium
+  - schema: orqlet.finding/v1
+    id: F-3
+    kind: observation
+    severity: non-blocking
+    category: architecture
+    claim: "The Q-50 answer in questions.yaml is outside P-1's file list; recording it first is defensible because the ledger marks Q-50 as blocking implement."
+    suggested_action: "Say in the commit or pull request description that the ledger answer is included on purpose."
+    confidence: medium
+  - schema: orqlet.finding/v1
+    id: F-4
+    kind: observation
+    severity: info
+    category: architecture
+    claim: "Wrapped subjects continue in a column right of the icon and label rather than literally under the label as ADR-007 decision 6 words it; BC-22's goal holds."
+    suggested_action: "Align the ADR wording when P-10 wires the presenter, or confirm the hanging indent is meant."
+    confidence: medium
+  - schema: orqlet.finding/v1
+    id: F-5
+    kind: observation
+    severity: info
+    category: compatibility
+    claim: "The presenter decides plain mode from the mapping it is given while the Console reads the process environment, including FORCE_COLOR, so the two can disagree if built from different environments."
+    suggested_action: "In P-10, build the Console and the presenter from the same mapping and test the pairing."
+    confidence: medium
+  - schema: orqlet.finding/v1
+    id: F-6
+    kind: observation
+    severity: info
+    category: docs
+    claim: "The no-impact knowledge claim is supported; it could also cite ADR-007 decisions 3 and 7 and component.md K-9."
+    suggested_action: None required.
+    confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against: {role: architecture-reviewer, phase: implement}
+  checks:
+    - {what: scope against the plan's file list, how: "compared diff.patch with P-1 file_operations", result: pass}
+    - {what: layering and dependency, how: "read the import contracts, the import test and the lock diff", result: pass}
+    - {what: design decisions, how: "traced ADR-007 decisions 1 to 8 in render_rich.py", result: pass}
+    - {what: quote hashes and check results, how: "no command could run in the reviewer session", result: not-run}

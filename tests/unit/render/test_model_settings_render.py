@@ -80,6 +80,7 @@ from tests.support.render import (
     ROLE_NAMES,
     SAMPLE_RULES,
     SKILL_NAMES,
+    in_bundled_skill,
     skill_files,
 )
 
@@ -1097,13 +1098,29 @@ def wrongly_approved(variant: str, mode: str = "manual") -> ModelPolicy:
     )
 
 
-def excluded_hits(request: RenderRequest, client: str) -> list[str]:
-    """Each file of the client that holds one of the three strings, in any letter case."""
+def written_text(path: str, text: str) -> str:
+    """The text of a file that the renderer writes: of a bundled skill's Markdown file only the
+    front matter, because its body and references are upstream prose in which an English word
+    such as `best` can equal an excluded alias."""
+    if not (in_bundled_skill(path) and path.endswith(".md")):
+        return text
+    if not text.startswith("---\n"):
+        return ""
+    return text[: text.index(FENCE_END, 3) + 1]
+
+
+def excluded_hits_in(files: dict[str, bytes]) -> list[str]:
+    """Each file that holds one of the three strings where the renderer writes, in any letter
+    case."""
     hits: list[str] = []
-    for path, content in files_of(request, client).items():
-        text = content.decode("utf-8").lower()
+    for path, content in files.items():
+        text = written_text(path, content.decode("utf-8")).lower()
         hits += [f"{path}: {needle}" for needle in EXCLUDED_STRINGS if needle in text]
     return hits
+
+
+def excluded_hits(request: RenderRequest, client: str) -> list[str]:
+    return excluded_hits_in(files_of(request, client))
 
 
 @pytest.mark.parametrize("mode", MODES)
@@ -1118,6 +1135,8 @@ def test_no_file_of_any_client_holds_an_excluded_string_in_any_mode(
     returns). The excluded string is the route name, an alias, a family tag, an `also_known_as`,
     a `resolves_to`, the route of another client, the family or the id (reading 6 accepted on
     2026-11-08: the exclusion reads the family and every route string of a model).
+    one-command-setup plan P-2 AC-14 and Q-55: of the bundled skills' Markdown files the scan
+    reads the front matter, which the renderer writes, and not the upstream body or references.
     """
     request = request_for(wrongly_approved(variant, mode))
 
@@ -1140,6 +1159,25 @@ def test_the_scan_of_the_files_does_find_a_name_that_is_written() -> None:
 
     path = ROLE_PATH[CLAUDE].format(TESTER)
     assert sorted(excluded_hits(request, CLAUDE)) == [f"{path}: claude-fable-", f"{path}: fable"]
+
+
+def test_the_scan_reads_the_front_matter_of_a_bundled_skill_and_all_of_another_file() -> None:
+    """expected_behavior_source: one-command-setup plan P-2 AC-14 and Q-55. A control, not a
+    rule: in a bundled skill's file the scan finds a string in the front matter and not in the
+    body; in a phase skill's file it still finds the body.
+    """
+    text = b"---\nname: x\nmodel: claude-fable-9\n---\nThe best way.\n"
+    bundled = CLAUDE_SKILL.format("graphify")
+    phase = CLAUDE_SKILL.format(REVIEW)
+
+    assert sorted(excluded_hits_in({bundled: text, phase: text})) == [
+        f"{bundled}: claude-fable-",
+        f"{bundled}: fable",
+        f"{phase}: best",
+        f"{phase}: claude-fable-",
+        f"{phase}: fable",
+    ]
+    assert excluded_hits_in({bundled.replace("SKILL.md", "references/query.md"): b"best"}) == []
 
 
 # --- AC-9: each writer reads only its own client's entry ----------------------------------

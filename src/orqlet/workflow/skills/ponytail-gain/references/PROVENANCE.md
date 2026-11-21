@@ -1,0 +1,17 @@
+# Provenance of ponytail-gain
+
+Source: https://github.com/DietrichGebert/ponytail
+Revision: 96608e078b2d5ea607c5c3b8b5a54d1c1fba6846
+Licence: MIT, Copyright (c) 2026 DietrichGebert (references/LICENSE.md)
+
+## Upstream files
+
+| File | SHA-256 |
+|---|---|
+| `skills/ponytail-gain/SKILL.md` | `231034a896d6762e4b5c8468287083422c56b499119976ec9f76821f7d083090` |
+| `LICENSE` | `fb1bc6909ac3ef82d5c22106e32ef682b0cff66788fa915fb9b53b15c9d2f3ab` |
+
+## Adaptations
+
+- The front matter is the one-line `name` and `description` that Orqlet's skill loader reads: the folded `description` is joined into one line; the `description` is reworded so that it needs no YAML quoting: colons, double quotes, backticks and dashes become plain punctuation or single quotes, with the same meaning.
+- The benchmark's model name is removed from the body's account of the benchmark and from the scoreboard (Orqlet's packaged files name no model the team's policy did not assign); the figures stay attributed to the upstream benchmark.

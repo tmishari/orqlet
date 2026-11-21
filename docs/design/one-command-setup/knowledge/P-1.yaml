@@ -1,0 +1,45 @@
+schema: orqlet.knowledge-impact/v1
+task: one-command-setup
+phase: P-1
+review_input:
+  schema: orqlet.review-input/v1
+  covers: [code_tests, knowledge, plan, standards, candidates]
+  components:
+    candidates: 0ff5891119bea3beb1d5e6589821b0c989a6099e7665fd1525b2c78e54bf7191
+    code_tests: 2ed578a9dd688c0d759e2aebc2765ff8c7bc05811389711cbd7dbad0b6c0873c
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 7645c75fb1b104adaf1f73b357c3c0af0343403c9777fc5f27b1598c163f0564
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+  digest: a28e9ada75598df3b44d1b7c221ccb3bbb6cf841f06f9e47ade4e519a7d011e2
+  merge_base: 4ccd0a2ca2dfc09501c95e6b116dd79a4eaed77f
+outcome: no-impact
+analysis:
+  command: orqlet knowledge impact
+  orqlet_version: 0.4.0
+  candidates_digest: 0ff5891119bea3beb1d5e6589821b0c989a6099e7665fd1525b2c78e54bf7191
+  candidate_count: 1
+  input: pre-draft-tree
+  views: [committed:HEAD]
+  index_state: not-used
+entries:
+  - id: K-1
+    candidate_ref: cand-4a8f5a32b2d4
+    action: unaffected
+    scope: project
+    reason: "EC-7 is the expected change that the approved design declares (rich==15.0.0 as a direct dependency) and decision 2 of ADR-007 documents; gate status reports it as implemented as designed. No project knowledge document covers the dependency list or the presenter, which no command uses yet."
+    evidence:
+      - {kind: design, ref: docs/design/one-command-setup/design/manifest.yaml, sha256: be94816a74b2a91a42afcd48210c646d989d6b5a9716923176c8d500e1bc7fba}
+      - {kind: adr, ref: docs/design/one-command-setup/design/adr-007-terminal-presentation.md, sha256: aff768709d7b902eb25f95dc53b6a4e42713b409f4ce0ca03587cedbb2fb90dd}
+no_impact:
+  category: already-documented
+  reason: "The dependency and the presenter of this phase are written down in decisions 1, 2, 4, 5, 6 and 8 of ADR-007 and in EC-7 of the approved design manifest. No existing command changes its output, so no user-facing document became wrong; the README describes install in P-11."
+  absence_record:
+    scopes_searched: [".orqlet/knowledge.yaml sources (none configured)", "the plan's knowledge_scope (empty)", "the staged change of the phase"]
+    views: [committed:HEAD]
+    revision: df28862c7a6f8f76945b39ce6ec558451d20cb22
+    method: "orqlet knowledge impact one-command-setup P-1 on the staged tree (exit 0, 1 candidate, ORQ-I400 twice: no public_api packages named by the design, no knowledge source configured)."
+    index_state: not-used
+    candidates_found: 1
+  already_documented_refs:
+    - {path: docs/design/one-command-setup/design/adr-007-terminal-presentation.md, sha256: aff768709d7b902eb25f95dc53b6a4e42713b409f4ce0ca03587cedbb2fb90dd}
+    - {path: docs/design/one-command-setup/design/manifest.yaml, sha256: be94816a74b2a91a42afcd48210c646d989d6b5a9716923176c8d500e1bc7fba}

@@ -11,6 +11,8 @@ from __future__ import annotations
 import json
 from collections.abc import Mapping
 from functools import cache
+from itertools import pairwise
+from pathlib import PurePosixPath
 from typing import Final
 
 from orqlet.adapters.fs.yaml_loader import StrictYamlLoader
@@ -29,7 +31,7 @@ from tests.support.trees import FIXTURES
 # The commands the packaged workflow ships, in name order.
 COMMAND_NAMES = ("doctor", "profile", "standards", "upgrade")
 # The skills and roles the packaged workflow ships in this release.
-SKILL_NAMES = (
+PHASE_SKILL_NAMES = (
     "orqlet-design",
     "orqlet-implement",
     "orqlet-onboard",
@@ -37,13 +39,50 @@ SKILL_NAMES = (
     "orqlet-research",
     "orqlet-review",
 )
+PONYTAIL_SKILL_NAMES = (
+    "ponytail",
+    "ponytail-audit",
+    "ponytail-debt",
+    "ponytail-gain",
+    "ponytail-help",
+    "ponytail-review",
+)
+# The reviewed upstream snapshots (one-command-setup ADR-006 decision 1). `load_skills` returns
+# every skill in name order.
+BUNDLED_SKILL_NAMES = ("graphify", *PONYTAIL_SKILL_NAMES)
+SKILL_NAMES = tuple(sorted((*PHASE_SKILL_NAMES, *BUNDLED_SKILL_NAMES)))
+# graphify's references in path order (upper case first), and the seven of Q-52 that every
+# client shares.
+GRAPHIFY_SHARED_REFERENCES = (
+    "add-watch.md",
+    "exports.md",
+    "extraction-spec.md",
+    "github-and-merge.md",
+    "query.md",
+    "transcribe.md",
+    "update.md",
+)
+GRAPHIFY_REFERENCES = (
+    "LICENSE-MIT.md",
+    "LICENSE.md",
+    "PROVENANCE.md",
+    *GRAPHIFY_SHARED_REFERENCES,
+)
+PONYTAIL_REFERENCES = ("LICENSE.md", "PROVENANCE.md")
 SKILL_REFERENCES = {
+    "graphify": GRAPHIFY_REFERENCES,
     "orqlet-design": ("design-format.md", "phase-contract.md"),
     "orqlet-implement": ("phase-contract.md",),
     "orqlet-plan": ("phase-contract.md", "plan-format.md"),
     "orqlet-research": ("as-is-format.md", "phase-contract.md"),
     "orqlet-review": ("review-format.md",),
+    **dict.fromkeys(PONYTAIL_SKILL_NAMES, PONYTAIL_REFERENCES),
 }
+# The families of a skill's `families/<family>.md` files, and the family each skill folder reads.
+# The family reference is rendered last, as `references/dispatch.md`.
+SKILL_FAMILIES = {"graphify": ("agents", "claude", "copilot")}
+FAMILY_OF_BASE = {".claude/skills": "claude", ".agents/skills": "agents"}
+DISPATCH = "dispatch.md"
 ROLE_NAMES = (
     "orqlet-arch-reviewer",
     "orqlet-code-reviewer",
@@ -56,12 +95,21 @@ ROLE_NAMES = (
 READ_ONLY_ROLES = tuple(name for name in ROLE_NAMES if name != "orqlet-tester")
 
 
-def skill_files(base: str) -> list[str]:
-    """Every file of every skill under `base` (`.claude/skills` or `.agents/skills`)."""
+def in_bundled_skill(path: str) -> bool:
+    """`path` lies under `<skills folder>/<name>/` for a name of the bundled upstream snapshots."""
+    parts = PurePosixPath(path).parts
+    return any(a == "skills" and b in BUNDLED_SKILL_NAMES for a, b in pairwise(parts))
+
+
+def skill_files(base: str, names: tuple[str, ...] = SKILL_NAMES) -> list[str]:
+    """Every file of the skills `names` under `base` (`.claude/skills` or `.agents/skills`), in
+    the order that the renderer returns them."""
     paths = []
-    for name in SKILL_NAMES:
+    for name in names:
         paths.append(f"{base}/{name}/SKILL.md")
         paths += [f"{base}/{name}/references/{ref}" for ref in SKILL_REFERENCES.get(name, ())]
+        if FAMILY_OF_BASE[base] in SKILL_FAMILIES.get(name, ()):
+            paths.append(f"{base}/{name}/references/{DISPATCH}")
     return paths
 
 

@@ -848,12 +848,14 @@ def test_the_premise_the_tester_role_and_the_design_skill_are_names_of_the_workf
     """Not a behaviour of the use case: the assignments of these tests name real workflow names,
     so a refusal is never an accident of a fixture. expected_behavior_source: R-1 (the names are
     those of the packaged workflow); the P-7 interface item 4 (five roles, six skills); P-13 AC-2
-    and AC-3 (workflow 0.5.0 ships the roles `orqlet-code-reviewer` and `orqlet-pr-writer`)."""
+    and AC-3 (workflow 0.5.0 ships the roles `orqlet-code-reviewer` and `orqlet-pr-writer`);
+    one-command-setup plan P-2 AC-13 and Q-55 (the six phase skills are among the packaged skills,
+    so a skill packaged later does not break this premise)."""
     roles = {role.name for role in load_roles(WORKFLOW)}
     skills = {skill.name for skill in load_skills(WORKFLOW, frozenset())}
 
     assert roles == set(ROLES) | {"orqlet-code-reviewer", "orqlet-pr-writer"}
-    assert skills == set(SKILLS)
+    assert set(SKILLS) <= skills
 
 
 def _loaded_documents() -> list[str]:
