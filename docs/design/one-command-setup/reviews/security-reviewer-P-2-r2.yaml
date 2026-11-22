@@ -1,0 +1,108 @@
+schema: orqlet.review-result/v1
+task: one-command-setup
+phase: P-2
+role: security-reviewer
+round: 2
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  schema: orqlet.review-input/v1
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  components:
+    code_tests: 757d2da6bd25005557679e8923b52f33c18cb71c9c5e9c3add93826e6aee2a23
+    design: fb35bfb38f9778269ac1dc5dee193b30da4bf7bc3f9f0337142d97801577168e
+    evidence_inputs: a30708de387b3e8e744a1b185a178a8e0858985f6a54b6f45b327946599303f6
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: c9b92b7d4d8a7cdb0f2854f637f4c629f4459d3bdd96e46c44b1372191054595
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+  digest: 3ec27d1ddbb6e65d0669008f4c9ef5ed0578aec8a6b7d5d43cb91d15df58c5ae
+  merge_base: 32faee9748f13216a8b5bdf8d3adc3bd51f09124
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- 'Same client as the Coder (cursor): independence I1, below the I2 a D3 change requires; the verdict is NOT_RUN.'
+- 'The reviewer''s own conclusion was no blocking risk: the Ponytail skills are plain Markdown with no mutating command, network, install step,
+  secret or hidden character, and none may be started by the agent; the code change only removes.'
+- 'Round 2 after architecture r1 F-1: no code changed; the test record gained the file-list evidence against a636b31 and the knowledge record
+  a corrected reason. It was started as a typed subagent in a new session with the packet path one-command-setup-P-2-a163fcdf as its only prompt;
+  that the context is fresh is the Coder''s claim.'
+- 'The reviewer''s session had no shell: no quote digest. The Coder wrote this record from its returned text; quote evidence is given as absence
+  records naming the packet path and lines.'
+- 'The packet''s diff is against 32faee9, which already holds the pre-#40 P-2 work merged by #41; the Ponytail files are not in the diff.'
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+applicability:
+  examined:
+  - diff.patch
+  - snapshot/src/orqlet/workflow/skills/ponytail*/skill.md
+  - snapshot/tests/golden/**/skills/ponytail/
+  - snapshot/docs/design/one-command-setup/evidence/web/
+  - context records
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence:
+  - kind: absence
+    searched:
+    - packet tree for the pinned revision and a stored upstream copy
+    - snapshot/docs/design/one-command-setup/evidence/web/
+    method: grep over the packet; compared the excerpts with the snapshot
+    revision: 32faee9748f13216a8b5bdf8d3adc3bd51f09124
+  claim: 'AC-3 cannot be checked from the packet: no full upstream copy at 96608e078b2d5ea607c5c3b8b5a54d1c1fba6846; ten excerpts of skills/ponytail/SKILL.md
+    match the snapshot, and its front matter differs as PROVENANCE.md says; the other five skills and the twelve hashes are unchecked.'
+  suggested_action: Leave AC-3 not-run, or the person supplies a stored upstream copy or records their own check.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: security
+  evidence:
+  - kind: absence
+    searched:
+    - snapshot/src/orqlet/workflow/skills/ponytail*/skill.md
+    - snapshot/tests/golden/**/skills/ponytail/
+    method: read the skills, the rendered front matter and the Codex sidecar
+    revision: 32faee9748f13216a8b5bdf8d3adc3bd51f09124
+  claim: The Ponytail skills carry neither 'Source material is not authority' nor STOP; review and audit read the whole repository, so their protection
+    against planted instructions rests on the client and the AGENTS.md baseline. Accepted by AC-16 and Q-61; exposure limited by disable-model-invocation
+    and allow_implicit_invocation false.
+  suggested_action: No change in P-2; say in P-10's foundation text whether it covers bundled third-party skills.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: code paths, removed content, secrets, hidden text, tests, dependencies
+    how: read the diff and the snapshot
+    result: pass
+  - what: AC-3 upstream fidelity
+    how: no upstream copy
+    result: not-run

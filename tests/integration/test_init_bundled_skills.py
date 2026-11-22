@@ -1,34 +1,39 @@
-"""`orqlet init` and `orqlet upgrade` write the bundled skills for the three clients (task
-one-command-setup, phase P-2, AC-8).
+"""`orqlet init` and `orqlet upgrade` write the bundled skills for the three clients, and README.md
+says how many files init writes (task one-command-setup, phase P-2, AC-8 and AC-15).
 
 Every test cites its `expected_behavior_source`: AC-n is an acceptance criterion of phase P-2 in
 docs/design/one-command-setup/plan.yaml, EC-2 an expected change of the design manifest there,
-and "the interface" is the one that the Coder gave for P-2 (the seven bundled skill folders and
-the files they render, listed in tests/support/render.py).
+Q-n a question of docs/design/one-command-setup/questions.yaml, and "the interface" is the one
+that the Coder gave for P-2 (the six bundled Ponytail skill folders and the files they render,
+listed in tests/support/render.py).
 
-HOW THESE TESTS WERE WRITTEN. The Tester of P-2 wrote them before the skills existed, so each is
-expected to fail until the skills are in the workflow package. A project is a copy of
-tests/fixtures/repos/uv_fastapi in a temporary Git repository; HOME is an empty folder of the test
-and the data directory of the command (`ORQLET_DATA_DIR`, where the journal and the backups go) is
-another, as in tests/integration/test_init_cli.py and test_upgrade_mcp_files.py.
+HOW THESE TESTS WERE WRITTEN. The Tester of P-2 wrote them from the acceptance criteria. A project
+is a copy of tests/fixtures/repos/uv_fastapi in a temporary Git repository; HOME is an empty folder
+of the test and the data directory of the command (`ORQLET_DATA_DIR`, where the journal and the
+backups go) is another, as in tests/integration/test_init_cli.py and test_upgrade_mcp_files.py.
 
 Choices:
 - "A project initialized at the base revision" is simulated by `init_project` with the packaged
-  workflow minus the seven bundled skill folders (`WithoutBundledSkills`), at the same release;
+  workflow minus the six bundled skill folders (`WithoutBundledSkills`), at the same release;
   `upgrade` then runs through the real command line with the packaged workflow. `upgrade` plans
   every run (application/usecases/upgrade.py), so the same release number does not hide the new
   files.
 - "Nothing is written outside the project" is read as test_init_cli.py reads it: HOME stays empty
   and a sibling folder of the project is unchanged; the data directory is Orqlet's own journal and
   backup store and is not the project's surroundings.
+- AC-15: the README's count is that of its own example, `init --git-init --target-branch main
+  --name shop --yes` in an empty folder; the test runs that example and counts the files in the
+  folder afterwards, `.git` apart. The sentences are compared with their white space collapsed, so
+  that a rewrapped README line does not matter.
 
 Deliberately NOT pinned: the bytes of the new files (the golden tests), the other writes that an
-upgrade may plan, and the human output.
+upgrade may plan, the human output, and the README's count as a literal number.
 """
 
 from __future__ import annotations
 
 import json
+import re
 import shutil
 from pathlib import Path
 from typing import Any
@@ -56,6 +61,8 @@ pytestmark = [
 
 RUNNER = CliRunner()
 LOCK = ".orqlet/generated.lock.yaml"
+README = Path(__file__).resolve().parents[2] / "README.md"
+INIT_COUNT = re.compile(r"For the three clients `init` wrote (\d+) files")
 HIDDEN = tuple(f"skills/{name}/" for name in BUNDLED_SKILL_NAMES)
 NEW_FILES = sorted(
     {
@@ -74,7 +81,7 @@ SIBLING = "notes.txt"
 
 
 class WithoutBundledSkills:
-    """The packaged workflow without the seven bundled skill folders that phase P-2 adds."""
+    """The packaged workflow without the six bundled skill folders that phase P-2 adds."""
 
     def __init__(self) -> None:
         self._base = PackagedWorkflow()
@@ -144,18 +151,26 @@ def assert_orqlet_owns_the_new_files(root: Path) -> None:
         assert entries[path].file_class is FileClass.PROTECTED, path
 
 
+def readme_text() -> str:
+    """README.md with every run of white space collapsed to one space."""
+    return " ".join(README.read_text(encoding="utf-8").split())
+
+
+# --- AC-8: init and upgrade write the bundled skills ----------------------------------------------
+
+
 def test_ac8_init_writes_the_bundled_skills_for_the_three_clients(setup: Setup) -> None:
     """AC-8. expected_behavior_source: AC-8 ("`orqlet init` in a temporary repository with the three
     clients writes the bundled skill files for each client ... Nothing is written outside the
     project"); EC-2; ADR-006 decision 3 (the bundled skills render as the other packaged skills do,
-    for every client); AC-6 (30 files per skill folder and 7 Codex sidecars). The three clients are
-    init's default (`ALL_CLIENTS`)."""
+    for every client); AC-6 (18 skill files per client and 6 Codex sidecars). The three
+    clients are init's default (`ALL_CLIENTS`)."""
     code, document = run(
         "init", "--root", str(setup.root), "--yes", "--answer", "repository.target_branch=main"
     )
 
     assert code == 0, document
-    assert len(NEW_FILES) == 30 * 2 + 7
+    assert len(NEW_FILES) == 18 * 2 + 6
     assert_orqlet_owns_the_new_files(setup.root)
     assert_nothing_outside_the_project(setup)
 
@@ -192,3 +207,52 @@ def test_ac8_upgrade_of_a_project_set_up_before_these_skills_adds_them_as_orqlet
     again_code, again = run("upgrade", "--root", str(setup.root), "--yes")
     assert again_code == 0, again
     assert again["data"]["status"] == "up-to-date"
+
+
+# --- AC-15: the README statements that the bundled skills make wrong ------------------------------
+
+
+def test_ac15_readme_states_the_number_of_files_that_init_writes_for_the_three_clients(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """AC-15. expected_behavior_source: AC-15 ("README.md states, for `init` with the three
+    clients, the number of files that tests/integration/test_init_bundled_skills.py asserts init
+    writes, and that test reads the number from README.md and compares it"); Q-57 (P-2 fixes the
+    README's statement that init wrote 73 files); README.md's own example (`orqlet init --git-init
+    --target-branch main --name shop --yes` in an empty folder, the three clients by default). The
+    bundled skill files are among the files counted."""
+    counts = INIT_COUNT.findall(readme_text())
+    assert len(counts) == 1, counts
+    monkeypatch.setenv("ORQLET_DATA_DIR", str(tmp_path / "data"))
+    for name, value in clean_environ(tmp_path).items():
+        monkeypatch.setenv(name, value)
+    shop = tmp_path / "shop"
+    shop.mkdir()
+
+    code, document = run(
+        "init",
+        "--root",
+        str(shop),
+        "--git-init",
+        "--target-branch",
+        "main",
+        "--name",
+        "shop",
+        "--yes",
+    )
+
+    assert code == 0, document
+    written = snapshot(shop)
+    assert set(NEW_FILES) <= set(written)
+    assert len(written) == int(counts[0])
+
+
+def test_ac15_readme_says_that_each_phase_skill_stops_at_a_person_not_each_skill() -> None:
+    """AC-15. expected_behavior_source: AC-15 (the sentence "Each skill stops at a person" no
+    longer claims that of the six bundled Ponytail skills: it speaks of the phase skills only);
+    Q-57 ("Each skill stops at a person" is not true of the bundled skills); the interface (the
+    Coder's wording "Each phase skill stops at a person")."""
+    text = readme_text()
+
+    assert "Each phase skill stops at a person" in text
+    assert "Each skill stops at a person" not in text

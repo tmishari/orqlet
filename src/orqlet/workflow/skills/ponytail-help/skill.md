@@ -30,7 +30,7 @@ Level sticks until changed or session end.
 | **ponytail-help** | `/ponytail-help` | This card. |
 
 In Codex, invoke the skills with `$ponytail`, `$ponytail-review`, `$ponytail-help` and so on.
-Claude Code, Cursor and Copilot use the slash-command forms above.
+Claude Code and Cursor use the slash-command forms above.
 
 ## Deactivate
 

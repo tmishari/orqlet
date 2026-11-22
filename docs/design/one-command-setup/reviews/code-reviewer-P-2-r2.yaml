@@ -1,0 +1,145 @@
+schema: orqlet.review-result/v1
+task: one-command-setup
+phase: P-2
+role: code-reviewer
+round: 2
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  schema: orqlet.review-input/v1
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  components:
+    code_tests: 757d2da6bd25005557679e8923b52f33c18cb71c9c5e9c3add93826e6aee2a23
+    design: fb35bfb38f9778269ac1dc5dee193b30da4bf7bc3f9f0337142d97801577168e
+    evidence_inputs: a30708de387b3e8e744a1b185a178a8e0858985f6a54b6f45b327946599303f6
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: c9b92b7d4d8a7cdb0f2854f637f4c629f4459d3bdd96e46c44b1372191054595
+    reviewer_definition: 6660b181a2ba46a0bbd8225a3449e2322f0030dea1fa146cb15dfd0e3ffcd94e
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+  digest: 886330c835e143a9855896aa4aeaec434119cfe4f9d4e5f0ee00391d7f19e5a7
+  merge_base: 32faee9748f13216a8b5bdf8d3adc3bd51f09124
+agent:
+  binding_ref: orqlet-code-reviewer
+  definition_sha256: d807b6881723a0c72151d12a514eb0506a2356d9e94d170daff3f53178dff488
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I0
+capability_limits:
+- 'Same client as the Coder (cursor) and no approved code-reviewer binding for cursor in .orqlet/role-bindings.yaml: independence I0, below the
+  I2 a code review needs; the verdict is NOT_RUN.'
+- The reviewer reported its own model as Claude Opus 5.5; the client does not expose it, so the record keeps it unobserved.
+- The reviewer's own conclusion was no blocking code defect; every acceptance criterion that needs code has code and a test.
+- 'Round 2 after architecture r1 F-1: no code changed; the test record gained the file-list evidence against a636b31 and the knowledge record
+  a corrected reason. It was started as a typed subagent in a new session with the packet path one-command-setup-P-2-a163fcdf as its only prompt;
+  that the context is fresh is the Coder''s claim.'
+- 'The reviewer''s session had no shell: no quote digest. The Coder wrote this record from its returned text; quote evidence is given as absence
+  records naming the packet path and lines.'
+- 'The packet''s diff is against 32faee9, which already holds the pre-#40 P-2 work merged by #41; the Ponytail files are not in the diff.'
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- 'Corrected on 2026-11-22 with the person''s yes: the Coder''s transcription used the categories maintainability (F-1 to F-3) and content (F-5),
+  which the finding schema does not have; they are now docs (F-1), tests (F-2, F-3) and docs (F-5). No claim, severity or verdict changed.'
+applicability:
+  examined:
+  - diff.patch lines 1-363 and 8621-end
+  - tests/support/render.py
+  - tests/support/real_env.py
+  - test_model_settings_render.py 1085-1184
+  - test_models_resolve.py 847-858
+  - workflow_package.paths
+  - context records
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: docs
+  evidence:
+  - kind: absence
+    searched:
+    - snapshot/src/orqlet/application/usecases/workflow_sources.py lines 104-137
+    - snapshot/tests/support/render.py lines 52-56
+    method: read both
+    revision: 32faee9748f13216a8b5bdf8d3adc3bd51f09124
+  claim: The load_skills docstring says 'in name order', but the function returns manifest path order, which tests/support/render.py and test_skills.py
+    pin.
+  suggested_action: Change the docstring to path order.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: finding
+  severity: non-blocking
+  category: tests
+  evidence:
+  - kind: absence
+    searched:
+    - snapshot/tests/unit/test_workflow_bundled_skills.py lines 369-382
+    - snapshot/tests/unit/render/test_skills.py lines 147-155
+    method: read both
+    revision: 32faee9748f13216a8b5bdf8d3adc3bd51f09124
+  claim: test_ac6_each_phase_skill_still_says_source_material_is_not_authority_and_stops repeats the AC-16 assertions of test_skills.py; only
+    '## Next' is new, and it is filed under AC-6.
+  suggested_action: Keep the check in one place and move the '## Next' assertion to test_skills.py.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: finding
+  severity: info
+  category: tests
+  evidence:
+  - kind: absence
+    searched:
+    - snapshot/tests/unit/render/test_skills.py lines 147-155
+    method: read the test
+    revision: 32faee9748f13216a8b5bdf8d3adc3bd51f09124
+  claim: test_every_skill_says_that_source_material_is_not_authority_and_stops_for_a_person checks PHASE_SKILL_NAMES only.
+  suggested_action: Name it test_every_phase_skill_... and update the AC-16 comment.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: tests
+  claim: The AC-2 test asserts only that an adaptations list exists, not each adaptation of ADR-006 decision 2.
+  suggested_action: The person decides.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: docs
+  claim: ponytail-help names Copilot, which is rendered only from P-8.
+  suggested_action: Ask whether to list it as an adaptation.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: code-reviewer
+    phase: implement
+  checks:
+  - what: packet and diff read
+    how: source and test hunks in full
+    result: pass
+  - what: leftover references to removed code
+    how: search of the snapshot
+    result: pass
+  - what: test execution, golden bytes, hashes
+    how: read-only review
+    result: not-run

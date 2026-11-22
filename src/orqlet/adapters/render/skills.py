@@ -10,9 +10,6 @@ agent may start it, because it only says how to read.
 Only the Claude Code skill file can carry a model: Claude Code documents `model` and `effort` in a
 skill's front matter, and the file that Cursor and Codex share is the same bytes for both, with no
 model documented for either. A skill's `model_settings` is therefore read for Claude Code alone.
-
-A skill whose text differs by client family carries `families/<family>.md`: Claude Code renders
-the `claude` text and Cursor and Codex the `agents` text, each as `references/dispatch.md`.
 """
 
 from __future__ import annotations
@@ -33,12 +30,12 @@ _NAME = re.compile(r"[a-z0-9][a-z0-9-]*")
 
 
 def claude_skill_files(skill: ClientSkill) -> tuple[RenderedFile, ...]:
-    return _skill_files(CLAUDE_SKILLS, skill, skill.model_settings.get(CLAUDE_CODE), "claude")
+    return _skill_files(CLAUDE_SKILLS, skill, skill.model_settings.get(CLAUDE_CODE))
 
 
 def agents_skill_files(skill: ClientSkill) -> tuple[RenderedFile, ...]:
     """The files Cursor and Codex read. Identical for both clients, and never pinned to a model."""
-    return _skill_files(AGENTS_SKILLS, skill, None, "agents")
+    return _skill_files(AGENTS_SKILLS, skill, None)
 
 
 def codex_sidecar(skill: ClientSkill) -> RenderedFile:
@@ -53,7 +50,7 @@ def codex_sidecar(skill: ClientSkill) -> RenderedFile:
 
 
 def _skill_files(
-    base: str, skill: ClientSkill, setting: ModelSetting | None, family: str
+    base: str, skill: ClientSkill, setting: ModelSetting | None
 ) -> tuple[RenderedFile, ...]:
     if _NAME.fullmatch(skill.name) is None:
         raise ValueError(f"a skill name is lower case letters, digits and hyphens: {skill.name!r}")
@@ -68,20 +65,16 @@ def _skill_files(
     text = f"{head}{GENERATED_NOTICE}\n\n{normalise_text(skill.body)}"
     files = [_file(f"{base}/{skill.name}/SKILL.md", text, skill.inputs)]
     for name, content in skill.references:
-        files.append(_reference(base, skill, name, f"references/{name}", content))
-    if (dispatch := skill.family_references.get(family)) is not None:
-        files.append(_reference(base, skill, "dispatch.md", f"families/{family}.md", dispatch))
+        reference = f"{GENERATED_NOTICE}\n\n{normalise_text(content)}"
+        digest = sha256_hex(reference.encode("utf-8"))
+        files.append(
+            _file(
+                f"{base}/{skill.name}/references/{name}",
+                reference,
+                ((f"skills/{skill.name}/references/{name}", skill.inputs[0][1], digest),),
+            )
+        )
     return tuple(files)
-
-
-def _reference(base: str, skill: ClientSkill, name: str, source: str, text: str) -> RenderedFile:
-    reference = f"{GENERATED_NOTICE}\n\n{normalise_text(text)}"
-    digest = sha256_hex(reference.encode("utf-8"))
-    return _file(
-        f"{base}/{skill.name}/references/{name}",
-        reference,
-        ((f"skills/{skill.name}/{source}", skill.inputs[0][1], digest),),
-    )
 
 
 def _file(path: str, text: str, inputs: tuple[tuple[str, str, str], ...]) -> RenderedFile:

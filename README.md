@@ -138,7 +138,7 @@ orqlet init --git-init --target-branch main --name shop --yes
 #   repository.commit_convention: Is there a commit message convention?
 ```
 
-For the three clients `init` wrote 73 files: the skills and specialist agents, the rules and
+For the three clients `init` wrote 122 files: the skills and specialist agents, the rules and
 commands, `AGENTS.md`, a pull request template, a seeded `.prompts/` folder for the team's
 standards, and a `.orqlet/` folder with the project profile, the versions, the role bindings, the
 registry of links and the lock files. Choose clients with `--client` (repeat it; the default is all
@@ -331,7 +331,7 @@ After `init`, the client offers these skills. Run them in order for a change tha
 | `orqlet-implement` | Checks its inputs first, then builds one approved phase inside its file list, tests first, with the knowledge step. It reports the files changed, the checks run, the checks not run, the acceptance coverage, the deviations and what remains uncertain | code, tests, records |
 | `orqlet-review` | Starts the independent architecture and security reviews of the staged change on a read-only packet | review records |
 
-Each skill stops at a person: you accept the AS-IS file, and you approve the design and the plan by
+Each phase skill stops at a person: you accept the AS-IS file, and you approve the design and the plan by
 merging them. Design, plan and implement check their inputs first: that the earlier output is
 there, belongs to this task, is approved and is still current. A check that fails stops the skill,
 which names the cause and what resolves it. The rules that the four phase skills share are in

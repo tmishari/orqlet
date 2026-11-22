@@ -47,30 +47,15 @@ PONYTAIL_SKILL_NAMES = (
     "ponytail-help",
     "ponytail-review",
 )
-# The reviewed upstream snapshots (one-command-setup ADR-006 decision 1). `load_skills` returns
-# every skill in name order.
-BUNDLED_SKILL_NAMES = ("graphify", *PONYTAIL_SKILL_NAMES)
-SKILL_NAMES = tuple(sorted((*PHASE_SKILL_NAMES, *BUNDLED_SKILL_NAMES)))
-# graphify's references in path order (upper case first), and the seven of Q-52 that every
-# client shares.
-GRAPHIFY_SHARED_REFERENCES = (
-    "add-watch.md",
-    "exports.md",
-    "extraction-spec.md",
-    "github-and-merge.md",
-    "query.md",
-    "transcribe.md",
-    "update.md",
-)
-GRAPHIFY_REFERENCES = (
-    "LICENSE-MIT.md",
-    "LICENSE.md",
-    "PROVENANCE.md",
-    *GRAPHIFY_SHARED_REFERENCES,
+# The reviewed upstream snapshots (one-command-setup ADR-006 decision 1).
+BUNDLED_SKILL_NAMES = PONYTAIL_SKILL_NAMES
+# `load_skills` returns the skills in the path order of `skills/<name>/skill.md`, where `-` sorts
+# before `/`: `ponytail-audit` .. `ponytail-review` come before `ponytail`.
+SKILL_NAMES = tuple(
+    sorted((*PHASE_SKILL_NAMES, *BUNDLED_SKILL_NAMES), key=lambda name: f"skills/{name}/")
 )
 PONYTAIL_REFERENCES = ("LICENSE.md", "PROVENANCE.md")
 SKILL_REFERENCES = {
-    "graphify": GRAPHIFY_REFERENCES,
     "orqlet-design": ("design-format.md", "phase-contract.md"),
     "orqlet-implement": ("phase-contract.md",),
     "orqlet-plan": ("phase-contract.md", "plan-format.md"),
@@ -78,11 +63,6 @@ SKILL_REFERENCES = {
     "orqlet-review": ("review-format.md",),
     **dict.fromkeys(PONYTAIL_SKILL_NAMES, PONYTAIL_REFERENCES),
 }
-# The families of a skill's `families/<family>.md` files, and the family each skill folder reads.
-# The family reference is rendered last, as `references/dispatch.md`.
-SKILL_FAMILIES = {"graphify": ("agents", "claude", "copilot")}
-FAMILY_OF_BASE = {".claude/skills": "claude", ".agents/skills": "agents"}
-DISPATCH = "dispatch.md"
 ROLE_NAMES = (
     "orqlet-arch-reviewer",
     "orqlet-code-reviewer",
@@ -108,8 +88,6 @@ def skill_files(base: str, names: tuple[str, ...] = SKILL_NAMES) -> list[str]:
     for name in names:
         paths.append(f"{base}/{name}/SKILL.md")
         paths += [f"{base}/{name}/references/{ref}" for ref in SKILL_REFERENCES.get(name, ())]
-        if FAMILY_OF_BASE[base] in SKILL_FAMILIES.get(name, ()):
-            paths.append(f"{base}/{name}/references/{DISPATCH}")
     return paths
 
 

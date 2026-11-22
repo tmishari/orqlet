@@ -1,0 +1,118 @@
+schema: orqlet.review-result/v1
+task: one-command-setup
+phase: P-2
+role: architecture-reviewer
+round: 3
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: df53d87ddc4d650ee7fd215c48c2cad0ea3c69df60d7437fde937139db212614
+    design: fb35bfb38f9778269ac1dc5dee193b30da4bf7bc3f9f0337142d97801577168e
+    evidence_inputs: f142c9d1848eec80b807f2e0f6ac62b24b9c5d72f1ede8bc303859c036eb276d
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 3371f001fc6cc201ac909aa5d6f333b22bc738ff0b42fa6e588aa7b177797c4b
+    reviewer_definition: 83e52f1a68fceddc7beb1d83654661fd34a1e3b3028c4fcc3dd7b6dadd8f3463
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: b532f933ad8d46fc158b47b1383054366b056797687db7e8dabb879b878bd087
+  merge_base: 8c3421dc69cbb9839486d72e3cab410f55830327
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: 751953d100777e7ad1ae8ea41d8f096972ff2d2818b84213b87d027c1a3f9beb
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- 'Same client as the Coder (cursor): independence I1, below the I2 a D3 change requires (ORQLET-MODEL-002); the verdict is NOT_RUN.'
+- 'The reviewer''s own conclusion was nothing blocking: the change fits the phase objective and the design, and the import layers hold.'
+- 'Round 3 after the Q-62 amendment (#43): rework of AC-17 (load_skills docstring, the phase-skill test with ''## Next'', the duplicate removed), the byte-identical
+  upstream copy under evidence/web/ponytail-upstream/ for AC-3, ponytail-help limited to Claude Code and Cursor (the person''s answer to code-reviewer r2
+  F-5) and the r2 category correction. It was started as a typed subagent with the packet path one-command-setup-P-2-9d457234 as its only prompt; that the
+  context is fresh is the Coder''s claim.'
+- 'The reviewer''s session had no shell: no quote digest and no git. The Coder wrote this record from its returned text; its quote evidence is given as
+  absence records naming the packet path and lines.'
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+applicability:
+  examined:
+  - MANIFEST.json
+  - context/plan.yaml P-2 (lines 143-585) and the file operations of P-3 to P-11
+  - context/design-manifest.yaml
+  - context/test-record.yaml
+  - context/knowledge-impact.yaml
+  - standards (ARCH, DET)
+  - diff.patch headers and code hunks
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: docs
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-2-9d457234/context/plan.yaml file operations of P-3 to P-11
+    method: searched for src/orqlet/workflow/skills/ponytail-help/; only P-2 (lines 298-304) names it, and P-8 only the Copilot golden copies (lines 1508-1514)
+    revision: 8c3421dc69cbb9839486d72e3cab410f55830327
+  claim: P-2 makes ponytail-help say 'Claude Code and Cursor use the slash-command forms above', and its PROVENANCE.md says the line names the clients Orqlet
+    renders for. P-8 renders the skill for Copilot but has no file operation on the source skill.md or its PROVENANCE.md, so after P-8 both texts would
+    be wrong and fixing them needs a plan amendment.
+  suggested_action: Add ponytail-help/skill.md, its PROVENANCE.md and the three existing golden copies to P-8, or the person records that the line stays.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: architecture
+  claim: Against the packet base 8c3421d the diff also deletes the graphify files, removes three graphify MANIFEST.json entries and adds evidence/web/ponytail-upstream/;
+    AC-17 allows them, and the phase-file-list result rests on the test record's file-list-a636b31 evidence, which the reviewer could not reproduce.
+  suggested_action: Run the a636b31 file-list and five-file diff on the phase commit.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: compatibility
+  claim: load_skills returns path order instead of a name sort; tests/support/render.py pins it and no rendered output was found that depends on skill order.
+  suggested_action: None needed.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+  checks:
+  - what: packet read
+    how: manifest, plan, design manifest, records, standards
+    result: pass
+  - what: diff against the phase file list
+    how: diff headers compared with P-2 file operations and AC-17
+    result: pass
+  - what: layers and contracts
+    how: only removals in the three source files; no new import
+    result: pass
+  - what: tests cover the criteria
+    how: read the P-2 test hunks
+    result: pass
+  - what: AC-17 equality with a636b31
+    how: git refused
+    result: not-run

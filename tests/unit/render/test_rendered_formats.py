@@ -45,11 +45,7 @@ from orqlet.adapters.fs.yaml_loader import StrictYamlLoader
 from orqlet.application.contracts.integrations import Integrations
 from orqlet.application.ports.documents import DocumentError
 from orqlet.application.ports.instruction_adapter import InstructionAdapter, RenderRequest
-from tests.support.render import (
-    in_bundled_skill,
-    packaged_request,
-    resources_request,
-)
+from tests.support.render import packaged_request, resources_request
 from tests.support.trees import FIXTURES
 
 pytestmark = pytest.mark.unit
@@ -61,8 +57,6 @@ MARKDOWN = frozenset({".md", ".mdc"})
 YAML = frozenset({".yaml", ".yml"})
 # The text that rendering must never leave behind: template braces and unrendered step markers.
 UNRESOLVED = ("{{", "}}", "<!-- requires:", "<!-- unless:")
-# The bundled skills' upstream text holds braces in JSON examples (one-command-setup Q-55).
-STEP_MARKERS = ("<!-- requires:", "<!-- unless:")
 INTEGRATIONS_FIXTURE = FIXTURES / "contracts" / "valid" / "orqlet.integrations.v1.yaml"
 ENABLED_ADDRESS = "https://mcp.atlassian.com/v2/mcp"  # the one address of the closed table
 ENABLED_ID = "atlassian"
@@ -125,13 +119,6 @@ def parsed_format(path: str, content: bytes) -> str | None:
     raise ValueError(f"no format is known for the suffix {suffix!r}")
 
 
-def unresolved_in(path: str, content: bytes) -> list[str]:
-    """The template text left in one rendered file; a bundled skill's file is held only to the
-    step markers."""
-    needles = STEP_MARKERS if in_bundled_skill(path) else UNRESOLVED
-    return [text for text in needles if text.encode("utf-8") in content]
-
-
 def format_problems(adapter: InstructionAdapter, request: RenderRequest) -> dict[str, str]:
     """Why each file that does not parse in its format fails, by path."""
     problems: dict[str, str] = {}
@@ -166,30 +153,18 @@ def test_bc30_no_rendered_file_holds_template_braces_or_step_markers(
 ) -> None:
     """AC-5. expected_behavior_source: BC-30 ("none contains `{{`, `}}`, `<!-- requires:` or
     `<!-- unless:`"), ADR-005 decision 1 (the check looks for template braces and unrendered step
-    markers, not for angle brackets) and U-12 (no check scanned rendered files for them);
-    one-command-setup plan P-2 AC-14 and Q-55 (the files of the bundled skills are still held to
-    `<!-- requires:` and `<!-- unless:`, not to `{{` and `}}`, which upstream JSON examples
-    hold)."""
+    markers, not for angle brackets) and U-12 (no check scanned rendered files for them)."""
     files = adapter.render(REQUESTS[request_name]()).files
 
     found = {
-        str(rendered.path): unresolved_in(str(rendered.path), rendered.content)
+        str(rendered.path): [
+            text for text in UNRESOLVED if text.encode("utf-8") in rendered.content
+        ]
         for rendered in files
     }
 
     assert files
     assert {path: texts for path, texts in found.items() if texts} == {}
-
-
-def test_bc30_the_scan_still_finds_braces_outside_and_step_markers_inside_a_bundled_skill() -> None:
-    """A control, not a rule. expected_behavior_source: one-command-setup plan P-2 AC-14 and Q-55
-    (the scan narrows only for the bundled skills' files, and only for the braces)."""
-    content = b'{"a": {{x}}}\n<!-- requires: x -->\n<!-- unless: y -->\n'
-
-    assert unresolved_in(".agents/skills/orqlet-plan/SKILL.md", content) == list(UNRESOLVED)
-    assert unresolved_in(".claude/skills/graphify/references/extraction-spec.md", content) == list(
-        STEP_MARKERS
-    )
 
 
 def test_bc30_the_three_requests_reach_every_format_that_the_criterion_names() -> None:

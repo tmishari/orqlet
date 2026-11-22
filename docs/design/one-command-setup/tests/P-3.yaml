@@ -1,0 +1,49 @@
+schema: orqlet.test-record/v1
+task: one-command-setup
+phase: P-3
+review_input:
+  schema: orqlet.review-input/v1
+  covers: [code_tests, plan]
+  components:
+    code_tests: bfc48a96704db8601d1c34b83c05c419f2a6d25885d58dd09599f3e913383548
+    plan: 3371f001fc6cc201ac909aa5d6f333b22bc738ff0b42fa6e588aa7b177797c4b
+  digest: d21ef4056d53471bd544e2a73d4251cabbd9b293af55ed83ae6f680fc0118c1d
+  merge_base: 8c3421dc69cbb9839486d72e3cab410f55830327
+verdict: NOT_RUN
+evidence_kind: claimed
+commands:
+  - id: ruff-check
+    exit_code: 0
+    summary: "uv run ruff check . (ci.yml:31, AGENTS.md:47-50; unchanged since the plan's base except P-1's own pyproject.toml operation, Q-54): All checks passed. The digest is of the whole captured output."
+    result_digest: 5b196eb3a6acb50d3fa398d04ca284985cc1ffec870e940264b00780bfd2c971
+  - id: ruff-format
+    exit_code: 0
+    summary: "uv run ruff format --check . (ci.yml:32, AGENTS.md:53-56): 735 files already formatted. The first run found one file to reformat, the Tester's tests/unit/application/test_foundation.py (one string's quote style only); `uv run ruff format` on that file changed no assertion, and every check was run again after it. The digest is of the whole captured output of the second run."
+    result_digest: 2d3ea7ed7b3921303db90cdfd70a9fd69296a9185ae7de517883237701186e9c
+  - id: mypy
+    exit_code: 0
+    summary: "uv run mypy (ci.yml:47, AGENTS.md:59-62): Success, no issues found in 396 source files. The digest is of the whole captured output."
+    result_digest: dcbf59c8f805b83a5bd8e80ed667ca2ba50c98ce83542e83f41127d7a1af57ab
+  - id: import-linter
+    exit_code: 0
+    summary: "uv run lint-imports (ci.yml:62): 6 contracts kept, 0 broken. The digest is of the whole captured output."
+    result_digest: fb68af896fc824f546b7262a877b2381531e5c82255be5a35987176158ba0498
+  - id: manifest-check
+    exit_code: 0
+    summary: "uv run python tools/build_manifest.py --check (ci.yml:64, tools/build_manifest.py), after `uv run python tools/build_manifest.py` (pre-approved) listed baseline/foundation.md: no output, exit 0 (AC-5). The digest is of the empty captured output."
+    result_digest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  - id: pytest
+    exit_code: 0
+    summary: "uv run pytest (ci.yml:84, AGENTS.md:71-74) on the staged P-3 tree: 13211 passed, 1 skipped in 1641.28s; the skip is tests/integration/test_junction.py, Windows only. The Tester wrote tests/unit/application/test_foundation.py (31 cases) from AC-1 to AC-3 before foundation.md and foundation.py existed. AC-3's token estimate is the person's answer of 2026-11-22: UTF-8 bytes divided by 4, rounded up; the test keeps AC-3's 'under 2,500'. The composed foundation is 1,926 characters. No golden file changed (AC-4: tests/unit/render/test_clients_golden.py and tests/unit/test_manifest.py pass unchanged). macOS and one Python only; the CI matrix was not run. The digest is of the whole captured output."
+    result_digest: 6f72f336c517e068ed04beeb34732220cf8576069dd9d6131ea7b34de00b4914
+  - id: gate-status-phase
+    exit_code: 5
+    summary: "uv run orqlet gate status one-command-setup --phase P-3 --head staged: NOT_RUN, exit 5, only because of ORQ-I393 (offline approval evidence) and ORQ-W390 base_revision on as-is, design and plan, which the person keeps valid (Q-49). No ORQ-E450, ORQ-E451 or ORQ-E453; EC-9 is a manual comparison (ORQ-I451). AC-6 is recorded as not-run, as the plan expects offline. The digest is of the whole captured output."
+    result_digest: a089867157dfb1538dbc4e64d9b6685083f0a0b16b551577675a886d38c9758f
+acceptance_coverage:
+  - {ac: AC-1, check_ref: pytest, result: pass}
+  - {ac: AC-2, check_ref: pytest, result: pass}
+  - {ac: AC-3, check_ref: pytest, result: pass}
+  - {ac: AC-4, check_ref: pytest, result: pass}
+  - {ac: AC-5, check_ref: manifest-check, result: pass}
+  - {ac: AC-6, check_ref: gate-status-phase, result: not-run}

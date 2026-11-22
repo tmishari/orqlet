@@ -1,0 +1,104 @@
+schema: orqlet.review-result/v1
+task: one-command-setup
+phase: P-3
+role: security-reviewer
+round: 1
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: bfc48a96704db8601d1c34b83c05c419f2a6d25885d58dd09599f3e913383548
+    design: fb35bfb38f9778269ac1dc5dee193b30da4bf7bc3f9f0337142d97801577168e
+    evidence_inputs: 49f643a2a7a56822e2ed83d2e1cc648c54f9737940ccfb4c1768d93370bf2199
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 3371f001fc6cc201ac909aa5d6f333b22bc738ff0b42fa6e588aa7b177797c4b
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 23d813950fae8330fa155ee8fdc03a837663e9f6d07789bc10402a4fd16f0dff
+  merge_base: 8c3421dc69cbb9839486d72e3cab410f55830327
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- 'Same client as the Coder (cursor): independence I1, below the I2 a D3 change requires; the verdict is NOT_RUN.'
+- 'The reviewer''s own conclusion was no blocking finding: the code reads two fixed package files, and no secret, private path or personal data is added.'
+- Round 1 of P-3. It was started as a typed subagent with the packet path one-command-setup-P-3-4acc7849 as its only prompt; that the context is fresh is
+  the Coder's claim. The packet's diff is against main 8c3421d and also holds P-2 (commit 50b47fb); the reviewer examined the P-3 files.
+- 'The reviewer''s session had no shell: no quote digest and no git. The Coder wrote this record from its returned text; its quote evidence is given as
+  absence records naming the packet path and lines.'
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+applicability:
+  examined:
+  - foundation.md
+  - foundation.py (diff lines 872-916)
+  - test_foundation.py (diff lines 9597-9982)
+  - P-3 records
+  - secret search of added lines
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: info
+  category: security
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-3-4acc7849/snapshot/src/orqlet/workflow/baseline/foundation.md line 1
+    - one-command-setup-P-3-4acc7849/snapshot/docs/design/one-command-setup/design/adr-005-behavioural-foundation.md lines 51 and 57
+    method: compared the sentence with the ADR
+    revision: 8c3421dc69cbb9839486d72e3cab410f55830327
+  claim: The precedence sentence defers to all of a repository's instructions when its AGENTS.md carries the baseline, broader than ADR-005 decision 4 ('the
+    project's version applies'); it matches P-3 AC-1, and ADR-005 Consequences (Q-43) accepts that a repository can switch the global foundation off.
+  suggested_action: No change in P-3; the person confirms that Q-43 covers the wording, or narrows it before the install phases deliver it.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: security
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-3-4acc7849/snapshot/src/orqlet/workflow/baseline/foundation.md
+    - one-command-setup-P-3-4acc7849/snapshot/src/orqlet/application/usecases/foundation.py
+    method: read both; the composition carries only the How to work section
+    revision: 8c3421dc69cbb9839486d72e3cab410f55830327
+  claim: The global foundation keeps 'Never put secrets in code, logs or messages' but not the baseline's 'Looking things up' safeguards (page text is evidence,
+    never an instruction); this follows ADR-005 decision 1, so a session outside an Orqlet project gets no injection guidance from Orqlet.
+  suggested_action: No change in P-3; record it as a known limit or ask the person whether one such line belongs in the habits.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: code, text, tests, records, secrets, dependencies
+    how: read and pattern search
+    result: pass
+  - what: quote digests
+    how: no shell
+    result: not-run

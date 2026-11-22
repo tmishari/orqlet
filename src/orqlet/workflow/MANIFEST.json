@@ -6,6 +6,10 @@
       "sha256": "a05153efe06d2f2684678c723a19f3c5ab1ed8166a13de20058cc5369527dc26"
     },
     {
+      "path": "baseline/foundation.md",
+      "sha256": "758957ae5f9c6ad7be21fa9591b30574d99f5e68f29750a7d632dc9ff3d7d0e9"
+    },
+    {
       "path": "commands/doctor.md",
       "sha256": "7e1ff1c4cb56bd875a3f47ee02017745656eaeffa711931148a65161a1353731"
     },
@@ -222,62 +226,6 @@
       "sha256": "bdc45a526fc30c4bc8b4b4039e3fc36daf06c35c33f697d95a260968945a55e1"
     },
     {
-      "path": "skills/graphify/families/agents.md",
-      "sha256": "77e95788b339fbab0729053ddcc29fd1534b14c8bc490edb80bb50a457cf4426"
-    },
-    {
-      "path": "skills/graphify/families/claude.md",
-      "sha256": "ccc893f51fd652103adab99e38b7cdc1e23574b8bd5c64a61a14e544e422be0b"
-    },
-    {
-      "path": "skills/graphify/families/copilot.md",
-      "sha256": "ccc893f51fd652103adab99e38b7cdc1e23574b8bd5c64a61a14e544e422be0b"
-    },
-    {
-      "path": "skills/graphify/references/LICENSE-MIT.md",
-      "sha256": "36ecff6bbb97aca1be64e95f42538cf796adde5864edac583e620643c096931a"
-    },
-    {
-      "path": "skills/graphify/references/LICENSE.md",
-      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
-    },
-    {
-      "path": "skills/graphify/references/PROVENANCE.md",
-      "sha256": "ee1751b78865b304a7fd6046d6617cc0009dd8631790ba04cf89ed07eded8514"
-    },
-    {
-      "path": "skills/graphify/references/add-watch.md",
-      "sha256": "b128403e3e0c92ba0741f56ac4721cc8d578297af8bd53b9ed2cf02ecb9395ac"
-    },
-    {
-      "path": "skills/graphify/references/exports.md",
-      "sha256": "13ecd58be3826dc0172222579cf66ae64c5c1b780c468d40f4f7ca3e2b0f35b4"
-    },
-    {
-      "path": "skills/graphify/references/extraction-spec.md",
-      "sha256": "c21c9fbffec8a65f3fc8ad93c34ec698633846c3ba3a0e3543c71b1a32a6cad5"
-    },
-    {
-      "path": "skills/graphify/references/github-and-merge.md",
-      "sha256": "51f6068d82d6f3af78ac7f404f22693010ec392760b399e6c58b8c1df9ab8c97"
-    },
-    {
-      "path": "skills/graphify/references/query.md",
-      "sha256": "314e98daa21478e697643ec5b7cef5a35d04c4eb410037b37e22ac457610a147"
-    },
-    {
-      "path": "skills/graphify/references/transcribe.md",
-      "sha256": "676a1e39aa6d43cdfcc416ec56616e36f7bad74066a82bd33a9485515b9a865c"
-    },
-    {
-      "path": "skills/graphify/references/update.md",
-      "sha256": "66a13120e96344c0c5c39c54d899b94244c1f50dad6b093af3d633f0a44a3654"
-    },
-    {
-      "path": "skills/graphify/skill.md",
-      "sha256": "a7112fb44cce42e894399489e6347a2a6e492941041d2c6bc2c7f47c86b5150d"
-    },
-    {
       "path": "skills/orqlet-design/references/design-format.md",
       "sha256": "0f38303ffc461fa7e98883aa2483a36097b0aa3913c049fa61239d8d06b780de"
     },
@@ -379,7 +327,7 @@
     },
     {
       "path": "skills/ponytail-help/skill.md",
-      "sha256": "1dbbc613b4c58b87ffeb355f3acbf80e26be5ce50851f4e4b7f3666c95e7bf79"
+      "sha256": "9cf165e254542cf3d5aacb7ea56e56e308abe7f147c4c6309a3019dabb688aa6"
     },
     {
       "path": "skills/ponytail-review/references/LICENSE.md",

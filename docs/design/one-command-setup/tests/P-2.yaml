@@ -5,52 +5,60 @@ review_input:
   schema: orqlet.review-input/v1
   covers: [code_tests, plan]
   components:
-    code_tests: 6298733491af4b4ea2f17d6281019400752d51b0082cf15a96a871802c5a5826
-    plan: 597eb0627a0e40468f11599b45646b29304828bbd67feacaa416f868300d47cb
-  digest: 1cf63733ad3173f26b388a08f5a6feb2b8b5c9116564a6abe50c836d8f65a385
-  merge_base: 17e162cfb0eac2883af6e3c0d2fc4cab0cd27485
+    code_tests: df53d87ddc4d650ee7fd215c48c2cad0ea3c69df60d7437fde937139db212614
+    plan: 3371f001fc6cc201ac909aa5d6f333b22bc738ff0b42fa6e588aa7b177797c4b
+  digest: 6dfe310c05993942b87c3ab4befdd288b1be424f86c9867f04c617b425eec3ec
+  merge_base: 8c3421dc69cbb9839486d72e3cab410f55830327
 verdict: NOT_RUN
 evidence_kind: claimed
 commands:
   - id: ruff-check
     exit_code: 0
-    summary: "uv run ruff check . (ci.yml:31, AGENTS.md:47-50; sha256 of both match the plan): All checks passed. The digest is of the whole captured output."
+    summary: "uv run ruff check . (ci.yml:31, AGENTS.md:47-50; unchanged since the plan's base except P-1's own pyproject.toml operation, Q-54): All checks passed. The digest is of the whole captured output."
     result_digest: 5b196eb3a6acb50d3fa398d04ca284985cc1ffec870e940264b00780bfd2c971
   - id: ruff-format
     exit_code: 0
-    summary: "uv run ruff format --check . (ci.yml:32, AGENTS.md:53-56; sha256 of both match the plan): 730 files already formatted. The digest is of the whole captured output."
-    result_digest: 6c2b2a5fb4588f7857bd7fe4a2e21764dfe4f39545380e8abfecc7b3e647d259
+    summary: "uv run ruff format --check . (ci.yml:32, AGENTS.md:53-56): 732 files already formatted. The digest is of the whole captured output."
+    result_digest: e2d946889472dc975dfec73f584ea81745adc3d632dd2739b96d550f6daedc6d
   - id: mypy
     exit_code: 0
-    summary: "uv run mypy (ci.yml:47, AGENTS.md:59-62; sha256 of both match the plan): Success, no issues found in 394 source files. The digest is of the whole captured output."
+    summary: "uv run mypy (ci.yml:47, AGENTS.md:59-62): Success, no issues found in 394 source files. The digest is of the whole captured output."
     result_digest: 135062164779c7f2cccf62445ae44077ceb24947940fc8388f0aba08b0bc1cf4
   - id: import-linter
     exit_code: 0
-    summary: "uv run lint-imports (ci.yml:62; sha256 matches the plan): 6 contracts kept, 0 broken. The digest is of the whole captured output."
+    summary: "uv run lint-imports (ci.yml:62): 6 contracts kept, 0 broken. The digest is of the whole captured output."
     result_digest: 2627d5a037d0e070b3944903baa222f61673bcd0b37d0a790fb66d171e79de10
-  - id: pytest
-    exit_code: 0
-    summary: "uv run pytest (ci.yml:84, AGENTS.md:71-74; sha256 of both match the plan; pyproject.toml:69-81 holds its content one line lower after P-1 with the cited hash, Q-54) on the staged P-2 tree after the Q-55 amendment: 13191 passed, 1 skipped in 1374.70s; the skip is tests/integration/test_junction.py, Windows only. The four scan and premise test files changed under Q-55 (AC-13, AC-14) and tests/unit/render/test_front_matter_views.py passes unchanged (AC-12). The golden files were rewritten with `uv run pytest --update-golden tests/unit/render/test_clients_golden.py`, the plan's command, and each golden diff was read: only the seven descriptions and the PROVENANCE adaptation lines changed. macOS and one Python only; the CI matrix was not run. The digest is of the captured tail of the output."
-    result_digest: 833b70471e2b01295fc696a7ba8f5954ff26a5febd6ab167228ffe2b187a492b
   - id: manifest-check
     exit_code: 0
-    summary: "uv run python tools/build_manifest.py --check (ci.yml:64; sha256 matches the plan): exit 0 with no output, after the manifest was rebuilt with `uv run python tools/build_manifest.py` (workflow_version 0.5.0). The digest is of the empty captured output."
+    summary: "uv run python tools/build_manifest.py --check (ci.yml:64, tools/build_manifest.py), after `uv run python tools/build_manifest.py` (pre-approved) rebuilt MANIFEST.json for the ponytail-help change: no output, exit 0; workflow_version stays 0.5.0 (AC-9). The digest is of the empty captured output."
     result_digest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  - id: pytest
+    exit_code: 0
+    summary: "uv run pytest (ci.yml:84, AGENTS.md:71-74) on the staged P-2 tree after the merge of main at #43 (8c3421d): 13180 passed, 1 skipped in 1503.76s; the skip is tests/integration/test_junction.py, Windows only. Rework round 3 (Q-62, AC-17): the 'not authority', STOP and '## Next' test of tests/unit/render/test_skills.py is named for the phase skills, and its duplicate in tests/unit/test_workflow_bundled_skills.py is removed. The first run of this round failed one test, test_every_review_record_of_the_repository_loads_with_the_review_result, on the finding categories of reviews/code-reviewer-P-2-r2.yaml; the person approved correcting that transcription, and this run is after it. ponytail-help names only Claude Code and Cursor on its slash-command line (the person's answer to r2 F-5); `uv run pytest --update-golden tests/unit/render/test_clients_golden.py` (pre-approved) changed exactly that line in the three rendered ponytail-help SKILL.md golden files, reviewed one by one, and no other golden file. macOS and one Python only; the CI matrix was not run. The digest is of the whole captured output."
+    result_digest: 623e273c7cdb1622c7d27eb137ac220bea9a4ff69dcd0d40beb1a747dfb97cc7
   - id: gate-status-phase
     exit_code: 5
-    summary: "uv run orqlet gate status one-command-setup --phase P-2 --head staged: NOT_RUN, exit 5, only because of ORQ-I393 (offline approval evidence) and ORQ-W390 base_revision on as-is, design and plan, which the person confirmed keeps the approval valid (Q-49); the plan accepts a NOT_RUN caused by ORQ-I393 alone, so AC-10 is recorded as not-run. No ORQ-E450, ORQ-E451 or ORQ-E453. The digest is of the whole captured output."
-    result_digest: 75f89e4195d5a7cce857351ba6dcce34b924941d5c9f4e8f860502457883094e
+    summary: "uv run orqlet gate status one-command-setup --phase P-2 --head staged: NOT_RUN, exit 5, only because of ORQ-I393 (offline approval evidence) and ORQ-W390 base_revision on as-is, design and plan, which the person keeps valid (Q-49). No ORQ-E450, ORQ-E451 or ORQ-E453; EC-2 and EC-9 are manual comparisons (ORQ-I451). AC-10 is recorded as not-run, as the plan expects offline. The digest is of the whole captured output."
+    result_digest: a089867157dfb1538dbc4e64d9b6685083f0a0b16b551577675a886d38c9758f
+  - id: file-list-a636b31
+    exit_code: 0
+    summary: "AC-17 evidence: `git diff --cached --name-status a636b3130aa892537298917097b217df8f190d38`: 119 paths, 106 added and 13 modified, none deleted. Every path is a file operation of P-1 or P-2, a record of this task (knowledge/, tests/, reviews/, evidence/web/), plan.yaml, questions.yaml or .gitignore. The evidence/web/ponytail-upstream/ files are the byte-identical upstream copy at 96608e0 that the person asked for, so that AC-3 is verifiable. Of skills.py, instruction_adapter.py, workflow_sources.py, test_workflow_injection.py and test_rendered_formats.py only workflow_sources.py differs from a636b31, in the load_skills docstring alone (path order). No path under src/orqlet/workflow/skills/graphify/ or a graphify skills folder in tests/golden/ exists; graphify-out/GRAPH_REPORT.md and the .gitignore graphify lines are unchanged. The digest is of the whole command output."
+    result_digest: 2dd808d0a19de03e33f934cd30fa3a84cf162021a671824dbafb53c236a8be27
 acceptance_coverage:
   - {ac: AC-1, check_ref: pytest, result: pass}
   - {ac: AC-2, check_ref: pytest, result: pass}
   - {ac: AC-3, check_ref: security-reviewer, result: not-run}
   - {ac: AC-4, check_ref: pytest, result: pass}
-  - {ac: AC-5, check_ref: pytest, result: pass}
   - {ac: AC-6, check_ref: pytest, result: pass}
   - {ac: AC-8, check_ref: pytest, result: pass}
   - {ac: AC-9, check_ref: manifest-check, result: pass}
   - {ac: AC-10, check_ref: gate-status-phase, result: not-run}
-  - {ac: AC-11, check_ref: pytest, result: pass}
   - {ac: AC-12, check_ref: pytest, result: pass}
   - {ac: AC-13, check_ref: pytest, result: pass}
   - {ac: AC-14, check_ref: pytest, result: pass}
+  - {ac: AC-15, check_ref: pytest, result: pass}
+  # AC-16: tests/unit/render/test_skills.py::test_the_package_ships_the_expected_skills_roles_and_references
+  # and ::test_every_phase_skill_says_source_material_is_not_authority_stops_and_has_next.
+  - {ac: AC-16, check_ref: pytest, result: pass}
+  # AC-17: the same test (named for the phase skills, with '## Next') and the file-list-a636b31 evidence above.
+  - {ac: AC-17, check_ref: pytest, result: pass}
