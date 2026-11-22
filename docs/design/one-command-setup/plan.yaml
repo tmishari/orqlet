@@ -10,7 +10,7 @@ header:
     standards_lock_hash: 845aa1cb914dd3b09d52690216045e589e589f5e57292ec5b153d5cd73c4f330
     applicable_rules_hash: 1c83b7ee5767195f93e48764e551ff9248afc2afffb1b30bb9dc664a471a4c3e
     profile_version: 1
-design_ref: docs/design/one-command-setup/design/manifest.yaml#970fed48fbf6253c8ddd89a449e537b86bf0396fa1f0aa55b2724f8f71b19b34
+design_ref: docs/design/one-command-setup/design/manifest.yaml#b9d747af0c06e349402c82d07192418f7a0fb3ae229ba6b6e94f1e1c0ea045f9
 base_revision: ff9fbf18ec795e44c34ac42079cab7f64b2ebde8
 knowledge_scope: []
 phases:
@@ -887,10 +887,12 @@ phases:
   - id: AC-3
     text: >-
       session-start for an initialized project returns a status of at most 1,200 characters from the fixed template with the versions
-      and the next step, and no status outside a project. The output object is `{"hookSpecificOutput": {"hookEventName":
+      and the next step, and no status outside a project. When the status report has a check not run (a non-empty `not_run`, the
+      hook-mode form of exit 5 and `ok: false`) or its next step is refuse-home-is-work-tree, the hook stops: it returns no status and
+      does not act on or print the next step (the Copilot foundation of AC-4 is still added). The output object is `{"hookSpecificOutput": {"hookEventName":
       "SessionStart", "additionalContext": ...}}` for claude-code and codex, `{"additional_context": ...}` for cursor and
       `{"additionalContext": ...}` for copilot; with no context it is `{}`.
-    source: BC-14; ADR-004 decision 1; K-12
+    source: BC-14; ADR-004 decision 1; K-12; Q-72; Q-77
     check_ref: pytest
   - id: AC-4
     text: >-
@@ -950,6 +952,25 @@ phases:
       between that list and the registered commands (tests/integration/test_validate_cli.py) passes unchanged.
     source: EC-1; Q-53
     check_ref: pytest
+  - id: AC-15
+    text: >-
+      `orqlet status --json` reports `orqlet_on_path: absent` whenever no PATH element holds orqlet, whatever PATH holds, including an
+      empty, `.` or relative element; this is the value from which P-10 registers no hook.
+    source: BC-38; Q-82
+    check_ref: pytest
+  - id: AC-16
+    text: >-
+      Regression: the status CLI test of a configured client writes the packaged release version (`PackagedWorkflow().release.version`)
+      into the user manifest instead of a pinned 0.5.0, so the test still gives `configured` after the workflow version bump of P-11.
+    source: BC-11; BC-24
+    check_ref: pytest
+  - id: AC-17
+    text: >-
+      `orqlet status` without `--json` prints plain lines for the global setup per client, orqlet on PATH, the location, the top level
+      or its reason, the versions, the next step, each host step and each check not run, with no ANSI code; its exit status equals that
+      of `--json`.
+    source: BC-11; BC-40; A-50
+    check_ref: pytest
   checks: [ruff-check, ruff-format, mypy, import-linter, pytest, manifest-check, gate-status-phase]
   file_operations:
   - op: create
@@ -997,6 +1018,11 @@ phases:
   - op: create
     path: tests/integration/test_hook_budget.py
     why: The 2-second budget on a large tree.
+  - op: modify
+    path: tests/integration/test_status_cli.py
+    why: >-
+      The configured-client test reads the packaged release version instead of a pinned 0.5.0 (AC-16), a test of the plain-text output
+      (AC-17), and the absent value of orqlet_on_path (AC-15).
   review_evidence: [architecture-reviewer, security-reviewer, tester, code-reviewer]
   knowledge_step: required
   completion:
@@ -1106,7 +1132,21 @@ phases:
     text: The staged change touches only the files of this phase and stays inside the expected changes of EC-4, EC-6 and EC-8.
     source: EC-4; EC-6; EC-8
     check_ref: gate-status-phase
-  checks: [ruff-check, ruff-format, mypy, import-linter, pytest, gate-status-phase]
+  - id: AC-12
+    text: >-
+      `CONTRACTS` registers `orqlet.user-manifest/v1`; its exported schema `src/orqlet/workflow/schemas/orqlet.user-manifest.v1.json`
+      is committed and current, a valid fixture loads and round-trips, an unknown top-level field and a wrong schema id are rejected,
+      and MANIFEST.json lists the schema with its hash.
+    source: Q-71; Q-81; EC-4; ORQLET-DET-002; ORQLET-DET-003
+    check_ref: schema-check
+  - id: AC-13
+    text: >-
+      A user-scope change in which a client has skills, agents and guidance but no hook entry, as P-10 builds when orqlet is absent
+      from PATH, is written and journalled like any other: its entries record their owners, and nothing in the user namespace requires
+      a hook entry per client.
+    source: BC-38; Q-82
+    check_ref: pytest
+  checks: [ruff-check, ruff-format, mypy, import-linter, pytest, schema-check, manifest-check, gate-status-phase]
   file_operations:
   - op: create
     path: src/orqlet/application/ports/user_scope.py
@@ -1135,6 +1175,18 @@ phases:
   - op: modify
     path: tests/integration/test_local_fs.py
     why: The file mode option.
+  - op: modify
+    path: src/orqlet/application/contracts/__init__.py
+    why: Register `orqlet.user-manifest/v1` in CONTRACTS (Q-71, Q-81).
+  - op: create
+    path: src/orqlet/workflow/schemas/orqlet.user-manifest.v1.json
+    why: The exported schema of the user manifest (Q-81).
+  - op: modify
+    path: src/orqlet/workflow/MANIFEST.json
+    why: List the new schema with its hash; the manifest check fails without it.
+  - op: create
+    path: tests/fixtures/contracts/valid/orqlet.user-manifest.v1.yaml
+    why: The valid fixture that tests/contract/test_contracts.py loads for every registered contract.
   review_evidence: [architecture-reviewer, security-reviewer, tester, code-reviewer]
   knowledge_step: required
   completion:
@@ -1166,6 +1218,20 @@ phases:
     7c910167a75b4b3f8dfad8fc42652fdd9eff338194d3979df24740ab50924b81; AGENTS.md:71-74, sha256
     c560d01599d3004756e624e106c7fdb37d1ebc840106224073081c64110dd2eb; configuration pyproject.toml:69-81, sha256
     5b4df74a73ee1a30a21445c42673be9c128900e148f86b3f8b3d4e98ca37f29f).
+  - >-
+    Schema regeneration, after the person's yes: `uv run python tools/export_schemas.py` (tools/export_schemas.py:1-38 at
+    ff9fbf18ec795e44c34ac42079cab7f64b2ebde8, sha256 1d0cef2cfa78a583a9cc2428c250ee059866bee82f71abc2559bc87f90bc5509).
+  - >-
+    Manifest regeneration, after the person's yes: `uv run python tools/build_manifest.py` (tools/build_manifest.py:1-57 at
+    ff9fbf18ec795e44c34ac42079cab7f64b2ebde8, sha256 06a0bf036682fa31e4d132dc62d2b20679e674d55f1b039c96710f2325d46c62).
+  - >-
+    schema-check: `uv run python tools/export_schemas.py --check` (.github/workflows/ci.yml:63 at
+    ff9fbf18ec795e44c34ac42079cab7f64b2ebde8, sha256 2f05795ed6483385f2a5a779c76da3329801ef8edb53d4e3d767a962419c4faf; it runs
+    tools/export_schemas.py:1-38, sha256 1d0cef2cfa78a583a9cc2428c250ee059866bee82f71abc2559bc87f90bc5509).
+  - >-
+    manifest-check: `uv run python tools/build_manifest.py --check` (.github/workflows/ci.yml:64 at
+    ff9fbf18ec795e44c34ac42079cab7f64b2ebde8, sha256 a2061c7f43040eacd56749b7ea2ba34accbb81e0c943eec9b42e749cf22fe474; it runs
+    tools/build_manifest.py:1-57, sha256 06a0bf036682fa31e4d132dc62d2b20679e674d55f1b039c96710f2325d46c62).
   - >-
     gate-status-phase: `uv run orqlet gate status one-command-setup --phase P-6 --head staged` reports no ORQ-E450, ORQ-E451 or
     ORQ-E453. It is Orqlet's own command; a NOT_RUN caused by ORQ-I393 alone is expected offline.
@@ -1652,9 +1718,11 @@ phases:
     check_ref: pytest
   - id: AC-12
     text: >-
-      An unsafe PATH element before orqlet gives no hook registration and a host step; an orqlet on PATH that differs from the running one
-      is flagged.
-    source: BC-38
+      No hook is registered for any client, and a host step names the reason, when an unsafe PATH element (empty, `.` or relative, or on
+      POSIX writable by others) is searched before the resolved orqlet or holds it, or when no PATH element holds orqlet
+      (`orqlet_on_path: absent`, whatever PATH holds); the clients' skills, agents and guidance are still written. An orqlet on PATH that
+      differs from the running one is flagged.
+    source: BC-38; Q-79; Q-82
     check_ref: pytest
   - id: AC-13
     text: >-
@@ -1705,14 +1773,15 @@ phases:
     text: >-
       The entry skill `orqlet` renders with `disable-model-invocation: true` for Claude Code, Cursor and Copilot and with
       `allow_implicit_invocation: false` in the Codex sidecar. Its text first runs `orqlet status --root <dir> --json`; when orqlet is
-      not found it names the terminal command to install it. Then, by state: global configuration missing or outdated, `orqlet install
-      --dry-run --json`, and `orqlet install --yes --json` only after the person's yes; not a repository, it stops; a repository without
-      `.orqlet`, `orqlet init --root <top> --dry-run`, then `--yes` after the person's yes; initialized, `orqlet upgrade --root <top>
-      --dry-run`, then `--yes` after the person's yes, then status again; a linked worktree, a `refuse-newer-global` next step, or a null
-      top level, it stops with the message. It ends with the next person-started command, names no tool preparation, and contains no
+      not found it names the terminal command to install it. When status exits 5 or its envelope has `ok: false`, it stops, reports the
+      checks not run and does not act on `next`. Otherwise, by `next`: install-global, `orqlet install --dry-run --json`, and `orqlet
+      install --yes --json` only after the person's yes; none outside a repository, it stops; init, `orqlet init --root <top>
+      --dry-run`, then `--yes` after the person's yes; upgrade, `orqlet upgrade --root <top> --dry-run`, then `--yes` after the person's
+      yes, then status again; none in an initialized project, it reports status; refuse-linked-worktree, refuse-newer-global or refuse-home-is-work-tree, or a null top level, it stops with
+      the message and does not act further. It ends with the next person-started command, names no tool preparation, and contains no
       instruction to start a phase skill. A test pins these phrases and asserts the absence of a phase-skill start instruction. Every flag
       it names exists on the named command.
-    source: BC-12; BC-11; ADR-001 decisions 2 and 3; Q-34; Q-53; Q-60; R-4; R-9
+    source: BC-12; BC-11; ADR-001 decisions 2 and 3; Q-34; Q-53; Q-60; Q-63; Q-72; Q-77; R-4; R-9
     check_ref: pytest
   - id: AC-24
     text: >-
@@ -2022,7 +2091,7 @@ self_check:
       ORQLET-STYLE-001]
     acceptance_criteria: []
     evidence:
-    - docs/design/one-command-setup/design/manifest.yaml#970fed48fbf6253c8ddd89a449e537b86bf0396fa1f0aa55b2724f8f71b19b34
+    - docs/design/one-command-setup/design/manifest.yaml#b9d747af0c06e349402c82d07192418f7a0fb3ae229ba6b6e94f1e1c0ea045f9
     - docs/design/one-command-setup/questions.yaml
     - .github/workflows/ci.yml
     - AGENTS.md
@@ -2079,13 +2148,36 @@ self_check:
       the staged Ponytail snapshot files for the strings of the three scans
     result: pass
   - what: >-
+      Amendment for Q-77, Q-81 and Q-82, on the design amendment for Q-78 and Q-82. P-5 AC-3 stops on a check not run (a non-empty
+      not_run) or refuse-home-is-work-tree and then does not act on next (Q-72, Q-77); P-5 gains AC-15 (orqlet_on_path absent, Q-82),
+      AC-16 (the status CLI test reads the packaged release version) and AC-17 (the plain-text status output), and modifies
+      tests/integration/test_status_cli.py. P-6 gains AC-12 (Q-71, Q-81): besides contracts/__init__.py and the exported schema that
+      Q-81 names, it modifies MANIFEST.json, which lists every packaged schema with its hash, and creates the valid fixture that
+      tests/contract/test_contracts.py:24-38 loads for every registered contract; P-6 gains the schema and manifest checks with their
+      completion entries, and AC-13 (a user change without a hook entry, Q-82). P-10 AC-12 follows BC-38 as amended (Q-79, Q-82), and
+      AC-22 stops on exit 5, ok false and every refuse value (Q-63, Q-72, Q-77). design_ref cites the amended design manifest.
+    how: >-
+      orqlet evidence hash of the design manifest; orqlet evidence cite of .github/workflows/ci.yml lines 63 and 64,
+      tools/export_schemas.py 1-38 and tools/build_manifest.py 1-57 at 22d8ed8, hashes equal to the cited ones; orqlet standards for
+      --phase plan --role planner on usecases/hook_event.py, contracts/__init__.py, the new schema, adapters/scan/executables.py,
+      usecases/install.py, the entry skill and tests/integration/test_status_cli.py, no rule outside applicable_standards; orqlet models
+      resolve --skill orqlet-plan --client cursor suggested the quality profile and the client keeps the choice
+    result: pass
+  - what: >-
+      Input check of this amendment against a merged design. The design amendment (branch timur/one-command-setup-status-contract-design,
+      pull request 46) passes orqlet validate design at D3, but was not merged when this plan was written; this plan branch is stacked on
+      it. After the person merges the design pull request, the plan is rebased onto that merge commit and the input check is repeated
+      before the plan pull request merges.
+    how: orqlet validate design docs/design/one-command-setup/design/manifest.yaml on the design branch
+    result: not-run
+  - what: >-
       Every BC-n from BC-1 to BC-48 that is not withdrawn is the source of at least one acceptance criterion; BC-9, BC-10 and BC-45 are
       withdrawn (Q-60) and no criterion cites them. BC-1 P-11; BC-2, BC-5, BC-8, BC-30, BC-35, BC-36, BC-37, BC-41, BC-42, BC-44,
-      BC-47, BC-48 P-10; BC-3 P-8, P-10; BC-4 P-6, P-7, P-8, P-10; BC-6 P-5, P-6, P-10; BC-7 P-6, P-10; BC-11 P-4, P-10; BC-12, BC-13
-      P-2, P-10; BC-14 P-5, P-7; BC-15 to BC-17 P-5; BC-18 P-2, P-3, P-7, P-8, P-10; BC-19 P-2; BC-20 P-3, P-7; BC-21 P-3; BC-22 P-1,
-      P-10; BC-23 P-4, P-11; BC-24 P-11; BC-25 P-1; BC-26 P-7; BC-27 P-7, P-10; BC-28 P-4, P-8; BC-29 P-6, P-10; BC-31 P-6, P-10; BC-32
-      P-6; BC-33 P-6, P-10; BC-34 P-8; BC-38 P-4, P-10; BC-39 P-6, P-10; BC-40 P-4, P-5, P-10; BC-43 P-7, P-8, P-10, P-11; BC-46 P-6,
-      P-10.
+      BC-47, BC-48 P-10; BC-3 P-8, P-10; BC-4 P-6, P-7, P-8, P-10; BC-6 P-5, P-6, P-10; BC-7 P-6, P-10; BC-11 P-4, P-5, P-10; BC-12,
+      BC-13 P-2, P-10; BC-14 P-5, P-7; BC-15 to BC-17 P-5; BC-18 P-2, P-3, P-7, P-8, P-10; BC-19 P-2; BC-20 P-3, P-7; BC-21 P-3; BC-22
+      P-1, P-10; BC-23 P-4, P-11; BC-24 P-5, P-11; BC-25 P-1; BC-26 P-7; BC-27 P-7, P-10; BC-28 P-4, P-8; BC-29 P-6, P-10; BC-31 P-6,
+      P-10; BC-32 P-6; BC-33 P-6, P-10; BC-34 P-8; BC-38 P-4, P-5, P-6, P-10; BC-39 P-6, P-10; BC-40 P-4, P-5, P-10; BC-43 P-7, P-8,
+      P-10, P-11; BC-46 P-6, P-10.
     how: Cross-reference of the source fields of all acceptance criteria
     result: pass
   - what: orqlet validate plan docs/design/one-command-setup/plan.yaml
@@ -2128,3 +2220,4 @@ self_check:
   - The answer times of Q-45 to Q-48 in the ledger are approximate to the minute.
   questions:
   - 'Q-50 (open, blocks implement of P-11): does this change raise controls_level, and to which value?'
+  - 'Q-83 (open, blocks implement of P-10): does install register no hook when an unsafe PATH element comes after the resolved orqlet, or is the CLI-removal case a recorded leftover risk?'
