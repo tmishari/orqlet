@@ -1766,7 +1766,15 @@ questions:
   - Another wording
   blocks:
   - plan
-  status: open
+  status: answered
+  answer:
+    value: 'Amend P-5 AC-3 and P-10 AC-22 through a plan amendment: they stop on exit 5 or ok false and
+      on refuse-home-is-work-tree, and do not act on next then (Q-72). In the hook, a check not run is
+      a non-empty not_run of the status report. P-10 AC-22 also stops on refuse-linked-worktree and
+      refuse-newer-global, as ADR-001 decision 2 says.'
+    answerer: tmishari
+    time: '2026-11-22T14:11:00+00:00'
+    scope: task
 - id: Q-78
   key: 05d7a4a5f806441e4730de5997321ff5c6f0bd77b44d82dfc8d01edd27e96479
   subject: Owner of the status value names in the design
@@ -1869,7 +1877,15 @@ questions:
   - Another phase
   blocks:
   - plan
-  status: open
+  status: answered
+  answer:
+    value: 'Add src/orqlet/application/contracts/__init__.py and the exported schema
+      src/orqlet/workflow/schemas/orqlet.user-manifest.v1.json to P-6''s file list (Q-71), through a
+      plan amendment. The registration also needs MANIFEST.json and the valid contract fixture, which
+      the same amendment adds.'
+    answerer: tmishari
+    time: '2026-11-22T14:11:00+00:00'
+    scope: task
 - id: Q-82
   key: 5c5521135906464051c4480711912c2a90698a04beba796356b83f9a2a8161c1
   subject: Hook registration when orqlet is not on PATH
@@ -1899,4 +1915,27 @@ questions:
     answerer: tmishari
     time: '2026-11-22T14:58:00+00:00'
     scope: task
+- id: Q-83
+  key: 29780e719e8f08a4b5aadbca114650c39dea228b1123c516d1776171f099281d
+  subject: Hook entries left behind when the CLI is removed
+  raised_by: Cursor
+  phase: plan
+  category: requirement
+  text: install checks PATH elements only up to the resolved orqlet. With PATH="~/.local/bin:." the hook
+    is registered; if the person then removes the CLI with uv tool uninstall or pipx uninstall instead
+    of orqlet uninstall, the hook entries stay and the bare orqlet resolves through ".", so a session in
+    a hostile clone runs that clone's orqlet (security review of the design, round 15, S-2). Q-42 covers
+    a different launch PATH, not this case. What does install do?
+  why: The reason Q-82 gives for an absent orqlet applies here too, and P-10 implements the registration
+    rule.
+  evidence_refs:
+  - docs/design/one-command-setup/reviews/security-reviewer-design-r15.md
+  - src/orqlet/adapters/scan/executables.py
+  - docs/design/one-command-setup/design/adr-004-advisory-native-hooks.md
+  options:
+  - install also registers no hook when an unsafe element appears anywhere in PATH, through a design amendment
+  - Accept the CLI-removal case as a leftover risk, stated in ADR-004 and the README, which tells the person to run orqlet uninstall first
+  blocks:
+  - implement
+  status: open
 conflicts: []
