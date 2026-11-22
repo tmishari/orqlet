@@ -1,0 +1,101 @@
+schema: orqlet.review-result/v1
+task: one-command-setup
+phase: P-5
+role: security-reviewer
+round: 1
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: 7d8fab5475c56df185c7cc1c7e6476008ff0608cde0f9bfb5ae9aa78e738d093
+    design: f06d364039b27ab207ed6f5db21c92570bc2d22e18763d0a8d81c9b6cc97dae9
+    evidence_inputs: ad130e2c6c7d7660a8b4d88bd7b2db21f43eff5998cd33aab511f0d03476e9f1
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 4b74c98cb64e05f85803390a153b9ac19f7301b36e62a2928f1a9604319ceca6
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 0e06ca9f23104ba837d66eadfd941a15255ccc505220fe0ed287a26c4bb5063b
+  merge_base: 346123f4b71e1614b2b049da7996620de1e28bee
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- 'Same client as the Coder (cursor): independence I1, below the I2 a D3 change requires; the verdict is NOT_RUN.'
+- The reviewer's own conclusion was no blocking finding.
+- Round 1 of P-5. It was started as a typed subagent with the packet path one-command-setup-P-5-e38a5454 as its only prompt; that the context is fresh is
+  the Coder's claim. The packet's diff is against main 346123f and holds P-5 only.
+- 'The reviewer''s session had no shell: no quote digest and no git. The Coder wrote this record from its returned text; its quote evidence is given as
+  absence records naming the packet path and lines.'
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- Non-blocking findings of this round are follow-ups for the person, not changes to P-5 unless the person asks.
+applicability:
+  examined:
+  - MANIFEST and diff.patch
+  - strict_json.py, hook_payload.py, hook_event.py, commands/hook.py and wiring.py
+  - local_fs.py, bounded_read.py, yaml_loader.py, representable.py, paths.py and user_scope.py
+  - ADR-004
+  - the knowledge record
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: security
+  rule_ref: ORQLET-SEC-002
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-5-e38a5454/snapshot/src/orqlet/application/usecases/hook_event.py lines 198-216
+    - one-command-setup-P-5-e38a5454/snapshot/src/orqlet/interface/cli/wiring.py lines 122-125
+    - one-command-setup-P-5-e38a5454/snapshot/tests/unit/application/test_hook_event.py
+    method: read the home confinement for a check that the home is not a file system root, and searched the tests for a home of /
+    revision: 346123f4b71e1614b2b049da7996620de1e28bee
+  claim: If the home resolves to / or a bare drive root, every absolute folder counts as below the home, so the hook searches and reads locks and AGENTS.md
+    anywhere; reads stay bounded, refuse links and the output stays templated.
+  suggested_action: Give no context when the resolved home is a file system root, with a test for home /; or record the residual risk in ADR-004.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: security
+  claim: The deadline is checked only before file calls; parsing a hostile 1 MiB lock is not timed and could run until the client's 5-second timeout. Not
+    measured.
+  suggested_action: Measure the strict loader on a crafted 1 MiB lock; if it nears the timeout, lower the hook's lock limit or check the deadline before
+    parsing.
+  confidence: low
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: payload parsing, path confinement, links, reads, writes, output, processes, secrets
+    how: read and pattern search
+    result: pass
+  - what: running the checks and quote digests
+    how: no shell
+    result: not-run

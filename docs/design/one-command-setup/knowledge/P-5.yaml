@@ -1,0 +1,70 @@
+schema: orqlet.knowledge-impact/v1
+task: one-command-setup
+phase: P-5
+review_input:
+  schema: orqlet.review-input/v1
+  covers: [code_tests, knowledge, plan, standards, candidates]
+  components:
+    candidates: 12bf940f65294944cb531fae8d2d875ffa133b7b69295e737d40e5f8b604fe68
+    code_tests: 8fd0f0620673f56767d1003c1a7640cfd78f4680e0bd4f52ea6e302ed0d1829f
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 4b74c98cb64e05f85803390a153b9ac19f7301b36e62a2928f1a9604319ceca6
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+  digest: 410111db16432e641c7ea783ac395e889fae7dfd291ce7937f03906e835246a6
+  merge_base: 346123f4b71e1614b2b049da7996620de1e28bee
+outcome: no-impact
+analysis:
+  command: orqlet knowledge impact
+  orqlet_version: 0.4.0
+  candidates_digest: 12bf940f65294944cb531fae8d2d875ffa133b7b69295e737d40e5f8b604fe68
+  candidate_count: 1
+  input: pre-draft-tree
+  views: [committed:HEAD]
+  index_state: not-used
+entries:
+- id: K-1
+  candidate_ref: cand-683657d94ca4
+  action: unaffected
+  scope: project
+  reason: >-
+    EC-6 is the security expected change that the approved design declares (hook payload handling in
+    contracts/hook_payload.py and usecases/hook_event.py); ADR-004 decisions 1a, 2, 5 and 6 document the payload
+    bounds, the confinement to the home, the fixed templates and the advisory exit, and no project knowledge
+    document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/one-command-setup/design/manifest.yaml
+    sha256: b9d747af0c06e349402c82d07192418f7a0fb3ae229ba6b6e94f1e1c0ea045f9
+  - kind: design
+    ref: docs/design/one-command-setup/design/adr-004-advisory-native-hooks.md
+    sha256: d94600fdcf8802e7b375f4b30bf7ba818005ec28956d1dec17892a29e68b7f26
+no_impact:
+  category: already-documented
+  reason: >-
+    P-5 adds `orqlet hook session-start|post-edit --client C`, the strict JSON reader, the per-client payload
+    contract, the hook use case, its two fixed templates and the read-only hook services, and adds tests for the
+    plain-text and orqlet_on_path behaviour of the existing `orqlet status`. The command, its payload rules, its
+    bounds, its output shapes and its read-only rule are written down in ADR-004 and component.md section 3 of the
+    approved design and in the plan's P-5. The hook is started by a client, not a person, so no command list of
+    README.md names it; the plan gives the README entries for install, status and the hooks to P-11 (plan.yaml
+    line 1951). The person's answers that settle what the design leaves open for this phase are Q-72 and Q-77 (the
+    stop rule), Q-82 (orqlet_on_path absent) and Q-84 (the pinned command list outside the file list) in
+    questions.yaml.
+  absence_record:
+    scopes_searched:
+    - .orqlet/knowledge.yaml sources (none configured)
+    - the plan's knowledge_scope (empty)
+    - README.md for the command list and 'hook'
+    - the staged change of the phase
+    views: [committed:HEAD]
+    revision: 346123f4b71e1614b2b049da7996620de1e28bee
+    method: >-
+      orqlet knowledge impact one-command-setup P-5 --head staged against main 346123f (exit 0, 1 candidate EC-6,
+      ORQ-I400 twice: no public_api packages named by the design, no knowledge source configured); a text search of
+      README.md for 'hook'; a search of plan.yaml for README.
+    index_state: not-used
+    candidates_found: 1
+  already_documented_refs:
+  - {path: docs/design/one-command-setup/design/adr-004-advisory-native-hooks.md, sha256: d94600fdcf8802e7b375f4b30bf7ba818005ec28956d1dec17892a29e68b7f26}
+  - {path: docs/design/one-command-setup/plan.yaml, sha256: 4b74c98cb64e05f85803390a153b9ac19f7301b36e62a2928f1a9604319ceca6}
+  - {path: docs/design/one-command-setup/questions.yaml, sha256: ad3c6015fcd0f158ea163849bb6097536ed1807de676437f12a49dcc5a6945c2}

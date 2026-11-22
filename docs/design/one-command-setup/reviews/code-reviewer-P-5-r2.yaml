@@ -1,0 +1,120 @@
+schema: orqlet.review-result/v1
+task: one-command-setup
+phase: P-5
+role: code-reviewer
+round: 2
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: e31a341cfe7ecf187c37b894e75fe41b8256c5b52c4379c4b1593ca7e6b0b68a
+    design: f06d364039b27ab207ed6f5db21c92570bc2d22e18763d0a8d81c9b6cc97dae9
+    evidence_inputs: 48739433332760492a85b9258e89557bf83332d5ef0619c024fdef36b3af976f
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 4b74c98cb64e05f85803390a153b9ac19f7301b36e62a2928f1a9604319ceca6
+    reviewer_definition: 6660b181a2ba46a0bbd8225a3449e2322f0030dea1fa146cb15dfd0e3ffcd94e
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: cbb31fb2757f7299e788869352e74935da5a5ea0528c69aed302662fee885dd7
+  merge_base: 346123f4b71e1614b2b049da7996620de1e28bee
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-code-reviewer
+  definition_sha256: d807b6881723a0c72151d12a514eb0506a2356d9e94d170daff3f53178dff488
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I0
+capability_limits:
+- 'Same client as the Coder (cursor) and no approved code-reviewer binding for cursor in .orqlet/role-bindings.yaml: independence I0, below the I2 a code
+  review needs; the verdict is NOT_RUN.'
+- The reviewer's own conclusion was no blocking defect. Its observations (the home-is-work-tree stop is unreachable in hook mode; exact path comparison
+  gives no context for other spellings; AC-9 wording leaves out the Copilot foundation; the deadline starts after standard input is read) are kept in
+  this line only.
+- Round 2 of P-5, after the Coder fixed round-1 findings F-1 to F-3 at the person's choice. It was started as a typed subagent with the packet path
+  one-command-setup-P-5-ee9122ae as its only prompt; that the context is fresh is the Coder's claim. The packet's diff is against main 346123f and holds
+  P-5 only.
+- 'The reviewer''s session had no shell: no quote digest and no git. The Coder wrote this record from its returned text; its quote evidence is given as
+  absence records naming the packet path.'
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- Non-blocking findings of this round are follow-ups for the person, not changes to P-5 unless the person asks.
+applicability:
+  examined:
+  - P-5 in plan.yaml
+  - the source part of the diff and the new modules
+  - the new and changed test files, except parts of test_hook_event.py and most of test_hook_payload.py
+  - the test and knowledge records
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: tests
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-5-ee9122ae/snapshot/tests/unit/domain/test_strict_json.py
+    method: read the test of the size check before decoding
+    revision: 346123f4b71e1614b2b049da7996620de1e28bee
+  claim: The size-before-decoding test uses bytes that decoding also refuses, so moving the size check after parsing would leave every test green.
+  suggested_action: Assert that the error message is the size one.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: finding
+  severity: non-blocking
+  category: correctness
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-5-ee9122ae/snapshot/tests/unit/application/test_hook_event.py
+    method: searched for a status over 1200 characters built from a valid but very long lock version
+    revision: 346123f4b71e1614b2b049da7996620de1e28bee
+  claim: A hostile lock version of about 1200 digits is still a valid version, pushes the status over 1200 characters and drops the whole status, while
+    AC-5 says only the bad field is left out; no test covers a status over the cap.
+  suggested_action: Ask the person which behaviour AC-5 wants, and add a test either way.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: finding
+  severity: non-blocking
+  category: tests
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-5-ee9122ae/snapshot/tests/unit/application/test_hook_event.py
+    - one-command-setup-P-5-ee9122ae/snapshot/tests/integration/test_hook_budget.py
+    method: searched for a .orqlet folder more than 64 levels above the working folder
+    revision: 346123f4b71e1614b2b049da7996620de1e28bee
+  claim: No test shows that a .orqlet folder more than 64 levels up is ignored.
+  suggested_action: Add a case with the root 65 levels up that expects no status.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: code-reviewer
+    phase: implement
+  checks:
+  - what: AC-1 to AC-11 and AC-14 to AC-17 against the code and tests
+    how: read and traced
+    result: pass
+  - what: running the checks and quote digests
+    how: no shell
+    result: not-run

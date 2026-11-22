@@ -1938,4 +1938,112 @@ questions:
   blocks:
   - implement
   status: open
+- id: Q-84
+  key: 0dea8c7dc0871fa08c3912b9b06dcc0f4a9b5d606d9893ed14a63632475423da
+  subject: Pinned command list outside P-5
+  raised_by: Cursor
+  phase: implement
+  category: policy
+  text: tests/integration/test_validate_integrations_cli.py pins the commands added beyond its base list,
+    so registering hook fails two of its tests; the file is not in P-5's file list, and Q-67 approved
+    the same change for P-4 only. May P-5 change it?
+  why: P-5 may change only its file list.
+  evidence_refs:
+  - tests/integration/test_validate_integrations_cli.py:620-643
+  options:
+  - Approve it as a P-5 change
+  - Amend the plan first
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: 'Approved as a P-5 change: add hook to the expected set in both tests, with a comment in
+      the existing style, and record it in the ledger.'
+    answerer: tmishari
+    time: '2026-11-22T16:20:00+00:00'
+    scope: task
+- id: Q-85
+  key: 48b5b916e6a784e6647ea9d6ebfe94684556ac24d2771c1ed8e04bb1df216dce
+  subject: Long lock version in the hook status
+  raised_by: Cursor
+  phase: implement
+  category: policy
+  text: A valid lock version of about 1200 digits pushes the status over its 1200-character cap, so
+    the whole status is dropped, while AC-5 says only the bad field is left out. Which applies?
+  why: Code review round 2 of P-5, finding F-2.
+  evidence_refs:
+  - docs/design/one-command-setup/reviews/code-reviewer-P-5-r2.yaml
+  options:
+  - Drop only the version line when it is too long
+  - Keep dropping the whole status
+  blocks: []
+  status: answered
+  answer:
+    value: Keep dropping the whole status; accepted as it is.
+    answerer: tmishari
+    time: '2026-11-22T19:40:00+00:00'
+    scope: task
+- id: Q-86
+  key: e91e68389674a0f0eb1dbcbb1fe53e8a99a5f0132124c6bf45ed44b16d1a8212
+  subject: Project folder in the home in hook mode
+  raised_by: Cursor
+  phase: implement
+  category: policy
+  text: Hook-mode status never gives refuse-home-is-work-tree, so a .orqlet folder directly in the
+    home gets a normal status. Should the hook give no context there?
+  why: Architecture review round 2 of P-5, finding F-1; Q-77.
+  evidence_refs:
+  - docs/design/one-command-setup/reviews/architecture-reviewer-P-5-r2.yaml
+  options:
+  - Give no context when the project root is the home
+  - Keep the normal status
+  blocks: []
+  status: answered
+  answer:
+    value: Give no context when the project root is the home itself, with a test; changed in P-5.
+    answerer: tmishari
+    time: '2026-11-22T19:40:00+00:00'
+    scope: task
+- id: Q-87
+  key: e9db7e16cfd30ae29297d6dd3543e34989ab17b92b545f0223f8314660dfd601
+  subject: Backtick in the post-edit path
+  raised_by: Cursor
+  phase: implement
+  category: policy
+  text: A lock path chosen by the repository may hold a backtick, which closes the post-edit code span
+    early. Refuse it in the hook, or accept the risk?
+  why: Security review round 2 of P-5, finding F-1; ADR-004 line 84.
+  evidence_refs:
+  - docs/design/one-command-setup/reviews/security-reviewer-P-5-r2.yaml
+  options:
+  - Give no line for a path with a backtick
+  - Accept the risk
+  blocks: []
+  status: answered
+  answer:
+    value: Accept the risk, as ADR-004 already does; no change.
+    answerer: tmishari
+    time: '2026-11-22T19:40:00+00:00'
+    scope: task
+- id: Q-88
+  key: 4524909f0f7c4453bf3e9f091fdf47bb204a831114f0af62547024cfec069522
+  subject: Home at a file system root in the hook
+  raised_by: Cursor
+  phase: implement
+  category: policy
+  text: When the home resolves to / or a drive root, the confinement to the home covers the whole file
+    system. Give no context there, or accept it?
+  why: Security review round 1 of P-5, finding F-1.
+  evidence_refs:
+  - docs/design/one-command-setup/reviews/security-reviewer-P-5-r1.yaml
+  options:
+  - Give no context when the home is a file system root
+  - Accept it
+  blocks: []
+  status: answered
+  answer:
+    value: Accept it; reads stay bounded and refuse links, and the output stays templated.
+    answerer: tmishari
+    time: '2026-11-22T19:40:00+00:00'
+    scope: task
 conflicts: []

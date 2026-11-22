@@ -21,6 +21,7 @@ IMPLEMENTED_COMMANDS: frozenset[str] = frozenset(
         "explain",
         "release",
         "status",
+        "hook",
         "profile answer",
         "profile approve",
         "resources add",

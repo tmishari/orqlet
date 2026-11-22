@@ -1,0 +1,94 @@
+schema: orqlet.review-result/v1
+task: one-command-setup
+phase: P-5
+role: architecture-reviewer
+round: 2
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: e31a341cfe7ecf187c37b894e75fe41b8256c5b52c4379c4b1593ca7e6b0b68a
+    design: f06d364039b27ab207ed6f5db21c92570bc2d22e18763d0a8d81c9b6cc97dae9
+    evidence_inputs: 48739433332760492a85b9258e89557bf83332d5ef0619c024fdef36b3af976f
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 4b74c98cb64e05f85803390a153b9ac19f7301b36e62a2928f1a9604319ceca6
+    reviewer_definition: 83e52f1a68fceddc7beb1d83654661fd34a1e3b3028c4fcc3dd7b6dadd8f3463
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: df8ac127f61e659382bb5ab237da444d72860ef75627336f971a1d6dbee961d3
+  merge_base: 346123f4b71e1614b2b049da7996620de1e28bee
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: 751953d100777e7ad1ae8ea41d8f096972ff2d2818b84213b87d027c1a3f9beb
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- 'Same client as the Coder (cursor): independence I1, below the I2 a D3 change requires (ORQLET-MODEL-002); the verdict is NOT_RUN.'
+- The reviewer's own conclusion was no blocking finding. Its info items (the Q-84 files outside the file list, approved; the deadline starts after
+  standard input is read; the knowledge record cites plan.yaml line 1951 where 1950-1962 is meant) are kept in this line only.
+- Round 2 of P-5, after the Coder fixed round-1 code findings F-1 to F-3 at the person's choice. It was started as a typed subagent with the packet path
+  one-command-setup-P-5-ee9122ae as its only prompt; that the context is fresh is the Coder's claim. The packet's diff is against main 346123f and holds
+  P-5 only.
+- 'The reviewer''s session had no shell: no quote digest and no git. The Coder wrote this record from its returned text; its quote evidence is given as
+  absence records naming the packet path.'
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- Non-blocking findings of this round are follow-ups for the person, not changes to P-5 unless the person asks.
+applicability:
+  examined:
+  - the full diff
+  - plan P-5 and the person's reading at plan.yaml line 2204
+  - ADR-004 and component.md
+  - the import-linter contracts in pyproject.toml
+  - hook_event.py, hook_payload.py, strict_json.py, hook.py, wiring.py, status.py, local_fs.py and bounded_read.py
+  - the test and knowledge records
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: architecture
+  claim: The refuse-home-is-work-tree stop cannot trigger in hook mode, because hook-mode status always reports an initialized project; a .orqlet folder
+    directly in the home gets a normal status, and no test covers that case.
+  suggested_action: Ask the person whether a project root equal to the home should stop the hook, and pin the chosen behaviour with a test.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: docs
+  claim: component.md puts the upward .orqlet search in the status use case's hook mode, while the code puts it in the hook use case; ADR-004 still promises
+    a post-edit warning in Copilot, which the approved plan narrowed to Claude Code. Neither file is P-5's to change.
+  suggested_action: Correct both at the next design amendment.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+  checks:
+  - what: file list, layers, ADR-004 decisions, test coverage and the knowledge record
+    how: read and traced
+    result: pass
+  - what: running the checks and quote digests
+    how: no shell
+    result: not-run
