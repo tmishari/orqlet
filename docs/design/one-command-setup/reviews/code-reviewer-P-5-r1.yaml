@@ -1,0 +1,124 @@
+schema: orqlet.review-result/v1
+task: one-command-setup
+phase: P-5
+role: code-reviewer
+round: 1
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: 7d8fab5475c56df185c7cc1c7e6476008ff0608cde0f9bfb5ae9aa78e738d093
+    design: f06d364039b27ab207ed6f5db21c92570bc2d22e18763d0a8d81c9b6cc97dae9
+    evidence_inputs: ad130e2c6c7d7660a8b4d88bd7b2db21f43eff5998cd33aab511f0d03476e9f1
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 4b74c98cb64e05f85803390a153b9ac19f7301b36e62a2928f1a9604319ceca6
+    reviewer_definition: 6660b181a2ba46a0bbd8225a3449e2322f0030dea1fa146cb15dfd0e3ffcd94e
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: d85d3555c35a5a162bd68263111e484d76cc33374bda589c41a8aac00bf9823a
+  merge_base: 346123f4b71e1614b2b049da7996620de1e28bee
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-code-reviewer
+  definition_sha256: d807b6881723a0c72151d12a514eb0506a2356d9e94d170daff3f53178dff488
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I0
+capability_limits:
+- 'Same client as the Coder (cursor) and no approved code-reviewer binding for cursor in .orqlet/role-bindings.yaml: independence I0, below the I2 a code
+  review needs; the verdict is NOT_RUN.'
+- The reviewer's own conclusion was no blocking defect. Its observations (the home-is-work-tree stop is unreachable because read_project_status always
+  reports an initialized project; the baseline marker check also matches a marker inside a code fence; some path spellings give no context) are kept in
+  this line only.
+- Round 1 of P-5. It was started as a typed subagent with the packet path one-command-setup-P-5-e38a5454 as its only prompt; that the context is fresh is
+  the Coder's claim. The packet's diff is against main 346123f and holds P-5 only.
+- 'The reviewer''s session had no shell: no quote digest and no git. The Coder wrote this record from its returned text; its quote evidence is given as
+  absence records naming the packet path and lines.'
+- The Coder reproduced F-1 with the project interpreter; json.loads raised ValueError for an integer of 5000 digits.
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- Non-blocking findings of this round are follow-ups for the person, not changes to P-5 unless the person asks.
+applicability:
+  examined:
+  - P-5 in plan.yaml
+  - the source part of the diff and the new modules in full
+  - status.py, bounded_read.py, paths.py, blocks.py and the file system port
+  - the five new or changed test files
+  - the test and knowledge records
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: failure-handling
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-5-e38a5454/snapshot/src/orqlet/domain/strict_json.py lines 25-33
+    - one-command-setup-P-5-e38a5454/snapshot/src/orqlet/application/usecases/hook_event.py lines 82-86
+    method: read the except clauses for a ValueError that is not a JSONDecodeError
+    revision: 346123f4b71e1614b2b049da7996620de1e28bee
+  claim: json.loads raises a plain ValueError for an integer of more than 4300 digits; parse_object lets it through, so a Copilot payload of under 5 KB
+    gets {} instead of the packaged foundation.
+  suggested_action: Map that ValueError to StrictJsonError after the JSONDecodeError clause, with a case in test_strict_json.py and in BAD_PAYLOADS.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: finding
+  severity: non-blocking
+  category: tests
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-5-e38a5454/snapshot/tests/unit/domain/test_strict_json.py
+    - one-command-setup-P-5-e38a5454/snapshot/tests/unit/application/test_hook_event.py
+    - one-command-setup-P-5-e38a5454/snapshot/tests/integration/test_hook_cli.py
+    method: searched for nest, Recursion and a deep bracket payload
+    revision: 346123f4b71e1614b2b049da7996620de1e28bee
+  claim: The RecursionError branch of parse_object has no test.
+  suggested_action: Add a deeply nested payload under 1 MiB and expect StrictJsonError.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: finding
+  severity: non-blocking
+  category: tests
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-5-e38a5454/snapshot/tests/integration/test_hook_budget.py
+    - one-command-setup-P-5-e38a5454/snapshot/tests/unit/application/test_hook_event.py
+    method: read both files for a test of HOOK_DEADLINE_SECONDS or of expired turning true
+    revision: 346123f4b71e1614b2b049da7996620de1e28bee
+  claim: No test pins the 2-second deadline; the timed budget tests do not assert the output, so a hook that returns {} at once would pass.
+  suggested_action: Test build_hook_services with a faked clock, and assert the output shape in the budget tests.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: code-reviewer
+    phase: implement
+  checks:
+  - what: AC-1 to AC-12 and AC-14 to AC-17 against the code and tests
+    how: read and traced
+    result: pass
+  - what: running the checks and quote digests
+    how: no shell
+    result: not-run

@@ -10,6 +10,7 @@ from orqlet import __version__
 from orqlet.interface.cli.commands.conventions import conventions_group
 from orqlet.interface.cli.commands.evidence import evidence_app
 from orqlet.interface.cli.commands.gate import gate_app
+from orqlet.interface.cli.commands.hook import hook_command
 from orqlet.interface.cli.commands.init import init_command
 from orqlet.interface.cli.commands.knowledge import knowledge_app
 from orqlet.interface.cli.commands.lifecycle import (
@@ -43,6 +44,7 @@ app.command("doctor")(doctor_command)
 app.command("explain")(explain_command)
 app.command("release")(release_command)
 app.command("status")(status_command)
+app.command("hook")(hook_command)
 app.add_typer(profile_app, name="profile")
 app.add_typer(resources_group(), name="resources")
 app.add_typer(conventions_group(), name="conventions")

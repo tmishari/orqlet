@@ -1,0 +1,90 @@
+schema: orqlet.review-result/v1
+task: one-command-setup
+phase: P-5
+role: security-reviewer
+round: 3
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: 8fd0f0620673f56767d1003c1a7640cfd78f4680e0bd4f52ea6e302ed0d1829f
+    design: f06d364039b27ab207ed6f5db21c92570bc2d22e18763d0a8d81c9b6cc97dae9
+    evidence_inputs: 9e3fb9573795b4199fc195c26b25f7635e4659584c80ffbec313e7d6a84541a4
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 4b74c98cb64e05f85803390a153b9ac19f7301b36e62a2928f1a9604319ceca6
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 0a69380497c297142181d8ce627e7cdedb52e9e257b0d6233fdd64a2ce5ba4dc
+  merge_base: 346123f4b71e1614b2b049da7996620de1e28bee
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- 'Same client as the Coder (cursor): independence I1, below the I2 a D3 change requires; the verdict is NOT_RUN.'
+- The reviewer's own verdict was PASS. It noted that the risks the person accepted in Q-87 and Q-88 are still present and not made worse.
+- Round 3 of P-5, the last round, after the Coder made the search stop below the home (Q-86). It was started as a typed subagent with the packet path
+  one-command-setup-P-5-6fdfb7ec as its only prompt; that the context is fresh is the Coder's claim. The packet's diff is against main 346123f and holds
+  P-5 only.
+- 'The reviewer''s session had no shell: no quote digest and no git. The Coder wrote this record from its returned text.'
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- Non-blocking findings of this round are follow-ups for the person and later phases, not changes to P-5.
+applicability:
+  examined:
+  - MANIFEST.json and the source hunks of the diff
+  - local_fs.py, bounded_read.py, representable.py, paths.py, status.py, the read-only files port and the strict YAML loader
+  - the rules file, the test record and the knowledge record
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: security
+  rule_ref: ORQLET-SEC-002
+  claim: build_hook_services hands the hook a full LocalFileSystem, which can also write; only the ReadOnlyFiles type and the use case's calls keep the
+    hook read-only, and no write happens today.
+  suggested_action: Optionally pass a wrapper that offers only kind and read_prefix.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: security
+  claim: The deadline is checked only before reads, so parsing a slow 1 MiB payload or lock is not bounded by it; the client's 5-second timeout still stops
+    the hook.
+  suggested_action: None required; optionally a smaller byte limit for the locks the hook parses.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: payload parsing, confinement, links, reads, writes, output, processes, secrets, dependencies
+    how: read and pattern search
+    result: pass
+  - what: running the checks and quote digests
+    how: no shell
+    result: not-run

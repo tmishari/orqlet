@@ -1,0 +1,100 @@
+schema: orqlet.review-result/v1
+task: one-command-setup
+phase: P-5
+role: security-reviewer
+round: 2
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: e31a341cfe7ecf187c37b894e75fe41b8256c5b52c4379c4b1593ca7e6b0b68a
+    design: f06d364039b27ab207ed6f5db21c92570bc2d22e18763d0a8d81c9b6cc97dae9
+    evidence_inputs: 48739433332760492a85b9258e89557bf83332d5ef0619c024fdef36b3af976f
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 4b74c98cb64e05f85803390a153b9ac19f7301b36e62a2928f1a9604319ceca6
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: b42c529b770a0e7dd8e1985ff1c3dd233dce7fe94d08d7472c525d43fbf3a637
+  merge_base: 346123f4b71e1614b2b049da7996620de1e28bee
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- 'Same client as the Coder (cursor): independence I1, below the I2 a D3 change requires; the verdict is NOT_RUN.'
+- The reviewer's own conclusion was no blocking finding.
+- Round 2 of P-5, after the Coder fixed round-1 code findings F-1 to F-3 at the person's choice. It was started as a typed subagent with the packet path
+  one-command-setup-P-5-ee9122ae as its only prompt; that the context is fresh is the Coder's claim. The packet's diff is against main 346123f and holds
+  P-5 only.
+- Round 1's security F-1 (a home that resolves to a file system root) was not raised again in this round and was not changed; it stays open for the person.
+- 'The reviewer''s session had no shell: no quote digest and no git. The Coder wrote this record from its returned text; its quote evidence is given as
+  absence records naming the packet path.'
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- Non-blocking findings of this round are follow-ups for the person, not changes to P-5 unless the person asks.
+applicability:
+  examined:
+  - MANIFEST and diff.patch
+  - strict_json.py, hook_payload.py, hook_event.py, commands/hook.py and wiring.py
+  - representable.py, local_fs.py, bounded_read.py and yaml_loader.py
+  - ADR-004
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: security
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-5-ee9122ae/snapshot/src/orqlet/domain/representable.py
+    - one-command-setup-P-5-ee9122ae/snapshot/src/orqlet/workflow/templates/hook-post-edit.md
+    - one-command-setup-P-5-ee9122ae/snapshot/tests/unit/application/test_hook_event.py
+    method: read the path check for a refusal of backticks and searched the tests for a path with a backtick
+    revision: 346123f4b71e1614b2b049da7996620de1e28bee
+  claim: A lock path chosen by the repository may hold backticks, which close the post-edit code span early, while ADR-004 line 84 says the template shows
+    the path as a code span; the attacker needs a hand-made lock and an agent edit.
+  suggested_action: Give no line when the path holds a backtick, with a test case, or record the risk as accepted; changing representable_path for status
+    needs the person's decision.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: security
+  claim: The deadline does not cover reading standard input; only the client controls it, and its 5-second timeout bounds it.
+  suggested_action: None unless the person wants the limit to be Orqlet's own.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: payload parsing, confinement, links, reads, writes, output, processes, secrets
+    how: read and pattern search
+    result: pass
+  - what: running the checks and quote digests
+    how: no shell
+    result: not-run

@@ -362,6 +362,14 @@
       "sha256": "36a757971b10dafe794978a21170e9e054d1ae482f591402fce31c1f75c667bb"
     },
     {
+      "path": "templates/hook-post-edit.md",
+      "sha256": "0c6ef436bd914ab6f365b17c651f9d538b54f21ac62fec7341ccdbf4d9880cb4"
+    },
+    {
+      "path": "templates/hook-session-start.md",
+      "sha256": "473a9761b3018120b9ad7de0263c10a536c8999ee42fe484c672452289080765"
+    },
+    {
       "path": "templates/resource-rule.md",
       "sha256": "e2b04aa7340565d5c392531bcd3c654913d37379f0ba42c8673feef4a32a4853"
     },

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import sys
+import time
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -39,6 +40,7 @@ from orqlet.application.contracts.user_scope import UserHome
 from orqlet.application.ports.documents import DocumentLoader
 from orqlet.application.ports.filesystem import FileSystemError
 from orqlet.application.ports.scanner import ProjectScanner, TechnologyScanner
+from orqlet.application.usecases.hook_event import HookServices
 from orqlet.application.usecases.models_resolve import ModelsServices
 from orqlet.application.usecases.services import Services as LifecycleServices
 from orqlet.application.usecases.services import Stores
@@ -47,6 +49,7 @@ from orqlet.application.usecases.validate_model_policy import ModelPolicyService
 from orqlet.application.usecases.validation import ValidateServices
 
 DATA_DIR_VARIABLE = "ORQLET_DATA_DIR"
+HOOK_DEADLINE_SECONDS = 2.0  # the registered timeout is 5 seconds (ADR-004 decision 6)
 
 
 @dataclass(frozen=True, slots=True)
@@ -110,6 +113,30 @@ def build_status_services(root: Path) -> StatusServices:
             pathext=os.environ.get("PATHEXT"),
         ),
         home=UserHome(path=os.path.realpath(Path.home())),
+    )
+
+
+def build_hook_services() -> HookServices:
+    """Read-only services with no process runner and no Git (ADR-004 decisions 5 and 6)."""
+    deadline = time.monotonic() + HOOK_DEADLINE_SECONDS
+    home = os.path.realpath(Path.home())
+    user_data, unreadable = _open_user_data(resolve_data_directory())
+    try:
+        home_files: LocalFileSystem | None = LocalFileSystem(Path(home))
+    except (FileSystemError, OSError):
+        home_files = None
+    workflow = PackagedWorkflow()
+    return HookServices(
+        home=UserHome(path=home),
+        home_files=home_files,
+        sources=GlobalSources(
+            user_data=user_data,
+            loader=StrictYamlLoader(),
+            installed=workflow.release.version,
+            user_data_unreadable=unreadable,
+        ),
+        workflow=workflow,
+        expired=lambda: time.monotonic() > deadline,
     )
 
 

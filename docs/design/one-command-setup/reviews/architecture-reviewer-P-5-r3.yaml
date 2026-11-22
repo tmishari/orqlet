@@ -1,0 +1,121 @@
+schema: orqlet.review-result/v1
+task: one-command-setup
+phase: P-5
+role: architecture-reviewer
+round: 3
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: 8fd0f0620673f56767d1003c1a7640cfd78f4680e0bd4f52ea6e302ed0d1829f
+    design: f06d364039b27ab207ed6f5db21c92570bc2d22e18763d0a8d81c9b6cc97dae9
+    evidence_inputs: 9e3fb9573795b4199fc195c26b25f7635e4659584c80ffbec313e7d6a84541a4
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 4b74c98cb64e05f85803390a153b9ac19f7301b36e62a2928f1a9604319ceca6
+    reviewer_definition: 83e52f1a68fceddc7beb1d83654661fd34a1e3b3028c4fcc3dd7b6dadd8f3463
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 68a87e831ab4460dfaee178d3865c6a31484e5ec0e95b8bf707e6497583482cc
+  merge_base: 346123f4b71e1614b2b049da7996620de1e28bee
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: 751953d100777e7ad1ae8ea41d8f096972ff2d2818b84213b87d027c1a3f9beb
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- 'Same client as the Coder (cursor): independence I1, below the I2 a D3 change requires (ORQLET-MODEL-002); the verdict is NOT_RUN.'
+- The reviewer's own verdict was PASS. Its info items (the deadline starts after standard input is read and is checked only between reads; component.md
+  places the upward search in the status use case) are kept in this line only.
+- Round 3 of P-5, the last round, after the Coder made the search stop below the home (Q-86). It was started as a typed subagent with the packet path
+  one-command-setup-P-5-6fdfb7ec as its only prompt; that the context is fresh is the Coder's claim. The packet's diff is against main 346123f and holds
+  P-5 only.
+- 'The reviewer''s session had no shell: no quote digest and no git. The Coder wrote this record from its returned text; its quote evidence is given as
+  absence records naming the packet path.'
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- Non-blocking findings of this round are follow-ups for the person and later phases, not changes to P-5.
+applicability:
+  examined:
+  - MANIFEST.json and the diff
+  - P-5 in plan.yaml and the design manifest's expected changes
+  - ADR-004 and component.md BC-14 to BC-17
+  - the rules file and the import-linter contracts
+  - test_hook_budget.py and the test_status_cli.py diff
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: tests
+  rule_ref: ORQLET-TEST-001
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-5-6fdfb7ec/snapshot/docs/design/one-command-setup/questions.yaml
+    - one-command-setup-P-5-6fdfb7ec/context/test-record.yaml
+    method: searched for the Copilot-after-deadline case and the 64-level boundary
+    revision: 346123f4b71e1614b2b049da7996620de1e28bee
+  claim: Two Tester questions are not in the ledger; Copilot gets the foundation after the deadline, and no test or person decision pins it.
+  suggested_action: Record both questions, and after the answer add a Copilot case with an expired deadline.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: finding
+  severity: non-blocking
+  category: architecture
+  rule_ref: ORQLET-STYLE-001
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-5-6fdfb7ec/snapshot/src/orqlet/application/usecases/hook_event.py
+    - one-command-setup-P-5-6fdfb7ec/snapshot/src/orqlet/domain/blocks.py
+    method: compared the hook's begin-marker pattern with the marker grammar in blocks.py
+    revision: 346123f4b71e1614b2b049da7996620de1e28bee
+  claim: hook_event.py keeps its own begin-marker pattern, which also matches inside a code fence, while blocks.py skips fences; two grammars may drift.
+  suggested_action: Reuse a matcher exposed by blocks.py, or say in a comment why the hook ignores fences.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: finding
+  severity: non-blocking
+  category: docs
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-5-6fdfb7ec/context/knowledge-impact.yaml
+    method: searched the no-impact reason for Q-85 to Q-88
+    revision: 346123f4b71e1614b2b049da7996620de1e28bee
+  claim: The knowledge record cites Q-72, Q-77, Q-82 and Q-84 but not Q-85 to Q-88; Q-86 adds a rule that ADR-004 decision 5 does not state.
+  suggested_action: Cite Q-85 to Q-88 in the record, and decide whether ADR-004 decision 5 needs one sentence for Q-86.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+  checks:
+  - what: scope, layers, no process or write, EC-6 and EC-9, test coverage
+    how: read and traced
+    result: pass
+  - what: running the checks and quote digests
+    how: no shell
+    result: not-run

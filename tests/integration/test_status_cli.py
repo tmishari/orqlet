@@ -14,6 +14,7 @@ from typer.testing import CliRunner
 from orqlet.adapters.fs.local_fs import LocalFileSystem
 from orqlet.adapters.fs.yaml_loader import StrictYamlLoader
 from orqlet.adapters.scan.executables import PathExecutableLocator
+from orqlet.adapters.workflow_package import PackagedWorkflow
 from orqlet.application.contracts.user_scope import UserHome
 from orqlet.application.usecases.capabilities import IMPLEMENTED_COMMANDS
 from orqlet.application.usecases.status import GlobalSources, StatusServices
@@ -89,10 +90,14 @@ def test_status_is_an_implemented_command() -> None:
 
 
 def test_a_repository_reports_init_in_the_envelope(tmp_path: Path) -> None:
-    """AC-6, AC-1: exit 0 and the existing envelope; a repository without `.orqlet` gives init."""
+    """AC-6, AC-1: exit 0 and the existing envelope; a repository without `.orqlet` gives init.
+
+    P-5 AC-16 (BC-11, BC-24): the manifest holds the packaged release version, not a pinned one,
+    so the client stays `configured` after a workflow version bump.
+    """
     repo = make_repo(tmp_path / "project")
     commit_file(repo, "README.txt", "hello\n")
-    write_manifest(Path(os.environ["ORQLET_DATA_DIR"]), "0.5.0")
+    write_manifest(Path(os.environ["ORQLET_DATA_DIR"]), str(PackagedWorkflow().release.version))
 
     code, envelope = run_status("--root", str(repo))
 
@@ -279,3 +284,81 @@ def test_a_data_path_through_a_regular_file(
 
     assert code == expected
     assert set(envelope["data"]["global"]["clients"].values()) == {"missing"}
+
+
+# --- P-5: orqlet_on_path absent and the plain-text output (AC-15, AC-17) ---------------------
+
+
+def test_orqlet_on_path_is_absent_whatever_path_holds(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """P-5 AC-15 (BC-38, Q-82): no PATH element holds orqlet, with empty, `.` and relative ones."""
+    working = tmp_path / "working"
+    working.mkdir()
+    empty = tmp_path / "empty-folder"
+    empty.mkdir()
+    monkeypatch.chdir(working)
+    monkeypatch.setenv("PATH", os.pathsep.join(["", ".", "relative/bin", str(empty)]))
+
+    result = RUNNER.invoke(app, ["status", "--root", str(working), "--json"])
+
+    envelope = json.loads(result.stdout)
+    assert envelope["data"]["orqlet_on_path"] == "absent"
+
+
+PLAIN_LABELS = ["global", "orqlet on PATH", "location", "top level", "versions", "next"]
+
+
+def _labels(lines: list[str]) -> list[str]:
+    return [line.split(": ", 1)[0] for line in lines]
+
+
+def test_status_prints_plain_lines_with_the_exit_status_of_json(tmp_path: Path) -> None:
+    """P-5 AC-17 (BC-11, BC-40, A-50): the same fields as plain lines, no ANSI code, same exit."""
+    repo = make_repo(tmp_path / "project")
+    commit_file(repo, "README.txt", "hello\n")
+    write_manifest(Path(os.environ["ORQLET_DATA_DIR"]), str(PackagedWorkflow().release.version))
+
+    plain = RUNNER.invoke(app, ["status", "--root", str(repo)])
+    as_json = RUNNER.invoke(app, ["status", "--root", str(repo), "--json"])
+
+    lines = plain.stdout.splitlines()
+    assert _labels(lines) == PLAIN_LABELS
+    assert "\x1b" not in plain.stdout
+    assert lines[0].startswith("global: ")
+    assert "claude-code configured" in lines[0]
+    assert lines[2] == "location: repository"
+    assert lines[3] == f"top level: {os.path.realpath(repo)}"
+    assert lines[5] == "next: init"
+    assert plain.exit_code == as_json.exit_code == 0
+
+
+@POSIX_USER
+def test_status_prints_host_step_and_not_run_lines(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """P-5 AC-17 (BC-11, BC-40, A-50): host steps and checks not run, plain, with exit 5 twice.
+
+    A relative PATH element searched before the folder that holds `orqlet` is a host step
+    (unsafe-path-element), and Git is skipped, so the location is a check not run (Q-73).
+    """
+    working = tmp_path / "working"
+    working.mkdir()
+    tools = tmp_path / "tools"
+    tools.mkdir()
+    fake = tools / "orqlet"
+    fake.write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
+    fake.chmod(0o755)
+    monkeypatch.chdir(working)
+    monkeypatch.setenv("PATH", os.pathsep.join(["relative", str(tools)]))
+
+    plain = RUNNER.invoke(app, ["status", "--root", str(working)])
+    as_json = RUNNER.invoke(app, ["status", "--root", str(working), "--json"])
+
+    lines = plain.stdout.splitlines()
+    assert _labels(lines)[: len(PLAIN_LABELS)] == PLAIN_LABELS
+    assert "host step: unsafe-path-element" in lines
+    assert any(line.startswith("not run: ") for line in lines)
+    assert set(_labels(lines)[len(PLAIN_LABELS) :]) <= {"host step", "not run"}
+    assert "\x1b" not in plain.stdout
+    assert plain.exit_code == as_json.exit_code == 5
