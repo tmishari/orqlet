@@ -1341,7 +1341,7 @@ questions:
     adaptations of ADR-006 decision 2.
   evidence_refs:
   - tests/unit/render/test_skills.py:124-144
-  - docs/design/one-command-setup/plan.yaml:154-161
+  - docs/design/one-command-setup/plan.yaml:143
   options:
   - Amend P-2 to add tests/unit/render/test_skills.py, pin the Ponytail references and limit the check to the phase skills
   - Add the two sentences to the Ponytail snapshots as a further adaptation
@@ -1354,5 +1354,39 @@ questions:
       skills only.
     answerer: tmishari
     time: '2026-11-21T20:30:00+00:00'
+    scope: task
+- id: Q-62
+  key: 6a7f5bfbfa3767649052c9c91e27ac9051cb04703f485e38dcc623b25af46837
+  subject: Removing the pre-40 P-2 work that 41 merged into main
+  raised_by: Cursor
+  phase: implement
+  category: policy
+  text: '#41 squash-merged the pre-#40 P-2 work in progress into main: the graphify source and golden
+    files, the families mechanism in skills.py, instruction_adapter.py and workflow_sources.py, and
+    the narrowed scans of test_workflow_injection.py and test_rendered_formats.py. Removing it is
+    what Q-60 asks, but against main the removal edits five files outside P-2''s file list and
+    deletes paths that no file operation can name, because they are absent at the plan''s base;
+    the architecture review of P-2 (rounds 1 and 2, F-1) blocks on the missing decision. Should P-2
+    remove it, and what about the graphify-out report and the graphify lines of .gitignore?'
+  why: P-2 may change only its file list, and the review found no recorded decision for the removal.
+  evidence_refs:
+  - docs/design/one-command-setup/reviews/architecture-reviewer-P-2-r2.yaml
+  - docs/design/one-command-setup/plan.yaml:143
+  options:
+  - Amend P-2 to restore the five files to a636b31 and remove the graphify paths, with the load_skills docstring and the test cleanups of the P-2 reviews
+  - Amend P-2 with the removal only
+  - Remove the work in a separate change outside the task
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: Amend P-2 through a plan amendment. P-2 restores skills.py, instruction_adapter.py,
+      test_workflow_injection.py and test_rendered_formats.py to a636b31 and workflow_sources.py
+      too, except that the load_skills docstring says path order; it removes the graphify source
+      and golden files; it names the "not authority" and STOP test for the phase skills, moves the
+      Next check into it and drops the duplicate. graphify-out/GRAPH_REPORT.md and the graphify
+      lines of .gitignore stay as local tooling outside this task.
+    answerer: tmishari
+    time: '2026-11-21T21:10:00+00:00'
     scope: task
 conflicts: []
