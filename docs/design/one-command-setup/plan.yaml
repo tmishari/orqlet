@@ -241,6 +241,21 @@ phases:
       skills only, because the upstream Ponytail text holds neither; every other assertion of the file is unchanged.
     source: Q-61; ADR-006 decisions 1 and 2
     check_ref: pytest
+  - id: AC-17
+    text: >-
+      P-2 removes the pre-#40 work in progress that #41 merged into main ahead of the plan. At the phase commit
+      src/orqlet/adapters/render/skills.py, src/orqlet/application/ports/instruction_adapter.py,
+      tests/unit/application/test_workflow_injection.py and tests/unit/render/test_rendered_formats.py equal their content at
+      a636b3130aa892537298917097b217df8f190d38 (no `families/` mechanism, no `family_references`, no narrowed scan), and so does
+      src/orqlet/application/usecases/workflow_sources.py except that the docstring of `load_skills` says that the skills come in the
+      path order of `skills/<name>/skill.md`. No path under src/orqlet/workflow/skills/graphify/ or under a client's skills folder
+      named graphify in tests/golden/ exists; these paths are absent at the plan's base, so no file operation names them.
+      `git diff --name-only a636b3130aa892537298917097b217df8f190d38` of the phase commit lists only file operations of P-1 and P-2,
+      this task's records, plan.yaml, questions.yaml and .gitignore. In tests/unit/render/test_skills.py the "not authority" and STOP
+      test is named for the phase skills and also asserts the `## Next` section, and tests/unit/test_workflow_bundled_skills.py no
+      longer repeats those assertions. graphify-out/GRAPH_REPORT.md and the graphify lines of .gitignore stay.
+    source: Q-62; Q-60; ADR-006 Context and decision 4
+    check_ref: pytest
   checks: [ruff-check, ruff-format, mypy, import-linter, pytest, manifest-check, gate-status-phase]
   file_operations:
   - op: create
@@ -320,7 +335,22 @@ phases:
     why: The excluded-string scan reads only the front matter of the bundled skills' files (Q-55).
   - op: modify
     path: tests/unit/render/test_skills.py
-    why: Pin the Ponytail references and limit the "not authority" and STOP check to the phase skills (Q-61).
+    why: Pin the Ponytail references and limit the "not authority" and STOP check to the phase skills (Q-61); name that test for the phase skills and give it the `## Next` assertion (Q-62).
+  - op: modify
+    path: src/orqlet/adapters/render/skills.py
+    why: Remove the families mechanism that #41 merged; the file equals its content at a636b31 (Q-62).
+  - op: modify
+    path: src/orqlet/application/ports/instruction_adapter.py
+    why: Remove `ClientSkill.family_references` that #41 merged; the file equals its content at a636b31 (Q-62).
+  - op: modify
+    path: src/orqlet/application/usecases/workflow_sources.py
+    why: Remove the families loading and the sort that #41 merged, and say path order in the `load_skills` docstring (Q-62).
+  - op: modify
+    path: tests/unit/application/test_workflow_injection.py
+    why: Remove the narrowing of the BC-6 scan that #41 merged; the file equals its content at a636b31 (Q-62).
+  - op: modify
+    path: tests/unit/render/test_rendered_formats.py
+    why: Remove the narrowing of the BC-30 scan that #41 merged; the file equals its content at a636b31 (Q-62).
   - op: create
     path: tests/golden/claude-code/docs-2026-10/.claude/skills/ponytail/SKILL.md
     why: Golden output.
