@@ -15,15 +15,17 @@ Every packaged phase skill is person-started (A-19). The person keeps it that wa
 1. **`orqlet install`** is the one terminal setup command. It detects the clients and writes the user scope (ADR-002). It prepares no tool and uses no network (Q-60). `orqlet uninstall` reverses only what `install` recorded.
 2. **The entry skill `orqlet`** is a packaged workflow skill like the phase skills. It is rendered person-started for every client (A-19), and it is invoked as `/orqlet <dir>` in Claude Code, Cursor and Copilot, and `$orqlet <dir>` in Codex (A-38, evidence `client-integration-contracts.md` 7.2). Its steps:
    1. Run `orqlet status --root <dir> --json`. If `orqlet` is missing, tell the person the terminal command.
-   2. Act on the state:
+   2. Act on `next`, whose values and precedence `component.md` section 3 gives (Q-63, Q-64):
 
-      | State | Action |
+      | `next` | Action |
       |---|---|
-      | Global setup missing | Run `orqlet install --dry-run --json`, show the preview, and run `orqlet install --yes --json` after the person says yes |
-      | Not a repository | Stop there |
-      | Repository without `.orqlet/` | Run `orqlet init --root <top> --dry-run`, show it, and run it with `--yes` after the person says yes |
-      | Initialized | Run `orqlet upgrade --root <top> --dry-run` the same way, then `--yes` after the person's yes, then report status |
-      | Linked worktree (U-4) | Refuse with a message |
+      | any value, when a check did not run (exit 5 or `ok: false`) | Stop and report the checks that did not run; do not act on `next` (Q-72) |
+      | `install-global` (every client missing, or any client outdated) | Run `orqlet install --dry-run --json`, show the preview, and run `orqlet install --yes --json` after the person says yes |
+      | `none` outside a repository | Stop there |
+      | `init` (a repository without `.orqlet/`) | Run `orqlet init --root <top> --dry-run`, show it, and run it with `--yes` after the person says yes |
+      | `upgrade` (an initialized project at a lower or unknown version) | Run `orqlet upgrade --root <top> --dry-run` the same way, then `--yes` after the person's yes, then report status |
+      | `none` in an initialized project | Report status |
+      | `refuse-newer-global`, `refuse-linked-worktree` (U-4) or `refuse-home-is-work-tree` | Stop with a message (Q-63) |
 
    3. End with the next person-started command. It never starts a phase skill.
 3. **`orqlet status`** is a read-only command, and the only state source for the entry skill and the session-start hook (ADR-004). One use case answers both. Its fields and states are listed in `component.md` section 3. The `status` command uses `GitRunner` for the top level and for linked-worktree detection (`--git-dir` differs from `--git-common-dir`). The hook path starts no process (ADR-004 decision 5).

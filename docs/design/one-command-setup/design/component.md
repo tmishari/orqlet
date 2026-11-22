@@ -1,6 +1,6 @@
 # One-command setup: design brief and components
 
-Task `one-command-setup`. Class D3. Reads the accepted AS-IS file `docs/design/one-command-setup/as-is.md` and the ledger `docs/design/one-command-setup/questions.yaml` (Q-1 to Q-44, and Q-60).
+Task `one-command-setup`. Class D3. Reads the accepted AS-IS file `docs/design/one-command-setup/as-is.md` and the ledger `docs/design/one-command-setup/questions.yaml` (Q-1 to Q-44, and Q-60). The `status` contract in section 3 follows the answers given while it was implemented (Q-63 to Q-66, Q-69, Q-70, Q-72 to Q-76, Q-79 and Q-80), as Q-78 asks, and the hook registration rule follows Q-79 and Q-82.
 
 ## 1. Summary
 
@@ -53,7 +53,7 @@ Recommended approach:
 4. Output is a result line per client, in one of these states: `detected`, `already configured`, `installed`, `registered`, `host step` (a trust prompt, the Cursor User Rules step, an unverified surface or a documented gap), `conflict` and `failed`. The last two carry a recovery action. Then comes the invocation for each registered client.
 5. Exit status: 0 when everything is done; 1 when at least one client failed and the rest were applied; 3 when it refused because of a conflict on an owned or edited file, or an invalid root; 4 when it needs input (no supported assistant detected, or non-interactive without `--yes`); 2 for a usage error; 70 for an internal error. When a run both refuses and fails, 3 wins.
 6. `--dry-run` writes nothing, in the user scope, a project or the data directory. It creates no folder, changes no mode and starts no process. Missing roots and folders appear as `will create`, and wide folder modes as `will tighten` (ADR-002 decision 1a). A declined interactive preview behaves the same. `--json` prints the existing envelope (A-14) with no banner, colour or icons.
-7. The preview and the result name each root's resolved path (ADR-002 decision 1a), and the `orqlet` that `PATH` resolves to, flagged when it is not the running executable or when an empty, `.` or relative `PATH` element comes before it (ADR-004 decision 7).
+7. The preview and the result name each root's resolved path (ADR-002 decision 1a), and the `orqlet` that `PATH` resolves to, flagged when it is not the running executable, when an unsafe `PATH` element is searched before it or holds it, or when it is absent (ADR-004 decision 7).
 8. Unfinished user-scope changes from interrupted runs (every journal later than the change recorded in the manifest) are named in the preview. Their recorded writes are adopted, oldest first, when their hashes match, whether or not they were marked done, and the run plans again. Planning reads these journals read-only; only the consented apply marks them superseded (ADR-002 decision 4). The preview also names the backups that retention will prune (Q-40).
 9. When `user/manifest.json` holds a workflow version above the running Orqlet's, `install` refuses with exit 3 unless `--allow-weaker` is given, as `upgrade` does (ADR-002 decision 2).
 
@@ -61,18 +61,32 @@ Recommended approach:
 
 **`orqlet rollback --user <change-id> [--allow-weaker] [--yes] [--dry-run] [--json]`** undoes one user-scope change. It works from any directory, and `--user` with `--root` or `--project-id` is a usage error (exit 2). It writes `user/manifest.json` last. Otherwise it behaves as today's `rollback`, with the same exit statuses (ADR-002 decision 5).
 
-**`orqlet status [--root DIR] [--json]`** reads only. It creates nothing, not even the data directory (K-11). The JSON `data` holds:
+**`orqlet status [--root DIR] [--json]`** reads only. It creates nothing, not even the data directory (K-11). The JSON `data` has this shape, and every value is from a closed set or follows the representability rules (Q-63 to Q-66, Q-79, Q-80):
+
+```json
+{
+  "global": {"clients": {"claude-code": "…", "codex": "…", "cursor": "…", "copilot": "…"}, "host_steps": ["…"]},
+  "orqlet_on_path": "…",
+  "location": "…",
+  "top_level": "…",
+  "top_level_reason": null,
+  "versions": {"installed": "…", "project": null},
+  "next": "…"
+}
+```
 
 | Field | Values |
 |---|---|
-| `global` | per client: `missing`, `configured`, `outdated` (manifest workflow version below the installed one) or `newer` (manifest workflow version above the installed one, for example after a downgrade), plus `host_steps` |
-| `orqlet_on_path` | `same`, `different` or `absent` |
-| `location` | `not-a-repository`, `repository`, `linked-worktree` or `initialized` |
-| `top_level` | the real path, or null with the reason `path-not-representable` (ADR-001 decision 3) |
-| `versions` | `installed`, and `project` or null |
-| `next` | one value of a closed set: `install`, `init`, `upgrade`, `none`, `refuse-linked-worktree`, `refuse-newer-global` (the global setup is newer than this Orqlet: the entry skill stops and tells the person to update the CLI) |
+| `global.clients` | one key per render client id, each `missing`, `configured`, `outdated` or `newer`, read from `user/manifest.json` (schema `orqlet.user-manifest/v1`). A client that owns no entry is `missing`. Otherwise it is `newer` when any owned entry's workflow version is above the installed one (for example after a downgrade), else `outdated` when any is below, else `configured`. A manifest that does not parse or validate, is a link or exceeds 1 MiB, or a data directory that exists but cannot be checked, gives `missing` for every client and a check not run (Q-65, Q-74) |
+| `global.host_steps` | a list of closed codes. `status` emits only `unsafe-path-element`: an empty, `.` or relative `PATH` element, or on POSIX a folder writable by others, that is searched before the resolved `orqlet` or holds it (Q-66, Q-79). Later commands may add codes |
+| `orqlet_on_path` | `same`, `different` or `absent`. `different` also covers a running program that cannot be identified, such as `python -m orqlet`, so it does not prove that another `orqlet` is installed (Q-76) |
+| `location` | `not-a-repository`, `repository`, `initialized-project`, `linked-worktree` or `home-is-work-tree` (the top level of the work tree is the home folder or one of its ancestors). Anything at `.orqlet` that is not a folder gives `initialized-project` with a null project version and a check not run (Q-75) |
+| `top_level` | the real path, or null |
+| `top_level_reason` | `path-not-representable` when the real path breaks the rules of ADR-001 decision 3, which also refuse the invisible characters of Q-69 and Q-70 (variation selectors, Hangul fillers, the Braille blank and unassigned code points, among others), otherwise null. A top folder name that Git output cannot carry (a line feed, or bytes that are not UTF-8) gives `not-a-repository`, a null `top_level`, a null reason and a check not run (Q-80) |
+| `versions` | `installed`, the packaged workflow release version, and `project`, the workflow version of `.orqlet/workflow.lock` or null |
+| `next` | one value of a closed set, chosen by the first rule that matches (Q-64): `refuse-newer-global` when any client is `newer` (the entry skill stops and tells the person to update the CLI); `refuse-linked-worktree`; `refuse-home-is-work-tree`; `install-global` when every client is `missing` or any is `outdated`; `none` outside a repository; `init` in a repository; in an initialized project, `upgrade` when the project version is null or below the installed one, otherwise `none` |
 
-The top level and a linked worktree are found with `GitRunner` (`rev-parse --show-toplevel`, `--git-dir`, `--git-common-dir`). It exits 0, or 5 when a check could not run (A-30).
+The top level and a linked worktree are found with `GitRunner` (`rev-parse --show-toplevel`, `--git-dir`, `--git-common-dir`). When `PATH` searches an unsafe element before `git` is found, its own element included, or anywhere when `git` is not found, Git is not run: the location is `not-a-repository` and the check is not run (Q-73). `status` exits 0, or 5 when a check could not run (A-30); the envelope then has `ok: false`, the reasons under `not_run`, and a `next` computed from the fallback location. On Windows, whether the process launch also searches the current folder before `PATH` is unknown, so this skip does not cover that case (Q-73). A consumer, the entry skill or the session-start hook, stops when a check did not run (exit 5 or `ok: false`) and does not act on `next` then (Q-72). The human output prints the same fields as plain lines. The shape and the values above are the output of the command; the hook's own mode has no `PATH` check and prints only its fixed template (ADR-004).
 
 **`orqlet hook <event> --client C`** has the events `session-start` and `post-edit`. The client starts it, not a person. It reads one JSON payload from standard input, capped at 1 MiB, and writes the client's documented output object to standard output. It always exits 0, except 2 for a usage error, so a hook never blocks. It starts no process (ADR-004).
 
@@ -165,7 +179,7 @@ flowchart LR
 | Status use case | application | Two modes. `full` (the `status` command) reads the user manifest, uses `Vcs` for the top level and worktree, and reads `.orqlet/` and versions. `hook` (session start) finds the root by an upward `.orqlet/` search through the FileSystem port and starts no process. |
 | Hook use case | application | Validate the payload (`hook_payload` contract: fields and sizes only), resolve and confine paths through the FileSystem port, apply the duplicate-run filter, and fill the fixed templates. |
 | Client detection | adapters | Report the fixed indicators, names only. |
-| Executable locator | adapters | Resolve `orqlet` on `PATH`, report the running executable, and list empty, `.` or relative `PATH` elements. It starts no process. |
+| Executable locator | adapters | Resolve a bare name on `PATH`, compare the match with the running executable, and tell whether an unsafe `PATH` element (empty, `.` or relative, or on POSIX writable by others) is searched before the match or holds it. It starts no process. |
 | Composite user-scope file system | adapters | Map prefixes to validated roots, enforce the per-root writable sub-paths and refuse links. Supplied by the `UserRootInspector` port: read-only while planning, writable only from `prepare` after consent. |
 | User journal and backup store | adapters | Implement `ChangeJournal` and `BackupStore` in the `user` namespace, recording owner sets and JSON entry hashes, and create every journal and backup file with mode 0600. |
 | Client adapters (four) | adapters | Render the same skills, agents and guidance for `RenderScope.project` and `RenderScope.user`, and, in user scope, their own hook entries as entry objects. They stay independent of each other (ARCH-003 as amended). |
@@ -176,7 +190,7 @@ Interfaces:
 - `UserHome`: an application contract value holding the home directory as a string, with no `pathlib` or `os` import (`pyproject.toml:105-112`). The interface fills it from `Path.home()`.
 - `ClientDetector.detect(home: UserHome) -> tuple[DetectedClient, ...]`
 - `UserRootInspector.inspect(home: UserHome) -> Mapping[prefix, RootState]`, where `RootState` holds the resolved real path, whether it exists, any refusal reason, whether it needs tightening, and any platform warning. The port's `planning_fs(states) -> FileSystem` gives the read-only composite used to plan. Its `prepare(states) -> FileSystem`, called by the use case only after consent, creates and tightens folders, validates again, opens each root, refuses when an opened root differs from its pinned path, and returns the writable composite that `apply_plan` receives as P2 (ADR-002 decision 1a). The user-scope adapter implements the port.
-- `ExecutableLocator.locate(name) -> LocatedExecutable` (the resolved path or none, whether it is the running executable, and the unsafe `PATH` elements before it)
+- `ExecutableLocator.locate(name) -> ExecutableLookup` (`on_path`: `same`, `different` or `absent`, and `unsafe_element_searched`: whether an unsafe element is searched before the match or holds it), and `ExecutableLocator.searches_unsafe(name) -> bool` (whether an unsafe element is searched before `name` is found, its own element included, or anywhere when it is absent; Q-73, Q-79)
 - `UserScopeFileSystem(roots: Mapping[prefix, validated root])`, which implements `FileSystem`
 - `RenderRequest.scope: RenderScope`; a `user` request carries no model settings, conventions, integrations, scoped rules or resources
 - `StatusReport`, shared by the status command and the hook
@@ -197,12 +211,13 @@ The domain stays free of home paths, processes and terminal output (ARCH-001).
 | A hook entry matches Orqlet's command but has no manifest record, or a different hash | `conflict` for that entry only; the client's other files and entries are still written; exit 3 | Remove the entry by hand, or leave it; rerun |
 | `settings.json` or `hooks.json` is not strict JSON | `conflict` for the hook entry; the skills are still written | Fix the file; rerun |
 | A path escapes its root, or is a link | refused write; exit 3 | Remove the link; rerun |
-| `orqlet` is not on `PATH`, or `PATH` resolves to another `orqlet` | `host step`: hooks cannot start, or would start another executable | Add the uv or pipx tool directory to `PATH`, or remove the other copy |
+| `orqlet` is not on `PATH` | No hook registration for any client; `host step`: hooks cannot start (Q-82) | Add the uv or pipx tool directory to `PATH`; rerun |
+| `PATH` resolves to another `orqlet` | `host step`: hooks would start another executable | Remove the other copy |
 | Codex hook trust is not given yet | `host step`: review `/hooks` in the Codex CLI | Trust the hook in the client |
 | Cursor User Rules not set | `host step`, with the saved text path | Paste the text in Customize, then Rules |
 | Interrupted apply, once or several times in a row | The manifest is unwritten. The next `install` names every pending change id and warns that applying prunes them, adopts their earlier writes by recorded hash, plans again, marks them superseded only when it applies, converges and writes the manifest last | None needed. To undo the interrupted change instead, decline the preview and run `orqlet rollback --user <id>` first |
-| Empty, `.` or relative `PATH` element before the resolved `orqlet` | No hook registration; `host step` naming the risk | Remove the element from `PATH`; rerun |
-| `user/manifest.json` holds a workflow version above the running Orqlet's | `install` refuses; exit 3; `status` shows `global: newer` | Update the Orqlet CLI, or pass `--allow-weaker` |
+| An unsafe `PATH` element (empty, `.` or relative, or on POSIX writable by others) searched before the resolved `orqlet` or holding it | No hook registration; `host step` naming the risk (Q-79) | Remove the element from `PATH`, or tighten the folder; rerun |
+| `user/manifest.json` holds a workflow version above the running Orqlet's | `install` refuses; exit 3; `status` shows the client as `newer` in `global.clients` | Update the Orqlet CLI, or pass `--allow-weaker` |
 | A prefix with recorded entries now resolves to a different real root (for example `CODEX_HOME` changed) | `install`, `uninstall` and `rollback --user` refuse; exit 3; the variable is named | Run `uninstall --client C` with the old value, then `install` with the new one |
 | `ORQLET_DATA_DIR` outside home on Windows | Allowed; the `install` and `uninstall` previews warn that its access is not checked, and `rollback --user` repeats it (Q-41) | Move the data directory under home, if wanted |
 | A `status` path that holds a control, bidirectional or format character, or exceeds 200 characters | null with `path-not-representable`; the entry skill stops | Run the command in a terminal |
@@ -238,10 +253,14 @@ The domain stays free of home paths, processes and terminal output (ARCH-001).
   - not a repository;
   - a repository without Orqlet;
   - a linked worktree;
+  - a home folder inside a work tree;
   - initialized with the same version;
-  - initialized with a different version.
+  - initialized with a different version;
+  - something at `.orqlet` that is not a folder (a check not run, Q-75);
+  - Git skipped because `PATH` searches an unsafe element first (a check not run, Q-73);
+  - a data directory that exists but cannot be checked (every client `missing` and a check not run, Q-74).
 
-  It also reports `global` as `missing`, `configured`, `outdated` or `newer`, and `orqlet_on_path` correctly, for each of these setups. With `global: newer`, `next` is `refuse-newer-global`. With a hostile lock or path (instruction text in a version, control or bidirectional characters in a path, an over-long path), `status --json` gives null versions, and null paths with `path-not-representable`, never an altered path. With a lock over 1 MiB or a lock that is a link, it reports no project version. The entry skill stops on a null `top_level` (ADR-001 decision 3).
+  It also reports each client in `global.clients` as `missing`, `configured`, `outdated` or `newer`, and `orqlet_on_path` correctly, for each of these setups. With a client `newer`, `next` is `refuse-newer-global`; with one `outdated`, `install-global` (Q-64). With a hostile lock or path (instruction text in a version, control or bidirectional characters in a path, an over-long path), `status --json` gives null versions, and null paths with `path-not-representable`, never an altered path. With a lock over 1 MiB or a lock that is a link, it reports no project version. The entry skill stops on a null `top_level` (ADR-001 decision 3).
 - BC-12: The entry skill `orqlet` is rendered person-started for every client (`disable-model-invocation`, `allow_implicit_invocation: false`). It uses `status`, then `install`, `init` or `upgrade` with `--dry-run`, and then `--yes` only after the person's yes. It never starts a phase skill (R-4, R-9, Q-34).
 - BC-13: Phase skills keep their person-started rendering and their STOP and Next sections unchanged (R-9, Q-22, A-19, A-21).
 - BC-14: `hook session-start` behaves as follows (R-8, Q-26, ADR-004):
@@ -284,7 +303,7 @@ The domain stays free of home paths, processes and terminal output (ARCH-001).
 - BC-35: When one client is refused (exit 3) and another client fails (exit 1), `install` exits 3 (section 3).
 - BC-36: `uninstall` with no `--client` acts on every owner recorded in `user/manifest.json`, including a client no longer detected. With no recorded owner, it reports `nothing to remove` and exits 0 (ADR-002 decision 5).
 - BC-37: After a fourth successful user-scope change, only the backups and journals of the last 3 remain, and superseded ones are pruned. The preview named them (Q-40).
-- BC-38: With an empty, `.` or relative `PATH` element before the folder of the resolved `orqlet`, `install` registers no hook and reports a `host step`; `status` reports the same (ADR-004 decision 7).
+- BC-38: With an unsafe `PATH` element (empty, `.` or relative, or on POSIX writable by others) searched before the resolved `orqlet` or holding it, `install` registers no hook and reports a `host step`, and `status` reports `unsafe-path-element`. With no `orqlet` on `PATH`, `install` registers no hook and reports a `host step`, and `status` reports `orqlet_on_path: absent` (ADR-004 decision 7, Q-79, Q-82).
 - BC-39: With a fake Windows platform and an `ORQLET_DATA_DIR` outside home, `install` and `uninstall` proceed, and their previews carry the unchecked-access warning, including its integrity part (Q-41).
 - BC-40: Exit statuses not covered above:
   - `install` and `uninstall`, non-interactive without `--yes`, exit 4 and write nothing;

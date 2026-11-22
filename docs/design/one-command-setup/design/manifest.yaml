@@ -39,7 +39,7 @@ expected_changes:
     identity: "command line: orqlet install, uninstall, status and hook (no extractor covers the command line)"
     expected_after:
       kind: declaration
-      value: "install and uninstall [--client C]... [--yes] [--dry-run] [--json] (install also [--allow-weaker], refusing with exit 3 without it when the user manifest's workflow version is newer) with exit 0, 1, 2, 3, 4 or 70 (uninstall defaults to the recorded owners and never exits 4 for no detected assistant); status [--root DIR] [--json], read-only, exit 0 or 5; hook session-start|post-edit --client C, payload on stdin, always exit 0 except 2 for usage. Output and states as in component.md section 3."
+      value: "install and uninstall [--client C]... [--yes] [--dry-run] [--json] (install also [--allow-weaker], refusing with exit 3 without it when the user manifest's workflow version is newer) with exit 0, 1, 2, 3, 4 or 70 (uninstall defaults to the recorded owners and never exits 4 for no detected assistant); status [--root DIR] [--json], read-only, exit 0 or 5, with JSON data global{clients, host_steps}, orqlet_on_path, location, top_level, top_level_reason, versions{installed, project} and next, where location is not-a-repository, repository, initialized-project, linked-worktree or home-is-work-tree and next is install-global, init, upgrade, none, refuse-newer-global, refuse-linked-worktree or refuse-home-is-work-tree (Q-63 to Q-66, Q-79, Q-80); hook session-start|post-edit --client C, payload on stdin, always exit 0 except 2 for usage. Output and states as in component.md section 3."
     verification: manual
   - id: EC-2
     surface: public-api
@@ -108,13 +108,13 @@ expected_changes:
 artifacts:
   - {id: D-1, kind: c4-context, path: docs/design/one-command-setup/design/context.md, covers: "Orqlet, the developer, the four assistants, user client folders and code host, with trust boundaries TB-1 and TB-3", sha256: a45782f35b499e7e4ea8e99d55789e17088e9b2a34d2130b182ba7fb56e417bb}
   - {id: D-2, kind: c4-container, path: docs/design/one-command-setup/design/container.md, covers: "Where the new commands, use cases, adapters and workflow content sit in the layers", sha256: 90721a62908fb297cfb2ec18a91a79f69d5e1423a1bc08d3293baec0e88fd7da}
-  - {id: D-3, kind: c4-component, path: docs/design/one-command-setup/design/component.md, covers: "The design brief and the components with their interfaces", sha256: 509f39848df972a672155a636fb89f7dca4c383020fd7273df68a1f843369e44}
+  - {id: D-3, kind: c4-component, path: docs/design/one-command-setup/design/component.md, covers: "The design brief and the components with their interfaces", sha256: 3aa6db54c2fd5b7f1c7e73134522e053d18b7312073e685ec54429a00b91743d}
   - {id: D-4, kind: data-flow, path: docs/design/one-command-setup/design/data-flow.md, covers: "Install-time flow to user folders; session-time flow from hook payload to context", sha256: 58b25a0a6b0a255baa1ac43c8926e96e622a582be18129520038c9fe20d85117}
   - {id: D-5, kind: sequence, path: docs/design/one-command-setup/design/sequence.md, covers: "First setup and repository init, a normal session with hooks, recovery from a conflict", sha256: a33c114656afc2a1d461f51795e10c9f0d89cc600fd81e7d29983b082257a33f}
-  - {id: D-6, kind: adr, path: docs/design/one-command-setup/design/adr-001-install-command-entry-skill-and-status.md, covers: "Terminal install, person-started entry skill, read-only status", sha256: dd37a7501391ceed0e713d8da9190f2f5eb6de9ddb6196beba99eb697c3b8013}
-  - {id: D-7, kind: adr, path: docs/design/one-command-setup/design/adr-002-user-scope-root-journal-and-manifest.md, covers: "User-scope write root, journal and manifest", sha256: 0b890be14e93582429f978dcb938697aaa8e51f70be52ad6c65e6e6a6c832a43}
+  - {id: D-6, kind: adr, path: docs/design/one-command-setup/design/adr-001-install-command-entry-skill-and-status.md, covers: "Terminal install, person-started entry skill, read-only status", sha256: 6e8090d5ad69ef7f4eaa9899c4aafdec451390409cfceb210f304118f14942f9}
+  - {id: D-7, kind: adr, path: docs/design/one-command-setup/design/adr-002-user-scope-root-journal-and-manifest.md, covers: "User-scope write root, journal and manifest", sha256: cebc75c65fe6fce24b90a50e62802c680a42f02b72c8559f473fddc91b43ea4a}
   - {id: D-8, kind: adr, path: docs/design/one-command-setup/design/adr-003-copilot-client-adapter.md, covers: "Fourth client adapter for GitHub Copilot in VS Code", sha256: f763bb0985455103f43a8392e4fdd7e7212bb94b92814f6564dcc98be91d4144}
-  - {id: D-9, kind: adr, path: docs/design/one-command-setup/design/adr-004-advisory-native-hooks.md, covers: "Advisory session-start and post-edit hooks, once per client", sha256: 4325a150a453f18c1602ea2a1f702e0d6bbae376459f8c67fbd32e9bfccf90af}
+  - {id: D-9, kind: adr, path: docs/design/one-command-setup/design/adr-004-advisory-native-hooks.md, covers: "Advisory session-start and post-edit hooks, once per client", sha256: d94600fdcf8802e7b375f4b30bf7ba818005ec28956d1dec17892a29e68b7f26}
   - {id: D-10, kind: adr, path: docs/design/one-command-setup/design/adr-005-behavioural-foundation.md, covers: "One behavioural foundation and its delivery per client", sha256: 9e5c51e9ce4b010dec0647a71ef326fb49369916d1d83583aaa1fb93c789119d}
   - {id: D-11, kind: adr, path: docs/design/one-command-setup/design/adr-006-bundled-skills-and-tool-preparation.md, covers: "Bundled Ponytail skills; Graphify and tool preparation moved to a separate task (Q-60)", sha256: bf3151f13feb9a0e88ab22bb8738f4a55f61ad6224d341fab28876ec14f17217}
   - {id: D-12, kind: adr, path: docs/design/one-command-setup/design/adr-007-terminal-presentation.md, covers: "Terminal presentation of orqlet install", sha256: 57819e41031b80160ca84014ecbadf69e7e1653b5c8c059ad30515bef425e6cb}
@@ -170,6 +170,10 @@ reviews:
   - {role: security-reviewer, note: docs/design/one-command-setup/reviews/security-reviewer-design-r12.md}
   - {role: architecture-reviewer, note: docs/design/one-command-setup/reviews/architecture-reviewer-design-r13.md}
   - {role: security-reviewer, note: docs/design/one-command-setup/reviews/security-reviewer-design-r13.md}
+  - {role: architecture-reviewer, note: docs/design/one-command-setup/reviews/architecture-reviewer-design-r14.md}
+  - {role: security-reviewer, note: docs/design/one-command-setup/reviews/security-reviewer-design-r14.md}
+  - {role: architecture-reviewer, note: docs/design/one-command-setup/reviews/architecture-reviewer-design-r15.md}
+  - {role: security-reviewer, note: docs/design/one-command-setup/reviews/security-reviewer-design-r15.md}
 self_check:
   schema: orqlet.self-check/v1
   checked_against:
@@ -180,6 +184,7 @@ self_check:
       - "The design holds no phase list, build order or task list; the one ordering that must hold is constraint K-1 with its reason."
       - "ORQLET-NOMODEL-001 is kept: Orqlet starts no agent and calls no model; hooks and the entry skill only read state and run existing CLI commands."
       - "No consequential decision is open; Q-32 to Q-44 and Q-60 were asked and answered in this design session."
+      - "Amendment for Q-78: component.md section 3 and EC-1 give the status contract that P-4 shipped (src/orqlet/application/usecases/status.py at 9f5e93a), with the names of Q-63, the precedence of Q-64, the manifest reading of Q-65, the nesting of Q-66, the matching PATH element of Q-79 and the top level of Q-80; Q-69, Q-70 and Q-72 to Q-76 are cited where they fix a value. After review round 14 the person widened the amendment: ADR-001 decision 2 reads the next values (Q-63, Q-64, Q-72); ADR-004 decision 7, the executable locator of component.md section 4, the failures rows and BC-38 follow Q-79 and add no hook registration when orqlet is absent (Q-82); BC-11 and ADR-002 decision 2 use global.clients. The stop rule of the session-start hook is left to the plan amendment that answers Q-77."
       - "ORQLET-SAFE-001 and ORQLET-ARCH-003 are applied in their proposed amended form (Q-32, Q-33): the \"Proposed amendment text\" blocks of ADR-002 and ADR-003 are the draft wording; the amendments merge first (K-1)."
     applicable_standards:
       - "orqlet standards for --path src/orqlet/interface/cli/app.py --phase design --role architect: 9 rules, applicable_rules_hash 88e3e089ba38309c8acd8084933e2b62fc9109d1d8430c54e72f355cdff0c57d"
@@ -198,9 +203,11 @@ self_check:
     - {what: "Input check of the phase contract on the AS-IS file", how: "orqlet validate as-is passed; gate status gave ORQ-I394 for design and plan, ORQ-I393 and ORQ-W390 (base_revision) only; the one commit since e9b0683 is the signed acceptance commit 8994354 touching as-is.md and questions.yaml, and the person confirmed the approval stays valid; git diff --quiet 8994354 on as-is.md and questions.yaml exited 0", result: pass}
     - {what: "Ledger after the new questions", how: "orqlet validate ledger docs/design/one-command-setup/questions.yaml", result: pass}
     - {what: "Revision for Q-60 (Graphify and tool preparation leave the task)", how: "orqlet validate ledger and orqlet validate design on the revised files: PASS for the ledger; the design passes except ORQ-E366 for the review notes of the round in progress", result: pass}
+    - {what: "Input check for the Q-78 amendment", how: "orqlet validate as-is passed; orqlet gate status one-command-setup at 9f5e93a gave ORQ-W390 (base_revision of as-is, design and plan, the accepted squash-merge case of Q-49) and ORQ-I393 only; orqlet standards for --phase design --role architect on usecases/status.py (11 rules, bc1252032115f9ac84ae8d7540cee28d98d7e69f3dd74ea43f9a7b5691feaa38) and commands/status.py (9 rules, 88e3e089ba38309c8acd8084933e2b62fc9109d1d8430c54e72f355cdff0c57d) lists no rule outside standards_applied", result: pass}
+    - {what: "Validation of the Q-78 amendment", how: "orqlet validate ledger docs/design/one-command-setup/questions.yaml: PASS; orqlet validate design docs/design/one-command-setup/design/manifest.yaml: PASS with change class D3 before the review entries were added, and ORQ-E366 only for the notes of the review round in progress", result: pass}
     - {what: "No command found in a project file was run", how: "only orqlet gate, validate, standards, evidence and models commands, read-only git commands, the person-approved uv run python -c for ledger keys, and help output of orqlet commands ran", result: pass}
   unverified:
     - "No native client, hook or skill installation was executed; every client contract rests on the stored official pages (U-1, U-2, U-5)."
     - "Official user-level locations for Copilot personal agents and instruction files were not found in the evidence."
     - "Terminal glyph and width behaviour was not rendered (U-6, U-7)."
-  questions: ["Q-32", "Q-33", "Q-34", "Q-35", "Q-36", "Q-37", "Q-38", "Q-39", "Q-40", "Q-41", "Q-42", "Q-43", "Q-44", "Q-60"]
+  questions: ["Q-32", "Q-33", "Q-34", "Q-35", "Q-36", "Q-37", "Q-38", "Q-39", "Q-40", "Q-41", "Q-42", "Q-43", "Q-44", "Q-60", "Q-78", "Q-82"]
