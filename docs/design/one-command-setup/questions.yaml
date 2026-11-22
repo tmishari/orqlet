@@ -1788,7 +1788,17 @@ questions:
   - A design amendment later in the task
   blocks:
   - design
-  status: open
+  status: answered
+  answer:
+    value: 'A design amendment before P-5, made by the person''s request on 9f5e93a: component.md section
+      3 and design/manifest.yaml EC-1 give the status contract that P-4 shipped. Locations not-a-repository,
+      repository, initialized-project, linked-worktree, home-is-work-tree; next install-global, init,
+      upgrade, none, refuse-newer-global, refuse-linked-worktree, refuse-home-is-work-tree; JSON data
+      global{clients, host_steps}, orqlet_on_path, location, top_level, top_level_reason, versions{installed,
+      project}, next (Q-63 to Q-66, Q-79, Q-80).'
+    answerer: tmishari
+    time: '2026-11-22T14:11:00+00:00'
+    scope: task
 - id: Q-79
   key: 6c5bf72e45c9173683348809c9d1dbebe78cded341965d8cce347d99eecc20ac
   subject: The PATH folder that holds orqlet
@@ -1860,4 +1870,33 @@ questions:
   blocks:
   - plan
   status: open
+- id: Q-82
+  key: 5c5521135906464051c4480711912c2a90698a04beba796356b83f9a2a8161c1
+  subject: Hook registration when orqlet is not on PATH
+  raised_by: Cursor
+  phase: design
+  category: requirement
+  text: locate('orqlet') reports absent with no unsafe element even when PATH holds one, while a bare
+    orqlet started later by a client could resolve only through it (security review of P-4, round 6,
+    F-1). ADR-004 decision 7 names no rule for an absent orqlet. Does install register a hook then?
+  why: The hook runs the bare orqlet, and an unsafe element could make a client run an orqlet from
+    an untrusted folder.
+  evidence_refs:
+  - docs/design/one-command-setup/reviews/security-reviewer-P-4-r6.yaml
+  - src/orqlet/adapters/scan/executables.py
+  - docs/design/one-command-setup/design/adr-004-advisory-native-hooks.md
+  options:
+  - Register no hook when orqlet is absent, and report a host step
+  - Report the unsafe element in status when orqlet is absent
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: 'Register no hook for any client when orqlet_on_path is absent, whatever PATH holds, and
+      report a host step. ADR-004 decision 7, section 3 and BC-38 say so; in the plan, P-10 registers
+      no hook then, P-5 pins the absent value that P-10 reads, and P-6 accepts a change with no hook
+      entry for a client.'
+    answerer: tmishari
+    time: '2026-11-22T14:58:00+00:00'
+    scope: task
 conflicts: []
