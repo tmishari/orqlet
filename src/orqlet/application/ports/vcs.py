@@ -91,9 +91,27 @@ class TreeChange:
     new_oid: str  # the object id on the new side; all zeros for a deletion
 
 
+@dataclass(frozen=True, slots=True)
+class Worktree:
+    """Where the work tree and its Git folders are, as real paths."""
+
+    top_level: str
+    git_dir: str
+    common_dir: str
+
+    @property
+    def linked(self) -> bool:
+        """A linked worktree (`git worktree add`) has its own Git folder below the common one."""
+        return self.git_dir != self.common_dir
+
+
 class Vcs(Protocol):
     def state(self) -> RepoState:
         """Classify the directory: no repository, unborn (empty or not) or with commits."""
+        ...
+
+    def worktree(self) -> Worktree | None:
+        """The work tree that holds the directory; `None` outside a repository."""
         ...
 
     def head_commit(self) -> str | None:

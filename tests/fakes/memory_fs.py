@@ -51,6 +51,9 @@ class MemoryFileSystem:
             raise NotARegularFile(str(path))
         return self._files[str(path)]
 
+    def read_prefix(self, path: CanonicalPath, limit: int) -> bytes:
+        return self.read_bytes(path)[:limit]
+
     def write_atomic(self, path: CanonicalPath, data: bytes) -> None:
         self._refuse_links(path)
         kind = self.kind(path)

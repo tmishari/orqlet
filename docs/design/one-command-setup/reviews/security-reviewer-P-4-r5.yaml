@@ -1,0 +1,96 @@
+schema: orqlet.review-result/v1
+task: one-command-setup
+phase: P-4
+role: security-reviewer
+round: 5
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: 0420c9602e3cad718017390daecff5aac1e2f990c30b3bf4971fc0f50ac9b30d
+    design: fb35bfb38f9778269ac1dc5dee193b30da4bf7bc3f9f0337142d97801577168e
+    evidence_inputs: 612b47d3dd70e4580932b162fda1fc2ea85533b3421fe3e23cdc9aaf46c9038b
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 3371f001fc6cc201ac909aa5d6f333b22bc738ff0b42fa6e588aa7b177797c4b
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: ef7a9945927b3157a0c99c41baa3af842e1346b679767bddfa782d101932d610
+  merge_base: 0854c7f2ef326fdb4ca41fd7ff15f70d769fb034
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- 'Same client as the Coder (cursor): independence I1, below the I2 a D3 change requires; the verdict is NOT_RUN.'
+- The reviewer's own conclusion was no blocking finding.
+- Round 5 of P-4. It was started as a typed subagent with the packet path one-command-setup-P-4-c56259b1 as its only prompt; that the context is fresh is
+  the Coder's claim. The packet's diff is against main 0854c7f and holds P-4 only.
+- 'The reviewer''s session had no shell: no quote digest and no git. The Coder wrote this record from its returned text; its quote evidence is given as
+  absence records naming the packet path and lines.'
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+applicability:
+  examined:
+  - the source part of diff.patch
+  - local_fs.py, vcs_git.py, git_runner.py, subprocess_runner.py, environment.py, yaml_loader.py, executables.py
+  - Q-73, Q-79 and the design files
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: security
+  claim: On Windows every absolute PATH element counts as safe and the PATHEXT order may differ from how the launch resolves a bare git, so the Q-73 and
+    Q-79 guards there cover only empty and relative elements.
+  suggested_action: Record it as a known limit, or mirror the launch's resolution for git on Windows.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: security
+  claim: On POSIX a missing, group-writable or foreign-owned absolute element counts as safe; inside the single-user threat model.
+  suggested_action: No change for P-4.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: security
+  claim: top_level follows the repository's own core.worktree, so a repository delivered with its .git folder chooses the printed path and the folder whose
+    lock is read; nothing checks that the root lies at or below it.
+  suggested_action: Consider refusing a top_level that does not hold the resolved root, as a check not run.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: secrets, hostile content, Git, process and files, dependencies
+    how: read and pattern search
+    result: pass
+  - what: running the checks and quote digests
+    how: no shell
+    result: not-run

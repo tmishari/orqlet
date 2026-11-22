@@ -1,0 +1,132 @@
+schema: orqlet.review-result/v1
+task: one-command-setup
+phase: P-4
+role: architecture-reviewer
+round: 6
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: f5296d9049a4437f09ad68c0e9fa8e6da7c6909c1cad46f2ef332c4a373cdfe4
+    design: fb35bfb38f9778269ac1dc5dee193b30da4bf7bc3f9f0337142d97801577168e
+    evidence_inputs: cd70e69769b52c9bb64ff9de1ad4bf2693b31551743e99e2362ee2805f93b0dd
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 3371f001fc6cc201ac909aa5d6f333b22bc738ff0b42fa6e588aa7b177797c4b
+    reviewer_definition: 83e52f1a68fceddc7beb1d83654661fd34a1e3b3028c4fcc3dd7b6dadd8f3463
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: d46c05ca43cf6c1b82af483045a5f91db13aebe9055083684c7de66b925adaf7
+  merge_base: 0854c7f2ef326fdb4ca41fd7ff15f70d769fb034
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: 751953d100777e7ad1ae8ea41d8f096972ff2d2818b84213b87d027c1a3f9beb
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- 'Same client as the Coder (cursor): independence I1, below the I2 a D3 change requires (ORQLET-MODEL-002); the verdict is NOT_RUN.'
+- The reviewer's own verdict was PASS. The Coder then ran tools/export_schemas.py --check and tools/build_manifest.py --check (exit 0) and added them to
+  the test record.
+- Round 6 of P-4. It was started as a typed subagent with the packet path one-command-setup-P-4-eccfe7d7 as its only prompt; that the context is fresh is
+  the Coder's claim. The packet's diff is against main 0854c7f and holds P-4 only.
+- 'The reviewer''s session had no shell: no quote digest and no git. The Coder wrote this record from its returned text; its quote evidence is given as
+  absence records naming the packet path and lines.'
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- Non-blocking findings of this round are follow-ups for the person and later phases, not changes to P-4.
+applicability:
+  examined:
+  - the full diff
+  - plan P-4
+  - the design manifest
+  - ADR-001
+  - component.md sections 3 and 6
+  - container.md
+  - the Git, process and file system adapters
+  - ci.yml
+  - README.md
+  - the rules file
+  - the test and knowledge records
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: architecture
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-4-eccfe7d7/snapshot/docs/design/one-command-setup/design/component.md lines 70-73
+    - one-command-setup-P-4-eccfe7d7/snapshot/docs/design/one-command-setup/design/manifest.yaml line 42
+    method: compared the design with the code
+    revision: 0854c7f2ef326fdb4ca41fd7ff15f70d769fb034
+  claim: The design still gives the old status names, no top_level_reason and no global nesting; Q-78 is open.
+  suggested_action: Close Q-78 with a design amendment before P-5.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: finding
+  severity: non-blocking
+  category: docs
+  evidence:
+  - kind: absence
+    searched:
+    - README.md
+    method: searched the Status list and the command table for status
+    revision: 0854c7f2ef326fdb4ca41fd7ff15f70d769fb034
+  claim: README.md says its Status list is current but lacks status until P-11 (plan.yaml line 1882).
+  suggested_action: Have the person confirm the README stays stale until P-11.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: finding
+  severity: non-blocking
+  category: architecture
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-4-eccfe7d7/snapshot/src/orqlet/adapters/fs/local_fs.py lines 168-172
+    - one-command-setup-P-4-eccfe7d7/snapshot/src/orqlet/application/usecases/status.py lines 191-193
+    method: read both
+    revision: 0854c7f2ef326fdb4ca41fd7ff15f70d769fb034
+  claim: LocalFileSystem._lstat lets PermissionError escape the port, and the status use case catches OSError in three places.
+  suggested_action: Wrap OS errors in FileSystemError in the adapter in a follow-up.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: standards
+  claim: The CI schema-export check and the platform matrix were not run.
+  suggested_action: Run the schema-export check before the pull request and let CI cover the matrix.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+  checks:
+  - what: scope, layers, contracts, knowledge record
+    how: read
+    result: pass
+  - what: running the checks and quote digests
+    how: no shell
+    result: not-run

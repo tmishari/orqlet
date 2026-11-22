@@ -9,6 +9,7 @@ from orqlet.application.ports.vcs import (
     TreeChange,
     TreeFile,
     VcsError,
+    Worktree,
     check_exclusions,
     check_ref_name,
     is_excluded,
@@ -39,8 +40,12 @@ class FakeVcs:
         staged_tree: tuple[str, dict[str, bytes]] | None = None,
         refs: dict[str, str] | None = None,
         ranges: dict[tuple[str, str], tuple[CommitSummary, ...]] | None = None,
+        worktree: Worktree | None = None,
+        worktree_error: str | None = None,
     ) -> None:
         self._state = state
+        self._worktree = worktree
+        self._worktree_error = worktree_error
         self._branch = branch
         self._tracked = tracked
         self._committed = dict(committed or {})
@@ -60,6 +65,11 @@ class FakeVcs:
 
     def state(self) -> RepoState:
         return self._state
+
+    def worktree(self) -> Worktree | None:
+        if self._worktree_error is not None:
+            raise VcsError(self._worktree_error)
+        return self._worktree
 
     def head_commit(self) -> str | None:
         return self._commits[0].commit_id if self._commits else None

@@ -15,6 +15,7 @@ from orqlet.application.ports.vcs import (
     TreeChange,
     TreeFile,
     VcsError,
+    Worktree,
     check_exclusions,
     check_ref_name,
 )
@@ -57,6 +58,29 @@ class GitVcs:
         if refs.stdout.strip() or files.stdout:
             return RepoState.UNBORN_NONEMPTY
         return RepoState.UNBORN_EMPTY
+
+    def worktree(self) -> Worktree | None:
+        """`rev-parse` prints one line per question; a relative Git folder is below the root.
+
+        A path that holds a line feed splits into more lines and is refused, so a line is never
+        taken for another field.
+        """
+        shown = self._git.run(
+            "rev-parse", "--show-toplevel", "--git-dir", "--git-common-dir", accept=(0, 128)
+        )
+        if shown.returncode == 128:
+            message = shown.stderr.decode("utf-8", errors="replace")
+            if _NOT_A_REPOSITORY in message:
+                return None
+            raise VcsError("git cannot tell where the work tree is")
+        try:
+            lines = shown.stdout.decode("utf-8").split("\n")
+        except UnicodeDecodeError as exc:
+            raise VcsError("the work tree path is not valid UTF-8") from exc
+        if len(lines) != 4 or lines[3] or not all(lines[:3]):
+            raise VcsError("unexpected git rev-parse output")
+        top, git_dir, common_dir = (os.path.realpath(self._root / line) for line in lines[:3])
+        return Worktree(top_level=top, git_dir=git_dir, common_dir=common_dir)
 
     def head_commit(self) -> str | None:
         result = self._git.run("rev-parse", "--verify", "--quiet", "HEAD", accept=(0, 1))

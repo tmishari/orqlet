@@ -1,0 +1,110 @@
+schema: orqlet.review-result/v1
+task: one-command-setup
+phase: P-4
+role: security-reviewer
+round: 4
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: c564fb8da08bbf54daa123ce39a4c1b0303c2ff9b893f7535ef269205ad9ae9f
+    design: fb35bfb38f9778269ac1dc5dee193b30da4bf7bc3f9f0337142d97801577168e
+    evidence_inputs: 533813d78eb8c2dca8b94cfd9d31b024e99b9a0703d4a1c1a4be048e692e6de1
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 3371f001fc6cc201ac909aa5d6f333b22bc738ff0b42fa6e588aa7b177797c4b
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 18fa865032d65c108ea51aa5665d73eea6304b46affd31e7ca6eabdd2e888c13
+  merge_base: 0854c7f2ef326fdb4ca41fd7ff15f70d769fb034
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- 'Same client as the Coder (cursor): independence I1, below the I2 a D3 change requires; the verdict is NOT_RUN.'
+- The reviewer's own conclusion was no blocking finding.
+- Round 4 of P-4. It was started as a typed subagent with the packet path one-command-setup-P-4-12c05c07 as its only prompt; that the context is fresh is
+  the Coder's claim. The packet's diff is against main 0854c7f and holds P-4 only.
+- 'The reviewer''s session had no shell: no quote digest and no git. The Coder wrote this record from its returned text; its quote evidence is given as
+  absence records naming the packet path and lines.'
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+applicability:
+  examined:
+  - the source parts of diff.patch
+  - git_runner.py, vcs_git.py, executables.py, local_fs.py, the strict loader
+  - ADR-004 decision 7
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: security
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-4-12c05c07/snapshot/src/orqlet/adapters/scan/executables.py lines 31-46
+    - one-command-setup-P-4-12c05c07/snapshot/tests/unit/adapters/test_executables.py lines 224-231
+    method: read the locator and the test that pins it
+    revision: 0854c7f2ef326fdb4ca41fd7ff15f70d769fb034
+  claim: locate('orqlet') reports only unsafe elements strictly before the match, so an orqlet in dot, an empty or relative element, or an others-writable
+    folder gives no host step; searches_unsafe('git') counts the matching element.
+  suggested_action: Ask the person whether locate counts the matching element, and test a match in dot or an empty element.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: security
+  claim: core.worktree or a .git file can point top_level elsewhere; status then reads that folder's lock, bounded and read-only.
+  suggested_action: P-10 decides whether the entry skill acts on --root or top_level when they differ.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: security
+  claim: On Windows the process start may search the current folder for git before PATH; Q-73 records it as unknown.
+  suggested_action: Keep the unknown until a stored copy of the platform documentation is registered.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: security
+  claim: An absolute PATH element that does not exist or cannot be checked counts as safe, and group-writable folders are allowed by AC-3.
+  suggested_action: Keep in mind for install's host steps in P-6.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: Git launch, reads, parsing, output, read-only rule, secrets, dependencies
+    how: read
+    result: pass
+  - what: running the checks and quote digests
+    how: no shell
+    result: not-run

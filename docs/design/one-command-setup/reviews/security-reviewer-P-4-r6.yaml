@@ -1,0 +1,112 @@
+schema: orqlet.review-result/v1
+task: one-command-setup
+phase: P-4
+role: security-reviewer
+round: 6
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: f5296d9049a4437f09ad68c0e9fa8e6da7c6909c1cad46f2ef332c4a373cdfe4
+    design: fb35bfb38f9778269ac1dc5dee193b30da4bf7bc3f9f0337142d97801577168e
+    evidence_inputs: cd70e69769b52c9bb64ff9de1ad4bf2693b31551743e99e2362ee2805f93b0dd
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 3371f001fc6cc201ac909aa5d6f333b22bc738ff0b42fa6e588aa7b177797c4b
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 8eb9a70c07479d08df4f5e71137ee72bbbe1b43d409d8694751446c627a55f4f
+  merge_base: 0854c7f2ef326fdb4ca41fd7ff15f70d769fb034
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- 'Same client as the Coder (cursor): independence I1, below the I2 a D3 change requires; the verdict is NOT_RUN.'
+- The reviewer's own conclusion was no blocking finding.
+- Round 6 of P-4. It was started as a typed subagent with the packet path one-command-setup-P-4-eccfe7d7 as its only prompt; that the context is fresh is
+  the Coder's claim. The packet's diff is against main 0854c7f and holds P-4 only.
+- 'The reviewer''s session had no shell: no quote digest and no git. The Coder wrote this record from its returned text; its quote evidence is given as
+  absence records naming the packet path and lines.'
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- Non-blocking findings of this round are follow-ups for the person and later phases, not changes to P-4.
+applicability:
+  examined:
+  - MANIFEST and diff.patch
+  - the source hunks
+  - git_runner.py, subprocess_runner.py, environment.py, local_fs.py, bounded_read.py, yaml_loader.py, representable.py, runner.py
+  - the knowledge record
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: security
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-4-eccfe7d7/snapshot/src/orqlet/adapters/scan/executables.py lines 32-38
+    - one-command-setup-P-4-eccfe7d7/snapshot/tests/unit/adapters/test_executables.py lines 131-137
+    method: read the locator and the test that pins the absent case
+    revision: 0854c7f2ef326fdb4ca41fd7ff15f70d769fb034
+  claim: locate('orqlet') returns absent with no unsafe element even when PATH holds an unsafe element, while a later bare orqlet call could resolve only
+    through it; searches_unsafe('git') treats that case as unsafe.
+  suggested_action: Ask the person whether absent reports the unsafe element, or record that P-5 and P-10 register no hook when orqlet is absent.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: security
+  claim: A missing, group-writable or foreign-owned absolute PATH element counts as safe, as Q-73 and Q-79 word it.
+  suggested_action: Optional follow-up.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: security
+  claim: The home check is case-sensitive; on macOS a HOME spelled in another case could miss it. Unverified.
+  suggested_action: Consider normcase or device and inode numbers.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: security
+  claim: On Windows the launch of a bare git may search the current folder; the unknown recorded in Q-73.
+  suggested_action: None for P-4.
+  confidence: low
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: Git launch, reads, parsing, output, writes, secrets, dependencies
+    how: read and pattern search
+    result: pass
+  - what: running the checks and quote digests
+    how: no shell
+    result: not-run

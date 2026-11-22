@@ -1,0 +1,51 @@
+schema: orqlet.test-record/v1
+task: one-command-setup
+phase: P-4
+review_input:
+  schema: orqlet.review-input/v1
+  covers: [code_tests, plan]
+  components:
+    code_tests: f5296d9049a4437f09ad68c0e9fa8e6da7c6909c1cad46f2ef332c4a373cdfe4
+    plan: 3371f001fc6cc201ac909aa5d6f333b22bc738ff0b42fa6e588aa7b177797c4b
+  digest: b3dfcc4f4f167075bde3c9ffbc74a8fc45f788b35526c3bb87a9e8f35cc0f6b1
+  merge_base: 0854c7f2ef326fdb4ca41fd7ff15f70d769fb034
+verdict: NOT_RUN
+evidence_kind: claimed
+commands:
+  - id: ruff-check
+    exit_code: 0
+    summary: "uv run ruff check . (ci.yml:31, AGENTS.md:47-50, Q-54): All checks passed. The digest is of the whole captured output."
+    result_digest: 5b196eb3a6acb50d3fa398d04ca284985cc1ffec870e940264b00780bfd2c971
+  - id: ruff-format
+    exit_code: 0
+    summary: "uv run ruff format --check . (ci.yml:32, AGENTS.md:53-56): 748 files already formatted. The digest is of the whole captured output."
+    result_digest: c5b1ee269b036421f6865afd6093cdee9550d735b86c1c5cd90c861ba2220bf2
+  - id: mypy
+    exit_code: 0
+    summary: "uv run mypy (ci.yml:47, AGENTS.md:59-62): Success, no issues found in 409 source files. The digest is of the whole captured output."
+    result_digest: 3ae772eab8bcd7b14feb373a871729e1a336b8cb569b9ad292b1ab7291e940cb
+  - id: import-linter
+    exit_code: 0
+    summary: "uv run lint-imports (ci.yml:62): 6 contracts kept, 0 broken. The digest is of the whole captured output."
+    result_digest: 62f70f4f857613432051fc649f892ebd16933664b0fd00f293b25e36949b55a0
+  - id: pytest
+    exit_code: 0
+    summary: "uv run pytest (ci.yml:84, AGENTS.md:71-74) on the staged P-4 tree: 13543 passed, 1 skipped in 1534.36s; the skip is tests/integration/test_junction.py, Windows only. The Tester wrote the four unit files from AC-1 to AC-4 and Q-63 to Q-66 before the code ran against them; they found two defects that were fixed. The Coder wrote test_status_cli.py and test_vcs_worktree.py. The first full run failed two pinned-command tests; the person approved adding status there (Q-67). Review rounds 1 to 3 led to these approved changes, each with tests: the ReadOnlyFiles read_prefix bound (Q-68) with a spy and an adapter test; wider invisible-character refusal (Q-69, Q-70); the PATHEXT-only Windows lookup and the host PATHEXT; the AC-8 Literal sets; a refused permission as a check not run; a refused top level with a line feed; a version part over the int digit limit as null; Git not run when PATH searches an unsafe element first (Q-73), with a test whose committed git ran before the fix (checked by disabling the check); an unreadable data directory (Q-74) and a file at .orqlet (Q-75) as checks not run; an unsafe folder holding orqlet reported (Q-79); the POSIX-form locator tests skipped on Windows and the CLI tests given a safe PATH (code review, round 5). This run is after all of them. macOS and one Python only; the CI matrix was not run. The digest is of the whole captured output."
+    result_digest: 5a976fb08ac1ab1b3a906725ec2194595b924d5401397ff4a0c59564aa5ce35b
+  - id: gate-status-phase
+    exit_code: 5
+    summary: "uv run orqlet gate status one-command-setup --phase P-4 --head staged: NOT_RUN, exit 5, only because of ORQ-I393 (offline approval evidence) and ORQ-W390 base_revision on as-is, design and plan, which the person keeps valid (Q-49). No ERROR finding. The staged change holds the P-4 files plus tests/integration/test_validate_integrations_cli.py, and ports/filesystem.py, adapters/fs/local_fs.py, tests/fakes/memory_fs.py, tests/fakes/faulty_fs.py and questions.yaml, which are outside the plan's file list and approved by the person (Q-67, Q-68 and the answers that recorded Q-63 to Q-78; Q-77 and Q-78 are open and block the plan and the design of later phases, not P-4). AC-11 is recorded as not-run, as the plan expects offline. The digest is of the whole captured output."
+    result_digest: a089867157dfb1538dbc4e64d9b6685083f0a0b16b551577675a886d38c9758f
+acceptance_coverage:
+  - {ac: AC-1, check_ref: pytest, result: pass}
+  - {ac: AC-2, check_ref: pytest, result: pass}
+  - {ac: AC-3, check_ref: pytest, result: pass}
+  - {ac: AC-4, check_ref: pytest, result: pass}
+  - {ac: AC-5, check_ref: pytest, result: pass}
+  - {ac: AC-6, check_ref: pytest, result: pass}
+  - {ac: AC-7, check_ref: pytest, result: pass}
+  - {ac: AC-8, check_ref: pytest, result: pass}
+  - {ac: AC-9, check_ref: pytest, result: pass}
+  - {ac: AC-10, check_ref: pytest, result: pass}
+  - {ac: AC-11, check_ref: gate-status-phase, result: not-run}
+  - {ac: AC-12, check_ref: pytest, result: pass}

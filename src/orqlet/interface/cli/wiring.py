@@ -23,6 +23,7 @@ from orqlet.adapters.process.subprocess_runner import SubprocessRunner
 from orqlet.adapters.prompt.tty_prompter import TtyPrompter
 from orqlet.adapters.render.emit import YamlWriter
 from orqlet.adapters.render.renderers import PackagedRenderers
+from orqlet.adapters.scan.executables import PathExecutableLocator
 from orqlet.adapters.scan.python_scanner import PythonScanner
 from orqlet.adapters.scan.technology_scanners import (
     ContainerScanner,
@@ -34,11 +35,14 @@ from orqlet.adapters.scan.technology_scanners import (
 from orqlet.adapters.standards.pack_source import DirectoryPackSource
 from orqlet.adapters.system import SystemClock, UuidGenerator
 from orqlet.adapters.workflow_package import PackagedWorkflow
+from orqlet.application.contracts.user_scope import UserHome
 from orqlet.application.ports.documents import DocumentLoader
+from orqlet.application.ports.filesystem import FileSystemError
 from orqlet.application.ports.scanner import ProjectScanner, TechnologyScanner
 from orqlet.application.usecases.models_resolve import ModelsServices
 from orqlet.application.usecases.services import Services as LifecycleServices
 from orqlet.application.usecases.services import Stores
+from orqlet.application.usecases.status import GlobalSources, StatusServices
 from orqlet.application.usecases.validate_model_policy import ModelPolicyServices
 from orqlet.application.usecases.validation import ValidateServices
 
@@ -73,12 +77,55 @@ def technology_scanners() -> tuple[TechnologyScanner, ...]:
     )
 
 
+def resolve_data_directory() -> Path:
+    """Where the data directory is. Nothing is created, so `status` and the hooks can use it."""
+    override = os.environ.get(DATA_DIR_VARIABLE)
+    return Path(override) if override else Path(platformdirs.user_data_dir("orqlet"))
+
+
 def data_directory() -> Path:
     """Where journals and backups live: the user's data directory, never the repository."""
-    override = os.environ.get(DATA_DIR_VARIABLE)
-    directory = Path(override) if override else Path(platformdirs.user_data_dir("orqlet"))
+    directory = resolve_data_directory()
     directory.mkdir(parents=True, exist_ok=True)
     return directory
+
+
+def build_status_services(root: Path) -> StatusServices:
+    """Read-only services: no folder is opened for writing and none is created (K-11)."""
+    resolved_root = root.resolve(strict=True)
+    user_data, unreadable = _open_user_data(resolve_data_directory())
+    loader = StrictYamlLoader()
+    return StatusServices(
+        sources=GlobalSources(
+            user_data=user_data,
+            loader=loader,
+            installed=PackagedWorkflow().release.version,
+            user_data_unreadable=unreadable,
+        ),
+        vcs=GitVcs(SubprocessRunner(), resolved_root),
+        open_project=lambda top_level: LocalFileSystem(Path(top_level)),
+        executables=PathExecutableLocator(
+            os.environ.get("PATH", ""),
+            _running_executable(),
+            pathext=os.environ.get("PATHEXT"),
+        ),
+        home=UserHome(path=os.path.realpath(Path.home())),
+    )
+
+
+def _open_user_data(data: Path) -> tuple[LocalFileSystem | None, bool]:
+    """The data directory and whether it could not be checked; only a missing one is `None`."""
+    try:
+        return LocalFileSystem(data), False
+    except (FileNotFoundError, NotADirectoryError):
+        return None, False
+    except (FileSystemError, OSError):
+        return None, True
+
+
+def _running_executable() -> str | None:
+    launched = sys.argv[0] if sys.argv else ""
+    return launched if os.path.isabs(launched) and os.path.isfile(launched) else None
 
 
 def build_packet_store() -> tuple[LocalFileSystem, Path]:

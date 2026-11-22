@@ -1,0 +1,38 @@
+schema: orqlet.knowledge-impact/v1
+task: one-command-setup
+phase: P-4
+review_input:
+  schema: orqlet.review-input/v1
+  covers: [code_tests, knowledge, plan, standards, candidates]
+  components:
+    candidates: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    code_tests: f5296d9049a4437f09ad68c0e9fa8e6da7c6909c1cad46f2ef332c4a373cdfe4
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 3371f001fc6cc201ac909aa5d6f333b22bc738ff0b42fa6e588aa7b177797c4b
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+  digest: b0dac6f805bcc2a8b33691ac95817f0bc50d3bd0e3b99f8936037c5d555641af
+  merge_base: 0854c7f2ef326fdb4ca41fd7ff15f70d769fb034
+outcome: no-impact
+analysis:
+  command: orqlet knowledge impact
+  orqlet_version: 0.4.0
+  candidates_digest: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+  candidate_count: 0
+  input: pre-draft-tree
+  views: [committed:HEAD]
+  index_state: not-used
+entries: []
+no_impact:
+  category: already-documented
+  reason: "P-4 adds the read-only command `orqlet status`, its use case, the PATH locator, the bounded reader with the read-only port protocol ReadOnlyFiles, the representability rules, the read side of the user manifest and Vcs worktree information. The command, its fields and its read-only rule are written down in ADR-001 decision 3 and the plan's P-4. component.md section 3 and design/manifest.yaml EC-1 are out of date on the value names: they give initialized and install and have no home-is-work-tree, and the implemented names are the plan's, recorded in Q-63, until the design amendment that open question Q-78 owns. The person's answers that settle what the design leaves open are answered questions Q-63 to Q-76, Q-79 and Q-80 in questions.yaml: the value names (Q-63), the next order (Q-64), the user manifest contract (Q-65), the host_steps shape (Q-66), the out-of-list test edit (Q-67), the bounded read (Q-68), the wider path rule (Q-69 and Q-70), the phase that registers the manifest contract (Q-71) what a consumer does when a check did not run (Q-72), Git not run through an unsafe PATH (Q-73), an unreadable data directory (Q-74), a file at .orqlet (Q-75), an unidentified running program (Q-76), the PATH folder that holds orqlet (Q-79) and a top folder name that Git output cannot carry (Q-80). Open question Q-77 owns the amendment of the consumer criteria in P-5 and P-10, Q-78 also the JSON field top_level_reason and the global nesting, and Q-81 the P-6 file list for the user manifest contract. The plan gives the README entry for status to P-11 (plan.yaml line 1882), so README.md is not changed here, and its Status list stays without `status` until then."
+  absence_record:
+    scopes_searched: [".orqlet/knowledge.yaml sources (none configured)", "the plan's knowledge_scope (empty)", "README.md for the command list and 'status'", "the staged change of the phase"]
+    views: [committed:HEAD]
+    revision: 0854c7f2ef326fdb4ca41fd7ff15f70d769fb034
+    method: "orqlet knowledge impact one-command-setup P-4 --head staged against main 0854c7f (exit 0, 0 candidates, ORQ-I400 twice: no public_api packages named by the design, no knowledge source configured); a text search of README.md for the command names and 'status'; a search of plan.yaml for README; questions.yaml for Q-63 to Q-81."
+    index_state: not-used
+    candidates_found: 0
+  already_documented_refs:
+    - {path: docs/design/one-command-setup/design/adr-001-install-command-entry-skill-and-status.md, sha256: dd37a7501391ceed0e713d8da9190f2f5eb6de9ddb6196beba99eb697c3b8013}
+    - {path: docs/design/one-command-setup/plan.yaml, sha256: 3371f001fc6cc201ac909aa5d6f333b22bc738ff0b42fa6e588aa7b177797c4b}
+    - {path: docs/design/one-command-setup/questions.yaml, sha256: badcda9eb450d1de5390378f728856fa5b8b9a5d7975a1b1d594237f3cefe52d}

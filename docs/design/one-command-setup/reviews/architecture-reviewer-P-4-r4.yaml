@@ -1,0 +1,132 @@
+schema: orqlet.review-result/v1
+task: one-command-setup
+phase: P-4
+role: architecture-reviewer
+round: 4
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: c564fb8da08bbf54daa123ce39a4c1b0303c2ff9b893f7535ef269205ad9ae9f
+    design: fb35bfb38f9778269ac1dc5dee193b30da4bf7bc3f9f0337142d97801577168e
+    evidence_inputs: 533813d78eb8c2dca8b94cfd9d31b024e99b9a0703d4a1c1a4be048e692e6de1
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 3371f001fc6cc201ac909aa5d6f333b22bc738ff0b42fa6e588aa7b177797c4b
+    reviewer_definition: 83e52f1a68fceddc7beb1d83654661fd34a1e3b3028c4fcc3dd7b6dadd8f3463
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: aff39b9d8ad350d197ebb4c8f7428a5eaf5d42472e197d2294c04c4f8b4c3fd0
+  merge_base: 0854c7f2ef326fdb4ca41fd7ff15f70d769fb034
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: 751953d100777e7ad1ae8ea41d8f096972ff2d2818b84213b87d027c1a3f9beb
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- 'Same client as the Coder (cursor): independence I1, below the I2 a D3 change requires (ORQLET-MODEL-002); the verdict is NOT_RUN.'
+- The reviewer's own conclusion was PASS with no blocking finding.
+- Round 4 of P-4. It was started as a typed subagent with the packet path one-command-setup-P-4-12c05c07 as its only prompt; that the context is fresh is
+  the Coder's claim. The packet's diff is against main 0854c7f and holds P-4 only.
+- 'The reviewer''s session had no shell: no quote digest and no git. The Coder wrote this record from its returned text; its quote evidence is given as
+  absence records naming the packet path and lines.'
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+applicability:
+  examined:
+  - MANIFEST.json
+  - diff.patch by file
+  - plan P-4
+  - design manifest EC-1, EC-3, EC-4
+  - ADR-001
+  - component.md section 3
+  - rules.yaml
+  - test record
+  - knowledge record
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: compatibility
+  evidence:
+  - kind: absence
+    searched:
+    - context/plan.yaml
+    - context/design-manifest.yaml
+    - docs/design/one-command-setup/**
+    method: searched for top_level_reason
+    revision: 0854c7f2ef326fdb4ca41fd7ff15f70d769fb034
+  claim: The status JSON field top_level_reason is named in no plan, design or answered question; the coder chose it.
+  suggested_action: Record it, with the global nesting of Q-66, in the design amendment that Q-78 owns.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: finding
+  severity: non-blocking
+  category: architecture
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-4-12c05c07/snapshot/src/orqlet/adapters/scan/executables.py lines 31-46
+    - one-command-setup-P-4-12c05c07/snapshot/tests/unit/adapters/test_executables.py lines 225-231
+    method: compared the two PATH rules
+    revision: 0854c7f2ef326fdb4ca41fd7ff15f70d769fb034
+  claim: locate('orqlet') does not count the element holding the match, while searches_unsafe('git') does (Q-73).
+  suggested_action: Ask the person whether an unsafe folder holding orqlet is a host step.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: finding
+  severity: non-blocking
+  category: standards
+  evidence:
+  - kind: absence
+    searched:
+    - context/plan.yaml
+    method: searched for contracts/__init__ and orqlet.user-manifest
+    revision: 0854c7f2ef326fdb4ca41fd7ff15f70d769fb034
+  claim: Q-71 defers the user manifest registration to P-6, whose file list lacks the files, and no open question owns that amendment.
+  suggested_action: Open a plan-blocking question for the P-6 file list.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: tests
+  claim: Only macOS and one Python ran; the Windows drive-letter case and the Cn check per Unicode database are unverified.
+  suggested_action: Run the CI matrix before the pull request is marked ready.
+  confidence: low
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+  checks:
+  - what: file list against the diff, Q-67 and Q-68
+    how: compared every diff header
+    result: pass
+  - what: layers, design conformance, knowledge record
+    how: read
+    result: pass
+  - what: running the checks and quote digests
+    how: no shell
+    result: not-run

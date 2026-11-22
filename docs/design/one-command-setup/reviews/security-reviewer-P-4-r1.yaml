@@ -1,0 +1,131 @@
+schema: orqlet.review-result/v1
+task: one-command-setup
+phase: P-4
+role: security-reviewer
+round: 1
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: 590d12ecb11cef87180fe5b8b3429cd76ffb80784bd8941ce7e645dbb12db51c
+    design: fb35bfb38f9778269ac1dc5dee193b30da4bf7bc3f9f0337142d97801577168e
+    evidence_inputs: 0316787467ad5b9acd9c9b4302727526aaee093e6a2a3a9aae1d06c47220ed7e
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 3371f001fc6cc201ac909aa5d6f333b22bc738ff0b42fa6e588aa7b177797c4b
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: de26b7c511ff38a20c28a5864165477186ece002412c278c89c3e389d991d5f6
+  merge_base: 0854c7f2ef326fdb4ca41fd7ff15f70d769fb034
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- 'Same client as the Coder (cursor): independence I1, below the I2 a D3 change requires; the verdict is NOT_RUN.'
+- The reviewer's own conclusion was no blocking finding.
+- Round 1 of P-4. It was started as a typed subagent with the packet path one-command-setup-P-4-5f3910c1 as its only prompt; that the context is fresh is
+  the Coder's claim. The packet's diff is against main 0854c7f and holds P-4 only.
+- 'The reviewer''s session had no shell: no quote digest and no git. The Coder wrote this record from its returned text; its quote evidence is given as
+  absence records naming the packet path and lines.'
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+applicability:
+  examined:
+  - diff.patch source hunks
+  - git_runner.py, environment.py, local_fs.py, loading.py, versions.py, runner.py
+  - ADR-001 decision 3
+  - ADR-004 decision 7
+  - component.md
+  - tests/P-4.yaml and knowledge/P-4.yaml
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: security
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-4-5f3910c1/snapshot/src/orqlet/domain/representable.py lines 17-39
+    - one-command-setup-P-4-5f3910c1/snapshot/tests/unit/domain/test_representable.py
+    method: text search for FE0, E01, 3164, 2800 and combining
+    revision: 0854c7f2ef326fdb4ca41fd7ff15f70d769fb034
+  claim: representable_path refuses only Cc, Cf, Cs, Co, Zl and Zp; variation selectors (U+FE00-FE0F, U+E0100-E01EF), the Hangul fillers (U+115F, U+1160,
+    U+3164) and U+2800 are invisible and pass, so a hostile folder name can carry unseen text into the agent's context through top_level.
+  suggested_action: The person decides whether to refuse them; if so, add tests and apply the rule to the hook too.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: finding
+  severity: non-blocking
+  category: security
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-4-5f3910c1/snapshot/src/orqlet/application/usecases/bounded_read.py lines 30-35
+    - one-command-setup-P-4-5f3910c1/snapshot/src/orqlet/adapters/fs/local_fs.py lines 89-106
+    method: read both
+    revision: 0854c7f2ef326fdb4ca41fd7ff15f70d769fb034
+  claim: read_bounded reads the whole file before the 1 MiB check, so a huge lock in an untrusted clone is loaded in full by status and later by the hook;
+    the output stays correct, the risk is memory and time.
+  suggested_action: Bound the read itself and test that an oversized file is not read past the limit.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: security
+  claim: unsafe_element_before is false when the match is itself in an unsafe element and whenever orqlet is absent; this follows ADR-004 decision 7 and
+    matters for install, which must not register hooks in either case.
+  suggested_action: Confirm in the install phase; no change in P-4.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: security
+  claim: The home-work-tree guard compares strings exactly; on a case-insensitive file system a HOME spelled with other case could skip refuse-home-is-work-tree.
+    Not run.
+  suggested_action: Consider normcase or st_dev and st_ino, with a test.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: security
+  claim: top_level is what git rev-parse --show-toplevel reports, so core.worktree in .git/config can point it elsewhere; a normal clone does not copy .git/config.
+  suggested_action: The person decides whether status or the entry skill flags a top level that is not the root or one of its parents.
+  confidence: low
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: secrets, process and file access, parsing, output, dependencies
+    how: read and pattern search
+    result: pass
+  - what: running the checks and quote digests
+    how: no shell
+    result: not-run

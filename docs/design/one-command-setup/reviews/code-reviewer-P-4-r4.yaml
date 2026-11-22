@@ -1,0 +1,120 @@
+schema: orqlet.review-result/v1
+task: one-command-setup
+phase: P-4
+role: code-reviewer
+round: 4
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: c564fb8da08bbf54daa123ce39a4c1b0303c2ff9b893f7535ef269205ad9ae9f
+    design: fb35bfb38f9778269ac1dc5dee193b30da4bf7bc3f9f0337142d97801577168e
+    evidence_inputs: 533813d78eb8c2dca8b94cfd9d31b024e99b9a0703d4a1c1a4be048e692e6de1
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 3371f001fc6cc201ac909aa5d6f333b22bc738ff0b42fa6e588aa7b177797c4b
+    reviewer_definition: 6660b181a2ba46a0bbd8225a3449e2322f0030dea1fa146cb15dfd0e3ffcd94e
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 45e1e8d836cba54ef5ca2287f4e0782026096c58282524dced11a70be0eb3d87
+  merge_base: 0854c7f2ef326fdb4ca41fd7ff15f70d769fb034
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-code-reviewer
+  definition_sha256: d807b6881723a0c72151d12a514eb0506a2356d9e94d170daff3f53178dff488
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I0
+capability_limits:
+- 'Same client as the Coder (cursor) and no approved code-reviewer binding for cursor in .orqlet/role-bindings.yaml: independence I0, below the I2 a code
+  review needs; the verdict is NOT_RUN.'
+- The reviewer's own conclusion was no blocking defect. Its observations (the JSON manifest read by the YAML strict loader; tests that depend on a safe
+  PATH of the runner; older Git printing --git-common-dir relative to another folder; a backslash read as a separator on POSIX) are kept in this line only.
+- Round 4 of P-4. It was started as a typed subagent with the packet path one-command-setup-P-4-12c05c07 as its only prompt; that the context is fresh is
+  the Coder's claim. The packet's diff is against main 0854c7f and holds P-4 only.
+- 'The reviewer''s session had no shell: no quote digest and no git. The Coder wrote this record from its returned text; its quote evidence is given as
+  absence records naming the packet path and lines.'
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+applicability:
+  examined:
+  - P-4 in context/plan.yaml lines 685-865
+  - every changed source file in diff.patch
+  - local_fs.py, git_runner.py, vcs_git.py, loading.py, runner.py, lifecycle.py
+  - all new and changed tests
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: tests
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-4-12c05c07/snapshot/tests/integration/test_status_cli.py lines 148-167
+    - one-command-setup-P-4-12c05c07/snapshot/src/orqlet/adapters/scan/executables.py lines 40-46
+    method: traced the test through the locator and _locate
+    revision: 0854c7f2ef326fdb4ca41fd7ff15f70d769fb034
+  claim: test_a_failing_vcs_exits_5 builds the locator with an empty PATH, so the Q-73 guard skips Git and the failing Vcs is never asked; the test passes
+    through the wrong path.
+  suggested_action: Give the locator a safe absolute PATH and assert the work-tree not-run reason.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: finding
+  severity: non-blocking
+  category: correctness
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-4-12c05c07/snapshot/src/orqlet/adapters/git/vcs_git.py lines 76-81
+    - one-command-setup-P-4-12c05c07/snapshot/tests/integration/test_vcs_worktree.py lines 95-106
+    method: read the parser and its test
+    revision: 0854c7f2ef326fdb4ca41fd7ff15f70d769fb034
+  claim: A top folder name with a line feed or non-UTF-8 bytes gives not-a-repository with no reason and exit 5, while AC-4 reads as the real location with
+    path-not-representable.
+  suggested_action: Ask the person whether AC-4 covers it, or decode one field per call with surrogateescape.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: finding
+  severity: non-blocking
+  category: tests
+  evidence:
+  - kind: absence
+    searched:
+    - tests/integration/test_status_cli.py
+    - tests/unit/application/test_status.py
+    method: read every test for a data path that is a regular file or below one
+    revision: 0854c7f2ef326fdb4ca41fd7ff15f70d769fb034
+  claim: The Q-74 cases of a data path that is a file (exit 5) or below a file (exit 0) are not tested through the wiring.
+  suggested_action: Add two parametrised CLI cases.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: code-reviewer
+    phase: implement
+  checks:
+  - what: AC-1 to AC-10, AC-12 and Q-63 to Q-76 against the code and tests
+    how: read and traced
+    result: pass
+  - what: running the checks and quote digests
+    how: no shell
+    result: not-run

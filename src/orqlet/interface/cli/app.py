@@ -25,6 +25,7 @@ from orqlet.interface.cli.commands.profile import profile_app
 from orqlet.interface.cli.commands.resources import resources_group
 from orqlet.interface.cli.commands.review import review_app
 from orqlet.interface.cli.commands.standards import standards_app
+from orqlet.interface.cli.commands.status import status_command
 from orqlet.interface.cli.commands.validate import validate_app
 
 app = typer.Typer(
@@ -41,6 +42,7 @@ app.command("sync")(sync_command)
 app.command("doctor")(doctor_command)
 app.command("explain")(explain_command)
 app.command("release")(release_command)
+app.command("status")(status_command)
 app.add_typer(profile_app, name="profile")
 app.add_typer(resources_group(), name="resources")
 app.add_typer(conventions_group(), name="conventions")

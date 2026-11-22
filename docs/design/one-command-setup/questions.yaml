@@ -1389,4 +1389,475 @@ questions:
     answerer: tmishari
     time: '2026-11-21T21:10:00+00:00'
     scope: task
+- id: Q-63
+  key: 09d3cb9641602446d0cf44ac0ae05ed3e3ea8a40bbc644a531660acee991f7c9
+  subject: Value names of orqlet status
+  raised_by: Cursor
+  phase: implement
+  category: evidence-conflict
+  text: P-4 AC-1 names the locations not-a-repository, repository, initialized-project, linked-worktree
+    and home-is-work-tree and the next values install-global, init, upgrade, refuse-newer-global, none
+    and 'the stop values'; component.md section 3 names initialized, install and refuse-linked-worktree
+    and has no home-is-work-tree. Which closed sets does P-4 implement?
+  why: The status output is a stable contract for the entry skill and the hook (ADR-001), and the plan
+    and the design disagree.
+  evidence_refs:
+  - docs/design/one-command-setup/plan.yaml:693-704
+  - docs/design/one-command-setup/design/component.md:63-77
+  options:
+  - The plan's names, with refuse-linked-worktree and refuse-home-is-work-tree as the stop values
+  - The design's names plus home-is-work-tree
+  - Stop for an amendment
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: 'The plan''s names: location not-a-repository, repository, initialized-project, linked-worktree,
+      home-is-work-tree; next install-global, init, upgrade, none, refuse-newer-global, refuse-linked-worktree,
+      refuse-home-is-work-tree. component.md section 3 is superseded on these names until a design amendment.'
+    answerer: tmishari
+    time: '2026-11-22'
+    scope: task
+- id: Q-64
+  key: f22ea8dc8712871bf4e0e2a72039a708aede4f72a8e54e24ec3068c371040f54
+  subject: How orqlet status chooses next
+  raised_by: Cursor
+  phase: implement
+  category: requirement
+  text: ADR-001's entry-skill table names the states but no precedence, and does not say what 'global
+    setup missing' means when some clients are configured. How is next chosen?
+  why: next is the one value the entry skill acts on.
+  evidence_refs:
+  - docs/design/one-command-setup/design/adr-001-install-command-entry-skill-and-status.md:17-28
+  - docs/design/one-command-setup/design/component.md:63-77
+  options:
+  - 'First match wins: newer, linked worktree, home work tree, every client missing or any outdated, not
+    a repository, repository, initialized'
+  - The same with any single client missing
+  - Stop
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: 'First match wins: 1. any client newer: refuse-newer-global; 2. linked worktree: refuse-linked-worktree;
+      3. home is a work tree: refuse-home-is-work-tree; 4. every client missing, or any client outdated:
+      install-global; 5. not a repository: none; 6. repository: init; 7. initialized: upgrade when the
+      project version is missing or below the installed one, otherwise none.'
+    answerer: tmishari
+    time: '2026-11-22'
+    scope: task
+- id: Q-65
+  key: 6a6e4e701af51b8140572bde78ed4365eb1b5914576102f902a8dbe423f6adae
+  subject: Read contract of the user manifest
+  raised_by: Cursor
+  phase: implement
+  category: requirement
+  text: ADR-002 decision 2 lists what user/manifest.json holds but no field names; P-4 reads it and P-6
+    writes it. What is the contract, and how does a client's state follow from it?
+  why: status reads the file in P-4 before any phase writes it.
+  evidence_refs:
+  - docs/design/one-command-setup/design/adr-002-user-scope-root-journal-and-manifest.md:55-62
+  options:
+  - orqlet.user-manifest/v1 with change_id, created_at, roots and entries (path, key, sha256, workflow_version,
+    owners)
+  - Stop and specify first
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: 'Schema orqlet.user-manifest/v1: change_id, created_at, roots (prefix to real path), entries
+      of path, optional key, sha256, workflow_version and owners (render client ids). A client owning
+      no entry is missing; newer if any owned entry is above the installed version, else outdated if any
+      is below, else configured. A manifest that does not parse or validate, is a link or is over 1 MiB
+      gives missing for every client and a check not run (exit 5).'
+    answerer: tmishari
+    time: '2026-11-22'
+    scope: task
+- id: Q-66
+  key: 01522c1fa1b718403ed780651e468d86774a47b6725b03e30b471d3c8517d838
+  subject: Shape of host_steps in orqlet status
+  raised_by: Cursor
+  phase: implement
+  category: requirement
+  text: component.md section 3 says 'per client ... plus host_steps' and AC-3 makes an unsafe PATH element
+    a host step; nothing else defines host_steps at status time. What do they hold?
+  why: The JSON shape is part of the stable contract.
+  evidence_refs:
+  - docs/design/one-command-setup/design/component.md:63-77
+  - docs/design/one-command-setup/plan.yaml:707-712
+  options:
+  - global = {clients, host_steps}, closed codes, P-4 emits unsafe-path-element only
+  - A list per client
+  - Stop
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: 'global = {clients: {<id>: <state>}, host_steps: [codes]}; host_steps is a list of closed codes,
+      and P-4 emits only unsafe-path-element. Later phases may add codes.'
+    answerer: tmishari
+    time: '2026-11-22'
+    scope: task
+- id: Q-67
+  key: 007680ed12e94b29219be21500464485a82a7a80c0078e93f00cbb51c699f1f9
+  subject: Pinned command list outside P-4
+  raised_by: Cursor
+  phase: implement
+  category: policy
+  text: tests/integration/test_validate_integrations_cli.py pins the commands added beyond its base list,
+    so registering status fails two of its tests; the file is not in P-4's file list. May P-4 change it?
+  why: P-4 may change only its file list.
+  evidence_refs:
+  - tests/integration/test_validate_integrations_cli.py:620-643
+  options:
+  - Approve it as a P-4 change
+  - Amend the plan first
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: 'Approved as a P-4 change: add status to the expected set in both tests, with a comment in
+      the existing style. P-6 meets the same list for install and uninstall.'
+    answerer: tmishari
+    time: '2026-11-22'
+    scope: task
+- id: Q-68
+  key: dd84003d1c03167f98542d90df6226bbd2f6d5d555f6fb4addf216dd6b5c29c7
+  subject: Bounded read before the size is known
+  raised_by: Cursor
+  phase: implement
+  category: policy
+  text: ADR-004 decision 6 checks the size of a lock before reading it, but the FileSystem port has no
+    size query and read_bounded read the whole file first (architecture review of P-4, F-1, blocking).
+    The fix touches the port, local_fs.py and the fakes, outside P-4's file list. May P-4 make it?
+  why: A hostile repository could make status and the later hook read a file of any size.
+  evidence_refs:
+  - docs/design/one-command-setup/design/adr-004-advisory-native-hooks.md:71
+  - src/orqlet/application/usecases/bounded_read.py
+  options:
+  - Approve a limited read in the port as a P-4 change
+  - Amend the plan first
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: Approved as a P-4 change. It is made as a narrow read-only protocol ReadOnlyFiles (kind, read_prefix)
+      beside FileSystem, implemented by LocalFileSystem (reads at most the limit from the opened file)
+      and the memory and faulty fakes; read_bounded reads at most limit + 1 bytes, and the status use
+      case takes ReadOnlyFiles.
+    answerer: tmishari
+    time: '2026-11-22'
+    scope: task
+- id: Q-69
+  key: 04f96929b1d114e64ffa2edec4f4f569309f9bebd609a7c5481412d88cf0ce99
+  subject: Invisible characters in a representable path
+  raised_by: Cursor
+  phase: implement
+  category: requirement
+  text: The representability rule refuses control, format, surrogate, private-use and separator characters;
+    variation selectors, the Hangul fillers and the Braille blank are invisible yet pass (security review
+    of P-4, F-1). Should they be refused?
+  why: A hostile folder name could carry text the person cannot see into the agent's context.
+  evidence_refs:
+  - docs/design/one-command-setup/design/adr-001-install-command-entry-skill-and-status.md:31
+  - src/orqlet/domain/representable.py
+  options:
+  - Refuse them too, keeping combining accents
+  - Keep ADR-001's rule and record a known limit
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: 'Refuse them too: U+FE00 to U+FE0F, U+E0100 to U+E01EF, U+115F, U+1160, U+3164 and U+2800.
+      Ordinary combining accents stay allowed, because decomposed file names hold them.'
+    answerer: tmishari
+    time: '2026-11-22'
+    scope: task
+- id: Q-70
+  key: 2b35f561ffac03e56376c495542f11026b029b9f18a13158e52af332f6d4e7c4
+  subject: Further invisible characters in a representable path
+  raised_by: Cursor
+  phase: implement
+  category: requirement
+  text: After Q-69, U+FFA0, U+034F, U+17B4, U+17B5, U+180B to U+180D, U+180F and unassigned code points
+    still pass the representability rule (security review of P-4, round 2, F-2). Should they be refused?
+  why: A hostile folder name could carry text the person cannot see into the agent's context.
+  evidence_refs:
+  - src/orqlet/domain/representable.py
+  options:
+  - Refuse them too, with tests
+  - Keep Q-69 and record a known limit
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: 'Refuse them too: U+FFA0, U+034F, U+17B4, U+17B5, U+180B to U+180D, U+180F, and every code
+      point of category Cn (unassigned) in the running Python''s Unicode database.'
+    answerer: tmishari
+    time: '2026-11-22'
+    scope: task
+- id: Q-71
+  key: 0832e99e3ca877863b3d0dc90283a67c4ae8a20ce842cbd174070803a9c57411
+  subject: Registration of the user manifest contract
+  raised_by: Cursor
+  phase: implement
+  category: policy
+  text: ORQLET-DET-003 asks each persisted contract to be registered in CONTRACTS with a committed schema;
+    P-4 adds orqlet.user-manifest/v1 but no phase lists contracts/__init__.py or the schema file (architecture
+    review of P-4, round 2, F-2). Which phase registers it?
+  why: The manifest is a persisted, versioned contract.
+  evidence_refs:
+  - src/orqlet/application/contracts/user_scope.py
+  - docs/design/one-command-setup/plan.yaml
+  options:
+  - P-6, which writes the manifest
+  - P-4 now, as an out-of-list change
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: P-6 registers it and exports its schema. If P-6's file list does not hold contracts/__init__.py
+      and the schema file, implementation stops at P-6 for a plan amendment.
+    answerer: tmishari
+    time: '2026-11-22'
+    scope: task
+- id: Q-72
+  key: 8591c17d654dd381a848373ab9cc5b875c59cd7353bebeca0fc94b21e15f3cc4
+  subject: next when a status check did not run
+  raised_by: Cursor
+  phase: implement
+  category: requirement
+  text: When a check that decides the location does not run, orqlet status exits 5 and still computes
+    next from a fallback location (architecture review of P-4, round 2, F-3). What must a consumer do?
+  why: The entry skill and the hook act on next.
+  evidence_refs:
+  - src/orqlet/application/usecases/status.py
+  - docs/design/one-command-setup/plan.yaml
+  options:
+  - The consumer stops on exit 5 or ok false and ignores next
+  - next is none whenever not_run is non-empty
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: The consumers, the hook (P-5) and the entry skill (P-10), stop on exit 5 or ok false and do
+      not act on next. P-4 keeps its behaviour.
+    answerer: tmishari
+    time: '2026-11-22'
+    scope: task
+- id: Q-73
+  key: fdfca42e0ff6e56e759f97cd67d2b1e129bd944d58e9be8cfa04fa37fa52a6c5
+  subject: Git started from an untrusted work tree
+  raised_by: Cursor
+  phase: implement
+  category: requirement
+  text: status starts the bare name git with the project as its working folder; an empty, dot or relative
+    PATH element, or one writable by others, searched before git could run a git committed in an untrusted
+    clone (security review of P-4, round 3, F-1). What does P-4 do?
+  why: status is the command the entry skill runs in any folder, including an untrusted clone.
+  evidence_refs:
+  - src/orqlet/adapters/git/git_runner.py
+  - src/orqlet/application/usecases/status.py
+  options:
+  - status checks PATH before Git and skips Git as a check not run
+  - GitRunner resolves git through absolute elements only (out of list)
+  - A known limit for a follow-up task
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: 'status checks PATH before Git: when an unsafe element is searched before git is found, its
+      own element included, or anywhere when git is absent, Git is not run, the location is not-a-repository
+      and the check is not run (exit 5). Other commands keep the existing launch. On Windows, whether
+      the process launch also searches the current folder is unknown and not covered.'
+    answerer: tmishari
+    time: '2026-11-22'
+    scope: task
+- id: Q-74
+  key: 764722312dbddf5baa9ea8d668b0d2992474c315d5670b8c3278bc202ae22bf5
+  subject: A data directory that cannot be checked
+  raised_by: Cursor
+  phase: implement
+  category: requirement
+  text: status treated any data directory that is_dir() could not confirm as missing, so a parent that
+    cannot be searched gave exit 0, every client missing and install-global (code review of P-4, round
+    3, F-3). What should it give?
+  why: A refused permission on the data directory is a check that could not run (Q-65).
+  evidence_refs:
+  - src/orqlet/interface/cli/wiring.py
+  options:
+  - Only a data directory that does not exist is missing; any other error is a check not run
+  - A known limit
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: Only a data directory that does not exist (or whose parent is not a folder) means missing;
+      any other error, or a data path that is not a folder, gives every client missing and a check not
+      run (exit 5).
+    answerer: tmishari
+    time: '2026-11-22'
+    scope: task
+- id: Q-75
+  key: 16a4ce6e27ce97a8f72b4f67dd454910137ccb998ed4e80671f0d76d0c4f4c52
+  subject: A regular file named .orqlet
+  raised_by: Cursor
+  phase: implement
+  category: requirement
+  text: A regular file at .orqlet counted as an initialized project with no check not run, so next was
+    upgrade with exit 0 and that upgrade would fail (code review of P-4, round 3, F-4). What should it
+    give?
+  why: next must not send the person into a step that fails.
+  evidence_refs:
+  - src/orqlet/application/usecases/status.py
+  options:
+  - A check not run, like a link at .orqlet
+  - Initialized, as anything at .orqlet
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: Anything at .orqlet that is not a folder gives initialized-project, a null project version
+      and the lock check not run (exit 5), as a link already did.
+    answerer: tmishari
+    time: '2026-11-22'
+    scope: task
+- id: Q-76
+  key: ff3def25573cfe2f48d131b55a618e331133f98a50dc121394bbf5875271c963
+  subject: orqlet_on_path when the running program is unknown
+  raised_by: Cursor
+  phase: implement
+  category: requirement
+  text: When the running program cannot be identified (a relative argv[0], python -m orqlet, possibly
+    a Windows launcher), orqlet_on_path is different (code review of P-4, round 3, F-2). Should it get
+    its own value?
+  why: orqlet_on_path is part of the stable status contract.
+  evidence_refs:
+  - src/orqlet/adapters/scan/executables.py
+  - src/orqlet/interface/cli/wiring.py
+  options:
+  - Keep different and record a known limit for the entry skill
+  - Add a value such as unknown
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: 'Keep different. It is a known limit: the entry skill (P-10) must not read different as proof
+      that another orqlet is installed.'
+    answerer: tmishari
+    time: '2026-11-22'
+    scope: task
+- id: Q-77
+  key: 416b7e3b8e993de3d7cf5868f8e9b24ec250bc19b90a64380809c7efb5a25feb
+  subject: Consumer criteria for a status check not run
+  raised_by: Cursor
+  phase: implement
+  category: requirement
+  text: Q-72 decides that the hook (P-5) and the entry skill (P-10) stop on exit 5 or ok false, and P-4
+    added refuse-home-is-work-tree (Q-63), but P-5 AC-3 has the hook print the versions and the next step
+    and P-10 AC-22 lists the stop values without exit 5 or refuse-home-is-work-tree (architecture review
+    of P-4, round 3, F-1). How are P-5 AC-3 and P-10 AC-22 amended?
+  why: Implementation of P-5 must not guess the stop rule of its consumer.
+  evidence_refs:
+  - docs/design/one-command-setup/plan.yaml:866-892
+  - docs/design/one-command-setup/plan.yaml:1705-1713
+  options:
+  - Amend P-5 AC-3 and P-10 AC-22 to stop on exit 5 or ok false and on refuse-home-is-work-tree
+  - Another wording
+  blocks:
+  - plan
+  status: open
+- id: Q-78
+  key: 05d7a4a5f806441e4730de5997321ff5c6f0bd77b44d82dfc8d01edd27e96479
+  subject: Owner of the status value names in the design
+  raised_by: Cursor
+  phase: implement
+  category: evidence-conflict
+  text: component.md section 3 and design/manifest.yaml EC-1 still give initialized and install and have
+    no home-is-work-tree; Q-63 supersedes them until a design amendment that nothing owns (architecture
+    review of P-4, round 3, F-2). The JSON field top_level_reason and the nesting global.clients and
+    global.host_steps (Q-66) are in no approved document either (architecture review of P-4, round 4,
+    F-1). Who amends the design, and when?
+  why: ADR-001 makes the status JSON a stable contract, and the shipped names are written only in the
+    plan and Q-63.
+  evidence_refs:
+  - docs/design/one-command-setup/design/component.md:70-73
+  - docs/design/one-command-setup/design/manifest.yaml:42
+  options:
+  - A design amendment before P-5
+  - A design amendment later in the task
+  blocks:
+  - design
+  status: open
+- id: Q-79
+  key: 6c5bf72e45c9173683348809c9d1dbebe78cded341965d8cce347d99eecc20ac
+  subject: The PATH folder that holds orqlet
+  raised_by: Cursor
+  phase: implement
+  category: requirement
+  text: locate reported only unsafe PATH elements before the one holding orqlet, so an orqlet found in
+    an empty, dot or relative element, or in a folder writable by others, gave no host step, while the
+    git check of Q-73 counts the matching element (security review of P-4, round 4, F-1; architecture
+    review, F-2). Should the matching element count?
+  why: The hook that ADR-004 decision 7 protects runs the bare orqlet.
+  evidence_refs:
+  - src/orqlet/adapters/scan/executables.py
+  - docs/design/one-command-setup/design/adr-004-advisory-native-hooks.md
+  options:
+  - Count the matching element too, as for git
+  - Keep 'before' as AC-3 words it
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: 'Count it: an unsafe element searched before the match or holding it gives unsafe-path-element.
+      This widens the literal ''before'' of AC-3 and ADR-004 decision 7. The field is named unsafe_element_searched.'
+    answerer: tmishari
+    time: '2026-11-22'
+    scope: task
+- id: Q-80
+  key: a7f9163901e50fff06a513a63db287f726e6ec137058a4fb3e6bf815ecd5598b
+  subject: A top folder name that Git output cannot carry
+  raised_by: Cursor
+  phase: implement
+  category: requirement
+  text: A repository whose top folder name holds a line feed or bytes that are not UTF-8 is reported as
+    not-a-repository with a null top_level, no reason and exit 5, while AC-4 reads as its real location
+    with path-not-representable (code review of P-4, round 4, F-2). Which holds?
+  why: The location is part of the stable status contract.
+  evidence_refs:
+  - src/orqlet/adapters/git/vcs_git.py
+  - docs/design/one-command-setup/plan.yaml
+  options:
+  - 'Keep it: exit 5 makes the consumers stop (Q-72), a known limit'
+  - Make the real location reachable with path-not-representable
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: 'Keep it as a known limit: the Git check is a check not run (exit 5), so the consumers stop
+      (Q-72). AC-4 is read as satisfied for this case.'
+    answerer: tmishari
+    time: '2026-11-22'
+    scope: task
+- id: Q-81
+  key: c7e060a440bfa315ff7ae32c578fbce14844e3972504ce9a4d0d690baf7ea8f2
+  subject: P-6 file list for the user manifest contract
+  raised_by: Cursor
+  phase: implement
+  category: requirement
+  text: Q-71 gives P-6 the registration of orqlet.user-manifest/v1 in contracts/__init__.py and its exported
+    schema, but P-6's file list holds neither (architecture review of P-4, round 4, F-3). How is P-6's
+    file list amended?
+  why: P-6 may change only its file list, and ORQLET-DET-003 asks for a registered contract with a committed
+    schema.
+  evidence_refs:
+  - docs/design/one-command-setup/plan.yaml
+  - src/orqlet/application/contracts/user_scope.py
+  options:
+  - Add contracts/__init__.py and the exported schema file to P-6
+  - Another phase
+  blocks:
+  - plan
+  status: open
 conflicts: []

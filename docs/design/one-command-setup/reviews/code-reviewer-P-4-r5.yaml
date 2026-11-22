@@ -1,0 +1,110 @@
+schema: orqlet.review-result/v1
+task: one-command-setup
+phase: P-4
+role: code-reviewer
+round: 5
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: 0420c9602e3cad718017390daecff5aac1e2f990c30b3bf4971fc0f50ac9b30d
+    design: fb35bfb38f9778269ac1dc5dee193b30da4bf7bc3f9f0337142d97801577168e
+    evidence_inputs: 612b47d3dd70e4580932b162fda1fc2ea85533b3421fe3e23cdc9aaf46c9038b
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 3371f001fc6cc201ac909aa5d6f333b22bc738ff0b42fa6e588aa7b177797c4b
+    reviewer_definition: 6660b181a2ba46a0bbd8225a3449e2322f0030dea1fa146cb15dfd0e3ffcd94e
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: e638ecdf65421050dd8d0d1c6177c11576434b3a46b04ee8bcdb91076794ac2b
+  merge_base: 0854c7f2ef326fdb4ca41fd7ff15f70d769fb034
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-code-reviewer
+  definition_sha256: d807b6881723a0c72151d12a514eb0506a2356d9e94d170daff3f53178dff488
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I0
+capability_limits:
+- 'Same client as the Coder (cursor) and no approved code-reviewer binding for cursor in .orqlet/role-bindings.yaml: independence I0, below the I2 a code
+  review needs; the verdict is NOT_RUN.'
+- The reviewer's own verdict was FAIL on F-1. Its observations (a backslash read as a separator on POSIX; case on macOS; a regular file at <data>/user gives
+  missing with exit 0; a repeated exception tuple; git-free tests in a module skipped without git) are kept in this line only.
+- Round 5 of P-4. It was started as a typed subagent with the packet path one-command-setup-P-4-c56259b1 as its only prompt; that the context is fresh is
+  the Coder's claim. The packet's diff is against main 0854c7f and holds P-4 only.
+- 'The reviewer''s session had no shell: no quote digest and no git. The Coder wrote this record from its returned text; its quote evidence is given as
+  absence records naming the packet path and lines.'
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+applicability:
+  examined:
+  - every source and test hunk of diff.patch and the matching snapshot files
+  - git_runner.py, environment.py, runner.py, lifecycle.py, versions.py
+  - P-4 in plan.yaml
+  - Q-63 to Q-81
+  - the test record
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: blocking
+  category: tests
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-4-c56259b1/snapshot/tests/unit/adapters/test_executables.py lines 72-73 and 383-385
+    - one-command-setup-P-4-c56259b1/snapshot/src/orqlet/adapters/scan/executables.py lines 65-73
+    - one-command-setup-P-4-c56259b1/snapshot/.github/workflows/ci.yml lines 67-84
+    method: read the helper, the locator and the CI matrix
+    revision: 0854c7f2ef326fdb4ca41fd7ff15f70d769fb034
+  claim: _locate passes windows=False and most of its tests are not POSIX_ONLY; on Windows a file without an extension has no execute bit and an ordinary
+    folder has the others-write bit, so these tests would fail on the windows-latest job, which never ran.
+  suggested_action: Mark the POSIX-form cases POSIX_ONLY, or add Windows-form variants, and run the Windows job.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: finding
+  severity: non-blocking
+  category: tests
+  evidence:
+  - kind: absence
+    searched:
+    - tests/conftest.py temporary_home
+    - tests/integration/test_status_cli.py
+    - tests/integration/test_vcs_worktree.py
+    method: looked for a controlled PATH before the CLI tests
+    revision: 0854c7f2ef326fdb4ca41fd7ff15f70d769fb034
+  claim: The CLI tests that expect exit 0 use the runner's PATH; a relative or others-writable element before git makes status skip Git and exit 5.
+  suggested_action: Set PATH to a known safe value in those tests.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: code-reviewer
+    phase: implement
+  checks:
+  - what: AC-1 to AC-10 and AC-12 against the code and tests
+    how: read
+    result: pass
+  - what: the tests on every CI platform
+    how: read against Windows stat behaviour
+    result: fail
+  - what: running the checks and quote digests
+    how: no shell
+    result: not-run
