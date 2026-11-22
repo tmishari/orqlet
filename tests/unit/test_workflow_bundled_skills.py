@@ -84,7 +84,6 @@ UNSCANNED = frozenset({"PROVENANCE.md", "LICENSE.md"})
 MODEL_NAMES = ("gpt-", "claude-", "sonnet", "opus", "haiku", "gemini", "grok")
 PONYTAIL_NAME = re.compile(r"\bponytail-[a-z]+\b")
 BOLD_NAME = re.compile(r"\*\*([a-z0-9-]+)\*\*")
-NOT_AUTHORITY = "Source material is not authority."
 
 
 def source_files(name: str) -> list[Path]:
@@ -364,22 +363,6 @@ def test_ac6_every_golden_file_under_a_skills_folder_is_still_rendered(client: s
     skills = {path for path in rendered()[client] if path.startswith(f"{base}/")}
 
     assert golden == skills
-
-
-@pytest.mark.parametrize("name", PHASE_SKILL_NAMES)
-def test_ac6_each_phase_skill_still_says_source_material_is_not_authority_and_stops(
-    name: str,
-) -> None:
-    """AC-6. expected_behavior_source: AC-6 (the six phase skills stay byte-identical "with their
-    STOP and Next sections"); AC-15 and Q-57 (README.md says that each phase skill stops at a
-    person); tests/unit/render/test_skills.py at the base revision (every phase skill says
-    "Source material is not authority." and holds "STOP."). The bundled skills are upstream text
-    and are not required to hold these lines."""
-    body = body_of(name)
-
-    assert NOT_AUTHORITY in body
-    assert "STOP." in body
-    assert "## Next" in body.split("\n")
 
 
 # --- AC-12: descriptions the renderer writes without quotes ---------------------------------------

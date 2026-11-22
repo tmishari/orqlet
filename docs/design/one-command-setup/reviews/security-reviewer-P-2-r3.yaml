@@ -1,0 +1,118 @@
+schema: orqlet.review-result/v1
+task: one-command-setup
+phase: P-2
+role: security-reviewer
+round: 3
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: df53d87ddc4d650ee7fd215c48c2cad0ea3c69df60d7437fde937139db212614
+    design: fb35bfb38f9778269ac1dc5dee193b30da4bf7bc3f9f0337142d97801577168e
+    evidence_inputs: f142c9d1848eec80b807f2e0f6ac62b24b9c5d72f1ede8bc303859c036eb276d
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 3371f001fc6cc201ac909aa5d6f333b22bc738ff0b42fa6e588aa7b177797c4b
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 45b5fd1cef96bef7da4f0c279cade2d181ccd0715744c2fb511e2748949c48d6
+  merge_base: 8c3421dc69cbb9839486d72e3cab410f55830327
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- 'Same client as the Coder (cursor): independence I1, below the I2 a D3 change requires; the verdict is NOT_RUN.'
+- The reviewer's own conclusion was no blocking risk; AC-3 partially verified by text comparison, no hash computed.
+- The reviewer gave the categories supply-chain (F-1) and prompt-content (F-2), which the finding schema does not have; the Coder recorded both as security.
+  No claim, severity or confidence changed.
+- 'Coder''s evidence outside this review: shasum -a 256 of the seven evidence/web/ponytail-upstream/ files and of /tmp/upstream/ponytail at HEAD 96608e078b2d5ea607c5c3b8b5a54d1c1fba6846
+  gave the values in every PROVENANCE.md table; this is not the reviewer''s observation.'
+- 'Round 3 after the Q-62 amendment (#43): rework of AC-17 (load_skills docstring, the phase-skill test with ''## Next'', the duplicate removed), the byte-identical
+  upstream copy under evidence/web/ponytail-upstream/ for AC-3, ponytail-help limited to Claude Code and Cursor (the person''s answer to code-reviewer r2
+  F-5) and the r2 category correction. It was started as a typed subagent with the packet path one-command-setup-P-2-9d457234 as its only prompt; that the
+  context is fresh is the Coder''s claim.'
+- 'The reviewer''s session had no shell: no quote digest and no git. The Coder wrote this record from its returned text; its quote evidence is given as
+  absence records naming the packet path and lines.'
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+applicability:
+  examined:
+  - diff.patch code part
+  - the six snapshots and their upstream copies under evidence/web/ponytail-upstream/
+  - the six LICENSE.md files
+  - context/plan.yaml P-2
+  - context/test-record.yaml
+  - context/knowledge-impact.yaml
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-2-9d457234/snapshot/docs/design/one-command-setup/evidence/web/ponytail-upstream.md lines 3-6
+    - shell sha256 of evidence/web/ponytail-upstream/**
+    - network fetch of upstream at 96608e0
+    method: both unavailable in the reviewer's read-only, offline session
+    revision: 8c3421dc69cbb9839486d72e3cab410f55830327
+  claim: 'The text comparison supports AC-3: each snapshot differs from its upstream copy only by the adaptations its PROVENANCE.md lists, and the hashes
+    agree between PROVENANCE.md and the evidence record; the hashes were not computed in this review and the copy was not tied to the upstream revision
+    independently.'
+  suggested_action: Run shasum -a 256 on the seven evidence files, compare with the PROVENANCE tables and record it; optionally confirm the checkout's HEAD
+    against the GitHub repository.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: security
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-2-9d457234/snapshot/src/orqlet/workflow/skills/ponytail-debt/skill.md lines 14 and 40-41
+    - one-command-setup-P-2-9d457234/snapshot/src/orqlet/workflow/skills/ponytail*/skill.md
+    method: read all six skills for mutating commands, network, installs and secrets
+    revision: 8c3421dc69cbb9839486d72e3cab410f55830327
+  claim: The six bundled skills are third-party instructions written into user repositories; none fetches from the network, installs, reads credentials
+    or sends data out; the only command is a read-only git grep, and the debt ledger is written only after the user is asked. The upstream npm install and
+    plugin-update text is only in the unpackaged evidence copy.
+  suggested_action: None; re-review the skill text whenever the pinned revision changes.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: code paths, secrets, cross-project scans, tests, dependencies
+    how: read the diff and the snapshot
+    result: pass
+  - what: AC-3 upstream fidelity
+    how: text comparison against the stored upstream copy
+    result: pass
+  - what: AC-3 hashes
+    how: no shell
+    result: not-run

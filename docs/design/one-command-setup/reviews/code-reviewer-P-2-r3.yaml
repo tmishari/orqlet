@@ -1,0 +1,131 @@
+schema: orqlet.review-result/v1
+task: one-command-setup
+phase: P-2
+role: code-reviewer
+round: 3
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: df53d87ddc4d650ee7fd215c48c2cad0ea3c69df60d7437fde937139db212614
+    design: fb35bfb38f9778269ac1dc5dee193b30da4bf7bc3f9f0337142d97801577168e
+    evidence_inputs: f142c9d1848eec80b807f2e0f6ac62b24b9c5d72f1ede8bc303859c036eb276d
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 3371f001fc6cc201ac909aa5d6f333b22bc738ff0b42fa6e588aa7b177797c4b
+    reviewer_definition: 6660b181a2ba46a0bbd8225a3449e2322f0030dea1fa146cb15dfd0e3ffcd94e
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: a311f2a8be062ff0a5270f112553c7f285ef57611d8d3dcf33b3c79f6608ed2b
+  merge_base: 8c3421dc69cbb9839486d72e3cab410f55830327
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-code-reviewer
+  definition_sha256: d807b6881723a0c72151d12a514eb0506a2356d9e94d170daff3f53178dff488
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I0
+capability_limits:
+- 'Same client as the Coder (cursor) and no approved code-reviewer binding for cursor in .orqlet/role-bindings.yaml: independence I0, below the I2 a code
+  review needs; the verdict is NOT_RUN.'
+- The reviewer's own conclusion was no code defect and nothing blocking; AC-1, 2, 4, 6, 8, 9 and 12 to 17 have code and tests.
+- The reviewer numbered its observations O-1 to O-3; they are F-1 to F-3 here.
+- 'Round 3 after the Q-62 amendment (#43): rework of AC-17 (load_skills docstring, the phase-skill test with ''## Next'', the duplicate removed), the byte-identical
+  upstream copy under evidence/web/ponytail-upstream/ for AC-3, ponytail-help limited to Claude Code and Cursor (the person''s answer to code-reviewer r2
+  F-5) and the r2 category correction. It was started as a typed subagent with the packet path one-command-setup-P-2-9d457234 as its only prompt; that the
+  context is fresh is the Coder''s claim.'
+- 'The reviewer''s session had no shell: no quote digest and no git. The Coder wrote this record from its returned text; its quote evidence is given as
+  absence records naming the packet path and lines.'
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+applicability:
+  examined:
+  - context/plan.yaml P-2
+  - diff.patch code and test hunks (golden and upstream hunks sampled)
+  - snapshot/**/*.py
+  - snapshot/README.md
+  - snapshot/tests/support/render.py
+  - evidence/web/ponytail-upstream.md
+  - context records
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: info
+  category: tests
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-2-9d457234/snapshot/README.md line 21
+    method: read the line and the AC-15 test
+    revision: 8c3421dc69cbb9839486d72e3cab410f55830327
+  claim: README.md line 21 still says 'each skill stops at a person' in lower case; the sentence starts with 'Six workflow skills', so it is true, but the
+    AC-15 test is case-sensitive and would not catch a later widening.
+  suggested_action: None needed for P-2; optionally make the AC-15 check case-insensitive.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: tests
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-2-9d457234/snapshot/tests/support/render.py lines 50-55
+    method: read the definitions and their uses
+    revision: 8c3421dc69cbb9839486d72e3cab410f55830327
+  claim: BUNDLED_SKILL_NAMES is now an alias of PONYTAIL_SKILL_NAMES, and test_workflow_bundled_skills.py uses both for the same set.
+  suggested_action: Optional; use one name consistently per test.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: tests
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-2-9d457234/snapshot/docs/design/one-command-setup/evidence/web/ponytail-upstream.md lines 23-29
+    method: compared the hash strings with the PROVENANCE.md tables
+    revision: 8c3421dc69cbb9839486d72e3cab410f55830327
+  claim: With the byte-identical upstream copy in the repository, a test could compare each PROVENANCE.md hash with its file; the reviewer compared the
+    hash strings by hand and all six tables match the evidence list.
+  suggested_action: Optional; the plan assigns AC-3 to the security reviewer.
+  confidence: low
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: code-reviewer
+    phase: implement
+  checks:
+  - what: P-2 acceptance criteria
+    how: read context/plan.yaml
+    result: pass
+  - what: diff code and test hunks
+    how: read
+    result: pass
+  - what: leftover references to removed code
+    how: search of snapshot/*.py
+    result: pass
+  - what: AC-17 equality with a636b31
+    how: needs git
+    result: not-run
+  - what: running the checks
+    how: no command execution
+    result: not-run

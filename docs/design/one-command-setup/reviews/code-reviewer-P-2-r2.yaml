@@ -53,6 +53,8 @@ capability_limits:
   records naming the packet path and lines.'
 - 'The packet''s diff is against 32faee9, which already holds the pre-#40 P-2 work merged by #41; the Ponytail files are not in the diff.'
 - Read-only is declared by the agent definition, not enforced by Orqlet.
+- 'Corrected on 2026-11-22 with the person''s yes: the Coder''s transcription used the categories maintainability (F-1 to F-3) and content (F-5),
+  which the finding schema does not have; they are now docs (F-1), tests (F-2, F-3) and docs (F-5). No claim, severity or verdict changed.'
 applicability:
   examined:
   - diff.patch lines 1-363 and 8621-end
@@ -68,7 +70,7 @@ findings:
   id: F-1
   kind: finding
   severity: non-blocking
-  category: maintainability
+  category: docs
   evidence:
   - kind: absence
     searched:
@@ -84,7 +86,7 @@ findings:
   id: F-2
   kind: finding
   severity: non-blocking
-  category: maintainability
+  category: tests
   evidence:
   - kind: absence
     searched:
@@ -100,7 +102,7 @@ findings:
   id: F-3
   kind: finding
   severity: info
-  category: maintainability
+  category: tests
   evidence:
   - kind: absence
     searched:
@@ -122,7 +124,7 @@ findings:
   id: F-5
   kind: observation
   severity: info
-  category: content
+  category: docs
   claim: ponytail-help names Copilot, which is rendered only from P-8.
   suggested_action: Ask whether to list it as an adaptation.
   confidence: medium

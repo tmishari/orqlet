@@ -6,12 +6,12 @@ review_input:
   covers: [code_tests, knowledge, plan, standards, candidates]
   components:
     candidates: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
-    code_tests: 757d2da6bd25005557679e8923b52f33c18cb71c9c5e9c3add93826e6aee2a23
+    code_tests: df53d87ddc4d650ee7fd215c48c2cad0ea3c69df60d7437fde937139db212614
     knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
-    plan: c9b92b7d4d8a7cdb0f2854f637f4c629f4459d3bdd96e46c44b1372191054595
+    plan: 3371f001fc6cc201ac909aa5d6f333b22bc738ff0b42fa6e588aa7b177797c4b
     standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
-  digest: 94ec168efb00106a96c2bab3e5a55490b5d8ac0ef550cf915838af21d22fa101
-  merge_base: 32faee9748f13216a8b5bdf8d3adc3bd51f09124
+  digest: af508a71132a98dda1b43992eaa4f0c16e9a77190b1809e166a090a4ba911e50
+  merge_base: 8c3421dc69cbb9839486d72e3cab410f55830327
 outcome: no-impact
 analysis:
   command: orqlet knowledge impact
@@ -24,12 +24,12 @@ analysis:
 entries: []
 no_impact:
   category: already-documented
-  reason: "The six bundled Ponytail skills, their provenance, licence and adaptations are written down in decisions 1 to 3 of ADR-006 and in EC-2 and EC-9 of the approved design manifest; the narrowed scan and the reworded descriptions are in Q-55 and P-2 AC-12 to AC-14, the test_skills.py change in Q-61 and AC-16. The one user-facing document that the change made wrong, README.md (the file count of init and 'Each skill stops at a person'), is corrected in this phase's own change (AC-15, Q-57). Against the record's base 32faee9, which holds the pre-#40 work in progress merged by #41, init and upgrade stop rendering the unreleased graphify skill and its references/dispatch.md, and ClientSkill loses the family_references field; both are removed by Q-60 and ADR-006 (Context, decision 4 and Consequences), and against a636b31 neither ever existed. No released command changes its output."
+  reason: "The six bundled Ponytail skills, their provenance, licence and adaptations are written down in decisions 1 to 3 of ADR-006 and in EC-2 and EC-9 of the approved design manifest; the narrowed scan and the reworded descriptions are in Q-55 and P-2 AC-12 to AC-14, the test_skills.py change in Q-61 and AC-16, and the removal of the pre-#40 work in Q-62 and AC-17. The one user-facing document that the change made wrong, README.md (the file count of init and 'Each skill stops at a person'), is corrected in this phase's own change (AC-15, Q-57). Against the record's base 8c3421d (main after #43), which still holds the pre-#40 work in progress merged by #41, init and upgrade stop rendering the unreleased graphify skill and its references/dispatch.md, and ClientSkill loses the family_references field; both are removed by Q-60, Q-62 and ADR-006 (Context, decision 4 and Consequences), and against a636b31 neither ever existed. The load_skills docstring now says path order, which is what the code does, and ponytail-help names only the clients that P-2 renders for (Claude Code and Cursor) on its slash-command line, as its PROVENANCE.md adaptation says. The upstream copy under evidence/web/ponytail-upstream/ is a task record for AC-3 and is neither packaged nor rendered. No released command changes its output."
   absence_record:
     scopes_searched: [".orqlet/knowledge.yaml sources (none configured)", "the plan's knowledge_scope (empty)", "README.md and docs/ outside docs/design/ for the skills the package ships", "the staged change of the phase"]
     views: [committed:HEAD]
-    revision: 362e542c59d3a6c1b0903aa294445cfa00539cdb
-    method: "orqlet knowledge impact one-command-setup P-2 --head staged against the target branch 32faee9 (exit 0, 0 candidates, ORQ-I400 twice: no public_api packages named by the design, no knowledge source configured); a text search of README.md for the skill table, the file count of init and the sentence on stopping at a person."
+    revision: 4f05c70d515a35cdfd9f57722439d640cc1e6eb6
+    method: "orqlet knowledge impact one-command-setup P-2 --head staged against the target branch 8c3421d (exit 0, 0 candidates, ORQ-I400 twice: no public_api packages named by the design, no knowledge source configured); a text search of README.md for the skill table, the file count of init and the sentence on stopping at a person."
     index_state: not-used
     candidates_found: 0
   already_documented_refs:

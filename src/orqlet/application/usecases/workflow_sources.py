@@ -102,7 +102,7 @@ def _collapse_blank_lines(lines: list[str]) -> str:
 
 
 def load_skills(workflow: WorkflowSource, available: Collection[str]) -> tuple[ClientSkill, ...]:
-    """One skill per `skills/<name>/skill.md`, with its `references/` files, in name order."""
+    """One skill per `skills/<name>/skill.md`, with its `references/` files, in path order."""
     version = str(workflow.release.version)
     skills = []
     for path in workflow.paths():

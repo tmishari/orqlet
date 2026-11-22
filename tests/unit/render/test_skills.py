@@ -144,15 +144,17 @@ def test_the_package_ships_the_expected_skills_roles_and_references() -> None:
     }
 
 
-def test_every_skill_says_that_source_material_is_not_authority_and_stops_for_a_person() -> None:
-    """one-command-setup P-2, AC-16. expected_behavior_source: Q-61 (the check holds for the phase
-    skills only) and ADR-006 decision 2 (the upstream Ponytail text is not adapted to say it). A
-    phase skill missing from the package fails the lookup."""
+def test_every_phase_skill_says_source_material_is_not_authority_stops_and_has_next() -> None:
+    """one-command-setup P-2, AC-16 and AC-17. expected_behavior_source: Q-61 (the check holds for
+    the phase skills only), Q-62 (the test is named for the phase skills and holds the Next check)
+    and ADR-006 decision 2 (the upstream Ponytail text is not adapted to say it). A phase skill
+    missing from the package fails the lookup."""
     skills = {skill.name: skill for skill in packaged_request().skills}
 
     for name in PHASE_SKILL_NAMES:
         assert NOT_AUTHORITY in skills[name].body, name
         assert "STOP." in skills[name].body, name
+        assert "## Next" in skills[name].body.split("\n"), name
 
 
 def test_every_skill_description_fits_the_agent_skills_limits() -> None:
