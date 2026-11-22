@@ -1,0 +1,182 @@
+schema: orqlet.review-result/v1
+task: one-command-setup
+phase: P-2
+role: architecture-reviewer
+round: 1
+verdict: FAIL
+assurance: advisory
+review_input:
+  schema: orqlet.review-input/v1
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  components:
+    code_tests: 757d2da6bd25005557679e8923b52f33c18cb71c9c5e9c3add93826e6aee2a23
+    design: fb35bfb38f9778269ac1dc5dee193b30da4bf7bc3f9f0337142d97801577168e
+    evidence_inputs: bb2b4f20b5a083a520e17b049d95b9da4831e1e486b0f532f05e0c88cb2a0408
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: c9b92b7d4d8a7cdb0f2854f637f4c629f4459d3bdd96e46c44b1372191054595
+    reviewer_definition: 83e52f1a68fceddc7beb1d83654661fd34a1e3b3028c4fcc3dd7b6dadd8f3463
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+  digest: c5e7cd7b625d296ad13a5fc384d8877ceda5929af5f3ca7ec0f021090384f587
+  merge_base: 32faee9748f13216a8b5bdf8d3adc3bd51f09124
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: 751953d100777e7ad1ae8ea41d8f096972ff2d2818b84213b87d027c1a3f9beb
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- The reviewer ran in the same client as the Coder (cursor), so independence is I1, below the I2 a D3 change requires (ORQLET-MODEL-002).
+- It was started as a typed subagent in a new session with the packet path one-command-setup-P-2-bee0c49e as its only prompt; that the context
+  is fresh is the Coder's claim from how it was started.
+- 'The reviewer''s session had no shell: it computed no quote digest and wrote no file. The Coder wrote this record from its returned text; quote
+  evidence is given as absence records naming the packet path and lines.'
+- 'The packet''s diff is against the target branch 32faee9, which already holds the pre-#40 P-2 work merged by #41; the Ponytail files are therefore
+  not in the diff.'
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+applicability:
+  examined:
+  - diff.patch
+  - context/plan.yaml
+  - context/design-manifest.yaml
+  - docs/design/one-command-setup/design/adr-006-bundled-skills-and-tool-preparation.md
+  - context records
+  - standards
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: blocking
+  category: architecture
+  evidence:
+  - kind: absence
+    searched:
+    - context/plan.yaml P-2 file_operations
+    - diff.patch lines 160-290, 359-2436, 8835-9020
+    method: compared every diff path with P-2 file_operations
+    revision: 32faee9748f13216a8b5bdf8d3adc3bd51f09124
+  claim: Against the packet base 32faee9 the staged change modifies src/orqlet/adapters/render/skills.py, src/orqlet/application/ports/instruction_adapter.py,
+    src/orqlet/application/usecases/workflow_sources.py, tests/unit/application/test_workflow_injection.py and tests/unit/render/test_rendered_formats.py,
+    and deletes src/orqlet/workflow/skills/graphify/** and the graphify golden files; none of these paths is in P-2's file_operations, and AC-10
+    is recorded as not-run.
+  suggested_action: Amend P-2's file list, or attach evidence that against the phase's actual base these edits cancel out and the change stays
+    inside the file list.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: finding
+  severity: non-blocking
+  category: correctness
+  evidence:
+  - kind: absence
+    searched:
+    - snapshot/src/orqlet/application/usecases/workflow_sources.py lines 103-137
+    - snapshot/tests/support/render.py lines 52-56
+    method: read both
+    revision: 32faee9748f13216a8b5bdf8d3adc3bd51f09124
+  claim: The load_skills docstring still says 'in name order', but skills now come back in path order (ponytail-audit .. ponytail-review before
+    ponytail), which tests/support/render.py pins; output stays deterministic.
+  suggested_action: Change the docstring to path order, or restore the sort.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: finding
+  severity: non-blocking
+  category: docs
+  evidence:
+  - kind: absence
+    searched:
+    - context/knowledge-impact.yaml lines 14-32
+    - diff.patch lines 63-65
+    method: compared the record with the diff
+    revision: 32faee9748f13216a8b5bdf8d3adc3bd51f09124
+  claim: The knowledge record says 'No existing command changes its output', but against its own base 32faee9 init and upgrade stop rendering
+    the graphify skill and its references/dispatch.md, and ClientSkill loses a field; the absence record names neither.
+  suggested_action: Say that against 32faee9 the unreleased graphify skill and the family-dispatch mechanism are removed (Q-60), citing ADR-006.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: finding
+  severity: non-blocking
+  category: tests
+  evidence:
+  - kind: absence
+    searched:
+    - diff.patch lines 9122-9130
+    - snapshot/tests/unit/test_workflow_bundled_skills.py lines 369-382
+    method: read both
+    revision: 32faee9748f13216a8b5bdf8d3adc3bd51f09124
+  claim: test_every_skill_says_that_source_material_is_not_authority_and_stops_for_a_person now checks only the phase skills, and test_workflow_bundled_skills.py
+    repeats the same assertions for the same skills.
+  suggested_action: Rename the first test to say phase skill; keep one owner of the assertions.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: architecture
+  claim: ADR-006 decision 3 (Ponytail cannot remove a required test, approval, phase boundary or independent review) is enforced by no artifact
+    or test.
+  suggested_action: The person decides whether a precedence statement is needed.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: info
+  category: standards
+  rule_ref: ORQLET-QA-001
+  claim: pytest ran on macOS with one Python; the CI matrix that QA-001 requires before the pull request is ready has not run.
+  suggested_action: Run the CI matrix before the pull request is ready.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-7
+  kind: observation
+  severity: info
+  category: architecture
+  claim: The packet cannot show that the amended plan was approved (ORQ-I393 offline).
+  suggested_action: The person confirms the approval of the Q-60 and Q-61 amendments.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-8
+  kind: observation
+  severity: info
+  category: standards
+  rule_ref: ORQLET-DET-001
+  claim: The test record says --update-golden changed no golden file, so the graphify golden files were removed another way.
+  suggested_action: Say in the test record how the graphify golden files were removed.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+  checks:
+  - what: packet read
+    how: MANIFEST base, plan P-2, design EC-2 and EC-9, ADR-006, rules, records, diff file list
+    result: pass
+  - what: change inside the phase file list
+    how: compared every diff path with P-2 file_operations
+    result: fail
+  - what: design boundaries
+    how: Ponytail only, no graphify; no new layer or port
+    result: pass
+  - what: quote digests
+    how: no shell in the reviewer session
+    result: not-run

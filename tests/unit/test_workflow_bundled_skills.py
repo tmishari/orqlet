@@ -1,36 +1,41 @@
-"""The bundled Graphify and Ponytail snapshots (task one-command-setup, phase P-2, AC-1, AC-2,
-AC-4 and AC-11).
+"""The bundled Ponytail snapshots (task one-command-setup, phase P-2, AC-1, AC-2, AC-4, AC-6 and
+AC-12).
 
 Every test cites its `expected_behavior_source`: AC-n is an acceptance criterion of phase P-2 in
 docs/design/one-command-setup/plan.yaml, ADR-006 is
 docs/design/one-command-setup/design/adr-006-bundled-skills-and-tool-preparation.md, Q-n are the
 questions of docs/design/one-command-setup/questions.yaml, and "the interface" is the one that the
 Coder gave for P-2 (the folders, the reference lists, the PROVENANCE.md line shapes and the
-forbidden words below).
+section names below).
 
-HOW THESE TESTS WERE WRITTEN. The Tester of P-2 wrote them before the snapshots existed, so each is
-expected to fail until its files exist. A source file is read from the folder of the installed
-`orqlet.workflow` package on disk, not through the manifest, so that a file that the manifest
-misses is still scanned; a rendered file is what the three client adapters return for
-`packaged_request()`.
+HOW THESE TESTS WERE WRITTEN. The Tester of P-2 wrote them from the acceptance criteria of the
+amended plan, in which graphify is not bundled and no skill has per-client family files (Q-60). A
+source file is read from the folder of the installed `orqlet.workflow` package on disk, not
+through the manifest, so that a file that the manifest misses is still scanned; a rendered file is
+what the three client adapters return for `packaged_request()`. No test needs the order in which
+`load_skills` returns the skills.
 
 Choices:
-- AC-4 is checked case-insensitively on every source file of the seven bundled skills (skill.md,
-  references/*.md, families/*.md) and on every file the adapters render for them, except
-  PROVENANCE.md and the licence files: PROVENANCE.md names the removed text, and a licence is
-  upstream text that is not an instruction.
-- "Every `references/<name>.md` that the rendered skill body names exists beside it" (AC-11) is
-  checked for the seven bundled skills, in the rendered SKILL.md and in each rendered reference
-  other than PROVENANCE.md and the licence files.
+- AC-4 is checked case-insensitively on every source file of the six bundled skills (skill.md and
+  references/*.md) and on every file the adapters render for them, except PROVENANCE.md and the
+  licence files: PROVENANCE.md names the removed text, and a licence is upstream text that is not
+  an instruction. The model words are those of the vendor check plus `grok`.
+- "Describes only the six delivered skills" (AC-4) is read as: every `ponytail-<word>` name in the
+  body of ponytail-help is one of the six, and the bold names of its `## Skills` section are
+  exactly the six.
+- AC-6: that every golden file of the base revision stays byte-identical is a diff against the
+  base revision; this file checks the shape (18 skill files per client and 6 Codex sidecars, and
+  no golden file under a skills folder that the adapters no longer render), and
+  tests/unit/render/test_clients_golden.py compares the bytes.
 
 Deliberately NOT pinned (the design leaves it open, or only a reviewer can tell):
 - AC-3, that the hashes equal the upstream files and that a snapshot differs from upstream only by
   the listed adaptations: the security reviewer checks it against the upstream files;
-- the wording of an adaptation beyond the names below, and whether graphify's PROVENANCE.md names
-  the per-adapter dispatch references as an adaptation in a fixed phrase;
+- the wording of an adaptation beyond the words below;
 - that benchmark numbers stay attributed to the upstream (ADR-006 decision 2): no form is given;
-- that ponytail-help lists the six delivered skills by a fixed name;
-- the manifest (AC-9, the manifest check) and the golden files (tests/unit/render).
+- ADR-006 decision 3 (Ponytail cannot remove a required test, approval, phase boundary or
+  independent review): no artifact text is given for it;
+- the manifest (AC-9, the manifest check).
 """
 
 from __future__ import annotations
@@ -49,54 +54,53 @@ from orqlet.application.ports.instruction_adapter import InstructionAdapter
 from orqlet.application.usecases.workflow_sources import parse_source
 from tests.support.render import (
     BUNDLED_SKILL_NAMES,
-    GRAPHIFY_SHARED_REFERENCES,
+    PHASE_SKILL_NAMES,
     PONYTAIL_SKILL_NAMES,
     packaged_request,
+    skill_files,
 )
 
 pytestmark = pytest.mark.unit
 
 SKILLS_DIR = Path(str(files("orqlet.workflow"))) / "skills"
+GOLDEN_ROOT = Path(__file__).resolve().parents[1] / "golden"
+GOLDEN_FAMILY = "docs-2026-10"
 ADAPTERS: tuple[InstructionAdapter, ...] = (ClaudeCodeAdapter(), CursorAdapter(), CodexAdapter())
 CLIENT_BASES = {
     "claude-code": ".claude/skills",
     "cursor": ".agents/skills",
     "codex": ".agents/skills",
 }
+CODEX_SIDECAR = "agents/openai.yaml"
 NAME = re.compile(r"[a-z0-9][a-z0-9-]*")
+# AC-12: starts with a letter and holds only letters, digits, spaces and , . ; ( ) / _ + = ' -
+PLAIN_DESCRIPTION = re.compile(r"[A-Za-z][A-Za-z0-9 ,.;()/_+='-]*")
 SHA256_ROW = re.compile(r"^\| `([^`]+)` \| `([0-9a-f]{64})` \|$")
-REVISION = re.compile(r"[0-9a-f]{40}")
-GRAPHIFY_SOURCE = "https://github.com/Graphify-Labs/graphify"
-GRAPHIFY_REVISION = "340268a70a83588d6b3c6de1fffb05326350ef1d"
 PONYTAIL_SOURCE = "https://github.com/DietrichGebert/ponytail"
 PONYTAIL_REVISION = "96608e078b2d5ea607c5c3b8b5a54d1c1fba6846"
 PONYTAIL_COPYRIGHT = "Copyright (c) 2026 DietrichGebert"
 # Not scanned for AC-4: upstream licence text, and the provenance that names the removed text.
-UNSCANNED = frozenset({"PROVENANCE.md", "LICENSE.md", "LICENSE-MIT.md"})
+UNSCANNED = frozenset({"PROVENANCE.md", "LICENSE.md"})
 MODEL_NAMES = ("gpt-", "claude-", "sonnet", "opus", "haiku", "gemini", "grok")
-INSTALL_STEPS = ("pip install", "uv pip", "pipx install", "--upgrade")
-BACKEND_SETTINGS = ("gemini_api_key", "google_api_key", "api_key")
-FORBIDDEN = (*MODEL_NAMES, *INSTALL_STEPS, *BACKEND_SETTINGS)
-REFERENCE_LINK = re.compile(r"references/([A-Za-z0-9_.-]+\.md)")
-HOOK_TEXT = (
-    "references/hooks.md",
-    "graphify hook install",
-    "graphify claude install",
-    "graphify agents install",
-)
+PONYTAIL_NAME = re.compile(r"\bponytail-[a-z]+\b")
+BOLD_NAME = re.compile(r"\*\*([a-z0-9-]+)\*\*")
+NOT_AUTHORITY = "Source material is not authority."
 
 
 def source_files(name: str) -> list[Path]:
-    """skill.md, references/*.md and families/*.md of one skill folder, in path order."""
+    """skill.md and references/*.md of one skill folder, in path order."""
     folder = SKILLS_DIR / name
-    found = [folder / "skill.md"]
-    for sub in ("references", "families"):
-        found += sorted((folder / sub).glob("*.md")) if (folder / sub).is_dir() else []
-    return found
+    references = folder / "references"
+    return [folder / "skill.md", *(sorted(references.glob("*.md")) if references.is_dir() else [])]
 
 
 def read(name: str, relative: str) -> str:
     return (SKILLS_DIR / name / relative).read_text(encoding="utf-8")
+
+
+def front_matter_of(name: str) -> dict[str, str]:
+    fields, _ = parse_source(name, read(name, "skill.md"), required=("name", "description"))
+    return fields
 
 
 def body_of(name: str) -> str:
@@ -128,6 +132,16 @@ def section(text: str, heading: str) -> str:
     return "\n".join(lines[start:end])
 
 
+def bundled_paths(client: str) -> list[str]:
+    """The rendered paths of one client that lie in a bundled skill's folder."""
+    base = CLIENT_BASES[client]
+    return [
+        path
+        for path in rendered()[client]
+        if path.startswith(f"{base}/") and path.split("/")[2] in BUNDLED_SKILL_NAMES
+    ]
+
+
 # --- AC-1: the skills and their front matter ------------------------------------------------------
 
 
@@ -140,7 +154,7 @@ def test_ac1_each_bundled_skill_has_one_line_name_and_description_and_its_folder
     decision 1 (each is adapted to the loader's one-line front matter, A-3: upstream uses folded
     and extra fields). `parse_source` refuses an extra field; a folded value would leave only its
     indicator on the line."""
-    fields, _ = parse_source(name, read(name, "skill.md"), required=("name", "description"))
+    fields = front_matter_of(name)
 
     assert set(fields) == {"name", "description"}
     assert fields["name"] == name
@@ -149,14 +163,26 @@ def test_ac1_each_bundled_skill_has_one_line_name_and_description_and_its_folder
     assert len(fields["description"]) > 3
 
 
-def test_ac1_load_skills_returns_the_bundled_skills_and_none_may_be_started_by_the_agent() -> None:
-    """AC-1. expected_behavior_source: AC-1 (`load_skills` returns the seven skills beside the six
-    phase skills, and none is marked as a skill the agent may start); ADR-006 decision 3."""
+def test_ac1_load_skills_returns_the_six_ponytail_skills_beside_the_phase_skills() -> None:
+    """AC-1. expected_behavior_source: AC-1 (`load_skills` returns `ponytail`, `ponytail-audit`,
+    `ponytail-debt`, `ponytail-gain`, `ponytail-help` and `ponytail-review` beside the six phase
+    skills, and none is marked as a skill the agent may start); ADR-006 decisions 1 and 3. Compared
+    as sets: the order is not part of the criterion."""
     skills = {skill.name: skill for skill in packaged_request().skills}
 
-    assert set(BUNDLED_SKILL_NAMES) <= set(skills)
+    assert set(skills) == {*PHASE_SKILL_NAMES, *PONYTAIL_SKILL_NAMES}
+    assert len(packaged_request().skills) == len(skills)
     for name in BUNDLED_SKILL_NAMES:
         assert not skills[name].agent_may_start, name
+
+
+def test_ac1_no_graphify_skill_is_packaged_or_rendered() -> None:
+    """AC-1. expected_behavior_source: AC-1 ("and no `graphify` skill"); Q-60 (the graphify skill
+    moves to a separate task); ADR-006 Context."""
+    assert not (SKILLS_DIR / "graphify").exists()
+    assert "graphify" not in {skill.name for skill in packaged_request().skills}
+    for client, client_files in rendered().items():
+        assert not [path for path in client_files if "/graphify/" in path], client
 
 
 # --- AC-2: provenance and licence files -----------------------------------------------------------
@@ -203,40 +229,11 @@ def test_ac2_provenance_lists_the_adaptations(name: str) -> None:
     assert all(line.startswith("- ") for line in bullets), bullets
 
 
-def test_ac2_graphify_provenance_names_source_revision_licence_and_notice() -> None:
-    """AC-2. expected_behavior_source: AC-2 (Graphify 340268a70a83588d6b3c6de1fffb05326350ef1d;
-    Apache-2.0 with the retained MIT terms and the NOTICE text); ADR-006 decision 1 (Graphify's
-    NOTICE); the interface (`Source:`, `Revision:`, `Licence:` and `## NOTICE`)."""
-    text = provenance("graphify")
-    licence = field_line(text, "Licence")
-
-    assert field_line(text, "Source") == GRAPHIFY_SOURCE
-    assert field_line(text, "Revision") == GRAPHIFY_REVISION
-    assert REVISION.fullmatch(field_line(text, "Revision")) is not None
-    assert "Apache-2.0" in licence
-    assert "MIT" in licence
-    assert section(text, "## NOTICE").strip()
-
-
-def test_ac2_graphify_provenance_lists_the_adaptations_of_decision_2_q51_and_q52() -> None:
-    """AC-2, AC-11. expected_behavior_source: ADR-006 decision 2 (the install steps are replaced
-    by a check that `graphify` is on `PATH`); Q-51 (hooks.md and the body section that links it
-    are dropped, listed as an adaptation); Q-52 (the `--backend` hint and the
-    `pip install 'graphifyy[video]'` step are removed); the interface (the bullets name
-    `hooks.md`, `--backend` and `graphifyy[video]`)."""
-    adaptations = section(provenance("graphify"), "## Adaptations")
-
-    assert "hooks.md" in adaptations
-    assert "--backend" in adaptations
-    assert "graphifyy[video]" in adaptations
-    assert "PATH" in adaptations
-
-
-@pytest.mark.parametrize("name", PONYTAIL_SKILL_NAMES)
-def test_ac2_ponytail_provenance_names_source_revision_and_the_mit_copyright(name: str) -> None:
-    """AC-2. expected_behavior_source: AC-2 (Ponytail 96608e078b2d5ea607c5c3b8b5a54d1c1fba6846;
-    MIT with its copyright line); ADR-006 context (MIT, copyright DietrichGebert); the interface
-    (`Source:`, `Revision:`, `Licence:`)."""
+@pytest.mark.parametrize("name", BUNDLED_SKILL_NAMES)
+def test_ac2_provenance_names_source_revision_and_the_mit_copyright(name: str) -> None:
+    """AC-2. expected_behavior_source: AC-2 (the source URL, Ponytail
+    96608e078b2d5ea607c5c3b8b5a54d1c1fba6846, MIT with its copyright line); ADR-006 Context (MIT,
+    copyright DietrichGebert); the interface (`Source:`, `Revision:`, `Licence:`)."""
     text = provenance(name)
     licence = field_line(text, "Licence")
 
@@ -246,25 +243,17 @@ def test_ac2_ponytail_provenance_names_source_revision_and_the_mit_copyright(nam
     assert PONYTAIL_COPYRIGHT in licence
 
 
-def test_ac2_graphify_carries_the_apache_licence_and_the_retained_mit_terms() -> None:
-    """AC-2. expected_behavior_source: AC-2 ("Each has `references/LICENSE.md`; graphify also has
-    `references/LICENSE-MIT.md`"); ADR-006 context (Apache-2.0, with retained MIT terms)."""
-    assert "Apache License" in read("graphify", "references/LICENSE.md")
-    assert "MIT License" in read("graphify", "references/LICENSE-MIT.md")
-
-
-@pytest.mark.parametrize("name", PONYTAIL_SKILL_NAMES)
-def test_ac2_each_ponytail_skill_carries_the_mit_licence_only(name: str) -> None:
-    """AC-2. expected_behavior_source: AC-2 (each has `references/LICENSE.md`; only graphify has
-    LICENSE-MIT.md); ADR-006 context (MIT, copyright DietrichGebert)."""
+@pytest.mark.parametrize("name", BUNDLED_SKILL_NAMES)
+def test_ac2_each_bundled_skill_carries_the_mit_licence(name: str) -> None:
+    """AC-2. expected_behavior_source: AC-2 ("Each has `references/LICENSE.md`"); ADR-006 Context
+    (MIT, copyright DietrichGebert)."""
     licence = read(name, "references/LICENSE.md")
 
     assert "MIT License" in licence
     assert PONYTAIL_COPYRIGHT in licence
-    assert not (SKILLS_DIR / name / "references" / "LICENSE-MIT.md").exists()
 
 
-# --- AC-4: no model, no install step, no backend --------------------------------------------------
+# --- AC-4: no model name; ponytail-help names what is not delivered -------------------------------
 
 
 def scanned_sources() -> list[tuple[str, Path]]:
@@ -278,64 +267,42 @@ def scanned_sources() -> list[tuple[str, Path]]:
 
 @pytest.mark.parametrize(
     ("name", "path"),
-    scanned_sources() if SKILLS_DIR.joinpath("graphify").is_dir() else [],
+    scanned_sources(),
     ids=lambda value: value.name if isinstance(value, Path) else str(value),
 )
-def test_ac4_no_bundled_source_file_names_a_model_an_install_step_or_a_backend(
-    name: str, path: Path
-) -> None:
-    """AC-4. expected_behavior_source: AC-4 (no bundled skill file contains a model name, a
-    dependency-install step `pip install`, `uv pip`, `pipx install`, `--upgrade`, or a model
-    backend setting `gemini`, `GEMINI_API_KEY`, `GOOGLE_API_KEY`, `api_key`); ADR-006 decision 2;
-    ORQLET-MODEL-001; ORQLET-NOMODEL-001; the interface (the model words of the vendor check plus
-    `grok`, case-insensitive, PROVENANCE.md and the licences apart)."""
+def test_ac4_no_bundled_source_file_names_a_model(name: str, path: Path) -> None:
+    """AC-4. expected_behavior_source: AC-4 ("No bundled skill file contains a model name that the
+    policy did not assign"); ADR-006 decision 2; ORQLET-MODEL-001; ORQLET-NOMODEL-001; the
+    interface (the model words of the vendor check plus `grok`, case-insensitive, PROVENANCE.md and
+    the licences apart). The packaged workflow assigns no model."""
     text = path.read_text(encoding="utf-8").lower()
 
-    for word in FORBIDDEN:
+    for word in MODEL_NAMES:
         assert word not in text, f"{name}/{path.name}: {word}"
 
 
 def test_ac4_every_bundled_skill_folder_exists_with_files_to_scan() -> None:
-    """AC-4. expected_behavior_source: plan P-2 file operations (the seven folders with skill.md);
+    """AC-4. expected_behavior_source: plan P-2 file operations (the six folders with skill.md);
     this guards the parametrized scan above against scanning nothing."""
     for name in BUNDLED_SKILL_NAMES:
         assert (SKILLS_DIR / name / "skill.md").is_file(), name
-    assert len(scanned_sources()) >= 7 + len(GRAPHIFY_SHARED_REFERENCES) + 3
+    assert len(scanned_sources()) >= len(BUNDLED_SKILL_NAMES)
 
 
 @pytest.mark.parametrize("client", list(CLIENT_BASES))
-def test_ac4_no_rendered_file_of_a_bundled_skill_names_a_model_an_install_step_or_a_backend(
-    client: str,
-) -> None:
+def test_ac4_no_rendered_file_of_a_bundled_skill_names_a_model(client: str) -> None:
     """AC-4. expected_behavior_source: AC-4 and ORQLET-MODEL-001 (a model name appears in a
     generated file only when the policy assigned it; the packaged request assigns none): the
-    rendered skill, reference, dispatch and sidecar files, PROVENANCE.md and the licences apart."""
-    base = CLIENT_BASES[client]
+    rendered skill, reference and sidecar files, PROVENANCE.md and the licences apart."""
     checked = 0
-    for path, text in rendered()[client].items():
-        parts = path.split("/")
-        if not path.startswith(base) or parts[2] not in BUNDLED_SKILL_NAMES:
-            continue
-        if parts[-1] in UNSCANNED:
+    for path in bundled_paths(client):
+        if path.split("/")[-1] in UNSCANNED:
             continue
         checked += 1
-        for word in FORBIDDEN:
-            assert word not in text.lower(), f"{path}: {word}"
+        text = rendered()[client][path].lower()
+        for word in MODEL_NAMES:
+            assert word not in text, f"{path}: {word}"
     assert checked >= len(BUNDLED_SKILL_NAMES)
-
-
-def test_ac4_graphify_checks_that_graphify_is_on_path_instead_of_installing_it() -> None:
-    """AC-4. expected_behavior_source: AC-4 ("The graphify skill checks that `graphify` is on PATH
-    instead of installing it; when it is missing, the skill tells the person to run Orqlet's
-    install step in a terminal without naming a command, because `orqlet install` arrives in
-    P-10"); Q-53; ADR-006 decision 2 and decision 4 (tool preparation happens in `install` only);
-    the interface (`command -v graphify` and the phrase `Orqlet's install step`)."""
-    body = body_of("graphify")
-
-    assert "command -v graphify" in body
-    assert "Orqlet's install step" in body
-    assert "orqlet install" not in body.lower()
-    assert "uv tool install" not in body
 
 
 def test_ac4_ponytail_help_names_the_upstream_features_that_are_not_delivered() -> None:
@@ -350,84 +317,101 @@ def test_ac4_ponytail_help_names_the_upstream_features_that_are_not_delivered() 
     assert "persistent configuration" in text
 
 
-# --- AC-11: graphify's shared references ----------------------------------------------------------
+def test_ac4_ponytail_help_describes_only_the_six_delivered_skills() -> None:
+    """AC-4. expected_behavior_source: AC-4 (`ponytail-help` "describes only the six delivered
+    skills"); ADR-006 decision 2 ("Ponytail help: it describes only the six delivered skills");
+    the interface (the `## Skills` section names each skill in bold)."""
+    body = body_of("ponytail-help")
+    listed = set(BOLD_NAME.findall(section(body, "## Skills")))
+
+    assert listed == set(PONYTAIL_SKILL_NAMES)
+    assert set(PONYTAIL_NAME.findall(body)) <= set(PONYTAIL_SKILL_NAMES)
 
 
-@pytest.mark.parametrize("reference", GRAPHIFY_SHARED_REFERENCES)
-def test_ac11_each_shared_reference_renders_once_with_the_same_bytes_for_every_client(
-    reference: str,
-) -> None:
-    """AC-11. expected_behavior_source: AC-11 (the seven references ship once, rendered with the
-    same bytes for every client); Q-52 ("Once under graphify/references/ for every client")."""
-    texts = {
-        client: rendered()[client][f"{base}/graphify/references/{reference}"]
-        for client, base in CLIENT_BASES.items()
-    }
-
-    assert texts["claude-code"] == texts["cursor"] == texts["codex"]
-    assert (SKILLS_DIR / "graphify" / "references" / reference).is_file()
-
-
-def test_ac11_no_hooks_reference_is_shipped_or_rendered() -> None:
-    """AC-11. expected_behavior_source: AC-11 ("No `references/hooks.md` is rendered"); Q-51
-    ("Drop hooks.md")."""
-    assert not (SKILLS_DIR / "graphify" / "references" / "hooks.md").exists()
-    assert not list(SKILLS_DIR.glob("*/families/hooks.md"))
-    for client, client_files in rendered().items():
-        assert not [path for path in client_files if path.endswith("/hooks.md")], client
-
-
-def test_ac11_the_graphify_body_neither_links_hooks_md_nor_registers_graphify() -> None:
-    """AC-11. expected_behavior_source: AC-11 (the skill body has no section that links
-    hooks.md or tells the agent to run `graphify hook install`, `graphify claude install` or
-    `graphify agents install`); Q-51; ADR-006 rejected alternative (Graphify's own installer writes
-    registrations and hooks itself)."""
-    body = body_of("graphify")
-    families = "\n".join(read("graphify", f"families/{f}.md") for f in ("claude", "agents"))
-
-    for text in HOOK_TEXT:
-        assert text not in body, text
-        assert text not in families, text
-
-
-def test_ac11_github_and_merge_has_no_backend_hint_and_add_watch_no_install_step() -> None:
-    """AC-11. expected_behavior_source: AC-11 (github-and-merge.md has no `--backend` hint and
-    add-watch.md no `pip install 'graphifyy[video]'` step); Q-52."""
-    assert "--backend" not in read("graphify", "references/github-and-merge.md")
-    add_watch = read("graphify", "references/add-watch.md")
-    assert "pip install" not in add_watch
-    assert "graphifyy[video]" not in add_watch
+# --- AC-6: what each client gets ------------------------------------------------------------------
 
 
 @pytest.mark.parametrize("client", list(CLIENT_BASES))
-def test_ac11_every_reference_that_a_rendered_bundled_file_names_exists_beside_it(
-    client: str,
-) -> None:
-    """AC-11. expected_behavior_source: AC-11 ("Every `references/<name>.md` that the rendered
-    skill body names exists beside it for each client"); Q-52 (without the references the
-    rendered skill links files that do not exist). Checked in SKILL.md and in each rendered
-    reference, dispatch.md included, for the seven bundled skills."""
+def test_ac6_each_client_gets_18_skill_files_and_codex_6_sidecars(client: str) -> None:
+    """AC-6. expected_behavior_source: AC-6 ("18 skill files per client and the 6 Codex
+    `agents/openai.yaml` sidecars"); ADR-006 decision 3 (the bundled skills render as the other
+    packaged skills do, for every client); the interface (SKILL.md, references/LICENSE.md and
+    references/PROVENANCE.md per skill)."""
     base = CLIENT_BASES[client]
-    files = rendered()[client]
-    for name in BUNDLED_SKILL_NAMES:
-        folder = f"{base}/{name}"
-        texts = {
-            path: text
-            for path, text in files.items()
-            if path == f"{folder}/SKILL.md"
-            or (path.startswith(f"{folder}/references/") and path.split("/")[-1] not in UNSCANNED)
-        }
-        assert f"{folder}/SKILL.md" in texts, folder
-        for path, text in texts.items():
-            for linked in REFERENCE_LINK.findall(text):
-                assert f"{folder}/references/{linked}" in files, f"{path} -> {linked}"
+    sidecars = [f"{base}/{name}/{CODEX_SIDECAR}" for name in BUNDLED_SKILL_NAMES]
+    expected = skill_files(base, BUNDLED_SKILL_NAMES)
+
+    paths = bundled_paths(client)
+
+    assert len(expected) == 18
+    assert sorted(path for path in paths if not path.endswith(CODEX_SIDECAR)) == sorted(expected)
+    assert sorted(path for path in paths if path.endswith(CODEX_SIDECAR)) == (
+        sorted(sidecars) if client == "codex" else []
+    )
 
 
-def test_ac11_the_graphify_body_links_the_seven_shared_references() -> None:
-    """AC-11. expected_behavior_source: Q-52 ("The graphify skill body links seven more
-    references (add-watch, exports, extraction-spec, github-and-merge, query, transcribe,
-    update)"): the rendered SKILL.md of each client names every one of them. Whether the body
-    links `references/dispatch.md` is not sourced and is not pinned."""
-    for client, base in CLIENT_BASES.items():
-        linked = set(REFERENCE_LINK.findall(rendered()[client][f"{base}/graphify/SKILL.md"]))
-        assert set(GRAPHIFY_SHARED_REFERENCES) <= linked, client
+@pytest.mark.parametrize("client", list(CLIENT_BASES))
+def test_ac6_every_golden_file_under_a_skills_folder_is_still_rendered(client: str) -> None:
+    """AC-6. expected_behavior_source: AC-6 (the golden files of the new skills match for the three
+    clients, and every golden file of the base revision stays); ORQLET-DET-001; Q-60 (graphify is
+    not bundled, so no golden file of it remains). A golden file that the adapters no longer
+    render is never compared by tests/unit/render/test_clients_golden.py; this finds one."""
+    base = CLIENT_BASES[client]
+    root = GOLDEN_ROOT / client / GOLDEN_FAMILY
+    golden = {
+        path.relative_to(root).as_posix() for path in (root / base).rglob("*") if path.is_file()
+    }
+    skills = {path for path in rendered()[client] if path.startswith(f"{base}/")}
+
+    assert golden == skills
+
+
+@pytest.mark.parametrize("name", PHASE_SKILL_NAMES)
+def test_ac6_each_phase_skill_still_says_source_material_is_not_authority_and_stops(
+    name: str,
+) -> None:
+    """AC-6. expected_behavior_source: AC-6 (the six phase skills stay byte-identical "with their
+    STOP and Next sections"); AC-15 and Q-57 (README.md says that each phase skill stops at a
+    person); tests/unit/render/test_skills.py at the base revision (every phase skill says
+    "Source material is not authority." and holds "STOP."). The bundled skills are upstream text
+    and are not required to hold these lines."""
+    body = body_of(name)
+
+    assert NOT_AUTHORITY in body
+    assert "STOP." in body
+    assert "## Next" in body.split("\n")
+
+
+# --- AC-12: descriptions the renderer writes without quotes ---------------------------------------
+
+
+@pytest.mark.parametrize("name", BUNDLED_SKILL_NAMES)
+def test_ac12_the_description_needs_no_quotes(name: str) -> None:
+    """AC-12. expected_behavior_source: AC-12 (the description "starts with a letter and holds only
+    letters, digits, spaces and `, . ; ( ) / _ + = ' -`"); Q-55 (the descriptions are reworded so
+    they need no YAML quoting)."""
+    description = front_matter_of(name)["description"]
+
+    assert PLAIN_DESCRIPTION.fullmatch(description) is not None, description
+
+
+@pytest.mark.parametrize("client", list(CLIENT_BASES))
+@pytest.mark.parametrize("name", BUNDLED_SKILL_NAMES)
+def test_ac12_the_renderer_writes_the_description_without_quotes(name: str, client: str) -> None:
+    """AC-12. expected_behavior_source: AC-12 ("so that the renderer writes it without quotes");
+    Q-55. The rendered SKILL.md of each client holds the line `description: <text>` as it is in
+    the source."""
+    description = front_matter_of(name)["description"]
+    text = rendered()[client][f"{CLIENT_BASES[client]}/{name}/SKILL.md"]
+
+    assert f"description: {description}" in text.split("\n")
+
+
+@pytest.mark.parametrize("name", BUNDLED_SKILL_NAMES)
+def test_ac12_provenance_lists_the_rewording_of_the_description(name: str) -> None:
+    """AC-12. expected_behavior_source: AC-12 ("Each PROVENANCE.md lists the rewording as an
+    adaptation"); Q-55 ("PROVENANCE lists that"); the interface (one bullet of `## Adaptations`
+    names the `description` and says that it is reworded)."""
+    bullets = section(provenance(name), "## Adaptations").split("\n")
+
+    assert any("description" in line and "reworded" in line.lower() for line in bullets), bullets

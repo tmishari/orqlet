@@ -1167,17 +1167,21 @@ def test_the_scan_reads_the_front_matter_of_a_bundled_skill_and_all_of_another_f
     body; in a phase skill's file it still finds the body.
     """
     text = b"---\nname: x\nmodel: claude-fable-9\n---\nThe best way.\n"
-    bundled = CLAUDE_SKILL.format("graphify")
+    bundled = CLAUDE_SKILL.format("ponytail")
     phase = CLAUDE_SKILL.format(REVIEW)
 
-    assert sorted(excluded_hits_in({bundled: text, phase: text})) == [
-        f"{bundled}: claude-fable-",
-        f"{bundled}: fable",
-        f"{phase}: best",
-        f"{phase}: claude-fable-",
-        f"{phase}: fable",
-    ]
-    assert excluded_hits_in({bundled.replace("SKILL.md", "references/query.md"): b"best"}) == []
+    assert sorted(excluded_hits_in({bundled: text, phase: text})) == sorted(
+        [
+            f"{bundled}: claude-fable-",
+            f"{bundled}: fable",
+            f"{phase}: best",
+            f"{phase}: claude-fable-",
+            f"{phase}: fable",
+        ]
+    )
+    reference = bundled.replace("SKILL.md", "references/PROVENANCE.md")
+    assert excluded_hits_in({reference: b"best"}) == []
+    assert excluded_hits_in({phase.replace("SKILL.md", "references/x.md"): b"best"}) != []
 
 
 # --- AC-9: each writer reads only its own client's entry ----------------------------------

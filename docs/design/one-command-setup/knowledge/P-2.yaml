@@ -5,41 +5,33 @@ review_input:
   schema: orqlet.review-input/v1
   covers: [code_tests, knowledge, plan, standards, candidates]
   components:
-    candidates: 0ff5891119bea3beb1d5e6589821b0c989a6099e7665fd1525b2c78e54bf7191
-    code_tests: 6298733491af4b4ea2f17d6281019400752d51b0082cf15a96a871802c5a5826
+    candidates: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    code_tests: 757d2da6bd25005557679e8923b52f33c18cb71c9c5e9c3add93826e6aee2a23
     knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
-    plan: 597eb0627a0e40468f11599b45646b29304828bbd67feacaa416f868300d47cb
+    plan: c9b92b7d4d8a7cdb0f2854f637f4c629f4459d3bdd96e46c44b1372191054595
     standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
-  digest: 73d05bcef66e35e62a0e1f5d96d54005002fd28916054b5d44ecbb8e812dc018
-  merge_base: 17e162cfb0eac2883af6e3c0d2fc4cab0cd27485
+  digest: 94ec168efb00106a96c2bab3e5a55490b5d8ac0ef550cf915838af21d22fa101
+  merge_base: 32faee9748f13216a8b5bdf8d3adc3bd51f09124
 outcome: no-impact
 analysis:
   command: orqlet knowledge impact
   orqlet_version: 0.4.0
-  candidates_digest: 0ff5891119bea3beb1d5e6589821b0c989a6099e7665fd1525b2c78e54bf7191
-  candidate_count: 1
+  candidates_digest: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+  candidate_count: 0
   input: pre-draft-tree
   views: [committed:HEAD]
   index_state: not-used
-entries:
-  - id: K-1
-    candidate_ref: cand-4a8f5a32b2d4
-    action: unaffected
-    scope: project
-    reason: "The only candidate is EC-7, the rich dependency of P-1 (commit ea20443), which is in the diff because the branch is compared with origin/main and P-1 is not pushed. P-2 changes no dependency; gate status still reports EC-7 as implemented as designed, and P-1's knowledge record resolved it."
-    evidence:
-      - {kind: design, ref: docs/design/one-command-setup/design/manifest.yaml, sha256: be94816a74b2a91a42afcd48210c646d989d6b5a9716923176c8d500e1bc7fba}
-      - {kind: adr, ref: docs/design/one-command-setup/design/adr-007-terminal-presentation.md, sha256: aff768709d7b902eb25f95dc53b6a4e42713b409f4ce0ca03587cedbb2fb90dd}
+entries: []
 no_impact:
   category: already-documented
-  reason: "The bundled graphify and ponytail skills, their provenance and the per-family dispatch reference are written down in decisions 1 to 3 of ADR-006, in EC-2 and EC-9 of the approved design manifest and in ledger answers Q-51 to Q-53; the narrowed test scans and the reworded descriptions are in Q-55 and P-2 AC-12 to AC-14. No existing command changes its output. The README's skill table (README.md lines 322-332) lists the workflow skills that are run in order and does not claim to list every installed skill, so it is not wrong; the plan assigns the README to P-11."
+  reason: "The six bundled Ponytail skills, their provenance, licence and adaptations are written down in decisions 1 to 3 of ADR-006 and in EC-2 and EC-9 of the approved design manifest; the narrowed scan and the reworded descriptions are in Q-55 and P-2 AC-12 to AC-14, the test_skills.py change in Q-61 and AC-16. The one user-facing document that the change made wrong, README.md (the file count of init and 'Each skill stops at a person'), is corrected in this phase's own change (AC-15, Q-57). Against the record's base 32faee9, which holds the pre-#40 work in progress merged by #41, init and upgrade stop rendering the unreleased graphify skill and its references/dispatch.md, and ClientSkill loses the family_references field; both are removed by Q-60 and ADR-006 (Context, decision 4 and Consequences), and against a636b31 neither ever existed. No released command changes its output."
   absence_record:
     scopes_searched: [".orqlet/knowledge.yaml sources (none configured)", "the plan's knowledge_scope (empty)", "README.md and docs/ outside docs/design/ for the skills the package ships", "the staged change of the phase"]
     views: [committed:HEAD]
-    revision: ea2044369235b59a08a9aac87b231f2478479d9e
-    method: "orqlet knowledge impact one-command-setup P-2 on the staged tree (exit 0, 1 candidate, ORQ-I400 twice: no public_api packages named by the design, no knowledge source configured); a text search of README.md and docs/ for skill names and skill folders."
+    revision: 362e542c59d3a6c1b0903aa294445cfa00539cdb
+    method: "orqlet knowledge impact one-command-setup P-2 --head staged against the target branch 32faee9 (exit 0, 0 candidates, ORQ-I400 twice: no public_api packages named by the design, no knowledge source configured); a text search of README.md for the skill table, the file count of init and the sentence on stopping at a person."
     index_state: not-used
-    candidates_found: 1
+    candidates_found: 0
   already_documented_refs:
-    - {path: docs/design/one-command-setup/design/adr-006-bundled-skills-and-tool-preparation.md, sha256: 5614e5ec2a3c0b09b08bbb51f8b6fd630496f21c61cb27e5639a82a3758ef949}
-    - {path: docs/design/one-command-setup/design/manifest.yaml, sha256: be94816a74b2a91a42afcd48210c646d989d6b5a9716923176c8d500e1bc7fba}
+    - {path: docs/design/one-command-setup/design/adr-006-bundled-skills-and-tool-preparation.md, sha256: bf3151f13feb9a0e88ab22bb8738f4a55f61ad6224d341fab28876ec14f17217}
+    - {path: docs/design/one-command-setup/design/manifest.yaml, sha256: 970fed48fbf6253c8ddd89a449e537b86bf0396fa1f0aa55b2724f8f71b19b34}

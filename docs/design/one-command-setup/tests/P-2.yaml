@@ -5,52 +5,58 @@ review_input:
   schema: orqlet.review-input/v1
   covers: [code_tests, plan]
   components:
-    code_tests: 6298733491af4b4ea2f17d6281019400752d51b0082cf15a96a871802c5a5826
-    plan: 597eb0627a0e40468f11599b45646b29304828bbd67feacaa416f868300d47cb
-  digest: 1cf63733ad3173f26b388a08f5a6feb2b8b5c9116564a6abe50c836d8f65a385
-  merge_base: 17e162cfb0eac2883af6e3c0d2fc4cab0cd27485
+    code_tests: 757d2da6bd25005557679e8923b52f33c18cb71c9c5e9c3add93826e6aee2a23
+    plan: c9b92b7d4d8a7cdb0f2854f637f4c629f4459d3bdd96e46c44b1372191054595
+  digest: 6f3bc6d665ee025a8503899ac26bc656162759573b6f592acafb9cb719dcc5a8
+  merge_base: 32faee9748f13216a8b5bdf8d3adc3bd51f09124
 verdict: NOT_RUN
 evidence_kind: claimed
 commands:
   - id: ruff-check
     exit_code: 0
-    summary: "uv run ruff check . (ci.yml:31, AGENTS.md:47-50; sha256 of both match the plan): All checks passed. The digest is of the whole captured output."
+    summary: "uv run ruff check . (ci.yml:31, AGENTS.md:47-50; unchanged since the plan's base except P-1's own pyproject.toml operation, Q-54): All checks passed. The digest is of the whole captured output."
     result_digest: 5b196eb3a6acb50d3fa398d04ca284985cc1ffec870e940264b00780bfd2c971
   - id: ruff-format
     exit_code: 0
-    summary: "uv run ruff format --check . (ci.yml:32, AGENTS.md:53-56; sha256 of both match the plan): 730 files already formatted. The digest is of the whole captured output."
-    result_digest: 6c2b2a5fb4588f7857bd7fe4a2e21764dfe4f39545380e8abfecc7b3e647d259
+    summary: "uv run ruff format --check . (ci.yml:32, AGENTS.md:53-56): 725 files already formatted. The digest is of the whole captured output."
+    result_digest: a735dfd237ad94438325c38e3d5d1299806b186a649d9406f8719208940563b6
   - id: mypy
     exit_code: 0
-    summary: "uv run mypy (ci.yml:47, AGENTS.md:59-62; sha256 of both match the plan): Success, no issues found in 394 source files. The digest is of the whole captured output."
+    summary: "uv run mypy (ci.yml:47, AGENTS.md:59-62): Success, no issues found in 394 source files. The digest is of the whole captured output."
     result_digest: 135062164779c7f2cccf62445ae44077ceb24947940fc8388f0aba08b0bc1cf4
   - id: import-linter
     exit_code: 0
-    summary: "uv run lint-imports (ci.yml:62; sha256 matches the plan): 6 contracts kept, 0 broken. The digest is of the whole captured output."
+    summary: "uv run lint-imports (ci.yml:62): 6 contracts kept, 0 broken. The digest is of the whole captured output."
     result_digest: 2627d5a037d0e070b3944903baa222f61673bcd0b37d0a790fb66d171e79de10
-  - id: pytest
-    exit_code: 0
-    summary: "uv run pytest (ci.yml:84, AGENTS.md:71-74; sha256 of both match the plan; pyproject.toml:69-81 holds its content one line lower after P-1 with the cited hash, Q-54) on the staged P-2 tree after the Q-55 amendment: 13191 passed, 1 skipped in 1374.70s; the skip is tests/integration/test_junction.py, Windows only. The four scan and premise test files changed under Q-55 (AC-13, AC-14) and tests/unit/render/test_front_matter_views.py passes unchanged (AC-12). The golden files were rewritten with `uv run pytest --update-golden tests/unit/render/test_clients_golden.py`, the plan's command, and each golden diff was read: only the seven descriptions and the PROVENANCE adaptation lines changed. macOS and one Python only; the CI matrix was not run. The digest is of the captured tail of the output."
-    result_digest: 833b70471e2b01295fc696a7ba8f5954ff26a5febd6ab167228ffe2b187a492b
   - id: manifest-check
     exit_code: 0
-    summary: "uv run python tools/build_manifest.py --check (ci.yml:64; sha256 matches the plan): exit 0 with no output, after the manifest was rebuilt with `uv run python tools/build_manifest.py` (workflow_version 0.5.0). The digest is of the empty captured output."
+    summary: "uv run python tools/build_manifest.py --check (ci.yml:64, tools/build_manifest.py), after `uv run python tools/build_manifest.py` rebuilt MANIFEST.json (pre-approved): no output, exit 0; workflow_version stays 0.5.0 (AC-9). The digest is of the empty captured output."
     result_digest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  - id: pytest
+    exit_code: 0
+    summary: "uv run pytest (ci.yml:84, AGENTS.md:71-74) on the staged P-2 tree after #42 (AC-16): 13186 passed, 1 skipped in 1360.88s; the skip is tests/integration/test_junction.py, Windows only. `uv run pytest --update-golden tests/unit/render/test_clients_golden.py` (pre-approved) changed no golden file: the 60 Ponytail golden files match the render and every golden file of the base revision is byte-identical (AC-6). The unnarrowed scans of test_workflow_injection.py and test_rendered_formats.py pass on the Ponytail files (AC-14), and test_front_matter_views.py passes unchanged (AC-12). macOS and one Python only; the CI matrix was not run. The digest is of the whole captured output."
+    result_digest: c3c7975da048d4ca793ce1e85d0f48085f34f3ed507d86e0e2a5bcf95fdb8b5e
   - id: gate-status-phase
     exit_code: 5
-    summary: "uv run orqlet gate status one-command-setup --phase P-2 --head staged: NOT_RUN, exit 5, only because of ORQ-I393 (offline approval evidence) and ORQ-W390 base_revision on as-is, design and plan, which the person confirmed keeps the approval valid (Q-49); the plan accepts a NOT_RUN caused by ORQ-I393 alone, so AC-10 is recorded as not-run. No ORQ-E450, ORQ-E451 or ORQ-E453. The digest is of the whole captured output."
-    result_digest: 75f89e4195d5a7cce857351ba6dcce34b924941d5c9f4e8f860502457883094e
+    summary: "uv run orqlet gate status one-command-setup --phase P-2 --head staged: NOT_RUN, exit 5, only because of ORQ-I393 (offline approval evidence) and ORQ-W390 base_revision on as-is, design and plan, which the person keeps valid (Q-49). No ORQ-E450, ORQ-E451 or ORQ-E453; EC-2 and EC-9 are manual comparisons (ORQ-I451). AC-10 is recorded as not-run, as the plan expects offline. The digest is of the whole captured output."
+    result_digest: a089867157dfb1538dbc4e64d9b6685083f0a0b16b551577675a886d38c9758f
+  - id: file-list-pre-41-base
+    exit_code: 0
+    summary: "Agreed evidence for AC-10 and architecture review r1 F-1, not a planned check: `git diff --cached --name-status a636b3130aa892537298917097b217df8f190d38`, the staged tree against the merge of #40, before #41 squash-merged the pre-#40 P-2 work in progress (with graphify and the families mechanism) into main. 107 paths, 95 added and 12 modified, none deleted. Every path is a file operation of P-1 or P-2, a record of this task (knowledge/, tests/, reviews/), plan.yaml and questions.yaml (amendment #42, approved by its merge) or .gitignore (the task's own non-phase commit 'Ignore local graphify state', merged by #41). skills.py, instruction_adapter.py, workflow_sources.py, test_workflow_injection.py, test_rendered_formats.py and every graphify path are absent: against a636b31 they are unchanged, so their edits in the diff against 32faee9 only undo the #41 work in progress. The graphify golden and source files were removed with `git rm`, not by --update-golden. The digest is of the whole command output."
+    result_digest: a1b6939af90e6f40905e34d6bea204a3c8a234619c3d7caa5e01ea7b598b2a11
 acceptance_coverage:
   - {ac: AC-1, check_ref: pytest, result: pass}
   - {ac: AC-2, check_ref: pytest, result: pass}
   - {ac: AC-3, check_ref: security-reviewer, result: not-run}
   - {ac: AC-4, check_ref: pytest, result: pass}
-  - {ac: AC-5, check_ref: pytest, result: pass}
   - {ac: AC-6, check_ref: pytest, result: pass}
   - {ac: AC-8, check_ref: pytest, result: pass}
   - {ac: AC-9, check_ref: manifest-check, result: pass}
   - {ac: AC-10, check_ref: gate-status-phase, result: not-run}
-  - {ac: AC-11, check_ref: pytest, result: pass}
   - {ac: AC-12, check_ref: pytest, result: pass}
   - {ac: AC-13, check_ref: pytest, result: pass}
   - {ac: AC-14, check_ref: pytest, result: pass}
+  - {ac: AC-15, check_ref: pytest, result: pass}
+  # AC-16: tests/unit/render/test_skills.py::test_the_package_ships_the_expected_skills_roles_and_references
+  # and ::test_every_skill_says_that_source_material_is_not_authority_and_stops_for_a_person.
+  - {ac: AC-16, check_ref: pytest, result: pass}

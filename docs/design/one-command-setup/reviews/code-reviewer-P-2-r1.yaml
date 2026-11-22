@@ -1,0 +1,152 @@
+schema: orqlet.review-result/v1
+task: one-command-setup
+phase: P-2
+role: code-reviewer
+round: 1
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  schema: orqlet.review-input/v1
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  components:
+    code_tests: 757d2da6bd25005557679e8923b52f33c18cb71c9c5e9c3add93826e6aee2a23
+    design: fb35bfb38f9778269ac1dc5dee193b30da4bf7bc3f9f0337142d97801577168e
+    evidence_inputs: bb2b4f20b5a083a520e17b049d95b9da4831e1e486b0f532f05e0c88cb2a0408
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: c9b92b7d4d8a7cdb0f2854f637f4c629f4459d3bdd96e46c44b1372191054595
+    reviewer_definition: 6660b181a2ba46a0bbd8225a3449e2322f0030dea1fa146cb15dfd0e3ffcd94e
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+  digest: 9c1824f82d51a53470c50f78aca822b65963a1420c079b6934bf3382d00b2de9
+  merge_base: 32faee9748f13216a8b5bdf8d3adc3bd51f09124
+agent:
+  binding_ref: orqlet-code-reviewer
+  definition_sha256: d807b6881723a0c72151d12a514eb0506a2356d9e94d170daff3f53178dff488
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I0
+capability_limits:
+- The reviewer ran in the same client as the Coder (cursor), and .orqlet/role-bindings.yaml holds no approved code-reviewer binding for cursor,
+  so independence is I0, below the I2 a code review needs at every change class; the verdict is NOT_RUN.
+- orqlet models resolve --role orqlet-code-reviewer --client cursor lists no candidates (engineering profile, automatic); the client chose the
+  model, which is not observed.
+- The reviewer's own conclusion was no blocking code defect; AC-1, AC-2, AC-4, AC-6, AC-8 and AC-12 to AC-16 covered by tests.
+- It was started as a typed subagent in a new session with the packet path one-command-setup-P-2-bee0c49e as its only prompt; that the context
+  is fresh is the Coder's claim from how it was started.
+- 'The reviewer''s session had no shell: it computed no quote digest and wrote no file. The Coder wrote this record from its returned text; quote
+  evidence is given as absence records naming the packet path and lines.'
+- 'The packet''s diff is against the target branch 32faee9, which already holds the pre-#40 P-2 work merged by #41; the Ponytail files are therefore
+  not in the diff.'
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+applicability:
+  examined:
+  - diff.patch (non-golden hunks)
+  - src/orqlet/adapters/render/skills.py
+  - src/orqlet/application/usecases/workflow_sources.py
+  - src/orqlet/application/ports/instruction_adapter.py
+  - tests/support/render.py
+  - tests/support/real_env.py
+  - tests/integration/test_init_bundled_skills.py
+  - tests/unit/test_workflow_bundled_skills.py
+  - tests/unit/render/test_model_settings_render.py
+  - tests/unit/render/test_skills.py
+  - tests/unit/application/test_models_resolve.py
+  - context records
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: docs
+  evidence:
+  - kind: absence
+    searched:
+    - snapshot/src/orqlet/application/usecases/workflow_sources.py lines 104-105 and 137
+    - snapshot/tests/support/render.py lines 52-56
+    method: read the code and the test support
+    revision: 32faee9748f13216a8b5bdf8d3adc3bd51f09124
+  claim: The load_skills docstring says 'in name order', but the code returns tuple(skills) in workflow.paths() order, where ponytail-audit ..
+    ponytail-review come before ponytail; tests/support/render.py lines 52-56 pins that path order.
+  suggested_action: Make the docstring say path order, or restore the sort by name and the name-order SKILL_NAMES.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: finding
+  severity: non-blocking
+  category: tests
+  evidence:
+  - kind: absence
+    searched:
+    - snapshot/tests/unit/render/test_skills.py lines 147-155
+    method: read the test
+    revision: 32faee9748f13216a8b5bdf8d3adc3bd51f09124
+  claim: test_every_skill_says_that_source_material_is_not_authority_and_stops_for_a_person loops over PHASE_SKILL_NAMES only; its name still
+    claims every skill.
+  suggested_action: Rename it to say phase skill and update the AC-16 comment of the test record.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: finding
+  severity: non-blocking
+  category: tests
+  evidence:
+  - kind: absence
+    searched:
+    - snapshot/tests/unit/test_workflow_bundled_skills.py lines 369-382
+    - snapshot/tests/unit/render/test_skills.py lines 147-155
+    method: read both tests
+    revision: 32faee9748f13216a8b5bdf8d3adc3bd51f09124
+  claim: test_ac6_each_phase_skill_still_says_source_material_is_not_authority_and_stops repeats the assertions of test_skills.py; only the '##
+    Next' check is extra.
+  suggested_action: Keep one owner of the rule.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: tests
+  claim: 'The test that checked disable-model-invocation: true in each rendered Ponytail SKILL.md was removed; AC-1 rests on the agent_may_start
+    test, the Codex sidecar check and the golden files.'
+  suggested_action: None needed.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: tests
+  claim: AC-16 says every other assertion of test_skills.py is unchanged, yet the diff against 32faee9 removes many tests; they read as the earlier
+    graphify version's tests, which could not be confirmed against ff9fbf1.
+  suggested_action: Confirm against the plan's base.
+  confidence: low
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: code-reviewer
+    phase: implement
+  checks:
+  - what: packet read
+    how: every non-golden hunk and the snapshot files they touch
+    result: pass
+  - what: callers of load_skills and .skills
+    how: searched the snapshot
+    result: pass
+  - what: quote digests
+    how: shell refused in the session
+    result: not-run
