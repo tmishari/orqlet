@@ -26,6 +26,9 @@ Timestamp = Annotated[
 ]
 Client = str  # "claude-code", "codex" or "cursor"; validated where a closed set is needed
 ClientId = Literal["claude-code", "codex", "cursor"]
+# The clients that receive files in the user scope; `ClientId` stays the set of project adapters.
+RenderClientId = Literal["claude-code", "codex", "cursor", "copilot"]
+RENDER_CLIENT_IDS: tuple[RenderClientId, ...] = ("claude-code", "codex", "copilot", "cursor")
 
 # The three string types below are a pattern and a length and nothing else. A custom validator
 # message can repeat the offending value (see `loading.py`); a built-in pattern or length error

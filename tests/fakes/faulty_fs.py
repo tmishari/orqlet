@@ -27,6 +27,9 @@ class FaultyFileSystem:
     def read_bytes(self, path: CanonicalPath) -> bytes:
         return self._inner.read_bytes(path)
 
+    def read_prefix(self, path: CanonicalPath, limit: int) -> bytes:
+        return self._inner.read_bytes(path)[:limit]
+
     def write_atomic(self, path: CanonicalPath, data: bytes) -> None:
         self._mutate()
         self._inner.write_atomic(path, data)

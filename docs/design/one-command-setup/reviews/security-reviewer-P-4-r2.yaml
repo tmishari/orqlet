@@ -1,0 +1,126 @@
+schema: orqlet.review-result/v1
+task: one-command-setup
+phase: P-4
+role: security-reviewer
+round: 2
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: e8f02ed358e0268c724e19019b21e4aac022effcb53491a37de8e8f8f6f7c675
+    design: fb35bfb38f9778269ac1dc5dee193b30da4bf7bc3f9f0337142d97801577168e
+    evidence_inputs: b0dce41b23a51e5bbba079aa23205ea442f57e5f9f99a70e3776a95319cb1fe1
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 3371f001fc6cc201ac909aa5d6f333b22bc738ff0b42fa6e588aa7b177797c4b
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: f9d55523c475b966b6ce5b5dc95f725d77efeccbef37ea8c5088b87a2f033a98
+  merge_base: 0854c7f2ef326fdb4ca41fd7ff15f70d769fb034
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- 'Same client as the Coder (cursor): independence I1, below the I2 a D3 change requires; the verdict is NOT_RUN.'
+- The reviewer's own conclusion was no blocking finding.
+- Round 2 of P-4. It was started as a typed subagent with the packet path one-command-setup-P-4-3366e891 as its only prompt; that the context is fresh is
+  the Coder's claim. The packet's diff is against main 0854c7f and holds P-4 only.
+- 'The reviewer''s session had no shell: no quote digest and no git. The Coder wrote this record from its returned text; its quote evidence is given as
+  absence records naming the packet path and lines.'
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+applicability:
+  examined:
+  - diff.patch source hunks
+  - the Git runner, the bounded reader, the strict loader and the output paths
+  - ADR-001 decision 3
+  - ADR-004 decision 7
+  - tests/P-4.yaml and knowledge/P-4.yaml
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: security
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-4-3366e891/snapshot/src/orqlet/domain/representable.py
+    - one-command-setup-P-4-3366e891/snapshot/src/orqlet/domain/versions.py
+    method: traced Version.parse
+    revision: 0854c7f2ef326fdb4ca41fd7ff15f70d769fb034
+  claim: A lock version with a part over 4300 digits makes int() raise ValueError, which representable_version does not catch, so a hostile workflow.lock
+    stops status with an internal error instead of a null version.
+  suggested_action: Catch ValueError or bound the part length, with a test.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: finding
+  severity: non-blocking
+  category: security
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-4-3366e891/snapshot/src/orqlet/domain/representable.py lines 17-39
+    method: compared the rule with the invisible characters
+    revision: 0854c7f2ef326fdb4ca41fd7ff15f70d769fb034
+  claim: U+FFA0, U+034F, U+17B4, U+17B5, U+180B to U+180D, U+180F and unassigned code points are invisible and still pass the path rule.
+  suggested_action: The person decides whether to widen the rule.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: security
+  claim: A permission error while reading an untrusted project folder ends in an internal error instead of a check not run.
+  suggested_action: See the code review's F-1.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: security
+  claim: The PATH check does not flag an others-writable folder that holds orqlet itself; this matches AC-3 and a test pins it.
+  suggested_action: No change in P-4.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: security
+  claim: The home-work-tree check compares paths as exact text, so a case difference on macOS could suggest init instead of refusing. Not confirmed.
+  suggested_action: Consider normcase or st_dev and st_ino.
+  confidence: low
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: secrets, process and file access, parsing, output, dependencies
+    how: read and pattern search
+    result: pass
+  - what: running the checks and quote digests
+    how: no shell
+    result: not-run

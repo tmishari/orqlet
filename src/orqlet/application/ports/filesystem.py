@@ -32,6 +32,21 @@ class NotARegularFile(FileSystemError):
     pass
 
 
+class ReadOnlyFiles(Protocol):
+    """What a reader of a possibly hostile tree needs, and nothing that writes."""
+
+    def kind(self, path: CanonicalPath) -> FileKind | None:
+        """As `FileSystem.kind`."""
+        ...
+
+    def read_prefix(self, path: CanonicalPath, limit: int) -> bytes:
+        """At most `limit` bytes from the start of a regular file; the errors of `read_bytes`.
+
+        No more than `limit` bytes are read, so a huge file costs no more than a small one.
+        """
+        ...
+
+
 class FileSystem(Protocol):
     def kind(self, path: CanonicalPath) -> FileKind | None:
         """What `path` is, without following links; `None` when it does not exist.

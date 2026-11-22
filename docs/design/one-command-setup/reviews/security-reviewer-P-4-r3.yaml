@@ -1,0 +1,122 @@
+schema: orqlet.review-result/v1
+task: one-command-setup
+phase: P-4
+role: security-reviewer
+round: 3
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: 38c02786a132ba8bf5ad3ba8b1d3a78a999c18509bb65cb6cc4bd91161949fb7
+    design: fb35bfb38f9778269ac1dc5dee193b30da4bf7bc3f9f0337142d97801577168e
+    evidence_inputs: 3101273c3d917942c61f05f359ddb273f34cb40d736cfc51577acd257242754f
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 3371f001fc6cc201ac909aa5d6f333b22bc738ff0b42fa6e588aa7b177797c4b
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 75ddbcd4c41107719aac1e2eb78c2391caf8e1fb36bbd01c2093d39d09f5b8bb
+  merge_base: 0854c7f2ef326fdb4ca41fd7ff15f70d769fb034
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- 'Same client as the Coder (cursor): independence I1, below the I2 a D3 change requires; the verdict is NOT_RUN.'
+- The reviewer's own conclusion was no blocking finding.
+- Round 3 of P-4. It was started as a typed subagent with the packet path one-command-setup-P-4-0c07c7cf as its only prompt; that the context is fresh is
+  the Coder's claim. The packet's diff is against main 0854c7f and holds P-4 only.
+- 'The reviewer''s session had no shell: no quote digest and no git. The Coder wrote this record from its returned text; its quote evidence is given as
+  absence records naming the packet path and lines.'
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+applicability:
+  examined:
+  - diff.patch source hunks
+  - git_runner.py, subprocess_runner.py, environment.py, local_fs.py, the strict loader
+  - ADR-001 decision 3
+  - ADR-004 decision 7
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: security
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-4-0c07c7cf/snapshot/src/orqlet/adapters/git/git_runner.py lines 50 and 122-128
+    - one-command-setup-P-4-0c07c7cf/snapshot/src/orqlet/adapters/process/subprocess_runner.py lines 34-37
+    - one-command-setup-P-4-0c07c7cf/snapshot/src/orqlet/interface/cli/wiring.py lines 92-110
+    method: traced the launch of git
+    revision: 0854c7f2ef326fdb4ca41fd7ff15f70d769fb034
+  claim: status starts the bare name git with the project as working folder; an empty, dot or relative PATH element lets a git committed in an untrusted
+    clone run, and status checks PATH only after Git.
+  suggested_action: 'Ask the person: resolve git through absolute elements, or check PATH first and skip Git; add a test.'
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: security
+  claim: The folder holding orqlet itself is not reported when others can write to it, and no unsafe element is reported when orqlet is absent; both follow
+    AC-3.
+  suggested_action: P-6 decides whether that folder counts as unsafe.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: security
+  claim: UserManifest entry paths and roots accept .. segments and absolute paths; P-4 reads only versions and owners.
+  suggested_action: Check entry paths against the pinned roots before P-6 or uninstall acts on them.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: security
+  claim: Other space separators, enclosing marks, stacked combining marks and homoglyphs still pass the path rule; this is the residual risk accepted in
+    Q-69 and Q-70.
+  suggested_action: None for P-4.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: security
+  claim: A FIFO swapped in between the kind check and the open could make status hang; local_fs.py documents this race as outside the threat model.
+  suggested_action: None for P-4.
+  confidence: low
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: secrets, process and file access, parsing, output, dependencies
+    how: read and pattern search
+    result: pass
+  - what: running the checks and quote digests
+    how: no shell
+    result: not-run

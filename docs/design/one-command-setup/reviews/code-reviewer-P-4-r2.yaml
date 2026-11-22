@@ -1,0 +1,132 @@
+schema: orqlet.review-result/v1
+task: one-command-setup
+phase: P-4
+role: code-reviewer
+round: 2
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: e8f02ed358e0268c724e19019b21e4aac022effcb53491a37de8e8f8f6f7c675
+    design: fb35bfb38f9778269ac1dc5dee193b30da4bf7bc3f9f0337142d97801577168e
+    evidence_inputs: b0dce41b23a51e5bbba079aa23205ea442f57e5f9f99a70e3776a95319cb1fe1
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 3371f001fc6cc201ac909aa5d6f333b22bc738ff0b42fa6e588aa7b177797c4b
+    reviewer_definition: 6660b181a2ba46a0bbd8225a3449e2322f0030dea1fa146cb15dfd0e3ffcd94e
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 8b423a90d3f62b8335a3dafc6513ec1bebfc8e29ddb18281bd96d4ca9103d80f
+  merge_base: 0854c7f2ef326fdb4ca41fd7ff15f70d769fb034
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-code-reviewer
+  definition_sha256: d807b6881723a0c72151d12a514eb0506a2356d9e94d170daff3f53178dff488
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I0
+capability_limits:
+- 'Same client as the Coder (cursor) and no approved code-reviewer binding for cursor in .orqlet/role-bindings.yaml: independence I0, below the I2 a code
+  review needs; the verdict is NOT_RUN.'
+- Its notes for the other reviewers (a match inside an unsafe folder gives no host step; a data root that is a link is followed; sys.argv[0] gives None
+  under python -m; paths compared without normcase) are kept in this line only.
+- Round 2 of P-4. It was started as a typed subagent with the packet path one-command-setup-P-4-3366e891 as its only prompt; that the context is fresh is
+  the Coder's claim. The packet's diff is against main 0854c7f and holds P-4 only.
+- 'The reviewer''s session had no shell: no quote digest and no git. The Coder wrote this record from its returned text; its quote evidence is given as
+  absence records naming the packet path and lines.'
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+applicability:
+  examined:
+  - P-4 in context/plan.yaml lines 685-865
+  - all of diff.patch
+  - context/test-record.yaml
+  - local_fs.py, loading.py, versions.py, runner.py, exit_codes.py, git_runner.py, vcs_git.py from the snapshot
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: blocking
+  category: failure-handling
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-4-3366e891/snapshot/src/orqlet/application/usecases/status.py lines 206-230
+    - one-command-setup-P-4-3366e891/snapshot/src/orqlet/adapters/fs/local_fs.py lines 167-172
+    - tests/unit/application/test_status.py
+    - tests/integration/test_status_cli.py
+    method: traced the failure path and searched the tests for a permission case
+    revision: 0854c7f2ef326fdb4ca41fd7ff15f70d769fb034
+  claim: LocalFileSystem._lstat lets a PermissionError through, which is not a FileSystemError; with .orqlet or <data>/user at mode 000 status exits 70
+    instead of 5, against AC-6 and Q-65.
+  suggested_action: Catch OSError around the reads of status, and add a POSIX test with both folders at mode 000 expecting exit 5.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: finding
+  severity: non-blocking
+  category: correctness
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-4-3366e891/snapshot/src/orqlet/interface/cli/wiring.py line 105
+    - one-command-setup-P-4-3366e891/snapshot/src/orqlet/adapters/scan/executables.py lines 19-28
+    method: read the wiring and the locator
+    revision: 0854c7f2ef326fdb4ca41fd7ff15f70d769fb034
+  claim: The wiring never passes the host's PATHEXT, so Windows always uses .COM;.EXE;.BAT;.CMD and can skip an orqlet.<ext> the shell would run.
+  suggested_action: Pass PATHEXT when it is set and not empty, keeping the default otherwise.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: finding
+  severity: non-blocking
+  category: tests
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-4-3366e891/snapshot/src/orqlet/adapters/git/vcs_git.py lines 62-83
+    - tests/integration/test_vcs_worktree.py
+    method: searched the worktree tests for the three refusals
+    revision: 0854c7f2ef326fdb4ca41fd7ff15f70d769fb034
+  claim: GitVcs.worktree() refuses a path with a line feed, non-UTF-8 output and a short reply, but no test exercises them.
+  suggested_action: Add a POSIX integration test with a repository folder whose name holds a line feed, expecting exit 5 and a null top_level.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: correctness
+  claim: _Place is built from five positional fields of similar types, and the client states are built by iterating the missing dict.
+  suggested_action: Use keyword arguments for _Place and iterate RENDER_CLIENT_IDS.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: code-reviewer
+    phase: implement
+  checks:
+  - what: AC-1 to AC-10 and AC-12 against the code and tests
+    how: read and traced
+    result: pass
+  - what: failure paths of the reads
+    how: traced by hand
+    result: fail
+  - what: running the checks and quote digests
+    how: no shell
+    result: not-run

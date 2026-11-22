@@ -20,6 +20,7 @@ IMPLEMENTED_COMMANDS: frozenset[str] = frozenset(
         "doctor",
         "explain",
         "release",
+        "status",
         "profile answer",
         "profile approve",
         "resources add",

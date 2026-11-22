@@ -624,8 +624,8 @@ def test_the_implemented_commands_differ_from_the_base_by_exactly_the_new_comman
     added = IMPLEMENTED_COMMANDS - BASE_COMMANDS
 
     # P-7 of dynamic-model-profiles adds `validate model-policy` to the base, and P-8 adds
-    # `models resolve`.
-    assert added == {"validate integrations", "validate model-policy", "models resolve"}
+    # `models resolve`. P-4 of one-command-setup adds `status`.
+    assert added == {"validate integrations", "validate model-policy", "models resolve", "status"}
     assert BASE_COMMANDS <= IMPLEMENTED_COMMANDS
 
 
@@ -638,6 +638,7 @@ def test_the_commands_that_the_application_registers_are_the_implemented_command
         "validate integrations",
         "validate model-policy",
         "models resolve",
+        "status",
     }
     assert "validate integrations" not in PLANNED_COMMANDS
 

@@ -87,6 +87,12 @@ class LocalFileSystem:
         return None if info is None else _classify(target, info)
 
     def read_bytes(self, path: CanonicalPath) -> bytes:
+        return self._read(path, None)
+
+    def read_prefix(self, path: CanonicalPath, limit: int) -> bytes:
+        return self._read(path, limit)
+
+    def _read(self, path: CanonicalPath, limit: int | None) -> bytes:
         target = self._locate(path.parts)
         info = self._lstat(target)
         if info is None:
@@ -103,7 +109,7 @@ class LocalFileSystem:
                 raise LinkRefused(str(path)) from exc
             raise FileSystemError(f"cannot read {path}: {exc.strerror}") from exc
         with os.fdopen(descriptor, "rb") as handle:
-            return handle.read()
+            return handle.read() if limit is None else handle.read(limit)
 
     def write_atomic(self, path: CanonicalPath, data: bytes) -> None:
         if path.parent is not None:

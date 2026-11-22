@@ -1,0 +1,104 @@
+schema: orqlet.review-result/v1
+task: one-command-setup
+phase: P-4
+role: architecture-reviewer
+round: 5
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: 0420c9602e3cad718017390daecff5aac1e2f990c30b3bf4971fc0f50ac9b30d
+    design: fb35bfb38f9778269ac1dc5dee193b30da4bf7bc3f9f0337142d97801577168e
+    evidence_inputs: 612b47d3dd70e4580932b162fda1fc2ea85533b3421fe3e23cdc9aaf46c9038b
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 3371f001fc6cc201ac909aa5d6f333b22bc738ff0b42fa6e588aa7b177797c4b
+    reviewer_definition: 83e52f1a68fceddc7beb1d83654661fd34a1e3b3028c4fcc3dd7b6dadd8f3463
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 840b705d420b17be2ca8022433ea04516a51bf9193ceb1d6e6404fa089928c1b
+  merge_base: 0854c7f2ef326fdb4ca41fd7ff15f70d769fb034
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: 751953d100777e7ad1ae8ea41d8f096972ff2d2818b84213b87d027c1a3f9beb
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- 'Same client as the Coder (cursor): independence I1, below the I2 a D3 change requires (ORQLET-MODEL-002); the verdict is NOT_RUN.'
+- The reviewer's own conclusion was no blocking finding; it read only the test names of the unit test files.
+- Round 5 of P-4. It was started as a typed subagent with the packet path one-command-setup-P-4-c56259b1 as its only prompt; that the context is fresh is
+  the Coder's claim. The packet's diff is against main 0854c7f and holds P-4 only.
+- 'The reviewer''s session had no shell: no quote digest and no git. The Coder wrote this record from its returned text; its quote evidence is given as
+  absence records naming the packet path and lines.'
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+applicability:
+  examined:
+  - diff.patch
+  - plan P-4
+  - the design manifest and component.md section 3
+  - questions.yaml
+  - the test and knowledge records
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: info
+  category: architecture
+  claim: The status use case catches OSError because LocalFileSystem.kind lets a refused permission through.
+  suggested_action: A follow-up outside P-4 could convert it in the adapter.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: compatibility
+  claim: The linked-worktree and home checks compare paths without case normalisation, unlike vcs_git.py line 305; untested on Windows.
+  suggested_action: Run the CI matrix before merge.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: docs
+  claim: component.md section 3 still lists the old status values and no top_level_reason; open Q-78 owns the amendment.
+  suggested_action: Settle Q-78 before P-5.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: standards
+  claim: Every check result is claimed by the Coder and the gate check did not run.
+  suggested_action: Let CI run the required checks before merge.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+  checks:
+  - what: scope, boundaries, contracts, knowledge record
+    how: read
+    result: pass
+  - what: running the checks and quote digests
+    how: no shell
+    result: not-run

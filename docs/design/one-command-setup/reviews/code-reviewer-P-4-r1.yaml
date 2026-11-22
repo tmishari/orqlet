@@ -1,0 +1,116 @@
+schema: orqlet.review-result/v1
+task: one-command-setup
+phase: P-4
+role: code-reviewer
+round: 1
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: 590d12ecb11cef87180fe5b8b3429cd76ffb80784bd8941ce7e645dbb12db51c
+    design: fb35bfb38f9778269ac1dc5dee193b30da4bf7bc3f9f0337142d97801577168e
+    evidence_inputs: 0316787467ad5b9acd9c9b4302727526aaee093e6a2a3a9aae1d06c47220ed7e
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 3371f001fc6cc201ac909aa5d6f333b22bc738ff0b42fa6e588aa7b177797c4b
+    reviewer_definition: 6660b181a2ba46a0bbd8225a3449e2322f0030dea1fa146cb15dfd0e3ffcd94e
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 92ce88f9014c9a05051d3fab212d660c8f6f4c8f628092bc91fa1196ed9d8db2
+  merge_base: 0854c7f2ef326fdb4ca41fd7ff15f70d769fb034
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-code-reviewer
+  definition_sha256: d807b6881723a0c72151d12a514eb0506a2356d9e94d170daff3f53178dff488
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I0
+capability_limits:
+- 'Same client as the Coder (cursor) and no approved code-reviewer binding for cursor in .orqlet/role-bindings.yaml: independence I0, below the I2 a code
+  review needs; the verdict is NOT_RUN.'
+- The reviewer's own conclusion was no blocking defect.
+- Its notes for the other reviewers (a v2 manifest gives install-global with exit 5; Windows behaviour unverified; a world-writable matching folder is not
+  reported) are kept in this line only.
+- Round 1 of P-4. It was started as a typed subagent with the packet path one-command-setup-P-4-5f3910c1 as its only prompt; that the context is fresh is
+  the Coder's claim. The packet's diff is against main 0854c7f and holds P-4 only.
+- 'The reviewer''s session had no shell: no quote digest and no git. The Coder wrote this record from its returned text; its quote evidence is given as
+  absence records naming the packet path and lines.'
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+applicability:
+  examined:
+  - the production code of the diff
+  - the four unit test files and the two integration test files
+  - context/test-record.yaml
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: failure-handling
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-4-5f3910c1/snapshot/src/orqlet/application/usecases/bounded_read.py lines 21-35
+    method: read the reader and LocalFileSystem.read_bytes
+    revision: 0854c7f2ef326fdb4ca41fd7ff15f70d769fb034
+  claim: read_bounded reads the whole file into memory before comparing it with 1 MiB; ADR-004 says the size is checked before reading.
+  suggested_action: Read at most the limit plus one byte, or check the size on the opened file.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: finding
+  severity: non-blocking
+  category: correctness
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-4-5f3910c1/snapshot/src/orqlet/adapters/scan/executables.py lines 39-45
+    method: read the candidate list
+    revision: 0854c7f2ef326fdb4ca41fd7ff15f70d769fb034
+  claim: In Windows mode the locator tries the bare name before the PATHEXT extensions and accepts any regular file, so a stray extensionless orqlet earlier
+    on PATH gives a wrong orqlet_on_path; no test covers it.
+  suggested_action: Try only name plus each PATHEXT extension in Windows mode, and add a test.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: finding
+  severity: non-blocking
+  category: tests
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-4-5f3910c1/snapshot/tests/unit/application/test_status.py
+    method: searched for ClientId and get_args
+    revision: 0854c7f2ef326fdb4ca41fd7ff15f70d769fb034
+  claim: AC-8's second half (ClientId keeps its three values) is not pinned, and RenderClientId's four values only indirectly.
+  suggested_action: Add a test of both Literal sets and of RENDER_CLIENT_IDS.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: code-reviewer
+    phase: implement
+  checks:
+  - what: AC-1 to AC-12 against the code and tests
+    how: read
+    result: pass
+  - what: running the checks and quote digests
+    how: no shell
+    result: not-run

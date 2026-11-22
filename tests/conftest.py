@@ -43,6 +43,30 @@ def _running_in_ci() -> bool:
     return bool(os.environ.get("CI") or os.environ.get("GITHUB_ACTIONS"))
 
 
+@pytest.fixture(autouse=True)
+def temporary_home(
+    tmp_path_factory: pytest.TempPathFactory, monkeypatch: pytest.MonkeyPatch
+) -> Path:
+    """Every test runs with a home, client folders and a data directory of its own.
+
+    A command that writes the user scope can then never reach the real home of the person who
+    runs the suite (K-4). Only the home folder exists; the others are created by what is tested.
+    """
+    user = tmp_path_factory.mktemp("user")
+    home = user / "home"
+    home.mkdir()
+    variables = {
+        "HOME": home,
+        "USERPROFILE": home,
+        "CODEX_HOME": home / ".codex",
+        "COPILOT_HOME": home / ".copilot",
+        "ORQLET_DATA_DIR": user / "data",
+    }
+    for name, value in variables.items():
+        monkeypatch.setenv(name, str(value))
+    return home
+
+
 @pytest.fixture
 def golden(request: pytest.FixtureRequest) -> Callable[[str, bytes], None]:
     """Compare bytes with a golden file, or rewrite it with `--update-golden` outside CI.
