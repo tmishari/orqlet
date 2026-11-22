@@ -1,0 +1,109 @@
+schema: orqlet.review-result/v1
+task: one-command-setup
+phase: P-3
+role: code-reviewer
+round: 1
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: bfc48a96704db8601d1c34b83c05c419f2a6d25885d58dd09599f3e913383548
+    design: fb35bfb38f9778269ac1dc5dee193b30da4bf7bc3f9f0337142d97801577168e
+    evidence_inputs: 49f643a2a7a56822e2ed83d2e1cc648c54f9737940ccfb4c1768d93370bf2199
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 3371f001fc6cc201ac909aa5d6f333b22bc738ff0b42fa6e588aa7b177797c4b
+    reviewer_definition: 6660b181a2ba46a0bbd8225a3449e2322f0030dea1fa146cb15dfd0e3ffcd94e
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 45b447d5051defb41dc65add5c1b5a4e626724bf0027896fcea336a666cb9d44
+  merge_base: 8c3421dc69cbb9839486d72e3cab410f55830327
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-code-reviewer
+  definition_sha256: d807b6881723a0c72151d12a514eb0506a2356d9e94d170daff3f53178dff488
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I0
+capability_limits:
+- 'Same client as the Coder (cursor) and no approved code-reviewer binding for cursor in .orqlet/role-bindings.yaml: independence I0, below the I2 a code
+  review needs; the verdict is NOT_RUN.'
+- The reviewer's own conclusion was no code defect; AC-1 to AC-3 met by the recorded results, AC-4 unaffected.
+- The reviewer reported its own model as Claude Opus 5.5; the client does not expose it, so the record keeps it unobserved.
+- 'Its observations on read_text errors passing through, the invented Codex block markers, the duplicated baseline path literal and the not-yet-called function
+  are kept in this line only: no change in P-3.'
+- Round 1 of P-3. It was started as a typed subagent with the packet path one-command-setup-P-3-4acc7849 as its only prompt; that the context is fresh is
+  the Coder's claim. The packet's diff is against main 8c3421d and also holds P-2 (commit 50b47fb); the reviewer examined the P-3 files.
+- 'The reviewer''s session had no shell: no quote digest and no git. The Coder wrote this record from its returned text; its quote evidence is given as
+  absence records naming the packet path and lines.'
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+applicability:
+  examined:
+  - src/orqlet/workflow/baseline/foundation.md
+  - src/orqlet/application/usecases/foundation.py
+  - MANIFEST.json entry of foundation.md
+  - tests/unit/application/test_foundation.py
+  - context/test-record.yaml
+  - context/knowledge-impact.yaml
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: tests
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-3-4acc7849/snapshot/src/orqlet/application/usecases/foundation.py lines 32-35
+    - one-command-setup-P-3-4acc7849/snapshot/tests/unit/application/test_foundation.py
+    method: read every test that uses FakeWorkflow; FAKE_BASELINE always has a heading after the section
+    revision: 8c3421dc69cbb9839486d72e3cab410f55830327
+  claim: The fallback of _how_to_work when no heading follows '### How to work' (end = len(lines)) has no test; every fake baseline has a following heading.
+  suggested_action: Add a FakeWorkflow case where '### How to work' is the last section and assert the full composed text.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: finding
+  severity: non-blocking
+  category: tests
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-3-4acc7849/snapshot/tests/unit/application/test_foundation.py lines 184-186
+    method: read the keyword matcher
+    revision: 8c3421dc69cbb9839486d72e3cab410f55830327
+  claim: is_step_check requires only 'step', 'check' or 'verify', and 'plan'; the condition 'outside a phase plan' of AC-2's third point is not pinned.
+  suggested_action: Also require 'outside' in the third bullet.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: code-reviewer
+    phase: implement
+  checks:
+  - what: AC-1 to AC-3 against the code and tests
+    how: read
+    result: pass
+  - what: failure handling and line endings
+    how: read foundation.py, .gitattributes, test_manifest.py
+    result: pass
+  - what: manifest hash and running the checks
+    how: no shell
+    result: not-run

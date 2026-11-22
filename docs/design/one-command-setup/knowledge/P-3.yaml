@@ -1,0 +1,37 @@
+schema: orqlet.knowledge-impact/v1
+task: one-command-setup
+phase: P-3
+review_input:
+  schema: orqlet.review-input/v1
+  covers: [code_tests, knowledge, plan, standards, candidates]
+  components:
+    candidates: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    code_tests: bfc48a96704db8601d1c34b83c05c419f2a6d25885d58dd09599f3e913383548
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 3371f001fc6cc201ac909aa5d6f333b22bc738ff0b42fa6e588aa7b177797c4b
+    standards: f9c385c979ff3029c692e0e4c89a79abe343c856adcc1b1cd27c6354deb9c516
+  digest: 60692ac1ec40e95c69a9ee9f80f2305eb9056ab9df9650de573dac6f2e5cf894
+  merge_base: 8c3421dc69cbb9839486d72e3cab410f55830327
+outcome: no-impact
+analysis:
+  command: orqlet knowledge impact
+  orqlet_version: 0.4.0
+  candidates_digest: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+  candidate_count: 0
+  input: pre-draft-tree
+  views: [committed:HEAD]
+  index_state: not-used
+entries: []
+no_impact:
+  category: already-documented
+  reason: "P-3 adds the workflow file baseline/foundation.md and the use case compose_foundation, which composes it with the 'How to work' section of baseline/baseline.md. Nothing renders or delivers the foundation yet: no command, generated file or golden file changes, and the project baseline block is byte-identical (AC-4). The content, its single source and its later delivery per client are written down in ADR-005 decisions 1, 2, 4 and 5, EC-9 of the approved design manifest, and Q-27 and Q-28; the README states what a command delivers, and the global copies arrive with install in later phases, which update the README then. The token estimate of AC-3 (UTF-8 bytes divided by 4, rounded up) is the person's answer of 2026-11-22, recorded in the tester's record."
+  absence_record:
+    scopes_searched: [".orqlet/knowledge.yaml sources (none configured)", "the plan's knowledge_scope (empty)", "README.md and docs/ outside docs/design/ for the baseline and global guidance", "the staged change of the phase"]
+    views: [committed:HEAD]
+    revision: 50b47fba2d6c89c5fc6334377eb4afe7cd7ec616
+    method: "orqlet knowledge impact one-command-setup P-3 --head staged against the target branch 8c3421d (exit 0, 0 candidates, ORQ-I400 twice: no public_api packages named by the design, no knowledge source configured); a text search of README.md for 'baseline', 'foundation' and 'How to work'."
+    index_state: not-used
+    candidates_found: 0
+  already_documented_refs:
+    - {path: docs/design/one-command-setup/design/adr-005-behavioural-foundation.md, sha256: 9e5c51e9ce4b010dec0647a71ef326fb49369916d1d83583aaa1fb93c789119d}
+    - {path: docs/design/one-command-setup/design/manifest.yaml, sha256: 970fed48fbf6253c8ddd89a449e537b86bf0396fa1f0aa55b2724f8f71b19b34}

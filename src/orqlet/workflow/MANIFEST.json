@@ -6,6 +6,10 @@
       "sha256": "a05153efe06d2f2684678c723a19f3c5ab1ed8166a13de20058cc5369527dc26"
     },
     {
+      "path": "baseline/foundation.md",
+      "sha256": "758957ae5f9c6ad7be21fa9591b30574d99f5e68f29750a7d632dc9ff3d7d0e9"
+    },
+    {
       "path": "commands/doctor.md",
       "sha256": "7e1ff1c4cb56bd875a3f47ee02017745656eaeffa711931148a65161a1353731"
     },
