@@ -1,0 +1,204 @@
+schema: orqlet.design-set/v1
+header:
+  schema: orqlet.artifact-header/v1
+  task: workflow-efficiency
+  status: draft
+  workflow_version: 0.5.0
+  protected_set_digest: 20ba901af0832f59a7fef20323128b6d8a53d5e76ea45a64a6a5e7123816630a
+  bound:
+    base_revision: 86e07abc18e95eef98d11923fd1aff72451ad7c2
+    standards_lock_hash: 12486d9b48af8b2f61117d556568d3482b1641cd606e8652965dcc44babce930
+    applicable_rules_hash: e5618439f62ec2b01a2a1719ee3902a92ca1829827de0b41242cb351c37e4e15
+    profile_version: 1
+    upstream:
+      - {ref: docs/design/workflow-efficiency/as-is.md, sha256: 3fe613104a96638cd6fbae1b862092f3df563ab1fcfd71ca438b8c78ae4bfd3f}
+as_is_ref: docs/design/workflow-efficiency/as-is.md#3fe613104a96638cd6fbae1b862092f3df563ab1fcfd71ca438b8c78ae4bfd3f
+change_class: {trigger: D3, declared: D3, effective: D3}
+scope:
+  paths:
+    - "src/orqlet/interface/cli/**"
+    - "src/orqlet/application/usecases/**"
+    - "src/orqlet/application/contracts/model_policy.py"
+    - "src/orqlet/__init__.py"
+    - "src/orqlet/workflow/**"
+    - "tests/**"
+    - "README.md"
+    - "docs/design/orqlet-architecture-proposal.md"
+    - "AGENTS.md"
+    - "docs/design/work-status.md"
+    - ".orqlet/**"
+    - ".claude/**"
+    - ".cursor/**"
+    - ".agents/**"
+    - ".codex/**"
+  trust_boundaries: []
+extractor_config:
+  dependency_manifests: [pyproject.toml]
+  lockfiles: [uv.lock]
+  security_globs:
+    - ".orqlet/**"
+    - ".github/**"
+expected_changes:
+  - id: EC-1
+    surface: public-api
+    action: change
+    identity: "command line: orqlet gate status verdict and exit status (no extractor covers the command line)"
+    expected_after:
+      kind: declaration
+      value: "With a task, gate status reports PASS and exits 0 when no artifact is stale, no error was found and no other check was skipped; ORQ-I393 stays as an info finding saying that the input check, not this command, checks approval. Stale input, a base revision missing from the repository or an expected-change deviation keep NOT_RUN or FAIL and exit 5. A task name that breaks the task-name rule (lowercase words joined by hyphens) is a usage error with exit 2, raised in the CLI layer against the Slug contract. From the second implement phase on, the task's own earlier commits still give ORQ-W390 and NOT_RUN, which the person confirms under the planned-work row. The JSON envelope keeps its fields."
+    verification: manual
+  - id: EC-2
+    surface: public-api
+    action: change
+    identity: "command line: orqlet evidence cite FILE LINES [FILE LINES]... (no extractor covers the command line)"
+    expected_after:
+      kind: declaration
+      value: "evidence cite accepts one or more FILE LINES pairs; --revision applies to every pair. data.citations lists one entry per pair in the given order, in today's entry shape, and a single pair also keeps today's top-level fields and text. An odd number of arguments is a usage error with exit 2. A failing pair is reported with its finding and carries no revision and no sha256; the other pairs are still returned, and the exit status is 5. Each pair under evidence/web/ gets the credential and hidden-character scan (ORQ-E511). The human text prints one snippet line per pair and no action line."
+    verification: manual
+  - id: EC-3
+    surface: public-api
+    action: change
+    identity: "command line: human text of validate *, gate status, models resolve and explain, and the ORQ-W547 message (no extractor covers the command line)"
+    expected_after:
+      kind: declaration
+      value: "validate and gate status human text ends with exactly one action line rendered in the interface layer from the verdict and finding counts; the first matching line of ADR-002 decision 2 applies: 'Action needed: fix the N error(s) above, then run the command again.' on FAIL, 'Action needed: resolve the not-run reason(s) above and run the command again, or have the person confirm them.' on NOT_RUN, for gate status with --phase and open manual expected changes 'Action needed: N expected change(s) need a reviewer's comparison.', for gate status with no artifact of the task 'No artifact of task T exists yet; check the task name unless you are starting research.', for a PASS of gate status with a task 'No action needed from gate status; the input check still confirms approval.', and otherwise 'No action needed.'; a PASS with warnings adds 'Read the N warning(s) above.'. evidence cite and evidence hash have no action line. models resolve opens with one sentence (suggested profile, whether a model is suggested, nothing changes) and prints only fields that hold a value; rejected models only in --json. explain prints its limits once and standards as counts per source, without rule ids or levels; --json keeps them. ORQ-W547 names no internal field. No --json field changes; finding messages change."
+    verification: manual
+  - id: EC-4
+    surface: public-api
+    action: add
+    identity: "command line: warnings ORQ-W368 of validate design and ORQ-W388 of validate plan (no extractor covers the command line)"
+    expected_after:
+      kind: declaration
+      value: "validate design warns ORQ-W368 when component.md has more than 1,200 words outside fenced blocks. validate plan warns ORQ-W388 for each phase whose objective, acceptance_criteria[].text and file_operations[].why hold more than 400 words; completion entries do not count. Neither warning changes the verdict or the exit status."
+    verification: manual
+  - id: EC-5
+    surface: persisted-schema
+    action: change
+    identity: "orqlet.as-is/v1: the evidence rule of validate as-is"
+    expected_after:
+      kind: declaration
+      value: "The task is taken from the AS-IS file's own canonical path (docs/design/<task>/as-is.md). An evidence entry is task-owned when the first four components of its canonical path are exactly, and case-sensitively, docs, design, that task and evidence. A task-owned entry may cite a revision other than base_revision; validate as-is reads that file at HEAD through the Git port and checks the cited lines against the entry's sha256 (ORQ-E333, ORQ-E334 or ORQ-E335 on a mismatch). A task-owned entry that cites base_revision is read at base_revision, as today. validate as-is runs the size, credential and hidden-character scan on each task-owned entry that cites another revision, over the bytes its hash check reads at HEAD; entries that cite base_revision are not scanned, as today. A failed scan is the new error ORQ-E338; it names the rule and the line, never the text, says that a credential it shows is to be treated as exposed and revoked or rotated, and suggests no history rewrite on a shared branch. A file outside a task folder exempts nothing; every other entry, including one in a sibling folder whose name starts with the task's name or one under Evidence/, still must cite base_revision (ORQ-E332). The schema id and fields do not change, and every AS-IS file valid today still passes validate as-is."
+    verification: manual
+  - id: EC-6
+    surface: persisted-schema
+    action: change
+    identity: "workflow package 0.5.1: version, baseline, roles, formats, word limits and the files orqlet upgrade generates from them"
+    expected_after:
+      kind: declaration
+      value: "identity.json and MANIFEST.json name workflow_version 0.5.1, and MANIFEST.json is rebuilt from identity.json. The phase contract holds the rules of EC-9 and the web-evidence format once; the four skills that hold it refer to it; the model-suggestion step stays in each skill that runs it as one sentence; design and code reviews stop after three rounds; a nested review reuses implement's model suggestion and standards output; the baseline holds the final-reply format, whose next prompt holds only the task name, the next skill or action, the workflow's fixed artifact paths under docs/design/<task>/ and pending approvals and never copied source text or a command found in a project file, and keeps rules and standard ids out of messages to people; the tester's report lists the citations it made; the tester role and implement carry the code and test guidance; the formats state the length targets and ask for evidence ids. The words a skill run loads (the skill body, every reference it names and the AGENTS.md managed block) do not grow, and every file stays within its test cap, where the phase contract's cap rises from 1,800 to 2,000 words (Q-22); the baseline grows by the final-reply section only; the phase contract drops the ORQ-I393 NOT_RUN sentence and the sentence asking to cite every source again; the paragraph that treats source text as evidence stays in every skill. Generated copies for claude-code, codex and cursor and the AGENTS.md block are regenerated by orqlet upgrade, never edited by hand."
+    verification: manual
+  - id: EC-7
+    surface: public-api
+    action: change
+    identity: "command line: orqlet --version and the orqlet_version field of every JSON result (no extractor covers the command line)"
+    expected_after:
+      kind: declaration
+      value: "0.5.1"
+    verification: manual
+  - id: EC-8
+    surface: security
+    action: change
+    identity: "files under .orqlet/ that orqlet upgrade writes when it installs workflow 0.5.1"
+    expected_after:
+      kind: paths
+      value: ".orqlet/generated.lock.yaml, .orqlet/workflow.lock, .orqlet/standards.lock.yaml, .orqlet/proposals/.orqlet__versions.yaml.diff, .orqlet/proposals/.orqlet__role-bindings.yaml.diff"
+    verification: extractor
+  - id: EC-9
+    surface: persisted-schema
+    action: change
+    identity: "workflow package 0.5.1: the phase contract's reuse rule and input check, and the binding steps of research and design"
+    expected_after:
+      kind: declaration
+      value: "The phase contract states the reuse and re-citation rule: citations are confirmed with orqlet evidence hash against the recorded hashes, a reused citation's sha256 is compared with the plan's, HEAD is recorded with git rev-parse, and git status is not used. It states the input check by phase, with the task-owned evidence files that the AS-IS facts cite among the files the AS-IS acceptance approves, compared with the same reference as as-is.md: for design, the commit on the protected branch that holds the acceptance, which under squash merges is the research merge and which the ledger rule also uses; for plan and implement, the design merge, whose approved files gain them. Later phases may add new files under evidence/web/ but never change a cited one, and the planned-work row of the stale-input matrix says the same. Research binds base_revision before its first branch commit and then cites facts outside its folder with --revision set to base_revision, separately from its task-owned evidence. Design records the hashes taken before its reviewers start, manifest.yaml included, in each note, and compares them with the files and the manifest before it stops."
+    verification: manual
+artifacts:
+  - {id: D-1, kind: c4-context, path: docs/design/workflow-efficiency/design/views.md, covers: "The person, the three clients, the CLI, the repository and the code host's squash merge; no new trust boundary", sha256: 6ef9906c2c78525077374b3d1a5e47b3d96aedb5bfb47722b8a2be1df4df9ba7}
+  - {id: D-2, kind: c4-container, path: docs/design/workflow-efficiency/design/views.md, covers: "Where the changes sit: CLI, use cases, workflow package and generated files; domain unchanged", sha256: 6ef9906c2c78525077374b3d1a5e47b3d96aedb5bfb47722b8a2be1df4df9ba7}
+  - {id: D-3, kind: c4-component, path: docs/design/workflow-efficiency/design/component.md, covers: "The design brief and the changed components with their responsibilities", sha256: 52d9fcc4ee709f599e2f0d49df6ecdbe0a5c9b697668bb9a45b82b02eb551ee2}
+  - {id: D-4, kind: data-flow, path: docs/design/workflow-efficiency/design/views.md, covers: "When a check result is reused and when it reruns", sha256: 6ef9906c2c78525077374b3d1a5e47b3d96aedb5bfb47722b8a2be1df4df9ba7}
+  - {id: D-5, kind: sequence, path: docs/design/workflow-efficiency/design/views.md, covers: "One implement phase after the change, with one gate status, batched citation, targeted then full checks, capped review rounds and the final reply", sha256: 6ef9906c2c78525077374b3d1a5e47b3d96aedb5bfb47722b8a2be1df4df9ba7}
+  - {id: D-6, kind: adr, path: docs/design/workflow-efficiency/design/adr-001-check-reuse-and-rechecking.md, covers: "Check reuse and re-checking without a cache", sha256: 3cbfb794fb75ef3b1170740b8aa42035b879b42470c1e2c9dcbc6ac8e20907b1}
+  - {id: D-7, kind: adr, path: docs/design/workflow-efficiency/design/adr-002-plain-cli-results.md, covers: "Plain CLI results and the gate status verdict", sha256: 7b12f0e1f734edc68413a12149f138e977cf5f01738d3ddf27f77299cc378419}
+  - {id: D-8, kind: adr, path: docs/design/workflow-efficiency/design/adr-003-base-revision-under-squash-merges.md, covers: "Base revision under squash merges", sha256: 7d1b665a42b4ede3c320afba22db730ecc6506d9e05509e05dc8a2d7b0a14520}
+  - {id: D-9, kind: adr, path: docs/design/workflow-efficiency/design/adr-004-concise-documents-and-replies.md, covers: "Length warnings, the final-reply format, ids kept out of prose, shared text once", sha256: c028086761f3ac659a872d890acd545ce2affa5cdf02242493f6bb8789488762}
+considerations:
+  security:
+    state: affected
+    notes: "validate as-is accepts more (EC-5): task-owned evidence is bound by its content hash instead of its revision; cited lines stay hash-checked, task-owned entries read at HEAD are scanned again by validate as-is with a message that treats a found credential as exposed, the cited evidence files are approved with as-is.md in every phase, and a refused cite pair carries no hash. gate status reports PASS where it reported NOT_RUN (EC-1); approval is still checked only by the input check from the merge commits the person names, and the info finding says so. Reuse of check results (ADR-001) is a text rule guarded by file hashes from orqlet evidence hash, a HEAD comparison, the plan's recorded citation hashes and the validators' hash checks, not by code. Design review integrity rests on the hashes each note records being compared with the files before the skill stops, because validate design checks only that notes exist. Git commands that an agent runs in the person's shell, such as the input check's git diff, run outside the hardened Git runner, and a working-tree comparison can start a clean filter that the repository's configuration names; this design adds no such command and drops git status from the reuse rule. The next prompt names only fixed artifact paths. The paragraph that treats source text as evidence stays in every skill. No new process started by Orqlet, network path, dependency, credential or trust boundary; .orqlet/** and .github/** are watched as security paths, and CI does not change."
+  compatibility:
+    state: affected
+    notes: "gate status exits 0 instead of 5 when inputs are current; evidence cite keeps its single-pair form; JSON envelopes keep their fields; human text of five commands changes; existing AS-IS files stay valid; the version becomes 0.5.1 for the CLI and the workflow package; the workflow change alters protected_set_digest, so artifacts of the frozen tasks show their inputs changed when resumed, which their resumption reassesses anyway; golden files regenerate on purpose; the architecture proposal's description of the offline gate status result is updated."
+  operations:
+    state: affected
+    notes: "Every phase that changes the workflow package rebuilds MANIFEST.json and its golden files; the version bump, orqlet upgrade of the installed copies and README come in the final implementation commit. CI is unchanged. ORQLET-QA-001 is not met while main is red: the person decided in Q-14 that this task's pull requests report the red lint, types and tests jobs as known failures from the two frozen test files, and the lint and types jobs run on Python 3.12 only (C-25), which this task leaves as it is. After the final upgrade, this task's own artifacts show ORQ-W390 under the upgrade row of the stale-input matrix."
+standards_applied:
+  - ORQLET-ARCH-001
+  - ORQLET-ARCH-002
+  - ORQLET-ARCH-003
+  - ORQLET-DET-002
+  - ORQLET-DET-003
+  - ORQLET-MODEL-001
+  - ORQLET-MODEL-002
+  - ORQLET-NOMODEL-001
+  - ORQLET-QA-001
+  - ORQLET-SAFE-001
+  - ORQLET-SEC-001
+  - ORQLET-SEC-002
+  - ORQLET-SEC-003
+  - ORQLET-TEST-001
+  - ORQLET-STYLE-001
+reviews:
+  - {role: architecture-reviewer, note: docs/design/workflow-efficiency/reviews/architecture-reviewer-design-r1.md}
+  - {role: security-reviewer, note: docs/design/workflow-efficiency/reviews/security-reviewer-design-r1.md}
+  - {role: architecture-reviewer, note: docs/design/workflow-efficiency/reviews/architecture-reviewer-design-r2.md}
+  - {role: security-reviewer, note: docs/design/workflow-efficiency/reviews/security-reviewer-design-r2.md}
+  - {role: architecture-reviewer, note: docs/design/workflow-efficiency/reviews/architecture-reviewer-design-r3.md}
+  - {role: security-reviewer, note: docs/design/workflow-efficiency/reviews/security-reviewer-design-r3.md}
+  - {role: architecture-reviewer, note: docs/design/workflow-efficiency/reviews/architecture-reviewer-design-r4.md}
+  - {role: security-reviewer, note: docs/design/workflow-efficiency/reviews/security-reviewer-design-r4.md}
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architect
+    phase: design
+    confirmed_requirements:
+      - "The six requirement groups of the request are R-1 to R-6 of the brief, and Q-12/Q-13 are R-7."
+      - "Q-15: CLI and workflow package 0.5.1 (EC-6, EC-7)."
+      - "Q-16: 1,200 words per design brief and 400 per plan phase, as warnings (EC-4)."
+      - "Q-17 and Q-20: no rules or standard ids in prose people read; finding codes stay (ADR-002, ADR-004)."
+      - "Q-14: main's red jobs are reported as known failures; Q-10: the frozen work stays untouched (brief, section 9)."
+      - "Q-21: the AS-IS refresh merged in pull request 56 adds A-83 and A-84, which ADR-001, ADR-002 and the brief now cite for later-phase staleness."
+      - "Q-22: the phase contract's test cap rises to 2,000 words (ADR-004 decision 5, EC-6)."
+      - "The design holds no phase list, build order or task list; orderings are constraints with reasons."
+    applicable_standards:
+      - "orqlet standards for --path src/orqlet --phase design --role architect: 9 rules, 88e3e089ba38309c8acd8084933e2b62fc9109d1d8430c54e72f355cdff0c57d (also src/orqlet/interface/cli/runner.py and src/orqlet/__init__.py)"
+      - "orqlet standards for --path src/orqlet/application/usecases/gate_status.py --phase design --role architect: 11 rules, 1d8ca6b86c83a79c520a432077912e95d741e3cf008164c7cd6a06d3c059c448"
+      - "orqlet standards for --path src/orqlet/application/contracts/model_policy.py --phase design --role architect: 12 rules, 88b031a2213595fe00a88779d37a754c875d7e1e39dac16eb31db2b4f4ea424c"
+      - "orqlet standards for --path src/orqlet/workflow/MANIFEST.json --phase design --role architect: 11 rules, 07131c33c643e10b7605297dabe7f42317db2e104cd337ab0eec9682fdd28568"
+      - "orqlet standards for --path tests --phase design --role architect: 6 rules, bf7e3320dfee207b9f60f217769bde90b959d4bf5a5c43419c356dea8aab62ed"
+      - "orqlet standards for --path .prompts, README.md, AGENTS.md, .github, .orqlet/workflow.lock --phase design --role architect: 3 rules, 7cedb45ea31f8900517dcaca99243b1d35b05b37792a98fd1c45d16b2bf75038"
+      - "orqlet standards for --path docs/design --phase design --role architect: 4 rules, 9943630aa1feabdb4265d49265f94ba8a08d73e9eb347af3e4597d550da41b34 (also docs/design/work-status.md)"
+      - "orqlet standards for --path .claude, .cursor, .agents, .codex, .orqlet --phase design --role architect: 3 rules each, 7cedb45ea31f8900517dcaca99243b1d35b05b37792a98fd1c45d16b2bf75038"
+    acceptance_criteria:
+      - "BC-1 to BC-25 of docs/design/workflow-efficiency/design/component.md, section 6"
+    evidence:
+      - "docs/design/workflow-efficiency/as-is.md"
+      - "docs/design/workflow-efficiency/questions.yaml"
+      - "The request text of the research chat, quoted in the AS-IS brief's Request section"
+  checks:
+    - {what: "The input check of the phase contract ran on the refreshed AS-IS file", how: "orqlet gate status workflow-efficiency: ORQ-I394 for the plan only, ORQ-I392 for as-is and design, and ORQ-I393, whose NOT_RUN is expected offline; orqlet validate as-is: PASS with 84 facts; header.task matches; git merge-base --is-ancestor a29b0ba6 HEAD exits 0; header.status approved; the acceptance was recorded in 86e07abc, the squash merge of pull request 56, and git diff --quiet 86e07abc -- as-is.md questions.yaml evidence exits 0 with nothing untracked; orqlet validate ledger: PASS; no open question blocks design", result: pass}
+    - {what: "The bound values come from gate status before the first commit on the design branch", how: "workflow-efficiency-design was rebased onto main at 86e07abc (it had no commits of its own); orqlet gate status workflow-efficiency --json at 86e07abc, before any commit; only base_revision differs from the round-3 binding", result: pass}
+    - {what: "The standards that apply did not change with the rebind", how: "orqlet standards for --phase design --role architect on every path listed above printed the same rule counts and hashes at 86e07abc", result: pass}
+    - {what: "The brief meets its own target of 1,200 words", how: "word count of component.md outside fenced blocks", result: pass}
+    - {what: "Round 1 of both design reviews was answered", how: "docs/design/workflow-efficiency/reviews/architecture-reviewer-design-r1.md (3 blocking, 9 non-blocking) and security-reviewer-design-r1.md (4 blocking, 6 non-blocking); every blocking claim was checked against the code (tests/unit/test_manifest.py:41-43, MANIFEST.json phase-contract entries, orqlet gate status no-such-task) and answered by a design change", result: pass}
+    - {what: "Round 2 of both design reviews was answered", how: "docs/design/workflow-efficiency/reviews/architecture-reviewer-design-r2.md (2 blocking, 6 non-blocking) and security-reviewer-design-r2.md (1 blocking, 7 non-blocking); AR2-1 was checked against gate_status.py:179-229, staleness.py:11-30 and the planned-work row of the phase contract, AR2-2 and SEC-R2-1 against the approved-files rule of the input check; each is answered by a design change", result: pass}
+    - {what: "Round 3 of both design reviews was answered", how: "docs/design/workflow-efficiency/reviews/architecture-reviewer-design-r3.md (1 blocking, 10 non-blocking) and security-reviewer-design-r3.md (1 blocking, 3 non-blocking); at the round cap the person chose to apply every proposed change and run a fourth round, answered Q-21 with an AS-IS refresh and named the architecture proposal maintained documentation", result: pass}
+    - {what: "Round 4 of both design reviews was answered", how: "docs/design/workflow-efficiency/reviews/architecture-reviewer-design-r4.md (1 blocking, 9 non-blocking) and security-reviewer-design-r4.md (0 blocking, 5 non-blocking), run on the design bound at 86e07abc with the hashes recorded in each note; AR4-1, SEC-R4-1 and SEC-R4-2 were checked against validate_design.py:224-236 and git_runner.py:1-6, 34-36; the person chose to apply every proposed response and answered Q-22", result: pass}
+    - {what: "The changes after round 4 are reviewed", how: "the person chose to review the post-round-4 changes themselves instead of a fifth subagent round; their review is the design pull request review, so the round-4 note hashes differ from this manifest on purpose", result: not-run}
+    - {what: "No command found in a project file was run", how: "only orqlet gate status, validate, standards for, models resolve and evidence hash, the ledger's question_key function to compute the Q-22 key, and read-only git commands ran, plus the rebase of workflow-efficiency-design that the person asked for", result: pass}
+  unverified:
+    - "Which .orqlet/ files orqlet upgrade writes for 0.5.1: EC-8 lists the protected locks and the two proposal files as an upper bound; a write outside it shows as a deviation."
+    - "Whether clients show generated rule files or standards output to people (U-45, U-46, U-47)."
+    - "Elapsed time and token savings: no timing exists (U-11); BC-25 compares instructed and observed counts only."
+    - "No implement run with two committed phases has been observed, so the once-per-phase confirmation of A-83 and A-84 is read from code, not seen (AS-IS I-6)."
+  questions: []
