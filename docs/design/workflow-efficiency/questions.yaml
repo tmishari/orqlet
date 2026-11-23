@@ -212,3 +212,25 @@ questions:
     answerer: tmishari
     time: '2026-11-23T09:50:00+00:00'
     scope: task
+- id: Q-12
+  key: 53296f518235737ae0c0d2bacb5245feda05f86f0968c5cc9655dce108f0ed71
+  subject: Base revision of the AS-IS file after the squash merge
+  raised_by: Cursor
+  phase: design
+  category: evidence-conflict
+  text: The AS-IS facts cite research-branch commit 04898380, which the squash merge of pull request
+    53 left out of main's history, so the design input check fails at "same project". How
+    is it resolved?
+  why: The design input check requires the AS-IS base revision to be an ancestor of HEAD.
+  options:
+  - Re-cite the facts at a8a73485 on main and accept the AS-IS file again
+  - A one-time exception for base 04898380
+  - The person resolves it
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: Re-cite the facts at a8a73485 on main and accept the AS-IS file again
+    answerer: tmishari
+    time: '2026-11-23T09:56:00+00:00'
+    scope: task
