@@ -1,0 +1,111 @@
+schema: orqlet.review-result/v1
+task: workflow-efficiency
+phase: P-1
+role: code-reviewer
+round: 1
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: 6db5daeca0fc3b9d5dc6ab827922d2bf2aae2cb3a2508131a04fe2ff6fd42173
+    design: ca86b2a73b778b9e33a398bf70b0752be94a68da6d0718376cf8d971ff239e10
+    evidence_inputs: df8a0cad88af9e8d1e4a4f0e43e18aafd478be5353edd2da353e054f8255e3f0
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 34a6f679a5585859c8d850fca7a208e5b6d4e3dd14eeccc0b38d081a4fc20365
+    reviewer_definition: 6660b181a2ba46a0bbd8225a3449e2322f0030dea1fa146cb15dfd0e3ffcd94e
+    standards: 0e5b7e5fc8f3950ac5d360cf4a0c9dbe2b4880433ba15680a6c66220d4434e5d
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 2aa1455fc9cc4298f0dc1657bc19cabc45e709aa0b6b790c00885bbe3c9a84db
+  merge_base: 244eb1386b033b063a7fb5ef04337fea972f9468
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-code-reviewer
+  definition_sha256: d807b6881723a0c72151d12a514eb0506a2356d9e94d170daff3f53178dff488
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I0
+capability_limits:
+- 'No approved code-reviewer binding for cursor in .orqlet/role-bindings.yaml: independence I0, below the I2 that a code review
+  needs at every change class.'
+- 'Same client as the Coder (cursor): independence I1, below the I2 that a D3 change requires (ORQLET-MODEL-002); the verdict
+  is NOT_RUN.'
+- It was started as a typed subagent with the packet path workflow-efficiency-P-1-7af1b121 as its only prompt; that the context
+  is fresh is the Coder's claim. The packet's diff is against main 244eb13 and holds P-1 only.
+- The reviewer's session ran no check and had no quote digest, so its evidence is given as observations, none of which blocks.
+  The Coder wrote this record from its returned text.
+- The client does not show the reviewer's model, so the identity is unknown. models resolve printed no candidate for cursor
+  (every model is not approved by the policy).
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- The reviewer's own conclusion was no code defect and no blocking finding; AC-1 to AC-6 and AC-8 hold by reading, and AC-7
+  holds (the exit 5 comment and the gate status docstrings are corrected). Its observations are the findings of this record.
+applicability:
+  examined:
+  - diff.patch and the snapshot of gate_status.py, gate.py, validate.py, render_human.py and exit_codes.py
+  - the changed and created tests, the plan, the test record and the knowledge record
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: standards
+  claim: gate.py repeats the TypeAdapter(Slug) and the rule text that models.py already holds; the plan chose to reuse the
+    Slug contract, not a helper.
+  suggested_action: No change now; a shared helper removes the copy if a third command needs the check.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: tests
+  claim: The helper that returns the exit code and the human lines is defined three times (test_full_task.py, test_s8_acceptance.py,
+    test_action_line_cli.py).
+  suggested_action: Optionally move it to tests/support in a later change.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: docs
+  claim: The installed skills and the four phase-contract copies still call a NOT_RUN caused by ORQ-I393 alone expected; after
+    P-1 that case is a PASS. The plan assigns the text to P-6 and the README, the proposal and work-status.md to P-8.
+  suggested_action: No change in P-1; keep P-6 AC-6 and P-8 AC-4.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: non-blocking
+  category: tests
+  claim: The Tester did not write the tests before the implementation, and the red ruff, mypy and pytest results are attributed
+    to the two frozen files without the reviewer having run them.
+  suggested_action: Keep the deviation in the phase report.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: code-reviewer
+    phase: implement
+  checks:
+  - what: packet read
+    how: orqlet review prepare workflow-efficiency P-1 (workflow-efficiency-P-1-7af1b121)
+    result: pass
+  - what: running the checks and quote digests
+    how: none run by the reviewer
+    result: not-run

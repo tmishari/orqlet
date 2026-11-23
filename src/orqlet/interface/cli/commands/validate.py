@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from pathlib import Path
 from typing import Annotated
 
@@ -24,7 +25,7 @@ from orqlet.application.usecases.validation import ValidationResult
 from orqlet.domain.findings import Verdict
 from orqlet.interface.cli.commands.lifecycle import JsonOption, RootOption, findings_out
 from orqlet.interface.cli.exit_codes import ExitCode
-from orqlet.interface.cli.render_human import render_validation
+from orqlet.interface.cli.render_human import action_line, render_validation
 from orqlet.interface.cli.runner import CommandOutput, execute
 from orqlet.interface.cli.wiring import build_model_policy_services, build_validate_services
 
@@ -37,16 +38,31 @@ LedgerOption = Annotated[
 ]
 
 
-def output_of(result: ValidationResult, subject: str) -> CommandOutput:
-    """PASS exits 0. FAIL and NOT_RUN both exit 5: not run is never success."""
+def output_of(
+    result: ValidationResult,
+    subject: str,
+    *,
+    closing: Callable[[ValidationResult], str] | None = None,
+) -> CommandOutput:
+    """PASS exits 0. FAIL and NOT_RUN both exit 5: not run is never success.
+
+    `closing` opts in to an action line that ends the human text; the JSON never carries it.
+    """
     return CommandOutput(
         data={"verdict": result.verdict.value, **result.data},
-        human=render_validation(result, subject=subject),
+        human=render_validation(
+            result, subject=subject, closing=closing(result) if closing else None
+        ),
         findings=findings_out(result.findings),
         not_run=result.not_run,
         exit_code=ExitCode.OK if result.verdict is Verdict.PASS else ExitCode.CHECK_FAILED,
         echo_findings=False,
     )
+
+
+def _checked(result: ValidationResult, subject: str) -> CommandOutput:
+    """The output of a `validate` command: `output_of` with the action line."""
+    return output_of(result, subject, closing=action_line)
 
 
 @validate_app.command("as-is")
@@ -65,7 +81,7 @@ def as_is_command(
     """Facts only, evidence that resolves, unknowns and contradictions kept."""
     execute(
         "validate as-is",
-        lambda: output_of(
+        lambda: _checked(
             validate_as_is(
                 build_validate_services(root), file, AsIsOptions(against, fragments, ledger)
             ),
@@ -85,7 +101,7 @@ def design_command(
     """The design set at the depth of its change class."""
     execute(
         "validate design",
-        lambda: output_of(validate_design(build_validate_services(root), file, ledger), file),
+        lambda: _checked(validate_design(build_validate_services(root), file, ledger), file),
         as_json=json_output,
     )
 
@@ -100,7 +116,7 @@ def plan_command(
     """The implementation plan on a projected tree."""
     execute(
         "validate plan",
-        lambda: output_of(validate_plan(build_validate_services(root), file, ledger), file),
+        lambda: _checked(validate_plan(build_validate_services(root), file, ledger), file),
         as_json=json_output,
     )
 
@@ -114,7 +130,7 @@ def ledger_command(
     """The question ledger: one entry per question, answers kept."""
     execute(
         "validate ledger",
-        lambda: output_of(validate_ledger(build_validate_services(root), file), file),
+        lambda: _checked(validate_ledger(build_validate_services(root), file), file),
         as_json=json_output,
     )
 
@@ -130,7 +146,7 @@ def resources_command(
     """The registry of links and every stored copy: hashes, headers, hidden text, credentials."""
     execute(
         "validate resources",
-        lambda: output_of(validate_resources(build_validate_services(root), file), file),
+        lambda: _checked(validate_resources(build_validate_services(root), file), file),
         as_json=json_output,
     )
 
@@ -146,7 +162,7 @@ def integrations_command(
     """Check the declaration of MCP servers and the MCP files for credential-shaped text."""
     execute(
         "validate integrations",
-        lambda: output_of(validate_integrations(build_validate_services(root), file), file),
+        lambda: _checked(validate_integrations(build_validate_services(root), file), file),
         as_json=json_output,
     )
 
@@ -173,7 +189,7 @@ def model_policy_command(
     """Check the model policy and the model values in the agent and skill files."""
     execute(
         "validate model-policy",
-        lambda: output_of(
+        lambda: _checked(
             validate_model_policy(build_model_policy_services(root), file, base), file
         ),
         as_json=json_output,
@@ -191,7 +207,7 @@ def review_command(
     """One review round: its path, its binding to the inputs, its independence."""
     execute(
         "validate review",
-        lambda: output_of(
+        lambda: _checked(
             validate_review(build_validate_services(root), file, RecordOptions(base, head)), file
         ),
         as_json=json_output,
@@ -209,7 +225,7 @@ def record_of_tests_command(
     """The tester's record: commands that ran, criteria covered, bound to the inputs."""
     execute(
         "validate test",
-        lambda: output_of(
+        lambda: _checked(
             validate_test(build_validate_services(root), file, RecordOptions(base, head)), file
         ),
         as_json=json_output,
@@ -227,7 +243,7 @@ def knowledge_command(
     """The knowledge-impact record: every candidate resolved, evidence that resolves."""
     execute(
         "validate knowledge",
-        lambda: output_of(
+        lambda: _checked(
             validate_knowledge(build_validate_services(root), file, RecordOptions(base, head)),
             file,
         ),

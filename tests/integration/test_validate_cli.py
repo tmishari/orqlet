@@ -179,9 +179,35 @@ def test_gate_status_prints_the_inputs_of_an_initialised_repository(tmp_path: Pa
     assert bound["workflow_version"]
     assert document["data"]["verdict"] == "PASS"
 
+    # AC-3. expected_behavior_source: ADR-002 decision 1 and consequences (a well-formed task name
+    # with no artifact is exit 0 with PASS; the input check still stops on ORQ-I394).
     task_code, task = run("gate", "status", "demo", "--root", str(root))
-    assert task_code == 5
-    assert task["data"]["verdict"] == "NOT_RUN"
+    assert task_code == 0, task
+    assert task["data"]["verdict"] == "PASS"
+    assert not task["not_run"]
+    assert codes(task).count("ORQ-I394") == 3
+    assert "ORQ-I393" in codes(task)
+    human = RUNNER.invoke(app, ["gate", "status", "demo", "--root", str(root)])
+    assert human.exit_code == 0
+    assert human.stdout.rstrip("\n").splitlines()[-1] == (
+        "No artifact of task demo exists yet; check the task name unless you are starting research."
+    )
+
+
+@pytest.mark.parametrize("task", ["Bad_Name", "../x", "double--hyphen", "UPPER", "x" * 65])
+def test_a_task_name_that_breaks_the_slug_rule_is_a_usage_error_before_anything_is_read(
+    project: tuple[Path, str], task: str
+) -> None:
+    """AC-3. expected_behavior_source: ADR-002 decision 1 ("A task name that breaks the existing
+    task-name rule ... is a usage error with exit 2, raised in the CLI layer against the `Slug`
+    contract, as `models resolve` does for `--task`"). The repository is not initialised: without
+    the check, the command would read the installation and exit 5 with ORQ-E390."""
+    root, _ = project
+
+    result = RUNNER.invoke(app, ["gate", "status", task, "--root", str(root), "--json"])
+
+    assert result.exit_code == 2
+    assert "ORQ-E390" not in result.stdout
 
 
 def test_gate_status_in_an_uninitialised_repository_fails(project: tuple[Path, str]) -> None:

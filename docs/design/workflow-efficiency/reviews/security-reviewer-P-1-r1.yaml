@@ -1,0 +1,109 @@
+schema: orqlet.review-result/v1
+task: workflow-efficiency
+phase: P-1
+role: security-reviewer
+round: 1
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: 6db5daeca0fc3b9d5dc6ab827922d2bf2aae2cb3a2508131a04fe2ff6fd42173
+    design: ca86b2a73b778b9e33a398bf70b0752be94a68da6d0718376cf8d971ff239e10
+    evidence_inputs: df8a0cad88af9e8d1e4a4f0e43e18aafd478be5353edd2da353e054f8255e3f0
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 34a6f679a5585859c8d850fca7a208e5b6d4e3dd14eeccc0b38d081a4fc20365
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: 0e5b7e5fc8f3950ac5d360cf4a0c9dbe2b4880433ba15680a6c66220d4434e5d
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: f0ccda3aba6f207f7bf1959d18ef385d0fe70305a00a962d1fdacc69bb6cde61
+  merge_base: 244eb1386b033b063a7fb5ef04337fea972f9468
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- 'Same client as the Coder (cursor): independence I1, below the I2 that a D3 change requires (ORQLET-MODEL-002); the verdict
+  is NOT_RUN.'
+- It was started as a typed subagent with the packet path workflow-efficiency-P-1-7af1b121 as its only prompt; that the context
+  is fresh is the Coder's claim. The packet's diff is against main 244eb13 and holds P-1 only.
+- The reviewer's session ran no check and had no quote digest, so its evidence is given as observations, none of which blocks.
+  The Coder wrote this record from its returned text.
+- The client does not show the reviewer's model, so the identity is unknown. models resolve printed no candidate for cursor
+  (every model is not approved by the policy).
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- 'The reviewer''s own conclusion was no blocking finding: no secret, the Slug pattern is anchored and strict, the usage error
+  never echoes the value, the action line is built from fixed text and counts.'
+applicability:
+  examined:
+  - diff.patch and the snapshot of the CLI and the use case
+  - the records, secrets, logging, file and process access, injection and parsing, dependencies
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: security
+  claim: gate status now exits 0 for a current task and never checks approval; a script that reads exit 0 as approved would
+    be wrong. The reviewer found no such consumer in src, tools or .github.
+  suggested_action: Keep the ORQ-I393 info finding and the closing line that the input check still confirms approval; check
+    outside scripts.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: docs
+  claim: The skill text still says a NOT_RUN caused by ORQ-I393 alone is expected, which can mislead an agent until P-6 rewrites
+    it.
+  suggested_action: No change in P-1; keep P-6 AC-6.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: security
+  claim: The task name is checked only in the CLI layer; the use case builds paths from it. read_at goes through the Git port
+    and the CLI refuses unsafe names first, so this is defense in depth, not a defect.
+  suggested_action: Optionally validate the task in the use case.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: non-blocking
+  category: tests
+  claim: The usage-error tests assert exit 2 and no ORQ-E390 but not that the invalid value is absent from the output.
+  suggested_action: Optionally assert that the task text is not in the output.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet read
+    how: orqlet review prepare workflow-efficiency P-1 (workflow-efficiency-P-1-7af1b121)
+    result: pass
+  - what: running the checks and quote digests
+    how: none run by the reviewer
+    result: not-run

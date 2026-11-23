@@ -12,7 +12,8 @@ from orqlet.application.usecases.rollback import RollbackResult
 from orqlet.application.usecases.standards_for import StandardsAnswer
 from orqlet.application.usecases.upgrade import UpgradeResult
 from orqlet.application.usecases.validation import ValidationResult
-from orqlet.domain.findings import Severity
+from orqlet.domain.expected_change import Outcome
+from orqlet.domain.findings import Severity, Verdict
 
 
 def render_standards(answer: StandardsAnswer) -> str:
@@ -172,8 +173,58 @@ def render_profile_edit(result: ProfileEditResult) -> str:
     return "\n".join(lines)
 
 
-def render_validation(result: ValidationResult, *, subject: str) -> str:
-    """The verdict first, then what the check found, then why anything was not run."""
+def action_line(result: ValidationResult, *, passed: str = "No action needed.") -> str:
+    """The one line that ends a check's text: what to do next, from the verdict and the counts."""
+    if result.verdict is Verdict.FAIL:
+        return (
+            f"Action needed: fix the {len(result.errors)} error(s) above, "
+            "then run the command again."
+        )
+    if result.verdict is Verdict.NOT_RUN:
+        return (
+            "Action needed: resolve the not-run reason(s) above and run the command again, "
+            "or have the person confirm them."
+        )
+    warnings = sum(1 for finding in result.findings if finding.severity is Severity.WARNING)
+    return f"{passed} Read the {warnings} warning(s) above." if warnings else passed
+
+
+def gate_action_line(result: ValidationResult, task: str | None) -> str:
+    """`action_line` for `gate status`, whose PASS also says what a pass leaves to the person."""
+    return action_line(result, passed=_gate_passed(result.data, task))
+
+
+def _gate_passed(data: dict[str, object], task: str | None) -> str:
+    if task is None:
+        return "No action needed."
+    open_changes = _open_manual_changes(data)
+    if open_changes:
+        return f"Action needed: {open_changes} expected change(s) need a reviewer's comparison."
+    artifacts = data.get("artifacts")
+    if isinstance(artifacts, dict) and all(
+        isinstance(item, dict) and item.get("found") is False for item in artifacts.values()
+    ):
+        return (
+            f"No artifact of task {task} exists yet; "
+            "check the task name unless you are starting research."
+        )
+    return "No action needed from gate status; the input check still confirms approval."
+
+
+def _open_manual_changes(data: dict[str, object]) -> int:
+    expected = data.get("expected_changes")
+    if not isinstance(expected, list):
+        return 0
+    return sum(
+        1 for item in expected if isinstance(item, dict) and item["outcome"] == Outcome.MANUAL.value
+    )
+
+
+def render_validation(result: ValidationResult, *, subject: str, closing: str | None = None) -> str:
+    """The verdict first, then what the check found, then why anything was not run.
+
+    `closing`, when given, is the action line that ends the text.
+    """
     lines = [f"{result.verdict.value}: {subject}"]
     summary = _data_summary(result.data)
     if summary:
@@ -182,6 +233,8 @@ def render_validation(result: ValidationResult, *, subject: str) -> str:
         where = f" ({finding.path})" if finding.path else ""
         lines.append(f"{finding.severity.value.upper():<7} {finding.code} {finding.message}{where}")
     lines += [f"NOT RUN {reason}" for reason in result.not_run]
+    if closing is not None:
+        lines.append(closing)
     return "\n".join(lines)
 
 

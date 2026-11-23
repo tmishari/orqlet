@@ -135,21 +135,37 @@ def test_a_directory_that_was_never_initialised_is_a_failure() -> None:
     assert "ORQ-E390" in codes(result)
 
 
-def test_with_a_task_approval_is_never_confirmed_offline() -> None:
+def test_a_task_whose_artifacts_are_current_passes_with_no_not_run_reason() -> None:
+    """AC-1. expected_behavior_source: ADR-002 decision 1 ("PASS ... when no artifact is stale, no
+    error was found and no other check was skipped"); plan.yaml P-1 AC-1; component.md BC-8."""
     env = installed()
     write_task(env)
 
     result = gate_status(services(env), TASK)
 
-    assert result.verdict is Verdict.NOT_RUN
-    assert any("host evidence" in reason for reason in result.not_run)
-    assert "ORQ-I393" in codes(result)
-    assert "ORQ-W390" not in codes(result)  # nothing is stale: only approval is unknown
+    assert result.verdict is Verdict.PASS
+    assert result.not_run == ()
+    assert "ORQ-W390" not in codes(result)
     assert result.data["artifacts"] == {
         "as-is": {"found": True, "readable": True, "stale": []},
         "design": {"found": True, "readable": True, "stale": []},
         "plan": {"found": True, "readable": True, "stale": []},
     }
+
+
+def test_the_approval_note_says_the_input_check_and_not_this_command_checks_approval() -> None:
+    """AC-1. expected_behavior_source: ADR-002 decision 1 (ORQ-I393 "stays as an info finding,
+    worded as 'approval is checked by the input check, not by this command'")."""
+    env = installed()
+    write_task(env)
+
+    result = gate_status(services(env), TASK)
+
+    notes = [f for f in result.findings if f.code == "ORQ-I393"]
+    assert len(notes) == 1
+    assert notes[0].severity.value == "info"
+    assert "approval" in notes[0].message
+    assert "input check" in notes[0].message
 
 
 def test_an_artifact_written_against_other_inputs_is_stale() -> None:
@@ -161,6 +177,9 @@ def test_an_artifact_written_against_other_inputs_is_stale() -> None:
     assert "ORQ-W390" in codes(result)
     stale = result.data["artifacts"]["as-is"]["stale"]  # type: ignore[index]
     assert stale == ["standards_lock_hash", "applicable_rules_hash", "profile_version"]
+    # AC-2. expected_behavior_source: ADR-002 decision 1 ("Stale input ... keep NOT_RUN").
+    assert result.verdict is Verdict.NOT_RUN
+    assert result.not_run
 
 
 def test_a_changed_workflow_or_protected_set_makes_an_artifact_stale() -> None:
@@ -189,6 +208,9 @@ def test_a_moved_head_that_changed_the_scope_makes_the_artifact_stale() -> None:
 
     assert result.data["artifacts"]["as-is"]["stale"] == ["base_revision"]  # type: ignore[index]
     assert "ORQ-W390" in codes(result)
+    # AC-2. expected_behavior_source: ADR-002 decision 1 ("Stale input ... keep NOT_RUN").
+    assert result.verdict is Verdict.NOT_RUN
+    assert result.not_run
 
 
 def test_a_moved_head_that_left_the_scope_alone_is_only_noted() -> None:
@@ -201,14 +223,31 @@ def test_a_moved_head_that_left_the_scope_alone_is_only_noted() -> None:
 
     assert "ORQ-I392" in codes(result)
     assert result.data["artifacts"]["plan"]["stale"] == []  # type: ignore[index]
+    # AC-1. expected_behavior_source: ADR-002 decision 1 (nothing stale, nothing skipped: PASS).
+    assert result.verdict is Verdict.PASS
+    assert result.not_run == ()
 
 
-def test_artifacts_that_do_not_exist_yet_are_noted_not_failed() -> None:
+def test_artifacts_that_do_not_exist_yet_are_noted_and_the_verdict_is_pass() -> None:
+    """AC-3. expected_behavior_source: ADR-002 decision 2 and consequences ("A well-formed task
+    name with no artifact moves from exit 5 to exit 0 ... the input check still stops on
+    ORQ-I394"); plan.yaml P-1 AC-3."""
     result = gate_status(services(installed()), "not-started")
 
-    assert result.verdict is Verdict.NOT_RUN
+    assert result.verdict is Verdict.PASS
+    assert result.not_run == ()
     assert codes(result).count("ORQ-I394") == 3
+    assert "ORQ-I393" in codes(result)
     assert result.data["artifacts"]["plan"] == {"found": False}  # type: ignore[index]
+
+
+def test_a_repository_without_a_commit_is_not_run_even_with_a_task() -> None:
+    """AC-2. expected_behavior_source: ADR-002 decision 1 ("a missing revision ... keep NOT_RUN");
+    plan.yaml P-1 AC-2."""
+    result = gate_status(services(installed(commits=False)), TASK)
+
+    assert result.verdict is Verdict.NOT_RUN
+    assert "no commit" in result.not_run[0]
 
 
 def test_gate_status_never_writes() -> None:

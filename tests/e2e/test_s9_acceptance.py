@@ -326,7 +326,9 @@ def test_fm_a01_the_declared_public_function_is_implemented_as_designed(project:
     assert outcomes == {"EC-1": "implemented as designed"}
     assert "ORQ-E450" not in codes(status)
     assert "ORQ-E451" not in codes(status)
-    assert code == 5  # approval is never confirmed offline
+    # Nothing is stale and nothing was skipped, so the check passes. Approval is not checked here:
+    # the phase skills' input check confirms it (ADR-002 decision 1, plan.yaml P-1 AC-1).
+    assert code == 0
 
 
 def test_fm_a02_a_second_public_function_is_additional_and_blocks(project: Path) -> None:
