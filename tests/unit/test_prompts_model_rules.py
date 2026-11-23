@@ -16,6 +16,8 @@ enforcement, scope, `check_ref` and the SHA-256 of their text. The text is the o
 gives (the folded text of a YAML `>-` scalar) with its white space squeezed to single spaces. The
 hashes were computed from `git show HEAD:.prompts/rules.yaml` and are written here as literals, so
 a rule that is reworded, weakened or moved to another level fails here and not silently.
+ORQLET-ARCH-003 and ORQLET-SAFE-001 are pinned at the amended text of task one-command-setup
+(constraint K-1; the "Proposed amendment text" blocks of its ADR-002 and ADR-003).
 
 Not pinned: the position of the new rules among the old ones beyond "after the existing ones" (the
 interface), and the comments of the file.
@@ -61,7 +63,7 @@ EXISTING: tuple[tuple[str, str, str, tuple[str, ...], str | None, str], ...] = (
         "deterministic",
         ("src/orqlet/adapters/clients/**", "src/orqlet/workflow/**"),
         "uv run lint-imports",
-        "7abecda838453d3bc5e8fc0bafbd2a58edecadfe30ae8965afab2abcf9ae3c83",
+        "63b205b80a8ab761291a9dc11a03f8e39a8bb10599aaf1307ff2f4770fe411d6",
     ),
     (
         "ORQLET-SEC-001",
@@ -93,7 +95,7 @@ EXISTING: tuple[tuple[str, str, str, tuple[str, ...], str | None, str], ...] = (
         "review",
         ("src/orqlet/application/**", "src/orqlet/adapters/**"),
         None,
-        "f4d4e5739449e9fcf18bfe3cddb7e2c3cd091bbff043823a14e440f10118ef13",
+        "c33c181db6ba9703c5be04083887059eed64b8c16f5d9eda98354cdf8255a3b0",
     ),
     (
         "ORQLET-NOMODEL-001",

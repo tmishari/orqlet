@@ -1,7 +1,7 @@
 schema: orqlet.generated-lock/v1
 generator:
   orqlet: "0.4.0"
-standards_lock: "845aa1cb914dd3b09d52690216045e589e589f5e57292ec5b153d5cd73c4f330"
+standards_lock: "12486d9b48af8b2f61117d556568d3482b1641cd606e8652965dcc44babce930"
 files:
   - path: ".agents/skills/orqlet-design/SKILL.md"
     owner: orqlet
@@ -163,6 +163,198 @@ files:
         version: "0.5.0"
         sha256: ed9e0cfc8843f8e30b70a878a29510a5820cd54dbf158062a684a72ab37ce172
     rendered_sha256: ed9e0cfc8843f8e30b70a878a29510a5820cd54dbf158062a684a72ab37ce172
+  - path: ".agents/skills/ponytail-audit/SKILL.md"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: skills/ponytail-audit
+        version: "0.5.0"
+        sha256: a189652302af0bc5328fc40ed52e2d2a315efe941f40f8b5b69dd609ed926b8c
+    rendered_sha256: "3ed0e799cf94a9dbb623f4dd04f6f1c4567ce62ee2c25e6a5f81f1a24abeb8ed"
+  - path: ".agents/skills/ponytail-audit/agents/openai.yaml"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: ponytail-audit-codex-policy
+        version: "1"
+        sha256: db7351fb961b43591e3a58b058f57135486777bc2ba41d6b26116d628151e51a
+    rendered_sha256: db7351fb961b43591e3a58b058f57135486777bc2ba41d6b26116d628151e51a
+  - path: ".agents/skills/ponytail-audit/references/LICENSE.md"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: skills/ponytail-audit/references/LICENSE.md
+        version: "0.5.0"
+        sha256: c082402dd267884d75fb2994b8df660ef130d11f1e645db07b270a4df0486aa9
+    rendered_sha256: c082402dd267884d75fb2994b8df660ef130d11f1e645db07b270a4df0486aa9
+  - path: ".agents/skills/ponytail-audit/references/PROVENANCE.md"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: skills/ponytail-audit/references/PROVENANCE.md
+        version: "0.5.0"
+        sha256: b9548bc4fdbdc2252d7763f0a561fdbbb57de0a9cf461a355d4b999d9d82f795
+    rendered_sha256: b9548bc4fdbdc2252d7763f0a561fdbbb57de0a9cf461a355d4b999d9d82f795
+  - path: ".agents/skills/ponytail-debt/SKILL.md"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: skills/ponytail-debt
+        version: "0.5.0"
+        sha256: d6400359c6e8ac4cb78c12b9dcd25d7205cf7393aba7cf29bb07540121d71f23
+    rendered_sha256: eb2e5745bfb924ba413ce8a66a9960654f15b03a3b53bd410066243ae634b70c
+  - path: ".agents/skills/ponytail-debt/agents/openai.yaml"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: ponytail-debt-codex-policy
+        version: "1"
+        sha256: db7351fb961b43591e3a58b058f57135486777bc2ba41d6b26116d628151e51a
+    rendered_sha256: db7351fb961b43591e3a58b058f57135486777bc2ba41d6b26116d628151e51a
+  - path: ".agents/skills/ponytail-debt/references/LICENSE.md"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: skills/ponytail-debt/references/LICENSE.md
+        version: "0.5.0"
+        sha256: c082402dd267884d75fb2994b8df660ef130d11f1e645db07b270a4df0486aa9
+    rendered_sha256: c082402dd267884d75fb2994b8df660ef130d11f1e645db07b270a4df0486aa9
+  - path: ".agents/skills/ponytail-debt/references/PROVENANCE.md"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: skills/ponytail-debt/references/PROVENANCE.md
+        version: "0.5.0"
+        sha256: "4c837e86c4c11b700dcddc2dec230b8cc09d0d8e953a77807c674d00dda661f4"
+    rendered_sha256: "4c837e86c4c11b700dcddc2dec230b8cc09d0d8e953a77807c674d00dda661f4"
+  - path: ".agents/skills/ponytail-gain/SKILL.md"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: skills/ponytail-gain
+        version: "0.5.0"
+        sha256: "2aa16978823f6316c2d84fd4b40bf4066ec0b058a7df6f1df8ad65aea4547d49"
+    rendered_sha256: ea545151872d5bcd7944d6c2559fe7d72730129c50b65839980ef6f2acca73ae
+  - path: ".agents/skills/ponytail-gain/agents/openai.yaml"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: ponytail-gain-codex-policy
+        version: "1"
+        sha256: db7351fb961b43591e3a58b058f57135486777bc2ba41d6b26116d628151e51a
+    rendered_sha256: db7351fb961b43591e3a58b058f57135486777bc2ba41d6b26116d628151e51a
+  - path: ".agents/skills/ponytail-gain/references/LICENSE.md"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: skills/ponytail-gain/references/LICENSE.md
+        version: "0.5.0"
+        sha256: c082402dd267884d75fb2994b8df660ef130d11f1e645db07b270a4df0486aa9
+    rendered_sha256: c082402dd267884d75fb2994b8df660ef130d11f1e645db07b270a4df0486aa9
+  - path: ".agents/skills/ponytail-gain/references/PROVENANCE.md"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: skills/ponytail-gain/references/PROVENANCE.md
+        version: "0.5.0"
+        sha256: "7601d9ac0218220927dd8010d1a6c4de6c194af1f0cb17ce3ac0f93f4df87c06"
+    rendered_sha256: "7601d9ac0218220927dd8010d1a6c4de6c194af1f0cb17ce3ac0f93f4df87c06"
+  - path: ".agents/skills/ponytail-help/SKILL.md"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: skills/ponytail-help
+        version: "0.5.0"
+        sha256: "39d95818b1fee1be2ca02dcdd7db07d5354b64db7acf93aaed53178437a201b1"
+    rendered_sha256: c147f49099e72ab733a93b2ff28f38fb285209f2d2452ac690409b361fd11351
+  - path: ".agents/skills/ponytail-help/agents/openai.yaml"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: ponytail-help-codex-policy
+        version: "1"
+        sha256: db7351fb961b43591e3a58b058f57135486777bc2ba41d6b26116d628151e51a
+    rendered_sha256: db7351fb961b43591e3a58b058f57135486777bc2ba41d6b26116d628151e51a
+  - path: ".agents/skills/ponytail-help/references/LICENSE.md"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: skills/ponytail-help/references/LICENSE.md
+        version: "0.5.0"
+        sha256: c082402dd267884d75fb2994b8df660ef130d11f1e645db07b270a4df0486aa9
+    rendered_sha256: c082402dd267884d75fb2994b8df660ef130d11f1e645db07b270a4df0486aa9
+  - path: ".agents/skills/ponytail-help/references/PROVENANCE.md"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: skills/ponytail-help/references/PROVENANCE.md
+        version: "0.5.0"
+        sha256: "1894624e596d7896501b77823c408865ddbfe9b2768715d8a6b7c45a5f1d4243"
+    rendered_sha256: "1894624e596d7896501b77823c408865ddbfe9b2768715d8a6b7c45a5f1d4243"
+  - path: ".agents/skills/ponytail-review/SKILL.md"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: skills/ponytail-review
+        version: "0.5.0"
+        sha256: "7a204e57ee79a6e4613783058f05c49a3f12e211df5586e6adc09d4f364f7285"
+    rendered_sha256: "2987c289c87dee5ce4833e6a616135c6c06d7d421c41b63985485df1de9be6eb"
+  - path: ".agents/skills/ponytail-review/agents/openai.yaml"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: ponytail-review-codex-policy
+        version: "1"
+        sha256: db7351fb961b43591e3a58b058f57135486777bc2ba41d6b26116d628151e51a
+    rendered_sha256: db7351fb961b43591e3a58b058f57135486777bc2ba41d6b26116d628151e51a
+  - path: ".agents/skills/ponytail-review/references/LICENSE.md"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: skills/ponytail-review/references/LICENSE.md
+        version: "0.5.0"
+        sha256: c082402dd267884d75fb2994b8df660ef130d11f1e645db07b270a4df0486aa9
+    rendered_sha256: c082402dd267884d75fb2994b8df660ef130d11f1e645db07b270a4df0486aa9
+  - path: ".agents/skills/ponytail-review/references/PROVENANCE.md"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: skills/ponytail-review/references/PROVENANCE.md
+        version: "0.5.0"
+        sha256: c671fecc465f85b37adf150ee622b65921db9d71f8c67cf089fc1795427e226b
+    rendered_sha256: c671fecc465f85b37adf150ee622b65921db9d71f8c67cf089fc1795427e226b
+  - path: ".agents/skills/ponytail/SKILL.md"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: skills/ponytail
+        version: "0.5.0"
+        sha256: "44ea9e95bc84ce354242e4414658289e1a7568c030f0e00ae58695be74e02ab1"
+    rendered_sha256: f271406498e6f858476a4de389f1aeeadd31f44d422ae0cef6bb3ab3d92e1a78
+  - path: ".agents/skills/ponytail/agents/openai.yaml"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: ponytail-codex-policy
+        version: "1"
+        sha256: db7351fb961b43591e3a58b058f57135486777bc2ba41d6b26116d628151e51a
+    rendered_sha256: db7351fb961b43591e3a58b058f57135486777bc2ba41d6b26116d628151e51a
+  - path: ".agents/skills/ponytail/references/LICENSE.md"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: skills/ponytail/references/LICENSE.md
+        version: "0.5.0"
+        sha256: c082402dd267884d75fb2994b8df660ef130d11f1e645db07b270a4df0486aa9
+    rendered_sha256: c082402dd267884d75fb2994b8df660ef130d11f1e645db07b270a4df0486aa9
+  - path: ".agents/skills/ponytail/references/PROVENANCE.md"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: skills/ponytail/references/PROVENANCE.md
+        version: "0.5.0"
+        sha256: "8e514e2e8eaf89cb9631eee02734046efd1d23475d11b0622e6e9416f91cee03"
+    rendered_sha256: "8e514e2e8eaf89cb9631eee02734046efd1d23475d11b0622e6e9416f91cee03"
   - path: ".claude/CLAUDE.md"
     owner: orqlet
     class: protected
@@ -281,8 +473,8 @@ files:
     inputs:
       - id: ORQLET-ARCH-003
         version: prompts
-        sha256: "6934e1da233763eaa50c468c9c555d5cba2548b03b6f31d5662fafc19a74931f"
-    rendered_sha256: "850fd5aafa7e6c04074dc4262875a8778629ad1fb5ee9b92a0a460c9b6b12e0c"
+        sha256: "160f4c0a9aa65a0dcc93d9f19f2237b0ed4f0c67f451979278903d82184e868a"
+    rendered_sha256: e55cf6702134627ff9e0c39a485dd56c8360979d1c42432b6d0a452740b27acc
   - path: ".claude/rules/orqlet-orqlet-det-001.md"
     owner: orqlet
     class: generated
@@ -329,8 +521,8 @@ files:
     inputs:
       - id: ORQLET-SAFE-001
         version: prompts
-        sha256: f7debe75db44c1b03c82d58fd7144b15bea32a7862842307bb8a131c6ab1856b
-    rendered_sha256: c91f44912cca0727a7fd0f7770bb2fd78f1514b41c5da185e65b71c8f0c5f5f2
+        sha256: "6fafc5ce8f815e988020da457d82b9792b644026f82ee274cdae686215098bf4"
+    rendered_sha256: a12727125faf8ff5a300135815fbdfa308bb90717542390a78c74e57831fe868
   - path: ".claude/rules/orqlet-orqlet-sec-001.md"
     owner: orqlet
     class: generated
@@ -483,6 +675,150 @@ files:
         version: "0.5.0"
         sha256: ed9e0cfc8843f8e30b70a878a29510a5820cd54dbf158062a684a72ab37ce172
     rendered_sha256: ed9e0cfc8843f8e30b70a878a29510a5820cd54dbf158062a684a72ab37ce172
+  - path: ".claude/skills/ponytail-audit/SKILL.md"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: skills/ponytail-audit
+        version: "0.5.0"
+        sha256: a189652302af0bc5328fc40ed52e2d2a315efe941f40f8b5b69dd609ed926b8c
+    rendered_sha256: "3ed0e799cf94a9dbb623f4dd04f6f1c4567ce62ee2c25e6a5f81f1a24abeb8ed"
+  - path: ".claude/skills/ponytail-audit/references/LICENSE.md"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: skills/ponytail-audit/references/LICENSE.md
+        version: "0.5.0"
+        sha256: c082402dd267884d75fb2994b8df660ef130d11f1e645db07b270a4df0486aa9
+    rendered_sha256: c082402dd267884d75fb2994b8df660ef130d11f1e645db07b270a4df0486aa9
+  - path: ".claude/skills/ponytail-audit/references/PROVENANCE.md"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: skills/ponytail-audit/references/PROVENANCE.md
+        version: "0.5.0"
+        sha256: b9548bc4fdbdc2252d7763f0a561fdbbb57de0a9cf461a355d4b999d9d82f795
+    rendered_sha256: b9548bc4fdbdc2252d7763f0a561fdbbb57de0a9cf461a355d4b999d9d82f795
+  - path: ".claude/skills/ponytail-debt/SKILL.md"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: skills/ponytail-debt
+        version: "0.5.0"
+        sha256: d6400359c6e8ac4cb78c12b9dcd25d7205cf7393aba7cf29bb07540121d71f23
+    rendered_sha256: eb2e5745bfb924ba413ce8a66a9960654f15b03a3b53bd410066243ae634b70c
+  - path: ".claude/skills/ponytail-debt/references/LICENSE.md"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: skills/ponytail-debt/references/LICENSE.md
+        version: "0.5.0"
+        sha256: c082402dd267884d75fb2994b8df660ef130d11f1e645db07b270a4df0486aa9
+    rendered_sha256: c082402dd267884d75fb2994b8df660ef130d11f1e645db07b270a4df0486aa9
+  - path: ".claude/skills/ponytail-debt/references/PROVENANCE.md"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: skills/ponytail-debt/references/PROVENANCE.md
+        version: "0.5.0"
+        sha256: "4c837e86c4c11b700dcddc2dec230b8cc09d0d8e953a77807c674d00dda661f4"
+    rendered_sha256: "4c837e86c4c11b700dcddc2dec230b8cc09d0d8e953a77807c674d00dda661f4"
+  - path: ".claude/skills/ponytail-gain/SKILL.md"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: skills/ponytail-gain
+        version: "0.5.0"
+        sha256: "2aa16978823f6316c2d84fd4b40bf4066ec0b058a7df6f1df8ad65aea4547d49"
+    rendered_sha256: ea545151872d5bcd7944d6c2559fe7d72730129c50b65839980ef6f2acca73ae
+  - path: ".claude/skills/ponytail-gain/references/LICENSE.md"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: skills/ponytail-gain/references/LICENSE.md
+        version: "0.5.0"
+        sha256: c082402dd267884d75fb2994b8df660ef130d11f1e645db07b270a4df0486aa9
+    rendered_sha256: c082402dd267884d75fb2994b8df660ef130d11f1e645db07b270a4df0486aa9
+  - path: ".claude/skills/ponytail-gain/references/PROVENANCE.md"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: skills/ponytail-gain/references/PROVENANCE.md
+        version: "0.5.0"
+        sha256: "7601d9ac0218220927dd8010d1a6c4de6c194af1f0cb17ce3ac0f93f4df87c06"
+    rendered_sha256: "7601d9ac0218220927dd8010d1a6c4de6c194af1f0cb17ce3ac0f93f4df87c06"
+  - path: ".claude/skills/ponytail-help/SKILL.md"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: skills/ponytail-help
+        version: "0.5.0"
+        sha256: "39d95818b1fee1be2ca02dcdd7db07d5354b64db7acf93aaed53178437a201b1"
+    rendered_sha256: c147f49099e72ab733a93b2ff28f38fb285209f2d2452ac690409b361fd11351
+  - path: ".claude/skills/ponytail-help/references/LICENSE.md"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: skills/ponytail-help/references/LICENSE.md
+        version: "0.5.0"
+        sha256: c082402dd267884d75fb2994b8df660ef130d11f1e645db07b270a4df0486aa9
+    rendered_sha256: c082402dd267884d75fb2994b8df660ef130d11f1e645db07b270a4df0486aa9
+  - path: ".claude/skills/ponytail-help/references/PROVENANCE.md"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: skills/ponytail-help/references/PROVENANCE.md
+        version: "0.5.0"
+        sha256: "1894624e596d7896501b77823c408865ddbfe9b2768715d8a6b7c45a5f1d4243"
+    rendered_sha256: "1894624e596d7896501b77823c408865ddbfe9b2768715d8a6b7c45a5f1d4243"
+  - path: ".claude/skills/ponytail-review/SKILL.md"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: skills/ponytail-review
+        version: "0.5.0"
+        sha256: "7a204e57ee79a6e4613783058f05c49a3f12e211df5586e6adc09d4f364f7285"
+    rendered_sha256: "2987c289c87dee5ce4833e6a616135c6c06d7d421c41b63985485df1de9be6eb"
+  - path: ".claude/skills/ponytail-review/references/LICENSE.md"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: skills/ponytail-review/references/LICENSE.md
+        version: "0.5.0"
+        sha256: c082402dd267884d75fb2994b8df660ef130d11f1e645db07b270a4df0486aa9
+    rendered_sha256: c082402dd267884d75fb2994b8df660ef130d11f1e645db07b270a4df0486aa9
+  - path: ".claude/skills/ponytail-review/references/PROVENANCE.md"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: skills/ponytail-review/references/PROVENANCE.md
+        version: "0.5.0"
+        sha256: c671fecc465f85b37adf150ee622b65921db9d71f8c67cf089fc1795427e226b
+    rendered_sha256: c671fecc465f85b37adf150ee622b65921db9d71f8c67cf089fc1795427e226b
+  - path: ".claude/skills/ponytail/SKILL.md"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: skills/ponytail
+        version: "0.5.0"
+        sha256: "44ea9e95bc84ce354242e4414658289e1a7568c030f0e00ae58695be74e02ab1"
+    rendered_sha256: f271406498e6f858476a4de389f1aeeadd31f44d422ae0cef6bb3ab3d92e1a78
+  - path: ".claude/skills/ponytail/references/LICENSE.md"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: skills/ponytail/references/LICENSE.md
+        version: "0.5.0"
+        sha256: c082402dd267884d75fb2994b8df660ef130d11f1e645db07b270a4df0486aa9
+    rendered_sha256: c082402dd267884d75fb2994b8df660ef130d11f1e645db07b270a4df0486aa9
+  - path: ".claude/skills/ponytail/references/PROVENANCE.md"
+    owner: orqlet
+    class: protected
+    inputs:
+      - id: skills/ponytail/references/PROVENANCE.md
+        version: "0.5.0"
+        sha256: "8e514e2e8eaf89cb9631eee02734046efd1d23475d11b0622e6e9416f91cee03"
+    rendered_sha256: "8e514e2e8eaf89cb9631eee02734046efd1d23475d11b0622e6e9416f91cee03"
   - path: ".codex/agents/orqlet-arch-reviewer.toml"
     owner: orqlet
     class: protected
@@ -649,8 +985,8 @@ files:
     inputs:
       - id: ORQLET-ARCH-003
         version: prompts
-        sha256: "6934e1da233763eaa50c468c9c555d5cba2548b03b6f31d5662fafc19a74931f"
-    rendered_sha256: "617779a9dbbc440a74cd23b3c33d6c9a0a8e5f34433cabd691f00a6901343a93"
+        sha256: "160f4c0a9aa65a0dcc93d9f19f2237b0ed4f0c67f451979278903d82184e868a"
+    rendered_sha256: "1a3465e2a6a940ddd3f9cbeea435f323ecc3f86259305b8b3766085d91ac9455"
   - path: ".cursor/rules/orqlet-orqlet-det-001.mdc"
     owner: orqlet
     class: generated
@@ -697,8 +1033,8 @@ files:
     inputs:
       - id: ORQLET-SAFE-001
         version: prompts
-        sha256: f7debe75db44c1b03c82d58fd7144b15bea32a7862842307bb8a131c6ab1856b
-    rendered_sha256: "7b058ebc606b3664fc07fc1cd335e5ecbd8736eab3e3cfa3ad9e39a8ca3d27ee"
+        sha256: "6fafc5ce8f815e988020da457d82b9792b644026f82ee274cdae686215098bf4"
+    rendered_sha256: "388aa6d4a945035c93032f6e9692a4dbd554b5dca26025847a22e6f4138914d4"
   - path: ".cursor/rules/orqlet-orqlet-sec-001.mdc"
     owner: orqlet
     class: generated
@@ -777,7 +1113,7 @@ files:
     owner: orqlet
     class: generated
     inputs: []
-    rendered_sha256: "845aa1cb914dd3b09d52690216045e589e589f5e57292ec5b153d5cd73c4f330"
+    rendered_sha256: "12486d9b48af8b2f61117d556568d3482b1641cd606e8652965dcc44babce930"
   - path: ".orqlet/versions.yaml"
     owner: seeded
     inputs: []
@@ -786,7 +1122,7 @@ files:
     owner: orqlet
     class: protected
     inputs: []
-    rendered_sha256: "77c248233b49901e4258e2e2aaba52a435d0db7c28c655741cac8b7e1f841037"
+    rendered_sha256: "0b997907ce7b2ddeeb69c76d5c6d5fc52585ede700ad9a5c588c1ca7fa4b73e0"
   - path: ".prompts/README.md"
     owner: seeded
     inputs:

@@ -7,6 +7,6 @@ paths:
 
 # ORQLET-SAFE-001
 
-MUST: Every write goes through a journalled change plan: paths stay inside the project root, a backup is taken first, and the manifest is written last so a re-run converges.
+MUST: Every write goes through a journalled change plan: a backup is taken first, and the manifest is written last so a re-run converges. Project writes stay inside the project root. User-scope writes stay inside the allow-listed client folders and the data directory's `user` folder, each limited to its listed sub-paths, after the root checks: under the real home (the data directory may be elsewhere), not a link, owned by the user on POSIX, and not inside a Git work tree. On Windows, ownership is not checked, and a data directory outside home is allowed only with a warning that its access is not checked. The allow-listed roots and sub-paths are those that the user-scope file-system adapter declares; adding a root or widening a sub-path needs a reviewed design. Nothing is created or changed in the user scope before the person consents. Exempt from both the journal and the sub-path limit are only: creating, after consent and with mode 0700, a missing allow-listed root and its missing parents under home, and the data directory, its missing parents and its `user` folder; tightening Orqlet's own `user`, `journal` and `backups` folders to 0700 after consent; the apply lock, journal and backups under the `user` folder, and their pruning.
 
 Source: prompts

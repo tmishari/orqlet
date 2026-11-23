@@ -1,4 +1,4 @@
 schema: orqlet.workflow-lock/v1
 workflow_version: "0.5.0"
-workflow_digest: "72280db1bdae58a0860ccd5a44a09d3d5f91d7e5c2d644ea69984503b6c344e8"
+workflow_digest: "44b4fb9ce2168a23ac529933a5d97255a4dacab98ee12d4c278b7e7f2f7b8043"
 controls_level: 3
