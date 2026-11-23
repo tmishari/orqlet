@@ -94,6 +94,9 @@ phases:
   - op: modify
     path: tests/e2e/test_full_task.py
     why: gate status PASS and exit 0.
+  - op: modify
+    path: tests/e2e/test_s9_acceptance.py
+    why: Its gate status test expects exit 0 instead of 5.
   - op: create
     path: tests/integration/test_action_line_cli.py
     why: Each action line, its absence elsewhere, unchanged JSON fields.
@@ -1366,6 +1369,13 @@ self_check:
       CLI behaviour (P-1 to P-5) comes before the skill text that relies on it (P-6, P-7); the version bump, the upgrade and README
       come in the final phase; the phases form one chain, so no two independent phases touch the same path.
     how: depends_on and file_operations
+    result: pass
+  - what: >-
+      Amendment of P-1 at the person's request: tests/e2e/test_s9_acceptance.py (lines 320-329, revision
+      b2fd6a7d1761b712b31fe60003ae4f609950702d, sha256 3b52718623343c0ee92cef25735cff201e0e49527d0df410eab4c45b575fe665) asserts
+      exit status 5 for gate status with --phase P-1; P-1 AC-1 makes it exit 0, so the test is added to the phase's files. No
+      other phase, criterion or check changes.
+    how: orqlet evidence cite tests/e2e/test_s9_acceptance.py 320-329 --revision HEAD
     result: pass
   - what: Paths projected and the plan validated.
     how: orqlet validate plan docs/design/workflow-efficiency/plan.yaml
