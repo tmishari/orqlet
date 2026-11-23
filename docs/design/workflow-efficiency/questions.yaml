@@ -443,3 +443,29 @@ questions:
     answerer: tmishari
     time: '2026-11-23T11:16:52+00:00'
     scope: task
+- id: Q-22
+  key: 58349683acd1a90f739cf276ef324ccd222a0e4920bd5d77363a502f6e87572f
+  subject: Word cap of the phase contract
+  raised_by: Cursor
+  phase: design
+  category: requirement
+  text: The phase contract has 1,799 words against its 1,800-word test cap, and this design adds
+    the reuse rule, the web-evidence format and the evidence-file approval to it. Is the cap
+    raised, and to what, or does contract text leave it?
+  why: A test cap is a requirement value that only the person can set (AR4-3).
+  evidence_refs:
+  - A-2
+  - A-8
+  - docs/design/workflow-efficiency/reviews/architecture-reviewer-design-r4.md
+  options:
+  - Raise the cap to 2,000 words; the binding limit is the words a skill run loads
+  - Raise the cap to another value
+  - Keep 1,800 and name about 200 words to move out or cut
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: Raise the cap to 2,000 words; the binding limit is the words a skill run loads
+    answerer: tmishari
+    time: '2026-11-23T14:49:37+00:00'
+    scope: task
