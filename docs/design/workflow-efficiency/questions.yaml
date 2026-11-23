@@ -57,7 +57,7 @@ questions:
   - Q-2
   blocks:
   - implement
-  status: open
+  status: withdrawn
 - id: Q-4
   key: 34688a8d8bad565fd89986338c6d35099ca0775b974a045a9ed70693fdf77882
   subject: Research branch and base revision
@@ -159,4 +159,56 @@ questions:
     value: Official documentation only, saved as public evidence files
     answerer: tmishari
     time: '2026-11-23T09:21:00+00:00'
+    scope: task
+- id: Q-9
+  key: e1a781e0292d519cdbd011b9a2290efd8da7b89dd1bc518b7cd23750eae70598
+  subject: Session of the reported check repetitions
+  raised_by: Cursor
+  phase: research
+  category: evidence-conflict
+  text: Which session, task or phase showed the five or six repetitions of checks, and which
+    checks were repeated? No user message in the local transcripts names it; one implement
+    session records that review prepare ran five times.
+  why: Ties the reported repetition to a measured case for the before-and-after comparison.
+  evidence_refs:
+  - docs/design/workflow-efficiency/evidence/transcripts/agent-sessions.md
+  status: answered
+  answer:
+    value: The person thinks the repetitions were in the review step or the tester step; the
+      session itself is not known
+    answerer: tmishari
+    time: '2026-11-23T09:50:00+00:00'
+    scope: task
+- id: Q-10
+  key: be46c684b13674fe91a453384b3ba5eef1c704dbae8e2f3d8007387e5b960328
+  subject: Status of code held by frozen tasks
+  raised_by: Cursor
+  phase: research
+  category: requirement
+  text: Do copilot.py, render_rich.py, adapters/fs/user_scope.py and the committed user-render
+    tests count as obsolete code for this task, or as frozen one-command-setup work that stays
+    untouched?
+  why: The request asks to remove verified unused code; the frozen plan names these files.
+  blocks:
+  - plan
+  status: answered
+  answer:
+    value: Leave the frozen work alone; these files are not removed by this task
+    answerer: tmishari
+    time: '2026-11-23T09:50:00+00:00'
+    scope: task
+- id: Q-11
+  key: deb631a093f78681d8caa0bf39059d21ee004a4159017698434a5187ab274f10
+  subject: CLI and workflow version difference
+  raised_by: Cursor
+  phase: research
+  category: evidence-conflict
+  text: The CLI reports version 0.4.0 while the installed workflow is 0.5.0. Is that difference
+    intended?
+  why: Version messages are part of the user-facing output the request covers.
+  status: answered
+  answer:
+    value: Not intended; this task's approved changes update the version
+    answerer: tmishari
+    time: '2026-11-23T09:50:00+00:00'
     scope: task
