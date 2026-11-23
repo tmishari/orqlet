@@ -1,0 +1,148 @@
+schema: orqlet.review-result/v1
+task: one-command-setup
+phase: P-6
+role: code-reviewer
+round: 2
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: 7fb45a66a257133814510054c52138a1cca32e50427b0b9cec8c22afbddd4755
+    design: 57a0e187b074ebba999bde1458fd76d42642b0a866e1ff660466ff8604c94a7d
+    evidence_inputs: 1aa0f07da65e92f9c153149eda7e1dcd2617cffc510f0840ed5d771f8506bb27
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 257d4b0b16883cfda2f67c49a831803e0059772b34af7868d66b4fd8a8daf97a
+    reviewer_definition: 6660b181a2ba46a0bbd8225a3449e2322f0030dea1fa146cb15dfd0e3ffcd94e
+    standards: 0e5b7e5fc8f3950ac5d360cf4a0c9dbe2b4880433ba15680a6c66220d4434e5d
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 96c38db962a80ee52b66ebc71dda9f23d01046977ec3a2fd5eb267c034f787ae
+  merge_base: 75bb752790abf906fb66bb047b5171a7c40d552c
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-code-reviewer
+  definition_sha256: d807b6881723a0c72151d12a514eb0506a2356d9e94d170daff3f53178dff488
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I0
+capability_limits:
+- 'Same client as the Coder (cursor) and no approved code-reviewer binding for cursor in .orqlet/role-bindings.yaml: independence I0, below the I2 a code
+  review needs; the verdict is NOT_RUN.'
+- The reviewer's own conclusion was no blocking defect. Its observations (the manifest is 0644 inside the 0700 user folder; AC-11 judged from the file list
+  only) are kept in this line only.
+- The person chose not to rework the code after round 2 and to commit the phase as it is.
+- Round 2 of P-6, after the design-text amendment of ADR-002 and container.md that the person chose after round 1. It was started as a typed subagent with
+  the packet path one-command-setup-P-6-7ceedca3 as its only prompt; that the context is fresh is the Coder's claim. The packet's diff is against main 75bb752
+  and holds P-6 only.
+- 'The reviewer''s session had no shell: no quote digest and no git. The Coder wrote this record from its returned text; its quote evidence is given as
+  absence records naming the packet path and lines.'
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- Non-blocking findings of this round are follow-ups for the person, not changes to P-6 unless the person asks.
+applicability:
+  examined:
+  - diff.patch and the snapshot sources of the user scope, journal and local file system
+  - plan P-6, ADR-002, the test record
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: failure-handling
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-6-7ceedca3/snapshot/src/orqlet/adapters/fs/user_scope.py lines 301-322, 335-346 and 365-370
+    - one-command-setup-P-6-7ceedca3/snapshot/src/orqlet/interface/cli/runner.py lines 30-35
+    method: traced a missing root whose nearest existing ancestor is a file or a broken link
+    revision: 75bb752790abf906fb66bb047b5171a7c40d552c
+  claim: A missing root whose nearest existing ancestor is a regular file or a broken link inside home passes inspection; prepare then raises NotADirectoryError
+    or FileNotFoundError, reported as an internal error instead of a refusal with exit 3. A PermissionError on lstat escapes inspect the same way.
+  suggested_action: Refuse a missing root whose ancestor is not a directory, map OSError in the root checks to UserRootRefused, and add a test for the file-ancestor
+    case.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: finding
+  severity: non-blocking
+  category: tests
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-6-7ceedca3/snapshot/tests/integration/test_user_scope_roots.py lines 569-598
+    - one-command-setup-P-6-7ceedca3/snapshot/src/orqlet/adapters/fs/user_scope.py line 225
+    method: read the Windows tests for a foreign user id
+    revision: 75bb752790abf906fb66bb047b5171a7c40d552c
+  claim: The Windows tests already pass user_id=None, so removing the rule that ignores ownership on Windows would not fail any test.
+  suggested_action: Add a Windows test with a foreign user id and assert no refusal and the warning.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: finding
+  severity: info
+  category: tests
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-6-7ceedca3/snapshot/tests/integration/test_user_scope_roots.py lines 502-523
+    method: traced the pinned-path test
+    revision: 75bb752790abf906fb66bb047b5171a7c40d552c
+  claim: The comparison of the opened root with the pinned path in prepare is never reached by a test.
+  suggested_action: Add a swap test, or record that the earlier check covers it.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: finding
+  severity: info
+  category: correctness
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-6-7ceedca3/snapshot/src/orqlet/adapters/fs/user_scope.py lines 228-230 and 262-265
+    method: read inspect and prepare for the stored home
+    revision: 75bb752790abf906fb66bb047b5171a7c40d552c
+  claim: prepare depends on the home stored by inspect and raises RuntimeError without it.
+  suggested_action: Pass the home to prepare, or document the call order in the port.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: finding
+  severity: info
+  category: correctness
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-6-7ceedca3/snapshot/src/orqlet/adapters/fs/journal.py lines 46-51 and 111-116
+    method: read the for_user constructors
+    revision: 75bb752790abf906fb66bb047b5171a7c40d552c
+  claim: for_user builds objects with cls.__new__ and skips __init__.
+  suggested_action: Give __init__ a folder keyword and call it from for_user.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: code-reviewer
+    phase: implement
+  checks:
+  - what: packet read
+    how: orqlet review prepare one-command-setup-P-6-7ceedca3
+    result: pass
+  - what: running the checks and quote digests
+    how: no shell
+    result: not-run

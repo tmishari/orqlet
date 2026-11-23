@@ -1,0 +1,122 @@
+schema: orqlet.review-result/v1
+task: one-command-setup
+phase: P-6
+role: security-reviewer
+round: 2
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: 7fb45a66a257133814510054c52138a1cca32e50427b0b9cec8c22afbddd4755
+    design: 57a0e187b074ebba999bde1458fd76d42642b0a866e1ff660466ff8604c94a7d
+    evidence_inputs: 1aa0f07da65e92f9c153149eda7e1dcd2617cffc510f0840ed5d771f8506bb27
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 257d4b0b16883cfda2f67c49a831803e0059772b34af7868d66b4fd8a8daf97a
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: 0e5b7e5fc8f3950ac5d360cf4a0c9dbe2b4880433ba15680a6c66220d4434e5d
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 3765e0930cf9b96d87dc8acd0cc447d061c98d6dc4c6477fc34855554961e1d1
+  merge_base: 75bb752790abf906fb66bb047b5171a7c40d552c
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- 'Same client as the Coder (cursor): independence I1, below the I2 a D3 change requires (ORQLET-MODEL-002); the verdict is NOT_RUN.'
+- The reviewer's own conclusion was no blocking finding. Its observations (decoded journal values are checked for type only and the adoption and rollback
+  --user phases should parse and compare them; ownership of a missing root's nearest ancestor is not checked) are kept in this line only.
+- Round 2 of P-6, after the design-text amendment of ADR-002 and container.md that the person chose after round 1. It was started as a typed subagent with
+  the packet path one-command-setup-P-6-7ceedca3 as its only prompt; that the context is fresh is the Coder's claim. The packet's diff is against main 75bb752
+  and holds P-6 only.
+- 'The reviewer''s session had no shell: no quote digest and no git. The Coder wrote this record from its returned text; its quote evidence is given as
+  absence records naming the packet path and lines.'
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- Non-blocking findings of this round are follow-ups for the person, not changes to P-6 unless the person asks.
+applicability:
+  examined:
+  - diff.patch lines 1-1170 in full and the test part by pattern
+  - user_scope.py, local_fs.py, journal.py, contracts/user_scope.py and domain/paths.py in the snapshot
+  - ADR-002 decisions 1 to 5
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: security
+  rule_ref: ORQLET-SAFE-001
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-6-7ceedca3/snapshot/src/orqlet/adapters/fs/user_scope.py lines 306-318 and 353-361
+    method: read the data-directory checks for a group or world write check
+    revision: 75bb752790abf906fb66bb047b5171a7c40d552c
+  claim: On POSIX the data directory is checked for links and ownership but not for group or world write access; only user/, user/journal and user/backups
+    are tightened. A data directory outside home that another account can write, with no sticky bit, lets that account swap user/ between the second check
+    and the opens.
+  suggested_action: Ask the person whether such a data directory is refused or warned about, and record it in ADR-002 decision 1a before P-7 wires the data
+    directory.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: finding
+  severity: non-blocking
+  category: security
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-6-7ceedca3/snapshot/src/orqlet/adapters/fs/user_scope.py lines 250-252 and 365-370
+    - one-command-setup-P-6-7ceedca3/snapshot/src/orqlet/adapters/fs/local_fs.py lines 208-213
+    method: read the chmod calls for link following
+    revision: 75bb752790abf906fb66bb047b5171a7c40d552c
+  claim: os.chmod on the tightened and created folders follows links; a folder swapped for a link between the check and the chmod changes the target's mode,
+    only ever tighter.
+  suggested_action: Accept and record the residual risk, or use O_NOFOLLOW with fchmod where the platform supports it.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: finding
+  severity: non-blocking
+  category: security
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-6-7ceedca3/snapshot/src/orqlet/adapters/fs/journal.py lines 46-51 and 111-116
+    method: read the for_user constructors for the root checks
+    revision: 75bb752790abf906fb66bb047b5171a7c40d552c
+  claim: The user journal and backup store open the data directory without the inspector's checks; their protection depends on the caller running prepare
+    first, which nothing enforces.
+  suggested_action: In the phase that wires install, uninstall and rollback --user, test that they are built only after prepare.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet read
+    how: orqlet review prepare one-command-setup-P-6-7ceedca3
+    result: pass
+  - what: running the checks and quote digests
+    how: no shell
+    result: not-run

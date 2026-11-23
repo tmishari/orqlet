@@ -1,0 +1,155 @@
+schema: orqlet.review-result/v1
+task: one-command-setup
+phase: P-6
+role: code-reviewer
+round: 1
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: 74dbd3a7d3d7fb8e68e1f389e26337675c23da3891f84fff8b484054f959e179
+    design: f06d364039b27ab207ed6f5db21c92570bc2d22e18763d0a8d81c9b6cc97dae9
+    evidence_inputs: d56789d638bae3243c23b1e855ef797b2fe9c188a089461a71ba6cf6a1a2d84c
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 48343025266c30d4e0043d98fdaa25156f6e51a9cf01888c3ae8e1ca51c385ea
+    reviewer_definition: 6660b181a2ba46a0bbd8225a3449e2322f0030dea1fa146cb15dfd0e3ffcd94e
+    standards: 0e5b7e5fc8f3950ac5d360cf4a0c9dbe2b4880433ba15680a6c66220d4434e5d
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 90d7674b909124c20212f913337eb268ad8b43dae13d00f05b5e28070688429a
+  merge_base: 75bb752790abf906fb66bb047b5171a7c40d552c
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-code-reviewer
+  definition_sha256: d807b6881723a0c72151d12a514eb0506a2356d9e94d170daff3f53178dff488
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I0
+capability_limits:
+- 'Same client as the Coder (cursor) and no approved code-reviewer binding for cursor in .orqlet/role-bindings.yaml: independence I0, below the I2 a code
+  review needs; the verdict is NOT_RUN. The reviewer reported running on Claude Opus 5.5, the Coder''s model family.'
+- The reviewer's own conclusion was no blocking defect; AC-1 to AC-10, AC-12 and AC-13 are met as written and AC-11 is unverified. Its observations (owners
+  in apply_plan are P-10's; folders are created for every client as ADR-002 says; remove_empty_dir works out the access level twice; macOS only) are kept
+  in this line only.
+- Round 1 of P-6. It was started as a typed subagent with the packet path one-command-setup-P-6-43bffcf9 as its only prompt; that the context is fresh is
+  the Coder's claim. The packet's diff is against main 75bb752 and holds P-6 only.
+- 'The reviewer''s session had no shell: no quote digest and no git. The Coder wrote this record from its returned text; its quote evidence is given as
+  absence records naming the packet path and lines.'
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- Non-blocking findings of this round are follow-ups for the person, not changes to P-6 unless the person asks.
+applicability:
+  examined:
+  - the whole of diff.patch
+  - user_scope.py, journal.py, local_fs.py, the user_scope and change_journal ports, contracts/user_scope.py, apply_plan.py, runner.py and errors.py in
+    the snapshot
+  - plan P-6, ADR-002 decisions 1 to 5, the test record
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: failure-handling
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-6-43bffcf9/snapshot/src/orqlet/adapters/fs/user_scope.py lines 243-260
+    - one-command-setup-P-6-43bffcf9/snapshot/src/orqlet/adapters/fs/local_fs.py lines 64-69 and 83-89
+    - one-command-setup-P-6-43bffcf9/snapshot/src/orqlet/interface/cli/runner.py lines 30-35
+    method: read inspect, planning_fs and prepare for operating-system errors that are not OrqletError
+    revision: 75bb752790abf906fb66bb047b5171a7c40d552c
+  claim: Operating-system errors other than not-found escape inspect, planning_fs and prepare as non-Orqlet exceptions (a root that disappears before LocalFileSystem
+    opens it, a PermissionError from mkdir or chmod, a PermissionError on lstat), so the CLI reports an internal error instead of a refusal with exit 3
+    that names the variable.
+  suggested_action: Catch OSError from the per-root checks, the creation and tightening, and the open, and raise UserRootRefused naming the variable; add
+    a test for a root removed before open and one for an unreadable parent.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: finding
+  severity: non-blocking
+  category: tests
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-6-43bffcf9/diff.patch (all test hunks of P-6)
+    method: searched for unreadable and JournalError in the test hunks; matches are in source hunks only
+    revision: 75bb752790abf906fb66bb047b5171a7c40d552c
+  claim: The new decoder checks _strings, _optional_string and _roots have no test showing that a malformed owners, key, json_sha256 or roots field is reported
+    as JournalError.
+  suggested_action: Add parametrised cases to tests/integration/test_user_journal.py, one malformed field each, expecting JournalError from read().
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: finding
+  severity: non-blocking
+  category: tests
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-6-43bffcf9/snapshot/src/orqlet/adapters/fs/user_scope.py lines 253-270
+    - one-command-setup-P-6-43bffcf9/diff.patch lines 2577-2598
+    method: traced the pinned-path test through _validate_again and the opened-root comparison
+    revision: 75bb752790abf906fb66bb047b5171a7c40d552c
+  claim: The comparison of the opened root with the pinned path in prepare is never reached by a test; the existing test is caught earlier by _validate_again,
+    so deleting the comparison would still pass.
+  suggested_action: Add a test that swaps the root after the second validation and expects UserRootRefused, or record that this branch only guards a race.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: finding
+  severity: non-blocking
+  category: correctness
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-6-43bffcf9/snapshot/src/orqlet/adapters/fs/journal.py lines 46-51 and 111-116
+    method: read the for_user constructors
+    revision: 75bb752790abf906fb66bb047b5171a7c40d552c
+  claim: for_user builds the journal and the backup store with cls.__new__ and sets private attributes by hand; an attribute added to __init__ later would
+    be missing on the user path.
+  suggested_action: Give both classes one initialiser taking (fs, directory) and call it from both constructors.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: finding
+  severity: info
+  category: correctness
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-6-43bffcf9/snapshot/src/orqlet/adapters/fs/user_scope.py lines 227-231 and 263-265
+    method: read inspect and prepare for the stored home
+    revision: 75bb752790abf906fb66bb047b5171a7c40d552c
+  claim: prepare validates against the home of the most recent inspect, not the one its states came from; without an earlier inspect it raises RuntimeError,
+    which the CLI reports as an internal error.
+  suggested_action: Carry the real home in the states, or pass the UserHome to prepare.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: code-reviewer
+    phase: implement
+  checks:
+  - what: packet read
+    how: orqlet review prepare one-command-setup-P-6-43bffcf9
+    result: pass
+  - what: running the checks and quote digests
+    how: no shell
+    result: not-run

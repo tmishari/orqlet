@@ -10,7 +10,7 @@ header:
     standards_lock_hash: 12486d9b48af8b2f61117d556568d3482b1641cd606e8652965dcc44babce930
     applicable_rules_hash: e5618439f62ec2b01a2a1719ee3902a92ca1829827de0b41242cb351c37e4e15
     profile_version: 1
-design_ref: docs/design/one-command-setup/design/manifest.yaml#b9d747af0c06e349402c82d07192418f7a0fb3ae229ba6b6e94f1e1c0ea045f9
+design_ref: docs/design/one-command-setup/design/manifest.yaml#41dc901574d9e971af15ace9c9a7318876e3a0746d2c68046ec7eb21156eae7a
 base_revision: ff9fbf18ec795e44c34ac42079cab7f64b2ebde8
 knowledge_scope: []
 phases:
@@ -2093,7 +2093,7 @@ self_check:
       ORQLET-TEST-002, ORQLET-STYLE-001]
     acceptance_criteria: []
     evidence:
-    - docs/design/one-command-setup/design/manifest.yaml#b9d747af0c06e349402c82d07192418f7a0fb3ae229ba6b6e94f1e1c0ea045f9
+    - docs/design/one-command-setup/design/manifest.yaml#41dc901574d9e971af15ace9c9a7318876e3a0746d2c68046ec7eb21156eae7a
     - docs/design/one-command-setup/questions.yaml
     - .github/workflows/ci.yml
     - AGENTS.md
@@ -2201,6 +2201,15 @@ self_check:
     how: >-
       git log origin/main; orqlet gate status one-command-setup --json; orqlet standards for --path <path> --phase plan --role planner
       for each operation path of P-6 to P-11; orqlet validate plan with P-8 copilot.py as modify (ORQ-E309) and as create (pass)
+    result: pass
+  - what: >-
+      Design amendment in P-6, at the person's choice after the P-6 round-1 reviews. ADR-002 decision 1a now says the work-tree check
+      is internal to the user-scope adapter and adds no port (architecture finding F-1), and records as an open question whether
+      rollback --user and adoption refuse or warn about a file left by another account in a folder that had group or world access
+      (security finding F-1); container.md line 77 says the same about the check. The design manifest pins the new sha256 of D-2 and
+      D-7, and design_ref and the evidence entry above pin the new manifest hash. No requirement, expected change or acceptance
+      criterion changes.
+    how: orqlet validate design docs/design/one-command-setup/design/manifest.yaml; orqlet validate plan docs/design/one-command-setup/plan.yaml
     result: pass
   - what: orqlet validate plan docs/design/one-command-setup/plan.yaml
     how: orqlet validate plan docs/design/one-command-setup/plan.yaml

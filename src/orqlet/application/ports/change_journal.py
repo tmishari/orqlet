@@ -1,12 +1,14 @@
 """The record of a change in progress, and the copies that let it be undone (ADR-004).
 
 Both live outside the repository, in the user's data directory, so a repository cannot forge
-or read them.
+or read them. A project change and a user-scope change (one-command-setup ADR-002) keep separate
+namespaces there.
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from collections.abc import Mapping
+from dataclasses import dataclass, field
 from typing import Literal, Protocol
 
 from orqlet.domain.errors import OrqletError
@@ -25,16 +27,20 @@ class JournalEntry:
     after_sha256: str | None
     is_proposal: bool = False
     done: bool = False
+    owners: tuple[str, ...] = ()  # the owning clients of a user-scope entry
+    key: str | None = None  # the entry's key inside a shared JSON file
+    json_sha256: str | None = None  # the canonical-JSON hash of that entry as written
 
 
 @dataclass(frozen=True, slots=True)
 class JournalRecord:
     change_id: str
-    command: str  # "init", "upgrade" or "rollback"
+    command: str  # "init", "upgrade", "rollback", "install" or "uninstall"
     plan_digest: str
     created_at: str  # UTC, ISO 8601
     entries: tuple[JournalEntry, ...]
     status: Literal["open", "complete", "superseded", "rolled-back"] = "open"
+    roots: Mapping[str, str] = field(default_factory=dict)  # user-scope prefix -> pinned real root
 
 
 class ChangeJournal(Protocol):

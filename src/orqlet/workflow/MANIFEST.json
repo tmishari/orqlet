@@ -182,6 +182,10 @@
       "sha256": "51503c64b8a60e4778337da7abafa236af37d71342ef9c8afad28b2488b08f68"
     },
     {
+      "path": "schemas/orqlet.user-manifest.v1.json",
+      "sha256": "6eb6b27aa10befa38cf92efee790aa2501f9ec98b523c81e997ae581b1cd1de1"
+    },
+    {
       "path": "schemas/orqlet.versions.v1.json",
       "sha256": "6805197e8e9dae18a91308864417113a9e066da6c51a2ab11655b60843b66a91"
     },
