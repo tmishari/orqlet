@@ -234,3 +234,185 @@ questions:
     answerer: tmishari
     time: '2026-11-23T09:56:00+00:00'
     scope: task
+- id: Q-13
+  key: dae29b0dd08bd99a6017e1930c4dd8c8bc8c1f89c8827d534474b26abb8fc282
+  subject: Source of the Q-12 root-cause facts for the design
+  raised_by: Cursor
+  phase: design
+  category: requirement
+  text: The design must cover the squash-merge versus base_revision friction behind Q-12, but the
+    approved AS-IS file holds no fact on how base_revision is bound and cited (gate status binds
+    HEAD, every fact must cite base_revision, research commits its evidence before citing it).
+    Should the design cite those lines directly, or does the AS-IS file need a refresh first?
+  why: The design skill says a fact about the current code that the AS-IS file lacks needs an
+    AS-IS refresh.
+  evidence_refs:
+  - Q-12
+  - src/orqlet/application/usecases/gate_status.py
+  - src/orqlet/application/usecases/validate_as_is.py
+  - src/orqlet/application/usecases/evidence_cite.py
+  - src/orqlet/workflow/skills/orqlet-research/skill.md
+  options:
+  - The design cites the code lines directly, with the person's yes recorded here
+  - Refresh the AS-IS file first with the Q-12 facts
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: Refresh the AS-IS file first with the Q-12 facts
+    answerer: tmishari
+    time: '2026-11-23T10:00:00+00:00'
+    scope: task
+- id: Q-14
+  key: b593133dfc179484793c8832a9784b71b885a8f42110314e5741225a68596724
+  subject: Red required checks on main from the frozen P-7 tests
+  raised_by: Cursor
+  phase: design
+  category: policy
+  text: Since 1db69af, the frozen P-7 tests import names that src/orqlet lacks, and lint, types
+    and all 12 tests jobs fail on main (the CI run of 92e026e). Required checks are expected to
+    pass before a pull request is ready, and Q-10 leaves the files alone. How is that resolved
+    for this task's pull requests?
+  why: No pull request of this task can show green required checks while main is red.
+  evidence_refs:
+  - Q-10
+  - tests/unit/render/test_user_scope_render.py
+  - tests/unit/application/test_user_render_request.py
+  options:
+  - A separate fix pull request reverts 1db69af on main; the tests stay on one-command-setup-implement
+  - A fix pull request excludes the two files from ruff, mypy and pytest until P-7 resumes
+  - Leave main red; this task's pull requests report those failures as known
+  - Resume one-command-setup P-7 to make the tests pass
+  blocks:
+  - plan
+  status: answered
+  answer:
+    value: Leave main red; this task's pull requests report those failures as known
+    answerer: tmishari
+    time: '2026-11-23T10:00:00+00:00'
+    scope: task
+- id: Q-15
+  key: a2871e9b7c74dfa4d7c28c54566a08ef9fce92fcb197777916866ecea36f4c77
+  subject: Version after the workflow-efficiency changes
+  raised_by: Cursor
+  phase: design
+  category: requirement
+  text: Q-11 says this task updates the CLI version, and any change to the workflow package
+    also needs a version bump. Which version do the CLI and the workflow package have after
+    this task?
+  why: Neither value can stay at 0.5.0 once the workflow package changes.
+  evidence_refs:
+  - Q-11
+  options:
+  - Both 0.6.0
+  - Both 0.5.1
+  status: answered
+  answer:
+    value: Both the CLI and the workflow package become 0.5.1
+    answerer: tmishari
+    time: '2026-11-23T10:00:00+00:00'
+    scope: task
+- id: Q-16
+  key: cf09d1e2bd0cafdf25de9222ebe22346d6876976609b95f293d7409347420f44
+  subject: Length targets for design briefs and plans
+  raised_by: Cursor
+  phase: design
+  category: requirement
+  text: The request asks for concise designs and plans but gives no number. Which targets apply,
+    and how strict are they?
+  why: A length target is a requirement value that only the person can set.
+  options:
+  - Word targets that the validators report as warnings
+  - Targets in the format references only
+  - Hard limits that fail validation
+  status: answered
+  answer:
+    value: Word targets that the validators report as warnings, 1,200 words for a design brief
+      and 400 words for each plan phase
+    answerer: tmishari
+    time: '2026-11-23T10:00:00+00:00'
+    scope: task
+- id: Q-17
+  key: 4a03d75286b6ca352f47d65b9eab49c44f7d3b2bcbc31e4fd4f96ba342fe74cf
+  subject: Rules and standard ids in user-facing output
+  raised_by: Cursor
+  phase: design
+  category: requirement
+  text: Should the messages people read name Orqlet's MUST rules and standard ids?
+  why: The person objected to a MUST rule shown in a design-phase reply about Q-14.
+  evidence_refs:
+  - Q-14
+  status: answered
+  answer:
+    value: '"I don''t want to show any must rules for users. It should be like a blackbox."'
+    answerer: tmishari
+    time: '2026-11-23T10:09:00+00:00'
+    scope: task
+- id: Q-18
+  key: db2f5c829622d7a4ffa2cbe0eaff614e4cf4ce8ccd42289e894ad170c974a610
+  subject: Branch for the AS-IS refresh
+  raised_by: Cursor
+  phase: research
+  category: requirement
+  text: The branch workflow-efficiency-refresh-research already exists locally and on origin as
+    the merged pull request 54 branch (5fa34606, the same tree as 92e026e). How is a new branch
+    from 92e026e made?
+  why: The person asked for a new branch with that name.
+  options:
+  - Delete the merged branch locally and on origin, then create it fresh from 92e026e
+  - Reset the local branch to 92e026e and replace origin's copy with --force-with-lease
+  - Use another name
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: Delete the merged branch locally and on origin, then create it fresh from 92e026e
+    answerer: tmishari
+    time: '2026-11-23T10:13:00+00:00'
+    scope: task
+- id: Q-19
+  key: dda56a8f54dc441f2695007f24c9893013d0b9334b46999034f962640c0768e7
+  subject: Red CI run of main outside the base revision
+  raised_by: Cursor
+  phase: research
+  category: evidence-conflict
+  text: The job results of CI run 45152031442 for 92e026e exist only on GitHub, and every fact
+    must cite a file at the base revision 92e026e. How do the Q-14 facts record them?
+  why: An evidence file committed on the refresh branch cannot be cited at 92e026e (ORQ-E332).
+  evidence_refs:
+  - Q-14
+  - src/orqlet/application/usecases/validate_as_is.py
+  options:
+  - Facts cite the causes at 92e026e; the job results go in a self-check entry with the run link
+  - Commit a run evidence file and bind the header at that commit
+  - Facts cite the causes only; the run result is an unknown
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: Facts cite the causes only; the run result is an unknown
+    answerer: tmishari
+    time: '2026-11-23T10:13:00+00:00'
+    scope: task
+- id: Q-20
+  key: 40f8a80785c30f5b04fa1528a21a0a001e99d8178314aca93b1dcecf9608bb12
+  subject: Ids covered by Q-17
+  raised_by: Cursor
+  phase: research
+  category: requirement
+  text: Do the rule ids shown to users in Q-17 include the CLI finding codes, such as ORQ-E332,
+    or only the MUST rules and standard ids, such as ORQLET-ARCH-001?
+  why: Sets which output the Q-17 facts cover.
+  evidence_refs:
+  - Q-17
+  options:
+  - Only MUST rules and standard ids
+  - Both standard ids and finding codes
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: Only MUST rules and standard ids
+    answerer: tmishari
+    time: '2026-11-23T10:13:00+00:00'
+    scope: task
