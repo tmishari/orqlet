@@ -469,3 +469,134 @@ questions:
     answerer: tmishari
     time: '2026-11-23T14:49:37+00:00'
     scope: task
+- id: Q-23
+  key: 5f9f14eef1608b070bd70683f6a9f52bab0b0bb8ab040abdca40b3d2c9e2f688
+  subject: reviewed_for_release at the 0.5.1 release
+  raised_by: Cursor
+  phase: plan
+  category: requirement
+  text: The design moves the workflow to 0.5.1 and says no model-policy change, but a guard test
+    fails unless the seed's reviewed_for_release equals the workflow version, and the repository's
+    own policy warns ORQ-W541 while it stays at 0.5.0. How does the plan handle it?
+  why: The release rule of an earlier task asks to raise the marker in the release pull request,
+    and the design names neither file.
+  evidence_refs:
+  - tests/unit/test_workflow_model_policy_seed.py
+  - src/orqlet/application/usecases/validate_model_policy.py
+  - docs/design/workflow-efficiency/design/manifest.yaml
+  options:
+  - Raise reviewed_for_release to 0.5.1 in the seed and in .orqlet/model-policy.yaml in the final
+    phase, no other policy field changes; a release marker inside the approved design
+  - Treat it as outside the design and amend the design first
+  - Raise it in the seed only and accept the warning
+  blocks:
+  - plan
+  status: answered
+  answer:
+    value: Raise reviewed_for_release to 0.5.1 in the seed and in .orqlet/model-policy.yaml in the
+      final phase, no other policy field changes; a release marker inside the approved design
+    answerer: tmishari
+    time: '2026-11-23T15:22:51+00:00'
+    scope: task
+- id: Q-24
+  key: dca394104db36fa3c5172d54a857dd526bb87f242b76991c63f3e13be05cd7e5
+  subject: Pull request template written by the 0.5.1 upgrade
+  raised_by: Cursor
+  phase: plan
+  category: requirement
+  text: orqlet upgrade manages .github/pull_request_template.md, whose block marker names
+    workflow@0.5.0, so the 0.5.1 upgrade rewrites that line; .github/ is outside the design's scope
+    and EC-8 lists only .orqlet files. What does the plan do?
+  why: A write outside the expected changes is a deviation the person must accept.
+  evidence_refs:
+  - .orqlet/generated.lock.yaml
+  - .github/pull_request_template.md
+  - docs/design/workflow-efficiency/design/manifest.yaml
+  options:
+  - Add it to the final phase as an upgrade-written file, marker line only, and report it as a
+    design deviation for the person to accept at review
+  - Amend the design scope first
+  blocks:
+  - plan
+  status: answered
+  answer:
+    value: Add it to the final phase as an upgrade-written file, marker line only, and report it as
+      a design deviation for the person to accept at review
+    answerer: tmishari
+    time: '2026-11-23T15:22:51+00:00'
+    scope: task
+- id: Q-25
+  key: 6fed428d55ab72fdd34f0a8da6713da64e9d4cb204b694744312d9d95482e5cb
+  subject: Local pytest form past the two frozen import errors
+  raised_by: Cursor
+  phase: plan
+  category: missing-configuration
+  text: The design asks the plan to name, for the person's yes, a local pytest form that runs past
+    the two collection errors of the frozen test files with every configured option. Is
+    `uv run pytest --continue-on-collection-errors` that form?
+  why: The project defines only `uv run pytest`, which stops at collection (Q-14).
+  evidence_refs:
+  - .github/workflows/ci.yml
+  - pyproject.toml
+  - docs/design/workflow-efficiency/design/component.md
+  options:
+  - Yes, --continue-on-collection-errors
+  - Use --ignore for the two frozen files
+  - No local form; run plain uv run pytest
+  blocks:
+  - plan
+  status: answered
+  answer:
+    value: Yes, use --continue-on-collection-errors; a phase passes only when the two collection
+      errors are the only failures
+    answerer: tmishari
+    time: '2026-11-23T15:22:51+00:00'
+    scope: task
+- id: Q-26
+  key: 3951b89d42df7bdd69844d1b61e52056c7da2000aa62f9a41877b797a4800f9f
+  subject: Targeted check forms for iteration
+  raised_by: Cursor
+  phase: plan
+  category: missing-configuration
+  text: May the plan name `uv run pytest <the phase's test files>` and `uv run ruff check <the
+    phase's changed files>` as targeted forms for iteration, with the full checks run once at the
+    end of each phase (BC-5)?
+  why: The project defines only the full forms.
+  evidence_refs:
+  - .github/workflows/ci.yml
+  - docs/design/workflow-efficiency/design/component.md
+  options:
+  - 'Yes'
+  - No, run only the full checks
+  blocks:
+  - plan
+  status: answered
+  answer:
+    value: 'Yes'
+    answerer: tmishari
+    time: '2026-11-23T15:22:51+00:00'
+    scope: task
+- id: Q-27
+  key: d225e14e436ce38f1159698bfe766b9e7af9d25c9e30774a588bc85eee88ca43
+  subject: Write steps that regenerate files
+  raised_by: Cursor
+  phase: plan
+  category: missing-configuration
+  text: May the plan name `uv run python tools/build_manifest.py`, `uv run pytest --update-golden
+    <golden tests>` and, in the final phase only, `uv run orqlet upgrade` as approved steps, each
+    run only where a phase lists the files it writes?
+  why: These commands write files, and the CI file runs only their check forms.
+  evidence_refs:
+  - tools/build_manifest.py
+  - tests/conftest.py
+  options:
+  - Yes, approve all three as plan steps
+  - No, ask before each run
+  blocks:
+  - plan
+  status: answered
+  answer:
+    value: Yes, approve all three as plan steps
+    answerer: tmishari
+    time: '2026-11-23T15:22:51+00:00'
+    scope: task
