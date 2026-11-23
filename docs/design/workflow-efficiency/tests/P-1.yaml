@@ -1,0 +1,78 @@
+schema: orqlet.test-record/v1
+task: workflow-efficiency
+phase: P-1
+review_input:
+  components:
+    code_tests: 6db5daeca0fc3b9d5dc6ab827922d2bf2aae2cb3a2508131a04fe2ff6fd42173
+    plan: 34a6f679a5585859c8d850fca7a208e5b6d4e3dd14eeccc0b38d081a4fc20365
+  covers:
+  - code_tests
+  - plan
+  digest: e55b02c8bb27f80e870efc55ebd6fa9acd1f6d91f4239ea9e6be387ba7ceb4cc
+  merge_base: 244eb1386b033b063a7fb5ef04337fea972f9468
+  schema: orqlet.review-input/v1
+verdict: NOT_RUN
+evidence_kind: claimed
+commands:
+- id: ruff-check
+  exit_code: 1
+  summary: Found 3 errors, all in the two frozen files tests/unit/render/test_user_scope_render.py and
+    tests/unit/application/test_user_render_request.py (Q-14 known failure, import order and one long line). The
+    11 changed Python files of the phase pass `uv run ruff check <files>` with exit 0 (targeted form, Q-26).
+  result_digest: f00d8d9da4f726ae1bd582ca9d42261f236125cf7d6374d391d8ab319d68326f
+- id: ruff-format
+  exit_code: 0
+  summary: 828 files already formatted
+  result_digest: 50aa81c4782dd4828cdec57d169d4e6339d616c10a9981fb3c6efaaabe3ed288
+- id: mypy
+  exit_code: 1
+  summary: Found 10 errors in 2 files (checked 427 source files), both files the frozen test files of Q-14; no
+    error in a file of this phase.
+  result_digest: 49d6df08dc4c02fd7c41e9c3bb6e35251287fa6a891721753115890134e35e10
+- id: import-linter
+  exit_code: 0
+  summary: 'Contracts: 6 kept, 0 broken.'
+  result_digest: 1b8f9d0c7ec3f26a64f0cff3902e39dcea5c7df29093d43d42bc97b4d8de8c9b
+- id: pytest
+  exit_code: 1
+  summary: 14038 passed, 1 skipped (junctions exist on Windows only), 2 errors in 1569.82s on Python 3.12.11, one
+    Python only, with the local form `uv run pytest --continue-on-collection-errors` (Q-25). The 2 errors are the
+    collection errors of the two frozen test files (Q-14). Targeted form on the phase's six test files, run
+    first and after the last edit of tests/e2e/test_s9_acceptance.py, 97 passed in 377s. The digest is of the whole
+    captured output of the full run. The tests of the phase were staged before this session started and were not
+    written by the Tester before the implementation (a deviation from step 3 of the implement skill, reported in
+    the phase report); the edit of this session is the exit status 0 assertion of test_fm_a01 in
+    tests/e2e/test_s9_acceptance.py.
+  result_digest: f9c3333170322309815a800f24800cf457e7b5dc4257dfbaafc709857a0b12ca
+- id: gate-status-phase
+  exit_code: 0
+  summary: PASS with exit 0 on the staged tree, no ORQ-E450, ORQ-E451 or ORQ-E453; ORQ-I392 for as-is, design
+    and plan, ORQ-I393 as info, the nine expected changes are manual or pending, and the last line is the action
+    line for 8 expected changes that need a reviewer's comparison. The staged files of the phase are the eleven
+    files of its file list and nothing else, apart from this task's records.
+  result_digest: f06d59896fb560a03d39be09fb89fea581e59f5499e184ae50638e6005e93263
+acceptance_coverage:
+- ac: AC-1
+  check_ref: pytest
+  result: pass
+- ac: AC-2
+  check_ref: pytest
+  result: pass
+- ac: AC-3
+  check_ref: pytest
+  result: pass
+- ac: AC-4
+  check_ref: pytest
+  result: pass
+- ac: AC-5
+  check_ref: pytest
+  result: pass
+- ac: AC-6
+  check_ref: pytest
+  result: pass
+- ac: AC-7
+  check_ref: review:stale-comments
+  result: not-run
+- ac: AC-8
+  check_ref: gate-status-phase
+  result: pass

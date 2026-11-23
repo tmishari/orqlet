@@ -15,6 +15,7 @@ from typing import Any
 import pytest
 
 from orqlet.application.usecases.validation import content_hash
+from orqlet.interface.cli.app import app
 from tests.e2e import test_s9_acceptance as s9
 from tests.support.artifacts import (
     TASK_DIR,
@@ -238,7 +239,14 @@ def test_every_artifact_and_every_record_of_a_whole_task_passes_and_exits_zero(
     )
 
 
-def test_gate_status_for_the_phase_agrees_and_still_cannot_confirm_approval(project: Path) -> None:
+def human_lines(root: Path, *args: str) -> tuple[int, list[str]]:
+    result = s9.RUNNER.invoke(app, [*args, "--root", str(root)])
+    return result.exit_code, result.stdout.rstrip("\n").splitlines()
+
+
+def test_gate_status_for_the_phase_agrees_and_passes_with_exit_zero(project: Path) -> None:
+    """AC-1. expected_behavior_source: ADR-002 decision 1 (nothing stale, no error, nothing
+    skipped: PASS and exit 0) and plan.yaml P-1 AC-1."""
     complete_phase(project)
 
     code, status = exit_code(project, "gate", "status", "demo", "--phase", "P-1")
@@ -246,9 +254,50 @@ def test_gate_status_for_the_phase_agrees_and_still_cannot_confirm_approval(proj
     outcomes = {item["id"]: item["outcome"] for item in status["data"]["expected_changes"]}
     assert outcomes == {"EC-1": "implemented as designed"}
     assert [a["stale"] for a in status["data"]["artifacts"].values()] == [[], [], []]
-    assert status["data"]["verdict"] == "NOT_RUN"
-    assert code == 5
-    assert any("host evidence" in reason for reason in status["not_run"])
+    assert status["data"]["verdict"] == "PASS"
+    assert code == 0
+    assert status["not_run"] == []
+
+
+def test_an_additional_change_still_fails_gate_status_with_exit_5(project: Path) -> None:
+    """AC-2 and AC-4. expected_behavior_source: ADR-002 decision 1 ("an expected-change deviation
+    keeps ... FAIL and exit 5") and decision 2 (FAIL line: 'Action needed: fix the N error(s)
+    above, then run the command again.', N = the error findings)."""
+    s9.implement(project)
+    s9.put(project, "src/pkg/service.py", s9.SERVICE + s9.CREATE + "def refund() -> None: ...\n")
+    s9.stage(project, "src/pkg/service.py")
+
+    code, status = exit_code(project, "gate", "status", "demo", "--phase", "P-1")
+    human_code, lines = human_lines(project, "gate", "status", "demo", "--phase", "P-1")
+
+    errors = [f for f in status["findings"] if f["severity"] == "error"]
+    assert (code, status["data"]["verdict"]) == (5, "FAIL")
+    assert errors
+    assert human_code == 5
+    assert lines[-1] == (
+        f"Action needed: fix the {len(errors)} error(s) above, then run the command again."
+    )
+
+
+def test_open_manual_expected_changes_are_the_action_of_gate_status_with_a_phase(
+    project: Path,
+) -> None:
+    """AC-5. expected_behavior_source: ADR-002 decision 2 ("`gate status` with `--phase` and open
+    manual expected changes: 'Action needed: N expected change(s) need a reviewer's
+    comparison.'"); an entry whose verification is `manual` has the outcome `manual` (domain
+    expected_change.py)."""
+    manifest = (project / DESIGN).read_text()
+    assert "verification: extractor" in manifest
+    s9.put(project, DESIGN, manifest.replace("verification: extractor", "verification: manual"))
+    s9.stage(project, DESIGN)
+
+    code, status = exit_code(project, "gate", "status", "demo", "--phase", "P-1")
+    human_code, lines = human_lines(project, "gate", "status", "demo", "--phase", "P-1")
+
+    outcomes = [item["outcome"] for item in status["data"]["expected_changes"]]
+    assert outcomes == ["manual"]
+    assert (code, human_code) == (0, 0)
+    assert lines[-1] == "Action needed: 1 expected change(s) need a reviewer's comparison."
 
 
 def test_a_change_after_the_records_turns_every_record_into_not_run_with_a_non_zero_exit(

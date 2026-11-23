@@ -3,8 +3,9 @@
 It is read-only and runs offline. It re-checks the base revision, the standards lock, the profile
 version, the workflow version and the protected set of the installed Orqlet files. An artifact
 written against other inputs is `stale` and the verdict is `NOT_RUN`: nothing resumes silently.
-Approval is evidence on the protected baseline that the code host holds. An offline run has no
-such evidence, so with a task the verdict is always `NOT_RUN` (proposal 17.6 and 17.7).
+Approval is evidence on the protected baseline that the code host holds. This command never checks
+it; the phase skills' input check confirms it from the merge commits the person names. So a task
+whose inputs are current passes, and an info finding says what the pass does not cover.
 """
 
 from __future__ import annotations
@@ -116,10 +117,9 @@ def gate_status(
         data["expected_changes"] = _check_expected(services, task, phase, base, head, out)
     out.info(
         "ORQ-I393",
-        "approval of the design and of the plan is evidence on the protected baseline; an "
-        "offline run has none, so it is not checked",
+        "approval of the design and of the plan is not checked by this command; the input check "
+        "confirms it from the merge commits",
     )
-    out.skip("approval needs host evidence, which an offline run does not have")
     return out.result(data)
 
 

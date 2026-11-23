@@ -159,9 +159,14 @@ def verdicts(root: Path) -> dict[str, str]:
     return results
 
 
-def test_a_whole_task_passes_every_validator_and_gate_status_only_lacks_approval(
-    project: Path,
-) -> None:
+def human_lines(root: Path, *args: str) -> tuple[int, list[str]]:
+    result = RUNNER.invoke(app, [*args, "--root", str(root)])
+    return result.exit_code, result.stdout.rstrip("\n").splitlines()
+
+
+def test_a_whole_task_passes_every_validator_and_gate_status(project: Path) -> None:
+    """AC-1. expected_behavior_source: ADR-002 decision 1 and plan.yaml P-1 AC-1 (current
+    artifacts: PASS, exit 0, no not-run reason, ORQ-I393 kept as an info finding)."""
     write_task(project)
 
     assert verdicts(project) == {
@@ -171,10 +176,27 @@ def test_a_whole_task_passes_every_validator_and_gate_status_only_lacks_approval
         "plan": "PASS",
     }
     code, status = run(project, "gate", "status", "demo")
-    assert code == 5
-    assert status["data"]["verdict"] == "NOT_RUN"
+    assert code == 0, status
+    assert status["data"]["verdict"] == "PASS"
     assert [s["stale"] for s in status["data"]["artifacts"].values()] == [[], [], []]
-    assert any("host evidence" in reason for reason in status["not_run"])
+    assert status["not_run"] == []
+    assert status["ok"] is True
+    assert [f["severity"] for f in status["findings"] if f["code"] == "ORQ-I393"] == ["info"]
+
+
+def test_gate_status_of_a_current_task_ends_by_saying_the_input_check_confirms_approval(
+    project: Path,
+) -> None:
+    """AC-5. expected_behavior_source: ADR-002 decision 2 ("PASS of `gate status` with a task: 'No
+    action needed from gate status; the input check still confirms approval.'")."""
+    write_task(project)
+
+    code, lines = human_lines(project, "gate", "status", "demo")
+
+    assert code == 0
+    assert lines[-1] == (
+        "No action needed from gate status; the input check still confirms approval."
+    )
 
 
 def test_validation_changes_nothing_in_the_repository(project: Path) -> None:
@@ -236,6 +258,26 @@ def test_a_new_commit_in_the_scope_makes_every_artifact_stale(project: Path) -> 
     assert stale["design"] == ["base_revision"]
     assert stale["plan"] == ["base_revision"]
     assert stale_as_is["data"]["verdict"] == "NOT_RUN"
+
+
+def test_a_stale_task_is_still_not_run_with_exit_5_and_the_not_run_action_line(
+    project: Path,
+) -> None:
+    """AC-2 and AC-5. expected_behavior_source: ADR-002 decision 1 (stale input keeps NOT_RUN and
+    exit 5) and decision 2 (NOT_RUN line: 'Action needed: resolve the not-run reason(s) above and
+    run the command again, or have the person confirm them.')."""
+    write_task(project)
+    commit_file(project, "src/pkg/mod.py", SOURCE.decode() + "# edited later\n")
+
+    code, status = run(project, "gate", "status", "demo")
+    human_code, lines = human_lines(project, "gate", "status", "demo")
+
+    assert (code, status["data"]["verdict"]) == (5, "NOT_RUN")
+    assert human_code == 5
+    assert lines[-1] == (
+        "Action needed: resolve the not-run reason(s) above and run the command again, "
+        "or have the person confirm them."
+    )
 
 
 def test_a_weakened_skill_is_an_error_for_doctor_and_cannot_be_released(project: Path) -> None:
