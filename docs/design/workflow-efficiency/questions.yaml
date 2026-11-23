@@ -416,3 +416,30 @@ questions:
     answerer: tmishari
     time: '2026-11-23T10:13:00+00:00'
     scope: task
+- id: Q-21
+  key: 7a72b1000b93a5f170b1544e1a3c5c3b6715d2109b3e20a5fbc3d177e1ea9817
+  subject: Later-phase staleness fact outside the AS-IS file
+  raised_by: Cursor
+  phase: design
+  category: requirement
+  text: From the second implement phase on, this task's own commits make the design and the
+    plan stale (ORQ-W390), and the person confirms the planned-work row in each phase. The
+    design states this from gate_status.py:179-229 and staleness.py:11-30, which the AS-IS
+    file does not cover. Should the AS-IS file be refreshed with this fact before the plan,
+    or does the design's citation of the code suffice?
+  why: The design skill asks for an AS-IS refresh when a fact about the current code is missing;
+    the answer decides whether the plan waits for a research change.
+  evidence_refs:
+  - A-13
+  - docs/design/workflow-efficiency/reviews/architecture-reviewer-design-r2.md
+  options:
+  - The design's citation suffices
+  - Refresh the AS-IS file before the plan
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: Refresh the AS-IS file first; the design is bound and approved again after that
+    answerer: tmishari
+    time: '2026-11-23T11:16:52+00:00'
+    scope: task
