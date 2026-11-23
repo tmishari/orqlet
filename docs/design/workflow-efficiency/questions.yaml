@@ -1,0 +1,162 @@
+schema: orqlet.question-ledger/v1
+task: workflow-efficiency
+questions:
+- id: Q-1
+  key: b516c6c14e56fcfcff9b7768fd6af776e71c7a4a8b0358bf30ce71c0d7033205
+  subject: Source of the reported check repetitions
+  raised_by: Cursor
+  phase: research
+  category: access
+  text: Where were the five or six repetitions of checks observed, and may research read the
+    local agent transcripts of this project as evidence?
+  why: The report is the starting point for the check-repetition research; the transcripts sit
+    outside the repository and hold internal data.
+  options:
+  - Read the local transcripts; summarise counts in internal evidence files reviewed before commit
+  - The person names the sessions
+  - Repository only; record the report as an unknown
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: Read the local transcripts; summarise counts in internal evidence files that the person
+      reviews before commit
+    answerer: tmishari
+    time: '2026-11-23T09:21:00+00:00'
+    scope: task
+- id: Q-2
+  key: d811ae4847761f8896b9c879d3e15d98a7f6ca54b12e501e07bbe7f0df8a57aa
+  subject: Baseline measurements
+  raised_by: Cursor
+  phase: research
+  category: requirement
+  text: Do measurements exist for elapsed time, token usage, tool calls and check executions?
+  why: The request asks for available baselines and forbids invented numbers.
+  options:
+  - Derive from transcripts and review records; the rest is unknown
+  - The person provides numbers or exports
+  - Mark all unknown
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: The person provides numbers or exports, from a Cursor usage dashboard export
+    answerer: tmishari
+    time: '2026-11-23T09:22:30+00:00'
+    scope: task
+- id: Q-3
+  key: 333d70061b9ae611a72c7e78037b016fe63845378d813731fa67414a96107b91
+  subject: Location of the Cursor usage dashboard export
+  raised_by: Cursor
+  phase: research
+  category: missing-configuration
+  text: At which repository path will the Cursor usage dashboard export be placed, and which
+    sessions or dates does it cover?
+  why: Token and elapsed-time baselines stay unknown until the export can be read and cited.
+  evidence_refs:
+  - Q-2
+  blocks:
+  - implement
+  status: open
+- id: Q-4
+  key: 34688a8d8bad565fd89986338c6d35099ca0775b974a045a9ed70693fdf77882
+  subject: Research branch and base revision
+  raised_by: Cursor
+  phase: research
+  category: requirement
+  text: AGENTS.md had an uncommitted priority section and docs/design/work-status.md was untracked;
+    facts must cite a committed base revision. How should research proceed?
+  why: Uncommitted files cannot be cited at the base revision.
+  options:
+  - The person commits both on a new research branch first
+  - The agent creates workflow-efficiency-research from origin/main and commits both
+  - Base on origin/main and leave both uncommitted
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: The agent creates workflow-efficiency-research from origin/main and commits both files
+      there
+    answerer: tmishari
+    time: '2026-11-23T09:21:00+00:00'
+    scope: task
+- id: Q-5
+  key: 05d32d6862d12b33555b8c49ea85d655a594ba936b6950d94862b39ae366cc14
+  subject: Clients in scope
+  raised_by: Cursor
+  phase: research
+  category: requirement
+  text: Which clients are in scope for the research?
+  why: Generated assets and model selection differ per client.
+  options:
+  - Claude Code, Codex, Cursor and Copilot
+  - Claude Code, Codex and Cursor
+  - Cursor only
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: All four clients, Claude Code, Codex, Cursor and Copilot
+    answerer: tmishari
+    time: '2026-11-23T09:21:00+00:00'
+    scope: task
+- id: Q-6
+  key: ac009b7ec6cb7b9962dbe702f37056b660f0fd7d43844a407ef29a92992ac9d0
+  subject: Repository paths in scope
+  raised_by: Cursor
+  phase: research
+  category: requirement
+  text: Which repository paths are in scope?
+  why: Sets scope.paths of the AS-IS file.
+  options:
+  - src/orqlet/**, tests/**, .prompts/**, docs/**, AGENTS.md, README.md, .github/**
+  - src/orqlet/** and tests/** only
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: src/orqlet/**, tests/**, .prompts/**, docs/** (frozen task artifacts as read-only
+      evidence), AGENTS.md, README.md and .github/**
+    answerer: tmishari
+    time: '2026-11-23T09:21:00+00:00'
+    scope: task
+- id: Q-7
+  key: 0c697e49b089580ae3ab56e7d7e27f08bbb95ba295344adf9d7fd4398e4c472f
+  subject: Size budget of the research brief
+  raised_by: Cursor
+  phase: research
+  category: requirement
+  text: What is size_budget.max_words for the AS-IS research brief?
+  why: The project gives no value; the request asks for a concise brief.
+  options:
+  - '800'
+  - '1200'
+  - '1800'
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: '1200'
+    answerer: tmishari
+    time: '2026-11-23T09:21:00+00:00'
+    scope: task
+- id: Q-8
+  key: 82ebbfb561cbd0c5e1ccdf636d9813b8c9b1a2affe9c3edf6e0c079679213fb0
+  subject: Web lookups during research
+  raised_by: Cursor
+  phase: research
+  category: policy
+  text: May research look up published technologies on the web, for example Mermaid rendering
+    or usage reporting in each client?
+  why: The baseline allows official documentation; the person decides whether to use it now.
+  options:
+  - Official documentation only, saved as public evidence files
+  - Not now; record as unknowns
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: Official documentation only, saved as public evidence files
+    answerer: tmishari
+    time: '2026-11-23T09:21:00+00:00'
+    scope: task
