@@ -348,3 +348,71 @@ questions:
     answerer: tmishari
     time: '2026-11-23T10:09:00+00:00'
     scope: task
+- id: Q-18
+  key: db2f5c829622d7a4ffa2cbe0eaff614e4cf4ce8ccd42289e894ad170c974a610
+  subject: Branch for the AS-IS refresh
+  raised_by: Cursor
+  phase: research
+  category: requirement
+  text: The branch workflow-efficiency-refresh-research already exists locally and on origin as
+    the merged pull request 54 branch (5fa34606, the same tree as 92e026e). How is a new branch
+    from 92e026e made?
+  why: The person asked for a new branch with that name.
+  options:
+  - Delete the merged branch locally and on origin, then create it fresh from 92e026e
+  - Reset the local branch to 92e026e and replace origin's copy with --force-with-lease
+  - Use another name
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: Delete the merged branch locally and on origin, then create it fresh from 92e026e
+    answerer: tmishari
+    time: '2026-11-23T10:13:00+00:00'
+    scope: task
+- id: Q-19
+  key: dda56a8f54dc441f2695007f24c9893013d0b9334b46999034f962640c0768e7
+  subject: Red CI run of main outside the base revision
+  raised_by: Cursor
+  phase: research
+  category: evidence-conflict
+  text: The job results of CI run 45152031442 for 92e026e exist only on GitHub, and every fact
+    must cite a file at the base revision 92e026e. How do the Q-14 facts record them?
+  why: An evidence file committed on the refresh branch cannot be cited at 92e026e (ORQ-E332).
+  evidence_refs:
+  - Q-14
+  - src/orqlet/application/usecases/validate_as_is.py
+  options:
+  - Facts cite the causes at 92e026e; the job results go in a self-check entry with the run link
+  - Commit a run evidence file and bind the header at that commit
+  - Facts cite the causes only; the run result is an unknown
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: Facts cite the causes only; the run result is an unknown
+    answerer: tmishari
+    time: '2026-11-23T10:13:00+00:00'
+    scope: task
+- id: Q-20
+  key: 40f8a80785c30f5b04fa1528a21a0a001e99d8178314aca93b1dcecf9608bb12
+  subject: Ids covered by Q-17
+  raised_by: Cursor
+  phase: research
+  category: requirement
+  text: Do the rule ids shown to users in Q-17 include the CLI finding codes, such as ORQ-E332,
+    or only the MUST rules and standard ids, such as ORQLET-ARCH-001?
+  why: Sets which output the Q-17 facts cover.
+  evidence_refs:
+  - Q-17
+  options:
+  - Only MUST rules and standard ids
+  - Both standard ids and finding codes
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: Only MUST rules and standard ids
+    answerer: tmishari
+    time: '2026-11-23T10:13:00+00:00'
+    scope: task
