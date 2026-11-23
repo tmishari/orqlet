@@ -24,6 +24,7 @@ from orqlet.application.contracts.self_check import SelfCheck
 from orqlet.application.contracts.standards_lock import StandardsLock
 from orqlet.application.contracts.standards_pack import PackManifest, RuleFile
 from orqlet.application.contracts.test_record import TesterRecord
+from orqlet.application.contracts.user_scope import UserManifest
 from orqlet.application.contracts.versions_file import Versions
 from orqlet.application.contracts.workflow_package import (
     ExemptClasses,
@@ -70,4 +71,5 @@ CONTRACTS: dict[str, type[Contract]] = {
     "orqlet.knowledge/v2": KnowledgeConfig,
     "orqlet.docs-map/v1": DocsMap,
     "orqlet.resources/v1": Resources,
+    "orqlet.user-manifest/v1": UserManifest,
 }

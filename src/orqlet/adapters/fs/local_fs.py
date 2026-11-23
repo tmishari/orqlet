@@ -34,6 +34,8 @@ _IS_WINDOWS = os.name == "nt"
 _REPLACE_ATTEMPTS = 5
 _REPLACE_BACKOFF_SECONDS = 0.05
 _DEFAULT_MODE = 0o644
+_PRIVATE_FILE_MODE = 0o600
+_PRIVATE_DIR_MODE = 0o700
 
 
 def _replace_with_retry(source: str, target: Path) -> None:
@@ -59,6 +61,14 @@ def _is_link(path: Path, info: os.stat_result) -> bool:
     return os.path.isjunction(path)
 
 
+def is_link(path: Path) -> bool:
+    """Whether `path` itself is a symbolic link, junction or other reparse point."""
+    try:
+        return _is_link(path, os.lstat(path))
+    except (FileNotFoundError, NotADirectoryError):
+        return False
+
+
 def _classify(path: Path, info: os.stat_result) -> FileKind:
     if _is_link(path, info):
         return FileKind.SYMLINK
@@ -70,11 +80,13 @@ def _classify(path: Path, info: os.stat_result) -> FileKind:
 
 
 class LocalFileSystem:
-    def __init__(self, root: Path) -> None:
+    def __init__(self, root: Path, *, private: bool = False) -> None:
+        """`private` writes every file 0600 and creates every folder 0700, on POSIX."""
         resolved = root.resolve(strict=True)
         if not resolved.is_dir():
             raise FileSystemError(f"not a directory: {root}")
         self._root = resolved
+        self._private = private
 
     @property
     def root(self) -> Path:
@@ -116,11 +128,12 @@ class LocalFileSystem:
             self._ensure_dirs(path.parent.parts)
         target = self._locate(path.parts)
         info = self._lstat(target)
-        mode = _DEFAULT_MODE
+        mode = _PRIVATE_FILE_MODE if self._private else _DEFAULT_MODE
         if info is not None:
             if _classify(target, info) is not FileKind.FILE:
                 raise NotARegularFile(str(path))
-            mode = stat.S_IMODE(info.st_mode)
+            if not self._private:
+                mode = stat.S_IMODE(info.st_mode)
         descriptor, temp_name = tempfile.mkstemp(prefix=_TEMP_PREFIX, dir=target.parent)
         try:
             with os.fdopen(descriptor, "wb") as handle:
@@ -192,10 +205,12 @@ class LocalFileSystem:
             current = current / part
             info = self._lstat(current)
             if info is None:
-                with contextlib.suppress(
-                    FileExistsError
-                ):  # created a moment ago by another process
-                    current.mkdir()
+                try:
+                    current.mkdir(mode=_PRIVATE_DIR_MODE if self._private else 0o777)
+                except FileExistsError:  # created a moment ago by another process
+                    continue
+                if self._private:  # a umask can clear owner bits too
+                    os.chmod(current, _PRIVATE_DIR_MODE)
                 continue
             kind = _classify(current, info)
             if kind is FileKind.DIRECTORY:

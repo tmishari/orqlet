@@ -183,3 +183,53 @@ def test_replace_is_not_retried_on_other_platforms(
     with pytest.raises(PermissionError):
         LocalFileSystem(root).write_atomic(p("f.txt"), b"x")
     assert len(calls) == 1
+
+
+# The private file mode option (task one-command-setup, phase P-6, written first by its Tester).
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="POSIX permission bits")
+def test_a_private_file_system_writes_new_files_with_mode_0600(root: Path) -> None:
+    """AC-9. expected_behavior_source: AC-9; ADR-002 decision 4; BC-29."""
+    fs = LocalFileSystem(root, private=True)
+    fs.write_atomic(p("new.txt"), b"x")
+
+    assert stat.S_IMODE((root / "new.txt").stat().st_mode) == 0o600
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="POSIX permission bits")
+def test_a_private_file_system_makes_a_replaced_file_0600(root: Path) -> None:
+    """AC-9. expected_behavior_source: AC-9; ADR-002 decision 4; BC-29."""
+    LocalFileSystem(root).write_atomic(p("old.txt"), b"x")
+    (root / "old.txt").chmod(0o755)
+
+    LocalFileSystem(root, private=True).write_atomic(p("old.txt"), b"y")
+
+    assert (root / "old.txt").read_bytes() == b"y"
+    assert stat.S_IMODE((root / "old.txt").stat().st_mode) == 0o600
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="POSIX permission bits")
+def test_a_private_file_system_creates_folders_with_mode_0700(root: Path) -> None:
+    """AC-9. expected_behavior_source: AC-9; ADR-002 decision 4 ("<data directory>/user is
+    created 0700"); BC-29."""
+    fs = LocalFileSystem(root, private=True)
+    fs.write_atomic(p("a/b/c.txt"), b"x")
+    fs.make_dir(p("d/e"))
+
+    for folder in ("a", "a/b", "d", "d/e"):
+        assert stat.S_IMODE((root / folder).stat().st_mode) == 0o700, folder
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="POSIX permission bits")
+def test_the_file_system_is_not_private_unless_asked(root: Path) -> None:
+    """AC-10. expected_behavior_source: AC-10; A-27 (new files 0644, replaced files keep their
+    mode)."""
+    fs = LocalFileSystem(root, private=False)
+    fs.write_atomic(p("new.txt"), b"x")
+    (root / "run.sh").write_bytes(b"#!/bin/sh\n")
+    (root / "run.sh").chmod(0o755)
+    fs.write_atomic(p("run.sh"), b"#!/bin/sh\necho hi\n")
+
+    assert stat.S_IMODE((root / "new.txt").stat().st_mode) == 0o644
+    assert stat.S_IMODE((root / "run.sh").stat().st_mode) == 0o755

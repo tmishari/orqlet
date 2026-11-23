@@ -1,0 +1,71 @@
+schema: orqlet.knowledge-impact/v1
+task: one-command-setup
+phase: P-6
+review_input:
+  schema: orqlet.review-input/v1
+  covers: [code_tests, knowledge, plan, standards, candidates]
+  components:
+    candidates: 12bf940f65294944cb531fae8d2d875ffa133b7b69295e737d40e5f8b604fe68
+    code_tests: 7fb45a66a257133814510054c52138a1cca32e50427b0b9cec8c22afbddd4755
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 257d4b0b16883cfda2f67c49a831803e0059772b34af7868d66b4fd8a8daf97a
+    standards: 0e5b7e5fc8f3950ac5d360cf4a0c9dbe2b4880433ba15680a6c66220d4434e5d
+  digest: 97de34b96c9af5c09a221fa2b71baf019953bf75f502cdb87d6379a86cd099f4
+  merge_base: 75bb752790abf906fb66bb047b5171a7c40d552c
+outcome: no-impact
+analysis:
+  command: orqlet knowledge impact
+  orqlet_version: 0.4.0
+  candidates_digest: 12bf940f65294944cb531fae8d2d875ffa133b7b69295e737d40e5f8b604fe68
+  candidate_count: 1
+  input: pre-draft-tree
+  views: [committed:HEAD]
+  index_state: not-used
+entries:
+- id: K-1
+  candidate_ref: cand-683657d94ca4
+  action: unaffected
+  scope: project
+  reason: >-
+    EC-6 is the security expected change that the approved design declares; in this phase it is the user-scope
+    writer in adapters/fs/user_scope.py. ADR-002 decisions 1, 1a and 4 document the prefixes, the writable
+    sub-paths, the root checks, the preparation after consent, the user journal and backup namespace and the
+    private modes, and no project knowledge document covers this code.
+  evidence:
+  - kind: design
+    ref: docs/design/one-command-setup/design/manifest.yaml
+    sha256: 41dc901574d9e971af15ace9c9a7318876e3a0746d2c68046ec7eb21156eae7a
+  - kind: design
+    ref: docs/design/one-command-setup/design/adr-002-user-scope-root-journal-and-manifest.md
+    sha256: 641e60e92c81979b0e8cb7679977972c571f1d16caf6ada9c47cc39840d12d7a
+no_impact:
+  category: already-documented
+  reason: >-
+    P-6 adds the user-scope port and its composite file system with root inspection, a private mode of the local
+    file system, the user namespace of the journal and the backup store with owner sets and JSON entry hashes, and
+    registers the orqlet.user-manifest/v1 contract with its exported schema. Nothing calls the user scope yet (the
+    plan's expected output for P-6), so no command, option or file that a person uses changes. The behaviour is
+    written down in ADR-002 decisions 1, 1a and 4, component.md and the plan's P-6; README.md describes the
+    project journal and rollback, which this phase leaves unchanged, and the plan gives the README entries for
+    install and the user scope to P-11. After the round-1 reviews the person chose to amend ADR-002 decision 1a
+    and container.md in this phase so that they describe the work-tree check as internal to the adapter and
+    record the open question about files left in a folder that had group or world access; those design
+    documents are the knowledge this phase changes.
+  absence_record:
+    scopes_searched:
+    - .orqlet/knowledge.yaml sources (none configured)
+    - the plan's knowledge_scope (empty)
+    - README.md for 'journal', 'backup', 'user scope' and '.orqlet'
+    - the staged change of the phase
+    views: [committed:HEAD]
+    revision: 75bb752790abf906fb66bb047b5171a7c40d552c
+    method: >-
+      orqlet knowledge impact one-command-setup P-6 --head staged against main 75bb752 (exit 0, 1 candidate EC-6,
+      ORQ-I400 twice: no public_api packages named by the design, no knowledge source configured); a
+      case-insensitive text search of README.md for journal, backup, user scope and .orqlet.
+    index_state: not-used
+    candidates_found: 1
+  already_documented_refs:
+  - {path: docs/design/one-command-setup/design/adr-002-user-scope-root-journal-and-manifest.md, sha256: 641e60e92c81979b0e8cb7679977972c571f1d16caf6ada9c47cc39840d12d7a}
+  - {path: docs/design/one-command-setup/design/component.md, sha256: 3aa6db54c2fd5b7f1c7e73134522e053d18b7312073e685ec54429a00b91743d}
+  - {path: docs/design/one-command-setup/plan.yaml, sha256: 257d4b0b16883cfda2f67c49a831803e0059772b34af7868d66b4fd8a8daf97a}

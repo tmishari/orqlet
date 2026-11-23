@@ -1,0 +1,60 @@
+schema: orqlet.test-record/v1
+task: one-command-setup
+phase: P-6
+review_input:
+  schema: orqlet.review-input/v1
+  covers: [code_tests, plan]
+  components:
+    code_tests: 7fb45a66a257133814510054c52138a1cca32e50427b0b9cec8c22afbddd4755
+    plan: 257d4b0b16883cfda2f67c49a831803e0059772b34af7868d66b4fd8a8daf97a
+  digest: f2965c9fa65a2fdb2e447b9cb357398ff4b407f4a5cd8df50a7f43b17b9f3864
+  merge_base: 75bb752790abf906fb66bb047b5171a7c40d552c
+verdict: NOT_RUN
+evidence_kind: claimed
+commands:
+  - id: ruff-check
+    exit_code: 0
+    summary: "uv run ruff check . (ci.yml:31, AGENTS.md:47-50): All checks passed. The digest is of the whole captured output."
+    result_digest: 5b196eb3a6acb50d3fa398d04ca284985cc1ffec870e940264b00780bfd2c971
+  - id: ruff-format
+    exit_code: 0
+    summary: "uv run ruff format --check . (ci.yml:32, AGENTS.md:53-56): 805 files already formatted. The digest is of the whole captured output."
+    result_digest: 989243675f10f94150c2daaadb3d734a0daabeabb5fdef4fc0f9ed5327a7d79e
+  - id: mypy
+    exit_code: 0
+    summary: "uv run mypy (ci.yml:47, AGENTS.md:59-62): Success, no issues found in 424 source files. The digest is of the whole captured output."
+    result_digest: bbd2a1ef49b860599957ed2810c6834d0195dba521d794a15fd8eaa6048099db
+  - id: import-linter
+    exit_code: 0
+    summary: "uv run lint-imports (ci.yml:62): 6 contracts kept, 0 broken. The digest is of the whole captured output."
+    result_digest: 37cb00bb7a9219ab1855a8fa1629d55a97c0f9bcce403ea99db31eab4a469f6a
+  - id: pytest
+    exit_code: 0
+    summary: "uv run pytest (ci.yml:84, AGENTS.md:71-74) on the staged P-6 tree: 14001 passed, 1 skipped in 1573.36s; the skip is tests/integration/test_junction.py, Windows only. The Tester wrote tests/integration/test_user_scope_fs.py, test_user_scope_roots.py, test_user_journal.py, the private-mode cases of test_local_fs.py and the valid orqlet.user-manifest/v1 fixture from AC-1 to AC-13 before the code existed; the Coder changed none of them. The four P-6 test files alone: 149 passed; tests/contract alone: 417 passed. The project file system, journal and fault tests ran unchanged inside the full run (AC-10). The design-text amendment after round 1 (ADR-002, container.md, the manifest hashes and the plan's design_ref) changed no code or test file, so the run was not repeated. macOS and one Python only; the CI matrix was not run. The digest is of the whole captured output."
+    result_digest: 16fee22aa55c71685f7f300892bd7ca66b11b9fe8c21f730886692d059a52828
+  - id: schema-check
+    exit_code: 0
+    summary: "uv run python tools/export_schemas.py --check (ci.yml:63, tools/export_schemas.py:1-38): no output, the schemas are current after the regeneration that the person approved, which created src/orqlet/workflow/schemas/orqlet.user-manifest.v1.json. The digest is of the whole captured output, which is empty."
+    result_digest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  - id: manifest-check
+    exit_code: 0
+    summary: "uv run python tools/build_manifest.py --check (ci.yml:64, tools/build_manifest.py:1-57): no output, the manifest is current after the regeneration that the person approved; it lists schemas/orqlet.user-manifest.v1.json with its hash. The digest is of the whole captured output, which is empty."
+    result_digest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  - id: gate-status-phase
+    exit_code: 5
+    summary: "uv run orqlet gate status one-command-setup --phase P-6 --head staged: NOT_RUN, exit 5, only because of ORQ-I393 (offline approval evidence) and ORQ-W390 on as-is and design (protected_set_digest, standards_lock_hash, applicable_rules_hash, base_revision) and on plan (base_revision), which the person accepted for P-6 as covered by the impact review of PR #51 and the Ponytail upgrade of PR #50. No ORQ-E450, ORQ-E451 or ORQ-E453; EC-6 reads implemented as designed in src/orqlet/adapters/fs/user_scope.py. The digest is of the whole captured output."
+    result_digest: d665d9300275928ef570868e1b5f55f1d78b048633a18c944506ffee818e76e8
+acceptance_coverage:
+  - {ac: AC-1, check_ref: pytest, result: pass}
+  - {ac: AC-2, check_ref: pytest, result: pass}
+  - {ac: AC-3, check_ref: pytest, result: pass}
+  - {ac: AC-4, check_ref: pytest, result: pass}
+  - {ac: AC-5, check_ref: pytest, result: pass}
+  - {ac: AC-6, check_ref: pytest, result: pass}
+  - {ac: AC-7, check_ref: pytest, result: pass}
+  - {ac: AC-8, check_ref: pytest, result: pass}
+  - {ac: AC-9, check_ref: pytest, result: pass}
+  - {ac: AC-10, check_ref: pytest, result: pass}
+  - {ac: AC-11, check_ref: gate-status-phase, result: not-run}
+  - {ac: AC-12, check_ref: schema-check, result: pass}
+  - {ac: AC-13, check_ref: pytest, result: pass}
