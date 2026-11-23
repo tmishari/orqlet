@@ -86,3 +86,10 @@ Required checks: "lint, types, architecture, tests, build"
 Reviewers: "tmishari"
 Release flow: "A release-X.Y.Z branch, merged into main by pull request; no tags"
 <!-- orqlet:end conventions -->
+
+## Current task priority
+
+The person placed all previously identified unfinished work on hold on 2026-11-23.
+Before starting or resuming task work, read [Work status](docs/design/work-status.md).
+Only `workflow-efficiency` may advance until the person explicitly resumes another task.
+The research, design, plan and implementation approval gates still apply.
