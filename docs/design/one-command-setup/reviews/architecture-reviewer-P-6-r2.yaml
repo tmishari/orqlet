@@ -1,0 +1,121 @@
+schema: orqlet.review-result/v1
+task: one-command-setup
+phase: P-6
+role: architecture-reviewer
+round: 2
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: 7fb45a66a257133814510054c52138a1cca32e50427b0b9cec8c22afbddd4755
+    design: 57a0e187b074ebba999bde1458fd76d42642b0a866e1ff660466ff8604c94a7d
+    evidence_inputs: 1aa0f07da65e92f9c153149eda7e1dcd2617cffc510f0840ed5d771f8506bb27
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 257d4b0b16883cfda2f67c49a831803e0059772b34af7868d66b4fd8a8daf97a
+    reviewer_definition: 83e52f1a68fceddc7beb1d83654661fd34a1e3b3028c4fcc3dd7b6dadd8f3463
+    standards: 0e5b7e5fc8f3950ac5d360cf4a0c9dbe2b4880433ba15680a6c66220d4434e5d
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 8efd13f8ee4748ee0a5bcd29837569ab5f53c35e80f101dccd98030e8e076229
+  merge_base: 75bb752790abf906fb66bb047b5171a7c40d552c
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: 751953d100777e7ad1ae8ea41d8f096972ff2d2818b84213b87d027c1a3f9beb
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- 'Same client as the Coder (cursor): independence I1, below the I2 a D3 change requires (ORQLET-MODEL-002); the verdict is NOT_RUN.'
+- The reviewer's own conclusion was no blocking finding. Its observations (the 0644 manifest inside the 0700 user folder against EC-4's 'files 0600'; macOS
+  and one Python only; whether the knowledge outcome should be an update rather than no-impact) are kept in this line only.
+- The record was written after the phase commit 1464bc4, from the same packet.
+- Round 2 of P-6, after the design-text amendment of ADR-002 and container.md that the person chose after round 1. It was started as a typed subagent with
+  the packet path one-command-setup-P-6-7ceedca3 as its only prompt; that the context is fresh is the Coder's claim. The packet's diff is against main 75bb752
+  and holds P-6 only.
+- 'The reviewer''s session had no shell: no quote digest and no git. The Coder wrote this record from its returned text; its quote evidence is given as
+  absence records naming the packet path and lines.'
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- Non-blocking findings of this round are follow-ups for the person, not changes to P-6 unless the person asks.
+applicability:
+  examined:
+  - the source part of diff.patch, the private-mode tests and test_user_journal.py
+  - plan P-6, ADR-002, EC-4, EC-6 and EC-8, pyproject.toml import contracts, rules.yaml, component.md
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: architecture
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-6-7ceedca3/diff.patch lines 1-160
+    - one-command-setup-P-6-7ceedca3/snapshot/docs/design/one-command-setup/plan.yaml lines 1150-1189
+    method: compared the changed paths with P-6 file_operations
+    revision: 75bb752790abf906fb66bb047b5171a7c40d552c
+  claim: The change edits ADR-002, container.md, the design manifest and plan.yaml, which are outside P-6's file list; the person's approval is recorded
+    only in the plan's self-check, and AC-11 is NOT_RUN.
+  suggested_action: Have the person confirm the amendment on the PR, and run the phase gate online.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: finding
+  severity: non-blocking
+  category: architecture
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-6-7ceedca3/diff.patch lines 627-629 and 753-759
+    - one-command-setup-P-6-7ceedca3/diff.patch lines 2663-2684
+    method: traced the opened root in prepare to the composite
+    revision: 75bb752790abf906fb66bb047b5171a7c40d552c
+  claim: prepare compares a freshly opened LocalFileSystem with the pinned path and discards it; the composite resolves the roots again, so the file system
+    apply_plan writes through is not the one compared, and the post-open branch has no test.
+  suggested_action: Pass the opened file systems into the composite, and add a test that reaches the post-open branch.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: finding
+  severity: non-blocking
+  category: architecture
+  rule_ref: ORQLET-STYLE-001
+  evidence:
+  - kind: absence
+    searched:
+    - one-command-setup-P-6-7ceedca3/diff.patch lines 266-283 and 310-315
+    method: read the for_user constructors
+    revision: 75bb752790abf906fb66bb047b5171a7c40d552c
+  claim: for_user skips __init__ and builds its own LocalFileSystem, against the module's injected-FileSystem design; the private-folder mode and mkdir-then-chmod
+    are duplicated in local_fs.py and user_scope.py.
+  suggested_action: Inject the file system through __init__ and share the private-folder helper.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+  checks:
+  - what: packet read
+    how: orqlet review prepare one-command-setup-P-6-7ceedca3
+    result: pass
+  - what: running the checks and quote digests
+    how: no shell
+    result: not-run
