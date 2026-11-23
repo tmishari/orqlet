@@ -4,11 +4,11 @@ header:
   task: one-command-setup
   status: draft
   workflow_version: 0.5.0
-  protected_set_digest: 30746846c7c39faa863c14b2de1940b1f0f7c0eb77250b637ec8bdad970dcb85
+  protected_set_digest: 20ba901af0832f59a7fef20323128b6d8a53d5e76ea45a64a6a5e7123816630a
   bound:
     base_revision: ff9fbf18ec795e44c34ac42079cab7f64b2ebde8
-    standards_lock_hash: 845aa1cb914dd3b09d52690216045e589e589f5e57292ec5b153d5cd73c4f330
-    applicable_rules_hash: 1c83b7ee5767195f93e48764e551ff9248afc2afffb1b30bb9dc664a471a4c3e
+    standards_lock_hash: 12486d9b48af8b2f61117d556568d3482b1641cd606e8652965dcc44babce930
+    applicable_rules_hash: e5618439f62ec2b01a2a1719ee3902a92ca1829827de0b41242cb351c37e4e15
     profile_version: 1
 design_ref: docs/design/one-command-setup/design/manifest.yaml#b9d747af0c06e349402c82d07192418f7a0fb3ae229ba6b6e94f1e1c0ea045f9
 base_revision: ff9fbf18ec795e44c34ac42079cab7f64b2ebde8
@@ -1452,7 +1452,9 @@ phases:
   file_operations:
   - op: create
     path: src/orqlet/adapters/clients/copilot.py
-    why: The Copilot adapter.
+    why: >-
+      The Copilot adapter. Since #50 the path holds an empty module that the independence contract needs; P-8 replaces its content.
+      The operation stays create because the plan is projected from base_revision, where the file does not exist (ORQ-E309).
   - op: modify
     path: src/orqlet/adapters/render/skills.py
     why: The copilot family bases.
@@ -2088,7 +2090,7 @@ self_check:
     confirmed_requirements: [R-1, R-2, R-3, R-4, R-5, R-6, R-7, R-8, R-9, R-10, R-11, R-12, R-13, R-14]
     applicable_standards: [ORQLET-ARCH-001, ORQLET-ARCH-002, ORQLET-ARCH-003, ORQLET-DET-001, ORQLET-DET-002, ORQLET-DET-003, ORQLET-MODEL-001,
       ORQLET-MODEL-002, ORQLET-NOMODEL-001, ORQLET-QA-001, ORQLET-SAFE-001, ORQLET-SEC-001, ORQLET-SEC-002, ORQLET-SEC-003, ORQLET-TEST-001,
-      ORQLET-STYLE-001]
+      ORQLET-TEST-002, ORQLET-STYLE-001]
     acceptance_criteria: []
     evidence:
     - docs/design/one-command-setup/design/manifest.yaml#b9d747af0c06e349402c82d07192418f7a0fb3ae229ba6b6e94f1e1c0ea045f9
@@ -2180,6 +2182,26 @@ self_check:
       P-10, P-11; BC-46 P-6, P-10.
     how: Cross-reference of the source fields of all acceptance criteria
     result: pass
+  - what: >-
+      Impact review for K-1. The amendments of ORQLET-SAFE-001 and ORQLET-ARCH-003 merged as
+      37a96d65e8e91ac119e9f2153916d9d30138db62 (#50) with the "Proposed amendment text" of ADR-002 and ADR-003 word for word; level,
+      scope and enforcement are unchanged. standards_lock_hash moved from 845aa1cb… to 12486d9b… and applicable_rules_hash from
+      1c83b7ee… to e5618439…; header.bound now holds the values that `orqlet gate status one-command-setup --json` prints. The design
+      already applied both rules in their proposed form (design manifest, line 188), so no criterion of P-6 to P-11 changes: P-6 AC-1 to
+      AC-9 and AC-13 test the allow-list, the root checks, consent, the 0700 and 0600 modes and the Windows warning that the SAFE-001
+      text names, and P-8 AC-3 already tests the four-module contract. `orqlet standards for --phase plan --role planner` on the 108
+      operation paths of P-6 to P-11 lists no rule id that is new since #35, but shows that ORQLET-TEST-002 applies to
+      src/orqlet/application/usecases/apply_plan.py and tests/fault/test_install_kill_after_k.py (P-10); it was missing from
+      applicable_standards since #35 and is added. P-10 already creates that fault test, so no criterion changes. import-linter 2.15
+      refuses a contract that names a missing module, so #50 added an empty src/orqlet/adapters/clients/copilot.py; P-8 keeps its
+      create operation, because a modify fails ORQ-E309 against base_revision, and its reason says that P-8 replaces the empty module.
+      protected_set_digest moved from 30746846… to 20ba901a… without a newer workflow_version: the `orqlet upgrade` of #50 rendered the
+      six Ponytail skills that P-2 packaged and moved workflow_digest in .orqlet/workflow.lock; the person chose to include that
+      upgrade in #50. base_revision stays ff9fbf18…, the design merge, because the plan is projected from it (Q-49).
+    how: >-
+      git log origin/main; orqlet gate status one-command-setup --json; orqlet standards for --path <path> --phase plan --role planner
+      for each operation path of P-6 to P-11; orqlet validate plan with P-8 copilot.py as modify (ORQ-E309) and as create (pass)
+    result: pass
   - what: orqlet validate plan docs/design/one-command-setup/plan.yaml
     how: orqlet validate plan docs/design/one-command-setup/plan.yaml
     result: pass
@@ -2211,9 +2233,13 @@ self_check:
     Readings of layout and values that no source fixes: the bundled skills' references/PROVENANCE.md and LICENSE.md; golden entry files
     named `<file>--<entry>`; the version bump done once in P-11.
   - >-
-    K-1: the amendments of ORQLET-SAFE-001 and ORQLET-ARCH-003 have not merged. P-6 to P-10 state them as a precondition; their merge
-    changes standards_lock_hash and needs an impact review and a plan amendment (Q-48), which may change P-8's create of copilot.py to
-    modify.
+    K-1 holds since #50; the impact review is recorded under checks. The completion entries still cite pyproject.toml at
+    ff9fbf18ec795e44c34ac42079cab7f64b2ebde8, and every cited range there moved when P-1 added a dependency line (at 37a96d6 the ruff,
+    mypy, pytest and import-linter ranges hash to 4a644b24…, 36ed8dad…, a9ce3216… and d2dc59f4…). This amendment does not re-cite them;
+    the implementer shows the difference and asks before the first run, as the phase contract requires.
+  - >-
+    Whether gate-status-phase of P-8 accepts a staged modification of src/orqlet/adapters/clients/copilot.py for its create operation
+    is not verified.
   - >-
     Existing tests outside these lists that count files or clients may break when new skills or a client are added; a change to one is
     a plan amendment.
