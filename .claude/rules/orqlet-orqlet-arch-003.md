@@ -7,6 +7,6 @@ paths:
 
 # ORQLET-ARCH-003
 
-MUST: The three client adapters (Claude Code, Codex, Cursor) never import one another, and the workflow package under orqlet/workflow is read-only data used only by adapters and the interface.
+MUST: The four client adapters (Claude Code, Codex, Cursor, Copilot) never import one another, and the workflow package under orqlet/workflow is read-only data used only by adapters and the interface.
 
 Source: prompts

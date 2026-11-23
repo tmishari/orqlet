@@ -130,5 +130,6 @@ type = "independence"
 modules = [
   "orqlet.adapters.clients.claude_code",
   "orqlet.adapters.clients.codex",
+  "orqlet.adapters.clients.copilot",
   "orqlet.adapters.clients.cursor",
 ]
