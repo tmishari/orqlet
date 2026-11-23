@@ -1,0 +1,1377 @@
+schema: orqlet.implementation-plan/v1
+header:
+  schema: orqlet.artifact-header/v1
+  task: workflow-efficiency
+  status: draft
+  workflow_version: 0.5.0
+  protected_set_digest: 20ba901af0832f59a7fef20323128b6d8a53d5e76ea45a64a6a5e7123816630a
+  bound:
+    base_revision: fd495247c13734c606034220f777a58859a7e15a
+    standards_lock_hash: 12486d9b48af8b2f61117d556568d3482b1641cd606e8652965dcc44babce930
+    applicable_rules_hash: e5618439f62ec2b01a2a1719ee3902a92ca1829827de0b41242cb351c37e4e15
+    profile_version: 1
+design_ref: docs/design/workflow-efficiency/design/manifest.yaml#923204fecade1ee5e2e8f9707cd8fbfe4bfb3fa7a1d3b5980231889657c86200
+base_revision: fd495247c13734c606034220f777a58859a7e15a
+knowledge_scope: []
+phases:
+- id: P-1
+  objective: >-
+    gate status reports PASS and exits 0 when a task's inputs are current, refuses a malformed task name with exit 2, and the
+    human text of every validator and of gate status ends with one action line rendered in the interface layer.
+  depends_on: []
+  implements: [EC-1, EC-3]
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      Given a task whose artifacts are current and no --phase, gate status reports PASS, exits 0, has no not-run reason and keeps
+      ORQ-I393 as an info finding saying that the input check, not this command, checks approval.
+    source: BC-8
+    check_ref: pytest
+  - id: AC-2
+    text: >-
+      Regression: a stale artifact or a missing base revision still gives NOT_RUN, and a deviation with --phase FAIL, both exit 5.
+    source: A-27
+    check_ref: pytest
+  - id: AC-3
+    text: >-
+      A task name such as `Bad_Name` or `../x` exits 2 before anything is read; a valid name with no artifact gives PASS, exit 0 and
+      "No artifact of task <task> exists yet; check the task name unless you are starting research."
+    source: BC-8
+    check_ref: pytest
+  - id: AC-4
+    text: >-
+      The human text of each validate command ends with exactly one action line: on FAIL "Action needed: fix the N error(s) above,
+      then run the command again.", on NOT_RUN "Action needed: resolve the not-run reason(s) above and run the command again, or
+      have the person confirm them.", on PASS "No action needed.", and a PASS with W warnings adds "Read the W warning(s) above.".
+    source: BC-9
+    check_ref: pytest
+  - id: AC-5
+    text: >-
+      gate status ends with "No action needed from gate status; the input check still confirms approval." on PASS with a task, and
+      with --phase and N open manual expected changes with "Action needed: N expected change(s) need a reviewer's comparison.".
+    source: BC-9
+    check_ref: pytest
+  - id: AC-6
+    text: >-
+      evidence cite, evidence hash, knowledge impact, review prepare and conventions check print no action line, and the --json
+      envelopes of validate and gate status keep their field names.
+    source: BC-9
+    check_ref: pytest
+  - id: AC-7
+    text: The comment of exit status 5 says that it covers a failed or a not-run check, not only doctor or sync (C-4).
+    source: BC-24
+    check_ref: review:stale-comments
+  - id: AC-8
+    text: The staged change touches only the files of this phase and stays inside EC-1 and EC-3.
+    source: BC-8
+    check_ref: gate-status-phase
+  checks: [ruff-check, ruff-format, mypy, import-linter, pytest, gate-status-phase]
+  file_operations:
+  - op: modify
+    path: src/orqlet/application/usecases/gate_status.py
+    why: PASS when current; ORQ-I393 reworded, no skip.
+  - op: modify
+    path: src/orqlet/interface/cli/commands/gate.py
+    why: Slug check with exit 2, the action line, the docstring.
+  - op: modify
+    path: src/orqlet/interface/cli/commands/validate.py
+    why: An opt-in action line in output_of.
+  - op: modify
+    path: src/orqlet/interface/cli/render_human.py
+    why: Render the action line.
+  - op: modify
+    path: src/orqlet/interface/cli/exit_codes.py
+    why: The exit 5 comment (C-4).
+  - op: modify
+    path: tests/unit/application/test_gate_status.py
+    why: PASS when current; the other verdicts kept.
+  - op: modify
+    path: tests/integration/test_validate_cli.py
+    why: Exit 0 when current; exit 2 for a bad task name.
+  - op: modify
+    path: tests/e2e/test_s8_acceptance.py
+    why: gate status PASS and exit 0.
+  - op: modify
+    path: tests/e2e/test_full_task.py
+    why: gate status PASS and exit 0.
+  - op: create
+    path: tests/integration/test_action_line_cli.py
+    why: Each action line, its absence elsewhere, unchanged JSON fields.
+  review_evidence: [architecture-reviewer, security-reviewer, tester, code-reviewer]
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every `uv run` command below may sync the environment from uv.lock and fetch packages when it is not in sync
+    (warning list: fetches from the network). CI prepares it with `uv sync --locked --all-groups --python <PYTHON_VERSION>`
+    (.github/workflows/ci.yml:83 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    52312ac6cff90b70c545b03abc54177d6f21fe8507c465fe7e82945eb025e696; AGENTS.md:65-68, sha256
+    846060bc874dec797873d20f9d6b3298f6b04b7c14b0d2ca251a682ef471aeca, the same command with the placeholder <PYTHON_VERSION> for
+    the matrix expression of .github/workflows/ci.yml:72-74, sha256 242b2b1b63fc8cfdac2ff4e0df54f65d34ffb41a8c027af105cf8db033e03724).
+    The implementer asks the person before the first run in a session.
+  - >-
+    Known failures (Q-14): main's lint, types and tests jobs are red because of the two frozen test files
+    tests/unit/render/test_user_scope_render.py and tests/unit/application/test_user_render_request.py. A check passes when every
+    failure it reports comes from those two files; any other failure stops the phase. The pull request lists the red jobs as known.
+  - >-
+    ruff-check: `uv run ruff check .` (.github/workflows/ci.yml:31 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    714c305445d190e7afe318249169abaf2552f8041f6ccc7c8017495d58f47762; AGENTS.md:47-50, sha256
+    067c53622629ccfb9e313ebff05ea775b4b9df36db1c091b74f1f1dc86423530; it reads pyproject.toml:39-62, sha256
+    c5f708138d76db084fb9a2331213e1062ef56dd9f0b058dc24519d666a02bec2). Targeted form while iterating (Q-26): `uv run ruff check
+    <the phase's changed Python files>`.
+  - >-
+    ruff-format: `uv run ruff format --check .` (.github/workflows/ci.yml:32 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    4a6a56a502fd2d8330bc12debf940777d4aa923df5b2d3c524cbf5ac8d00a078; AGENTS.md:53-56, sha256
+    8126234061d2da27788ac0fc2d7bd556aaf15d09544948b1925a5534dc962233; it reads pyproject.toml:39-62, sha256
+    c5f708138d76db084fb9a2331213e1062ef56dd9f0b058dc24519d666a02bec2).
+  - >-
+    mypy: `uv run mypy` (.github/workflows/ci.yml:47 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    75f57430d5154f4df4619631e3b4eaec37adb06b46184fc6bda5faff21b4ea0f; AGENTS.md:59-62, sha256
+    7fe7fdd930a5e824723b1a7999200bd236becfcc5fe984e76fdd418009255039; it reads pyproject.toml:63-69, sha256
+    a5472adf66b1404b13f2c5bc63857b79247a14b5a27a19f4040e6a36a76b4790).
+  - >-
+    import-linter: `uv run lint-imports` (.github/workflows/ci.yml:62 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    aba4e82ae9c8ba9c4a3ef94aadc20b9234104933816cdda02c750b860cca4621; it reads pyproject.toml:83-135, sha256
+    289e692f1ab3cb50b0dc13fc776d25d09d460b5f25ee32d2bc4458205808c31b). Onboard did not record it in AGENTS.md, so it is cited from
+    the CI file only.
+  - >-
+    pytest: `uv run pytest` (.github/workflows/ci.yml:84 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    7c910167a75b4b3f8dfad8fc42652fdd9eff338194d3979df24740ab50924b81; AGENTS.md:71-74, sha256
+    c560d01599d3004756e624e106c7fdb37d1ebc840106224073081c64110dd2eb; it reads pyproject.toml:70-82, sha256
+    5b4df74a73ee1a30a21445c42673be9c128900e148f86b3f8b3d4e98ca37f29f). Local form (Q-25): `uv run pytest
+    --continue-on-collection-errors`, which keeps every option of pyproject.toml:70-82 and passes when the only errors are the
+    collection errors of the two frozen test files. Targeted form while iterating (Q-26): `uv run pytest <the phase's test
+    files>`. Locally it runs on one Python; the matrix of .github/workflows/ci.yml:72-74 runs only in CI.
+  - >-
+    gate-status-phase: `uv run orqlet gate status workflow-efficiency --phase P-1 --head staged` reports no ORQ-E450, ORQ-E451 or
+    ORQ-E453. It is Orqlet's own command, not a project command.
+  expected_outputs:
+  - src/orqlet/application/usecases/gate_status.py
+  - src/orqlet/interface/cli/render_human.py
+  - tests/integration/test_action_line_cli.py
+- id: P-2
+  objective: >-
+    evidence cite accepts several FILE LINES pairs in one call and returns one citation per pair, while a single pair behaves as
+    today.
+  depends_on: [P-1]
+  implements: [EC-2]
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      `evidence cite A 1-2 B 3` exits 0 and data.citations lists two entries in the given order, each with path, lines, revision and
+      sha256 in today's shape; the human text prints one snippet line per pair and no action line.
+    source: BC-21
+    check_ref: pytest
+  - id: AC-2
+    text: >-
+      Regression: a single pair keeps today's top-level fields (path, lines, revision, sha256, snippet) and text, and also lists its
+      entry in data.citations.
+    source: A-26
+    check_ref: pytest
+  - id: AC-3
+    text: An odd number of arguments, such as one or three, is a usage error with exit 2.
+    source: BC-21
+    check_ref: pytest
+  - id: AC-4
+    text: >-
+      When one pair fails (a missing file or missing lines), the verdict is FAIL with exit 5, its finding names that pair, its entry
+      carries no revision and no sha256, and the other pairs are still returned with their hashes.
+    source: BC-21
+    check_ref: pytest
+  - id: AC-5
+    text: >-
+      --revision applies to every pair. Each pair under docs/design/<task>/evidence/web/ is scanned: one holding a credential shape
+      gives ORQ-E511 and no hash, while a clean web pair in the same call is cited.
+    source: BC-21
+    check_ref: pytest
+  - id: AC-6
+    text: The staged change touches only the files of this phase and stays inside EC-2.
+    source: BC-21
+    check_ref: gate-status-phase
+  checks: [ruff-check, ruff-format, mypy, import-linter, pytest, gate-status-phase]
+  file_operations:
+  - op: modify
+    path: src/orqlet/application/usecases/evidence_cite.py
+    why: cite takes a sequence of pairs and returns one entry per pair; a failing or refused pair carries no revision or hash.
+  - op: modify
+    path: src/orqlet/interface/cli/commands/evidence.py
+    why: Accept FILE LINES pairs, refuse an odd count with exit 2, and list the files in the subject.
+  - op: modify
+    path: tests/unit/application/test_evidence_cite.py
+    why: Several pairs, order, a failing pair, the web scan per pair, and the single-pair regression.
+  - op: modify
+    path: tests/integration/test_validate_cli.py
+    why: The CLI pair form, the odd-count usage error and the unchanged single-pair output.
+  review_evidence: [architecture-reviewer, security-reviewer, tester, code-reviewer]
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every `uv run` command below may sync the environment and fetch packages (warning list: fetches from the
+    network); the command and its sources are those of the environment entry of P-1. The implementer asks the person before the
+    first run in a session.
+  - >-
+    Known failures (Q-14): as in P-1, a check passes when every failure it reports comes from the two frozen test files.
+  - >-
+    ruff-check: `uv run ruff check .` (.github/workflows/ci.yml:31 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    714c305445d190e7afe318249169abaf2552f8041f6ccc7c8017495d58f47762; AGENTS.md:47-50, sha256
+    067c53622629ccfb9e313ebff05ea775b4b9df36db1c091b74f1f1dc86423530; it reads pyproject.toml:39-62, sha256
+    c5f708138d76db084fb9a2331213e1062ef56dd9f0b058dc24519d666a02bec2). Targeted form (Q-26): `uv run ruff check <the phase's
+    changed Python files>`.
+  - >-
+    ruff-format: `uv run ruff format --check .` (.github/workflows/ci.yml:32 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    4a6a56a502fd2d8330bc12debf940777d4aa923df5b2d3c524cbf5ac8d00a078; AGENTS.md:53-56, sha256
+    8126234061d2da27788ac0fc2d7bd556aaf15d09544948b1925a5534dc962233; it reads pyproject.toml:39-62, sha256
+    c5f708138d76db084fb9a2331213e1062ef56dd9f0b058dc24519d666a02bec2).
+  - >-
+    mypy: `uv run mypy` (.github/workflows/ci.yml:47 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    75f57430d5154f4df4619631e3b4eaec37adb06b46184fc6bda5faff21b4ea0f; AGENTS.md:59-62, sha256
+    7fe7fdd930a5e824723b1a7999200bd236becfcc5fe984e76fdd418009255039; it reads pyproject.toml:63-69, sha256
+    a5472adf66b1404b13f2c5bc63857b79247a14b5a27a19f4040e6a36a76b4790).
+  - >-
+    import-linter: `uv run lint-imports` (.github/workflows/ci.yml:62 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    aba4e82ae9c8ba9c4a3ef94aadc20b9234104933816cdda02c750b860cca4621; it reads pyproject.toml:83-135, sha256
+    289e692f1ab3cb50b0dc13fc776d25d09d460b5f25ee32d2bc4458205808c31b).
+  - >-
+    pytest: `uv run pytest` (.github/workflows/ci.yml:84 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    7c910167a75b4b3f8dfad8fc42652fdd9eff338194d3979df24740ab50924b81; AGENTS.md:71-74, sha256
+    c560d01599d3004756e624e106c7fdb37d1ebc840106224073081c64110dd2eb; it reads pyproject.toml:70-82, sha256
+    5b4df74a73ee1a30a21445c42673be9c128900e148f86b3f8b3d4e98ca37f29f). Local form (Q-25): `uv run pytest
+    --continue-on-collection-errors`; targeted form (Q-26): `uv run pytest <the phase's test files>`.
+  - >-
+    gate-status-phase: `uv run orqlet gate status workflow-efficiency --phase P-2 --head staged` reports no ORQ-E450, ORQ-E451 or
+    ORQ-E453. Its ORQ-W390 and NOT_RUN for the commits of earlier phases are matched to the planned-work row and confirmed by the
+    person once (ADR-001 decision 4).
+  expected_outputs:
+  - src/orqlet/application/usecases/evidence_cite.py
+- id: P-3
+  objective: >-
+    validate as-is accepts task-owned evidence cited at another commit, reads it at HEAD with a hash check and a scan, and still
+    requires base_revision for every other entry.
+  depends_on: [P-2]
+  implements: [EC-5]
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      The task comes from the file's canonical path docs/design/<task>/as-is.md: a copy under docs/design/other/ whose header names
+      <task> exempts nothing under docs/design/<task>/evidence/.
+    source: BC-22
+    check_ref: pytest
+  - id: AC-2
+    text: >-
+      An entry under docs/design/<task>/evidence/ that cites a revision other than base_revision is read at HEAD; matching lines pass
+      without ORQ-E332, and a missing file, missing lines or a changed hash give ORQ-E333, ORQ-E334 or ORQ-E335.
+    source: BC-22
+    check_ref: pytest
+  - id: AC-3
+    text: >-
+      Regression: a task-owned entry that cites base_revision is read at base_revision and not scanned, as today.
+    source: A-71
+    check_ref: pytest
+  - id: AC-4
+    text: >-
+      Entries under docs/design/<task>-x/evidence/, docs/design/<task>/Evidence/, docs/design/<task>/reviews/ or outside any task
+      folder that cite another revision still give ORQ-E332.
+    source: BC-22
+    check_ref: pytest
+  - id: AC-5
+    text: >-
+      A task-owned entry at another revision whose HEAD bytes hold a credential shape, a hidden character or more than 256 KiB gives
+      ORQ-E338, which names the rule and the line, never the text, says to treat a shown credential as exposed and revoke or rotate
+      it, and suggests no history rewrite; the evidence cite docstring no longer says the scan runs at cite time only.
+    source: BC-22
+    check_ref: pytest
+  - id: AC-6
+    text: >-
+      Each AS-IS file under docs/design keeps its verdict and non-info finding codes from base_revision: dynamic-model-profiles,
+      one-command-setup and workflow-efficiency PASS; harness2-fit, mcp-or-plugins, phase-skill-contracts and
+      team-conventions-resources PASS with ORQ-W338; orqlet-implementation FAIL with ORQ-E324.
+    source: BC-22
+    check_ref: review:as-is-regression
+  - id: AC-7
+    text: The staged change touches only the files of this phase and stays inside EC-5.
+    source: BC-22
+    check_ref: gate-status-phase
+  checks: [ruff-check, ruff-format, mypy, import-linter, pytest, gate-status-phase]
+  file_operations:
+  - op: modify
+    path: src/orqlet/application/usecases/validate_as_is.py
+    why: Task from the canonical path, task-owned entries read at HEAD and hash-checked, ORQ-E338 from the shared scan.
+  - op: modify
+    path: src/orqlet/application/usecases/evidence_cite.py
+    why: Expose the existing web-evidence scan for reuse and correct its docstring.
+  - op: modify
+    path: tests/unit/application/test_validate_as_is.py
+    why: Task-owned entries, the path rules, the HEAD read, ORQ-E338 and the base_revision regression.
+  review_evidence: [architecture-reviewer, security-reviewer, tester, code-reviewer]
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every `uv run` command below may sync the environment and fetch packages (warning list: fetches from the
+    network); the command and its sources are those of the environment entry of P-1. The implementer asks the person before the
+    first run in a session.
+  - >-
+    Known failures (Q-14): as in P-1, a check passes when every failure it reports comes from the two frozen test files.
+  - >-
+    ruff-check: `uv run ruff check .` (.github/workflows/ci.yml:31 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    714c305445d190e7afe318249169abaf2552f8041f6ccc7c8017495d58f47762; AGENTS.md:47-50, sha256
+    067c53622629ccfb9e313ebff05ea775b4b9df36db1c091b74f1f1dc86423530; it reads pyproject.toml:39-62, sha256
+    c5f708138d76db084fb9a2331213e1062ef56dd9f0b058dc24519d666a02bec2). Targeted form (Q-26): `uv run ruff check <the phase's
+    changed Python files>`.
+  - >-
+    ruff-format: `uv run ruff format --check .` (.github/workflows/ci.yml:32 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    4a6a56a502fd2d8330bc12debf940777d4aa923df5b2d3c524cbf5ac8d00a078; AGENTS.md:53-56, sha256
+    8126234061d2da27788ac0fc2d7bd556aaf15d09544948b1925a5534dc962233; it reads pyproject.toml:39-62, sha256
+    c5f708138d76db084fb9a2331213e1062ef56dd9f0b058dc24519d666a02bec2).
+  - >-
+    mypy: `uv run mypy` (.github/workflows/ci.yml:47 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    75f57430d5154f4df4619631e3b4eaec37adb06b46184fc6bda5faff21b4ea0f; AGENTS.md:59-62, sha256
+    7fe7fdd930a5e824723b1a7999200bd236becfcc5fe984e76fdd418009255039; it reads pyproject.toml:63-69, sha256
+    a5472adf66b1404b13f2c5bc63857b79247a14b5a27a19f4040e6a36a76b4790).
+  - >-
+    import-linter: `uv run lint-imports` (.github/workflows/ci.yml:62 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    aba4e82ae9c8ba9c4a3ef94aadc20b9234104933816cdda02c750b860cca4621; it reads pyproject.toml:83-135, sha256
+    289e692f1ab3cb50b0dc13fc776d25d09d460b5f25ee32d2bc4458205808c31b).
+  - >-
+    pytest: `uv run pytest` (.github/workflows/ci.yml:84 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    7c910167a75b4b3f8dfad8fc42652fdd9eff338194d3979df24740ab50924b81; AGENTS.md:71-74, sha256
+    c560d01599d3004756e624e106c7fdb37d1ebc840106224073081c64110dd2eb; it reads pyproject.toml:70-82, sha256
+    5b4df74a73ee1a30a21445c42673be9c128900e148f86b3f8b3d4e98ca37f29f). Local form (Q-25): `uv run pytest
+    --continue-on-collection-errors`; targeted form (Q-26): `uv run pytest <the phase's test files>`.
+  - >-
+    as-is-regression: `uv run orqlet validate as-is '<path>' --json` for each of the eight files docs/design/<task>/as-is.md, compared
+    with the verdicts and codes of AC-6 (measured at fd495247c13734c606034220f777a58859a7e15a). Orqlet's own command, read-only.
+  - >-
+    gate-status-phase: `uv run orqlet gate status workflow-efficiency --phase P-3 --head staged` reports no ORQ-E450, ORQ-E451 or
+    ORQ-E453; its ORQ-W390 for earlier phases is confirmed under the planned-work row.
+  expected_outputs:
+  - src/orqlet/application/usecases/validate_as_is.py
+- id: P-4
+  objective: validate design and validate plan warn when the brief or a plan phase is longer than the targets the person set.
+  depends_on: [P-3]
+  implements: [EC-4]
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      A component.md with 1,201 words outside fenced blocks gives ORQ-W368; 1,200 words, or extra words only inside fenced blocks,
+      give none; the verdict and exit status are those without the warning.
+    source: BC-14
+    check_ref: pytest
+  - id: AC-2
+    text: >-
+      A plan phase whose objective, acceptance_criteria[].text and file_operations[].why hold 401 words gives ORQ-W388 naming the
+      phase; 400 words give none; words in completion entries do not count; the verdict and exit status do not change.
+    source: BC-14
+    check_ref: pytest
+  - id: AC-3
+    text: The staged change touches only the files of this phase and stays inside EC-4.
+    source: BC-14
+    check_ref: gate-status-phase
+  checks: [ruff-check, ruff-format, mypy, import-linter, pytest, gate-status-phase]
+  file_operations:
+  - op: modify
+    path: src/orqlet/application/usecases/validate_design.py
+    why: ORQ-W368 for a brief above 1,200 words outside fenced blocks.
+  - op: modify
+    path: src/orqlet/application/usecases/validate_plan.py
+    why: ORQ-W388 for each phase above 400 words in the counted fields.
+  - op: modify
+    path: tests/unit/application/test_validate_design.py
+    why: The brief limit, its edge and fenced blocks.
+  - op: modify
+    path: tests/unit/application/test_validate_plan.py
+    why: The phase limit, its edge and the uncounted completion entries.
+  review_evidence: [architecture-reviewer, security-reviewer, tester, code-reviewer]
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every `uv run` command below may sync the environment and fetch packages (warning list: fetches from the
+    network); the command and its sources are those of the environment entry of P-1. The implementer asks the person before the
+    first run in a session.
+  - >-
+    Known failures (Q-14): as in P-1, a check passes when every failure it reports comes from the two frozen test files.
+  - >-
+    ruff-check: `uv run ruff check .` (.github/workflows/ci.yml:31 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    714c305445d190e7afe318249169abaf2552f8041f6ccc7c8017495d58f47762; AGENTS.md:47-50, sha256
+    067c53622629ccfb9e313ebff05ea775b4b9df36db1c091b74f1f1dc86423530; it reads pyproject.toml:39-62, sha256
+    c5f708138d76db084fb9a2331213e1062ef56dd9f0b058dc24519d666a02bec2). Targeted form (Q-26): `uv run ruff check <the phase's
+    changed Python files>`.
+  - >-
+    ruff-format: `uv run ruff format --check .` (.github/workflows/ci.yml:32 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    4a6a56a502fd2d8330bc12debf940777d4aa923df5b2d3c524cbf5ac8d00a078; AGENTS.md:53-56, sha256
+    8126234061d2da27788ac0fc2d7bd556aaf15d09544948b1925a5534dc962233; it reads pyproject.toml:39-62, sha256
+    c5f708138d76db084fb9a2331213e1062ef56dd9f0b058dc24519d666a02bec2).
+  - >-
+    mypy: `uv run mypy` (.github/workflows/ci.yml:47 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    75f57430d5154f4df4619631e3b4eaec37adb06b46184fc6bda5faff21b4ea0f; AGENTS.md:59-62, sha256
+    7fe7fdd930a5e824723b1a7999200bd236becfcc5fe984e76fdd418009255039; it reads pyproject.toml:63-69, sha256
+    a5472adf66b1404b13f2c5bc63857b79247a14b5a27a19f4040e6a36a76b4790).
+  - >-
+    import-linter: `uv run lint-imports` (.github/workflows/ci.yml:62 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    aba4e82ae9c8ba9c4a3ef94aadc20b9234104933816cdda02c750b860cca4621; it reads pyproject.toml:83-135, sha256
+    289e692f1ab3cb50b0dc13fc776d25d09d460b5f25ee32d2bc4458205808c31b).
+  - >-
+    pytest: `uv run pytest` (.github/workflows/ci.yml:84 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    7c910167a75b4b3f8dfad8fc42652fdd9eff338194d3979df24740ab50924b81; AGENTS.md:71-74, sha256
+    c560d01599d3004756e624e106c7fdb37d1ebc840106224073081c64110dd2eb; it reads pyproject.toml:70-82, sha256
+    5b4df74a73ee1a30a21445c42673be9c128900e148f86b3f8b3d4e98ca37f29f). Local form (Q-25): `uv run pytest
+    --continue-on-collection-errors`; targeted form (Q-26): `uv run pytest <the phase's test files>`.
+  - >-
+    gate-status-phase: `uv run orqlet gate status workflow-efficiency --phase P-4 --head staged` reports no ORQ-E450, ORQ-E451 or
+    ORQ-E453; its ORQ-W390 for earlier phases is confirmed under the planned-work row.
+  expected_outputs:
+  - src/orqlet/application/usecases/validate_design.py
+  - src/orqlet/application/usecases/validate_plan.py
+- id: P-5
+  objective: >-
+    models resolve and explain print plain text for people, ORQ-W547 says in plain words what an upgrade changes, and the stale
+    docstrings C-10 and C-11 are corrected.
+  depends_on: [P-4]
+  implements: [EC-3]
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      The human text of models resolve opens with one sentence naming the suggested profile, whether a model is suggested and that
+      nothing changes, then prints only fields that hold a value and no rejected model; --json and the exit statuses are unchanged.
+    source: BC-10
+    check_ref: pytest
+  - id: AC-2
+    text: >-
+      explain prints its limits once and the standards as a count per source, without rule ids or levels; its --json still lists
+      each rule with id, level, source and text, and its model-selection section is unchanged.
+    source: BC-10
+    check_ref: pytest
+  - id: AC-3
+    text: >-
+      ORQ-W547 names no internal field or finding code; it says that the upgrade changes agent files that review records name, that
+      designs and plans in progress then show changed inputs, and that the person decides; it still lists at most 20 paths.
+    source: BC-11
+    check_ref: pytest
+  - id: AC-4
+    text: >-
+      The models_resolve docstring no longer says that orqlet-code-reviewer is not a workflow role (C-10), and the model_policy
+      contract docstring no longer says that no use case reads the policy (C-11).
+    source: BC-24
+    check_ref: review:stale-comments
+  - id: AC-5
+    text: The staged change touches only the files of this phase and stays inside EC-3.
+    source: BC-10
+    check_ref: gate-status-phase
+  checks: [ruff-check, ruff-format, mypy, import-linter, export-schemas, pytest, gate-status-phase]
+  file_operations:
+  - op: modify
+    path: src/orqlet/interface/cli/commands/models.py
+    why: The opening sentence and only the fields that hold a value.
+  - op: modify
+    path: src/orqlet/interface/cli/commands/lifecycle.py
+    why: explain no longer echoes its limits a second time as finding lines.
+  - op: modify
+    path: src/orqlet/interface/cli/render_human.py
+    why: explain shows standards as counts per source.
+  - op: modify
+    path: src/orqlet/application/usecases/pin_staleness.py
+    why: The ORQ-W547 message in plain words.
+  - op: modify
+    path: src/orqlet/application/usecases/models_resolve.py
+    why: Correct the docstring (C-10).
+  - op: modify
+    path: src/orqlet/application/contracts/model_policy.py
+    why: Correct the module docstring (C-11).
+  - op: modify
+    path: tests/integration/test_models_resolve_cli.py
+    why: The opening sentence and the omitted empty fields replace the ten fixed labels.
+  - op: modify
+    path: tests/integration/test_lifecycle_cli.py
+    why: Limits once and standards as counts in the explain text.
+  - op: modify
+    path: tests/unit/application/test_pin_staleness.py
+    why: The plain ORQ-W547 message, asserted by its facts.
+  - op: modify
+    path: tests/unit/application/test_upgrade_model_policy.py
+    why: The ORQ-W547 assertions no longer expect internal field names.
+  review_evidence: [architecture-reviewer, security-reviewer, tester, code-reviewer]
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every `uv run` command below may sync the environment and fetch packages (warning list: fetches from the
+    network); the command and its sources are those of the environment entry of P-1. The implementer asks the person before the
+    first run in a session.
+  - >-
+    Known failures (Q-14): as in P-1, a check passes when every failure it reports comes from the two frozen test files.
+  - >-
+    ruff-check: `uv run ruff check .` (.github/workflows/ci.yml:31 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    714c305445d190e7afe318249169abaf2552f8041f6ccc7c8017495d58f47762; AGENTS.md:47-50, sha256
+    067c53622629ccfb9e313ebff05ea775b4b9df36db1c091b74f1f1dc86423530; it reads pyproject.toml:39-62, sha256
+    c5f708138d76db084fb9a2331213e1062ef56dd9f0b058dc24519d666a02bec2). Targeted form (Q-26): `uv run ruff check <the phase's
+    changed Python files>`.
+  - >-
+    ruff-format: `uv run ruff format --check .` (.github/workflows/ci.yml:32 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    4a6a56a502fd2d8330bc12debf940777d4aa923df5b2d3c524cbf5ac8d00a078; AGENTS.md:53-56, sha256
+    8126234061d2da27788ac0fc2d7bd556aaf15d09544948b1925a5534dc962233; it reads pyproject.toml:39-62, sha256
+    c5f708138d76db084fb9a2331213e1062ef56dd9f0b058dc24519d666a02bec2).
+  - >-
+    mypy: `uv run mypy` (.github/workflows/ci.yml:47 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    75f57430d5154f4df4619631e3b4eaec37adb06b46184fc6bda5faff21b4ea0f; AGENTS.md:59-62, sha256
+    7fe7fdd930a5e824723b1a7999200bd236becfcc5fe984e76fdd418009255039; it reads pyproject.toml:63-69, sha256
+    a5472adf66b1404b13f2c5bc63857b79247a14b5a27a19f4040e6a36a76b4790).
+  - >-
+    import-linter: `uv run lint-imports` (.github/workflows/ci.yml:62 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    aba4e82ae9c8ba9c4a3ef94aadc20b9234104933816cdda02c750b860cca4621; it reads pyproject.toml:83-135, sha256
+    289e692f1ab3cb50b0dc13fc776d25d09d460b5f25ee32d2bc4458205808c31b).
+  - >-
+    export-schemas: `uv run python tools/export_schemas.py --check` (.github/workflows/ci.yml:63 at
+    fd495247c13734c606034220f777a58859a7e15a, sha256 2f05795ed6483385f2a5a779c76da3329801ef8edb53d4e3d767a962419c4faf; it runs
+    tools/export_schemas.py:1-5, sha256 758f85e6bff78b8b77bb4400f0b8c540cfc029e48b025b731235557a8f0c46f7). The model_policy
+    docstring must leave every committed schema unchanged.
+  - >-
+    pytest: `uv run pytest` (.github/workflows/ci.yml:84 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    7c910167a75b4b3f8dfad8fc42652fdd9eff338194d3979df24740ab50924b81; AGENTS.md:71-74, sha256
+    c560d01599d3004756e624e106c7fdb37d1ebc840106224073081c64110dd2eb; it reads pyproject.toml:70-82, sha256
+    5b4df74a73ee1a30a21445c42673be9c128900e148f86b3f8b3d4e98ca37f29f). Local form (Q-25): `uv run pytest
+    --continue-on-collection-errors`; targeted form (Q-26): `uv run pytest <the phase's test files>`.
+  - >-
+    gate-status-phase: `uv run orqlet gate status workflow-efficiency --phase P-5 --head staged` reports no ORQ-E450, ORQ-E451 or
+    ORQ-E453; its ORQ-W390 for earlier phases is confirmed under the planned-work row.
+  expected_outputs:
+  - src/orqlet/interface/cli/commands/models.py
+  - src/orqlet/application/usecases/pin_staleness.py
+- id: P-6
+  objective: >-
+    The phase contract and the research, design, plan and implement skills hold the reuse rule, the input check by phase, the
+    early base binding and the web-evidence format once, and lose the sentences the new CLI makes unnecessary.
+  depends_on: [P-5]
+  implements: [EC-6, EC-9]
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      The four copies of the phase contract are identical and state the reuse rule: each check source is cited once per phase, a
+      reused citation's sha256 is compared with the plan's, `orqlet evidence hash` confirms the cited files before a later run,
+      HEAD is recorded with `git rev-parse HEAD`, git status is not used, and every rerun names its reason.
+    source: BC-1
+    check_ref: pytest
+  - id: AC-2
+    text: >-
+      The contract says that a targeted check form runs while iterating and the full form once before review and once per rework
+      round after all of its fixes.
+    source: BC-5
+    check_ref: pytest
+  - id: AC-3
+    text: >-
+      Implement runs gate status --phase once per phase and reuses the validators' result when confirmed planned work is the only
+      stale cause; plan runs gate status once; design hashes its files, manifest.yaml included, once before review, records them in
+      each note and compares them before it stops.
+    source: BC-2
+    check_ref: pytest
+  - id: AC-4
+    text: >-
+      The input check by phase approves the task-owned evidence files that the AS-IS facts cite, against the research merge for
+      design and the design merge for plan and implement; later phases may add files under evidence/web/ but never change a cited
+      one.
+    source: BC-22
+    check_ref: pytest
+  - id: AC-5
+    text: >-
+      Each of the four skills binds base_revision with `gate status --json` before its first branch commit, and research cites facts
+      outside its folder with --revision set to base_revision.
+    source: BC-23
+    check_ref: pytest
+  - id: AC-6
+    text: >-
+      The web-evidence format is stated in the phase contract, so the design skill's step resolves in its own installed
+      references; the ORQ-I393 NOT_RUN sentence and the sentence asking to cite every source again are gone.
+    source: BC-16
+    check_ref: pytest
+  - id: AC-7
+    text: >-
+      The design and implement skills stop design and code reviews after three rounds with one consolidated report; the
+      model-suggestion step is one sentence; the source-as-evidence paragraph stays in each skill.
+    source: BC-6
+    check_ref: pytest
+  - id: AC-8
+    text: >-
+      The phase contract has at most 2,000 words and 150 lines, and each skill body at most 70 lines and 900 words; MANIFEST.json and
+      the changed golden files are rebuilt and match.
+    source: Q-22
+    check_ref: pytest
+  - id: AC-9
+    text: The staged change touches only the files of this phase and stays inside EC-6 and EC-9.
+    source: BC-24
+    check_ref: gate-status-phase
+  checks: [ruff-check, ruff-format, mypy, build-manifest, pytest, gate-status-phase]
+  file_operations:
+  - op: modify
+    path: src/orqlet/workflow/skills/orqlet-research/references/phase-contract.md
+    why: Reuse rule, input check, web evidence; two sentences out.
+  - op: modify
+    path: src/orqlet/workflow/skills/orqlet-design/references/phase-contract.md
+    why: Identical copy.
+  - op: modify
+    path: src/orqlet/workflow/skills/orqlet-plan/references/phase-contract.md
+    why: Identical copy.
+  - op: modify
+    path: src/orqlet/workflow/skills/orqlet-implement/references/phase-contract.md
+    why: Identical copy.
+  - op: modify
+    path: src/orqlet/workflow/skills/orqlet-research/skill.md
+    why: Early binding, outside facts at base_revision.
+  - op: modify
+    path: src/orqlet/workflow/skills/orqlet-design/skill.md
+    why: Review hashes, round cap, web-evidence step.
+  - op: modify
+    path: src/orqlet/workflow/skills/orqlet-plan/skill.md
+    why: One gate status run, no ORQ-I393 sentence.
+  - op: modify
+    path: src/orqlet/workflow/skills/orqlet-implement/skill.md
+    why: One gate status per phase, reuse, round cap.
+  - op: modify
+    path: src/orqlet/workflow/MANIFEST.json
+    why: Rebuilt.
+  - op: modify
+    path: tests/unit/test_workflow_phase_contract_text.py
+    why: Cap 2,000 words (Q-22); new rules pinned by fact.
+  - op: modify
+    path: tests/unit/test_workflow_skill_contracts.py
+    why: Removed phrases out; binding, gate runs, round caps in.
+  - op: modify
+    path: tests/unit/test_workflow_model_hint_text.py
+    why: The one-sentence model step.
+  - op: modify
+    path: tests/unit/test_workflow_role_prompts.py
+    why: The re-cite phrase leaves the contract.
+  - op: modify
+    path: tests/unit/test_workflow_lookup_text.py
+    why: Web evidence moves to the contract.
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-research/SKILL.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-research/references/phase-contract.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-design/SKILL.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-design/references/phase-contract.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-plan/SKILL.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-plan/references/phase-contract.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-implement/SKILL.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-implement/references/phase-contract.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-research/SKILL.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-research/references/phase-contract.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-design/SKILL.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-design/references/phase-contract.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-plan/SKILL.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-plan/references/phase-contract.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-implement/SKILL.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-implement/references/phase-contract.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-research/SKILL.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-research/references/phase-contract.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-design/SKILL.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-design/references/phase-contract.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-plan/SKILL.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-plan/references/phase-contract.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-implement/SKILL.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-implement/references/phase-contract.md
+    why: Regenerated golden.
+  review_evidence: [architecture-reviewer, security-reviewer, tester, code-reviewer]
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every `uv run` command below may sync the environment and fetch packages (warning list: fetches from the
+    network); the command and its sources are those of the environment entry of P-1. The implementer asks the person before the
+    first run in a session.
+  - >-
+    Known failures (Q-14): as in P-1, a check passes when every failure it reports comes from the two frozen test files.
+  - >-
+    Write steps approved in Q-27, run in this order after the text is final: `uv run python tools/build_manifest.py`
+    (tools/build_manifest.py:1-9 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    525c8e92362828ae01dfa20b8f71147ecb4656dbac30281eddf12c340f0428d7; tools/build_manifest.py:44-57, sha256
+    1a5d6a8dcee135f460dbe0e6f7dcd7265d94d69a267e327f0ed47f9c62c4bd63), then `uv run pytest --update-golden
+    tests/unit/render/test_clients_golden.py` (tests/conftest.py:25-43, sha256
+    6fb4e3f6e2808b88c453f788d52493cb85a7545c05ee0c85998b970e72359a66; tests/conftest.py:70-90, sha256
+    08c14cd67375444afebc2a89d2214a33c189d7857945cabb4500f9b266cdfde2). A golden write outside the files listed above stops the
+    phase.
+  - >-
+    ruff-check: `uv run ruff check .` (.github/workflows/ci.yml:31 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    714c305445d190e7afe318249169abaf2552f8041f6ccc7c8017495d58f47762; AGENTS.md:47-50, sha256
+    067c53622629ccfb9e313ebff05ea775b4b9df36db1c091b74f1f1dc86423530; it reads pyproject.toml:39-62, sha256
+    c5f708138d76db084fb9a2331213e1062ef56dd9f0b058dc24519d666a02bec2).
+  - >-
+    ruff-format: `uv run ruff format --check .` (.github/workflows/ci.yml:32 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    4a6a56a502fd2d8330bc12debf940777d4aa923df5b2d3c524cbf5ac8d00a078; AGENTS.md:53-56, sha256
+    8126234061d2da27788ac0fc2d7bd556aaf15d09544948b1925a5534dc962233; it reads pyproject.toml:39-62, sha256
+    c5f708138d76db084fb9a2331213e1062ef56dd9f0b058dc24519d666a02bec2).
+  - >-
+    mypy: `uv run mypy` (.github/workflows/ci.yml:47 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    75f57430d5154f4df4619631e3b4eaec37adb06b46184fc6bda5faff21b4ea0f; AGENTS.md:59-62, sha256
+    7fe7fdd930a5e824723b1a7999200bd236becfcc5fe984e76fdd418009255039; it reads pyproject.toml:63-69, sha256
+    a5472adf66b1404b13f2c5bc63857b79247a14b5a27a19f4040e6a36a76b4790).
+  - >-
+    build-manifest: `uv run python tools/build_manifest.py --check` (.github/workflows/ci.yml:64 at
+    fd495247c13734c606034220f777a58859a7e15a, sha256 a2061c7f43040eacd56749b7ea2ba34accbb81e0c943eec9b42e749cf22fe474; it runs
+    tools/build_manifest.py:44-57, sha256 1a5d6a8dcee135f460dbe0e6f7dcd7265d94d69a267e327f0ed47f9c62c4bd63).
+  - >-
+    pytest: `uv run pytest` (.github/workflows/ci.yml:84 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    7c910167a75b4b3f8dfad8fc42652fdd9eff338194d3979df24740ab50924b81; AGENTS.md:71-74, sha256
+    c560d01599d3004756e624e106c7fdb37d1ebc840106224073081c64110dd2eb; it reads pyproject.toml:70-82, sha256
+    5b4df74a73ee1a30a21445c42673be9c128900e148f86b3f8b3d4e98ca37f29f). Local form (Q-25): `uv run pytest
+    --continue-on-collection-errors`; targeted form (Q-26): `uv run pytest <the phase's test files>`.
+  - >-
+    gate-status-phase: `uv run orqlet gate status workflow-efficiency --phase P-6 --head staged` reports no ORQ-E450, ORQ-E451 or
+    ORQ-E453; its ORQ-W390 for earlier phases is confirmed under the planned-work row.
+  expected_outputs:
+  - src/orqlet/workflow/skills/orqlet-research/references/phase-contract.md
+  - src/orqlet/workflow/MANIFEST.json
+- id: P-7
+  objective: >-
+    The baseline, the review and onboard skills, the tester role, the four formats and the standards command carry the reply
+    format, the review limits, the focused-test guidance and the length targets, without growing the words a skill run loads.
+  depends_on: [P-6]
+  implements: [EC-6]
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      The baseline gains a final-reply section: Completed (up to three bullets), Questions (omitted when none) and one copyable Next
+      prompt holding only the task name, the next skill or action, fixed paths under docs/design/<task>/ and pending approvals,
+      never source text or a project command; about 120 words outside the prompt.
+    source: BC-20
+    check_ref: pytest
+  - id: AC-2
+    text: >-
+      No workflow file tells the agent to show rule or standard ids to people; the standards command records them in artifacts.
+    source: BC-12
+    check_ref: pytest
+  - id: AC-3
+    text: >-
+      The review skill stops after three rounds with one consolidated report, resolves models at most twice, never for the skill
+      when nested, records none requested when no candidate qualifies, and labels models suggested, observed or unknown.
+    source: BC-7
+    check_ref: pytest
+  - id: AC-4
+    text: >-
+      The tester role carries the focused-test and smallest-change guidance and lists the citations it made with their evidence
+      hash; the review and onboard model steps are one sentence; every skill keeps the source-as-evidence paragraph.
+    source: BC-17
+    check_ref: pytest
+  - id: AC-5
+    text: >-
+      The formats state the 1,200-word brief and 400-word phase targets, ask for evidence ids instead of restated content and each
+      list once, and the AS-IS format says that size_budget counts fact statements (C-22).
+    source: BC-15
+    check_ref: pytest
+  - id: AC-6
+    text: >-
+      The words of each skill run (skill body, its references and the baseline, counted with str.split on the source files) are at
+      most those at base_revision: research 4,120, design 4,126, plan 4,066, implement 3,517, review 2,261, onboard 1,700.
+    source: BC-17
+    check_ref: pytest
+  - id: AC-7
+    text: MANIFEST.json and the changed golden files are rebuilt and match.
+    source: BC-24
+    check_ref: build-manifest
+  - id: AC-8
+    text: The staged change touches only the files of this phase and stays inside EC-6.
+    source: BC-24
+    check_ref: gate-status-phase
+  checks: [ruff-check, ruff-format, mypy, build-manifest, pytest, gate-status-phase]
+  file_operations:
+  - op: modify
+    path: src/orqlet/workflow/baseline/baseline.md
+    why: The final-reply section; no ids in messages to people.
+  - op: modify
+    path: src/orqlet/workflow/skills/orqlet-review/skill.md
+    why: Round cap, nested reuse, model labels, short model step.
+  - op: modify
+    path: src/orqlet/workflow/skills/orqlet-onboard/skill.md
+    why: Short model step.
+  - op: modify
+    path: src/orqlet/workflow/roles/orqlet-tester.md
+    why: Focused tests, smallest change, the citations it made.
+  - op: modify
+    path: src/orqlet/workflow/skills/orqlet-research/references/as-is-format.md
+    why: Evidence ids, lists once, size_budget counts facts (C-22).
+  - op: modify
+    path: src/orqlet/workflow/skills/orqlet-design/references/design-format.md
+    why: The 1,200-word brief target, evidence ids, small diagrams.
+  - op: modify
+    path: src/orqlet/workflow/skills/orqlet-plan/references/plan-format.md
+    why: The 400-word phase target and evidence ids.
+  - op: modify
+    path: src/orqlet/workflow/skills/orqlet-review/references/review-format.md
+    why: Evidence ids and model labels.
+  - op: modify
+    path: src/orqlet/workflow/commands/standards.md
+    why: Record applied ids in artifacts, not in the summary.
+  - op: modify
+    path: src/orqlet/workflow/MANIFEST.json
+    why: Rebuilt from the changed workflow files.
+  - op: modify
+    path: tests/unit/test_workflow_role_prompts.py
+    why: The tester role's new guidance.
+  - op: modify
+    path: tests/unit/test_workflow_format_references.py
+    why: The format targets and evidence-id rules.
+  - op: modify
+    path: tests/unit/test_workflow_code_review_roles.py
+    why: The review skill's round cap and model labels.
+  - op: create
+    path: tests/unit/test_workflow_efficiency_text.py
+    why: Final reply, no ids for people, and the per-run word totals.
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/AGENTS.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/agents/orqlet-tester.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/commands/orqlet-standards.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-review/SKILL.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-onboard/SKILL.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-research/references/as-is-format.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-design/references/design-format.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-plan/references/plan-format.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-review/references/review-format.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/claude-code/models-2026-11/.claude/agents/orqlet-tester.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/AGENTS.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.codex/agents/orqlet-tester.toml
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-review/SKILL.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-onboard/SKILL.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-research/references/as-is-format.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-design/references/design-format.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-plan/references/plan-format.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-review/references/review-format.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/codex/models-2026-11/.codex/agents/orqlet-tester.toml
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/AGENTS.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.cursor/agents/orqlet-tester.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.cursor/commands/orqlet-standards.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-review/SKILL.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-onboard/SKILL.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-research/references/as-is-format.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-design/references/design-format.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-plan/references/plan-format.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-review/references/review-format.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/cursor/models-2026-11/.cursor/agents/orqlet-tester.md
+    why: Regenerated golden.
+  review_evidence: [architecture-reviewer, security-reviewer, tester, code-reviewer]
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every `uv run` command below may sync the environment and fetch packages (warning list: fetches from the
+    network); the command and its sources are those of the environment entry of P-1. The implementer asks the person before the
+    first run in a session.
+  - >-
+    Known failures (Q-14): as in P-1, a check passes when every failure it reports comes from the two frozen test files.
+  - >-
+    Write steps approved in Q-27, run in this order after the text is final: `uv run python tools/build_manifest.py`
+    (tools/build_manifest.py:1-9 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    525c8e92362828ae01dfa20b8f71147ecb4656dbac30281eddf12c340f0428d7; tools/build_manifest.py:44-57, sha256
+    1a5d6a8dcee135f460dbe0e6f7dcd7265d94d69a267e327f0ed47f9c62c4bd63), then `uv run pytest --update-golden
+    tests/unit/render/test_clients_golden.py tests/unit/render/test_model_settings_render.py` (tests/conftest.py:25-43, sha256
+    6fb4e3f6e2808b88c453f788d52493cb85a7545c05ee0c85998b970e72359a66; tests/conftest.py:70-90, sha256
+    08c14cd67375444afebc2a89d2214a33c189d7857945cabb4500f9b266cdfde2). A golden write outside the files listed above stops the
+    phase.
+  - >-
+    ruff-check: `uv run ruff check .` (.github/workflows/ci.yml:31 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    714c305445d190e7afe318249169abaf2552f8041f6ccc7c8017495d58f47762; AGENTS.md:47-50, sha256
+    067c53622629ccfb9e313ebff05ea775b4b9df36db1c091b74f1f1dc86423530; it reads pyproject.toml:39-62, sha256
+    c5f708138d76db084fb9a2331213e1062ef56dd9f0b058dc24519d666a02bec2).
+  - >-
+    ruff-format: `uv run ruff format --check .` (.github/workflows/ci.yml:32 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    4a6a56a502fd2d8330bc12debf940777d4aa923df5b2d3c524cbf5ac8d00a078; AGENTS.md:53-56, sha256
+    8126234061d2da27788ac0fc2d7bd556aaf15d09544948b1925a5534dc962233; it reads pyproject.toml:39-62, sha256
+    c5f708138d76db084fb9a2331213e1062ef56dd9f0b058dc24519d666a02bec2).
+  - >-
+    mypy: `uv run mypy` (.github/workflows/ci.yml:47 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    75f57430d5154f4df4619631e3b4eaec37adb06b46184fc6bda5faff21b4ea0f; AGENTS.md:59-62, sha256
+    7fe7fdd930a5e824723b1a7999200bd236becfcc5fe984e76fdd418009255039; it reads pyproject.toml:63-69, sha256
+    a5472adf66b1404b13f2c5bc63857b79247a14b5a27a19f4040e6a36a76b4790).
+  - >-
+    build-manifest: `uv run python tools/build_manifest.py --check` (.github/workflows/ci.yml:64 at
+    fd495247c13734c606034220f777a58859a7e15a, sha256 a2061c7f43040eacd56749b7ea2ba34accbb81e0c943eec9b42e749cf22fe474; it runs
+    tools/build_manifest.py:44-57, sha256 1a5d6a8dcee135f460dbe0e6f7dcd7265d94d69a267e327f0ed47f9c62c4bd63).
+  - >-
+    pytest: `uv run pytest` (.github/workflows/ci.yml:84 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    7c910167a75b4b3f8dfad8fc42652fdd9eff338194d3979df24740ab50924b81; AGENTS.md:71-74, sha256
+    c560d01599d3004756e624e106c7fdb37d1ebc840106224073081c64110dd2eb; it reads pyproject.toml:70-82, sha256
+    5b4df74a73ee1a30a21445c42673be9c128900e148f86b3f8b3d4e98ca37f29f). Local form (Q-25): `uv run pytest
+    --continue-on-collection-errors`; targeted form (Q-26): `uv run pytest <the phase's test files>`.
+  - >-
+    gate-status-phase: `uv run orqlet gate status workflow-efficiency --phase P-7 --head staged` reports no ORQ-E450, ORQ-E451 or
+    ORQ-E453; its ORQ-W390 for earlier phases is confirmed under the planned-work row.
+  expected_outputs:
+  - src/orqlet/workflow/baseline/baseline.md
+  - tests/unit/test_workflow_efficiency_text.py
+- id: P-8
+  objective: >-
+    Release 0.5.1 in one commit: the version, the policy's review marker, the installed copies regenerated by orqlet upgrade, and
+    the documentation that the delivered behaviour makes wrong.
+  depends_on: [P-7]
+  implements: [EC-6, EC-7, EC-8]
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      `orqlet --version` and every JSON result report 0.5.1; identity.json and MANIFEST.json name workflow_version 0.5.1 and the
+      manifest is rebuilt; controls_level stays 3.
+    source: BC-24
+    check_ref: pytest
+  - id: AC-2
+    text: >-
+      The seed and .orqlet/model-policy.yaml say reviewed_for_release 0.5.1 and differ from base_revision in that line only, and the
+      seed guard passes against identity 0.5.1.
+    source: Q-23
+    check_ref: pytest
+  - id: AC-3
+    text: >-
+      orqlet upgrade writes only the files of this phase; the installed copies match the packaged sources; the pull request template
+      changes in its marker line only and is reported as an accepted design deviation (Q-24).
+    source: Q-24
+    check_ref: review:upgrade-writes
+  - id: AC-4
+    text: >-
+      README, the architecture proposal's gate status passages and work-status.md describe the delivered behaviour: gate status
+      PASS, cite pairs, the new codes, the plain outputs and version 0.5.1; README resolves C-1 and C-2.
+    source: BC-24
+    check_ref: review:documentation
+  - id: AC-5
+    text: >-
+      Tests changed in this phase assert behaviour or facts, not README phrasing.
+    source: BC-19
+    check_ref: review:test-assertions
+  - id: AC-6
+    text: >-
+      Across the task, removed code has no reference left in src or tests, and the frozen files are unchanged from base_revision.
+    source: BC-18
+    check_ref: review:frozen-files
+  - id: AC-7
+    text: >-
+      The phase report gives instructed runs and the words each skill run loads before and after the task; observed counts are left
+      to the next equivalent task.
+    source: BC-25
+    check_ref: review:instruction-counts
+  - id: AC-8
+    text: The staged change touches only the files of this phase and stays inside EC-6, EC-7 and EC-8 plus the Q-23 and Q-24 files.
+    source: BC-24
+    check_ref: gate-status-phase
+  checks: [ruff-check, ruff-format, mypy, import-linter, export-schemas, build-manifest, pytest, gate-status-phase]
+  file_operations:
+  - op: modify
+    path: src/orqlet/__init__.py
+    why: Version 0.5.1 (C-21).
+  - op: modify
+    path: src/orqlet/workflow/identity.json
+    why: workflow_version 0.5.1.
+  - op: modify
+    path: src/orqlet/workflow/seeds/orqlet/model-policy.yaml
+    why: reviewed_for_release 0.5.1 (Q-23).
+  - op: modify
+    path: src/orqlet/workflow/MANIFEST.json
+    why: Rebuilt for 0.5.1.
+  - op: modify
+    path: .orqlet/model-policy.yaml
+    why: Reviewed edit of the seeded team file, reviewed_for_release 0.5.1 only (Q-23).
+  - op: modify
+    path: tests/unit/test_workflow_model_policy_seed.py
+    why: Identity and seed marker assertions for 0.5.1.
+  - op: modify
+    path: tests/unit/test_readme_model_policy.py
+    why: Where a pinned README passage changes, assert its fact instead of its wording (BC-19).
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/AGENTS.md
+    why: Regenerated golden with the 0.5.1 marker.
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/AGENTS.md
+    why: Regenerated golden with the 0.5.1 marker.
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/AGENTS.md
+    why: Regenerated golden with the 0.5.1 marker.
+  - op: modify
+    path: tests/golden/common/pr_template/existing-reconciled.md
+    why: Regenerated golden with the 0.5.1 marker.
+  - op: modify
+    path: tests/golden/common/pr_template/new-with-team.md
+    why: Regenerated golden with the 0.5.1 marker.
+  - op: modify
+    path: tests/golden/common/pr_template/new-workflow-only.md
+    why: Regenerated golden with the 0.5.1 marker.
+  - op: modify
+    path: tests/golden/common/resources/conventions-block.md
+    why: Regenerated golden with the 0.5.1 marker.
+  - op: modify
+    path: tests/golden/common/.orqlet/model-policy.yaml
+    why: Regenerated golden of the seed.
+  - op: modify
+    path: AGENTS.md
+    why: Upgrade regenerates the managed blocks.
+  - op: modify
+    path: .github/pull_request_template.md
+    why: Upgrade rewrites the block marker (Q-24).
+  - op: modify
+    path: .orqlet/generated.lock.yaml
+    why: Upgrade records the new rendered hashes (EC-8).
+  - op: modify
+    path: .orqlet/workflow.lock
+    why: Upgrade records workflow 0.5.1 (EC-8).
+  - op: modify
+    path: .orqlet/standards.lock.yaml
+    why: Upgrade may rewrite it; applicable_rules_hash must stay the same (EC-8).
+  - op: modify
+    path: .orqlet/proposals/.orqlet__versions.yaml.diff
+    why: Upgrade proposes the 0.5.1 versions (EC-8).
+  - op: modify
+    path: .orqlet/proposals/.orqlet__role-bindings.yaml.diff
+    why: Upgrade refreshes the proposal (EC-8).
+  - op: modify
+    path: .claude/agents/orqlet-tester.md
+    why: Upgrade-regenerated copy.
+  - op: modify
+    path: .claude/commands/orqlet-standards.md
+    why: Upgrade-regenerated copy.
+  - op: modify
+    path: .claude/skills/orqlet-research/SKILL.md
+    why: Upgrade-regenerated copy.
+  - op: modify
+    path: .claude/skills/orqlet-research/references/phase-contract.md
+    why: Upgrade-regenerated copy.
+  - op: modify
+    path: .claude/skills/orqlet-research/references/as-is-format.md
+    why: Upgrade-regenerated copy.
+  - op: modify
+    path: .claude/skills/orqlet-design/SKILL.md
+    why: Upgrade-regenerated copy.
+  - op: modify
+    path: .claude/skills/orqlet-design/references/phase-contract.md
+    why: Upgrade-regenerated copy.
+  - op: modify
+    path: .claude/skills/orqlet-design/references/design-format.md
+    why: Upgrade-regenerated copy.
+  - op: modify
+    path: .claude/skills/orqlet-plan/SKILL.md
+    why: Upgrade-regenerated copy.
+  - op: modify
+    path: .claude/skills/orqlet-plan/references/phase-contract.md
+    why: Upgrade-regenerated copy.
+  - op: modify
+    path: .claude/skills/orqlet-plan/references/plan-format.md
+    why: Upgrade-regenerated copy.
+  - op: modify
+    path: .claude/skills/orqlet-implement/SKILL.md
+    why: Upgrade-regenerated copy.
+  - op: modify
+    path: .claude/skills/orqlet-implement/references/phase-contract.md
+    why: Upgrade-regenerated copy.
+  - op: modify
+    path: .claude/skills/orqlet-review/SKILL.md
+    why: Upgrade-regenerated copy.
+  - op: modify
+    path: .claude/skills/orqlet-review/references/review-format.md
+    why: Upgrade-regenerated copy.
+  - op: modify
+    path: .claude/skills/orqlet-onboard/SKILL.md
+    why: Upgrade-regenerated copy.
+  - op: modify
+    path: .agents/skills/orqlet-research/SKILL.md
+    why: Upgrade-regenerated copy.
+  - op: modify
+    path: .agents/skills/orqlet-research/references/phase-contract.md
+    why: Upgrade-regenerated copy.
+  - op: modify
+    path: .agents/skills/orqlet-research/references/as-is-format.md
+    why: Upgrade-regenerated copy.
+  - op: modify
+    path: .agents/skills/orqlet-design/SKILL.md
+    why: Upgrade-regenerated copy.
+  - op: modify
+    path: .agents/skills/orqlet-design/references/phase-contract.md
+    why: Upgrade-regenerated copy.
+  - op: modify
+    path: .agents/skills/orqlet-design/references/design-format.md
+    why: Upgrade-regenerated copy.
+  - op: modify
+    path: .agents/skills/orqlet-plan/SKILL.md
+    why: Upgrade-regenerated copy.
+  - op: modify
+    path: .agents/skills/orqlet-plan/references/phase-contract.md
+    why: Upgrade-regenerated copy.
+  - op: modify
+    path: .agents/skills/orqlet-plan/references/plan-format.md
+    why: Upgrade-regenerated copy.
+  - op: modify
+    path: .agents/skills/orqlet-implement/SKILL.md
+    why: Upgrade-regenerated copy.
+  - op: modify
+    path: .agents/skills/orqlet-implement/references/phase-contract.md
+    why: Upgrade-regenerated copy.
+  - op: modify
+    path: .agents/skills/orqlet-review/SKILL.md
+    why: Upgrade-regenerated copy.
+  - op: modify
+    path: .agents/skills/orqlet-review/references/review-format.md
+    why: Upgrade-regenerated copy.
+  - op: modify
+    path: .agents/skills/orqlet-onboard/SKILL.md
+    why: Upgrade-regenerated copy.
+  - op: modify
+    path: .codex/agents/orqlet-tester.toml
+    why: Upgrade-regenerated copy.
+  - op: modify
+    path: .cursor/agents/orqlet-tester.md
+    why: Upgrade-regenerated copy.
+  - op: modify
+    path: .cursor/commands/orqlet-standards.md
+    why: Upgrade-regenerated copy.
+  - op: modify
+    path: README.md
+    why: Delivered behaviour, version 0.5.1, new codes, C-1 and C-2.
+  - op: modify
+    path: docs/design/orqlet-architecture-proposal.md
+    why: The offline gate status result is PASS.
+  - op: modify
+    path: docs/design/work-status.md
+    why: The task's delivered state.
+  review_evidence: [architecture-reviewer, security-reviewer, tester, code-reviewer]
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every `uv run` command below may sync the environment and fetch packages (warning list: fetches from the
+    network); the command and its sources are those of the environment entry of P-1. The implementer asks the person before the
+    first run in a session.
+  - >-
+    Known failures (Q-14): as in P-1, a check passes when every failure it reports comes from the two frozen test files.
+  - >-
+    Write steps approved in Q-27, run in this order: edit the version, the identity, the seed and .orqlet/model-policy.yaml; `uv
+    run python tools/build_manifest.py` (tools/build_manifest.py:1-9 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    525c8e92362828ae01dfa20b8f71147ecb4656dbac30281eddf12c340f0428d7; tools/build_manifest.py:44-57, sha256
+    1a5d6a8dcee135f460dbe0e6f7dcd7265d94d69a267e327f0ed47f9c62c4bd63); `uv run pytest --update-golden
+    tests/unit/render/test_clients_golden.py tests/unit/render/test_pr_template.py tests/unit/render/test_resources_golden.py
+    tests/unit/render/test_model_policy_seed.py` (tests/conftest.py:25-43, sha256
+    6fb4e3f6e2808b88c453f788d52493cb85a7545c05ee0c85998b970e72359a66; tests/conftest.py:70-90, sha256
+    08c14cd67375444afebc2a89d2214a33c189d7857945cabb4500f9b266cdfde2); then `uv run orqlet upgrade`, Orqlet's own command. Any
+    write outside the files of this phase stops the phase for a plan amendment.
+  - >-
+    ruff-check: `uv run ruff check .` (.github/workflows/ci.yml:31 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    714c305445d190e7afe318249169abaf2552f8041f6ccc7c8017495d58f47762; AGENTS.md:47-50, sha256
+    067c53622629ccfb9e313ebff05ea775b4b9df36db1c091b74f1f1dc86423530; it reads pyproject.toml:39-62, sha256
+    c5f708138d76db084fb9a2331213e1062ef56dd9f0b058dc24519d666a02bec2).
+  - >-
+    ruff-format: `uv run ruff format --check .` (.github/workflows/ci.yml:32 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    4a6a56a502fd2d8330bc12debf940777d4aa923df5b2d3c524cbf5ac8d00a078; AGENTS.md:53-56, sha256
+    8126234061d2da27788ac0fc2d7bd556aaf15d09544948b1925a5534dc962233; it reads pyproject.toml:39-62, sha256
+    c5f708138d76db084fb9a2331213e1062ef56dd9f0b058dc24519d666a02bec2).
+  - >-
+    mypy: `uv run mypy` (.github/workflows/ci.yml:47 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    75f57430d5154f4df4619631e3b4eaec37adb06b46184fc6bda5faff21b4ea0f; AGENTS.md:59-62, sha256
+    7fe7fdd930a5e824723b1a7999200bd236becfcc5fe984e76fdd418009255039; it reads pyproject.toml:63-69, sha256
+    a5472adf66b1404b13f2c5bc63857b79247a14b5a27a19f4040e6a36a76b4790).
+  - >-
+    import-linter: `uv run lint-imports` (.github/workflows/ci.yml:62 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    aba4e82ae9c8ba9c4a3ef94aadc20b9234104933816cdda02c750b860cca4621; it reads pyproject.toml:83-135, sha256
+    289e692f1ab3cb50b0dc13fc776d25d09d460b5f25ee32d2bc4458205808c31b).
+  - >-
+    export-schemas: `uv run python tools/export_schemas.py --check` (.github/workflows/ci.yml:63 at
+    fd495247c13734c606034220f777a58859a7e15a, sha256 2f05795ed6483385f2a5a779c76da3329801ef8edb53d4e3d767a962419c4faf; it runs
+    tools/export_schemas.py:1-5, sha256 758f85e6bff78b8b77bb4400f0b8c540cfc029e48b025b731235557a8f0c46f7).
+  - >-
+    build-manifest: `uv run python tools/build_manifest.py --check` (.github/workflows/ci.yml:64 at
+    fd495247c13734c606034220f777a58859a7e15a, sha256 a2061c7f43040eacd56749b7ea2ba34accbb81e0c943eec9b42e749cf22fe474; it runs
+    tools/build_manifest.py:44-57, sha256 1a5d6a8dcee135f460dbe0e6f7dcd7265d94d69a267e327f0ed47f9c62c4bd63).
+  - >-
+    pytest: `uv run pytest` (.github/workflows/ci.yml:84 at fd495247c13734c606034220f777a58859a7e15a, sha256
+    7c910167a75b4b3f8dfad8fc42652fdd9eff338194d3979df24740ab50924b81; AGENTS.md:71-74, sha256
+    c560d01599d3004756e624e106c7fdb37d1ebc840106224073081c64110dd2eb; it reads pyproject.toml:70-82, sha256
+    5b4df74a73ee1a30a21445c42673be9c128900e148f86b3f8b3d4e98ca37f29f). Local form (Q-25): `uv run pytest
+    --continue-on-collection-errors`; targeted form (Q-26): `uv run pytest <the phase's test files>`.
+  - >-
+    upgrade-writes: `git diff --name-only --cached` lists only the files of this phase, and `git diff --cached
+    .github/pull_request_template.md` changes the marker line only. The input check already runs git diff; no new kind of command.
+  - >-
+    frozen-files: `git diff --name-only fd495247c13734c606034220f777a58859a7e15a -- src/orqlet/adapters/clients/copilot.py
+    src/orqlet/interface/cli/render_rich.py src/orqlet/adapters/fs/user_scope.py src/orqlet/application/contracts/user_scope.py
+    src/orqlet/application/ports/user_scope.py tests/unit/render/test_user_scope_render.py
+    tests/unit/application/test_user_render_request.py` prints nothing, nor does the same command for the document folders of the
+    tasks that work-status.md lists as on hold.
+  - >-
+    instruction-counts: the per-run word totals of P-7 AC-6 before and after, and the instructed runs counted from the four phase
+    skills and the phase contract before and after, written in the phase report.
+  - >-
+    gate-status-phase: `uv run orqlet gate status workflow-efficiency --phase P-8 --head staged` reports no ORQ-E450, ORQ-E451 or
+    ORQ-E453; its ORQ-W390 for earlier phases is confirmed under the planned-work row, and after the upgrade this task's
+    artifacts show ORQ-W390 under the upgrade row.
+  expected_outputs:
+  - src/orqlet/__init__.py
+  - src/orqlet/workflow/identity.json
+  - .orqlet/workflow.lock
+reuse_decisions:
+- candidate: output_of
+  decision: use
+  reason: The action line is an opt-in argument of the shared result builder, so validate and gate status gain it and other commands keep their text.
+- candidate: Slug
+  decision: use
+  reason: gate status checks its task argument against the same contract that models resolve uses for --task.
+- candidate: _web_evidence_refused
+  decision: use
+  reason: validate as-is runs the same size, credential and hidden-character scan instead of a second copy.
+- candidate: services.vcs.read_at
+  decision: use
+  reason: validate as-is reads task-owned evidence at HEAD through the existing Git port.
+- candidate: line_range_hash
+  decision: use
+  reason: Each cite pair and each task-owned entry is hashed with the existing line-range rule.
+- candidate: tools/build_manifest.py
+  decision: use
+  reason: The manifest is rebuilt with the existing tool, never by hand.
+- candidate: golden fixture
+  decision: use
+  reason: Golden files are rewritten with the existing --update-golden option and reviewed as diffs.
+- candidate: orqlet upgrade
+  decision: use
+  reason: The installed copies are regenerated by upgrade, never edited by hand.
+- candidate: persistent check cache
+  decision: not-applicable
+  reason: ADR-001 rejects it; reuse is a text rule guarded by file hashes.
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: planner
+    phase: plan
+    confirmed_requirements: [R-1, R-2, R-3, R-4, R-5, R-6, R-7]
+    applicable_standards: [ORQLET-ARCH-001, ORQLET-ARCH-002, ORQLET-ARCH-003, ORQLET-DET-002, ORQLET-DET-003, ORQLET-MODEL-001,
+      ORQLET-MODEL-002, ORQLET-NOMODEL-001, ORQLET-QA-001, ORQLET-SAFE-001, ORQLET-SEC-001, ORQLET-SEC-002, ORQLET-SEC-003,
+      ORQLET-STYLE-001, ORQLET-TEST-001]
+    acceptance_criteria: []
+    evidence:
+    - docs/design/workflow-efficiency/design/manifest.yaml#923204fecade1ee5e2e8f9707cd8fbfe4bfb3fa7a1d3b5980231889657c86200
+    - docs/design/workflow-efficiency/questions.yaml
+    - .github/workflows/ci.yml
+    - AGENTS.md
+    - pyproject.toml
+  checks:
+  - what: >-
+      Input check. The design merge fd495247c13734c606034220f777a58859a7e15a, which the person named, is reachable from origin/main
+      and HEAD and changed the approved design files; they are unchanged since, nothing is untracked, the design's base 86e07ab is
+      an ancestor of HEAD, and the ledger had no open question.
+    how: git merge-base, git diff and git ls-files against the merge commit; orqlet validate ledger
+    result: pass
+  - what: >-
+      Standards were read with `orqlet standards for --phase plan --role planner` for each path of the scope; the MUST rules under
+      applicable_standards apply.
+    how: orqlet standards for --path <path> --phase plan --role planner
+    result: pass
+  - what: >-
+      The onboard entries of AGENTS.md (lines 47-50, 53-56, 59-62, 65-68, 71-74) were compared with .github/workflows/ci.yml lines 31,
+      32, 47, 83 and 84 and match; both are cited.
+    how: orqlet evidence cite at fd495247c13734c606034220f777a58859a7e15a
+    result: pass
+  - what: >-
+      Commands on the warning list: every `uv run` may sync and fetch from the network, marked in each phase's environment entry.
+      The write steps (build_manifest, --update-golden, orqlet upgrade) and the local and targeted forms have the person's yes
+      (Q-25, Q-26, Q-27).
+    how: completion entries of P-1 to P-8
+    result: pass
+  - what: >-
+      Two writes outside the design's expected changes were raised and answered: the review marker of the model policy (Q-23) and
+      the pull request template marker (Q-24); P-8 reports the second as a design deviation for the person to accept.
+    how: docs/design/workflow-efficiency/questions.yaml Q-23 and Q-24
+    result: pass
+  - what: >-
+      CLI behaviour (P-1 to P-5) comes before the skill text that relies on it (P-6, P-7); the version bump, the upgrade and README
+      come in the final phase; the phases form one chain, so no two independent phases touch the same path.
+    how: depends_on and file_operations
+    result: pass
+  - what: Paths projected and the plan validated.
+    how: orqlet validate plan docs/design/workflow-efficiency/plan.yaml
+    result: pass
+  unverified:
+  - "BC-3: the design half (hash once before review, compare before stopping) is skill text checked by P-6 AC-3; whether agents follow it shows only on the next design."
+  - "BC-4: that every rerun names its reason and a rework round runs the full checks once is a text rule (P-6 AC-1 and AC-2); no code can check what an agent does."
+  - "BC-13: the review skill and format ask for the labels (P-7 AC-3); whether a report uses them shows only in later reports."
+  - "BC-25: observed counts of runs and words come from the next equivalent task; P-8 reports only the instructed counts."
