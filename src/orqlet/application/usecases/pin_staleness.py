@@ -66,10 +66,9 @@ def stale_review_finding(paths: Sequence[str]) -> Finding | None:
     more = f" and {len(paths) - MAX_LISTED} more" if len(paths) > MAX_LISTED else ""
     return Finding(
         STALE_REVIEW,
-        "This upgrade changes an agent file that review records name: "
-        f"{listed}{more}. A model pin changes protected files and so `protected_set_digest`, and "
-        "approvals of designs and plans in flight then show ORQ-W390. The person decides what to "
-        "do about them; Orqlet changes no record.",
+        "This upgrade changes agent files that review records name, so those records no longer "
+        f"describe the current files: {listed}{more}. Designs and plans in progress will then "
+        "show changed inputs. The person decides what to do about them; Orqlet changes no record.",
         Severity.WARNING,
     )
 

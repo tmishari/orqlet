@@ -1,0 +1,123 @@
+schema: orqlet.review-result/v1
+task: workflow-efficiency
+phase: P-5
+role: architecture-reviewer
+round: 1
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: 12dffc2dad3bb0d329fa04c361d3f7fe8f437ccc60d1c35e32639a3475b3d607
+    design: ca86b2a73b778b9e33a398bf70b0752be94a68da6d0718376cf8d971ff239e10
+    evidence_inputs: 0d28b7d290e79a7bcb74c4f28a8a608ce16079b0ae9328f4fee4c60dbd4a297b
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 34a6f679a5585859c8d850fca7a208e5b6d4e3dd14eeccc0b38d081a4fc20365
+    reviewer_definition: 83e52f1a68fceddc7beb1d83654661fd34a1e3b3028c4fcc3dd7b6dadd8f3463
+    standards: 0e5b7e5fc8f3950ac5d360cf4a0c9dbe2b4880433ba15680a6c66220d4434e5d
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: a620f8bb9692f6f26b2bfbfdde89afdb2da35cc8f0097b718c65478c5754f9d1
+  merge_base: 129cf95f30e6ffdc26ff5330b1a22fe9307ea8ea
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: 751953d100777e7ad1ae8ea41d8f096972ff2d2818b84213b87d027c1a3f9beb
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- 'Same client as the Coder (cursor): independence I1, below the I2 that a D3 change requires (ORQLET-MODEL-002); the verdict
+  is NOT_RUN.'
+- It was started as a typed subagent with the packet path workflow-efficiency-P-5-32524a15 as its only prompt; that the context
+  is fresh is the Coder's claim. The packet's diff is against main 129cf95 and holds P-5 only.
+- The reviewer's session ran no check and computed no quote digest, so its evidence is given by path and line. The Coder wrote
+  this record from its returned text.
+- The client does not show the reviewer's model, so the identity is unknown. models resolve printed no candidate for cursor
+  (no model is approved by the policy), so no --different-family-from was passed.
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- 'The reviewer''s own conclusion was PASS with no blocking finding: the diff is the ten files of the P-5 list plus this task''s
+  two records, nothing in domain, adapters or workflow text changed, the --json shapes are unchanged, and EC-3 and ADR-002
+  decisions 3 to 5 hold.'
+applicability:
+  examined:
+  - diff.patch, the snapshot, the plan, the manifest, the standards and the import-linter and export-schemas results of the
+    test record
+  - the test record and the knowledge record
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: docs
+  claim: 'The README is stale until P-8: the sample output of models resolve (README.md:407-408, rejected and hint lines),
+    the exit-1 row of its exit-status table and the ORQ-W547 text (README.md:296 and 554) describe the old behaviour. P-8
+    AC-4 lists the README and it is not in the P-5 file list, so this is a planned deferral; the knowledge record says the
+    person is told in the phase report.'
+  suggested_action: Say it in the phase report; P-8 updates the README.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: correctness
+  claim: 'The text no longer says why no model is suggested: client-chooses (exit 0) and none-qualifies (exit 1) read the
+    same in the opening sentence. Plan AC-1 and ADR-002 decision 3 allow it; the reason is left to --json and the exit status.'
+  suggested_action: Accept as written, or ask the person whether exit 1 needs its own sentence.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: docs
+  claim: The model_policy.py docstring says models resolve, explain and upgrade read the policy through the contract; by import
+    only models_resolve, model_selection, model_policy_source, validate_model_policy and review_identity use it, and explain
+    and upgrade reach it through model_policy_source. 'Through it' holds indirectly.
+  suggested_action: None; the C-11 correction is real and the wording is hedged with such as.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: non-blocking
+  category: docs
+  claim: The knowledge record names orqlet_version 0.4.0 while the workflow is 0.5.0; the package version 0.4.0 is what the
+    CLI prints until the version change of P-8. The no-impact conclusion is consistent with the plan.
+  suggested_action: None; the person may confirm that 0.4.0 is the CLI version.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: non-blocking
+  category: standards
+  claim: _opening tests the profile by truthiness while _profile_line tests it with 'is None'; they agree for the three profile
+    ids.
+  suggested_action: 'Optional: use one test in both.'
+  confidence: low
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+  checks:
+  - what: packet read
+    how: orqlet review prepare workflow-efficiency P-5 (workflow-efficiency-P-5-32524a15)
+    result: pass
+  - what: running the checks and quote digests
+    how: none run by the reviewer
+    result: not-run

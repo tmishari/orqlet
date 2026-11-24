@@ -7,8 +7,10 @@ override, R-5 the hint, R-6 the data, R-7 the exit statuses, R-8 the text output
 R-10 no git, no process and no clock, R-13 the registration and R-14 the sizes. The business rules
 of the use case (every reason, every precedence rule, every mapping of the data) are tested on fakes
 in tests/unit/application/test_models_resolve.py; these tests pin what only the command line
-shows: the usage checks, the exit statuses, the envelope `orqlet.cli-result/v1`, the ten lines of
-text, what is never printed, the registration, and a folder that is not a git repository.
+shows: the usage checks, the exit statuses, the envelope `orqlet.cli-result/v1`, the opening
+sentence and the lines of text that hold a value (reworked in workflow-efficiency P-5 from the ten
+fixed lines of P-8), what is never printed, the registration, and a folder that is not a git
+repository.
 
 These tests were written first, by the Tester of phase P-8, before the command existed. The command
 is run in the project folder (the current folder of the process is the root), as an agent runs it;
@@ -93,8 +95,9 @@ NO_POLICY = "no model policy; the client chooses"
 NO_ASSIGNMENT = "no assignment for this target; the client chooses"
 CHOOSES = "the client chooses"
 
-# The ten lines of the text output, in order (AC-3, R-8).
-LABELS = (
+# The labels of the text output after its opening sentence, in order; a label is printed only
+# when it holds a value (workflow-efficiency P-5 AC-1, ADR-002 decision 3).
+FIELD_ORDER = (
     "target",
     "policy",
     "profile",
@@ -103,9 +106,9 @@ LABELS = (
     "candidates",
     "fallbacks",
     "escalation",
-    "rejected",
-    "hint",
 )
+# The end of the opening sentence of the text output (workflow-efficiency P-5 AC-1).
+ENDING = "the client keeps the choice and nothing here changes the model."
 # The keys of `data` (AC-2).
 DATA_KEYS = {
     "client",
@@ -463,11 +466,25 @@ def resolve(root: Path, *args: str, as_json: bool = True) -> Outcome:
     return invoke(root, "--client", CLAUDE, "--role", TESTER, *args, as_json=as_json)
 
 
-def lines_of(outcome: Outcome) -> dict[str, str]:
-    """The ten lines of the text output, by label (R-8); the values are stripped."""
+def opening_of(outcome: Outcome) -> str:
+    """The first line of the text output: one sentence on one line."""
     lines = outcome.stdout.strip().splitlines()
-    assert [line.partition(":")[0] for line in lines] == list(LABELS), outcome.stdout
-    return {label: value.strip() for label, _, value in (line.partition(":") for line in lines)}
+    assert lines, outcome.stdout
+    return lines[0]
+
+
+def fields_of(outcome: Outcome) -> dict[str, str]:
+    """The `label: value` lines after the opening sentence, by label; the values are stripped.
+
+    Fails when a line has no value, a label is unknown or repeated, or the labels are out of order.
+    """
+    lines = outcome.stdout.strip().splitlines()[1:]
+    pairs = [(label, value.strip()) for label, _, value in (line.partition(":") for line in lines)]
+    labels = [label for label, _ in pairs]
+    assert set(labels) <= set(FIELD_ORDER), outcome.stdout
+    assert labels == sorted(set(labels), key=FIELD_ORDER.index), outcome.stdout
+    assert all(value for _, value in pairs), outcome.stdout
+    return dict(pairs)
 
 
 def leaks(text: str, secret: str, width: int = 10) -> bool:
@@ -1284,33 +1301,172 @@ def test_a_model_that_a_profile_lists_and_that_is_not_approved_is_rejected(plain
     assert outcome.data()["selection"]["model"] == A
 
 
-# --- AC-3, R-8: the text output ------------------------------------------------------------------
+# --- the text output (workflow-efficiency P-5 AC-1, ADR-002 decision 3) ---------------------------
+
+
+def expected_opening(data: Mapping[str, Any]) -> str:
+    """The first line of the text, from the JSON data of the same run (AC-1)."""
+    profile = (
+        f"Suggested profile: {data['profile']}"
+        if data["profile"] is not None
+        else "No profile is suggested"
+    )
+    model = "a model is suggested" if data["selection"] is not None else "no model is suggested"
+    return f"{profile}; {model}; {ENDING}"
+
+
+def expected_labels(data: Mapping[str, Any]) -> list[str]:
+    """The labels that hold a value in the JSON data of the same run, in the order of the text."""
+    holds_value = {
+        "target": True,
+        "policy": True,
+        "profile": data["profile"] is not None,
+        "source": bool(data["source"]),
+        "selected": data["selection"] is not None,
+        "candidates": bool(data["candidates"]),
+        "fallbacks": bool(data["fallbacks"]),
+        "escalation": bool(data["escalation"]),
+    }
+    return [label for label in FIELD_ORDER if holds_value[label]]
 
 
 @EVERY_OK
-def test_the_text_output_is_ten_lines_with_the_labels_in_order(plain: Path, name: str) -> None:
-    """AC-3/R-8. expected_behavior_source: AC-3 ("The text output has one line each for `target`,
-    `policy`, `profile`, `source`, `selected`, `candidates`, `fallbacks`, `escalation`, `rejected`
-    and `hint`"); R-8 (ten lines, `label: value`, the labels in this order)."""
+def test_the_text_output_opens_with_one_sentence_that_names_the_profile_and_the_model(
+    plain: Path, name: str
+) -> None:
+    """expected_behavior_source: workflow-efficiency plan P-5 AC-1 ("opens with one sentence
+    naming the suggested profile, whether a model is suggested and that nothing changes"); ADR-002
+    decision 3. The shape is `<profile part>; <model part>; the client keeps the choice and
+    nothing here changes the model.`, on one line; the profile and the model come from the JSON of
+    the same run."""
     scenario = OK_SCENARIOS[name]
     stage(plain, scenario)
 
-    outcome = invoke(plain, *scenario.args)
+    text = invoke(plain, *scenario.args)
+    data = invoke(plain, *scenario.args, as_json=True).data()
 
-    assert outcome.code == scenario.code, outcome.shown
-    assert len(outcome.stdout.strip().splitlines()) == 10
-    assert set(lines_of(outcome)) == set(LABELS)
+    assert text.code == scenario.code, text.shown
+    assert opening_of(text) == expected_opening(data)
+
+
+@EVERY_OK
+def test_the_text_output_prints_only_the_fields_that_hold_a_value(plain: Path, name: str) -> None:
+    """expected_behavior_source: workflow-efficiency plan P-5 AC-1 ("then prints only fields that
+    hold a value and no rejected model"); ADR-002 decision 3. After the opening sentence the lines
+    are `label: value` in the order target, policy, profile, source, selected, candidates,
+    fallbacks, escalation, and a label is there exactly when the JSON of the same run holds a
+    value for it. There is no `none`, no `hint` and no `the client chooses` line."""
+    scenario = OK_SCENARIOS[name]
+    stage(plain, scenario)
+
+    text = invoke(plain, *scenario.args)
+    data = invoke(plain, *scenario.args, as_json=True).data()
+
+    assert list(fields_of(text)) == expected_labels(data), text.stdout
+    assert re.search(r"\bnone\b", text.stdout) is None
+    assert CHOOSES not in text.stdout
+
+
+@EVERY_OK
+def test_the_text_output_has_no_rejected_model_and_no_hint(plain: Path, name: str) -> None:
+    """expected_behavior_source: workflow-efficiency plan P-5 AC-1 ("no rejected model"); ADR-002
+    decision 3 ("Rejected models stay in `--json`"); plan P-5 AC-1 lists no `hint` line."""
+    scenario = OK_SCENARIOS[name]
+    stage(plain, scenario)
+
+    text = invoke(plain, *scenario.args)
+    data = invoke(plain, *scenario.args, as_json=True).data()
+
+    assert "rejected" not in text.stdout.lower()
+    assert "hint:" not in text.stdout
+    assert data["hint"] not in text.stdout
+
+
+def test_a_pinned_model_is_a_suggested_model_without_a_profile(plain: Path) -> None:
+    """expected_behavior_source: workflow-efficiency plan P-5 AC-1 (the profile part is `No
+    profile is suggested` without a profile; the model part is `a model is suggested` when a
+    selection exists); ADR-002 decision 3."""
+    write_project(plain, policy(pinned(A)))
+
+    outcome = resolve(plain, as_json=False)
+
+    assert outcome.code == int(ExitCode.OK), outcome.shown
+    assert opening_of(outcome) == f"No profile is suggested; a model is suggested; {ENDING}"
+    # A pin lists its own route as the one candidate, so `candidates` holds a value too.
+    assert list(fields_of(outcome)) == ["target", "policy", "source", "selected", "candidates"]
+
+
+def test_a_profile_with_a_selection_names_the_profile_and_its_mode(plain: Path) -> None:
+    """expected_behavior_source: workflow-efficiency plan P-5 AC-1 (`Suggested profile: <profile
+    id>`; the `profile` line is kept, `<id>, mode <mode>` as before, only when a profile exists);
+    ADR-002 decision 3."""
+    write_project(plain, policy(via("quality")))
+
+    outcome = resolve(plain, as_json=False)
+
+    values = fields_of(outcome)
+    assert opening_of(outcome) == f"Suggested profile: quality; a model is suggested; {ENDING}"
+    assert "quality" in values["profile"]
+    assert "mode manual" in values["profile"]
+    assert "profile-assignment" in values["source"]
+
+
+def test_the_text_output_of_no_policy_has_only_the_lines_that_hold_a_value(plain: Path) -> None:
+    """expected_behavior_source: workflow-efficiency plan P-5 AC-1 (`No profile is suggested` and
+    `no model is suggested` when the client chooses; no `none` placeholder, no `selected`,
+    `profile`, `candidates`, `fallbacks` or `escalation` line that holds nothing); exit status 0
+    is unchanged (plan P-8 of dynamic-model-profiles AC-3, R-7); ADR-002 decision 3."""
+    outcome = resolve(plain, as_json=False)
+
+    values = fields_of(outcome)
+    assert outcome.code == int(ExitCode.OK), outcome.shown
+    assert opening_of(outcome) == f"No profile is suggested; no model is suggested; {ENDING}"
+    assert list(values) == ["target", "policy", "source"]
+    assert "absent" in values["policy"]
+
+
+def test_an_automatic_result_says_that_no_model_is_suggested_and_prints_no_selected_line(
+    plain: Path,
+) -> None:
+    """expected_behavior_source: workflow-efficiency plan P-5 AC-1 (the model part is `no model is
+    suggested` when no selection exists, which covers client-chooses; `selected` is printed only
+    when a selection exists; `the client chooses` is not printed); ADR-002 decision 3."""
+    write_project(plain, policy(via("economy", "automatic")))
+
+    outcome = resolve(plain, as_json=False)
+
+    assert outcome.code == int(ExitCode.OK), outcome.shown
+    assert opening_of(outcome) == f"Suggested profile: economy; no model is suggested; {ENDING}"
+    assert "selected" not in fields_of(outcome)
+    assert CHOOSES not in outcome.stdout
+
+
+def test_a_result_with_no_candidate_says_that_no_model_is_suggested_and_exits_1(
+    plain: Path,
+) -> None:
+    """expected_behavior_source: workflow-efficiency plan P-5 AC-1 (`no model is suggested` also
+    covers none-qualifies; "the exit statuses are unchanged"); dynamic-model-profiles P-8 R-7
+    (none-qualifies is exit 1); ADR-002 decision 3."""
+    write_project(plain, NO_CANDIDATE)
+
+    outcome = resolve(plain, as_json=False)
+
+    assert outcome.code == int(ExitCode.PROBLEMS), outcome.shown
+    assert opening_of(outcome) == f"Suggested profile: quality; no model is suggested; {ENDING}"
+    assert "selected" not in fields_of(outcome)
+    assert "no candidate qualifies" not in outcome.stdout
 
 
 def test_the_selected_line_has_the_name_the_kind_the_effort_and_the_catalog_id(
     plain: Path,
 ) -> None:
-    """AC-3/R-8. expected_behavior_source: AC-3 ("`selected` (the name, its kind, its effort and
-    the catalog id, or "the client chooses")"); R-8 (pin the presence of values, not the
-    punctuation). The route of this model is not named after its id, so the two are told apart."""
+    """AC-3/R-8 of dynamic-model-profiles P-8 (unchanged route text). expected_behavior_source:
+    workflow-efficiency plan P-5 AC-1 (`selected` prints the same route text as today: name, kind,
+    effort, catalog id); R-8 (pin the presence of values, not the punctuation). The route of this
+    model is not named after its id, so the two are told apart."""
     write_project(plain, policy(pinned(RENAMED, effort="xhigh")))
 
-    selected = lines_of(resolve(plain, as_json=False))["selected"]
+    selected = fields_of(resolve(plain, as_json=False))["selected"]
 
     assert f"renamed-route-{CLAUDE}" in selected
     assert RENAMED in selected
@@ -1320,121 +1476,104 @@ def test_the_selected_line_has_the_name_the_kind_the_effort_and_the_catalog_id(
 
 
 def test_the_selected_line_of_an_alias_route_says_alias(plain: Path) -> None:
-    """AC-3/R-8. expected_behavior_source: AC-3 (the `selected` line holds the kind of the route);
-    R-6 (`kind` is that of the route)."""
+    """expected_behavior_source: workflow-efficiency plan P-5 AC-1 (`selected` keeps the route
+    text, which holds the kind of the route); dynamic-model-profiles P-8 R-6 (`kind` is that of
+    the route)."""
     write_project(plain, policy(pinned(ALIAS)))
 
-    selected = lines_of(resolve(plain, as_json=False))["selected"]
+    selected = fields_of(resolve(plain, as_json=False))["selected"]
 
     assert f"{ALIAS}-{CLAUDE}" in selected
     assert re.search(r"\balias\b", selected)
 
 
-def test_the_text_output_names_the_target_the_policy_the_profile_and_the_source(
-    plain: Path,
-) -> None:
-    """AC-3/R-8. expected_behavior_source: AC-3 (a line each for `target`, `policy`, `profile` and
-    `source`); R-8 (the presence of values); R-6 (`profile` and `source` come from the
-    resolution)."""
+def test_the_text_output_names_the_target_and_the_policy(plain: Path) -> None:
+    """expected_behavior_source: workflow-efficiency plan P-5 AC-1 (`target` and `policy` are
+    always printed; `policy` is `present` or `absent`); dynamic-model-profiles P-8 R-6."""
     write_project(plain, policy(via("quality")))
 
-    values = lines_of(resolve(plain, as_json=False))
+    values = fields_of(resolve(plain, as_json=False))
 
     assert TESTER in values["target"]
     assert "role" in values["target"]
     assert "present" in values["policy"]
-    assert "quality" in values["profile"]
-    assert "profile-assignment" in values["source"]
 
 
 def test_the_text_output_of_a_target_of_another_kind_names_the_kind(plain: Path) -> None:
-    """AC-3/R-8. expected_behavior_source: AC-3 (`target`); R-6 (`target` is `{kind, name}`)."""
+    """expected_behavior_source: workflow-efficiency plan P-5 AC-1 (`target` is always printed);
+    dynamic-model-profiles P-8 R-6 (`target` is `{kind, name}`)."""
     write_project(plain, policy(assignment_doc("skill", DESIGN, model=A)))
 
-    values = lines_of(invoke(plain, "--client", CLAUDE, "--skill", DESIGN))
+    values = fields_of(invoke(plain, "--client", CLAUDE, "--skill", DESIGN))
 
     assert DESIGN in values["target"]
     assert "skill" in values["target"]
 
 
-def test_the_text_output_of_no_policy_says_absent(plain: Path) -> None:
-    """AC-3/R-8. expected_behavior_source: R-6 (`policy` is "present" or "absent"); AC-3 (exit 0
-    and the hint "no model policy; the client chooses")."""
-    outcome = resolve(plain, as_json=False)
-
-    values = lines_of(outcome)
-
-    assert outcome.code == int(ExitCode.OK), outcome.shown
-    assert "absent" in values["policy"]
-    assert values["hint"] == NO_POLICY
-    assert CHOOSES in values["selected"]
-
-
 def test_the_lines_of_the_lists_name_the_models_and_the_escalation(plain: Path) -> None:
-    """AC-3/R-8. expected_behavior_source: AC-3 (a line each for `candidates`, `fallbacks` and
-    `escalation`); R-8 (the presence of values, not the punctuation); R-6 (the lists come from the
-    resolution)."""
+    """expected_behavior_source: workflow-efficiency plan P-5 AC-1 (`candidates`, `fallbacks` and
+    `escalation` are printed when they hold a value, with the route text of today); ADR-002
+    decision 3; dynamic-model-profiles P-8 R-8 (the presence of values, not the punctuation)."""
     write_project(plain, policy(via("engineering", "automatic-with-fallbacks")))
 
-    values = lines_of(resolve(plain, as_json=False))
+    values = fields_of(resolve(plain, as_json=False))
 
     for model in (B, C):
         assert model in values["candidates"]
     for model in (D, A):
         assert model in values["fallbacks"]
     assert "quality" in values["escalation"]
-    assert CHOOSES in values["selected"]
 
 
-def test_the_rejected_line_names_the_model_and_the_reason(plain: Path) -> None:
-    """AC-3/R-8. expected_behavior_source: AC-3 (a line for `rejected`); R-8 (the presence of
-    values); AC-2 (`rejected`: `model` and `reason`)."""
+def test_a_rejected_model_is_not_in_the_text_and_stays_in_the_json(plain: Path) -> None:
+    """expected_behavior_source: workflow-efficiency plan P-5 AC-1 ("no rejected model"; "--json
+    ... unchanged"); ADR-002 decision 3 ("Rejected models stay in `--json`"); dynamic-model-profiles
+    P-8 AC-2 (`rejected`: `model` and `reason`)."""
     document = policy(via("quality"), profiles=[profile_doc("quality", candidates=[PROPOSED, A])])
     write_project(plain, document)
 
-    values = lines_of(resolve(plain, as_json=False))
+    text = resolve(plain, as_json=False)
+    as_json = resolve(plain)
 
-    assert PROPOSED in values["rejected"]
-    assert "not-approved" in values["rejected"]
-
-
-def test_an_automatic_result_says_the_client_chooses(plain: Path) -> None:
-    """AC-3/R-8. expected_behavior_source: AC-3 (`selected` holds ... "the client chooses"); R-8
-    (`selected` holds name, kind, effort and catalog id, or "the client chooses")."""
-    write_project(plain, mode_policy("automatic"))
-
-    outcome = resolve(plain, as_json=False)
-
-    assert outcome.code == int(ExitCode.OK), outcome.shown
-    assert CHOOSES in lines_of(outcome)["selected"]
+    assert "rejected" not in fields_of(text)
+    assert "not-approved" not in text.stdout
+    assert as_json.data()["rejected"] == [{"model": PROPOSED, "reason": "not-approved"}]
 
 
-def test_a_result_with_no_candidate_does_not_say_the_client_chooses(plain: Path) -> None:
-    """AC-3/R-8. expected_behavior_source: R-8 ("For none-qualifies pin only that it is not "the
-    client chooses""); R-7 (none-qualifies is exit 1)."""
-    write_project(plain, NO_CANDIDATE)
+def test_a_refused_run_prints_the_fixed_text_and_no_opening_sentence(plain: Path) -> None:
+    """expected_behavior_source: workflow-efficiency plan P-5 AC-1 (a refused run is unchanged:
+    fixed refused text on stdout, findings on stderr, exit 3); ADR-002 decision 3."""
+    scenario, code = REFUSED_SCENARIOS["unknown-model"]
+    stage(plain, scenario)
 
-    outcome = resolve(plain, as_json=False)
+    outcome = invoke(plain, *scenario.args)
 
-    assert outcome.code == int(ExitCode.PROBLEMS), outcome.shown
-    assert CHOOSES not in lines_of(outcome)["selected"]
+    assert outcome.code == int(ExitCode.REFUSED), outcome.shown
+    assert outcome.stdout.strip().startswith("refused")
+    assert len(outcome.stdout.strip().splitlines()) == 1
+    assert "profile is suggested" not in outcome.stdout
+    assert code in outcome.stderr
 
 
-def test_the_hint_of_a_profile_is_the_fixed_sentence(plain: Path) -> None:
-    """AC-4/R-5. expected_behavior_source: AC-4 ("Suggested for this work: profile <id>; the client
-    keeps the choice and nothing here changes the model." for a target that has a profile); R-5."""
+def test_the_hint_of_a_profile_is_the_fixed_sentence_in_json_only(plain: Path) -> None:
+    """AC-4/R-5 of dynamic-model-profiles P-8. expected_behavior_source: workflow-efficiency plan
+    P-5 AC-1 ("--json ... unchanged": `data.hint` keeps the sentence "Suggested for this work:
+    profile <id>; the client keeps the choice and nothing here changes the model."); ADR-002
+    decision 3 (the text has no `hint` line)."""
     write_project(plain, policy(via("economy", "automatic")))
 
     as_json = resolve(plain)
-    as_text = lines_of(resolve(plain, as_json=False))
+    as_text = resolve(plain, as_json=False)
 
     assert as_json.data()["hint"] == suggested("economy")
-    assert as_text["hint"] == suggested("economy")
+    assert "hint" not in fields_of(as_text)
+    assert suggested("economy") not in as_text.stdout
 
 
 def test_the_hint_of_a_profile_target_is_the_fixed_sentence(plain: Path) -> None:
-    """AC-4/R-5/R-12. expected_behavior_source: AC-4 (the sentence for a target that has a
-    profile); R-12 (a profile target resolves the profile itself)."""
+    """AC-4/R-5/R-12 of dynamic-model-profiles P-8. expected_behavior_source: workflow-efficiency
+    plan P-5 AC-1 (`data.hint` is unchanged in --json); R-12 (a profile target resolves the
+    profile itself)."""
     write_project(plain, policy())
 
     outcome = invoke(plain, "--client", CLAUDE, "--profile", "economy", as_json=True)
@@ -1443,22 +1582,25 @@ def test_the_hint_of_a_profile_target_is_the_fixed_sentence(plain: Path) -> None
 
 
 def test_the_hint_of_a_target_that_the_policy_does_not_assign(plain: Path) -> None:
-    """AC-4/R-5. expected_behavior_source: AC-4 ("no assignment for this target; the client
-    chooses" for a target that a present policy does not assign); R-5."""
+    """AC-4/R-5 of dynamic-model-profiles P-8. expected_behavior_source: workflow-efficiency plan
+    P-5 AC-1 (`data.hint` is unchanged in --json: "no assignment for this target; the client
+    chooses"); ADR-002 decision 3 (the text has no `hint` line)."""
     write_project(plain, policy(pinned(A)))
 
     as_json = invoke(plain, "--client", CLAUDE, "--role", INVENTORY, as_json=True)
-    as_text = lines_of(invoke(plain, "--client", CLAUDE, "--role", INVENTORY))
+    as_text = invoke(plain, "--client", CLAUDE, "--role", INVENTORY)
 
     assert as_json.data()["hint"] == NO_ASSIGNMENT
-    assert as_text["hint"] == NO_ASSIGNMENT
+    assert "hint" not in fields_of(as_text)
+    assert NO_ASSIGNMENT not in as_text.stdout
 
 
 def test_the_hint_after_a_valid_override_is_that_of_the_same_request_without_it(
     plain: Path,
 ) -> None:
-    """AC-4/R-5. expected_behavior_source: R-5 ("After a valid override, use the profile of the
-    same request resolved without the override")."""
+    """AC-4/R-5 of dynamic-model-profiles P-8. expected_behavior_source: R-5 ("After a valid
+    override, use the profile of the same request resolved without the override"); workflow-
+    efficiency plan P-5 AC-1 (`data.hint` is unchanged in --json)."""
     write_project(plain, policy(via("economy", "automatic")))
 
     outcome = resolve(plain, "--override", f"{B}-{CLAUDE}")
@@ -1468,7 +1610,8 @@ def test_the_hint_after_a_valid_override_is_that_of_the_same_request_without_it(
 
 
 def test_the_hint_with_no_policy_does_not_depend_on_the_target(plain: Path) -> None:
-    """AC-4/R-5. expected_behavior_source: AC-4 ("no model policy; the client chooses" when there
+    """AC-4/R-5 of dynamic-model-profiles P-8. expected_behavior_source: workflow-efficiency plan
+    P-5 AC-1 (`data.hint` is unchanged in --json: "no model policy; the client chooses" when there
     is no policy); R-5."""
     for target in (("--role", TESTER), ("--skill", DESIGN), ("--profile", "quality")):
         outcome = invoke(plain, "--client", CODEX, *target, as_json=True)

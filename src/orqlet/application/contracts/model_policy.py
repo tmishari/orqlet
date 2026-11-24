@@ -1,7 +1,8 @@
 """`orqlet.model-policy/v2` (ADR-002): the team's model catalog, profiles and assignments.
 
-The file is `.orqlet/model-policy.yaml`. This module is the contract only: no use case reads it
-yet, and nothing here selects, ranks or calls a model. Cross references (a candidate that names a
+The file is `.orqlet/model-policy.yaml`. This module is the contract only: use cases such as
+`models resolve`, `explain` and `upgrade` read the policy through it, and nothing here selects,
+ranks or calls a model. Cross references (a candidate that names a
 model of the catalog, an approved model that an exclusion matches) are the job of the validator,
 not of the shape. Every string that names a model is a constrained string without a custom
 message, so a refused value is never echoed (BC-32). The repository path fields (`evidence` and

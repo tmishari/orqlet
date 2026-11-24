@@ -20,7 +20,9 @@ not changed). No credential-shaped text is used.
 
 Behaviour that the plan and the brief leave open is deliberately not pinned here:
 - the wording of the warning: only its code, its severity, the paths it lists, the form `and N
-  more` and a few key words are pinned (`protected_set_digest`, ORQ-W390, "pin", "person");
+  more` and a few key words are pinned (plain words such as "agent", "review", "design", "plan",
+  "changed", "person" and "decides"; and that no finding code, internal field name or backtick
+  quote appears: workflow-efficiency P-5 AC-3, ADR-002 decision 5);
 - whether the warning carries a `path` of its own;
 - a record whose content names a task, role, phase or round that its path does not (every record
   here is consistent with its path);
@@ -530,21 +532,36 @@ def test_the_finding_is_a_warning_with_the_code_and_the_path() -> None:
     assert MORE.search(finding.message) is None
 
 
-def test_the_finding_says_what_a_pin_does_and_that_the_person_decides() -> None:
-    """AC-4. expected_behavior_source: plan P-6 AC-4 ("The text says that a pin changes protected
-    files and `protected_set_digest`, that approvals of designs and plans in flight then show
-    ORQ-W390 and that the person decides"); ADR-003 decision 7; C-8. Pinned by key words only.
+def test_the_finding_says_in_plain_words_what_the_upgrade_changes_and_who_decides() -> None:
+    """expected_behavior_source: workflow-efficiency plan P-5 AC-3 ("it says that the upgrade
+    changes agent files that review records name, that designs and plans in progress then show
+    changed inputs, and that the person decides"); ADR-002 decision 5. Pinned by key words only.
     """
     finding = stale_review_finding(paths_of(1))
 
     assert finding is not None
-    text = finding.message
-    assert "pin" in text.lower()
-    assert "protected" in text
-    assert "protected_set_digest" in text
-    assert "ORQ-W390" in text
-    assert "person" in text
-    assert "decide" in text
+    text = finding.message.lower()
+    for word in ("agent", "review", "design", "plan", "changed", "person", "decides"):
+        assert word in text, word
+
+
+def test_the_finding_names_no_internal_field_finding_code_or_quoted_name() -> None:
+    """expected_behavior_source: workflow-efficiency plan P-5 AC-3 ("ORQ-W547 names no internal
+    field or finding code"); ADR-002 decision 5 (plain words). The listed paths are removed first,
+    so that only the sentence around them is checked.
+    """
+    paths = paths_of(MAX_LISTED + 3)
+
+    finding = stale_review_finding(paths)
+
+    assert finding is not None
+    sentence = finding.message
+    for path in paths[:MAX_LISTED]:
+        sentence = sentence.replace(path, "")
+    assert "ORQ-" not in sentence
+    assert "protected_set_digest" not in sentence
+    assert re.search(r"[A-Za-z]+_[A-Za-z_]+", sentence) is None
+    assert "`" not in sentence
 
 
 def test_exactly_the_most_listed_paths_are_all_listed() -> None:

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 import shutil
 from pathlib import Path
 from typing import Any
@@ -145,6 +146,152 @@ def test_sync_is_read_only_and_explain_lists_what_cannot_be_inspected(root: Path
         PackagedWorkflow().release.version
     )
     assert explanation["not_run"]
+
+
+RULE = (
+    "  - id: {id}\n    level: {level}\n    text: A rule of the test.\n    enforcement: guidance\n"
+)
+RULE_LEVELS = ("MUST", "SHOULD", "MAY")
+
+
+def write_rules(path: Path, prefix: str, count: int) -> None:
+    """A rules file with `count` rules whose ids are `<prefix>-<n>`, the levels taking turns."""
+    rules = "".join(
+        RULE.format(id=f"{prefix}-{n}", level=RULE_LEVELS[n % len(RULE_LEVELS)])
+        for n in range(1, count + 1)
+    )
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(f"schema: orqlet.rules/v1\nrules:\n{rules}", encoding="utf-8")
+
+
+def explain_text(root: Path) -> tuple[int, str, str]:
+    """The exit status, stdout and stderr of `explain --phase design` without `--json`."""
+    result = RUNNER.invoke(app, ["explain", "--root", str(root), "--phase", "design"])
+    return result.exit_code, result.stdout, result.stderr
+
+
+def standards_section(stdout: str) -> list[str]:
+    """The lines from the `N rule(s) apply:` header up to the next blank line."""
+    lines = stdout.splitlines()
+    start = next(n for n, line in enumerate(lines) if line.endswith("rule(s) apply:"))
+    end = next((n for n in range(start, len(lines)) if not lines[n].strip()), len(lines))
+    return lines[start:end]
+
+
+def test_explain_text_lists_each_limit_once_and_does_not_echo_findings_to_stderr(
+    root: Path,
+) -> None:
+    """expected_behavior_source: workflow-efficiency plan P-5 AC-2 ("explain prints its limits
+    once"); ADR-002 decision 4 ("`explain` lists its limits once"). Each limit message of the
+    JSON findings is in the combined stdout and stderr exactly once."""
+    init(root)
+
+    exit_code, stdout, stderr = explain_text(root)
+    _, document = run("explain", "--root", str(root), "--phase", "design")
+
+    limits = [f["message"] for f in document["findings"] if f["code"].startswith("ORQ-L")]
+    assert exit_code == 0
+    assert limits
+    combined = f"{stdout}\n{stderr}"
+    for message in limits:
+        assert combined.count(message) == 1, message
+    assert "ORQ-L" not in stderr
+
+
+def test_explain_text_lists_a_model_finding_once(root: Path) -> None:
+    """expected_behavior_source: workflow-efficiency plan P-5 AC-2 ("Model-policy findings
+    (ORQ-W540, W545, W546, E541) that the text's `Model selection:` section prints also appear
+    once"); ADR-002 decision 4. A policy that is no mapping gives ORQ-E541; its message is in the
+    `Model selection:` section and nowhere else."""
+    init(root)
+    (root / ".orqlet" / "model-policy.yaml").write_bytes(b"- a\n- b\n")
+
+    _, stdout, stderr = explain_text(root)
+    _, document = run("explain", "--root", str(root), "--phase", "design")
+
+    messages = [f["message"] for f in document["findings"] if f["code"] == "ORQ-E541"]
+    assert messages
+    combined = f"{stdout}\n{stderr}"
+    for message in messages:
+        assert combined.count(message) == 1, message
+    assert stdout.index("Model selection:") < stdout.index(messages[0])
+    assert "ORQ-E541" not in stderr
+
+
+def test_explain_text_shows_the_standards_as_a_count_per_source(root: Path) -> None:
+    """expected_behavior_source: workflow-efficiency plan P-5 AC-2 ("the standards as a count per
+    source, without rule ids or levels"; the header `<N> rule(s) apply:` stays; one line per rule
+    source, sorted by source name, with its count, equal to the counts of `--json`
+    `data.rules[].source`); ADR-002 decision 4."""
+    init(root)
+    write_rules(root / ".prompts" / "rules.yaml", "ZZTEAM", 3)
+    write_rules(root / ".orqlet" / "rules.yaml", "ZZPROJECT", 2)
+
+    _, stdout, _ = explain_text(root)
+    _, document = run("explain", "--root", str(root), "--phase", "design")
+
+    rules = document["data"]["rules"]
+    counts = {
+        source: sum(1 for rule in rules if rule["source"] == source)
+        for source in sorted({rule["source"] for rule in rules})
+    }
+    assert len(rules) == 5
+    assert len(counts) == 2
+    section = standards_section(stdout)
+    assert section[0] == f"{len(rules)} rule(s) apply:"
+    lines = section[1:]
+    assert len(lines) == len(counts)
+    for line, (source, count) in zip(lines, counts.items(), strict=True):  # sorted by source
+        assert source in line
+        assert re.findall(r"\d+", line) == [str(count)], line
+    assert sum(int(re.findall(r"\d+", line)[0]) for line in lines) == len(rules)
+
+
+def test_explain_text_has_no_rule_id_and_no_level_word_in_the_standards(root: Path) -> None:
+    """expected_behavior_source: workflow-efficiency plan P-5 AC-2 ("The text contains NO rule id
+    and NO level word in that part"; "without rule ids or levels"); ADR-002 decision 4 ("rule ids
+    and levels stay in `--json`")."""
+    init(root)
+    write_rules(root / ".prompts" / "rules.yaml", "ZZTEAM", 3)
+    write_rules(root / ".orqlet" / "rules.yaml", "ZZPROJECT", 2)
+
+    _, stdout, _ = explain_text(root)
+    _, document = run("explain", "--root", str(root), "--phase", "design")
+
+    section = "\n".join(standards_section(stdout))
+    assert document["data"]["rules"]
+    assert "ORQLET-" not in section
+    for rule in document["data"]["rules"]:
+        assert rule["id"] not in stdout
+    for level in RULE_LEVELS:
+        assert re.search(rf"\b{level}\b", section) is None
+
+
+def test_explain_json_still_lists_each_rule_with_id_level_source_and_text(root: Path) -> None:
+    """expected_behavior_source: workflow-efficiency plan P-5 AC-2 ("its --json still lists each
+    rule with id, level, source and text"; "its model-selection section is unchanged"); ADR-002
+    decision 4 and decision 6 (the fields of the JSON envelope do not change). The findings still
+    hold the limits and the model findings."""
+    init(root)
+    write_rules(root / ".prompts" / "rules.yaml", "ZZTEAM", 3)
+    write_rules(root / ".orqlet" / "rules.yaml", "ZZPROJECT", 2)
+    (root / ".orqlet" / "model-policy.yaml").write_bytes(b"- a\n- b\n")
+
+    code, document = run("explain", "--root", str(root), "--phase", "design")
+
+    assert code == 0
+    rules = document["data"]["rules"]
+    assert {rule["id"] for rule in rules} == {f"ZZTEAM-{n}" for n in (1, 2, 3)} | {
+        f"ZZPROJECT-{n}" for n in (1, 2)
+    }
+    for rule in rules:
+        assert set(rule) == {"id", "level", "source", "text"}
+        assert rule["level"] in RULE_LEVELS
+    assert {rule["source"] for rule in rules} == {"prompts", "project"}
+    assert {f["code"] for f in document["findings"]} >= {"ORQ-L001", "ORQ-L006", "ORQ-E541"}
+    assert isinstance(document["data"]["declared"]["model_selection"], list)
+    for entry in document["data"]["declared"]["model_selection"]:
+        assert set(entry) == {"kind", "target", "client", "source", "setting"}
 
 
 def test_upgrade_check_on_an_unchanged_release_is_clean(root: Path) -> None:

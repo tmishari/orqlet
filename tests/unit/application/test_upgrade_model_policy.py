@@ -1476,7 +1476,9 @@ def test_a_pin_that_changes_an_agent_file_lists_the_records_that_name_it(mode: s
     prints ORQ-W547 with the path of each such record ... The text says that a pin changes
     protected files and `protected_set_digest`, that approvals of designs and plans in flight then
     show ORQ-W390 and that the person decides"); BC-37; F-12; ADR-003 decision 7; C-8; the
-    interface item 5 (ORQ-W547 is added after the plan is built). The model has a route for Claude
+    interface item 5 (ORQ-W547 is added after the plan is built). The message no longer names
+    the field or the code: workflow-efficiency plan P-5 AC-3 and ADR-002 decision 5 (reworked
+    for that reason only). The model has a route for Claude
     Code only, so only the Claude Code file of the arch reviewer changes: the two records of that
     file are listed, and the records of the Cursor file, the Codex file and the security reviewer
     are not.
@@ -1503,8 +1505,8 @@ def test_a_pin_that_changes_an_agent_file_lists_the_records_that_name_it(mode: s
     assert finding.severity is Severity.WARNING
     assert all(path in finding.message for path in stale)
     assert not any(path in finding.message for path in fresh)
-    assert "protected_set_digest" in finding.message
-    assert "ORQ-W390" in finding.message
+    assert "ORQ-" not in finding.message  # workflow-efficiency P-5 AC-3: no finding code
+    assert "protected_set_digest" not in finding.message  # ... and no internal field name
     assert "person" in finding.message
     assert result.plan is not None
     assert not {str(w.path) for w in result.plan.writes} & set(records)

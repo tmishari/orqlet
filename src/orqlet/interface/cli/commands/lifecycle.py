@@ -267,6 +267,7 @@ def explain_command(
             human=render_explanation(explanation),
             findings=findings_out((*explanation.limits, *explanation.model_findings)),
             not_run=explanation.not_run,
+            echo_findings=False,  # the text lists the limits and the model findings itself
         )
 
     execute("explain", action, as_json=json_output)
