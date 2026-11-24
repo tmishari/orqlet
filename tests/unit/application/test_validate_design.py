@@ -257,3 +257,103 @@ def test_the_header_task_must_match_the_folder() -> None:
     document = design(task="other", as_is_bytes=AS_IS_BYTES)
 
     assert "ORQ-E350" in codes(run(world_with_design(document)))
+
+
+BRIEF_LIMIT = 1200  # source: ADR-004 decision 1
+
+
+def world_with_brief(outside_words: int, fenced_words: int = 0) -> World:
+    """A design whose component.md has the given word counts outside and inside code fences.
+
+    The Mermaid block keeps the diagram check (ORQ-W359) quiet, and the manifest hash is
+    refreshed so that the only thing that differs between tests is the word count.
+    """
+    prose = " ".join(["word"] * outside_words)
+    fenced = " ".join(["code"] * fenced_words)
+    return world_with_component(f"{DIAGRAM}\n{prose}\n\n```text\n{fenced}\n```\n")
+
+
+DIAGRAM = "```mermaid\nflowchart LR\n  A --> B\n```\n"
+
+
+def world_with_component(text: str) -> World:
+    """A design whose component.md is exactly `text`, with the manifest hash kept right."""
+    body = text.encode()
+    world = world_with_design()
+    world.put(f"{TASK_DIR}/design/component.md", body)
+    document = with_change()
+    document["artifacts"][0]["sha256"] = content_hash(body)
+    world.put(DESIGN, dump(document))
+    return world
+
+
+def test_a_brief_of_1201_words_outside_fences_gets_the_length_warning() -> None:
+    """source: P-4 AC-1, ADR-004 decision 1, BC-14 (more than 1,200 words warns)."""
+    result = run(world_with_brief(BRIEF_LIMIT + 1))
+
+    assert "ORQ-W368" in codes(result)
+
+
+def test_a_brief_of_exactly_1200_words_gets_no_length_warning() -> None:
+    """source: P-4 AC-1, ADR-004 decision 1 (the limit itself is allowed)."""
+    result = run(world_with_brief(BRIEF_LIMIT))
+
+    assert "ORQ-W368" not in codes(result)
+
+
+def test_words_inside_fenced_blocks_do_not_count_toward_the_brief_limit() -> None:
+    """source: P-4 AC-1, ADR-004 decision 1 (only words outside fenced blocks count)."""
+    result = run(world_with_brief(BRIEF_LIMIT, fenced_words=500))
+
+    assert "ORQ-W368" not in codes(result)
+
+
+def test_the_length_warning_does_not_change_the_verdict() -> None:
+    """source: P-4 AC-1, BC-14 (the verdict and exit status are those without the warning)."""
+    result = run(world_with_brief(BRIEF_LIMIT + 1))
+
+    assert result.verdict is Verdict.PASS
+    assert codes(result) == ["ORQ-W368"]
+
+
+def code_words(count: int) -> str:
+    return " ".join(["code"] * count)
+
+
+# Each case is the text after exactly 1,200 words of prose. Every fenced word would push the
+# brief over the limit if it were counted, so a pass shows that the whole block was hidden.
+FENCE_CASES = {
+    "tilde fence": f"~~~\n{code_words(500)}\n~~~\n",
+    "tilde fence is not closed by backticks": (
+        f"~~~\n{code_words(250)}\n```\n{code_words(250)}\n~~~\n"
+    ),
+    "four backticks are not closed by three": (
+        f"````\n{code_words(250)}\n```\n{code_words(250)}\n````\n"
+    ),
+    "a closing line with info text does not close": (
+        f"```\n{code_words(250)}\n```text\n{code_words(250)}\n```\n"
+    ),
+    "an unclosed fence runs to the end": f"```\n{code_words(500)}\n",
+    "a fence indented by three spaces": f"   ```\n{code_words(500)}\n   ```\n",
+}
+
+
+@pytest.mark.parametrize("fence", FENCE_CASES.values(), ids=FENCE_CASES.keys())
+def test_the_commonmark_fence_rule_hides_every_word_of_the_block(fence: str) -> None:
+    """decision: CommonMark fenced block rule, P-4 AC-1."""
+    prose = " ".join(["word"] * BRIEF_LIMIT)
+
+    result = run(world_with_component(f"{DIAGRAM}\n{prose}\n\n{fence}"))
+
+    assert "ORQ-W368" not in codes(result)
+
+
+def test_words_after_the_real_close_of_a_fence_still_count() -> None:
+    """decision: CommonMark fenced block rule, P-4 AC-1 (a fence hides only its own block)."""
+    inside = f"````\n{code_words(250)}\n```\n{code_words(250)}\n````\n"
+    before = " ".join(["word"] * 600)
+    after = " ".join(["word"] * (BRIEF_LIMIT + 1 - 600))
+
+    result = run(world_with_component(f"{DIAGRAM}\n{before}\n\n{inside}\n{after}\n"))
+
+    assert "ORQ-W368" in codes(result)

@@ -242,3 +242,92 @@ def test_the_plan_names_its_base_revision_and_its_header_task() -> None:
 
     assert "ORQ-E370" in codes(run(world_for(document)))
     assert BASE in dump(document)
+
+
+PHASE_LIMIT = 400  # source: ADR-004 decision 1
+
+
+def words(count: int) -> str:
+    # One-letter words keep a 450-word objective under the 2,000-character limit of a text field.
+    return " ".join(["w"] * count)
+
+
+def counted_phase(number: int, total_words: int, **overrides: Any) -> dict[str, Any]:
+    """A phase whose objective, criterion text and `why` fields hold `total_words` words together.
+
+    The words are spread over all three kinds of field, so that a test of the limit also shows that
+    the three are added up.
+    """
+    ac_words, first_why, second_why = 5, 3, 4
+    first_op = "create" if number == 1 else "modify"
+    return phase(
+        number,
+        objective=words(total_words - ac_words - first_why - second_why),
+        depends_on=[] if number == 1 else ["P-1"],
+        file_operations=[
+            {"op": first_op, "path": "src/pkg/service.py", "why": words(first_why)},
+            {"op": "modify", "path": "src/pkg/mod.py", "why": words(second_why)},
+        ],
+        acceptance_criteria=[
+            {"id": "AC-1", "text": words(ac_words), "source": "Q-1", "check_ref": "tests"}
+        ],
+        **overrides,
+    )
+
+
+def warned_phases(result: ValidationResult) -> list[str]:
+    return [f.message for f in result.findings if f.code == "ORQ-W388"]
+
+
+def test_a_phase_of_401_counted_words_gets_the_length_warning_naming_it() -> None:
+    """source: P-4 AC-2, ADR-004 decision 1, BC-14 (more than 400 words warns, naming the phase)."""
+    result = run(build(phases=[counted_phase(1, PHASE_LIMIT + 1)]))
+
+    messages = warned_phases(result)
+    assert len(messages) == 1
+    assert "P-1" in messages[0]
+
+
+def test_a_phase_of_exactly_400_counted_words_gets_no_length_warning() -> None:
+    """source: P-4 AC-2, ADR-004 decision 1 (the limit itself is allowed)."""
+    result = run(build(phases=[counted_phase(1, PHASE_LIMIT)]))
+
+    assert "ORQ-W388" not in codes(result)
+
+
+def test_words_in_completion_entries_do_not_count_toward_the_phase_limit() -> None:
+    """source: P-4 AC-2 (words in completion entries do not count)."""
+    long_completion = counted_phase(1, 50, completion=[words(PHASE_LIMIT * 2)])
+
+    result = run(build(phases=[long_completion]))
+
+    assert "ORQ-W388" not in codes(result)
+
+
+def test_the_phase_length_warning_does_not_change_the_verdict() -> None:
+    """source: P-4 AC-2, BC-14 (the verdict and exit status do not change)."""
+    within = run(build(phases=[counted_phase(1, PHASE_LIMIT)]))
+    above = run(build(phases=[counted_phase(1, PHASE_LIMIT + 1)]))
+
+    assert within.verdict is Verdict.PASS
+    assert above.verdict is Verdict.PASS
+    assert [c for c in codes(above) if c != "ORQ-W388"] == codes(within)
+
+
+def test_each_over_long_phase_is_named_and_a_short_phase_is_not() -> None:
+    """source: P-4 AC-2 (a warning names its phase; a short phase is not named)."""
+    phases = [
+        counted_phase(1, PHASE_LIMIT + 1),
+        counted_phase(2, 30),
+        counted_phase(3, PHASE_LIMIT + 50),
+    ]
+
+    messages = warned_phases(run(build(phases=phases)))
+
+    assert len(messages) == 2
+    # The order of findings is not specified, so look each phase up by name.
+    for named, other in (("P-1", "P-3"), ("P-3", "P-1")):
+        own = [message for message in messages if named in message]
+        assert len(own) == 1
+        assert other not in own[0]
+    assert not any("P-2" in message for message in messages)

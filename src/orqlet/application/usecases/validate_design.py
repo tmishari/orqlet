@@ -50,6 +50,10 @@ _DIAGRAMS = (
     "erdiagram",
 )
 _DIAGRAM_KINDS = frozenset({"c4-context", "c4-container", "c4-component", "data-flow", "sequence"})
+# The design brief is component.md (design-format.md). The target is a warning, never a failure.
+_BRIEF_FILE = "component.md"
+BRIEF_WORD_TARGET = 1200
+_FENCE = re.compile(r"^ {0,3}(`{3,}|~{3,})")
 
 
 def validate_design(
@@ -124,7 +128,10 @@ def _check_artifacts(
             continue
         if content_hash(data) != artifact.sha256:
             out.error("ORQ-E356", f"{artifact.id}: {artifact.path} does not match its sha256", path)
-        _check_artifact_text(artifact, data.decode("utf-8", errors="replace"), path, out)
+        text = data.decode("utf-8", errors="replace")
+        _check_artifact_text(artifact, text, path, out)
+        if artifact.path.rsplit("/", 1)[-1] == _BRIEF_FILE:
+            _check_brief_length(artifact, text, path, out)
     kinds = {a.kind for a in design.artifacts}
     effective = ChangeClass.parse(design.change_class.effective)
     for group in required_artifact_groups(effective):
@@ -159,6 +166,40 @@ def _check_artifact_text(artifact: DesignArtifact, text: str, path: str, out: Co
                 "nothing changes structure, and a reviewer checks that",
                 path,
             )
+
+
+def _check_brief_length(artifact: DesignArtifact, text: str, path: str, out: Collector) -> None:
+    words = _words_outside_fences(text)
+    if words > BRIEF_WORD_TARGET:
+        out.warning(
+            "ORQ-W368",
+            f"{artifact.id}: the design brief has {words} words outside fenced blocks; the "
+            f"target is at most {BRIEF_WORD_TARGET}",
+            path,
+        )
+
+
+def _words_outside_fences(text: str) -> int:
+    """Count the words of a Markdown text, skipping fenced blocks and their fence lines."""
+    words = 0
+    open_fence: str | None = None
+    for line in text.splitlines():
+        fence = _FENCE.match(line)
+        if open_fence is None:
+            if fence is not None:
+                open_fence = fence.group(1)
+            else:
+                words += len(line.split())
+        elif fence is not None and _closes(open_fence, fence.group(1), line):
+            open_fence = None
+    return words
+
+
+def _closes(opening: str, candidate: str, line: str) -> bool:
+    """A closing fence repeats the opening character, is at least as long and has no info text."""
+    return (
+        candidate[0] == opening[0] and len(candidate) >= len(opening) and line.strip() == candidate
+    )
 
 
 def _check_class(design: DesignSet, path: str, out: Collector) -> ChangeClass:

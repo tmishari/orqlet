@@ -1,0 +1,81 @@
+schema: orqlet.review-result/v1
+task: workflow-efficiency
+phase: P-4
+role: security-reviewer
+round: 1
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: eaa0833eb8687542253f44b705c8970b42ac4272ff00f2d0578fc56dbee89acd
+    design: ca86b2a73b778b9e33a398bf70b0752be94a68da6d0718376cf8d971ff239e10
+    evidence_inputs: 1b4979712d877c6e30b2590e4871d14cac28c27da013743c9d805678ecec070e
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 34a6f679a5585859c8d850fca7a208e5b6d4e3dd14eeccc0b38d081a4fc20365
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: 0e5b7e5fc8f3950ac5d360cf4a0c9dbe2b4880433ba15680a6c66220d4434e5d
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: fab5a1bcffb458653ad7846f19de6aa6f944756365be4a28e5422110305a5aac
+  merge_base: e7b987c07984f5fe1a3b951ea11bf6e43f19a2fb
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- 'Same client as the Coder (cursor): independence I1, below the I2 that a D3 change requires (ORQLET-MODEL-002); the verdict
+  is NOT_RUN.'
+- It was started as a typed subagent with the packet path workflow-efficiency-P-4-94adff56 as its only prompt; that the context
+  is fresh is the Coder's claim. The packet's diff is against main e7b987c and holds P-4 only.
+- The reviewer's session ran no check and computed no quote digest. The Coder wrote this record from its returned text.
+- The client does not show the reviewer's model, so the identity is unknown. models resolve printed no candidate for cursor
+  (every model is not approved by the policy).
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- The reviewer's own conclusion was no security-relevant change and no finding.
+applicability:
+  examined:
+  - diff.patch in full, the snapshot of validate_design.py around the change and read_file of validation.py
+  - the two records, the new code ORQ-W368 and ORQ-W388 by search of the snapshot
+  conclusion: no-impact
+  absence_record:
+    kind: absence
+    searched:
+    - src/orqlet/application/usecases/validate_design.py
+    - src/orqlet/application/usecases/validate_plan.py
+    - tests/unit/application/test_validate_design.py
+    - tests/unit/application/test_validate_plan.py
+    method: 'read the diff and the changed functions and searched the snapshot for the new codes; the warnings print only an
+      artifact id, a phase id, a count and the target, the fence pattern is anchored with no nested quantifier, counting is
+      linear, and the diff adds no file, process or network access, no dependency and no secret'
+    revision: e7b987c07984f5fe1a3b951ea11bf6e43f19a2fb
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet read
+    how: orqlet review prepare workflow-efficiency P-4 (workflow-efficiency-P-4-94adff56)
+    result: pass
+  - what: running the checks and quote digests
+    how: none run by the reviewer
+    result: not-run
