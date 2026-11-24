@@ -396,8 +396,7 @@ def test_bc9_the_standards_step_names_the_phase_and_role_words(skill: str) -> No
 
 # --- BC-10: installed files and where project guidance goes (onboard) ----------------------------
 INSTALLED_FILE_PHRASES = (
-    "`orqlet upgrade` restores an edited one with ORQ-W096",
-    "`orqlet doctor` reports it as ORQ-E150",
+    "belong to Orqlet",
     "AGENTS.md outside the managed blocks",
     "the project's standards folder",
 )
@@ -411,7 +410,16 @@ def test_bc10_onboard_says_how_an_edited_installed_file_is_handled_and_where_gui
     that `orqlet upgrade` restores an edited installed file with ORQ-W096, that `orqlet doctor`
     reports it as ORQ-E150, and that project guidance goes into AGENTS.md outside the managed
     blocks or into the project's standards folder"), Q-8 (keep the behaviour and state it in the
-    skills) and ADR-002 decision 5; the interface of P-3 puts it in `## Boundaries`."""
+    skills) and ADR-002 decision 5; the interface of P-3 puts it in `## Boundaries`. P-7 AC-6
+    (workflow-efficiency; BC-17, ADR-004 decision 5: the words a skill run loads may not grow while
+    the baseline gains the final-reply section) shortens onboard's bullet: the restore with ORQ-W096
+    and the report as ORQ-E150 leave it, which the person must confirm as a deviation from the
+    Q-8 choice of phase-skill-contracts (keep the behaviour and state it in the skills): the
+    baseline's "Generated files" says only that a generated file is changed at its source and
+    `orqlet upgrade` run, and `orqlet doctor` prints its own findings; the code behaviour stays
+    tested in test_workflow_injection.py. The two pins of those codes are deleted; the rule that
+    project guidance goes into AGENTS.md outside the managed blocks or the standards folder
+    stays."""
     assert phrase in squash(section(body("orqlet-onboard"), "## Boundaries"))
 
 

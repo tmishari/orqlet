@@ -30,6 +30,15 @@ one-sentence form). Research, design, plan and implement now end step 1 with `sh
 review and onboard keep `long_hint_of`, and the `requires: models resolve` mechanics are as tested
 below. The SHA-256 pin of the four contract copies is removed, because P-6 changes those copies.
 
+P-7 OF workflow-efficiency. The Tester of P-7 rewrote the pins of review and onboard before the
+Coder shortened their model steps, from AC-4 of phase P-7 in docs/design/workflow-efficiency/
+plan.yaml, BC-17 of its component.md, ADR-004 decision 4 and the interface of P-7 (the line that
+holds `models resolve --skill <skill>` is one sentence of at most 45 words with the words
+`opening sentence`, and keeps "never change the model yourself"). The long sentence of P-13
+(`long_hint_of`) is now pinned only as absent from those two skills; the exact `short_hint_of`
+stays pinned for the four phase skills. The tests that P-7 adds or rewrites say "P-7 AC-4" and
+fail until the new text exists.
+
 Choices:
 - The hint is the one indented continuation line at the end of step 1, in the source and in the
   render. With `models resolve` missing from the command set, the line goes and step 1 is what it
@@ -107,10 +116,25 @@ def short_hint_of(skill: str) -> str:
     )
 
 
+SHORT_MODEL_STEP_SKILLS = ("orqlet-review", "orqlet-onboard")
+MODEL_LINE_WORDS = 45
+HTML_COMMENT = re.compile(r"\s*<!--.*?-->\s*$")
+
+
 def hint_of(skill: str) -> str:
-    """The hint that the skill's step 1 ends with: the short sentence in the four phase skills
-    (P-6), the long sentence of P-13 in review and onboard (P-6 leaves them as they were)."""
-    return short_hint_of(skill) if skill in PHASE_SKILLS else long_hint_of(skill)
+    """The exact hint that step 1 of a phase skill ends with (P-6 AC-7). Review and onboard have
+    no exact sentence: P-7 AC-4 fixes only the shape of theirs (`model_line_of`)."""
+    assert skill in PHASE_SKILLS, f"{skill} has no exact hint sentence"
+    return short_hint_of(skill)
+
+
+def model_line_of(skill: str) -> str:
+    """The one line of the source that holds `models resolve --skill <skill>`, without its HTML
+    comment and its indentation."""
+    wanted = f"models resolve --skill {skill}"
+    found = [line for line in source_of(skill).split("\n") if wanted in line]
+    assert len(found) == 1, f"exactly one line of {skill} must hold its models resolve step"
+    return HTML_COMMENT.sub("", found[0]).strip()
 
 
 def step_one_lines(skill: str) -> list[str]:
@@ -128,7 +152,7 @@ def step_numbers(text: str) -> list[str]:
 
 
 # --- AC-6: the hint line in step 1 of each of the six skills --------------------------------------
-@pytest.mark.parametrize("skill", ALL_SKILLS)
+@pytest.mark.parametrize("skill", PHASE_SKILLS)
 def test_ac6_step_one_of_the_source_ends_with_one_indented_gated_hint_line(skill: str) -> None:
     """AC-6. expected_behavior_source: AC-6 ("Step 1 of each of the six skills gains one indented
     continuation line, gated by `<!-- requires: models resolve -->`, in this wording with the
@@ -136,7 +160,9 @@ def test_ac6_step_one_of_the_source_ends_with_one_indented_gated_hint_line(skill
     change the model"); ADR-001 decision 8 (the hint is gated on the command). P-6 AC-7
     (workflow-efficiency; BC-6, ADR-004 decision 4: "The model-suggestion step stays in each skill
     that runs it ... and shrinks to one sentence") changes the wording for research, design, plan
-    and implement to `short_hint_of`; review and onboard keep the wording of P-13."""
+    and implement to `short_hint_of`. P-7 AC-4 (workflow-efficiency) changes review and onboard
+    too, to a shape and not to an exact sentence; this test now covers the four phase skills and
+    `test_p7_review_and_onboard_gate_their_model_line_in_step_one` covers the other two."""
     lines = step_one_lines(skill)
 
     assert lines[-1] == f"   {hint_of(skill)} {MARKER}"
@@ -144,17 +170,45 @@ def test_ac6_step_one_of_the_source_ends_with_one_indented_gated_hint_line(skill
     assert source_of(skill).count(hint_of(skill)) == 1
 
 
-@pytest.mark.parametrize("skill", ALL_SKILLS)
+@pytest.mark.parametrize("skill", SHORT_MODEL_STEP_SKILLS)
+def test_p7_review_and_onboard_gate_their_model_line_in_step_one(skill: str) -> None:
+    """P-7 AC-4. expected_behavior_source: P-7 AC-4 ("the review and onboard model steps are one
+    sentence") and the interface of P-7 (the line holding `models resolve --skill <skill>`); AC-6
+    of P-13 and ADR-001 decision 8 (the line is one indented continuation line of step 1, gated by
+    `<!-- requires: models resolve -->`). This replaces the exact long sentence that
+    `test_ac6_step_one_of_the_source_ends_with_one_indented_gated_hint_line` pinned for these two
+    skills: P-7 shortens it and fixes only its shape (below), so no exact wording is pinned."""
+    wanted = f"models resolve --skill {skill}"
+    in_step = [line for line in step_one_lines(skill)[1:] if wanted in line]
+
+    assert len(in_step) == 1
+    assert in_step[0].startswith("   ")
+    assert in_step[0].endswith(MARKER)
+
+
+@pytest.mark.parametrize("skill", PHASE_SKILLS)
 def test_ac6_step_one_of_the_rendered_skill_ends_with_the_hint_and_no_marker(skill: str) -> None:
     """AC-6. expected_behavior_source: AC-6 (the wording, `orqlet models resolve --skill <skill
     name> --client <your client>`; "offer the person the profile and the models it prints as a
     suggestion for this work, and never change the model yourself; with exit status 1 or 3, say
     that no suggestion exists and go on"); BC-35; R-1 (the person decides the model). The quoted
-    wording is the one that review and onboard keep; for the four phase skills P-6 AC-7 and
-    ADR-004 decision 4 give the one sentence of `short_hint_of`."""
+    wording was the one of all six skills; for the four phase skills P-6 AC-7 and ADR-004
+    decision 4 give the one sentence of `short_hint_of`, and P-7 AC-4 shortens review and onboard
+    too (`test_p7_review_and_onboard_render_their_model_line_in_step_one`)."""
     first = numbered_items(body(skill))[0]
 
     assert first.endswith(hint_of(skill))
+    assert "<!--" not in body(skill)
+
+
+@pytest.mark.parametrize("skill", SHORT_MODEL_STEP_SKILLS)
+def test_p7_review_and_onboard_render_their_model_line_in_step_one(skill: str) -> None:
+    """P-7 AC-4. expected_behavior_source: P-7 AC-4 and BC-17 of workflow-efficiency (the model
+    steps of review and onboard are one sentence) with AC-6 of P-13 (the hint is in step 1 and the
+    rendered body holds no marker). The rendered step 1 holds the model line of the source."""
+    first = numbered_items(body(skill))[0]
+
+    assert squash(model_line_of(skill)) in first
     assert "<!--" not in body(skill)
 
 
@@ -165,11 +219,18 @@ def test_ac6_the_hint_is_gone_when_models_resolve_is_not_an_implemented_command(
     """AC-6. expected_behavior_source: AC-6 ("gated by `<!-- requires: models resolve -->`");
     ADR-001 decision 8 and the step filter of `render_steps` (a line whose `requires` marker names
     a command that the release lacks is dropped, and the list is numbered again): step 1 is what
-    it was without the hint, and no skill names `orqlet models` at all."""
+    it was without the hint, and no skill names `orqlet models` at all. P-7 AC-4: for review and
+    onboard the hint is no longer one exact sentence, so the step without it is compared by its
+    model line being gone, not by an exact suffix."""
     with_hint = numbered_items(body(skill))[0]
     without = body(skill, WITHOUT_MODELS_RESOLVE)
+    first_without = numbered_items(without)[0]
 
-    assert numbered_items(without)[0] == with_hint.removesuffix(f" {hint_of(skill)}")
+    if skill in PHASE_SKILLS:
+        assert first_without == with_hint.removesuffix(f" {hint_of(skill)}")
+    else:
+        assert squash(model_line_of(skill)) not in first_without
+        assert first_without.startswith("1. ")
     assert "models resolve" not in squash(without)
     assert "orqlet models" not in squash(without)
     assert step_numbers(without) == [str(n) for n in range(1, len(step_numbers(without)) + 1)]
@@ -228,12 +289,26 @@ def test_p6_the_model_step_of_a_phase_skill_is_one_sentence_without_the_long_wor
     assert "offer the person the profile" not in squash(body(skill))
 
 
-@pytest.mark.parametrize("skill", ["orqlet-onboard", "orqlet-review"])
-def test_p6_review_and_onboard_keep_the_long_model_sentence(skill: str) -> None:
-    """P-6 AC-7. expected_behavior_source: the interface of P-6 ("review and onboard keep today's
-    longer sentence and today's pins"); ADR-004 decision 4 (the step "stays in each skill that
-    runs it, because review and onboard have no phase contract")."""
-    assert numbered_items(body(skill))[0].endswith(long_hint_of(skill))
+@pytest.mark.parametrize("skill", SHORT_MODEL_STEP_SKILLS)
+def test_p7_review_and_onboard_model_step_is_one_short_sentence(skill: str) -> None:
+    """P-7 AC-4. expected_behavior_source: P-7 AC-4 ("the review and onboard model steps are one
+    sentence"), BC-17 of workflow-efficiency and ADR-004 decision 4 ("The model-suggestion step
+    ... shrinks to one sentence"); the interface of P-7: the line that holds `models resolve
+    --skill <skill>` has at most 45 words, one full stop at its end before any HTML comment and
+    none inside, the words `opening sentence` (the human text of `orqlet models resolve` prints
+    that sentence and no hint line: the hint stays in `--json`, as the four phase skills say) and
+    `never change the model yourself` (R-1: the person decides the model). This test rewrites
+    `test_p6_review_and_onboard_keep_the_long_model_sentence`, which pinned the long sentence of
+    P-13 that P-6 had left in these two skills; the long wording must now be gone."""
+    line = model_line_of(skill)
+
+    assert len(line.split()) <= MODEL_LINE_WORDS, len(line.split())
+    assert ". " not in line
+    assert line.endswith(".")
+    assert "opening sentence" in line
+    assert "never change the model yourself" in line
+    assert long_hint_of(skill) not in squash(body(skill))
+    assert "offer the person the profile" not in squash(body(skill))
 
 
 @pytest.mark.parametrize("skill", ALL_SKILLS)

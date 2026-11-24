@@ -37,6 +37,14 @@ still cites the task phase-skill-contracts, as above. A pin is deleted or rewrit
 removes or changes that text, and its docstring says why. The tests that P-6 adds fail until the
 new text exists.
 
+P-7 OF workflow-efficiency. The Coder of P-7 cut the contract to at most 1,600 words (P-7 AC-9;
+the plan lists this file as "only a pin whose text the cut rewrites"). The cut removes the
+sections `## Words for `orqlet standards for`` (each skill's own step 2 names its `--phase` and
+`--role`) and `## Installed files` (the baseline's "Generated files" section says that an
+installed file is regenerated, not edited), and the sentence "Orqlet's phase outputs live at
+`docs/design/<task>/`" (the opening already names that folder). The pins of those three texts are
+deleted or rewritten below, each with its reason in its docstring; no other pin changes.
+
 Deliberately NOT pinned (the design leaves it open, or a phrase would only copy a file):
 - the wording around the pinned phrases, the order of the bullets of a section and the order of
   the `### ` subsections inside their section;
@@ -72,8 +80,6 @@ SECTIONS = (
     "## Project context",
     "## Input check",
     "## Handoff",
-    "## Words for `orqlet standards for`",
-    "## Installed files",
 )
 SUBSECTIONS = {
     "## Project context": (
@@ -159,10 +165,14 @@ def test_bc4_the_four_copies_are_byte_identical() -> None:
     assert len({path.read_bytes() for path in paths}) == 1
 
 
-def test_bc4_the_reference_has_its_title_and_the_five_sections_in_order() -> None:
+def test_bc4_the_reference_has_its_title_and_the_three_sections_in_order() -> None:
     """AC-5. expected_behavior_source: BC-4 ("it has the sections Project context, Input check,
     Handoff, Words for `orqlet standards for` and Installed files") and ADR-001 decision 3; the
-    title and the order are the interface that the Coder gave."""
+    title and the order are the interface that the Coder gave. P-7 AC-9 (workflow-efficiency;
+    BC-17, ADR-004 decision 5) cuts the contract by 400 words: the last two sections go (the skill
+    bodies carry their own `--phase` and `--role`; the baseline's "Generated files" carries the rule
+    on installed files), so three sections remain. This test was
+    `test_bc4_the_reference_has_its_title_and_the_five_sections_in_order`."""
     text = contract()
 
     assert text.split("\n", 1)[0] == "# Phase contract"
@@ -250,7 +260,6 @@ def test_bc7_the_sources_list_the_context_and_keep_an_unknown_unknown(phrase: st
 
 
 LOCATIONS = (
-    "Orqlet's phase outputs live at `docs/design/<task>/`",
     "where they are",
     "never move or copy them",
 )
@@ -262,7 +271,10 @@ def test_bc11_phase_outputs_stay_in_the_task_folder_and_task_documents_where_the
 ) -> None:
     """AC-7. expected_behavior_source: BC-11 ("phase outputs live at `docs/design/<task>/` and ...
     the project's own task documents are read and cited where they are"), ADR-002 decision 4 and
-    Q-9."""
+    Q-9. P-7 AC-9 (workflow-efficiency) drops the pin "Orqlet's phase outputs live at
+    `docs/design/<task>/`": the opening of the contract already says that the receiving project
+    holds `docs/design/<task>/`, so the sentence only repeated it; the rule to cite task documents
+    where they are and never move or copy them stays."""
     assert phrase in squash(section(contract(), "## Project context"))
 
 
@@ -639,43 +651,11 @@ def test_p6_the_handoff_binds_the_base_revision_before_the_first_branch_commit(p
     assert phrase in squash(section(contract(), "## Handoff"))
 
 
-# --- the words for `orqlet standards for` ---------------------------------------------------------
-WORD_ROWS = (
-    "| research | `research` | `researcher` |",
-    "| design | `design` | `architect` |",
-    "| plan | `plan` | `planner` |",
-    "| implement | `implementation` | `coder` |",
-)
-
-
-@pytest.mark.parametrize("row", WORD_ROWS)
-def test_bc9_the_reference_gives_the_phase_and_role_words_of_each_skill(row: str) -> None:
-    """AC-10. expected_behavior_source: BC-9 (`research`/`researcher`, `design`/`architect`,
-    `plan`/`planner`, `implementation`/`coder`), ADR-002 decision 7 and ADR-001 decision 3 (the
-    section "Words for `orqlet standards for`")."""
-    lines = [line.strip() for line in section(contract(), SECTIONS[3]).split("\n")]
-
-    assert row in lines
-
-
-# --- BC-10: installed files ----------------------------------------------------------------------
-INSTALLED_RULES = (
-    "ORQ-W096",
-    "ORQ-E150",
-    "`orqlet upgrade`",
-    "`orqlet doctor`",
-    "outside the managed blocks",
-    "standards folder",
-)
-
-
-@pytest.mark.parametrize("phrase", INSTALLED_RULES)
-def test_bc10_an_edited_installed_file_is_restored_and_guidance_goes_elsewhere(phrase: str) -> None:
-    """AC-11. expected_behavior_source: BC-10 (`orqlet upgrade` restores an edited installed file
-    with ORQ-W096, `orqlet doctor` reports it as ORQ-E150, project guidance goes into AGENTS.md
-    outside the managed blocks or into the project's standards folder), ADR-002 decision 5 and
-    Q-8."""
-    assert phrase in squash(section(contract(), "## Installed files"))
+# P-7 AC-9 (workflow-efficiency) deletes the tests of `## Words for `orqlet standards for`` (BC-9)
+# and `## Installed files` (BC-10). The text leaves the contract: each phase skill's own step
+# names its `--phase` and `--role` words (pinned in test_workflow_skill_contracts.py), and the
+# baseline's "Generated files" section keeps the rule that an installed file is changed at its
+# source and restored by `orqlet upgrade` (pinned in test_workflow_lookup_text.py).
 
 
 # --- BC-35: size; Q-12: no technology word -------------------------------------------------------

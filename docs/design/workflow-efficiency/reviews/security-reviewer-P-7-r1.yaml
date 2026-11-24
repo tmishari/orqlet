@@ -1,0 +1,113 @@
+schema: orqlet.review-result/v1
+task: workflow-efficiency
+phase: P-7
+role: security-reviewer
+round: 1
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: f5f041a9459dadf92a8b830439ab4d469ce7f2152feb3ab7e71765eb70941495
+    design: ca86b2a73b778b9e33a398bf70b0752be94a68da6d0718376cf8d971ff239e10
+    evidence_inputs: 4cfd04853e3117d1557323eb98f327aaba70d77a58149f615a9c4cf896a5b021
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 132b50122acb46596651c19c6e03ad9f0df15aca5c7bdfc57090575160538ce0
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: 0e5b7e5fc8f3950ac5d360cf4a0c9dbe2b4880433ba15680a6c66220d4434e5d
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 6eb315666a97019e062b9b99ce1f9f6a9c46734055b408e7f0fc6a138f832c41
+  merge_base: c8092013781be16d7da98ea4ad5858a936664597
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- 'Same client as the Coder (cursor): independence I1, below the I2 that a D3 change requires (ORQLET-MODEL-002); the verdict
+  is NOT_RUN.'
+- 'It was started as a typed subagent with the packet path workflow-efficiency-P-7-581e9197 as its only prompt; that the
+  context is fresh is the Coder''s claim. This is the third review round of P-7. Rounds 1 and 2 ran on earlier packets (workflow-efficiency-P-7-c3fbb88f
+  and workflow-efficiency-P-7-663f9fbd) and their records are not saved: the review_input block that binds a record was
+  not kept for those packets, and the staged tree has changed since, so it cannot be rebuilt. Round 1 had two blocking architecture
+  findings (the review and onboard skills told the agent to give the person a ''hint'' line that the text output of `orqlet
+  models resolve` does not print; the baseline did not say that rules are named in plain words and not by id), both fixed
+  before round 2. Round 2 had no blocking finding. Round 3 is the cap of three rounds.'
+- The reviewer's session ran no check and computed no quote digest, so its evidence is given by path and line and the findings
+  are recorded as observations. The Coder wrote this record from its returned text.
+- The client does not show the reviewer's model, so the identity is unknown. models resolve printed no candidate for cursor,
+  so no --different-family-from was passed.
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- The reviewer's own conclusion was PASS; no blocking security risk; two non-blocking findings and one observation; it searched
+  the diff for credential shapes, process, network and eval patterns with no match.
+applicability:
+  examined:
+  - the whole diff for the baseline, the standards command, the tester role, the formats, the review and onboard skills,
+    the contract copies and the tests
+  - the plan, the test record and the knowledge record
+  conclusion: findings
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet read
+    how: orqlet review prepare workflow-efficiency P-7 (workflow-efficiency-P-7-581e9197)
+    result: pass
+  - what: running the checks and quote digests
+    how: none run by the reviewer
+    result: not-run
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: security
+  claim: The tester starts in a clean context, compares `orqlet evidence hash` with a hash recorded 'by the Coder or by
+    you' and cites a source only if the Coder has not; no implement step hands it the Coder's hashes, so it cannot tell
+    what was cited and runs before any hash exists. The tester runs the project's test command, so this check is a security
+    control (orqlet-tester.md line 15; orqlet-implement/skill.md line 32).
+  suggested_action: Say that the tester cites itself whenever it cannot see a recorded hash, or have implement pass the
+    recorded values as data.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: security
+  claim: The merged stale-input row says the standards hashes and profile_version 'need an AS-IS refresh or an impact review;
+    a commit touching none stays valid'; the explicit 'stop' is gone and a protected-set digest change without a version
+    change is not named; the tests pin only 'impact review', 'AS-IS refresh' and 'counts as not run' (phase-contract.md
+    line 81; diff.patch 427-433).
+  suggested_action: Restore 'stop for an impact review' for the two standards hashes and a digest change without a newer
+    workflow_version as unknown that counts as not run.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: security
+  claim: 'Observation: the Next prompt rule is pinned as a phrase, not as behaviour; ''next skill or action'' and ''approvals
+    still pending'' are free text and the task name is attacker-influenced only if it is not slug-validated (baseline.md
+    line 31).'
+  suggested_action: Add a phrase that fixes the next skill to an installed skill name.
+  confidence: low

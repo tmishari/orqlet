@@ -515,17 +515,22 @@ def test_the_section_says_that_verbatim_means_as_the_tool_returned_it() -> None:
     assert "as the tool returned it" in found
 
 
-def test_the_subsection_says_that_a_login_page_is_internal_and_committed_only_after_a_yes() -> None:
-    """P-6 AC-6. expected_behavior_source: ADR-004 decision 1 of team-conventions-resources (the
-    evidence file of a login page is marked `Data class: internal` and committed only after the
-    person has said yes), which the research step said until P-6 and the baseline still says; the
-    interface of P-6 puts the rule in the subsection ("a page behind a login is `Data class:
-    internal` and committed "only after the person has said yes"")."""
+def test_the_subsection_says_that_a_login_page_is_internal_and_follows_the_baseline() -> None:
+    """P-6 AC-6; P-7 AC-9. expected_behavior_source: ADR-004 decision 1 of
+    team-conventions-resources (the evidence file of a login page is marked `Data class: internal`
+    and committed only after the person has said yes) and the interface of P-6 ("a page behind a
+    login is `Data class: internal` and committed "only after the person has said yes""). P-7 AC-9
+    (workflow-efficiency; BC-17, ADR-004 decision 5) cuts the contract by 400 words: the
+    baseline's "Looking things up" already says that such a file is committed only after the
+    person says yes (pinned below), so the subsection keeps the mark and points to the baseline
+    instead of repeating it. This test was
+    `test_the_subsection_says_that_a_login_page_is_internal_and_committed_only_after_a_yes`."""
     found = squash(web_evidence_section())
 
     assert "behind a login" in found
     assert "Data class: internal" in found
-    assert "only after the person has said yes" in found
+    assert "follows the baseline" in found
+    assert "commit it only after they say yes" in squash(baseline())
 
 
 # --- P-6 AC-6: the research and design steps resolve the format in their own references ---------

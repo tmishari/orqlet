@@ -4,7 +4,7 @@
 
 `docs/design/<task>/as-is.md` is a Markdown file. Its YAML front matter is the AS-IS artifact: the facts, the unknowns and the contradictions. The text after the front matter is the research brief.
 
-There is no field for proposals, opinions, refactoring or future architecture, and the validator rejects one. Unknowns and contradictions do not count against `size_budget` and may not be dropped.
+There is no field for proposals, opinions, refactoring or future architecture, and the validator rejects one. `size_budget` counts fact statements; unknowns and contradictions do not count against it and may not be dropped.
 
 ```yaml
 schema: orqlet.as-is/v1
@@ -61,7 +61,7 @@ The brief follows the front matter. It has these sections, each a `## ` heading,
 5. Open questions: what is still unknown or contradictory, each with its `question_ref`.
 6. Inputs for design: the facts, unknowns and contradictions that design starts from.
 
-Each statement names the fact ids it rests on, such as (A-3, A-7). An inference has its own id `I-n`, names the facts it rests on and says what would confirm it:
+Each statement names the fact ids it rests on, such as (A-3, A-7), instead of restating a fact. Write each list once: the front matter holds the unknowns and the contradictions, and the brief points to them by id. An inference has its own id `I-n`, names the facts it rests on and says what would confirm it:
 
 ```
 - I-1 The report is built once per request, not once per file (A-4, A-9). A trace of one request with two files would confirm it.

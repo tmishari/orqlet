@@ -27,6 +27,13 @@ questions: Q-12 belongs under AC-6; the warning mark sits in the marked check's 
 entry and in a self-check entry that names that check; the key-order pin and the fact-id pattern
 hold for the examples only. The warning-mark test was tightened to that answer.
 
+P-7 OF workflow-efficiency. The Tester of P-7 added the last section of this file before the Coder
+changed the four formats, from AC-5 of phase P-7 in docs/design/workflow-efficiency/plan.yaml,
+BC-13, BC-14 and BC-15 of its design/component.md, ADR-004 decisions 1, 6 and 7 and the interface
+that the Coder gave (the phrases `instead of restating` and `each list once` in four formats, one
+target or statement in each of three, and one paragraph of review-format.md that labels models
+suggested, observed or unknown). Those tests say "P-7 AC-5" and fail until the new text exists.
+
 Choices:
 - The text is the packaged file as `PackagedWorkflow().read_text` returns it. A section runs from
   its `## ` heading to the next `## ` line (the shared `section`, which fails on a missing or
@@ -560,3 +567,51 @@ def test_q12_no_format_reference_names_a_technology_that_the_injection_test_coun
     text = reference(path)
 
     assert [word for word in TECHNOLOGY_WORDS if names_word(text, word)] == []
+
+
+# --- P-7 AC-5 (workflow-efficiency): length targets, evidence ids, lists once, model labels -------
+REVIEW_FORMAT = "skills/orqlet-review/references/review-format.md"
+EVERY_FORMAT = (AS_IS_FORMAT, DESIGN_FORMAT, PLAN_FORMAT, REVIEW_FORMAT)
+FORMAT_SPECIFIC = {
+    AS_IS_FORMAT: ("`size_budget` counts fact statements",),
+    DESIGN_FORMAT: ("1,200 words", "`component.md`", "small Mermaid diagrams"),
+    PLAN_FORMAT: ("400 words", "phase"),
+}
+
+
+@pytest.mark.parametrize("phrase", ["instead of restating", "each list once"])
+@pytest.mark.parametrize("path", EVERY_FORMAT)
+def test_p7_each_format_asks_for_evidence_ids_and_each_list_once(path: str, phrase: str) -> None:
+    """P-7 AC-5. expected_behavior_source: P-7 AC-5 of docs/design/workflow-efficiency/plan.yaml
+    ("ask for evidence ids instead of restated content and each list once") and BC-15 of its
+    design/component.md ("Formats ask for evidence ids, not restated content, and each list
+    once"); ADR-004 decision 6; the two phrases are the interface that the Coder gave."""
+    assert phrase in squash(reference(path))
+
+
+@pytest.mark.parametrize(
+    ("path", "phrase"),
+    [(path, phrase) for path, phrases in FORMAT_SPECIFIC.items() for phrase in phrases],
+)
+def test_p7_each_format_states_its_own_target(path: str, phrase: str) -> None:
+    """P-7 AC-5. expected_behavior_source: P-7 AC-5 ("The formats state the 1,200-word brief and
+    400-word phase targets ... and the AS-IS format says that size_budget counts fact statements
+    (C-22)"), BC-14 and BC-15 of workflow-efficiency and ADR-004 decisions 1, 6 and 7 (the design
+    format: the 1,200-word `component.md` and small Mermaid diagrams where structure or flow
+    matters; the plan format: 400 words per phase; the AS-IS format: `size_budget`)."""
+    assert phrase in squash(reference(path))
+
+
+def test_p7_the_review_format_labels_models_in_one_paragraph() -> None:
+    """P-7 AC-5. expected_behavior_source: BC-13 of workflow-efficiency ("Reports label models
+    suggested, observed or unknown"), P-7 AC-3 ("labels models suggested, observed or unknown")
+    and BC-15; the interface of P-7 puts `suggested`, `observed` and `unknown` in one paragraph of
+    review-format.md that is about models."""
+    paragraphs = [squash(block) for block in re.split(r"\n\s*\n", reference(REVIEW_FORMAT))]
+    labels = ("suggested", "observed", "unknown")
+
+    assert [
+        block
+        for block in paragraphs
+        if "model" in block and all(re.search(rf"\b{label}\b", block) for label in labels)
+    ] != []
