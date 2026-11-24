@@ -768,7 +768,7 @@ phases:
     The baseline, the review and onboard skills, the tester role, the four formats and the standards command carry the reply
     format, the review limits, the focused-test guidance and the length targets, without growing the words a skill run loads.
   depends_on: [P-6]
-  implements: [EC-6]
+  implements: [EC-6, EC-9]
   acceptance_criteria:
   - id: AC-1
     text: >-
@@ -811,9 +811,15 @@ phases:
     source: BC-24
     check_ref: build-manifest
   - id: AC-8
-    text: The staged change touches only the files of this phase and stays inside EC-6.
+    text: The staged change touches only the files of this phase and stays inside EC-6 and EC-9.
     source: BC-24
     check_ref: gate-status-phase
+  - id: AC-9
+    text: >-
+      The four phase-contract copies stay identical, keep every rule that P-6 AC-1 to AC-6 states and have at most 1,600 words,
+      at least 400 fewer than the 2,000 of P-6; the 2,000-word cap of the existing contract test stays.
+    source: BC-17
+    check_ref: pytest
   checks: [ruff-check, ruff-format, mypy, build-manifest, pytest, gate-status-phase]
   file_operations:
   - op: modify
@@ -844,6 +850,18 @@ phases:
     path: src/orqlet/workflow/commands/standards.md
     why: Record applied ids in artifacts, not in the summary.
   - op: modify
+    path: src/orqlet/workflow/skills/orqlet-research/references/phase-contract.md
+    why: Cut at least 400 words, keeping the rules of P-6 (AC-9).
+  - op: modify
+    path: src/orqlet/workflow/skills/orqlet-design/references/phase-contract.md
+    why: Identical copy.
+  - op: modify
+    path: src/orqlet/workflow/skills/orqlet-plan/references/phase-contract.md
+    why: Identical copy.
+  - op: modify
+    path: src/orqlet/workflow/skills/orqlet-implement/references/phase-contract.md
+    why: Identical copy.
+  - op: modify
     path: src/orqlet/workflow/MANIFEST.json
     why: Rebuilt from the changed workflow files.
   - op: modify
@@ -855,9 +873,21 @@ phases:
   - op: modify
     path: tests/unit/test_workflow_code_review_roles.py
     why: The review skill's round cap and model labels.
+  - op: modify
+    path: tests/unit/test_workflow_model_hint_text.py
+    why: Review and onboard no longer keep the long model sentence.
+  - op: modify
+    path: tests/unit/test_workflow_phase_contract_text.py
+    why: Only a pin whose text the cut rewrites, with the reason in its docstring.
+  - op: modify
+    path: tests/unit/test_workflow_lookup_text.py
+    why: Only a pin of the baseline or the contract that the changes rewrite.
+  - op: modify
+    path: tests/unit/test_workflow_skill_contracts.py
+    why: Only a pin of the review, onboard or design-format text that the changes rewrite.
   - op: create
     path: tests/unit/test_workflow_efficiency_text.py
-    why: Final reply, no ids for people, and the per-run word totals.
+    why: Final reply, no ids for people, the per-run word totals and the contract limit.
   - op: modify
     path: tests/golden/claude-code/docs-2026-10/AGENTS.md
     why: Regenerated golden.
@@ -945,6 +975,42 @@ phases:
   - op: modify
     path: tests/golden/cursor/models-2026-11/.cursor/agents/orqlet-tester.md
     why: Regenerated golden.
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-research/references/phase-contract.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-design/references/phase-contract.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-plan/references/phase-contract.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/claude-code/docs-2026-10/.claude/skills/orqlet-implement/references/phase-contract.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-research/references/phase-contract.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-design/references/phase-contract.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-plan/references/phase-contract.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/codex/docs-2026-10/.agents/skills/orqlet-implement/references/phase-contract.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-research/references/phase-contract.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-design/references/phase-contract.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-plan/references/phase-contract.md
+    why: Regenerated golden.
+  - op: modify
+    path: tests/golden/cursor/docs-2026-10/.agents/skills/orqlet-implement/references/phase-contract.md
+    why: Regenerated golden.
   review_evidence: [architecture-reviewer, security-reviewer, tester, code-reviewer]
   knowledge_step: required
   completion:
@@ -993,6 +1059,7 @@ phases:
     ORQ-E453; its ORQ-W390 for earlier phases is confirmed under the planned-work row.
   expected_outputs:
   - src/orqlet/workflow/baseline/baseline.md
+  - src/orqlet/workflow/skills/orqlet-research/references/phase-contract.md
   - tests/unit/test_workflow_efficiency_text.py
 - id: P-8
   objective: >-
@@ -1377,6 +1444,22 @@ self_check:
       other phase, criterion or check changes.
     how: orqlet evidence cite tests/e2e/test_s9_acceptance.py 320-329 --revision HEAD
     result: pass
+  - what: >-
+      Amendment of P-7 at the person's request, after P-6 merged at 69dc893af02491b21e8717f6c415a01c4603ed07: the four
+      phase-contract copies have 2,000 words each (src/orqlet/workflow/skills/orqlet-implement/references/phase-contract.md,
+      lines 1-117, sha256 3961c6fae8bc8ba9b6f918dc38c4182c2eb52f91da0edd3ec5db3f4d7d14c06e; the cap test,
+      tests/unit/test_workflow_phase_contract_text.py lines 682-691, sha256
+      cd801e21e55ec3cfb1ef16868a1198b11746e2b8664f5a44010c698d25e3a6f8). Counted as AC-6 counts, the runs hold research 4,335,
+      design 4,333, plan 4,263 and implement 3,718 words against 4,120, 4,126, 4,066 and 3,517, so they exceed the limits by 215,
+      207, 197 and 201, and P-7's baseline section adds about 150 more. P-7's own files cannot pay it: the implement run holds
+      only the baseline among them. The copies must be identical, so each loses at least 400 words (2,000 to at most 1,600), which
+      leaves research 4,085, design 4,083, plan 4,013 and implement 3,468 if the baseline grows by at most 150 and each format by no
+      more than the 35 to 53 words of room that remains. P-7 gains EC-9, AC-9, the four sources, their twelve goldens and the pin
+      tests that the new text may rewrite: test_workflow_model_hint_text.py pins the long model sentence of review and onboard
+      (lines 231-240, sha256 5c2a3a4682ee50983737c93443018510c60dd6ce149a800f164d3924153c7923), which AC-4 changes. AC-6 and every
+      other phase stay unchanged.
+    how: orqlet evidence cite at 69dc893af02491b21e8717f6c415a01c4603ed07; word counts by str.split on the source files
+    result: pass
   - what: Paths projected and the plan validated.
     how: orqlet validate plan docs/design/workflow-efficiency/plan.yaml
     result: pass
@@ -1385,3 +1468,5 @@ self_check:
   - "BC-4: that every rerun names its reason and a rework round runs the full checks once is a text rule (P-6 AC-1 and AC-2); no code can check what an agent does."
   - "BC-13: the review skill and format ask for the labels (P-7 AC-3); whether a report uses them shows only in later reports."
   - "BC-25: observed counts of runs and words come from the next equivalent task; P-8 reports only the instructed counts."
+  - "P-7 AC-6 for review and onboard: neither run carries the contract, so each pays the baseline's 150 words inside its own files (review about 200 of 1,529 words, onboard about 120 of 968, after the shorter model steps); whether the pinned text allows it shows only when P-7 is written, and a shortfall needs a further amendment."
+  - "P-7 test files: which of the four listed pin files must change shows only when the text is written; one that the phase leaves alone stays unchanged."
