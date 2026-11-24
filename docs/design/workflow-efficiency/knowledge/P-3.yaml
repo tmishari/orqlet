@@ -1,0 +1,58 @@
+schema: orqlet.knowledge-impact/v1
+task: workflow-efficiency
+phase: P-3
+review_input:
+  components:
+    candidates: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    code_tests: 25c4d1406f7eb824c553f3cfb325365c9ff3c6e6f0edc075e8a97ad9be30e81b
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 34a6f679a5585859c8d850fca7a208e5b6d4e3dd14eeccc0b38d081a4fc20365
+    standards: 0e5b7e5fc8f3950ac5d360cf4a0c9dbe2b4880433ba15680a6c66220d4434e5d
+  covers:
+  - code_tests
+  - knowledge
+  - plan
+  - standards
+  - candidates
+  digest: fdcbaa535e66ea82af930da87cac5f7d7b7eeb324c534e9822b91c58dfeb2519
+  merge_base: 40d281acae702cf326f8f043935946fc0612e299
+  schema: orqlet.review-input/v1
+outcome: no-impact
+analysis:
+  command: orqlet knowledge impact
+  orqlet_version: 0.4.0
+  candidates_digest: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+  candidate_count: 0
+  input: pre-draft-tree
+  views:
+  - committed:HEAD
+  index_state: not-used
+entries: []
+no_impact:
+  category: already-documented
+  reason: The behaviour of this phase (validate as-is reads task-owned evidence that cites another revision at HEAD
+    with a hash check, scans it once and reports ORQ-E338, takes the task from the file's own path, and still
+    requires base_revision for every other entry) is already written down in ADR-003 decisions 2 and 3, in
+    the component view and in the approved design manifest (EC-5). The README text and the skill text that
+    describe the one-revision rule or the cite-time-only scan are the documentation work of phases P-6 to P-8,
+    so they are not edited in this phase. The only prose that this change made wrong, the docstring of the
+    evidence scan, is corrected in the phase's own file.
+  absence_record:
+    scopes_searched:
+    - .orqlet/knowledge.yaml sources
+    - the plan's knowledge_scope
+    views:
+    - committed:HEAD
+    revision: 40d281acae702cf326f8f043935946fc0612e299
+    method: orqlet knowledge impact on the staged tree; the project configures no knowledge sources, the plan's
+      knowledge_scope is empty and the design names no public_api packages, so the analysis found no candidate
+      and no knowledge document exists that this phase could change.
+    index_state: not-used
+    candidates_found: 0
+  already_documented_refs:
+  - path: docs/design/workflow-efficiency/design/adr-003-base-revision-under-squash-merges.md
+    sha256: 7d1b665a42b4ede3c320afba22db730ecc6506d9e05509e05dc8a2d7b0a14520
+  - path: docs/design/workflow-efficiency/design/component.md
+    sha256: 52d9fcc4ee709f599e2f0d49df6ecdbe0a5c9b697668bb9a45b82b02eb551ee2
+  - path: docs/design/workflow-efficiency/design/manifest.yaml
+    sha256: 923204fecade1ee5e2e8f9707cd8fbfe4bfb3fa7a1d3b5980231889657c86200

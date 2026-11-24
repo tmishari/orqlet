@@ -1,8 +1,9 @@
 """`orqlet validate as-is`: facts only, evidence that resolves, uncertainty kept (proposal 17.3).
 
 The validator, not the model, enforces the discipline: the schema has no field for proposals,
-every fact cites lines that must exist at the bound revision with the cited hash, the size budget
-counts facts only, and unknowns and contradictions can never be dropped. A reference proves that
+every fact cites lines that must exist at the bound revision with the cited hash (task-owned
+evidence may instead be read at HEAD), the size budget counts facts only, and unknowns and
+contradictions can never be dropped. A reference proves that
 the cited lines exist and have that content. It does not prove they support the statement, which
 is why the design approver and a reviewer sample the facts.
 """
@@ -13,9 +14,10 @@ from collections import Counter
 from collections.abc import Iterable
 from dataclasses import dataclass
 
-from orqlet.application.contracts.as_is import AsIsArtifact, AsIsFragment
+from orqlet.application.contracts.as_is import AsIsArtifact, AsIsFragment, FactEvidence
 from orqlet.application.contracts.question_ledger import QuestionLedger
 from orqlet.application.ports.filesystem import FileKind, FileSystemError
+from orqlet.application.usecases.evidence_cite import problem_list, web_evidence_problems
 from orqlet.application.usecases.staleness import changed_in_scope
 from orqlet.application.usecases.validate_ledger import LEDGER_FILE, blocking_questions
 from orqlet.application.usecases.validation import (
@@ -25,6 +27,7 @@ from orqlet.application.usecases.validation import (
     read_artifact,
     task_of,
 )
+from orqlet.domain.conventions import printable
 from orqlet.domain.errors import InvalidPath
 from orqlet.domain.evidence import EvidenceRef, EvidenceStatus, check_reference
 from orqlet.domain.paths import CanonicalPath
@@ -106,10 +109,66 @@ def _check_ids(artifact: AsIsArtifact, out: Collector, path: str) -> None:
                 out.error("ORQ-E336", f"the {kind} id {duplicate} is used {count} times", path)
 
 
+def _is_task_owned(evidence_path: str, task: str) -> bool:
+    """A file inside `docs/design/<task>/evidence/`, compared exactly and case-sensitively."""
+    parts = evidence_path.split("/")
+    return len(parts) > 4 and parts[:4] == ["docs", "design", task, "evidence"]
+
+
+class _TaskEvidenceAtHead:
+    """Task-owned evidence that cites another revision (ADR-003 decisions 2 and 3).
+
+    A squash merge leaves the revision of a commit on a branch behind, so the content hash is the
+    binding: the file is read at HEAD, scanned once like web evidence and hash-checked.
+    """
+
+    def __init__(self, services: ValidateServices, out: Collector) -> None:
+        self._services = services
+        self._out = out
+        self._has_head: bool | None = None
+        self._read: dict[str, tuple[bytes | None, tuple[str, ...]]] = {}
+
+    def check(self, fact_id: str, item: FactEvidence, artifact_path: str) -> None:
+        if self._has_head is None:
+            self._has_head = self._services.vcs.has_revision("HEAD")
+        if not self._has_head:
+            self._out.skip("HEAD is not in this repository, so task evidence was not read")
+            return
+        if item.path not in self._read:
+            self._read[item.path] = self._read_and_scan(fact_id, item.path, artifact_path)
+        content, problems = self._read[item.path]
+        if problems:
+            return
+        reference = EvidenceRef.parse(item.path, item.lines, item.revision, item.sha256)
+        _report_status(
+            fact_id, reference, check_reference(reference, content), self._out, artifact_path
+        )
+
+    def _read_and_scan(
+        self, fact_id: str, evidence_path: str, artifact_path: str
+    ) -> tuple[bytes | None, tuple[str, ...]]:
+        content = self._services.vcs.read_at("HEAD", evidence_path)
+        problems = () if content is None else web_evidence_problems(content)
+        if problems:
+            self._out.error(
+                "ORQ-E338",
+                f"{fact_id}: {printable(evidence_path, 200)} fails these checks for evidence: "
+                f"{problem_list(problems)}. Treat a credential that it shows as exposed, because "
+                "the file may already be pushed or merged: revoke or rotate it. Then remove the "
+                "text from the file and cite the file again.",
+                artifact_path,
+            )
+        return content, problems
+
+
 def _check_evidence(
     services: ValidateServices, artifact: AsIsArtifact, out: Collector, path: str
 ) -> None:
     revision = artifact.base_revision
+    # The task comes from the file's own path, never from its header: a copy kept elsewhere
+    # exempts nothing (ADR-003 decision 2).
+    task = task_of(path)
+    at_head = _TaskEvidenceAtHead(services, out)
     available = services.vcs.has_revision(revision)
     if not available:
         out.skip(f"the base revision {revision[:12]} is not in this repository")
@@ -117,6 +176,9 @@ def _check_evidence(
     for fact in artifact.facts:
         for item in fact.evidence:
             if item.revision != revision:
+                if task is not None and _is_task_owned(item.path, task):
+                    at_head.check(fact.id, item, path)
+                    continue
                 out.error(
                     "ORQ-E332",
                     f"{fact.id}: evidence cites revision {item.revision[:12]}, but the file is "

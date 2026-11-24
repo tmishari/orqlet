@@ -27,6 +27,7 @@ from orqlet.domain.resources import credential_problems, hidden_text_problems
 _WEB_EVIDENCE = re.compile(r"docs/design/[^/]+/evidence/web/")
 _MAX_WEB_EVIDENCE_BYTES = 256 * 1024
 _MAX_LISTED_RULES = 10
+OVERSIZE_RULE = "larger-than-256-KiB"
 
 
 def cite(
@@ -130,28 +131,41 @@ def file_hashes(services: ValidateServices, raw_paths: Sequence[str]) -> Validat
     return out.result({"files": files})
 
 
-def _web_evidence_refused(path: str, content: bytes, out: Collector) -> bool:
-    """Refuse a page copied from the web that holds a credential, a hidden character or too much.
+def web_evidence_problems(content: bytes) -> tuple[str, ...]:
+    """The rules that make a file unfit as evidence: too large, a hidden character or comment, a
+    credential shape. A credential rule carries its line as `rule:line`; no text is ever returned.
 
-    The scan covers the exact bytes that `cite` hashes. It runs at cite time only (ADR-004
-    decision 4): a file that is never cited is never scanned, and `evidence hash` is not guarded.
-    The finding names the rule and the line, never the text.
+    The scan covers the exact bytes that a citation hashes, with CRLF read as LF. `cite` runs it
+    on a page under `evidence/web/` (ADR-004 decision 4) and `validate as-is` runs it again on
+    task-owned evidence that it reads at HEAD (ADR-003 decision 3). A file that is never cited is
+    never scanned, and `evidence hash` is not guarded.
     """
-    shown = printable(path, 200)
     if len(content) > _MAX_WEB_EVIDENCE_BYTES:
+        return (OVERSIZE_RULE,)
+    text = content.replace(b"\r\n", b"\n").decode("utf-8", errors="replace")
+    return (*hidden_text_problems(text), *credential_problems(text))
+
+
+def problem_list(problems: Sequence[str]) -> str:
+    """At most ten rules, then `and more`, for a message."""
+    more = " and more" if len(problems) > _MAX_LISTED_RULES else ""
+    return f"{', '.join(problems[:_MAX_LISTED_RULES])}{more}"
+
+
+def _web_evidence_refused(path: str, content: bytes, out: Collector) -> bool:
+    """Refuse a page copied from the web that holds a credential, a hidden character or too much."""
+    problems = web_evidence_problems(content)
+    if not problems:
+        return False
+    shown = printable(path, 200)
+    if problems == (OVERSIZE_RULE,):
         out.error("ORQ-E511", f"{shown} is larger than 256 KiB, so it cannot be cited", shown)
         return True
-    text = content.replace(b"\r\n", b"\n").decode("utf-8", errors="replace")
-    problems = (*hidden_text_problems(text), *credential_problems(text))
-    if problems:
-        out.error(
-            "ORQ-E511",
-            f"{shown} fails these checks for evidence from the web: "
-            f"{', '.join(problems[:_MAX_LISTED_RULES])}"
-            f"{' and more' if len(problems) > _MAX_LISTED_RULES else ''}. The file is already in a "
-            "local commit: amend or reset it before anything is pushed, and treat a credential "
-            "that it shows as exposed.",
-            shown,
-        )
-        return True
-    return False
+    out.error(
+        "ORQ-E511",
+        f"{shown} fails these checks for evidence from the web: {problem_list(problems)}. The "
+        "file is already in a local commit: amend or reset it before anything is pushed, and "
+        "treat a credential that it shows as exposed.",
+        shown,
+    )
+    return True

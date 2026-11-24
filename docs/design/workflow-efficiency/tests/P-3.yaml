@@ -1,0 +1,81 @@
+schema: orqlet.test-record/v1
+task: workflow-efficiency
+phase: P-3
+review_input:
+  components:
+    code_tests: 25c4d1406f7eb824c553f3cfb325365c9ff3c6e6f0edc075e8a97ad9be30e81b
+    plan: 34a6f679a5585859c8d850fca7a208e5b6d4e3dd14eeccc0b38d081a4fc20365
+  covers:
+  - code_tests
+  - plan
+  digest: a2f7bfa5b599f873b608f5a142d7e9b7dd7889ec534e142e0457687d130fc107
+  merge_base: 40d281acae702cf326f8f043935946fc0612e299
+  schema: orqlet.review-input/v1
+verdict: NOT_RUN
+evidence_kind: claimed
+commands:
+- id: ruff-check
+  exit_code: 1
+  summary: Found 3 errors, all in the two frozen files tests/unit/render/test_user_scope_render.py and
+    tests/unit/application/test_user_render_request.py (Q-14 known failure, import order and one long line). The
+    three changed Python files of the phase pass `uv run ruff check <files>` with exit 0 (targeted form, Q-26).
+  result_digest: f00d8d9da4f726ae1bd582ca9d42261f236125cf7d6374d391d8ab319d68326f
+- id: ruff-format
+  exit_code: 0
+  summary: 828 files already formatted
+  result_digest: 50aa81c4782dd4828cdec57d169d4e6339d616c10a9981fb3c6efaaabe3ed288
+- id: mypy
+  exit_code: 1
+  summary: Found 10 errors in 2 files (checked 427 source files), both files the frozen test files of Q-14; no
+    error in a file of this phase.
+  result_digest: 49d6df08dc4c02fd7c41e9c3bb6e35251287fa6a891721753115890134e35e10
+- id: import-linter
+  exit_code: 0
+  summary: 'Contracts: 6 kept, 0 broken.'
+  result_digest: 0fec6a7fc9d89e2ec864ca46ecd6f60bfc7dacd18b1ca33f3a5425b007535306
+- id: pytest
+  exit_code: 1
+  summary: 14126 passed, 1 skipped (junctions exist on Windows only), 2 errors in 1962.19s on Python 3.12.11, one
+    Python only, with the local form `uv run pytest --continue-on-collection-errors` (Q-25). The 2 errors are the
+    collection errors of the two frozen test files (Q-14). Targeted form on tests/unit/application/test_validate_as_is.py,
+    77 passed in 1.82s. The tests were written by the Tester subagent before the implementation existed; against the
+    source of the base commit, 38 of the 77 failed (the task-owned evidence cases and the ORQ-E338 cases) and 39 passed
+    (the existing tests and the regression cases). The digest is of the whole captured output of the full run.
+  result_digest: 02b4a017f9cf387b6cf7fdfbfaa1b89fcc2f922b54baf3b23732fb895a7dd0d5
+- id: as-is-regression
+  exit_code: 5
+  summary: 'Eight runs of `uv run orqlet validate as-is <path> --json`, seven with exit 0 and one with exit 5. The
+    eight docs/design/<task>/as-is.md files keep their verdicts and non-info codes from AC-6:
+    dynamic-model-profiles, one-command-setup and workflow-efficiency PASS with none; harness2-fit,
+    mcp-or-plugins, phase-skill-contracts and team-conventions-resources PASS with ORQ-W338; orqlet-implementation
+    FAIL with ORQ-E324 (the exit 5). Orqlet''s own command, read-only. The digest is of the eight outputs in order.'
+  result_digest: b6d67f2a11fddf684afa6eb929f5a615252ba22bf6f9f8b481368c140c581b5a
+- id: gate-status-phase
+  exit_code: 5
+  summary: NOT_RUN with exit 5 on the staged tree and no ORQ-E450, ORQ-E451 or ORQ-E453. The only causes are the
+    ORQ-W390 stale warnings for as-is, design and plan, from the commits of the plan merge, its amendment and phases
+    P-1 and P-2, which the person confirmed under the planned-work row (ADR-001 decision 4); ORQ-I393 and ORQ-I451
+    are info. The staged files are the three files of the phase's list and this task's two records.
+  result_digest: 1ad814d0ce9bb3c7dc093f11e5259631ca2d38c5788e2be08ee7e5302111755f
+acceptance_coverage:
+- ac: AC-1
+  check_ref: pytest
+  result: pass
+- ac: AC-2
+  check_ref: pytest
+  result: pass
+- ac: AC-3
+  check_ref: pytest
+  result: pass
+- ac: AC-4
+  check_ref: pytest
+  result: pass
+- ac: AC-5
+  check_ref: pytest
+  result: pass
+- ac: AC-6
+  check_ref: review:as-is-regression
+  result: pass
+- ac: AC-7
+  check_ref: gate-status-phase
+  result: not-run
