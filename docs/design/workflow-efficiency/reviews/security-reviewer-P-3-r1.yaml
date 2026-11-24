@@ -1,0 +1,102 @@
+schema: orqlet.review-result/v1
+task: workflow-efficiency
+phase: P-3
+role: security-reviewer
+round: 1
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: 25c4d1406f7eb824c553f3cfb325365c9ff3c6e6f0edc075e8a97ad9be30e81b
+    design: ca86b2a73b778b9e33a398bf70b0752be94a68da6d0718376cf8d971ff239e10
+    evidence_inputs: 75df6d621c4280ba60a725641be46e437561d1cbbc9678d11699baf838922e67
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 34a6f679a5585859c8d850fca7a208e5b6d4e3dd14eeccc0b38d081a4fc20365
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: 0e5b7e5fc8f3950ac5d360cf4a0c9dbe2b4880433ba15680a6c66220d4434e5d
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 57d0cb83a6a065c73be5d385b71c9fbceb56d4eb7d9f2549a70dd32ad8aff7c9
+  merge_base: 40d281acae702cf326f8f043935946fc0612e299
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- 'Same client as the Coder (cursor): independence I1, below the I2 that a D3 change requires (ORQLET-MODEL-002); the verdict
+  is NOT_RUN.'
+- It was started as a typed subagent with the packet path workflow-efficiency-P-3-0f8ae8f3 as its only prompt; that the context
+  is fresh is the Coder's claim. The packet's diff is against main 40d281a and holds P-3 only.
+- The reviewer's session ran no check and had no quote digest, so its evidence is given as observations, none of which blocks.
+  The Coder wrote this record from its returned text.
+- The client does not show the reviewer's model, so the identity is unknown. models resolve printed no candidate for cursor
+  (every model is not approved by the policy).
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- 'The reviewer''s own conclusion was no blocking security finding: paths are canonical before the ownership test, the task
+  comes from the file''s path, HEAD is read through the Git port, the message holds no file text, and no history rewrite is
+  suggested.'
+applicability:
+  examined:
+  - validate_as_is.py, evidence_cite.py and test_validate_as_is.py, with the two records
+  - validation.py, paths.py and the Git object reader as far as they decide the path, the revision and the symlink behaviour
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: security
+  claim: The whole blob at HEAD is read before the 256 KiB cap applies, so a very large committed file under `evidence/` is
+    held in memory for that call; the result is a clean ORQ-E338 and the author already controls what is committed.
+  suggested_action: None; a size check before the read would need a new port method that the plan does not include.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: security
+  claim: By design the scan covers only task-owned entries that cite another revision; an entry that cites `base_revision`
+    is not scanned, the `revision` of task evidence becomes informational, and uncommitted evidence is never read (it fails
+    closed with ORQ-E333 or ORQ-E335).
+  suggested_action: No change; ADR-003 decision 3 states it.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: docs
+  claim: A hidden-character, comment or size result also carries the sentence about a credential; the wording is conditional
+    and accurate but noisy for those rules.
+  suggested_action: Optional.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet read
+    how: orqlet review prepare workflow-efficiency P-3 (workflow-efficiency-P-3-0f8ae8f3)
+    result: pass
+  - what: running the checks and quote digests
+    how: none run by the reviewer
+    result: not-run

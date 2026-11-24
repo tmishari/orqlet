@@ -1,0 +1,104 @@
+schema: orqlet.review-result/v1
+task: workflow-efficiency
+phase: P-3
+role: code-reviewer
+round: 1
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: 25c4d1406f7eb824c553f3cfb325365c9ff3c6e6f0edc075e8a97ad9be30e81b
+    design: ca86b2a73b778b9e33a398bf70b0752be94a68da6d0718376cf8d971ff239e10
+    evidence_inputs: 75df6d621c4280ba60a725641be46e437561d1cbbc9678d11699baf838922e67
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 34a6f679a5585859c8d850fca7a208e5b6d4e3dd14eeccc0b38d081a4fc20365
+    reviewer_definition: 6660b181a2ba46a0bbd8225a3449e2322f0030dea1fa146cb15dfd0e3ffcd94e
+    standards: 0e5b7e5fc8f3950ac5d360cf4a0c9dbe2b4880433ba15680a6c66220d4434e5d
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 4c0121660734a0503943e103f70f7c0a8b8d109d7ca6edfb4b8dee6f7191f50f
+  merge_base: 40d281acae702cf326f8f043935946fc0612e299
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-code-reviewer
+  definition_sha256: d807b6881723a0c72151d12a514eb0506a2356d9e94d170daff3f53178dff488
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I0
+capability_limits:
+- 'No approved code-reviewer binding for cursor in .orqlet/role-bindings.yaml: independence I0, below the I2 that a code review
+  needs at every change class.'
+- 'Same client as the Coder (cursor): independence I1, below the I2 that a D3 change requires (ORQLET-MODEL-002); the verdict
+  is NOT_RUN.'
+- It was started as a typed subagent with the packet path workflow-efficiency-P-3-0f8ae8f3 as its only prompt; that the context
+  is fresh is the Coder's claim. The packet's diff is against main 40d281a and holds P-3 only.
+- The reviewer's session ran no check and had no quote digest, so its evidence is given as observations, none of which blocks.
+  The Coder wrote this record from its returned text.
+- The client does not show the reviewer's model, so the identity is unknown. models resolve printed no candidate for cursor
+  (every model is not approved by the policy).
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- The reviewer's own conclusion was no blocking code defect against AC-1 to AC-5 by reading the code and the tests; AC-6 and
+  AC-7 were taken from the tester's record.
+applicability:
+  examined:
+  - diff.patch and the snapshot of validate_as_is.py, evidence_cite.py, validation.py, paths.py, evidence.py and the contracts
+  - tests/fakes/vcs.py, tests/support/artifacts.py and the diff of test_validate_as_is.py, the plan and both records
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: docs
+  claim: The ORQ-E333, ORQ-E334 and ORQ-E335 messages come from the shared status table and say `at that revision`, but a
+    task-owned entry is read at HEAD, so a file that exists but is not committed reads `does not exist at that revision`.
+  suggested_action: Optionally pass the revision actually read into the message in a later change; the plan asks only for
+    the codes.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: tests
+  claim: 'The branch that skips the check when HEAD is missing (`_TaskEvidenceAtHead.check`) has no test: the only no-commit
+    test also lacks the base revision, so execution never reaches it.'
+  suggested_action: Optionally add a case with a base revision and no HEAD.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: standards
+  claim: 'Minor points: a file that fails the scan is reported once under the first fact that cites it; the oversize case
+    is detected by comparing the problem tuple with a sentinel; one test writes the private `_committed` of the fake; the
+    name `web_evidence_problems` is narrower than its use.'
+  suggested_action: No change needed now; revisit if a third caller appears.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: code-reviewer
+    phase: implement
+  checks:
+  - what: packet read
+    how: orqlet review prepare workflow-efficiency P-3 (workflow-efficiency-P-3-0f8ae8f3)
+    result: pass
+  - what: running the checks and quote digests
+    how: none run by the reviewer
+    result: not-run
