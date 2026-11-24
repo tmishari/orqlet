@@ -1,0 +1,105 @@
+schema: orqlet.review-result/v1
+task: workflow-efficiency
+phase: P-4
+role: code-reviewer
+round: 1
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: eaa0833eb8687542253f44b705c8970b42ac4272ff00f2d0578fc56dbee89acd
+    design: ca86b2a73b778b9e33a398bf70b0752be94a68da6d0718376cf8d971ff239e10
+    evidence_inputs: 1b4979712d877c6e30b2590e4871d14cac28c27da013743c9d805678ecec070e
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 34a6f679a5585859c8d850fca7a208e5b6d4e3dd14eeccc0b38d081a4fc20365
+    reviewer_definition: 6660b181a2ba46a0bbd8225a3449e2322f0030dea1fa146cb15dfd0e3ffcd94e
+    standards: 0e5b7e5fc8f3950ac5d360cf4a0c9dbe2b4880433ba15680a6c66220d4434e5d
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: abf08d3397c1bcffbafe929440e12d0c77d4d31776b9002233f1a12da5a9950a
+  merge_base: e7b987c07984f5fe1a3b951ea11bf6e43f19a2fb
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-code-reviewer
+  definition_sha256: d807b6881723a0c72151d12a514eb0506a2356d9e94d170daff3f53178dff488
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I0
+capability_limits:
+- 'No approved code-reviewer binding for cursor in .orqlet/role-bindings.yaml: independence I0, below the I2 that a code review
+  needs at every change class.'
+- 'Same client as the Coder (cursor): independence I1, below the I2 that a D3 change requires (ORQLET-MODEL-002); the verdict
+  is NOT_RUN.'
+- It was started as a typed subagent with the packet path workflow-efficiency-P-4-94adff56 as its only prompt; that the context
+  is fresh is the Coder's claim. The packet's diff is against main e7b987c and holds P-4 only.
+- The reviewer's session ran no check and computed no quote digest, so its evidence is given as observations, none of which
+  blocks. The Coder wrote this record from its returned text.
+- The client does not show the reviewer's model, so the identity is unknown. models resolve printed no candidate for cursor
+  (every model is not approved by the policy).
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- The reviewer's own conclusion was no blocking code defect against AC-1 and AC-2 by reading the code and the tests; AC-3 was
+  taken from the tester's record.
+applicability:
+  examined:
+  - diff.patch and the snapshot of validate_design.py, validate_plan.py, the Phase contract, the Collector and the added tests
+  - the plan, the test record and the knowledge record
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: tests
+  claim: The rule that only the artifact named component.md is measured has no test; if the file-name check were removed or
+    broadened, an ADR or another artifact over 1,200 words would warn and no test would fail.
+  suggested_action: Optionally add a design with an over-long ADR and a short component.md that gives no ORQ-W368.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: correctness
+  claim: The fence pattern accepts any line that starts with three backticks, but in CommonMark the info string of a backtick
+    fence may not contain a backtick, so a line such as three backticks, a word, three backticks and more text is inline code
+    and here opens a fence that hides the words after it; the count can be too low and a real over-long brief can pass without
+    a warning.
+  suggested_action: Refuse a backtick fence whose rest of line holds a backtick, and add a case to the fence test, or drop the
+    CommonMark wording where the code does not meet it.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: standards
+  claim: The helper that closes a fence takes both the matched run and the whole line and compares the stripped line with the
+    run; passing the stripped line alone would remove a parameter.
+  suggested_action: Optional.
+  confidence: low
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: code-reviewer
+    phase: implement
+  checks:
+  - what: packet read
+    how: orqlet review prepare workflow-efficiency P-4 (workflow-efficiency-P-4-94adff56)
+    result: pass
+  - what: running the checks and quote digests
+    how: none run by the reviewer
+    result: not-run

@@ -1,0 +1,65 @@
+schema: orqlet.test-record/v1
+task: workflow-efficiency
+phase: P-4
+review_input:
+  components:
+    code_tests: eaa0833eb8687542253f44b705c8970b42ac4272ff00f2d0578fc56dbee89acd
+    plan: 34a6f679a5585859c8d850fca7a208e5b6d4e3dd14eeccc0b38d081a4fc20365
+  covers:
+  - code_tests
+  - plan
+  digest: 'a953b997ba670833fc3806701328a14cfe1cd37985c66918f3c924801f1bc1a0'
+  merge_base: e7b987c07984f5fe1a3b951ea11bf6e43f19a2fb
+  schema: orqlet.review-input/v1
+verdict: NOT_RUN
+evidence_kind: claimed
+commands:
+- id: ruff-check
+  exit_code: 1
+  summary: Found 3 errors, all in the two frozen files tests/unit/render/test_user_scope_render.py and
+    tests/unit/application/test_user_render_request.py (Q-14 known failure, import order and one long line). The
+    four changed Python files of the phase pass `uv run ruff check <files>` with exit 0 (targeted form, Q-26).
+  result_digest: f00d8d9da4f726ae1bd582ca9d42261f236125cf7d6374d391d8ab319d68326f
+- id: ruff-format
+  exit_code: 0
+  summary: 828 files already formatted
+  result_digest: 50aa81c4782dd4828cdec57d169d4e6339d616c10a9981fb3c6efaaabe3ed288
+- id: mypy
+  exit_code: 1
+  summary: Found 10 errors in 2 files (checked 427 source files), both files the frozen test files of Q-14; no
+    error in a file of this phase.
+  result_digest: 49d6df08dc4c02fd7c41e9c3bb6e35251287fa6a891721753115890134e35e10
+- id: import-linter
+  exit_code: 0
+  summary: 'Contracts: 6 kept, 0 broken.'
+  result_digest: 0fec6a7fc9d89e2ec864ca46ecd6f60bfc7dacd18b1ca33f3a5425b007535306
+- id: pytest
+  exit_code: 1
+  summary: 14142 passed, 1 skipped (junctions exist on Windows only), 2 errors in 2221.34s on Python 3.12.11, one
+    Python only, with the local form `uv run pytest --continue-on-collection-errors` (Q-25). The 2 errors are the
+    collection errors of the two frozen test files (Q-14). Targeted form on tests/unit/application/test_validate_design.py
+    and tests/unit/application/test_validate_plan.py, 47 passed after the Tester's first round (16 new tests in
+    all; against the source of the base commit 4 of the first 9 failed and the 5 boundary cases passed at once).
+    The tests were written by the Tester subagent before the implementation existed. One test rework, in
+    test_validate_plan.py, shortened the filler word of the `words` helper because a 450-word objective of
+    four-letter words broke the 2,000-character limit of a text field and the plan failed to load (ORQ-E325); the
+    Tester's seven fence-rule tests were added after the implementation, from my decision to follow the CommonMark
+    fence rule. The digest is of the whole captured output of the full run.
+  result_digest: baa4549cd30876dd7bb416a3857a9c388d463a7ccdfd832c7ee3371b1b70b0a8
+- id: gate-status-phase
+  exit_code: 5
+  summary: NOT_RUN with exit 5 on the staged tree and no ORQ-E450, ORQ-E451 or ORQ-E453. The only causes are the
+    ORQ-W390 stale warnings for as-is, design and plan, from the commits of the plan merge, its amendment and phases
+    P-1 to P-3, which the person confirmed under the planned-work row (ADR-001 decision 4); ORQ-I393 and ORQ-I451
+    are info.
+  result_digest: 1ad814d0ce9bb3c7dc093f11e5259631ca2d38c5788e2be08ee7e5302111755f
+acceptance_coverage:
+- ac: AC-1
+  check_ref: pytest
+  result: pass
+- ac: AC-2
+  check_ref: pytest
+  result: pass
+- ac: AC-3
+  check_ref: gate-status-phase
+  result: not-run

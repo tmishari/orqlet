@@ -52,6 +52,9 @@ FORBIDDEN_SCOPE_PREFIXES = (
     "src/orqlet/workflow/",
 )
 FORBIDDEN_SCOPE_FILES = frozenset({"AGENTS.md", "CLAUDE.md", ".mcp.json"})
+# The target for the words a person reads in one phase; completion entries hold citations and do
+# not count. A phase above it gets a warning, never a failure.
+PHASE_WORD_TARGET = 400
 _IMPLEMENTS = re.compile(r"^(?P<change>EC-\d+)(?:@(?P<stage>S-\d+))?$")
 _MODES = {"120000": EntryMode.SYMLINK, "160000": EntryMode.GITLINK}
 
@@ -72,6 +75,7 @@ def validate_plan(
         )
     _check_ids(plan, out, raw_path)
     _check_criteria(plan, out, raw_path)
+    _check_phase_length(plan, out, raw_path)
     if plan.amends is not None and not re.fullmatch(r"[0-9a-f]{64}", plan.amends):
         out.error("ORQ-E379", "`amends` must be the sha256 of the plan it revises", raw_path)
     phases = [_phase(p) for p in plan.phases]
@@ -146,6 +150,27 @@ def _check_criteria(plan: ImplementationPlan, out: Collector, path: str) -> None
                     "check of the phase nor a review item",
                     path,
                 )
+
+
+def _check_phase_length(plan: ImplementationPlan, out: Collector, path: str) -> None:
+    for phase in plan.phases:
+        words = _phase_words(phase)
+        if words > PHASE_WORD_TARGET:
+            out.warning(
+                "ORQ-W388",
+                f"{phase.id} has {words} words in its objective, criteria and file reasons; "
+                f"the target is at most {PHASE_WORD_TARGET}",
+                path,
+            )
+
+
+def _phase_words(phase: Phase) -> int:
+    texts = (
+        phase.objective,
+        *(criterion.text for criterion in phase.acceptance_criteria),
+        *(operation.why for operation in phase.file_operations),
+    )
+    return sum(len(text.split()) for text in texts)
 
 
 def _check_knowledge_scope(

@@ -1,0 +1,113 @@
+schema: orqlet.review-result/v1
+task: workflow-efficiency
+phase: P-4
+role: architecture-reviewer
+round: 1
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: eaa0833eb8687542253f44b705c8970b42ac4272ff00f2d0578fc56dbee89acd
+    design: ca86b2a73b778b9e33a398bf70b0752be94a68da6d0718376cf8d971ff239e10
+    evidence_inputs: 1b4979712d877c6e30b2590e4871d14cac28c27da013743c9d805678ecec070e
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 34a6f679a5585859c8d850fca7a208e5b6d4e3dd14eeccc0b38d081a4fc20365
+    reviewer_definition: 83e52f1a68fceddc7beb1d83654661fd34a1e3b3028c4fcc3dd7b6dadd8f3463
+    standards: 0e5b7e5fc8f3950ac5d360cf4a0c9dbe2b4880433ba15680a6c66220d4434e5d
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: c49b2106c86799272b9b3fcd612b2fa2bb4d745618b001a1be9b13ee2421bf0a
+  merge_base: e7b987c07984f5fe1a3b951ea11bf6e43f19a2fb
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: 751953d100777e7ad1ae8ea41d8f096972ff2d2818b84213b87d027c1a3f9beb
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- 'Same client as the Coder (cursor): independence I1, below the I2 that a D3 change requires (ORQLET-MODEL-002); the verdict
+  is NOT_RUN.'
+- It was started as a typed subagent with the packet path workflow-efficiency-P-4-94adff56 as its only prompt; that the context
+  is fresh is the Coder's claim. The packet's diff is against main e7b987c and holds P-4 only.
+- The reviewer's session ran no check and computed no quote digest, so its evidence is given as observations, none of which
+  blocks. The Coder wrote this record from its returned text.
+- The client does not show the reviewer's model, so the identity is unknown. models resolve printed no candidate for cursor
+  (every model is not approved by the policy).
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- 'The reviewer''s own conclusion was PASS with no blocking finding: the diff is the four files of the P-4 list plus this
+  task''s two records, both changes are pure functions on text inside the application layer, and EC-4 and ADR-004 decision
+  1 hold.'
+applicability:
+  examined:
+  - diff.patch, the snapshot, the plan, the manifest, the standards and the import-linter result of the test record
+  - the test record and the knowledge record
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: standards
+  claim: The design says only "outside fenced blocks"; the code follows the CommonMark fence rules (tilde fences, closing
+    length, info text, up to three spaces of indent, an unclosed fence runs to the end) and the tests record this only as a
+    decision. The format text that P-7 edits does not name the rule. The seven fence tests were added after the
+    implementation, which the test record states.
+  suggested_action: Let P-7 or the phase report name the fence rule.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: standards
+  claim: A fence indented four or more spaces, for example inside a list item, is counted as words. This errs toward
+    warning, which is the safe side for a warning; no test covers it.
+  suggested_action: None.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: standards
+  claim: The brief is recognised by the file name component.md, not by the artifact kind or folder. This fits design-format.md,
+    which names component.md as the brief; a component.md elsewhere would also be measured.
+  suggested_action: None.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: non-blocking
+  category: docs
+  claim: The reviewer estimated that this task's own component.md and the plan phases P-6, P-7 and P-8 may trigger the new
+    warnings and did not count them. The Coder ran both validators on the staged code. validate design gave PASS with no
+    ORQ-W368 for component.md; validate plan gave PASS with ORQ-W388 for P-6 (481 words), P-7 (435) and P-8 (442).
+  suggested_action: Report the three plan warnings to the person; the approved plan is not edited by this phase.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+  checks:
+  - what: packet read
+    how: orqlet review prepare workflow-efficiency P-4 (workflow-efficiency-P-4-94adff56)
+    result: pass
+  - what: running the checks and quote digests
+    how: none run by the reviewer
+    result: not-run
