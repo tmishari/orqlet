@@ -3,7 +3,7 @@
   "files": [
     {
       "path": "baseline/baseline.md",
-      "sha256": "a05153efe06d2f2684678c723a19f3c5ab1ed8166a13de20058cc5369527dc26"
+      "sha256": "07410f24b87b4787616a4c9b7f9e5a2c762fbafb6553ffb4dfab904d46da42d1"
     },
     {
       "path": "baseline/foundation.md",
@@ -19,7 +19,7 @@
     },
     {
       "path": "commands/standards.md",
-      "sha256": "62985a26c930b58b42cfbf122c780c5ced56411abafd1bec7aabe6ecd5852dfa"
+      "sha256": "5ff906cc36b4b46f62aff17c3ee173ae69231adeebfff34615f3f3e357eea1a6"
     },
     {
       "path": "commands/upgrade.md",
@@ -59,7 +59,7 @@
     },
     {
       "path": "roles/orqlet-tester.md",
-      "sha256": "9005bd097023babb8eec8bc9d0c5e6a86e7bdb22b54ec1bf2791512c8e43ab1e"
+      "sha256": "c80239cb963b328d9b00095d16a6fcea28f2e9b35abe77286b8d2d84acb31476"
     },
     {
       "path": "roles/orqlet-tracer.md",
@@ -231,11 +231,11 @@
     },
     {
       "path": "skills/orqlet-design/references/design-format.md",
-      "sha256": "0f38303ffc461fa7e98883aa2483a36097b0aa3913c049fa61239d8d06b780de"
+      "sha256": "23fc901d23356e26543f89bcfb439dec7f22a91b454e40794a41d6a806ed1ec9"
     },
     {
       "path": "skills/orqlet-design/references/phase-contract.md",
-      "sha256": "4b40dc12a08862e8433e03ba8beb9c2b0fe166831d61308fac119648a1636d06"
+      "sha256": "6f35cf6da76e89051e7bb95da3bb4ace36234d918d5d1c9fbff78c46a9f854a4"
     },
     {
       "path": "skills/orqlet-design/skill.md",
@@ -243,7 +243,7 @@
     },
     {
       "path": "skills/orqlet-implement/references/phase-contract.md",
-      "sha256": "4b40dc12a08862e8433e03ba8beb9c2b0fe166831d61308fac119648a1636d06"
+      "sha256": "6f35cf6da76e89051e7bb95da3bb4ace36234d918d5d1c9fbff78c46a9f854a4"
     },
     {
       "path": "skills/orqlet-implement/skill.md",
@@ -251,15 +251,15 @@
     },
     {
       "path": "skills/orqlet-onboard/skill.md",
-      "sha256": "69d3dd7f5ffd2fe0f22227e25456a6777f128a53542d8d6c465f6506e5b48094"
+      "sha256": "844c543aa3716d6583fd444667adf138379ffce2d4809b01e3d0f6624b26ace1"
     },
     {
       "path": "skills/orqlet-plan/references/phase-contract.md",
-      "sha256": "4b40dc12a08862e8433e03ba8beb9c2b0fe166831d61308fac119648a1636d06"
+      "sha256": "6f35cf6da76e89051e7bb95da3bb4ace36234d918d5d1c9fbff78c46a9f854a4"
     },
     {
       "path": "skills/orqlet-plan/references/plan-format.md",
-      "sha256": "47593dd2bc16b2f9dfe6da4ef57ab71288fd99a8af8f6a9fc3c89a3c526696b9"
+      "sha256": "7e618078ccac3c5e14e61c5ca53ac59aa006b09a6c6f1d6a724830e7cae57855"
     },
     {
       "path": "skills/orqlet-plan/skill.md",
@@ -267,11 +267,11 @@
     },
     {
       "path": "skills/orqlet-research/references/as-is-format.md",
-      "sha256": "312e0e831799de0e3ed140174c62e51233f28093a2210dae1ed6a4000680f5a3"
+      "sha256": "44af459bb64926b7cea8cc29b5ad2291d538b785d72611c4e306046e2e728298"
     },
     {
       "path": "skills/orqlet-research/references/phase-contract.md",
-      "sha256": "4b40dc12a08862e8433e03ba8beb9c2b0fe166831d61308fac119648a1636d06"
+      "sha256": "6f35cf6da76e89051e7bb95da3bb4ace36234d918d5d1c9fbff78c46a9f854a4"
     },
     {
       "path": "skills/orqlet-research/skill.md",
@@ -279,11 +279,11 @@
     },
     {
       "path": "skills/orqlet-review/references/review-format.md",
-      "sha256": "a94a67205e3c20edf3902ff45a49a323d329a21edbb1e221947a71f29d3a4856"
+      "sha256": "36d04e562267ea1c69c8e1ab69a14725c50983d28ba6b02b31ae848e19df76c3"
     },
     {
       "path": "skills/orqlet-review/skill.md",
-      "sha256": "5c7627526c09e712e91f3b6a7c88c6da4a4be7203553f836cbe9eca9f0097559"
+      "sha256": "c36c2c605c78968ca1f33ab9c1f1a9e0bc79d02ec34dc5c6f3b9c98e2e3ccfe4"
     },
     {
       "path": "skills/ponytail-audit/references/LICENSE.md",

@@ -55,24 +55,17 @@ self_check:
     - {what: packet read, how: "orqlet review prepare", result: pass}
 ```
 
-The `agent` block may also carry three optional fields. A record without them still loads, and a missing `identity_source` means `unknown`:
-
-```yaml
-agent:
-  identity_source: client-reported   # or person-observed, unknown
-  selection_source: role-assignment  # or task-override, profile-assignment, automatic, explicit-fallback
-  context: {fresh: true, input: packet-only}
-```
+The `agent` block may also carry `identity_source` (`client-reported`, `person-observed` or `unknown`, the default), `selection_source` (`role-assignment`, `task-override`, `profile-assignment`, `automatic` or `explicit-fallback`) and `context: {fresh: true, input: packet-only}`.
 
 Rules the validator checks:
 
-- The path is exact: `<role>` is `architecture-reviewer`, `security-reviewer` or `code-reviewer` (`docs/design/<task>/reviews/code-reviewer-<phase>-r<round>.yaml`), the phase is `P-n`, the round starts at 1 and has no gap. The task, phase, role and round in the file equal the ones in the path.
+- The path is exact: `<role>` is `architecture-reviewer`, `security-reviewer` or `code-reviewer` (`docs/design/<task>/reviews/code-reviewer-<phase>-r<round>.yaml`), the phase is `P-n`, the round starts at 1 and has no gap, and the file's task, phase, role and round equal the path's.
 - `review_input` covers `code_tests`, `knowledge`, `design`, `plan`, `standards`, `reviewer_definition` and `evidence_inputs`, and its digest follows from its components. `orqlet review prepare` prints the block.
 - `agent.binding_ref` is an approved binding for this role and client in `.orqlet/role-bindings.yaml`, and `agent.definition_sha256` is the hash of the agent definition file in the tree.
 - `independence` cannot be higher than the recorded identifiers give: an approved binding is I1, a different client or model family from the Coder is I2, and only an observed identity shows a family difference. Nothing a record states can show a human reviewer (I3). An I0 review is never a PASS.
 - `context` records `fresh` and `input: packet-only`: the reviewer started in a new session and read the packet and nothing else; a `code-reviewer` record needs `context.fresh: true` and is NOT_RUN below I2 at every change class.
 - A Codex record states in `capability_limits` that read-only is not enforced by this client.
-- Six closed warnings can appear. `model-requested-differs-from-observed`: the model asked for is not the model observed. `identity-unknown`: a different client carries the class, and a side has no observed identity that the policy names. `same-model-different-client`: the same observed model ran on two clients. `policy-changed-in-this-change` and `binding-added-in-this-change`: the change itself edits the policy or adds the binding. `codex-read-only-not-stated`: a Codex record lacks the phrase above.
+- Six closed warnings can appear: `model-requested-differs-from-observed`, `identity-unknown` (a different client carries the class and a side has no observed identity that the policy names), `same-model-different-client`, `policy-changed-in-this-change` and `binding-added-in-this-change` (the change edits the policy or adds the binding), and `codex-read-only-not-stated`.
 - A PASS holds no blocking finding. A FAIL holds at least one.
 - `self_check` is required.
 
@@ -93,4 +86,6 @@ suggested_action: Add a test for the failing call.
 confidence: high
 ```
 
-A finding needs evidence. A claim without evidence is an observation and never blocks. For something that is missing, the evidence is an absence record: what was searched, where, how and at which revision.
+A finding needs evidence. For something that is missing, the evidence is an absence record: what was searched, where, how and at which revision.
+
+Cite evidence by id instead of restating it; write each list once. Label each model suggested (policy), observed (client or person) or unknown.

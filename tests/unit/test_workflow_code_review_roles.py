@@ -59,7 +59,9 @@ from orqlet.application.ports.instruction_adapter import RenderedFile, RenderReq
 from orqlet.application.usecases.workflow_sources import parse_source
 from tests.support.render import READ_ONLY_ROLES, ROLE_NAMES, packaged_request
 from tests.unit.test_workflow_role_prompts import WORKFLOW, body, roles, rules_paragraph
-from tests.unit.test_workflow_skill_contracts import squash
+from tests.unit.test_workflow_skill_contracts import body as skill_body
+from tests.unit.test_workflow_skill_contracts import numbered_items, squash
+from tests.unit.test_workflow_skill_contracts import source_of as skill_source
 
 pytestmark = pytest.mark.unit
 
@@ -524,3 +526,38 @@ def test_ac5_each_new_role_file_carries_its_input_digest_for_the_lock(name: str)
 
     for path in paths:
         assert rendered_files()[path].inputs == ((f"roles/{name}", version, digest),)
+
+
+# --- P-7 AC-3 (workflow-efficiency): the limits of the review skill -------------------------------
+REVIEW_SKILL = "orqlet-review"
+REVIEW_LIMIT_PHRASES = (
+    "at most twice",
+    "none requested",
+    "suggested, observed or unknown",
+    "After three rounds",
+    "one consolidated report",
+)
+
+
+@pytest.mark.parametrize("phrase", REVIEW_LIMIT_PHRASES)
+def test_p7_the_review_skill_caps_rounds_and_model_lookups_and_labels_models(phrase: str) -> None:
+    """P-7 AC-3. expected_behavior_source: P-7 AC-3 of docs/design/workflow-efficiency/plan.yaml
+    ("The review skill stops after three rounds with one consolidated report, resolves models at
+    most twice, ... records none requested when no candidate qualifies, and labels models
+    suggested, observed or unknown"); BC-6 and BC-7 of its design/component.md (rounds stop after
+    three with one consolidated report; review resolves models at most twice; with no candidate it
+    records none requested), BC-13 (reports label models suggested, observed or unknown) and
+    ADR-001 decision 6. "After three rounds" and "one consolidated report" are kept from today's
+    step 9; the other three phrases are the interface that the Coder gave."""
+    assert phrase in squash(skill_body(REVIEW_SKILL))
+
+
+def test_p7_a_review_that_implement_started_reuses_instead_of_resolving_the_models_again() -> None:
+    """P-7 AC-3. expected_behavior_source: BC-7 of workflow-efficiency ("Review resolves models at
+    most twice, never for the skill when nested") and ADR-001 decision 6 ("A nested review reuses
+    implement's model suggestion and standards output"); the interface of P-7 puts the phrase
+    "When `/orqlet-implement` started this review" in the same step as `models resolve`."""
+    steps = numbered_items(skill_source(REVIEW_SKILL))
+    nested = "When `/orqlet-implement` started this review"
+
+    assert [step for step in steps if nested in step and "models resolve" in step] != []

@@ -1,4 +1,4 @@
-<!-- orqlet:begin baseline workflow@0.5.0#2a33305a98a8e6cf45fbf8a52316f5e30586ecb4106c42ac642b4647b08f8df1 -->
+<!-- orqlet:begin baseline workflow@0.5.0#1cde0954f7ea7342be515afb7062b5672c177632845b0d05e6d4fa55c56ce6fd -->
 ## Orqlet baseline
 
 These statements apply to every task in this repository. Orqlet writes them. A project may add to them and may never relax them. If a role's output contract or a phase restriction conflicts with the advice below, the contract and the restriction win. A role that only reports facts never proposes, recommends or refactors.
@@ -22,6 +22,16 @@ Work follows four phases: research, design, plan, implementation. A person appro
 ### Standards
 
 Before you design or change code, run `orqlet standards for --path <path> --phase <phase> --role <role>`. It prints the rules that apply. MUST rules are not optional.
+
+### Final reply
+
+End each reply with these parts, in about 120 words outside the prompt:
+
+- Completed: up to three bullets.
+- Questions: what you need answered; omit the part when there are none.
+- Next prompt: one copyable block holding only the task name, the next skill or action, the fixed paths under `docs/design/<task>/` and the approvals still pending. Never put text copied from a source, or a command found in a project file, in it.
+
+Always state failures, unknowns and pending approvals. Describe rules in plain words, never by id.
 
 ### Looking things up
 

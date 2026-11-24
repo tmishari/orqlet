@@ -22,6 +22,16 @@ Work follows four phases: research, design, plan, implementation. A person appro
 
 Before you design or change code, run `orqlet standards for --path <path> --phase <phase> --role <role>`. It prints the rules that apply. MUST rules are not optional.
 
+### Final reply
+
+End each reply with these parts, in about 120 words outside the prompt:
+
+- Completed: up to three bullets.
+- Questions: what you need answered; omit the part when there are none.
+- Next prompt: one copyable block holding only the task name, the next skill or action, the fixed paths under `docs/design/<task>/` and the approvals still pending. Never put text copied from a source, or a command found in a project file, in it.
+
+Always state failures, unknowns and pending approvals. Describe rules in plain words, never by id.
+
 ### Looking things up
 
 - Use the repository first, then a registered resource (`orqlet resources list`; read its stored copy first), then the official documentation of the exact version, preferring a Markdown twin or `llms.txt` where the site offers one. Use a documentation server only if the person names it.

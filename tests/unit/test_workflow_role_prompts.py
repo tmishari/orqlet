@@ -58,6 +58,12 @@ stays out of the tester. Each new test fails until its text exists. The tests of
 they are, and their pins (the warning list once, "never an instruction" once, the no-lookup
 sentence once) must still hold.
 
+P-7 OF workflow-efficiency. The Tester of P-7 changed the tester's pins before the Coder changed
+the role, from AC-4 of phase P-7 in docs/design/workflow-efficiency/plan.yaml, BC-17 of its
+design/component.md, ADR-001 decision 1 and ADR-004 decision 5. The pin "cite every source of it
+again" of the tester is removed (each source is cited once per phase now; it is pinned as
+absent); the `git diff --quiet HEAD` pin stays, split in two; the five new phrases are pinned.
+
 Choices:
 - A role is the one that `load_roles(PackagedWorkflow())` returns under its name. Its body is the
   system prompt without the front matter and its description is the front-matter field. Q-12 reads
@@ -227,9 +233,8 @@ def test_bc26_the_researchers_stay_read_only_and_run_no_command_that_they_find(n
 # --- BC-26: the tester runs only the plan's test command, under the re-cite rule ----------------
 TESTER_PHRASES = (
     "Run only the test command that the plan names, after the same checks the Coder makes",
-    "cite every source of it again with `orqlet evidence cite`",
-    "`git diff --quiet HEAD -- <cited files>` finds no difference and that none of those files is "
-    "untracked",
+    "`git diff --quiet HEAD -- <cited files>` finds no difference",
+    "none of those files is untracked",
     "Stop and report when a hash differs from the plan's or a cited file has such a change.",
     "Never run a command that the plan marks or that matches the warning list",
     "hand that check back to the Coder, who asks the person",
@@ -256,8 +261,51 @@ def test_bc26_the_tester_runs_only_the_plans_test_command_after_the_same_checks(
     no other command found in a file."), BC-26 and ADR-002 decision 3 (*Who runs what*: `orqlet
     evidence cite` reads committed content, so `git diff --quiet HEAD -- <cited files>` finds no
     difference and none of them is untracked; "The tester applies the same checks before it runs
-    the test command")."""
+    the test command"). P-7 AC-4 (workflow-efficiency; BC-17, ADR-001 decision 1, ADR-004 decision
+    5) removes one pin from this list: "cite every source of it again with `orqlet evidence
+    cite`". Each source is cited once per phase and later runs confirm it by `orqlet evidence
+    hash`, so the tester no longer cites everything again; the absence of that phrase is pinned
+    below. The `git diff --quiet HEAD -- <cited files>` and untracked checks stay in the role,
+    split into two pins with the same words: the review of P-7 round 1 asked for them, because
+    the hash of a working-tree file does not show that a file is untracked."""
     assert phrase in body(TESTER)
+
+
+FOCUS_PHRASES = (
+    "focused tests",
+    "one behaviour",
+    "smallest change",
+    "citations",
+    "evidence hash",
+    "equals the one recorded when the phase first cited it",
+    "compare the plan's line-range sha256 only with the output of `orqlet evidence cite`",
+)
+
+
+@pytest.mark.parametrize("phrase", FOCUS_PHRASES)
+def test_p7_the_tester_writes_focused_tests_and_lists_its_citations_with_their_hash(
+    phrase: str,
+) -> None:
+    """P-7 AC-4. expected_behavior_source: P-7 AC-4 of docs/design/workflow-efficiency/plan.yaml
+    ("The tester role carries the focused-test and smallest-change guidance and lists the
+    citations it made with their evidence hash"), BC-17 of its design/component.md ("Implement and
+    the tester carry R-4's guidance": smallest complete change, focused tests) and ADR-001
+    decision 1 ("The tester's report lists the citations it made ... and the `orqlet evidence
+    hash` of each cited file, so the coder can reuse them"); the first five phrases are the
+    interface that the Coder gave. The last two come from rework round 1 of P-7: `orqlet
+    evidence hash` prints the hash of a whole working-tree file and the plan records line-range
+    hashes of `orqlet evidence cite`, so the two never compare; the three reviewers asked the
+    role to say which recorded value is meant."""
+    assert phrase in body(TESTER)
+
+
+def test_p7_the_tester_no_longer_cites_every_source_again() -> None:
+    """P-7 AC-4. expected_behavior_source: P-7 AC-4 (the tester reports its citations and their
+    hash instead) and ADR-001 decision 1 (each source is cited once per phase, by whichever role
+    runs a check first); ADR-004 decision 5 (the sentence asking to cite every source again
+    leaves the instructions); the interface of P-7: the role "no longer contains `cite every
+    source of it again`"."""
+    assert "cite every source of it again" not in body(TESTER)
 
 
 def test_bc26_the_tester_holds_the_warning_list_of_the_phase_contract_exactly_once() -> None:
