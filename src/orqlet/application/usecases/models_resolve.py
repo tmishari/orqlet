@@ -20,8 +20,8 @@ is the one place where an assignment that names a `task` applies (ADR-001 decisi
 with any problem (ORQ-E543, ORQ-E545), and a file that is invalid, a v1 file or deleted, is
 refused and nothing is selected, as `upgrade` does; the wording is this command's own.
 
-The target is not checked against the workflow: `orqlet-code-reviewer` is not a workflow role
-until a later phase, and the review skill must be able to ask for it.
+The target is not checked against the workflow: a name that no role or skill has is answered as an
+unassigned target, so a skill can ask for any role, `orqlet-code-reviewer` included.
 
 `data` holds only what the contract of AC-2 lists, and every value in it is a catalog id or route
 name that passed `ModelRef`, a price that passed `DecimalText`, a profile id, a client, or a fixed

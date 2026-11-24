@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from collections import Counter
+
 from orqlet.application.ports.instruction_adapter import ModelSetting
 from orqlet.application.usecases.diagnose import Diagnosis
 from orqlet.application.usecases.explain import Explanation
@@ -133,7 +135,9 @@ def render_explanation(explanation: Explanation) -> str:
         for d in explanation.generated
     ]
     lines += ["", f"{len(explanation.rules)} rule(s) apply:"]
-    lines += [f"  {r.level.name:<6} {r.id}  ({r.source})" for r in explanation.rules]
+    # People read counts; the ids and levels are in `--json` and in `standards for`.
+    per_source = Counter(rule.source for rule in explanation.rules)
+    lines += [f"  {source}: {count}" for source, count in sorted(per_source.items())]
     lines += ["", "Limits:"] + [f"  {f.code} {f.message}" for f in explanation.limits]
     lines += ["", *_model_selection_lines(explanation)]
     lines += ["", "Cannot be inspected from the repository:"]

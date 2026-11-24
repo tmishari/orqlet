@@ -53,7 +53,6 @@ _EXIT_OF_STATUS: dict[ModelsStatus, ExitCode] = {
     "refused": ExitCode.REFUSED,
 }
 _REFUSED_TEXT = "refused: no selection is shown, because the model policy cannot be used."
-_NONE = "none"
 
 
 @models_app.command("resolve")
@@ -171,20 +170,29 @@ def _output(result: ModelsResult) -> CommandOutput:
 
 
 def _text(data: Mapping[str, Any]) -> str:
-    """Ten lines, `label: value`, in a fixed order; every value is on one line."""
-    lines = (
+    """One opening sentence, then a `label: value` line for each field that holds a value.
+
+    Rejected models and the hint stay in `--json`: a person needs the suggestion, not the reasons.
+    """
+    fields = (
         ("target", _target_line(data)),
         ("policy", data["policy"]),
         ("profile", _profile_line(data)),
-        ("source", data["source"] or _NONE),
-        ("selected", _selected_line(data)),
+        ("source", data["source"]),
+        ("selected", _route(data["selection"]) if data["selection"] is not None else ""),
         ("candidates", _choices_line(data["candidates"])),
         ("fallbacks", _choices_line(data["fallbacks"])),
-        ("escalation", data["escalation"] or _NONE),
-        ("rejected", _rejected_line(data["rejected"])),
-        ("hint", data["hint"]),
+        ("escalation", data["escalation"]),
     )
-    return "\n".join(f"{label}: {value}" for label, value in lines)
+    return "\n".join([_opening(data), *(f"{label}: {value}" for label, value in fields if value)])
+
+
+def _opening(data: Mapping[str, Any]) -> str:
+    profile = (
+        f"Suggested profile: {data['profile']}" if data["profile"] else "No profile is suggested"
+    )
+    model = "a model is suggested" if data["selection"] is not None else "no model is suggested"
+    return f"{profile}; {model}; the client keeps the choice and nothing here changes the model."
 
 
 def _target_line(data: Mapping[str, Any]) -> str:
@@ -195,16 +203,8 @@ def _target_line(data: Mapping[str, Any]) -> str:
 
 def _profile_line(data: Mapping[str, Any]) -> str:
     if data["profile"] is None:
-        return _NONE
+        return ""
     return f"{data['profile']}, mode {data['mode']}" if data["mode"] else str(data["profile"])
-
-
-def _selected_line(data: Mapping[str, Any]) -> str:
-    if data["selection"] is not None:
-        return _route(data["selection"])
-    if data["client_chooses"]:
-        return "the client chooses"
-    return "no candidate qualifies"
 
 
 def _route(choice: Mapping[str, Any]) -> str:
@@ -213,9 +213,4 @@ def _route(choice: Mapping[str, Any]) -> str:
 
 
 def _choices_line(choices: list[Mapping[str, Any]]) -> str:
-    return "; ".join(_route(choice) for choice in choices) or _NONE
-
-
-def _rejected_line(rejected: list[Mapping[str, Any]]) -> str:
-    shown = (f"{item['model'] or 'override'}: {item['reason']}" for item in rejected)
-    return "; ".join(shown) or _NONE
+    return "; ".join(_route(choice) for choice in choices)

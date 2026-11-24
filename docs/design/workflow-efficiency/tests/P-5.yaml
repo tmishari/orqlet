@@ -1,0 +1,76 @@
+schema: orqlet.test-record/v1
+task: workflow-efficiency
+phase: P-5
+review_input:
+  components:
+    code_tests: 12dffc2dad3bb0d329fa04c361d3f7fe8f437ccc60d1c35e32639a3475b3d607
+    plan: 34a6f679a5585859c8d850fca7a208e5b6d4e3dd14eeccc0b38d081a4fc20365
+  covers:
+  - code_tests
+  - plan
+  digest: 1b9870c4eedf08da5736916d6a1e3c36aa1ad9860e68811fdcfa7eafd0d06bff
+  merge_base: 129cf95f30e6ffdc26ff5330b1a22fe9307ea8ea
+  schema: orqlet.review-input/v1
+verdict: NOT_RUN
+evidence_kind: claimed
+commands:
+- id: ruff-check
+  exit_code: 1
+  summary: Found 3 errors, all in the two frozen files tests/unit/render/test_user_scope_render.py and
+    tests/unit/application/test_user_render_request.py (Q-14 known failure, import order and one long line). The
+    ten changed Python files of the phase pass `uv run ruff check <files>` with exit 0 (targeted form, Q-26).
+  result_digest: f00d8d9da4f726ae1bd582ca9d42261f236125cf7d6374d391d8ab319d68326f
+- id: ruff-format
+  exit_code: 0
+  summary: 828 files already formatted
+  result_digest: 50aa81c4782dd4828cdec57d169d4e6339d616c10a9981fb3c6efaaabe3ed288
+- id: mypy
+  exit_code: 1
+  summary: Found 10 errors in 2 files (checked 427 source files), both files the frozen test files of Q-14; no
+    error in a file of this phase.
+  result_digest: 49d6df08dc4c02fd7c41e9c3bb6e35251287fa6a891721753115890134e35e10
+- id: import-linter
+  exit_code: 0
+  summary: 'Contracts: 6 kept, 0 broken.'
+  result_digest: b99498e2fcd9ddbf9fed9299fe642e5a01f6a0ec6436848a9c19214dd004d8ca
+- id: export-schemas
+  exit_code: 0
+  summary: No output and exit 0, so every committed schema matches its contract; the model_policy docstring changed
+    no schema.
+  result_digest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+- id: pytest
+  exit_code: 1
+  summary: 14197 passed, 1 skipped (junctions exist on Windows only), 2 errors in 1741.46s on Python 3.12.11, one
+    Python only, with the local form `uv run pytest --continue-on-collection-errors` (Q-25). The 2 errors are the
+    collection errors of the two frozen test files (Q-14). Targeted form on the four test files of the phase plus
+    test_explain_model_selection.py, test_models_resolve.py and test_lifecycle.py, 1032 passed after the
+    implementation. The Tester wrote the tests before the implementation existed; against the source of the base
+    commit 91 of the 564 tests of the four files failed, all for the old behaviour, and 473 passed. One test
+    rework after the implementation, in test_models_resolve_cli.py, because the Tester had pinned the field list of a
+    pinned model without a profile as target, policy, source and selected, but its data.candidates holds the
+    pinned route, so `candidates` holds a value and the criterion prints it; the assertion now lists it. The
+    digest is of the whole captured output of the full run.
+  result_digest: ddfb53c25c720c00b77de0f9600614f9ecbb34b1ebd064682853e7e512e3a53c
+- id: gate-status-phase
+  exit_code: 5
+  summary: NOT_RUN with exit 5 on the staged tree and no ORQ-E450, ORQ-E451 or ORQ-E453. The only causes are the
+    ORQ-W390 stale warnings for as-is, design and plan, from the commits of the plan merge, its amendment and phases
+    P-1 to P-4, which the person confirmed under the planned-work row (ADR-001 decision 4); ORQ-I393 and ORQ-I451
+    are info.
+  result_digest: 1ad814d0ce9bb3c7dc093f11e5259631ca2d38c5788e2be08ee7e5302111755f
+acceptance_coverage:
+- ac: AC-1
+  check_ref: pytest
+  result: pass
+- ac: AC-2
+  check_ref: pytest
+  result: pass
+- ac: AC-3
+  check_ref: pytest
+  result: pass
+- ac: AC-4
+  check_ref: review:stale-comments
+  result: not-run
+- ac: AC-5
+  check_ref: gate-status-phase
+  result: not-run
