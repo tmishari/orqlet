@@ -12,6 +12,7 @@ import typer
 from typer.testing import CliRunner
 
 from orqlet.application.usecases.capabilities import IMPLEMENTED_COMMANDS
+from orqlet.domain.facts import line_range_hash
 from orqlet.interface.cli.app import app
 from tests.support.artifacts import (
     AS_IS,
@@ -256,3 +257,209 @@ def test_evidence_hash_prints_references_for_files(project: tuple[Path, str]) ->
     assert code == 0, document
     (item,) = document["data"]["files"]
     assert item["reference"] == f"src/pkg/mod.py#{item['sha256']}"
+
+
+# --- evidence cite with several pairs (task workflow-efficiency, P-2) --------------------------
+# `expected_behavior_source`: ADR-001 decision 7 and EC-2 (`design/adr-001-check-reuse-and-
+# rechecking.md` and `design/manifest.yaml`) and the acceptance criteria AC-1 to AC-5 of phase P-2
+# in `plan.yaml`, all under docs/design/workflow-efficiency/.
+NOTES = "alpha\nbeta\ngamma\n"
+MOD = "src/pkg/mod.py"
+NOTES_PATH = "docs/notes.md"
+
+
+def snippet_of(path: str, lines: str, revision: str, content: str, start: int, end: int) -> str:
+    digest = line_range_hash(content.encode(), start, end)
+    return f"{{path: {path}, lines: {lines}, revision: {revision}, sha256: {digest}}}"
+
+
+def entry_of(
+    path: str, lines: str, revision: str, content: str, start: int, end: int
+) -> dict[str, str]:
+    digest = line_range_hash(content.encode(), start, end)
+    return {"path": path, "lines": lines, "revision": revision, "sha256": digest}
+
+
+@pytest.fixture
+def two_files(project: tuple[Path, str]) -> tuple[Path, str]:
+    """The project plus a second committed file; the head is the commit that holds both."""
+    root, _ = project
+    return root, commit_file(root, NOTES_PATH, NOTES)
+
+
+def snippet_lines(text: str) -> list[str]:
+    return [line for line in text.splitlines() if line.startswith("{path:")]
+
+
+def test_two_pairs_exit_0_with_two_citations_in_order(two_files: tuple[Path, str]) -> None:
+    """AC-1. expected_behavior_source: EC-2 ("data.citations lists one entry per pair in the
+    given order, in today's entry shape"); plan P-2 AC-1."""
+    root, head = two_files
+    args = ["evidence", "cite", MOD, "1-2", NOTES_PATH, "3", "--root", str(root)]
+
+    code, document = run(*args)
+
+    assert code == 0, document
+    assert document["data"]["verdict"] == "PASS"
+    assert document["data"]["citations"] == [
+        entry_of(MOD, "1-2", head, SOURCE.decode(), 1, 2),
+        entry_of(NOTES_PATH, "3", head, NOTES, 3, 3),
+    ]
+    reverse_code, reverse = run(
+        "evidence", "cite", NOTES_PATH, "3", MOD, "1-2", "--root", str(root)
+    )
+    assert reverse_code == 0, reverse
+    assert reverse["data"]["citations"] == document["data"]["citations"][::-1]
+
+
+def test_two_pairs_print_one_snippet_line_each_and_no_action_line(
+    two_files: tuple[Path, str],
+) -> None:
+    """AC-1. expected_behavior_source: ADR-001 decision 7 ("The human text prints one snippet
+    line per pair, its subject lists the files, and it has no action line"); EC-2."""
+    root, head = two_files
+
+    result = RUNNER.invoke(
+        app, ["evidence", "cite", MOD, "1-2", NOTES_PATH, "3", "--root", str(root)]
+    )
+
+    assert result.exit_code == 0, result.output
+    assert snippet_lines(result.stdout) == [
+        snippet_of(MOD, "1-2", head, SOURCE.decode(), 1, 2),
+        snippet_of(NOTES_PATH, "3", head, NOTES, 3, 3),
+    ]
+    first = result.stdout.splitlines()[0]
+    assert first.startswith("PASS:")
+    assert MOD in first
+    assert NOTES_PATH in first
+    lines = result.stdout.splitlines()
+    assert not any(line.startswith(("Action needed", "No action needed")) for line in lines)
+
+
+def test_a_single_pair_keeps_its_top_level_fields_and_lists_its_entry(
+    project: tuple[Path, str],
+) -> None:
+    """AC-2. expected_behavior_source: ADR-001 decision 7 ("a single pair also keeps today's
+    top-level fields"); EC-2; plan P-2 AC-2 (regression)."""
+    root, head = project
+    entry = entry_of(MOD, "1-2", head, SOURCE.decode(), 1, 2)
+
+    code, document = run("evidence", "cite", MOD, "1-2", "--root", str(root))
+
+    assert code == 0, document
+    data = document["data"]
+    assert {k: data[k] for k in ("path", "lines", "revision", "sha256")} == entry
+    assert data["snippet"] == snippet_of(MOD, "1-2", head, SOURCE.decode(), 1, 2)
+    assert data["citations"] == [entry]
+
+
+def test_a_single_pair_prints_the_snippet_line_as_before(project: tuple[Path, str]) -> None:
+    """AC-2. expected_behavior_source: ADR-001 decision 7 (a single pair "behaves as today");
+    EC-2 ("a single pair also keeps today's top-level fields and text")."""
+    root, head = project
+
+    result = RUNNER.invoke(app, ["evidence", "cite", MOD, "1-2", "--root", str(root)])
+
+    assert result.exit_code == 0, result.output
+    assert result.stdout.splitlines() == [
+        f"PASS: {MOD}",
+        "",
+        snippet_of(MOD, "1-2", head, SOURCE.decode(), 1, 2),
+    ]
+
+
+@pytest.mark.parametrize(
+    "arguments",
+    [
+        [MOD],
+        [MOD, "1-2", NOTES_PATH],
+    ],
+    ids=["one argument", "three arguments"],
+)
+@pytest.mark.parametrize("json_output", [True, False], ids=["json", "text"])
+def test_an_odd_number_of_arguments_is_a_usage_error_with_exit_2(
+    two_files: tuple[Path, str], arguments: list[str], json_output: bool
+) -> None:
+    """AC-3. expected_behavior_source: EC-2 ("An odd number of arguments is a usage error with
+    exit 2"); ADR-001 decision 7; plan P-2 AC-3 (nothing is cited)."""
+    root, _ = two_files
+    extra = ["--json"] if json_output else []
+
+    result = RUNNER.invoke(app, ["evidence", "cite", *arguments, "--root", str(root), *extra])
+
+    assert result.exit_code == 2
+    assert "sha256" not in result.output
+
+
+@pytest.mark.parametrize("good_first", [True, False], ids=["good first", "good last"])
+@pytest.mark.parametrize(
+    ("bad", "code"),
+    [
+        (("src/pkg/gone.py", "1"), "ORQ-E333"),
+        ((MOD, "40-41"), "ORQ-E334"),
+    ],
+    ids=["missing file", "missing lines"],
+)
+def test_a_failing_pair_exits_5_and_the_other_pair_keeps_its_hash(
+    two_files: tuple[Path, str], bad: tuple[str, str], code: str, good_first: bool
+) -> None:
+    """AC-4. expected_behavior_source: EC-2 ("A failing pair is reported with its finding and
+    carries no revision and no sha256; the other pairs are still returned, and the exit status is
+    5"); plan P-2 AC-4."""
+    root, head = two_files
+    good = (NOTES_PATH, "1-2")
+    pairs = [good, bad] if good_first else [bad, good]
+    arguments = [part for pair in pairs for part in pair]
+
+    exit_code, document = run("evidence", "cite", *arguments, "--root", str(root))
+
+    assert exit_code == 5
+    assert document["data"]["verdict"] == "FAIL"
+    assert [(f["code"], f["path"]) for f in document["findings"]] == [(code, bad[0])]
+    entries = document["data"]["citations"]
+    assert [e["path"] for e in entries] == [pair[0] for pair in pairs]
+    good_entry = entries[0] if good_first else entries[1]
+    bad_entry = entries[1] if good_first else entries[0]
+    assert good_entry == entry_of(NOTES_PATH, "1-2", head, NOTES, 1, 2)
+    assert bad_entry == {"path": bad[0], "lines": bad[1]}
+
+
+def test_a_failing_pair_prints_a_snippet_line_only_for_the_cited_pair(
+    two_files: tuple[Path, str],
+) -> None:
+    """AC-4. expected_behavior_source: ADR-001 decision 7 (the human text prints one snippet
+    line per pair that was cited; a refused or failing pair carries no hash); EC-2."""
+    root, head = two_files
+
+    result = RUNNER.invoke(
+        app, ["evidence", "cite", NOTES_PATH, "1-2", "src/pkg/gone.py", "1", "--root", str(root)]
+    )
+
+    assert result.exit_code == 5
+    assert snippet_lines(result.stdout) == [snippet_of(NOTES_PATH, "1-2", head, NOTES, 1, 2)]
+    assert "ORQ-E333" in result.stdout
+    assert "src/pkg/gone.py" in result.stdout
+
+
+def test_the_revision_option_applies_to_every_pair(two_files: tuple[Path, str]) -> None:
+    """AC-5. expected_behavior_source: ADR-001 decision 7 ("`--revision` applies to every
+    pair"); EC-2."""
+    root, _ = two_files
+    # At the commit before HEAD the notes file does not exist and the module is the same.
+    earlier = git(root, "rev-parse", "HEAD~1").strip()
+
+    code, document = run(
+        "evidence", "cite", MOD, "1-2", MOD, "5", "--revision", earlier, "--root", str(root)
+    )
+
+    assert code == 0, document
+    assert [e["revision"] for e in document["data"]["citations"]] == [earlier, earlier]
+    assert document["data"]["citations"][1]["sha256"] == line_range_hash(SOURCE, 5, 5)
+
+    absent_code, absent = run(
+        "evidence", "cite", MOD, "1-2", NOTES_PATH, "1", "--revision", earlier, "--root", str(root)
+    )
+
+    assert absent_code == 5
+    assert [(f["code"], f["path"]) for f in absent["findings"]] == [("ORQ-E333", NOTES_PATH)]
+    assert absent["data"]["citations"][0]["revision"] == earlier

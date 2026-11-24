@@ -20,18 +20,30 @@ evidence_app = typer.Typer(
 
 @evidence_app.command("cite")
 def cite_command(
-    file: Annotated[str, typer.Argument(help="The file, relative to the root.")],
-    lines: Annotated[str, typer.Argument(help="The lines, as `a-b` or `a`, counted from 1.")],
+    pairs: Annotated[
+        list[str],
+        typer.Argument(
+            metavar="FILE LINES [FILE LINES]...",
+            help="Each file, relative to the root, then its lines as `a-b` or `a`, counted from 1.",
+        ),
+    ],
     revision: Annotated[
-        str | None, typer.Option(help="HEAD or a full object id. Default: HEAD.")
+        str | None,
+        typer.Option(help="HEAD or a full object id, for every pair. Default: HEAD."),
     ] = None,
     root: RootOption = Path(),
     json_output: JsonOption = False,
 ) -> None:
-    """The evidence entry (path, lines, revision, sha256) for lines of a committed file."""
+    """One evidence entry (path, lines, revision, sha256) for each file and lines pair."""
+    if len(pairs) % 2:
+        raise typer.BadParameter("give each file with its lines: FILE LINES [FILE LINES]...")
+    files_and_lines = list(zip(pairs[::2], pairs[1::2], strict=True))
     execute(
         "evidence cite",
-        lambda: output_of(cite(build_validate_services(root), file, lines, revision), file),
+        lambda: output_of(
+            cite(build_validate_services(root), files_and_lines, revision),
+            ", ".join(dict.fromkeys(file for file, _ in files_and_lines)),
+        ),
         as_json=json_output,
     )
 
