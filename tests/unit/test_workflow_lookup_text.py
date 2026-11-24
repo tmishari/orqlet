@@ -34,6 +34,8 @@ from orqlet.adapters.workflow_package import PackagedWorkflow
 from orqlet.application.usecases.capabilities import IMPLEMENTED_COMMANDS, PLANNED_COMMANDS
 from orqlet.application.usecases.workflow_sources import load_roles, load_skills, markers
 from tests.support.render import ROLE_NAMES
+from tests.unit.test_workflow_phase_contract_text import contract
+from tests.unit.test_workflow_phase_contract_text import section as contract_section
 
 pytestmark = pytest.mark.unit
 
@@ -425,18 +427,18 @@ def test_each_role_holds_the_sentence_that_forbids_a_lookup_exactly_once(role: s
     assert body.count(ROLE_SENTENCE) == 1
 
 
-# --- the reference: the layout of evidence from the web ----------------------------------------
-AS_IS_FORMAT = "skills/orqlet-research/references/as-is-format.md"
+# --- the phase contract: the layout of evidence from the web -----------------------------------
+# P-6 of workflow-efficiency (AC-6; BC-16; ADR-004 decision 4) moves the layout from the section
+# "Evidence from the web" of research's as-is-format.md to the subsection `### Evidence from the
+# web` of references/phase-contract.md, which all four phase skills carry. The tests below read
+# that subsection of the contract as `load_skills` attaches it to orqlet-research; they assert
+# nothing about as-is-format.md.
+EVIDENCE_HEADING = "### Evidence from the web"
 EVIDENCE_LABELS = ("URL:", "Retrieved:", "Tool:", "Processed:", "Data class:")
 
 
 def web_evidence_section() -> str:
-    text = WORKFLOW.read_text(AS_IS_FORMAT)
-    lines = text.split("\n")
-    assert lines.count("## Evidence from the web") == 1
-    start = lines.index("## Evidence from the web") + 1
-    end = next((n for n in range(start, len(lines)) if lines[n].startswith("## ")), len(lines))
-    return "\n".join(lines[start:end])
+    return contract_section(contract(), EVIDENCE_HEADING)
 
 
 def layout_lines() -> list[str]:
@@ -446,15 +448,30 @@ def layout_lines() -> list[str]:
     return fenced.group(1).split("\n")
 
 
-def test_the_reference_has_the_section_evidence_from_the_web() -> None:
-    """AC-2. expected_behavior_source: plan P-8 file list (as-is-format.md: the section Evidence
-    from the web); ADR-004 decision 3; interface decision."""
+def test_the_contract_has_the_subsection_evidence_from_the_web_under_project_context() -> None:
+    """AC-2; P-6 AC-6. expected_behavior_source: plan P-8 file list (the section Evidence from the
+    web); ADR-004 decision 3 and interface decision of P-8. P-6 AC-6 (workflow-efficiency; BC-16:
+    "The design skill's web-evidence format resolves in its own installed references"; ADR-004
+    decision 4: the format is stated once in the phase contract) moves it to `### Evidence from
+    the web` under `## Project context` of `references/phase-contract.md`."""
+    project_context = contract_section(contract(), "## Project context")
+
+    assert EVIDENCE_HEADING in project_context.split("\n")
     assert web_evidence_section().strip()
+
+
+def test_the_subsection_names_the_path_of_an_evidence_file() -> None:
+    """P-6 AC-6. expected_behavior_source: ADR-003 decision 4 and ADR-004 decision 4 of
+    workflow-efficiency (the format moves into the contract with the evidence folder
+    `docs/design/<task>/evidence/web/`); the skill steps of P-8 name `evidence/web/<slug>.md`; the
+    interface of P-6 names the path `docs/design/<task>/evidence/web/<slug>.md`."""
+    assert "docs/design/<task>/evidence/web/<slug>.md" in squash(web_evidence_section())
 
 
 def test_the_layout_has_a_title_then_the_labelled_lines_in_order_then_numbered_excerpts() -> None:
     """AC-2. expected_behavior_source: ADR-004 decision 3 (a title, then the lines `URL:`,
-    `Retrieved:`, `Tool:`, `Processed:` and `Data class:`, then numbered excerpts)."""
+    `Retrieved:`, `Tool:`, `Processed:` and `Data class:`, then numbered excerpts), now read from
+    the contract subsection (P-6 AC-6)."""
     lines = layout_lines()
     first = next(line for line in lines if line.strip())
     positions = [
@@ -483,17 +500,55 @@ def test_the_layout_says_that_the_time_has_a_zone_and_the_class_is_public_or_int
 
 def test_the_section_says_that_no_validator_requires_the_layout() -> None:
     """AC-4. expected_behavior_source: ADR-004 decision 3 ("no validator requires the header";
-    the 38 evidence files of earlier tasks do not have it); interface decision."""
+    the 38 evidence files of earlier tasks do not have it); interface decision. Read from the
+    contract subsection since P-6 AC-6."""
     assert "no validator requires it" in squash(web_evidence_section())
 
 
 def test_the_section_says_that_verbatim_means_as_the_tool_returned_it() -> None:
     """AC-2. expected_behavior_source: ADR-004 decision 3 ("Verbatim" is claimed only for text as
-    the tool returned it); plan P-8 file list (as-is-format.md)."""
+    the tool returned it); plan P-8 file list (the reference that holds the layout, now the
+    contract subsection: P-6 AC-6)."""
     found = squash(web_evidence_section())
 
     assert "Verbatim" in found
     assert "as the tool returned it" in found
+
+
+def test_the_subsection_says_that_a_login_page_is_internal_and_committed_only_after_a_yes() -> None:
+    """P-6 AC-6. expected_behavior_source: ADR-004 decision 1 of team-conventions-resources (the
+    evidence file of a login page is marked `Data class: internal` and committed only after the
+    person has said yes), which the research step said until P-6 and the baseline still says; the
+    interface of P-6 puts the rule in the subsection ("a page behind a login is `Data class:
+    internal` and committed "only after the person has said yes"")."""
+    found = squash(web_evidence_section())
+
+    assert "behind a login" in found
+    assert "Data class: internal" in found
+    assert "only after the person has said yes" in found
+
+
+# --- P-6 AC-6: the research and design steps resolve the format in their own references ---------
+@pytest.mark.parametrize("skill", ["orqlet-research", "orqlet-design"])
+def test_the_step_names_the_contract_section_and_no_longer_the_research_reference(
+    skill: str,
+) -> None:
+    """P-6 AC-6. expected_behavior_source: BC-16 of workflow-efficiency ("The design skill's
+    web-evidence format resolves in its own installed references") and ADR-004 decision 4 (the
+    format is stated once in the phase contract, "which also fixes design step 4"); the interface
+    of P-6 (both steps name the section "Evidence from the web" of `references/phase-contract.md`
+    and no longer `references/as-is-format.md`)."""
+    step = squash(lookup_step(skill))
+
+    assert '"Evidence from the web" of `references/phase-contract.md`' in step
+    assert "as-is-format.md" not in step
+
+
+def test_the_design_step_no_longer_sends_the_reader_to_the_research_skill() -> None:
+    """P-6 AC-6. expected_behavior_source: BC-16 of workflow-efficiency (the format resolves in the
+    design skill's own installed references, not in "the research skill") and the interface of P-6
+    (the design step no longer says "of the research skill")."""
+    assert "of the research skill" not in squash(lookup_step("orqlet-design"))
 
 
 # --- the manifest ------------------------------------------------------------------------------

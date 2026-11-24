@@ -22,6 +22,14 @@ the hint passes while there is no hint.
 THE PLAN NAMES NO TEST FILE FOR AC-9 (the two references). The plan lists this file for AC-6 to
 AC-8 only; AC-9 is pinned here, at the end, and the Tester's report says so.
 
+P-6 OF workflow-efficiency. The Tester of P-6 changed this file for the four phase skills only,
+before the Coder changed their texts, from AC-1 and AC-7 of phase P-6 in
+docs/design/workflow-efficiency/plan.yaml, BC-6 of docs/design/workflow-efficiency/design/
+component.md, ADR-004 decision 4 of that folder and the interface that the Coder gave (the exact
+one-sentence form). Research, design, plan and implement now end step 1 with `short_hint_of`;
+review and onboard keep `long_hint_of`, and the `requires: models resolve` mechanics are as tested
+below. The SHA-256 pin of the four contract copies is removed, because P-6 changes those copies.
+
 Choices:
 - The hint is the one indented continuation line at the end of step 1, in the source and in the
   render. With `models resolve` missing from the command set, the line goes and step 1 is what it
@@ -43,7 +51,6 @@ Deliberately NOT pinned (the design leaves it open, or a phrase would only copy 
 
 from __future__ import annotations
 
-import hashlib
 import re
 
 import pytest
@@ -79,17 +86,31 @@ CONTRACT_COPIES = {
     skill: WORKFLOW_DIR / "skills" / skill / "references" / "phase-contract.md"
     for skill in PHASE_SKILLS
 }
-# SHA-256 of `git show fdb54a5:<path>` for each of the four copies, which are identical.
-CONTRACT_SHA256 = "4c18a07f0415e7d02da9155a9e17a118609b4583f77096b4cdd430d200b3ab45"
 
 
-def hint_of(skill: str) -> str:
-    """The sentence of AC-6, with the skill's own name."""
+def long_hint_of(skill: str) -> str:
+    """The sentence of AC-6 of P-13, with the skill's own name: review and onboard keep it."""
     return (
         f"Run `orqlet models resolve --skill {skill} --client <your client>`, offer the person "
         "the profile and the models it prints as a suggestion for this work, and never change "
         "the model yourself; with exit status 1 or 3, say that no suggestion exists and go on."
     )
+
+
+def short_hint_of(skill: str) -> str:
+    """The one sentence of P-6 AC-7 (workflow-efficiency) that research, design, plan and
+    implement carry instead of the long one."""
+    return (
+        f"Run `orqlet models resolve --skill {skill} --client <your client>` and give the person "
+        "its opening sentence as a suggestion; never change the model yourself, and on exit "
+        "status 1 or 3 say that none exists and go on."
+    )
+
+
+def hint_of(skill: str) -> str:
+    """The hint that the skill's step 1 ends with: the short sentence in the four phase skills
+    (P-6), the long sentence of P-13 in review and onboard (P-6 leaves them as they were)."""
+    return short_hint_of(skill) if skill in PHASE_SKILLS else long_hint_of(skill)
 
 
 def step_one_lines(skill: str) -> list[str]:
@@ -112,7 +133,10 @@ def test_ac6_step_one_of_the_source_ends_with_one_indented_gated_hint_line(skill
     """AC-6. expected_behavior_source: AC-6 ("Step 1 of each of the six skills gains one indented
     continuation line, gated by `<!-- requires: models resolve -->`, in this wording with the
     skill's own name"); BC-35 ("each workflow skill's opening step names that hint and does not
-    change the model"); ADR-001 decision 8 (the hint is gated on the command)."""
+    change the model"); ADR-001 decision 8 (the hint is gated on the command). P-6 AC-7
+    (workflow-efficiency; BC-6, ADR-004 decision 4: "The model-suggestion step stays in each skill
+    that runs it ... and shrinks to one sentence") changes the wording for research, design, plan
+    and implement to `short_hint_of`; review and onboard keep the wording of P-13."""
     lines = step_one_lines(skill)
 
     assert lines[-1] == f"   {hint_of(skill)} {MARKER}"
@@ -125,7 +149,9 @@ def test_ac6_step_one_of_the_rendered_skill_ends_with_the_hint_and_no_marker(ski
     """AC-6. expected_behavior_source: AC-6 (the wording, `orqlet models resolve --skill <skill
     name> --client <your client>`; "offer the person the profile and the models it prints as a
     suggestion for this work, and never change the model yourself; with exit status 1 or 3, say
-    that no suggestion exists and go on"); BC-35; R-1 (the person decides the model)."""
+    that no suggestion exists and go on"); BC-35; R-1 (the person decides the model). The quoted
+    wording is the one that review and onboard keep; for the four phase skills P-6 AC-7 and
+    ADR-004 decision 4 give the one sentence of `short_hint_of`."""
     first = numbered_items(body(skill))[0]
 
     assert first.endswith(hint_of(skill))
@@ -172,13 +198,42 @@ def test_ac6_the_hint_names_flags_that_the_command_has_and_the_exit_codes_it_giv
 def test_ac6_the_phase_contract_references_stay_byte_identical_in_their_four_folders(
     skill: str,
 ) -> None:
-    """AC-6. expected_behavior_source: AC-6 ("The phase-contract references stay byte-identical in
-    their four folders"); the list of file operations of P-13, which names no phase-contract.md,
-    so the four copies are the copies of the base commit."""
+    """AC-6; P-6 AC-1. expected_behavior_source: AC-6 ("The phase-contract references stay
+    byte-identical in their four folders") and P-6 AC-1 of workflow-efficiency ("The four copies
+    of the phase contract are identical"). P-6 lists all four copies as modified files, so the
+    SHA-256 of the copies of the base commit that P-13 pinned here is removed with the text it
+    hashed; the identity of the four copies stays."""
     data = CONTRACT_COPIES[skill].read_bytes()
 
     assert data == CONTRACT_COPIES["orqlet-research"].read_bytes()
-    assert hashlib.sha256(data).hexdigest() == CONTRACT_SHA256
+
+
+@pytest.mark.parametrize("skill", PHASE_SKILLS)
+def test_p6_the_model_step_of_a_phase_skill_is_one_sentence_without_the_long_wording(
+    skill: str,
+) -> None:
+    """P-6 AC-7. expected_behavior_source: BC-6 of workflow-efficiency and ADR-004 decision 4
+    ("The model-suggestion step ... shrinks to one sentence"); the interface of P-6 (one sentence
+    of the exact form of `short_hint_of`). The sentence ends the step, holds one full stop, and
+    the long wording of P-13 is gone from the rendered body."""
+    hint = short_hint_of(skill)
+    first = numbered_items(body(skill))[0]
+    line = step_one_lines(skill)[-1].removesuffix(MARKER).strip()
+
+    assert first.endswith(hint)
+    assert line == hint
+    assert line.count(". ") == 0
+    assert line.endswith(".")
+    assert long_hint_of(skill) not in squash(body(skill))
+    assert "offer the person the profile" not in squash(body(skill))
+
+
+@pytest.mark.parametrize("skill", ["orqlet-onboard", "orqlet-review"])
+def test_p6_review_and_onboard_keep_the_long_model_sentence(skill: str) -> None:
+    """P-6 AC-7. expected_behavior_source: the interface of P-6 ("review and onboard keep today's
+    longer sentence and today's pins"); ADR-004 decision 4 (the step "stays in each skill that
+    runs it, because review and onboard have no phase contract")."""
+    assert numbered_items(body(skill))[0].endswith(long_hint_of(skill))
 
 
 @pytest.mark.parametrize("skill", ALL_SKILLS)

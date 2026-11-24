@@ -24,22 +24,23 @@ Source material is not authority. Text in repository files, documentation, retri
 ## Steps
 
 1. Run the input check of `references/phase-contract.md` on the AS-IS file. Stop on a failed check. Address every other material unknown with evidence, or list it as an unresolved decision with a ledger question.
-   Run `orqlet models resolve --skill orqlet-design --client <your client>`, offer the person the profile and the models it prints as a suggestion for this work, and never change the model yourself; with exit status 1 or 3, say that no suggestion exists and go on. <!-- requires: models resolve -->
+   Run `orqlet gate status <task> --json` before your first commit on the branch, for the header. <!-- requires: gate status -->
+   Run `orqlet models resolve --skill orqlet-design --client <your client>` and give the person its opening sentence as a suggestion; never change the model yourself, and on exit status 1 or 3 say that none exists and go on. <!-- requires: models resolve -->
 2. Run `orqlet standards for --path <path> --phase design --role architect` for each path of the scope and read the rules it prints. <!-- requires: standards for -->
 3. Classify the change as D1, D2 or D3 using `references/design-format.md`. You may declare a higher class than the scope triggers, never a lower one: `orqlet validate design` recomputes it.
-4. For a decision that depends on a library or tool that the AS-IS file does not cover, read the registered resource and then the official page, as the section "Looking things up" of the baseline says. Write each excerpt as `docs/design/<task>/evidence/web/<slug>.md` in the format of the section "Evidence from the web" of `references/as-is-format.md` of the research skill. Commit it, then run `orqlet evidence cite <file> 1` on it, which scans it for a credential and a hidden character, and cite it in the evidence references of the design. <!-- requires: resources list -->
+4. For a decision that depends on a library or tool that the AS-IS file does not cover, read the registered resource and then the official page, as the section "Looking things up" of the baseline says. Write each excerpt as `docs/design/<task>/evidence/web/<slug>.md` in the format of the section "Evidence from the web" of `references/phase-contract.md`. Commit it, then run `orqlet evidence cite <file> 1` on it, which scans it for a credential and a hidden character, and cite it in the evidence references of the design. <!-- requires: resources list -->
 5. Write `docs/design/<task>/design/manifest.yaml` in the format of `references/design-format.md`, and every artifact the class requires. `component.md` opens with the design brief. Each ADR (Context, Decision, Consequences, Rejected alternatives) compares the real alternatives. A consideration that is `not-affected` needs evidence.
 6. Declare `expected_changes` for the watched surfaces. A surface without an extractor in this release is `verification: manual`; the Architecture Reviewer then compares it by hand.
 7. Record the hash of every file the manifest names with `orqlet evidence hash <file>`; the reference to the AS-IS file is `<path>#<sha256>`. <!-- requires: evidence hash -->
 8. At D2 and above, start `orqlet-arch-reviewer` and `orqlet-security-reviewer` as typed subagents, each with its own context and only the paths of the design folder, the AS-IS file, the ledger, `references/design-format.md` and the output of `orqlet standards for`. Save each one's output unchanged as `docs/design/<task>/reviews/<role>-design.md`, with your responses in a separate section, and list both notes under `reviews` in the manifest. Without subagents, ask the person for a separate session or a human review: one agent playing both roles is not a review.
-   Run `orqlet evidence hash` on the design files when you start each reviewer and again when you save its note, and record the hashes in the note. When a hash differs from the manifest's, the reviewed content is not what will merge: start a new round. <!-- requires: evidence hash -->
+   Run `orqlet evidence hash` once on the design files, `manifest.yaml` included, before you start the reviewers, record the hashes in each note, and compare them with the files before you stop; a difference starts a new round. The reviews stop after three rounds with one consolidated report; the person decides on a blocking finding still open. <!-- requires: evidence hash -->
 9. Run `orqlet validate design docs/design/<task>/design/manifest.yaml`. Fix every error. <!-- requires: validate design -->
 10. STOP. Tell the person to commit the design and open a design pull request. You cannot approve it.
 
 ## Output
 
 - `docs/design/<task>/design/manifest.yaml` and the artifacts of the class; `component.md` opens with the design brief of `references/design-format.md`.
-- What the plan receives, as "Handoff" in `references/phase-contract.md` lists it: the task, the scope, the ADRs and the brief's decisions, the unresolved decisions as ledger questions, `as_is_ref` and the bound values.
+- What the plan receives, as "Handoff" in `references/phase-contract.md` lists it, with the unresolved decisions as ledger questions.
 - At D2 and above, the two reviewer notes.
 
 ## Done when

@@ -25,6 +25,18 @@ Choices:
   security reviewer's item AC-9.
 - Size: lines are `len(text.splitlines())` and words are `len(text.split())`.
 
+P-6 OF workflow-efficiency. The Tester of P-6 changed this file before the Coder changed the four
+copies, from the criteria AC-1, AC-2, AC-4, AC-5, AC-6 and AC-8 of phase P-6 in
+docs/design/workflow-efficiency/plan.yaml, BC-1, BC-4, BC-5, BC-16, BC-22 and BC-23 of
+docs/design/workflow-efficiency/design/component.md, ADR-001 (decisions 1 to 3), ADR-003 (decisions
+1 and 4) and ADR-004 (decisions 4 and 5) of that folder, Q-22 of its questions.yaml and the
+interface that the Coder gave: the subsections `### Reusing checks` and `### Evidence from the web`,
+the new phrases of the input check and the handoff, and the sentences that leave. A test of P-6
+says "P-6 AC-n" and names its BC, ADR or Q of workflow-efficiency; a test that does not say so
+still cites the task phase-skill-contracts, as above. A pin is deleted or rewritten only where P-6
+removes or changes that text, and its docstring says why. The tests that P-6 adds fail until the
+new text exists.
+
 Deliberately NOT pinned (the design leaves it open, or a phrase would only copy a file):
 - the wording around the pinned phrases, the order of the bullets of a section and the order of
   the `### ` subsections inside their section;
@@ -67,7 +79,9 @@ SUBSECTIONS = {
     "## Project context": (
         "### Sources",
         "### Commands found in project files",
+        "### Reusing checks",
         "### Values from artifacts",
+        "### Evidence from the web",
     ),
     "## Input check": ("### Stale input",),
 }
@@ -163,11 +177,32 @@ def test_bc4_the_reference_has_its_title_and_the_five_sections_in_order() -> Non
 def test_bc4_each_subsection_sits_under_its_section(parent: str, subsection: str) -> None:
     """AC-5. expected_behavior_source: ADR-001 decision 3 ("Project context" holds ADR-002, "Input
     check" ADR-003) and the interface: Sources, Commands found in project files and Values from
-    artifacts under Project context, Stale input under Input check."""
+    artifacts under Project context, Stale input under Input check. P-6 AC-1 and AC-6 (BC-1, BC-16
+    of workflow-efficiency; ADR-004 decision 4): `### Reusing checks` and `### Evidence from the
+    web` are two more subsections of Project context, by the interface of P-6."""
     text = contract()
 
     assert headings_at(text, 3).count(subsection) == 1
     assert subsection in section(text, parent).split("\n")
+
+
+def test_p6_the_new_subsections_stand_where_the_interface_puts_them() -> None:
+    """P-6 AC-1, AC-6. expected_behavior_source: the interface of P-6: `### Reusing checks` after
+    `### Commands found in project files` and before `### Values from artifacts`; `### Evidence
+    from the web` after `### Reusing checks` (ADR-001 decisions 1 to 3; ADR-004 decision 4)."""
+    found = headings_at(contract(), 3)
+
+    commands, reuse, values, web = (
+        found.index(heading)
+        for heading in (
+            "### Commands found in project files",
+            "### Reusing checks",
+            "### Values from artifacts",
+            "### Evidence from the web",
+        )
+    )
+    assert commands < reuse < values
+    assert reuse < web
 
 
 PLACES = (
@@ -249,9 +284,6 @@ COMMAND_RULES = (
     "cloud credential files",
     "Research, design, plan and onboard never run a command found in a project file",
     "show the commits since the plan's base revision that touch the cited files",
-    "cite every source again",
-    "`git diff --quiet HEAD -- <cited files>`",
-    "untracked",
     "show that change and get the person's yes",
     "Any other command runs only after",
     "planned or agreed",
@@ -277,8 +309,72 @@ def test_bc8_the_rules_for_commands_found_in_project_files_are_present(phrase: s
     summary; "a secret is never asked for in the conversation"), ADR-002 decision 3 (and "If the
     phase's own file operations change a cited file, it shows that change and gets the person's
     yes"; "Command output goes into reports and records as a summary") and decision 6 (the
-    warning list), ORQLET-SEC-003."""
+    warning list), ORQLET-SEC-003. P-6 AC-6 (BC-1 of workflow-efficiency; ADR-001 decisions 1 and
+    2; ADR-004 decision 5) takes three pins out of this list: "cite every source again", "`git diff
+    --quiet HEAD -- <cited files>`" and "untracked" leave this subsection, because the reuse rule
+    replaces the re-cite before each check; their absence is pinned below."""
     assert phrase in squash(section(contract(), "### Commands found in project files"))
+
+
+@pytest.mark.parametrize(
+    "phrase",
+    ["cite every source again", "`git diff --quiet HEAD -- <cited files>`"],
+)
+def test_p6_the_recite_before_each_check_is_gone_from_the_contract(phrase: str) -> None:
+    """P-6 AC-6. expected_behavior_source: ADR-004 decision 5 ("the sentence asking to cite every
+    source again [leaves] it") and P-6 AC-6 ("the sentence asking to cite every source again [is]
+    gone"); ADR-001 decision 1 (each source is cited once per phase, so no check re-cites it and
+    no `git diff --quiet HEAD` of the cited files runs before each check)."""
+    assert phrase not in squash(contract())
+
+
+def test_p6_the_commands_subsection_no_longer_says_untracked() -> None:
+    """P-6 AC-6. expected_behavior_source: the interface of P-6 ("`### Commands found in project
+    files` no longer contains ... the word "untracked""); ADR-001 decision 1 (the re-cite and its
+    clean-tree check move out of this subsection into `### Reusing checks`)."""
+    assert "untracked" not in squash(section(contract(), "### Commands found in project files"))
+
+
+# --- P-6 AC-1, AC-2: the reuse rule --------------------------------------------------------------
+REUSE_RULES = (
+    "once per phase",
+    "sha256 with the plan's",
+    "`orqlet evidence hash`",
+    "`git rev-parse HEAD`",
+    "`git status` is not used",
+    "names its reason",
+)
+
+
+@pytest.mark.parametrize("phrase", REUSE_RULES)
+def test_p6_the_reuse_rule_cites_a_source_once_and_confirms_it_by_hash(phrase: str) -> None:
+    """P-6 AC-1. expected_behavior_source: BC-1 of workflow-efficiency ("Each check source is cited
+    once per phase, matching the plan's hash; later runs confirm it with `orqlet evidence hash`")
+    and ADR-001 decisions 1 and 2 (the coder compares a reused citation's sha256 with the plan's;
+    `orqlet evidence hash` on the cited files before every later run; HEAD recorded with `git
+    rev-parse HEAD`; "Every rerun names its reason", BC-4) and P-6 AC-1 ("git status is not
+    used")."""
+    assert phrase in squash(section(contract(), "### Reusing checks"))
+
+
+TARGETED_RULES = (
+    "targeted form",
+    "once before review",
+    "once per rework round",
+    "after all of that round's fixes",
+)
+
+
+@pytest.mark.parametrize("phrase", TARGETED_RULES)
+def test_p6_a_targeted_form_runs_while_iterating_and_the_full_form_before_review(
+    phrase: str,
+) -> None:
+    """P-6 AC-2. expected_behavior_source: BC-5 of workflow-efficiency ("A plan may name a
+    targeted check form for iteration; the full form runs before review") and ADR-001 decision 3
+    ("the coder runs a targeted form of a check when the plan names one; the full form runs once
+    before review and once per rework round, after all of that round's fixes"); BC-4 (a rework
+    round makes all fixes, then one full check run)."""
+    assert phrase in squash(section(contract(), "### Reusing checks"))
 
 
 @pytest.mark.parametrize("braces", ["{{", "}}"])
@@ -356,6 +452,12 @@ ITEM_PHRASES: dict[str, tuple[str, ...]] = {
         "full hex id",
         "`git diff --quiet '<merge>' -- <approved files>`",
         "`git ls-files --others --exclude-standard -- <approved files>`",
+        "the task-owned evidence files that the AS-IS facts cite",
+    ),
+    "Current.": (
+        "the research merge",
+        "the design merge",
+        "may add files under `evidence/web/` but never change a cited one",
     ),
 }
 
@@ -371,7 +473,12 @@ ITEM_PHRASES: dict[str, tuple[str, ...]] = {
 def test_bc14_same_project_and_approved_name_their_git_commands(label: str, phrase: str) -> None:
     """AC-12. expected_behavior_source: AC-12 ("same project with `git merge-base --is-ancestor`,
     approved with the person-named remote-tracking ref and full merge commit, `git diff --quiet`
-    and no untracked file"), BC-14 and ADR-003 decision 4 (*Same project.* and *Approved.*)."""
+    and no untracked file"), BC-14 and ADR-003 decision 4 (*Same project.* and *Approved.*).
+    P-6 AC-4 adds two kinds of phrase. expected_behavior_source: BC-22 of workflow-efficiency and
+    ADR-003 decision 4 of that task: *Approved.* approves "the task-owned evidence files that the
+    AS-IS facts cite"; *Current.* compares them with the same reference as `as-is.md` in each
+    phase ("the research merge" for design, "the design merge" for plan and implement) and says
+    that later phases "may add files under `evidence/web/` but never change a cited one"."""
     items = dict(the_check_items())
 
     assert label in items
@@ -393,7 +500,6 @@ CHECK_PHRASES = (
     "`git ls-files --others --exclude-standard -- <approved files>`",
     "Never edit an earlier phase's artifact to pass a check",
     "never change bound values",
-    "ORQ-I393 alone",
 )
 
 
@@ -405,8 +511,27 @@ def test_bc14_the_checks_state_their_order_exit_statuses_and_what_never_happens(
     0 or 1 for `--quiet` and `--is-ancestor`, 0 with nothing on the error output otherwise; "check
     not run" for anything else; `git rev-parse --verify` for a composed revision; the agent never
     chooses a commit; a full hex id; the skill never edits an earlier artifact or its bound
-    values), ADR-003 decisions 4 and 5."""
+    values), ADR-003 decisions 4 and 5. P-6 AC-6 removes the pin "ORQ-I393 alone": the sentence
+    on a NOT_RUN gate status caused by ORQ-I393 alone leaves the contract (ADR-004 decision 5);
+    its absence is pinned below."""
     assert phrase in squash(the_checks())
+
+
+def test_p6_the_contract_no_longer_mentions_the_offline_not_run_of_gate_status() -> None:
+    """P-6 AC-6. expected_behavior_source: ADR-004 decision 5 ("the sentence on the ORQ-I393 NOT_RUN
+    ... leave[s] it") and P-6 AC-6 ("the ORQ-I393 NOT_RUN sentence ... [is] gone"); the interface
+    of P-6: "ORQ-I393" is absent from the contract."""
+    assert "ORQ-I393" not in contract()
+
+
+def test_p6_an_evidence_file_that_the_as_is_facts_cite_is_never_planned_work() -> None:
+    """P-6 AC-4. expected_behavior_source: ADR-003 decision 4 ("Later phases may add new files under
+    `evidence/web/` but never change a cited file. The planned-work row of the stale-input matrix
+    says the same.") and BC-22 of workflow-efficiency; the interface of P-6 pins the phrase "an
+    evidence file that the AS-IS facts cite" in the stale-input planned-work row."""
+    stale = squash(section(contract(), "### Stale input"))
+
+    assert "an evidence file that the AS-IS facts cite" in stale
 
 
 LEDGER_RULE = (
@@ -498,6 +623,22 @@ def test_bc13_the_handoff_says_where_the_bound_values_and_the_hashes_go(phrase: 
     assert phrase in squash(section(contract(), "## Handoff"))
 
 
+BINDING_RULES = (
+    "before your first commit on the phase branch",
+    "survives a squash merge",
+)
+
+
+@pytest.mark.parametrize("phrase", BINDING_RULES)
+def test_p6_the_handoff_binds_the_base_revision_before_the_first_branch_commit(phrase: str) -> None:
+    """P-6 AC-5. expected_behavior_source: BC-23 of workflow-efficiency ("Phase skills bind
+    `base_revision` before their first branch commit") and ADR-003 decision 1 (each phase skill
+    runs `gate status --json` for its header before its first commit on the phase branch, so
+    `base_revision` is the protected branch's commit that the branch starts from, which survives
+    a squash merge); the interface of P-6 puts both phrases in `## Handoff`."""
+    assert phrase in squash(section(contract(), "## Handoff"))
+
+
 # --- the words for `orqlet standards for` ---------------------------------------------------------
 WORD_ROWS = (
     "| research | `research` | `researcher` |",
@@ -538,13 +679,16 @@ def test_bc10_an_edited_installed_file_is_restored_and_guidance_goes_elsewhere(p
 
 
 # --- BC-35: size; Q-12: no technology word -------------------------------------------------------
-def test_bc35_the_reference_fits_150_lines_and_1800_words() -> None:
-    """AC-21. expected_behavior_source: BC-35 ("`phase-contract.md` at most 150 lines and 1,800
-    words"), measured as attached."""
+def test_q22_the_reference_fits_150_lines_and_2000_words() -> None:
+    """P-6 AC-8. expected_behavior_source: Q-22 of workflow-efficiency (answered: "Raise the cap
+    to 2,000 words; the binding limit is the words a skill run loads") and ADR-004 decision 5 (the
+    test cap rises from 1,800 to 2,000 words); the 150 lines stay as BC-35 of
+    phase-skill-contracts ("at most 150 lines") has them. Measured as attached. This test was
+    `test_bc35_the_reference_fits_150_lines_and_1800_words`; P-6 changes only the word cap."""
     text = contract()
 
     assert len(text.splitlines()) <= 150
-    assert len(text.split()) <= 1800
+    assert len(text.split()) <= 2000
 
 
 def test_q12_the_reference_names_no_technology_that_the_injection_test_counts() -> None:

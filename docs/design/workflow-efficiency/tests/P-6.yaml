@@ -1,0 +1,81 @@
+schema: orqlet.test-record/v1
+task: workflow-efficiency
+phase: P-6
+review_input:
+  components:
+    code_tests: 7a6997c777d156a5010bc06837556b544f81a3cee2159e116eecbcf9a216f342
+    plan: 34a6f679a5585859c8d850fca7a208e5b6d4e3dd14eeccc0b38d081a4fc20365
+  covers:
+  - code_tests
+  - plan
+  digest: c96eef6bdbe79d60149786508bd5016766ed3bec1ab9c9b4d455d63089d0ce54
+  merge_base: 5cae930b7bd858cf262feb60be352131102dda5c
+  schema: orqlet.review-input/v1
+verdict: NOT_RUN
+evidence_kind: claimed
+commands:
+- id: ruff-check
+  exit_code: 1
+  summary: Found 3 errors, all in the two frozen files tests/unit/render/test_user_scope_render.py and
+    tests/unit/application/test_user_render_request.py (Q-14 known failure, import order and one long line). The
+    changed Python files of the phase pass `uv run ruff check <files>` with exit 0 (targeted form, Q-26).
+  result_digest: 4924df90b6a32ca39b27dd35300ceead04c646db4279d2a1f0ac161353730442
+- id: ruff-format
+  exit_code: 0
+  summary: 828 files already formatted
+  result_digest: 50aa81c4782dd4828cdec57d169d4e6339d616c10a9981fb3c6efaaabe3ed288
+- id: mypy
+  exit_code: 1
+  summary: Found 10 errors in 2 files (checked 427 source files), both files the frozen test files of Q-14; no
+    error in a file of this phase.
+  result_digest: 49d6df08dc4c02fd7c41e9c3bb6e35251287fa6a891721753115890134e35e10
+- id: build-manifest
+  exit_code: 0
+  summary: No output and exit 0, so MANIFEST.json is what the build tool renders from the changed workflow files.
+    It was written once with `uv run python tools/build_manifest.py` after the text was final (Q-27).
+  result_digest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+- id: pytest
+  exit_code: 1
+  summary: 14240 passed, 1 skipped (junctions exist on Windows only), 2 errors in 1705.24s on Python 3.12.11, one
+    Python only, with the local form `uv run pytest --continue-on-collection-errors` (Q-25). The 2 errors are the
+    collection errors of the two frozen test files (Q-14). The Tester wrote the tests before the text existed;
+    the targeted run on the five test files of the phase had 66 of 600 failing for the old text and 534 passing.
+    The goldens were written once with `uv run pytest --update-golden tests/unit/render/test_clients_golden.py`
+    (Q-27); 24 golden files changed, all in the phase's file list. The digest is of the captured tail (the last 40
+    lines) of the full run, which holds the final summary and both errors.
+  result_digest: dca7b2e32e9b3852018f16b9ca38da0c13733fd8fb47c4b6340770a18394cd3f
+- id: gate-status-phase
+  exit_code: 5
+  summary: NOT_RUN with exit 5 on the staged tree and no ORQ-E450, ORQ-E451 or ORQ-E453. The only causes are the
+    ORQ-W390 stale warnings for as-is, design and plan, from the commits of the plan merge, its amendment and phases
+    P-1 to P-5, which the person confirmed under the planned-work row (ADR-001 decision 4); ORQ-I393 and ORQ-I451
+    are info.
+  result_digest: 1ad814d0ce9bb3c7dc093f11e5259631ca2d38c5788e2be08ee7e5302111755f
+acceptance_coverage:
+- ac: AC-1
+  check_ref: pytest
+  result: pass
+- ac: AC-2
+  check_ref: pytest
+  result: pass
+- ac: AC-3
+  check_ref: pytest
+  result: pass
+- ac: AC-4
+  check_ref: pytest
+  result: pass
+- ac: AC-5
+  check_ref: pytest
+  result: pass
+- ac: AC-6
+  check_ref: pytest
+  result: pass
+- ac: AC-7
+  check_ref: pytest
+  result: pass
+- ac: AC-8
+  check_ref: pytest
+  result: pass
+- ac: AC-9
+  check_ref: gate-status-phase
+  result: not-run

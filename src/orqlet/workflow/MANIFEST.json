@@ -235,19 +235,19 @@
     },
     {
       "path": "skills/orqlet-design/references/phase-contract.md",
-      "sha256": "4c18a07f0415e7d02da9155a9e17a118609b4583f77096b4cdd430d200b3ab45"
+      "sha256": "4b40dc12a08862e8433e03ba8beb9c2b0fe166831d61308fac119648a1636d06"
     },
     {
       "path": "skills/orqlet-design/skill.md",
-      "sha256": "c3788bfbec61888ca7c0b10bb4fc5a3953483f289451ca56d512bb703cd6d81c"
+      "sha256": "e9d83d2ccb918dee4800899ec9c59d686588b0bc3c4423b7b7b058fe9f13281e"
     },
     {
       "path": "skills/orqlet-implement/references/phase-contract.md",
-      "sha256": "4c18a07f0415e7d02da9155a9e17a118609b4583f77096b4cdd430d200b3ab45"
+      "sha256": "4b40dc12a08862e8433e03ba8beb9c2b0fe166831d61308fac119648a1636d06"
     },
     {
       "path": "skills/orqlet-implement/skill.md",
-      "sha256": "deca3202adbd60c34c101bcbf92fbbd1d90a0216e4e86bcc2ff22a2551349071"
+      "sha256": "4741227d4be4caf83d4c441490087b115acf4ced4ddfbeb7cbc832f0e5b16b8a"
     },
     {
       "path": "skills/orqlet-onboard/skill.md",
@@ -255,7 +255,7 @@
     },
     {
       "path": "skills/orqlet-plan/references/phase-contract.md",
-      "sha256": "4c18a07f0415e7d02da9155a9e17a118609b4583f77096b4cdd430d200b3ab45"
+      "sha256": "4b40dc12a08862e8433e03ba8beb9c2b0fe166831d61308fac119648a1636d06"
     },
     {
       "path": "skills/orqlet-plan/references/plan-format.md",
@@ -263,7 +263,7 @@
     },
     {
       "path": "skills/orqlet-plan/skill.md",
-      "sha256": "1696ebec42123e0118e9b837021fdaf61c77b789381516c0dc8acc88dc01efd7"
+      "sha256": "9ad33fad59e99a549c5cbc5088a364f96cd0c321e59cd543c7e3a2deaae35a96"
     },
     {
       "path": "skills/orqlet-research/references/as-is-format.md",
@@ -271,11 +271,11 @@
     },
     {
       "path": "skills/orqlet-research/references/phase-contract.md",
-      "sha256": "4c18a07f0415e7d02da9155a9e17a118609b4583f77096b4cdd430d200b3ab45"
+      "sha256": "4b40dc12a08862e8433e03ba8beb9c2b0fe166831d61308fac119648a1636d06"
     },
     {
       "path": "skills/orqlet-research/skill.md",
-      "sha256": "a8f00c610c8f376919540df2e38943dadec23cbc5e78f7d1c1034c85337334b1"
+      "sha256": "ab54d15e001585b0fe4c9b7c5ece8ac173023e99e296008df1da0e10901322dd"
     },
     {
       "path": "skills/orqlet-review/references/review-format.md",

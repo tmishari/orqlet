@@ -26,6 +26,16 @@ expected to fail until its text existed. The tests of BC-1 describe what exists 
 and so do those that today's onboard and review texts already meet: the STOP step, no lacking
 command with BEFORE_RECORDS, no shared reference, the size and Q-12.
 
+P-6 OF workflow-efficiency. The Tester of P-6 changed the tests of the four phase skills before
+the Coder changed their texts, from the criteria AC-1 to AC-7 of phase P-6 in
+docs/design/workflow-efficiency/plan.yaml, BC-1 to BC-6 and BC-23 of
+docs/design/workflow-efficiency/design/component.md, ADR-001 (decisions 1, 4, 5, 6), ADR-003
+(decision 1) and ADR-004 (decision 5) of that folder and the interface that the Coder gave. A test
+that cites "P-6 AC-n" names those sources; three pins leave with the text they pinned ("caused by
+ORQ-I393 alone is not a failure" and its sentence mate "the input check decides everything else",
+"cite every source again", "when you start each reviewer and again when you save"), and an
+absence test stands in the place of each. Each new test fails until its text exists.
+
 Choices:
 - A body is the rendered body (front matter removed), rendered with every command
   (IMPLEMENTED_COMMANDS | PLANNED_COMMANDS) unless a test says otherwise. The shape tests also
@@ -546,21 +556,19 @@ def test_bc37_research_starts_with_the_input_check_of_an_earlier_as_is_file(rele
 
 
 # --- BC-16: NOT_RUN offline ----------------------------------------------------------------------
-NOT_RUN_PHRASES = (
-    "caused by ORQ-I393 alone is not a failure",
-    "the input check decides everything else",
-)
-
-
-@pytest.mark.parametrize("phrase", NOT_RUN_PHRASES)
 @pytest.mark.parametrize("skill", ["orqlet-plan", "orqlet-implement"])
-def test_bc16_plan_and_implement_do_not_count_an_offline_not_run_as_a_failure(
-    skill: str, phrase: str
-) -> None:
-    """AC-15. expected_behavior_source: BC-16 ("a NOT_RUN result of `orqlet gate status <task>`
-    caused by ORQ-I393 alone is not a failure, and ... the checks of ADR-003 decision 4 decide
-    everything else") and ADR-003 decision 4 (fixes C-6)."""
-    assert phrase in squash(body(skill))
+def test_p6_plan_and_implement_no_longer_carry_the_offline_not_run_sentence(skill: str) -> None:
+    """P-6 AC-6. expected_behavior_source: ADR-004 decision 5 ("the sentence on the ORQ-I393
+    NOT_RUN ... leave[s]") and P-6 AC-6 ("the ORQ-I393 NOT_RUN sentence ... [is] gone"); the
+    interface of P-6 (plan: "the sentence 'caused by ORQ-I393 alone is not a failure' and any
+    mention of ORQ-I393 are gone"; implement: no mention of ORQ-I393). This replaces the pins
+    "caused by ORQ-I393 alone is not a failure" (BC-16 of phase-skill-contracts, AC-15) and "the
+    input check decides everything else", which stood in that one sentence; the interface of P-6
+    does not say whether the second phrase survives elsewhere, so it is no longer pinned."""
+    text = squash(body(skill))
+
+    assert "ORQ-I393" not in text
+    assert "alone is not a failure" not in text
 
 
 PHASE_STATUS_PHRASES = (
@@ -634,7 +642,6 @@ def test_bc22_the_plan_writes_the_criteria_before_the_file_operations() -> None:
 IMPLEMENT_PHRASES = (
     "small, coherent steps",
     "no revert, stash or clean",
-    "cite every source again",
     "Design revision needed",
     "the files changed",
     "the checks run",
@@ -651,8 +658,47 @@ def test_bc24_implement_holds_the_steps_and_the_six_part_report(phrase: str) -> 
     """AC-19. expected_behavior_source: BC-24 (the steps of ADR-004 decision 5, the re-cite before
     each check, "Design revision needed" and the six-part report with planned or agreed commands)
     and ADR-004 decision 5 (the six parts: the files changed, the checks run, the checks not run,
-    acceptance coverage, the deviations, the remaining uncertainties)."""
+    acceptance coverage, the deviations, the remaining uncertainties). P-6 AC-6 removes the pin
+    "cite every source again" (the re-cite before each check): ADR-001 decision 1 cites each
+    source once per phase, and the absence is pinned below."""
     assert phrase in squash(body("orqlet-implement"))
+
+
+def test_p6_implement_step_six_refers_to_reusing_checks_and_no_longer_recites() -> None:
+    """P-6 AC-1, AC-6. expected_behavior_source: BC-1 of workflow-efficiency (each check source is
+    cited once per phase) and ADR-001 decision 1; ADR-004 decision 5 ("the sentence asking to
+    cite every source again [leaves]"); the interface of P-6 (step 6 refers to "Reusing checks" of
+    `references/phase-contract.md` and no longer says "cite every source again")."""
+    text = squash(body("orqlet-implement"))
+    step_six = numbered_items(body("orqlet-implement"))[5]
+
+    assert "cite every source again" not in text
+    assert "Reusing checks" in step_six
+    assert CONTRACT in step_six
+
+
+def test_p6_implement_runs_gate_status_once_per_phase_and_reuses_the_validators_result() -> None:
+    """P-6 AC-3. expected_behavior_source: BC-2 of workflow-efficiency ("One `gate status --phase`
+    per implement phase; a later phase reuses the validators' result when its only stale cause is
+    confirmed planned work") and ADR-001 decision 4 (implement runs `gate status --phase` once per
+    phase; the person confirms the planned-work row once per phase; the validators' result is
+    reused when that is the only stale cause)."""
+    first = numbered_items(body("orqlet-implement"))[0]
+
+    assert "Run `orqlet gate status <task> --phase <phase>` once per phase" in first
+    assert "reuse" in first
+    assert "only stale cause" in first
+
+
+def test_p6_implement_stops_the_rework_after_three_rounds_with_one_consolidated_report() -> None:
+    """P-6 AC-7. expected_behavior_source: BC-6 of workflow-efficiency ("Design and code reviews
+    stop after three rounds with one consolidated report") and ADR-001 decision 6 (with a
+    blocking finding still open, the person decides between a rework, a design revision and a
+    human review); the interface of P-6 pins "after three rounds" and "one consolidated report"."""
+    text = squash(body("orqlet-implement"))
+
+    assert "after three rounds" in text
+    assert "one consolidated report" in text
 
 
 def test_bc24_implement_runs_the_standards_on_each_file_of_the_phase() -> None:
@@ -746,10 +792,17 @@ REVIEW_STEP_PHRASES = (
     "references/design-format.md",
     "output of `orqlet standards for`",
     "`orqlet evidence hash`",
-    "when you start each reviewer and again when you save",
     "unchanged",
     "separate section",
     "new round",
+    # P-6 AC-3, AC-7 (BC-3, BC-6, ADR-001 decisions 5 and 6): one hash run before the reviewers.
+    "Run `orqlet evidence hash` once on the design files, `manifest.yaml` included, before you "
+    "start the reviewers",
+    "record the hashes in each note",
+    "compare them with the files before you stop",
+    "a difference starts a new round",
+    "stop after three rounds",
+    "one consolidated report",
 )
 
 
@@ -761,16 +814,94 @@ def design_review_step() -> str:
 
 
 @pytest.mark.parametrize("phrase", REVIEW_STEP_PHRASES)
-def test_bc25_the_design_review_step_gives_the_inputs_hashes_twice_and_keeps_the_output(
+def test_bc25_the_design_review_step_gives_the_inputs_hashes_once_and_keeps_the_output(
     phrase: str,
 ) -> None:
-    """AC-20. expected_behavior_source: BC-25 (the reviewer step gives the inputs of ADR-004
-    decision 7, runs `orqlet evidence hash` when it starts each reviewer and again when it saves
-    the note, saves the output unchanged with the author's responses in a separate section, and
-    starts a new round when a hash differs) and ADR-004 decision 7 (the paths of the design folder,
-    the AS-IS file, the ledger, the design format reference and the output of `orqlet standards
-    for`)."""
+    """AC-20; P-6 AC-3, AC-7. expected_behavior_source: BC-25 of phase-skill-contracts (the
+    reviewer step gives the inputs of ADR-004 decision 7, saves the output unchanged with the
+    author's responses in a separate section, and starts a new round when a hash differs) and
+    ADR-004 decision 7 (the paths of the design folder, the AS-IS file, the ledger, the design
+    format reference and the output of `orqlet standards for`). P-6 changes the hash rule and
+    renames this test (it said "twice"): BC-3 of workflow-efficiency ("design hashes once before
+    review, into each note, and compares before stopping; a difference starts a new round") and
+    ADR-001 decision 5 (hash the design files once, `manifest.yaml` included, before the
+    reviewers start, record the hashes in each note, compare them with the files before stopping);
+    BC-6 and ADR-001 decision 6 (design reviews stop after three rounds with one consolidated
+    report). The pin "when you start each reviewer and again when you save" is removed with the
+    text it pinned; its absence is pinned below."""
     assert phrase in design_review_step()
+
+
+def test_p6_the_design_review_step_no_longer_hashes_at_each_start_and_again_at_the_save() -> None:
+    """P-6 AC-3. expected_behavior_source: BC-3 of workflow-efficiency and ADR-001 decision 5 (one
+    hash run before the reviewers, one comparison before stopping, instead of a run at each
+    reviewer's start and again at its save)."""
+    old = "when you start each reviewer and again when you save"
+
+    assert old not in squash(body("orqlet-design"))
+
+
+# --- P-6 AC-5, BC-23: each phase skill binds base_revision before its first branch commit --------
+FIRST_COMMIT = "before your first commit on the branch"
+HEADER_STATUS = "`orqlet gate status <task> --json`"
+
+
+def step_with_header_status(skill: str) -> tuple[list[str], int]:
+    steps = numbered_items(body(skill))
+    return steps, first_step_with(steps, HEADER_STATUS)
+
+
+@pytest.mark.parametrize("skill", ["orqlet-research", "orqlet-design"])
+def test_p6_research_and_design_bind_the_header_before_their_first_branch_commit(
+    skill: str,
+) -> None:
+    """P-6 AC-5. expected_behavior_source: BC-23 of workflow-efficiency ("Phase skills bind
+    `base_revision` before their first branch commit") and ADR-003 decision 1 (each phase skill
+    runs `gate status --json` for its header before its first commit on the phase branch); the
+    interface of P-6 (the header step runs `orqlet gate status <task> --json` "before your first
+    commit on the branch")."""
+    steps, at = step_with_header_status(skill)
+
+    assert FIRST_COMMIT in steps[at]
+
+
+@pytest.mark.parametrize("skill", ["orqlet-research", "orqlet-design"])
+def test_p6_the_header_is_bound_before_the_step_that_commits_web_evidence(skill: str) -> None:
+    """P-6 AC-5. expected_behavior_source: ADR-003 decision 1 (the base is bound before the first
+    commit on the branch, and the web-evidence step is the first step that says "Commit it" or
+    "commit it") and the interface of P-6 ("a step before the web-evidence step")."""
+    steps, at = step_with_header_status(skill)
+    web = first_step_with(steps, "Evidence from the web")
+
+    assert at < web
+
+
+def test_p6_research_cites_facts_outside_its_folder_at_the_base_revision() -> None:
+    """P-6 AC-5. expected_behavior_source: BC-23 of workflow-efficiency and ADR-003 decision 1
+    ("research cites every fact outside its own folder with `--revision` set to `base_revision`,
+    in a call separate from its task-owned evidence"); the interface of P-6 (the step that cites
+    facts says "outside its folder" and "`--revision` set to `base_revision`")."""
+    steps = numbered_items(body("orqlet-research"))
+    step = steps[first_step_with(steps, "outside its folder")]
+
+    assert "`--revision` set to `base_revision`" in step
+    assert "orqlet evidence cite" in step
+
+
+def test_p6_plan_runs_gate_status_once_before_its_first_commit_and_fills_the_header() -> None:
+    """P-6 AC-3, AC-5. expected_behavior_source: BC-3 of workflow-efficiency ("Plan runs gate
+    status once") and ADR-001 decision 5 (plan runs gate status once and uses that output for its
+    header); BC-23 and ADR-003 decision 1 (before its first commit on the branch); the interface
+    of P-6 (one occurrence of "orqlet gate status" in the body; step 7 only runs `orqlet validate
+    plan`)."""
+    steps = numbered_items(body("orqlet-plan"))
+    at = first_step_with(steps, "orqlet gate status")
+    validate = steps[first_step_with(steps, "orqlet validate plan")]
+
+    assert squash(body("orqlet-plan")).count("orqlet gate status") == 1
+    assert FIRST_COMMIT in steps[at]
+    assert "header" in steps[at]
+    assert "orqlet gate status" not in validate
 
 
 # --- BC-35: the size of a body -------------------------------------------------------------------
