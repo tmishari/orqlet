@@ -1,0 +1,125 @@
+schema: orqlet.review-result/v1
+task: workflow-efficiency
+phase: P-6
+role: code-reviewer
+round: 1
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: 7a6997c777d156a5010bc06837556b544f81a3cee2159e116eecbcf9a216f342
+    design: ca86b2a73b778b9e33a398bf70b0752be94a68da6d0718376cf8d971ff239e10
+    evidence_inputs: 0b525c6e6494b1ead9825e0afd2d9ec1d0e116eb5eb203f7042a455c78a421b7
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 34a6f679a5585859c8d850fca7a208e5b6d4e3dd14eeccc0b38d081a4fc20365
+    reviewer_definition: 6660b181a2ba46a0bbd8225a3449e2322f0030dea1fa146cb15dfd0e3ffcd94e
+    standards: 0e5b7e5fc8f3950ac5d360cf4a0c9dbe2b4880433ba15680a6c66220d4434e5d
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 9ddceca35cf91c3f6b158c8c5b169a3b5a249b7ec2bde7d5b403f9c0561fc52b
+  merge_base: 5cae930b7bd858cf262feb60be352131102dda5c
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-code-reviewer
+  definition_sha256: d807b6881723a0c72151d12a514eb0506a2356d9e94d170daff3f53178dff488
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I0
+capability_limits:
+- 'No approved code-reviewer binding for cursor in .orqlet/role-bindings.yaml: independence I0, below the I2 that a code review
+  needs at every change class.'
+- 'Same client as the Coder (cursor): independence I1, below the I2 that a D3 change requires (ORQLET-MODEL-002); the verdict
+  is NOT_RUN.'
+- It was started as a typed subagent with the packet path workflow-efficiency-P-6-7a26dbc9 as its only prompt; that the context
+  is fresh is the Coder's claim. The packet's diff is against main 5cae930 and holds P-6 only.
+- The reviewer's session ran no check and computed no quote digest, so its evidence is given by path and line. The Coder wrote
+  this record from its returned text.
+- The client does not show the reviewer's model, so the identity is unknown. models resolve printed no candidate for cursor
+  (no model is approved by the policy), so no --different-family-from was passed.
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- The reviewer's own conclusion was no blocking defect; it ran no check and took the pass results from the tester's record.
+applicability:
+  examined:
+  - diff.patch, the snapshot of the changed skills, contract copies and tests, and the manifest listing
+  - the plan, the test record and the knowledge record
+  conclusion: findings
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: code-reviewer
+    phase: implement
+  checks:
+  - what: packet read
+    how: orqlet review prepare workflow-efficiency P-6 (workflow-efficiency-P-6-7a26dbc9)
+    result: pass
+  - what: running the checks and quote digests
+    how: none run by the reviewer
+    result: not-run
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: correctness
+  claim: AC-5 says each of the four skills binds base_revision with gate status --json before its first branch commit. The
+    implement skill runs gate status <task> --phase <phase> and says nothing of --json or a first commit, and no test pins
+    implement for AC-5, yet the test record marks AC-5 pass (plan.yaml P-6 AC-5; orqlet-implement/skill.md step 1; test_workflow_skill_contracts.py).
+  suggested_action: Narrow AC-5 to the skills that write a header by a plan amendment, or add the binding to implement with
+    a test; in either case say so in the phase report.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: tests
+  claim: Research step 7 says a fact outside its folder takes --revision set to base_revision, but 'its folder' is not defined
+    (docs/design/<task>/ or its evidence/ folder); the test pins two phrases and passes under either reading (orqlet-research/skill.md
+    step 7; test_workflow_skill_contracts.py).
+  suggested_action: Name the path, for example 'outside docs/design/<task>/evidence/', and pin that wording.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: standards
+  claim: Implement step 1 runs the input check (which includes gate status <task>) and then gate status <task> --phase <phase>,
+    two gate runs beside 'once per phase'; 'Later phases reuse the validators' result' depends on what an agent carries between
+    implement runs, and the AC-3 test pins only phrases.
+  suggested_action: Say in the phase report which run 'once per phase' means; optional.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: non-blocking
+  category: docs
+  claim: The phase contract lost 'the person names' after 'tickets' and 'and single-quote it' after git rev-parse --verify,
+    and the design clause for step 6 changed ('the commit that recorded the AS-IS acceptance' and 'a change needs a new acceptance
+    or a refresh' are gone); the research merge is not defined for a project without squash merges (phase-contract.md Sources
+    and input check).
+  suggested_action: Say in the phase report whether each trim is deliberate (word budget); restore 'the person names' if not.
+  confidence: low
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: non-blocking
+  category: standards
+  claim: The knowledge-impact record shows orqlet_version 0.4.0 while the workflow is 0.5.0; the packet does not show whether
+    this is the command's own version string (context/knowledge-impact.yaml).
+  suggested_action: 'Unknown: ask whether the version string is the installed CLI''s own.'
+  confidence: low

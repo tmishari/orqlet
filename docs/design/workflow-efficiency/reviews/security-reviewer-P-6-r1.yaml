@@ -1,0 +1,108 @@
+schema: orqlet.review-result/v1
+task: workflow-efficiency
+phase: P-6
+role: security-reviewer
+round: 1
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: 7a6997c777d156a5010bc06837556b544f81a3cee2159e116eecbcf9a216f342
+    design: ca86b2a73b778b9e33a398bf70b0752be94a68da6d0718376cf8d971ff239e10
+    evidence_inputs: 0b525c6e6494b1ead9825e0afd2d9ec1d0e116eb5eb203f7042a455c78a421b7
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 34a6f679a5585859c8d850fca7a208e5b6d4e3dd14eeccc0b38d081a4fc20365
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: 0e5b7e5fc8f3950ac5d360cf4a0c9dbe2b4880433ba15680a6c66220d4434e5d
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 6fd3c0c16cdc2d7720a3e16b6b618d08e3b95018e967009c36bbd2c16b1e3483
+  merge_base: 5cae930b7bd858cf262feb60be352131102dda5c
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- 'Same client as the Coder (cursor): independence I1, below the I2 that a D3 change requires (ORQLET-MODEL-002); the verdict
+  is NOT_RUN.'
+- It was started as a typed subagent with the packet path workflow-efficiency-P-6-7a26dbc9 as its only prompt; that the context
+  is fresh is the Coder's claim. The packet's diff is against main 5cae930 and holds P-6 only.
+- The reviewer's session ran no check and computed no quote digest, so its evidence is given by path and line. The Coder wrote
+  this record from its returned text.
+- The client does not show the reviewer's model, so the identity is unknown. models resolve printed no candidate for cursor
+  (no model is approved by the policy), so no --different-family-from was passed.
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- The reviewer's own conclusion was no blocking security finding; the change adds no code, I/O or dependency and no secret
+  was found.
+applicability:
+  examined:
+  - diff.patch, MANIFEST.json listing, the plan, the knowledge record and the test record
+  - the snapshot of evidence_cite.py, facts.py, the phase contract and the implement skill
+  conclusion: findings
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet read
+    how: orqlet review prepare workflow-efficiency P-6 (workflow-efficiency-P-6-7a26dbc9)
+    result: pass
+  - what: running the checks and quote digests
+    how: none run by the reviewer
+    result: not-run
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: security
+  claim: 'The tamper check before each rerun cannot match what the plan records: ''orqlet evidence hash'' prints the content
+    hash of the whole file, while the plan''s recorded hashes for CI and manifest lines are line-range hashes, so the two
+    differ for any file cited by lines. The old ''git diff --quiet HEAD -- <cited files>'' check is gone, so there is no working
+    detection of a cited CI file edited between runs (phase-contract.md line 37; evidence_cite.py 113-130; facts.py 28-32;
+    plan.yaml 107-115).'
+  suggested_action: 'Say which hash is compared: the line-range hash from ''orqlet evidence cite <path> <lines>'', or keep
+    a diff-and-untracked check as the guard; pin it in AC-1.'
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: security
+  claim: Removing 'Before each, cite every source again and confirm git diff --quiet' leaves a window in which a cited CI
+    file or Makefile changes after the first check; the text admits 'a file outside them can change unnoticed'. The design
+    approved this trade in ADR-001; it is reported as residual risk.
+  suggested_action: Accept it in the phase report as a residual risk, or restore a cheap diff-and-untracked check before each
+    full run.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: security
+  claim: 'Three smaller hardening phrases are gone: ''single-quote it'' for a composed revision, ''never from an earlier session''s
+    memory'' in Handoff, and the per-reviewer hash at start and at save in the design skill. ''Values from artifacts'' still
+    requires single-quoted arguments, ''--'' before paths and an allow-list, and the design hash is still compared before
+    the skill stops.'
+  suggested_action: None required; noted for the architecture reviewer.
+  confidence: low
