@@ -30,39 +30,83 @@ _MAX_LISTED_RULES = 10
 
 
 def cite(
-    services: ValidateServices, raw_path: str, lines: str, revision: str | None = None
+    services: ValidateServices, pairs: Sequence[tuple[str, str]], revision: str | None = None
 ) -> ValidationResult:
-    """The evidence entry for `lines` of `raw_path` at a revision (default: HEAD, as a full id)."""
+    """One evidence entry for each (path, lines) pair at a revision (default: HEAD, a full id).
+
+    A pair that fails is reported and returned without a revision or hash, so a caller can never
+    copy a hash that was not computed; the other pairs are still cited.
+    """
     out = Collector()
+    parsed = [_parse_pair(raw_path, lines, out) for raw_path, lines in pairs]
+    resolved = _resolve_revision(services, revision, out)
+    if resolved is None:
+        return out.result()
+    entries = [
+        _cite_pair(services, reference, resolved, out)
+        if reference
+        else {"path": raw, "lines": lines}
+        for reference, (raw, lines) in zip(parsed, pairs, strict=True)
+    ]
+    return out.result(_data_of(entries))
+
+
+def _parse_pair(raw_path: str, lines: str, out: Collector) -> EvidenceRef | None:
     try:
         path = str(CanonicalPath.parse(raw_path))
-        reference = EvidenceRef.parse(path, lines, "0" * 40, "0" * 64)
+        return EvidenceRef.parse(path, lines, "0" * 40, "0" * 64)
     except (InvalidPath, InvalidEvidence) as error:
         out.error("ORQ-E320", str(error), raw_path)
-        return out.result()
+        return None
+
+
+def _resolve_revision(
+    services: ValidateServices, revision: str | None, out: Collector
+) -> str | None:
     resolved = revision or services.vcs.head_commit()
     if resolved is None:
         out.skip("the repository has no commit yet, so there is no revision to cite")
-        return out.result()
+        return None
     if resolved == "HEAD":
         resolved = services.vcs.head_commit() or "HEAD"
     if not services.vcs.has_revision(resolved):
         out.skip(f"the revision {resolved[:12]} is not in this repository")
-        return out.result()
-    content = services.vcs.read_at(resolved, path)
+        return None
+    return resolved
+
+
+def _cite_pair(
+    services: ValidateServices, reference: EvidenceRef, revision: str, out: Collector
+) -> dict[str, str]:
+    path = reference.path
+    entry = {"path": path, "lines": reference.lines}
+    content = services.vcs.read_at(revision, path)
     if content is None:
-        out.error("ORQ-E333", f"{path} does not exist at revision {resolved[:12]}", path)
-        return out.result()
+        out.error("ORQ-E333", f"{path} does not exist at revision {revision[:12]}", path)
+        return entry
     if _WEB_EVIDENCE.match(path.casefold()) and _web_evidence_refused(path, content, out):
-        return out.result()
+        return entry
     try:
         digest = line_range_hash(content, reference.start, reference.end)
     except EvidenceError:
         out.error("ORQ-E334", f"{path} does not have lines {reference.lines}", path)
-        return out.result()
-    entry = {"path": path, "lines": reference.lines, "revision": resolved, "sha256": digest}
-    snippet = "{" + ", ".join(f"{key}: {value}" for key, value in entry.items()) + "}"
-    return out.result({**entry, "snippet": snippet})
+        return entry
+    return {**entry, "revision": revision, "sha256": digest}
+
+
+def _data_of(entries: list[dict[str, str]]) -> dict[str, object]:
+    """`citations` always; a single cited pair also keeps the flat fields it had before pairs."""
+    snippets = [_snippet(entry) for entry in entries if "sha256" in entry]
+    data: dict[str, object] = {"citations": entries}
+    if len(entries) == 1 and snippets:
+        data.update(entries[0])
+    if snippets:
+        data["snippet"] = "\n".join(snippets)
+    return data
+
+
+def _snippet(entry: dict[str, str]) -> str:
+    return "{" + ", ".join(f"{key}: {value}" for key, value in entry.items()) + "}"
 
 
 def file_hashes(services: ValidateServices, raw_paths: Sequence[str]) -> ValidationResult:

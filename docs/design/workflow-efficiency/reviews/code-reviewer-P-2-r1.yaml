@@ -1,0 +1,102 @@
+schema: orqlet.review-result/v1
+task: workflow-efficiency
+phase: P-2
+role: code-reviewer
+round: 1
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: e30b69861a99f1755779103a733237a74bf4cfd1930bc94d6ff6513a8e3b771d
+    design: ca86b2a73b778b9e33a398bf70b0752be94a68da6d0718376cf8d971ff239e10
+    evidence_inputs: 264c1c440775f28e141b161dae524e155001fca2faf871f34d6ec03df4aeed52
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 34a6f679a5585859c8d850fca7a208e5b6d4e3dd14eeccc0b38d081a4fc20365
+    reviewer_definition: 6660b181a2ba46a0bbd8225a3449e2322f0030dea1fa146cb15dfd0e3ffcd94e
+    standards: 0e5b7e5fc8f3950ac5d360cf4a0c9dbe2b4880433ba15680a6c66220d4434e5d
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 3b7ba33b30996fa3700c83d784e342fc7a619f370136f6b02865256cd01114dd
+  merge_base: 89536438bb845c378acdece949fae0e9d282054d
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-code-reviewer
+  definition_sha256: d807b6881723a0c72151d12a514eb0506a2356d9e94d170daff3f53178dff488
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I0
+capability_limits:
+- 'No approved code-reviewer binding for cursor in .orqlet/role-bindings.yaml: independence I0, below the I2 that a code review
+  needs at every change class.'
+- 'Same client as the Coder (cursor): independence I1, below the I2 that a D3 change requires (ORQLET-MODEL-002); the verdict
+  is NOT_RUN.'
+- It was started as a typed subagent with the packet path workflow-efficiency-P-2-a7faf1f5 as its only prompt; that the context
+  is fresh is the Coder's claim. The packet's diff is against main 8953643 and holds P-2 only.
+- The reviewer's session ran no check and had no quote digest, so its evidence is given as observations, none of which blocks.
+  The Coder wrote this record from its returned text.
+- The client does not show the reviewer's model, so the identity is unknown. models resolve printed no candidate for cursor
+  (every model is not approved by the policy).
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- The reviewer's own conclusion was no code defect and no blocking finding; AC-1 to AC-5 hold by reading its trace through
+  the code and the tests.
+applicability:
+  examined:
+  - diff.patch and the snapshot of evidence_cite.py and commands/evidence.py, render_human.py and output_of for the snippet
+  - the changed tests, the plan, the test record and the knowledge record
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: tests
+  claim: The subject de-duplication (dict.fromkeys) is not tested with a repeated file, the multi-pair JSON is not asserted
+    to lack the flat fields, and the web scan per pair is tested at unit level only.
+  suggested_action: Optional extra assertions in a later change.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: standards
+  claim: entry_of is defined in both test files with different signatures; the conditional expression in the list comprehension
+    of cite is a little dense.
+  suggested_action: Optionally rename or flatten.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: docs
+  claim: The JSON key order of the single-pair result changed (citations first); the field names are the same. With --json
+    an odd-count usage error prints Typer's text, not an envelope; the plan asks only for exit 2.
+  suggested_action: No change; keep it in the phase report.
+  confidence: medium
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: code-reviewer
+    phase: implement
+  checks:
+  - what: packet read
+    how: orqlet review prepare workflow-efficiency P-2 (workflow-efficiency-P-2-a7faf1f5)
+    result: pass
+  - what: running the checks and quote digests
+    how: none run by the reviewer
+    result: not-run

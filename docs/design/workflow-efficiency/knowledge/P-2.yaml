@@ -1,0 +1,56 @@
+schema: orqlet.knowledge-impact/v1
+task: workflow-efficiency
+phase: P-2
+review_input:
+  components:
+    candidates: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    code_tests: e30b69861a99f1755779103a733237a74bf4cfd1930bc94d6ff6513a8e3b771d
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 34a6f679a5585859c8d850fca7a208e5b6d4e3dd14eeccc0b38d081a4fc20365
+    standards: 0e5b7e5fc8f3950ac5d360cf4a0c9dbe2b4880433ba15680a6c66220d4434e5d
+  covers:
+  - code_tests
+  - knowledge
+  - plan
+  - standards
+  - candidates
+  digest: f5b607ec6bfb381a784c103c62f5e42af045abd73952e4c895625e26c2df5988
+  merge_base: 89536438bb845c378acdece949fae0e9d282054d
+  schema: orqlet.review-input/v1
+outcome: no-impact
+analysis:
+  command: orqlet knowledge impact
+  orqlet_version: 0.4.0
+  candidates_digest: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+  candidate_count: 0
+  input: pre-draft-tree
+  views:
+  - committed:HEAD
+  index_state: not-used
+entries: []
+no_impact:
+  category: already-documented
+  reason: The behaviour of this phase (evidence cite takes several FILE LINES pairs, lists one entry per pair in
+    data.citations, keeps the single-pair fields, reports a failing pair without a hash, and refuses an odd
+    count with exit 2) is already written down in ADR-001 decision 7, in the component view and in the approved
+    design manifest (EC-2). The README and skill text that mention the one-pair form are the documentation work
+    of phases P-6 to P-8, so they are not edited in this phase.
+  absence_record:
+    scopes_searched:
+    - .orqlet/knowledge.yaml sources
+    - the plan's knowledge_scope
+    views:
+    - committed:HEAD
+    revision: 89536438bb845c378acdece949fae0e9d282054d
+    method: orqlet knowledge impact on the staged tree; the project configures no knowledge sources, the plan's
+      knowledge_scope is empty and the design names no public_api packages, so the analysis found no candidate
+      and no knowledge document exists that this phase could change.
+    index_state: not-used
+    candidates_found: 0
+  already_documented_refs:
+  - path: docs/design/workflow-efficiency/design/adr-001-check-reuse-and-rechecking.md
+    sha256: 3cbfb794fb75ef3b1170740b8aa42035b879b42470c1e2c9dcbc6ac8e20907b1
+  - path: docs/design/workflow-efficiency/design/component.md
+    sha256: 52d9fcc4ee709f599e2f0d49df6ecdbe0a5c9b697668bb9a45b82b02eb551ee2
+  - path: docs/design/workflow-efficiency/design/manifest.yaml
+    sha256: 923204fecade1ee5e2e8f9707cd8fbfe4bfb3fa7a1d3b5980231889657c86200

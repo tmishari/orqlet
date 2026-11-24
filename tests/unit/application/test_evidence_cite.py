@@ -20,6 +20,8 @@ Not pinned, because the design leaves it open:
 
 from __future__ import annotations
 
+from typing import cast
+
 import pytest
 
 from orqlet.application.usecases.evidence_cite import cite, file_hashes
@@ -32,8 +34,15 @@ from tests.support.artifacts import BASE, LATER, SOURCE, World, make_world
 pytestmark = pytest.mark.unit
 
 
+def citations_of(result: ValidationResult) -> list[dict[str, str]]:
+    """`data.citations`: one dict per pair, in the order the pairs were given."""
+    citations = result.data["citations"]
+    assert isinstance(citations, list)
+    return cast("list[dict[str, str]]", citations)
+
+
 def test_a_citation_has_the_hash_the_validator_will_recompute() -> None:
-    result = cite(make_world().services(), "src/pkg/mod.py", "1-2")
+    result = cite(make_world().services(), [("src/pkg/mod.py", "1-2")])
 
     assert result.verdict is Verdict.PASS
     assert result.data["sha256"] == line_range_hash(SOURCE, 1, 2)
@@ -45,7 +54,7 @@ def test_a_citation_has_the_hash_the_validator_will_recompute() -> None:
 
 
 def test_a_single_line_and_an_explicit_revision_work() -> None:
-    result = cite(make_world().services(), "src/pkg/mod.py", "5", BASE)
+    result = cite(make_world().services(), [("src/pkg/mod.py", "5")], BASE)
 
     assert result.data["lines"] == "5"
     assert result.data["sha256"] == line_range_hash(SOURCE, 5, 5)
@@ -62,20 +71,20 @@ def test_a_single_line_and_an_explicit_revision_work() -> None:
     ],
 )
 def test_a_bad_citation_is_a_finding(path: str, lines: str, code: str) -> None:
-    result = cite(make_world().services(), path, lines)
+    result = cite(make_world().services(), [(path, lines)])
 
     assert result.verdict is Verdict.FAIL
     assert [f.code for f in result.findings] == [code]
 
 
 def test_without_a_commit_there_is_nothing_to_cite() -> None:
-    result = cite(make_world(commits=False).services(), "src/pkg/mod.py", "1")
+    result = cite(make_world(commits=False).services(), [("src/pkg/mod.py", "1")])
 
     assert result.verdict is Verdict.NOT_RUN
 
 
 def test_a_revision_that_does_not_exist_is_not_run() -> None:
-    result = cite(make_world().services(), "src/pkg/mod.py", "1", "f" * 40)
+    result = cite(make_world().services(), [("src/pkg/mod.py", "1")], "f" * 40)
 
     assert result.verdict is Verdict.NOT_RUN
 
@@ -172,7 +181,7 @@ def shows_part_of(text: str, secret: str, width: int = 8) -> bool:
 def cite_page(
     path: str, data: bytes, lines: str = "1-2", revision: str | None = None
 ) -> ValidationResult:
-    return cite(web_world(path, data).services(), path, lines, revision)
+    return cite(web_world(path, data).services(), [(path, lines)], revision)
 
 
 CREDENTIAL_LINES = {
@@ -193,7 +202,7 @@ HIDDEN_LINES = {
 def test_a_clean_page_under_evidence_web_is_cited_with_the_usual_data(page: bytes) -> None:
     """AC-4. expected_behavior_source: plan P-8 AC-4 (it requires no header, so the 38 existing
     evidence files still cite); ADR-004 decision 4 (a clean file is cited as before)."""
-    usual = cite(make_world().services(), "src/pkg/mod.py", "1-2")
+    usual = cite(make_world().services(), [("src/pkg/mod.py", "1-2")])
 
     result = cite_page(WEB_PAGE, page)
 
@@ -212,10 +221,15 @@ def test_a_clean_page_gives_the_citation_that_the_same_text_gives_elsewhere() ->
     elsewhere = cite_page(OTHER_PAGE, CLEAN_PAGE)
 
     def comparable(result: ValidationResult) -> dict[str, object]:
-        return {k: v for k, v in result.data.items() if k not in {"path", "snippet"}}
+        return {k: v for k, v in result.data.items() if k not in {"path", "snippet", "citations"}}
+
+    def entries(result: ValidationResult) -> list[dict[str, str]]:
+        return [{k: v for k, v in e.items() if k != "path"} for e in citations_of(result)]
 
     assert (guarded.verdict, guarded.findings) == (elsewhere.verdict, elsewhere.findings)
     assert comparable(guarded) == comparable(elsewhere)
+    # `citations` embeds the path, so its entries are compared without it.
+    assert entries(guarded) == entries(elsewhere)
 
 
 def test_a_page_with_crlf_line_endings_is_read_as_lf() -> None:
@@ -389,12 +403,12 @@ def test_the_scan_reads_the_cited_revision_and_not_the_working_tree() -> None:
     cleaned_after_commit = make_world({WEB_PAGE: hostile})
     cleaned_after_commit.put(WEB_PAGE, CLEAN_PAGE)
 
-    refusal_of(cite(committed_clean.services(), WEB_PAGE, "1-2", LATER))
-    assert cite(committed_clean.services(), WEB_PAGE, "1-2").verdict is Verdict.PASS
-    refusal_of(cite(committed_hostile.services(), WEB_PAGE, "1-2"))
-    assert cite(committed_hostile.services(), WEB_PAGE, "1-2", LATER).verdict is Verdict.PASS
-    assert cite(edited_after_commit.services(), WEB_PAGE, "1-2").verdict is Verdict.PASS
-    refusal_of(cite(cleaned_after_commit.services(), WEB_PAGE, "1-2"))
+    refusal_of(cite(committed_clean.services(), [(WEB_PAGE, "1-2")], LATER))
+    assert cite(committed_clean.services(), [(WEB_PAGE, "1-2")]).verdict is Verdict.PASS
+    refusal_of(cite(committed_hostile.services(), [(WEB_PAGE, "1-2")]))
+    assert cite(committed_hostile.services(), [(WEB_PAGE, "1-2")], LATER).verdict is Verdict.PASS
+    assert cite(edited_after_commit.services(), [(WEB_PAGE, "1-2")]).verdict is Verdict.PASS
+    refusal_of(cite(cleaned_after_commit.services(), [(WEB_PAGE, "1-2")]))
 
 
 def test_the_other_findings_of_a_citation_are_unchanged_under_evidence_web() -> None:
@@ -403,8 +417,252 @@ def test_the_other_findings_of_a_citation_are_unchanged_under_evidence_web() -> 
     world = web_world(WEB_PAGE, CLEAN_PAGE)
     missing = "docs/design/demo/evidence/web/gone.md"
 
-    assert [f.code for f in cite(world.services(), missing, "1").findings] == ["ORQ-E333"]
-    assert [f.code for f in cite(world.services(), WEB_PAGE, "40-41").findings] == ["ORQ-E334"]
-    assert [f.code for f in cite(world.services(), WEB_PAGE, "3-1").findings] == ["ORQ-E320"]
+    assert [f.code for f in cite(world.services(), [(missing, "1")]).findings] == ["ORQ-E333"]
+    assert [f.code for f in cite(world.services(), [(WEB_PAGE, "40-41")]).findings] == ["ORQ-E334"]
+    assert [f.code for f in cite(world.services(), [(WEB_PAGE, "3-1")]).findings] == ["ORQ-E320"]
     no_commit = make_world({WEB_PAGE: CLEAN_PAGE}, commits=False)
-    assert cite(no_commit.services(), WEB_PAGE, "1").verdict is Verdict.NOT_RUN
+    assert cite(no_commit.services(), [(WEB_PAGE, "1")]).verdict is Verdict.NOT_RUN
+
+
+# --- several pairs in one call (task workflow-efficiency, P-2) ---------------------------------
+# `expected_behavior_source` below: ADR-001 is `adr-001-check-reuse-and-rechecking.md`, EC-2 is in
+# `manifest.yaml`, and AC-n is an acceptance criterion of phase P-2 in the `plan.yaml`, all under
+# docs/design/workflow-efficiency/. Credential-shaped text is assembled at run time above.
+GOOD = ("src/pkg/mod.py", "1-2")
+SECOND = ("docs/guide.md", "1")
+CLEAN_WEB_PAGE = "docs/design/demo/evidence/web/clean.md"
+ENTRY_KEYS = {"path", "lines", "revision", "sha256"}
+
+
+def entry_of(path: str, lines: str, content: bytes, start: int, end: int) -> dict[str, str]:
+    return {
+        "path": path,
+        "lines": lines,
+        "revision": BASE,
+        "sha256": line_range_hash(content, start, end),
+    }
+
+
+def test_two_pairs_give_one_entry_each_in_the_given_order() -> None:
+    """AC-1. expected_behavior_source: ADR-001 decision 7 ("`data.citations` lists them in
+    today's entry shape"); EC-2 (one entry per pair, in the given order)."""
+    guide = b"# Guide\n"
+    pairs = [SECOND, GOOD]
+
+    result = cite(make_world().services(), pairs)
+
+    assert result.verdict is Verdict.PASS
+    assert result.findings == ()
+    assert citations_of(result) == [
+        entry_of("docs/guide.md", "1", guide, 1, 1),
+        entry_of("src/pkg/mod.py", "1-2", SOURCE, 1, 2),
+    ]
+    assert all(set(entry) == ENTRY_KEYS for entry in citations_of(result))
+
+
+def test_the_pairs_are_cited_in_the_order_they_were_given_whichever_it_is() -> None:
+    """AC-1. expected_behavior_source: EC-2 ("one entry per pair in the given order")."""
+    services = make_world().services()
+
+    forward = citations_of(cite(services, [GOOD, SECOND]))
+    backward = citations_of(cite(services, [SECOND, GOOD]))
+
+    assert [e["path"] for e in forward] == ["src/pkg/mod.py", "docs/guide.md"]
+    assert backward == forward[::-1]
+
+
+def test_a_single_pair_keeps_the_top_level_fields_and_also_lists_its_entry() -> None:
+    """AC-2. expected_behavior_source: ADR-001 decision 7 ("a single pair also keeps today's
+    top-level fields"); EC-2 ("a single pair also keeps today's top-level fields and text")."""
+    digest = line_range_hash(SOURCE, 1, 2)
+    entry = entry_of("src/pkg/mod.py", "1-2", SOURCE, 1, 2)
+
+    result = cite(make_world().services(), [GOOD])
+
+    assert result.verdict is Verdict.PASS
+    assert {k: result.data[k] for k in ("path", "lines", "revision", "sha256")} == entry
+    assert result.data["snippet"] == (
+        f"{{path: src/pkg/mod.py, lines: 1-2, revision: {BASE}, sha256: {digest}}}"
+    )
+    assert citations_of(result) == [entry]
+
+
+@pytest.mark.parametrize(
+    ("pair", "code"),
+    [
+        (("src/pkg/gone.py", "1"), "ORQ-E333"),
+        (("src/pkg/mod.py", "40-41"), "ORQ-E334"),
+        (("../x.py", "1"), "ORQ-E320"),
+        (("src/pkg/mod.py", "3-1"), "ORQ-E320"),
+    ],
+    ids=["missing file", "missing lines", "bad path", "bad range"],
+)
+def test_a_failing_single_pair_has_no_hash_and_no_revision(
+    pair: tuple[str, str], code: str
+) -> None:
+    """AC-4. expected_behavior_source: ADR-001 decision 7 ("A refused or failing pair carries no
+    revision and no sha256"); EC-2 (the failing pair is reported with its finding)."""
+    result = cite(make_world().services(), [pair])
+
+    assert result.verdict is Verdict.FAIL
+    (finding,) = result.findings
+    assert (finding.code, finding.path) == (code, pair[0])
+    assert "sha256" not in result.data
+    assert "revision" not in result.data
+    (entry,) = citations_of(result)
+    assert entry["path"] == pair[0]
+    assert "revision" not in entry
+    assert "sha256" not in entry
+
+
+@pytest.mark.parametrize("good_first", [True, False], ids=["good first", "good last"])
+@pytest.mark.parametrize(
+    ("bad", "code"),
+    [
+        (("src/pkg/gone.py", "1"), "ORQ-E333"),
+        (("src/pkg/mod.py", "40-41"), "ORQ-E334"),
+        (("../x.py", "1"), "ORQ-E320"),
+    ],
+    ids=["missing file", "missing lines", "bad path"],
+)
+def test_a_failing_pair_is_reported_and_the_other_pair_keeps_its_hash(
+    bad: tuple[str, str], code: str, good_first: bool
+) -> None:
+    """AC-4. expected_behavior_source: ADR-001 decision 7 ("any failing pair makes the verdict
+    FAIL while the others are still returned"; "A refused or failing pair carries no revision and
+    no sha256"); EC-2 (the failing pair carries its finding)."""
+    pairs = [GOOD, bad] if good_first else [bad, GOOD]
+
+    result = cite(make_world().services(), pairs)
+
+    assert result.verdict is Verdict.FAIL
+    (finding,) = result.findings
+    assert finding.code == code
+    assert finding.path == bad[0]
+    if code == "ORQ-E334":
+        assert bad[1] in finding.message
+    entries = citations_of(result)
+    assert [e["path"] for e in entries] == [p[0] for p in pairs]
+    good_entry = entries[0] if good_first else entries[1]
+    bad_entry = entries[1] if good_first else entries[0]
+    assert good_entry == entry_of("src/pkg/mod.py", "1-2", SOURCE, 1, 2)
+    assert bad_entry == {"path": bad[0], "lines": bad[1]}
+
+
+def test_each_failing_pair_gets_its_own_finding() -> None:
+    """AC-4. expected_behavior_source: ADR-001 decision 7 (one result per pair); EC-2 (a failing
+    pair is reported with its finding); the interface decision (one finding per failing pair)."""
+    missing_file = ("src/pkg/gone.py", "1")
+    missing_lines = ("src/pkg/mod.py", "40-41")
+
+    result = cite(make_world().services(), [missing_file, GOOD, missing_lines])
+
+    assert result.verdict is Verdict.FAIL
+    assert sorted((f.code, f.path) for f in result.findings) == [
+        ("ORQ-E333", "src/pkg/gone.py"),
+        ("ORQ-E334", "src/pkg/mod.py"),
+    ]
+    entries = citations_of(result)
+    assert [e["path"] for e in entries] == ["src/pkg/gone.py", "src/pkg/mod.py", "src/pkg/mod.py"]
+    assert [set(e) for e in entries] == [{"path", "lines"}, ENTRY_KEYS, {"path", "lines"}]
+
+
+def test_the_revision_applies_to_every_pair() -> None:
+    """AC-5. expected_behavior_source: ADR-001 decision 7 ("`--revision` applies to every
+    pair"); EC-2."""
+    changed = b"def create(a, b):\n    return a + b\n"
+    guide_later = b"# Guide, later\n"
+    world = make_world(
+        other_revisions={
+            LATER: {"src/pkg/mod.py": changed, "docs/guide.md": guide_later},
+        }
+    )
+
+    at_later = citations_of(cite(world.services(), [GOOD, SECOND], LATER))
+    by_default = citations_of(cite(world.services(), [GOOD, SECOND]))
+
+    assert at_later == [
+        {**entry_of("src/pkg/mod.py", "1-2", changed, 1, 2), "revision": LATER},
+        {**entry_of("docs/guide.md", "1", guide_later, 1, 1), "revision": LATER},
+    ]
+    assert [e["revision"] for e in by_default] == [BASE, BASE]
+
+
+@pytest.mark.parametrize(
+    ("hostile", "secret"),
+    [
+        (page_with(f"The page shows {TOKEN} in the text."), TOKEN),
+        (page_with(f"The page shows {ACCESS_KEY} in the text."), ACCESS_KEY),
+        (page_with("a\u200bb"), ""),
+        (page_of(LIMIT + 1), ""),
+    ],
+    ids=["a token", "an access key", "a hidden code point", "above the cap"],
+)
+@pytest.mark.parametrize("hostile_first", [True, False], ids=["hostile first", "hostile last"])
+def test_a_refused_web_pair_has_no_hash_while_a_clean_web_pair_is_cited(
+    hostile: bytes, secret: str, hostile_first: bool
+) -> None:
+    """AC-5. expected_behavior_source: ADR-001 decision 7 ("Each pair under `evidence/web/` gets
+    today's credential and hidden-character scan"; a refused pair carries no sha256); EC-2
+    ("ORQ-E511"); ADR-004 decision 4 of team-conventions-resources (the finding shows no text)."""
+    world = make_world({WEB_PAGE: hostile, CLEAN_WEB_PAGE: CLEAN_PAGE, "src/pkg/mod.py": SOURCE})
+    refused, clean = (WEB_PAGE, "1-2"), (CLEAN_WEB_PAGE, "1-2")
+    pairs = [refused, clean] if hostile_first else [clean, refused]
+
+    result = cite(world.services(), pairs)
+
+    assert result.verdict is Verdict.FAIL
+    (finding,) = result.findings
+    assert (finding.code, finding.path) == ("ORQ-E511", WEB_PAGE)
+    assert MARKER not in finding.message
+    assert not secret or not shows_part_of(finding.message, secret)
+    assert "sha256" not in result.data
+    entries = citations_of(result)
+    refused_entry = entries[0] if hostile_first else entries[1]
+    clean_entry = entries[1] if hostile_first else entries[0]
+    assert refused_entry == {"path": WEB_PAGE, "lines": "1-2"}
+    assert clean_entry == {
+        "path": CLEAN_WEB_PAGE,
+        "lines": "1-2",
+        "revision": BASE,
+        "sha256": line_range_hash(CLEAN_PAGE, 1, 2),
+    }
+
+
+def test_two_clean_web_pairs_and_a_plain_pair_are_all_cited() -> None:
+    """AC-5. expected_behavior_source: ADR-001 decision 7 (a clean pair is cited as today);
+    ADR-004 decision 4 of team-conventions-resources (a clean file is cited as before)."""
+    world = make_world(
+        {WEB_PAGE: HEADED_PAGE, CLEAN_WEB_PAGE: CLEAN_PAGE, "src/pkg/mod.py": SOURCE}
+    )
+
+    result = cite(world.services(), [(WEB_PAGE, "1-2"), (CLEAN_WEB_PAGE, "1-2"), GOOD])
+
+    assert result.verdict is Verdict.PASS
+    assert [e["sha256"] for e in citations_of(result)] == [
+        line_range_hash(HEADED_PAGE, 1, 2),
+        line_range_hash(CLEAN_PAGE, 1, 2),
+        line_range_hash(SOURCE, 1, 2),
+    ]
+
+
+def test_several_pairs_in_a_repository_without_a_commit_are_not_run_once() -> None:
+    """AC-1, AC-5. expected_behavior_source: the interface decision ("No commit or unknown
+    revision: NOT_RUN once (not once per pair), as today"); EC-2."""
+    world = make_world(commits=False)
+
+    result = cite(world.services(), [GOOD, SECOND])
+
+    assert result.verdict is Verdict.NOT_RUN
+    assert len(result.not_run) == 1
+    assert result.findings == ()
+
+
+def test_several_pairs_at_a_revision_that_does_not_exist_are_not_run_once() -> None:
+    """AC-5. expected_behavior_source: the interface decision ("`revision` applies to every pair
+    and is resolved once"; an unknown revision is NOT_RUN once); EC-2."""
+    result = cite(make_world().services(), [GOOD, SECOND], "f" * 40)
+
+    assert result.verdict is Verdict.NOT_RUN
+    assert len(result.not_run) == 1
+    assert result.findings == ()
