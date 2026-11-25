@@ -58,4 +58,4 @@ no_impact:
   - path: docs/design/workflow-efficiency/design/component.md
     sha256: 52d9fcc4ee709f599e2f0d49df6ecdbe0a5c9b697668bb9a45b82b02eb551ee2
   - path: docs/design/workflow-efficiency/design/manifest.yaml
-    sha256: ce76ce58f54455545950d9942c89b04fb0c160196e9e1a732bee228f478ed234
+    sha256: 026b6aa62a182e5d475df791043da77536eca7178964209a84017fba6f18164c
