@@ -1,6 +1,6 @@
 # Work status
 
-Updated: 2026-11-24. Authority: the person's instruction of 2026-11-23 to
+Updated: 2026-11-25. Authority: the person's instruction of 2026-11-23 to
 freeze the unfinished work and prioritize the workflow-efficiency request.
 
 ## Active priority
@@ -27,6 +27,20 @@ the length cut removed, the onboard Output line gated by `resources add`, the
 citation-hash handoff between tester and coder, and R-4 guidance in
 `orqlet-implement`). This priority does not bypass any phase gate: the approval
 of each phase is still the person's merge.
+
+## Recorded on 2026-11-25
+
+- The person approved Phase P-8 as the human code owner, so all eight phases of
+  `workflow-efficiency` are implemented and approved. The review records of P-8
+  stay advisory and `NOT_RUN`, as written (`workflow-efficiency/reviews/*-P-8-r1.yaml`).
+- The person refreshed the research for Q-28 (pull request #72). Its AS-IS file is
+  bound at `9d20533`; the tests and the CI workflow were removed after that revision, so
+  its facts about them describe the earlier state. Design reads it with that in mind.
+- Deferred, not decided: the Coder's clean-working-tree check. Step 1 of
+  `orqlet-implement` says "with a clean working tree" and names no command, while the
+  phase contract says `git status` is not used (finding F-7 of
+  `workflow-efficiency/reviews/architecture-reviewer-P-6-r1.yaml`). The clause stays as
+  it is until the person decides how a clean tree is shown or drops it.
 
 ## Frozen backlog
 
