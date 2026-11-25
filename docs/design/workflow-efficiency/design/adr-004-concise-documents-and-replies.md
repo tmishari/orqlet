@@ -4,6 +4,8 @@
 
 The largest plan has 21,451 words and the largest AS-IS file 16,266 (A-52, A-53); contradictions and undefined codes are repeated (A-55, A-56). Design asks for a nine-part brief with no length limit (A-57). Plan replies have a median of 791.5 words (A-36), and the implement report has no limit (A-44). Each research run loads about 4,430 words of instructions; shared paragraphs repeat in every skill and the phase contract is copied twelve times (A-1 to A-6). Design step 4 points to a reference its folder lacks (A-9, U-2). The standards command asks the agent to name rule ids in its summary (A-81), against Q-17. The person chose word targets reported as warnings (Q-16).
 
+Citations A-n in this ADR name facts of `as-is.md` at 86e07abc (sha256 3fe613104a96638cd6fbae1b862092f3df563ab1fcfd71ca438b8c78ae4bfd3f), the file this design was written against. The current file, bound at 16afd3c (sha256 3526c5beefbd6ab4f4d0e36be6a4f16bdb9214664f822c8987ee765f9e32f77a), holds A-85 to A-126 and describes the code after this task, so it does not restate the older facts. None of its cited facts has a counterpart there; they are the sizes and texts before this task.
+
 ## Decision
 
 1. `validate design` warns ORQ-W368 when `component.md` has more than 1,200 words outside fenced blocks. `validate plan` warns ORQ-W388 when a phase's `objective`, `acceptance_criteria[].text` and `file_operations[].why` exceed 400 words. Citations in `completion` entries do not count. The formats state both targets.

@@ -2,7 +2,7 @@
 
 ## 1. Summary
 
-Cut repeated checks, words and messages without removing a gate: fix repetitive instructions, make five outputs plain, add two length warnings, keep the base revision valid under squash merges. No cache, dependency, CI or model-policy change.
+Cut repeated checks, words and messages without removing a gate: make five outputs plain, add two length warnings, keep the base revision valid under squash merges. No cache, dependency, CI or model-policy change. A-n cite `as-is.md` at 86e07abc.
 
 ## 2. Requirements
 
@@ -66,7 +66,7 @@ flowchart LR
 - Base bound after the first branch commit: the next input check fails; rebind, accept again.
 - Odd `cite` argument count: exit 2. A failing pair is reported, the others print, exit 5.
 - Review cap reached with a blocking finding: one consolidated report; the person decides.
-- After the final upgrade, this task's artifacts show ORQ-W390 under the matrix's upgrade row.
+- After the final upgrade, this task's artifacts show ORQ-W390 (upgrade row).
 - Main's red jobs (Q-14): known failures are accepted only when all come from the two frozen test files; anything else stops the phase.
 
 ## 6. Acceptance criteria
@@ -106,7 +106,7 @@ flowchart LR
 
 ## 8. Unresolved decisions
 
-None blocks design. Implementation finds U-43, the failing lint rule. U-1, U-18, U-19, U-23, U-31, U-45 to U-47 and C-3 stay unverified.
+None blocks design. Implementation finds U-43. U-1, U-18, U-19, U-23, U-31, U-45 to U-47 and C-3 stay unverified.
 
 ## 9. Constraints for the plan
 
