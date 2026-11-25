@@ -4,6 +4,8 @@
 
 `gate status` binds `base_revision` to HEAD, and research copies it into the header (A-69, A-70). Every evidence entry must cite that revision (A-71), and research commits its web evidence before citing it (A-73). Design's input check needs the base revision to be an ancestor of HEAD (A-74), and pull requests are squash-merged (A-75). A base on the research branch therefore leaves main's history, and this task needed two extra pull requests to re-cite its facts on main (Q-12, Q-13, C-23).
 
+Citations A-n in this ADR name facts of `as-is.md` at 86e07abc (sha256 3fe613104a96638cd6fbae1b862092f3df563ab1fcfd71ca438b8c78ae4bfd3f), the file this design was written against. The current file, bound at 16afd3c (sha256 3526c5beefbd6ab4f4d0e36be6a4f16bdb9214664f822c8987ee765f9e32f77a), holds A-85 to A-126 and describes the code after this task, so it does not restate the older facts. A-69 to A-75 are restated in part as A-92 (headers bind before the first branch commit to survive squash merges); A-71, the old evidence rule, now reads as A-119.
+
 ## Decision
 
 1. Each phase skill runs `gate status --json` for its header before its first commit on the phase branch, so `base_revision` is the protected branch's commit that the branch starts from. Once the branch has a commit, research cites every fact outside its own folder with `--revision` set to `base_revision`, in a call separate from its task-owned evidence, which it cites at HEAD after committing it.
