@@ -1,0 +1,215 @@
+schema: orqlet.as-is-fragment/v1
+fragment_id: refresh-workflow
+base_revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+scope:
+  paths:
+  - AGENTS.md
+  - src/orqlet/workflow/**
+  - tests/unit/test_workflow*
+  - .orqlet/generated.lock.yaml
+  request_ref: workflow-efficiency
+facts:
+- id: A-1
+  kind: operation
+  statement: Project instructions require four phases and human design/plan approval; workflow-efficiency
+    remains the only active priority.
+  evidence:
+  - lines: 18-20
+    path: AGENTS.md
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 0ba1e06ff5d533ac0ea65e9d608eb8600ee89e03d710a500c76be2a8817fbb07
+  - lines: 100-105
+    path: AGENTS.md
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 7188469f0e1933176128d29bcdfac2cbed528768877251fbdc5a80b6b5b614e3
+- id: A-2
+  kind: flow
+  statement: Every implementation phase includes tester, coder, three reviewers and knowledge work; files
+    outside its list require a plan amendment.
+  evidence:
+  - lines: 3-7
+    path: src/orqlet/workflow/skills/orqlet-implement/skill.md
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: a8dd59335c4282ec5efd8df2e30542c8c4c62a09a1763775f2f849d66ccce9d8
+  - lines: 17-23
+    path: src/orqlet/workflow/skills/orqlet-implement/skill.md
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 4044fc741e5829f6b74f85ccd784b62fcb0393e0d28676457950012b02907290
+- id: A-3
+  kind: flow
+  statement: Each phase validates knowledge/test records, invokes review and a PR writer, then awaits
+    acceptance; reviewed code/test changes repeat knowledge, test-record and review work.
+  evidence:
+  - lines: 35-40
+    path: src/orqlet/workflow/skills/orqlet-implement/skill.md
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 37df5bbd2677a34643932ffbfdb2c77aa0a7c9c8ac48cc041d9b879cb5bc9d10
+- id: A-4
+  kind: flow
+  statement: Citations are reused per phase and planned targeted checks serve iteration; full checks run
+    before review and per rework round, with strict unchanged-input reuse conditions.
+  evidence:
+  - lines: 29-34
+    path: src/orqlet/workflow/skills/orqlet-implement/references/phase-contract.md
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: ec1a91228c21195191370867cab5fb971cf2594f59e70eda854ee5fc36b102d6
+- id: A-5
+  kind: flow
+  statement: The tester reuses coder citations but verifies differences, untracked files and hashes; warning-list
+    commands return to the coder for human authorization.
+  evidence:
+  - lines: 10-19
+    path: src/orqlet/workflow/roles/orqlet-tester.md
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: c917fcaccc15d7a817b009ac141b42a6fb660489a900918a8e5e0049bcbe60ab
+- id: A-6
+  kind: flow
+  statement: Review starts three independent reviewers with a staged-snapshot packet, validates three
+    records per round, and repeats after snapshot changes, capped at three rounds.
+  evidence:
+  - lines: 24-34
+    path: src/orqlet/workflow/skills/orqlet-review/skill.md
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 51c28cb606c6a3f3b8daec563b61f15a82e4404b10933511b7726b42deaeb664
+  - lines: 45-48
+    path: src/orqlet/workflow/skills/orqlet-review/skill.md
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: d45e3902d464fc869ee5d0de59964e22bc9b52664d71e4686e76adcb9fc4ed94
+- id: A-7
+  kind: flow
+  statement: Nested review skips skill model resolution; later implementation phases can reuse validator
+    results after confirmed planned-work staleness and unchanged approved files.
+  evidence:
+  - lines: 25-27
+    path: src/orqlet/workflow/skills/orqlet-review/skill.md
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: f723e94ab5c6439cb1a71c1de2cd84c9bf6604c01d2ca460375c31f6acef01ee
+  - lines: 27-29
+    path: src/orqlet/workflow/skills/orqlet-implement/skill.md
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 6dce37521bd88613dec91ef236311bc87069fe6bb6b6c024230a5dca363c7ed1
+- id: A-8
+  kind: flow
+  statement: Input checks require human-supplied merge references and stale-input confirmation; headers
+    bind before the first branch commit to survive squash merges.
+  evidence:
+  - lines: 62-81
+    path: src/orqlet/workflow/skills/orqlet-implement/references/phase-contract.md
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 4aac7ad554fcca9f45ebf051a4c4086003492f4ff56eb0cef4190b2ccfa397f8
+  - lines: '92'
+    path: src/orqlet/workflow/skills/orqlet-implement/references/phase-contract.md
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: e68a2ea38f0bad8568b926a034a87c84cef791fc349dc5eecd7cc8819c1011e1
+- id: A-9
+  kind: flow
+  statement: Design discovery of an undocumented current-code fact triggers an AS-IS refresh; D2/D3 designs
+    require architecture and security reviews, restarted after hashed design changes.
+  evidence:
+  - lines: 35-38
+    path: src/orqlet/workflow/skills/orqlet-design/skill.md
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: ce75b4714529134f41eb11fce76ca73b3b7b9c361d440a88b0936080addcdebe
+  - lines: 52-55
+    path: src/orqlet/workflow/skills/orqlet-design/skill.md
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 30bd53962890d2dd740def8355a3294f5906365be2be977acdf1fcd7aa7e8726
+- id: A-10
+  kind: interface
+  statement: D1 still requires three diagrams and nine brief sections; current references set warning
+    targets of 1,200 design words and 400 words per plan phase.
+  evidence:
+  - lines: 13-35
+    path: src/orqlet/workflow/skills/orqlet-design/references/design-format.md
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: eb9167fdc6fa08639d9aaa8a37968a37cec3c5dec9de04655ba473d41e74f627
+  - lines: 9-14
+    path: src/orqlet/workflow/skills/orqlet-plan/references/plan-format.md
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 25d479af2545fab063b61562d339576ea597f801297a1ef2d81b0c0aaaf38331
+- id: A-11
+  kind: test
+  statement: Tests pin wording and section placement, require identical phase-contract copies and cap
+    their words; the manifest lists four copies with one hash.
+  evidence:
+  - lines: 87-116
+    path: tests/unit/test_workflow_efficiency_text.py
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 42bcd3304d8531e986ca2327da82ef08c38d42b7f1bdad339ffd8afddc389f56
+  - lines: 209-263
+    path: tests/unit/test_workflow_efficiency_text.py
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 2c4f1984576d0e4ccaec437361675949ed158a7b3e4b8f9c3a958358d495371f
+  - lines: 151-205
+    path: tests/unit/test_workflow_phase_contract_text.py
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: c67d14a431a36917b40ae26dd62902066c987a9bb502e8e9a14a358498d4206e
+  - lines: 573-599
+    path: tests/unit/test_workflow_phase_contract_text.py
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: a280444387b4849258d5a889cf828c5398f174bc4fefcbaf1f7ad740375a7c77
+  - lines: 236-274
+    path: src/orqlet/workflow/MANIFEST.json
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: a0d00dbda21f4c0861e530a918a489e0c39da6890cc23e77120ae0e93c30ae62
+- id: A-12
+  kind: structure
+  statement: Eight installed phase-contract copies appear in the generated lock; project instructions
+    require editing their sources and regenerating generated files.
+  evidence:
+  - lines: 30-38
+    path: .orqlet/generated.lock.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: cb2d8b68a2adbf8ea4adbe25fea45c79901d8f59cd692df0f4c8db08259fb2ee
+  - lines: 54-62
+    path: .orqlet/generated.lock.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 9224cb744d7bd1aac5172491d5ca02f6a423d2c53da723d92e84fc3c5efd6804
+  - lines: 94-102
+    path: .orqlet/generated.lock.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 799251078c12bc7274ffe8764d1cb7eec924fc9632f4e1c56c178f5cb2b0737f
+  - lines: 134-142
+    path: .orqlet/generated.lock.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 6554f0eb25fe5179fb1fa6215c4bcac5230e50006a6f057453af91784de2db5e
+  - lines: 582-590
+    path: .orqlet/generated.lock.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: f1eeca8f4a55a6000a8ab51f5af074fba7792ba4e8eee441fb5b29134fcd096b
+  - lines: 598-606
+    path: .orqlet/generated.lock.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 903dacb806fdc68e2c78a920d9910928f951da529bb521d18780ad90b8983635
+  - lines: 622-630
+    path: .orqlet/generated.lock.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: fc25e75830726bedd5d4723be64ac28ba57323365e0b443712b748f0c3ee2177
+  - lines: 654-662
+    path: .orqlet/generated.lock.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: d6cfa323df803f608de5d1b5a8d7cdaed81846c58bb537dad2d84f38f4c515f9
+  - lines: 48-50
+    path: AGENTS.md
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: a3f1b1a3bb811168d09d1cbf8310b2789724ce65bbca873c361542ca7fcfa76d
+unknowns:
+- id: U-1
+  what: Elapsed time attributable to instructions and approval waits is not established.
+  material: true
+- id: U-2
+  what: Recent runtime adherence to the new reuse rules is not established.
+  material: true
+- id: U-3
+  what: Whether the three reviewers actually run concurrently is not established.
+  material: false
+- id: U-4
+  what: Actual client context loading remains unverified.
+  material: true
+- id: U-5
+  what: Installed and golden copy equality was not independently compared.
+  material: false
+- id: U-6
+  what: Whether context discovery expects a root CLAUDE.md despite its absence is not established.
+  material: false
+contradictions: []

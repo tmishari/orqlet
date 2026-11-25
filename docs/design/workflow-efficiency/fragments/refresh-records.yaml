@@ -1,0 +1,284 @@
+schema: orqlet.as-is-fragment/v1
+fragment_id: refresh-records
+base_revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+scope:
+  paths:
+  - docs/design/workflow-efficiency/**
+  - docs/design/work-status.md
+  - .github/workflows/ci.yml
+  - pyproject.toml
+  request_ref: workflow-efficiency
+facts:
+- id: A-1
+  kind: operation
+  statement: Eight implementation phases specify 51 check-list entries; each phase includes lint, formatting,
+    types, pytest and phase-gate checks.
+  evidence:
+  - lines: '68'
+    path: docs/design/workflow-efficiency/plan.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: e4451dd9da8f0bfd3b6899898323bee9a4955355a068c7ba25fa9854764851fe
+  - lines: '193'
+    path: docs/design/workflow-efficiency/plan.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: e4451dd9da8f0bfd3b6899898323bee9a4955355a068c7ba25fa9854764851fe
+  - lines: '296'
+    path: docs/design/workflow-efficiency/plan.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: e4451dd9da8f0bfd3b6899898323bee9a4955355a068c7ba25fa9854764851fe
+  - lines: '371'
+    path: docs/design/workflow-efficiency/plan.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: e4451dd9da8f0bfd3b6899898323bee9a4955355a068c7ba25fa9854764851fe
+  - lines: '461'
+    path: docs/design/workflow-efficiency/plan.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 98643e5a85c5833a663906aff5257a29509cd784ac9bd976b4e7739a7590d89f
+  - lines: '601'
+    path: docs/design/workflow-efficiency/plan.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 6dc57d4f4b075a0f46997652d5487a0f75cb64de9887aa412dbd5ec18fc27664
+  - lines: '823'
+    path: docs/design/workflow-efficiency/plan.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 6dc57d4f4b075a0f46997652d5487a0f75cb64de9887aa412dbd5ec18fc27664
+  - lines: '1115'
+    path: docs/design/workflow-efficiency/plan.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 08f3a79847c7b0ba86ef31983c3c0b61124fc6bc11a465f539236cf970320421
+- id: A-2
+  kind: test
+  statement: Eight retained final pytest summaries total 14,460.78 seconds (241.013 minutes), on local
+    Python 3.12.11; these are claimed records, not independently measured execution.
+  evidence:
+  - lines: 14-15
+    path: docs/design/workflow-efficiency/tests/P-1.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: d3a0e24299f6bbe0fe0a748b74e57c466a95e6b639de5b8aa41be6f704025e4d
+  - lines: 36-44
+    path: docs/design/workflow-efficiency/tests/P-1.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 78745c47d7402c7f1edeff7e37fc4f3e37857cd84a890e82ed0661171a316512
+  - lines: 36-44
+    path: docs/design/workflow-efficiency/tests/P-2.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 82987cbb78f6013f3132c1c0ed11ac021a2945f8b641a9499a5fe71c4f9c5383
+  - lines: 36-44
+    path: docs/design/workflow-efficiency/tests/P-3.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 8e0d86da8f8a2bd21b3f6819af76edbffa66772f447652bed3ad45b654ba708f
+  - lines: 36-48
+    path: docs/design/workflow-efficiency/tests/P-4.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 9c17b61f7318fa27e434d75be7312c909e1678ec7decb4bd0a18c8729c3d1333
+  - lines: 41-53
+    path: docs/design/workflow-efficiency/tests/P-5.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 2e99d41351409cf02ebec1f10c3e26a22fcf6d24d791cda8452ff315363150c4
+  - lines: 37-45
+    path: docs/design/workflow-efficiency/tests/P-6.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 337227786d41c43dbd1f69a49625a1d13414db05d027c98063651c910880044e
+  - lines: 37-45
+    path: docs/design/workflow-efficiency/tests/P-7.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 1671fee66741149ac7d1282fb25c9bef5dfd1a71246416c2353ccf2314333b5a
+  - lines: 44-52
+    path: docs/design/workflow-efficiency/tests/P-8.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 388c23c3c4feec55e0a1be4f316e58e3b244330216128c9918a8ee67e12d917f
+- id: A-3
+  kind: test
+  statement: P-7 records three full suites and golden regeneration per rework round; only its final 1,758.03-second
+    duration is retained.
+  evidence:
+  - lines: 37-45
+    path: docs/design/workflow-efficiency/tests/P-7.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 1671fee66741149ac7d1282fb25c9bef5dfd1a71246416c2353ccf2314333b5a
+- id: A-4
+  kind: test
+  statement: P-7/P-8 report three lint errors, ten type errors and two collection errors in frozen files;
+    both test records remain NOT_RUN despite 14,000-plus passing tests.
+  evidence:
+  - lines: 14-44
+    path: docs/design/workflow-efficiency/tests/P-7.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 9ba9e1f9cfdcdf258a17836029c20e7848bfda7b550584c8e02e827df31f6cd0
+  - lines: 14-51
+    path: docs/design/workflow-efficiency/tests/P-8.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: de073d492215cbe83c973dbadbf07f058a840ea6df0187cf895e558260c8373a
+- id: A-5
+  kind: operation
+  statement: P-1 architecture and P-8 code reviews remain advisory/NOT_RUN for insufficient independence;
+    P-8 code also records absent approved binding and unknown model identities.
+  evidence:
+  - lines: 3-7
+    path: docs/design/workflow-efficiency/reviews/architecture-reviewer-P-1-r1.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: a24a4e982f6cf1e81a4529f494aa75cc07d98047688919ddbbde7b75c7a0e02f
+  - lines: 28-56
+    path: docs/design/workflow-efficiency/reviews/architecture-reviewer-P-1-r1.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 03493e6e8bacaa799f9ff1985dbf54a0fc93ca4018a00bf1762a3ddaf04a4db0
+  - lines: 3-7
+    path: docs/design/workflow-efficiency/reviews/code-reviewer-P-8-r1.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 3aad96cd32f18de30414b9082cbd99285f8b254763aab0c5d6eb54428c2c753b
+  - lines: 28-59
+    path: docs/design/workflow-efficiency/reviews/code-reviewer-P-8-r1.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 5df733ab3fe8718aa663b49ae8e3bea7afe02199acef0947501eb05f9b8dadbc
+- id: A-6
+  kind: operation
+  statement: P-7/P-8 retain round-1 records describing actual third/second rounds; earlier bindings or
+    reviewer text were lost, and earlier rounds found wording/version defects.
+  evidence:
+  - lines: 3-6
+    path: docs/design/workflow-efficiency/reviews/architecture-reviewer-P-7-r1.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 4eab6391d416e498a4a2719133be2be5e57ff2245664a8188cf8e94689a12cf7
+  - lines: 47-60
+    path: docs/design/workflow-efficiency/reviews/architecture-reviewer-P-7-r1.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 1f378925bbedc2326e5f9e21e54d73c038dbc40f01f0cc841a2f4281b896a1aa
+  - lines: 3-6
+    path: docs/design/workflow-efficiency/reviews/code-reviewer-P-8-r1.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: a7b9c3d09b0b97bd5136a6d53e618aebc932b11df986f6ad45e0fc6c207fb561
+  - lines: 54-59
+    path: docs/design/workflow-efficiency/reviews/code-reviewer-P-8-r1.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 87caafc7894c126ecdf5827c534346c9be6a75813497e02656c520f0fbee2e3b
+- id: A-7
+  kind: operation
+  statement: Design records describe an authorized fourth review round, another research refresh/rebinding,
+    and human review of fourth-round changes instead of a fifth agent round.
+  evidence:
+  - lines: 291-293
+    path: docs/design/workflow-efficiency/reviews/architecture-reviewer-design-r3.md
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 0b465dbdc8803556e6158424e93ce9200b1b0bfa01127d9556bfaafb2281b51e
+  - lines: 335-337
+    path: docs/design/workflow-efficiency/reviews/architecture-reviewer-design-r4.md
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 3ea6a7d495b55c95a0141616cf2630e975f217da047821812481d55d35b726c6
+  - lines: 419-445
+    path: docs/design/workflow-efficiency/questions.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: f3d2c82f822bbc86d9c2b4b889752be64a9a814ed8d5ef4854a22d6eddffc633
+- id: A-8
+  kind: operation
+  statement: The first security design review identified dependency-watch, task-name, negative-test and
+    evidence-boundary gaps; author responses record accepting changes for all four.
+  evidence:
+  - lines: 19-29
+    path: docs/design/workflow-efficiency/reviews/security-reviewer-design-r1.md
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 3f79a9c71d0bff78bddcc270573a4529d6dc6a2d1b387df9f0c9890e6ef95f7d
+  - lines: 44-57
+    path: docs/design/workflow-efficiency/reviews/security-reviewer-design-r1.md
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 6ec13a21f68982a945a008886376bb9e7aa1e02cf37f6dca164498ef4ecd6cc1
+- id: A-9
+  kind: test
+  statement: P-4 records oversized test filler and later fence tests; P-5 records an output-field expectation
+    omitting populated candidates, causing test rework.
+  evidence:
+  - lines: 38-47
+    path: docs/design/workflow-efficiency/tests/P-4.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: bdefd1483f5d14ffa54c6851e4dcb4a7614f2b6090dfe8f4be1feb1c0aa0d45b
+  - lines: 43-52
+    path: docs/design/workflow-efficiency/tests/P-5.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 90bc06e489dc34ab316c924ac92dffdf1a49848fe18b79b5665d6ccc8b02d404
+- id: A-10
+  kind: operation
+  statement: P-4/P-5/P-7 record stale phase gates caused by earlier task commits and human confirmation
+    of the planned-work exception.
+  evidence:
+  - lines: 49-55
+    path: docs/design/workflow-efficiency/tests/P-4.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 693a104719d90eb9b981b5e9336af20a2c2b72dbfbc37f46be817745f5fa38bb
+  - lines: 54-60
+    path: docs/design/workflow-efficiency/tests/P-5.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 8cbcfb90fa07d11f55db71ec9af334c711457eb9d6fc19a8d9c11d427d7bcd3e
+  - lines: 46-51
+    path: docs/design/workflow-efficiency/tests/P-7.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 5a56dacc65d7ea4eabf7fb903c00428832f51262089420f03b841a0568c57880
+- id: A-11
+  kind: operation
+  statement: CI configures unfiltered PR/main-push checks, twelve OS/Python test combinations, disabled
+    setup-uv caching and two wheel builds; actual run counts are unverified.
+  evidence:
+  - lines: 3-12
+    path: .github/workflows/ci.yml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 4366a760c8488e0db6ee4443a05a1d9210dcc680293c03abf1f528cf3527d897
+  - lines: 17-107
+    path: .github/workflows/ci.yml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 7ebc3f340aa0b30896abed7fa493e654ec1fab09b19aeb62e587e59bed23df4c
+- id: A-12
+  kind: operation
+  statement: The historical transcript study lacks timings and phase boundaries; the current plan defers
+    observed before/after run counts to an equivalent later task.
+  evidence:
+  - lines: 3-23
+    path: docs/design/workflow-efficiency/evidence/transcripts/agent-sessions.md
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 708885d1bb53ac199e66d55dfef4f93b4c4f65322048adae470ffece9b43bdc5
+  - lines: 35-46
+    path: docs/design/workflow-efficiency/evidence/transcripts/agent-sessions.md
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 5120256efd5e60dff4d5e8643af9484ebf3383b1de2c4297caa123e5221cc11e
+  - lines: 1468-1474
+    path: docs/design/workflow-efficiency/plan.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: db6fa7017b5b8de1da1c7be0df3baeee3f9a7bb0bbe6325398bb1e794d993ada
+- id: A-13
+  kind: operation
+  statement: Work status makes human merges the phase approvals; pytest selects all tests with sockets
+    disabled and warnings as errors, while mypy includes source/tests/tools.
+  evidence:
+  - lines: 8-29
+    path: docs/design/work-status.md
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 6697b5ea04015320ed963fd6cf1a2a48f38f9c6ae2db00c5e4640285979104aa
+  - lines: 63-80
+    path: pyproject.toml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 803189fe7ec3aac617a0c7e7881150d98ef96ee90ad1ea184e3d6a233300f696
+unknowns:
+- id: U-1
+  what: Complete active time and waiting time for approvals/models/reviewers/CI is unavailable.
+  material: true
+- id: U-2
+  what: Total time across omitted earlier full and targeted test runs is unknown.
+  material: true
+- id: U-3
+  what: Actual recent CI executions and durations are unverified.
+  material: true
+- id: U-4
+  what: Observed before/after improvement from 0.5.1 on an equivalent later task is unmeasured.
+  material: true
+- id: U-5
+  what: Complete earlier P-7/P-8 reviewer outputs and bindings were not retained.
+  material: true
+- id: U-6
+  what: Which tests dominate the recorded 26-37 minute runs is unknown.
+  material: true
+contradictions:
+- id: C-1
+  sources:
+  - docs/design/workflow-efficiency/reviews/architecture-reviewer-P-7-r1.yaml:5
+  - docs/design/workflow-efficiency/reviews/architecture-reviewer-P-7-r1.yaml:47-53
+  - docs/design/workflow-efficiency/reviews/code-reviewer-P-8-r1.yaml:5
+  - docs/design/workflow-efficiency/reviews/code-reviewer-P-8-r1.yaml:54-56
+  note: Stored round-1 values describe third/second session rounds; the records explain that earlier evidence
+    was not retained.

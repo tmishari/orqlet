@@ -600,3 +600,65 @@ questions:
     answerer: tmishari
     time: '2026-11-23T15:22:51+00:00'
     scope: task
+- id: Q-28
+  key: 092f1fbcc20adf661010ee5b9a3360eea125a3c0829c9be03e4dc2603718b0db
+  subject: Refresh research into current Orqlet development delays
+  raised_by: Codex
+  phase: research
+  category: requirement
+  text: 'Confirm my understanding: investigate why developing Orqlet itself takes too long, including
+    agent work, checks, reviews, approvals and rework, and refresh workflow-efficiency research?'
+  why: Records the explicit authorization and scope for refreshing stale approved research at the current
+    repository revision.
+  status: answered
+  answer:
+    value: Yes, investigate why developing Orqlet itself takes too long and refresh workflow-efficiency
+      research.
+    answerer: tmishari
+    time: '2026-11-25T08:36:44+00:00'
+    scope: task
+- id: Q-29
+  key: 8c8d49a6f47bbabe94efd12524841108bf633dcbfb270379aa45e5e5a85a8d1d
+  subject: Recent work sample for development-delay research
+  raised_by: Codex
+  phase: research
+  category: requirement
+  text: Which recent task felt especially slow, and roughly how long did it take versus your expectation?
+    Investigate recent work generally is sufficient.
+  why: Records the explicit authorization and scope for refreshing stale approved research at the current
+    repository revision.
+  status: answered
+  answer:
+    value: Investigate recent work generally, including repeated checks, reviews, approvals and rework.
+    answerer: tmishari
+    time: '2026-11-25T08:36:44+00:00'
+    scope: task
+- id: Q-30
+  key: 7ecfb8d6f9d269ec52698eb70942167f1ab855a8ac13d335df211f284a842e71
+  subject: Missing timing and execution evidence
+  raised_by: Codex
+  phase: research
+  category: missing-configuration
+  text: Which available session or CI records establish approval/reviewer waiting time, every test-run
+    duration, slow individual tests, rerun inputs, reviewer files read, CLI executable used, and before/after
+    0.5.1 results?
+  why: The repository records eight final suite durations but not the complete timeline; these questions
+    remain open without blocking this facts-only refresh.
+  evidence_refs:
+  - docs/design/workflow-efficiency/as-is.md
+  blocks: []
+  status: open
+- id: Q-31
+  key: 83b3c3b264b66224ffca1242badc1a255a6e9f5f12305e1a25afe978c3078b0e
+  subject: Historical research uncertainties retained during the refresh
+  raised_by: Codex
+  phase: research
+  category: missing-configuration
+  text: For the historical questions retained as U-1 through U-47 in as-is.md that this focused refresh
+    did not settle, is additional evidence available?
+  why: The skill requires preserving earlier unknowns. Their original wording and current reassessment
+    status remain in as-is.md; no frozen work is resumed.
+  evidence_refs:
+  - docs/design/workflow-efficiency/as-is.md
+  blocks: []
+  status: open
