@@ -28,6 +28,19 @@ citation-hash handoff between tester and coder, and R-4 guidance in
 `orqlet-implement`). This priority does not bypass any phase gate: the approval
 of each phase is still the person's merge.
 
+## Recorded on 2026-11-25 (release)
+
+`workflow-efficiency` is finished. P-1 to P-8 are implemented and approved, and its
+design and plan were rebound to the research of #74 (pull requests #77, #78 and #79).
+Its open points stay open and are not decided: the Coder's clean-working-tree check,
+the P-7 review observations, the stale knowledge records, and the Q-14 and pytest text
+in sections 5 and 9 of its design brief.
+
+The person approved a new task, `release-0-5-2`, on 2026-11-25: version 0.5.2 of the
+CLI and the workflow package, on a `release-0.5.2` branch merged into `main` by pull
+request, with no tag. It starts with research. Its design and plan need their own
+approval by merge, and it resumes no frozen workstream.
+
 ## Recorded on 2026-11-25
 
 - The person approved Phase P-8 as the human code owner, so all eight phases of
