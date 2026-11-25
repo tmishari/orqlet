@@ -9,7 +9,9 @@ stack:
   capability_limits: []
 profile:
   version: 1
-  status: draft
+  status: approved
+  reviewed_by: "Timur Misharin"
+  reviewed_at: "2026-11-25T11:37:20.662435+00:00"
 facts:
   python:
     value: ">=3.12"
