@@ -1068,7 +1068,7 @@ files:
   - path: ".orqlet/project-profile.yaml"
     owner: seeded
     inputs: []
-    seeded_sha256: b1760a931a3fec1828db3745c4c1c6090dcf4d14306ad117a30c97ee3bbb8790
+    seeded_sha256: "548b9a666ae065db4886d67437b37f1a54f7efebaa01696748d5f5b530c4dc28"
   - path: ".orqlet/resources.yaml"
     owner: seeded
     inputs: []
@@ -1085,7 +1085,7 @@ files:
   - path: ".orqlet/versions.yaml"
     owner: seeded
     inputs: []
-    seeded_sha256: "5fafc3159cb9e8c597302aa87fc7aa17c4a1eb837432722e53870bb90ceacf0a"
+    seeded_sha256: "6c6029f102f4ba311f21873ff96dbc3d2b732f3ce324ab7188f04753472db532"
   - path: ".orqlet/workflow.lock"
     owner: orqlet
     class: protected
@@ -1129,8 +1129,8 @@ files:
     inputs:
       - id: conventions
         version: "0.5.2"
-        sha256: fe6b3a562051178979b289b8a0bac7e05c7d75ab92e7717bd2c7c4eeecf4b630
-    rendered_sha256: a883dae340778a9fcbb1c5fa60ed1abcccc63c735c1d37708f26506e3251c5b1
+        sha256: ac8649238c88bac74cba249567c8a4b0251386656eadc4739f87ce76cd56df52
+    rendered_sha256: "2574fee818e1b6577710805478b0ebe318307af556f04c33b6f84ce20d081d14"
     block:
-      begin: "<!-- orqlet:begin conventions workflow@0.5.2#fe6b3a562051178979b289b8a0bac7e05c7d75ab92e7717bd2c7c4eeecf4b630 -->"
+      begin: "<!-- orqlet:begin conventions workflow@0.5.2#ac8649238c88bac74cba249567c8a4b0251386656eadc4739f87ce76cd56df52 -->"
       end: "<!-- orqlet:end conventions -->"
