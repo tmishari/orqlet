@@ -41,9 +41,10 @@ of each phase is still the person's merge.
   phase contract says `git status` is not used (finding F-7 of
   `workflow-efficiency/reviews/architecture-reviewer-P-6-r1.yaml`). The clause stays as
   it is until the person decides how a clean tree is shown or drops it.
-- The person declared Go migration feasibility and Harness2 fit not relevant and removed them
-  from the frozen backlog. Their folders under `docs/design/` stay because other tasks' records
-  cite them; nothing in them is resumed.
+- The person declared Go migration feasibility and Harness2 fit not relevant, removed them
+  from the frozen backlog and deleted their folders under `docs/design/`. Records of other
+  tasks that cite those files keep the citation at the revision they name; read it from git
+  history.
 
 ## Frozen backlog
 
