@@ -36,10 +36,12 @@ Its open points stay open and are not decided: the Coder's clean-working-tree ch
 the P-7 review observations, the stale knowledge records, and the Q-14 and pytest text
 in sections 5 and 9 of its design brief.
 
-The person approved a new task, `release-0-5-2`, on 2026-11-25: version 0.5.2 of the
-CLI and the workflow package, on a `release-0.5.2` branch merged into `main` by pull
-request, with no tag. It starts with research. Its design and plan need their own
-approval by merge, and it resumes no frozen workstream.
+The person approved release 0.5.2 on 2026-11-25: version 0.5.2 of the CLI and the
+workflow package, on a `release-0.5.2` branch merged into `main` by pull request, with
+no tag. The person then waived research, design and plan for it, because it carries
+only the version bump, the same version strings and documents as 0.5.1, and the pins of
+`.orqlet/versions.yaml` raised to 0.5.2. It resumes no frozen workstream. Further changes
+are not part of this release and need their own task.
 
 ## Recorded on 2026-11-25
 

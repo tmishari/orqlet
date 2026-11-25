@@ -5,18 +5,18 @@
  policy_role: enforcement-baseline
  cli:
 -  pinned: "0.3.0"
-+  pinned: "0.5.1"
++  pinned: "0.5.2"
    accepted:
 -    - "0.3.0"
-+    - "0.5.1"
++    - "0.5.2"
    denied: []
  workflow:
 -  version: "0.4.0"
 -  digest: "902abfd85e708851f747c860d619f1b4b3146725b89614631ae7fc6f189a04ac"
 -  floor: "0.4.0"
-+  version: "0.5.1"
-+  digest: e5688e7844df6f4a5379a31e5880bcc19c033d8b4602faa388cc08bd4467a27e
-+  floor: "0.5.1"
++  version: "0.5.2"
++  digest: a21d151521aede288c60d7214410dcf65256e21c471a32b94c568f07bdb159d8
++  floor: "0.5.2"
    controls_level_min: 3
  change_control:
    lowering_pin_or_floor_requires_approvals: 2
