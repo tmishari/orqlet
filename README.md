@@ -26,7 +26,7 @@ have not drifted, and validates the documents that an agent produces.
 
 ## Status
 
-Version 0.5.1. What is built and tested in this repository:
+Version 0.5.2. What is built and tested in this repository:
 
 - `init`, `upgrade`, `rollback`, `sync`, `doctor`, `explain`, `release` and `profile`;
 - the workflow skills, role definitions and rules for the three clients;
@@ -85,7 +85,7 @@ From a checkout of this repository:
 
 ```sh
 uv tool install .
-orqlet --version        # orqlet 0.5.1
+orqlet --version        # orqlet 0.5.2
 ```
 
 From a Git revision (pin a commit or a tag, never a moving branch name, when a team installs it):
@@ -216,7 +216,7 @@ orqlet init --client claude-code --client cursor \
 **3. See what happened to your files.** Your text stays; Orqlet adds a block with markers.
 
 ```text
-AGENTS.md                       your team text, then <!-- orqlet:begin baseline workflow@0.5.1#... --> ... <!-- orqlet:end baseline -->
+AGENTS.md                       your team text, then <!-- orqlet:begin baseline workflow@0.5.2#... --> ... <!-- orqlet:end baseline -->
 CLAUDE.md                       "@AGENTS.md" and your line, then <!-- orqlet:begin claude-import --> @AGENTS.md <!-- orqlet:end claude-import -->
 .github/pull_request_template.md  your "## What changed", the Orqlet block, your "## How it was tested"
 .orqlet/project-profile.yaml    python ">=3.12" (evidence: pyproject.toml line 4), FastAPI (evidence: line 5), kind python-service

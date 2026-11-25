@@ -2,7 +2,7 @@
 # Orqlet writes this file once. It is the team's from then on: a later release proposes changes in a diff file.
 schema: orqlet.model-policy/v2
 policy_version: 1
-reviewed_for_release: 0.5.1
+reviewed_for_release: 0.5.2
 models:
   - id: gpt-6-astra
     family: openai
