@@ -1,3 +1,0 @@
-schema: orqlet.released/v1
-files:
-  - {path: .cursor/rules/orqlet-sample-001.mdc, reason: "The team maintains this rule itself now."}

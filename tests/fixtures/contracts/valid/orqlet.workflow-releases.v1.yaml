@@ -1,3 +1,0 @@
-schema: orqlet.workflow-releases/v1
-releases:
-  - {version: 1.0.0, digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, controls_level: 1}

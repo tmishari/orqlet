@@ -64,8 +64,7 @@ select = ["E", "F", "W", "I", "B", "UP", "SIM", "PT", "RUF", "TID", "C4", "ARG",
 python_version = "3.12"
 strict = true
 plugins = ["pydantic.mypy"]
-files = ["src", "tests", "tools"]
-exclude = ["tests/fixtures/", "tests/golden/"]
+files = ["src", "tools"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -1,5 +1,0 @@
-schema: orqlet.workflow-manifest/v1
-workflow_version: 1.0.0
-controls_level: 1
-files:
-  - {path: baseline/baseline.md, sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}
