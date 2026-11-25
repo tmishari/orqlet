@@ -4,9 +4,9 @@ phase: P-8
 review_input:
   components:
     candidates: 62ed5271ab633b7ba2b69f82b641b768c27e961a760f13d915e87d2ad86da64c
-    code_tests: 1813c127f1cbb584cb3b1ac24849f4f5a95f4137e009624b6fb7232337c6805b
+    code_tests: 879f520a0e1afc04fb66b11b568c0bcc9f9bdff78316fb44cc10faf3b70be959
     knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
-    plan: 132b50122acb46596651c19c6e03ad9f0df15aca5c7bdfc57090575160538ce0
+    plan: 72a18d13054c5fa9074106fdc925ced3a7e66c86fc4526b0b5db27d8f5bf08bb
     standards: ebd6d3e71ace6bb2520f4b87f761e6f164391b1462b2efd7cb28cbdf7d26af77
   covers:
   - code_tests
@@ -14,7 +14,7 @@ review_input:
   - plan
   - standards
   - candidates
-  digest: aaaada6235cc8b2099d19974be1b85bdbcc4f788b5734f9ef265947c9ddfaf0c
+  digest: 9650eb183653ed053249473e5ef0dfefaf34da052bd9f82fa3901efb41b8fd10
   merge_base: bb2a0b5aee0a355c2ca97a698300a5280daf7b2c
   schema: orqlet.review-input/v1
 outcome: no-impact
@@ -34,33 +34,40 @@ entries:
   scope: project
   reason: The candidate is the EC-8 deviation, the two security-path files that this phase writes outside the declared
     ones, .orqlet/model-policy.yaml and .github/pull_request_template.md. The person answered both in the ledger (Q-23 and
-    Q-24) and the plan lists them as upgrade-written or reviewed-edit files, so the deviation is documented where the
-    decision was made. It holds no reusable knowledge that a new document would add.
+    Q-24), accepted both deviations in chat on 2026-11-25, and the plan, as amended in pull request 69, names them as the two paths
+    that the gate-status-phase check expects ORQ-E450 on. The deviation is documented where the decision was made. It
+    holds no reusable knowledge that a new document would add.
   evidence:
   - kind: design
-    ref: docs/design/workflow-efficiency/questions.yaml:472-527
-    sha256: d1a7c1207eacad0d00fb8e9c4af1fabeb7d8ffd2d260af18584cd6e3c8d5d4b9
+    ref: docs/design/workflow-efficiency/questions.yaml:472-526
+    sha256: 265f67724db240e71ac13aaf949411b345a5ee975f8083458a21fff119b0f6c7
 no_impact:
   category: already-documented
   reason: The phase changes the version, the model-policy review marker and the installed copies, and edits README, the
     architecture proposal's gate status passage and work-status.md. Those three documents are the maintained
     documentation of the delivered behaviour, edited in the phase's own file list, so the phase writes no separate
     knowledge document. The EC-8 deviation that the analysis reports is answered in Q-23 and Q-24 and named in the plan
-    (P-8 AC-3, self-check), so nothing reusable is left unwritten.
+    (P-8 AC-3 and the gate-status-phase check), so nothing reusable is left unwritten.
   absence_record:
     scopes_searched:
     - .orqlet/knowledge.yaml sources
     - the plan's knowledge_scope
     views:
     - committed:HEAD
-    revision: bb2a0b5aee0a355c2ca97a698300a5280daf7b2c
-    method: orqlet knowledge impact on the staged tree; the project configures no knowledge sources, the plan's knowledge_scope
-      is empty and the design names no public_api packages, so the only candidate is the expected-change EC-8 deviation
-      and no knowledge document exists that this phase could change.
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    method: orqlet knowledge impact --base bb2a0b5 --head HEAD on the merged tree of pull requests 68 and 69; the project configures
+      no knowledge sources, the plan's knowledge_scope is empty and the design names no public_api packages, so the only
+      candidate is the expected-change EC-8 deviation and no knowledge document exists that this phase could change.
     index_state: not-used
     candidates_found: 1
   already_documented_refs:
   - path: docs/design/workflow-efficiency/questions.yaml
     sha256: 33ba8884255ca993ac00551e1a63582aa15c6db380e914a09e1f9ab6663e6d8a
   - path: docs/design/workflow-efficiency/plan.yaml
-    sha256: 132b50122acb46596651c19c6e03ad9f0df15aca5c7bdfc57090575160538ce0
+    sha256: 72a18d13054c5fa9074106fdc925ced3a7e66c86fc4526b0b5db27d8f5bf08bb
+  - path: README.md
+    sha256: ed122f82944d5620fe3a0c4802f7c2a02588038a319cbed79e50ad4a8d126140
+  - path: docs/design/work-status.md
+    sha256: ff5c9814fa72c5c983c49eeed40e1b3e2d8842be511894d3f51043b0fd8c04fc
+  - path: docs/design/orqlet-architecture-proposal.md
+    sha256: 14d64f44b8b2118904184396fa23155d7a1a2fdd3634811688f09690d8ed2628
