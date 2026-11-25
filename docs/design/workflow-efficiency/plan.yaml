@@ -6,11 +6,11 @@ header:
   workflow_version: 0.5.1
   protected_set_digest: 28696c66725c84b7a0cedf3969790aabeab8d45c10dada13dc7d6e4afd4fd763
   bound:
-    base_revision: 62231b8deb419c1f579c31ce4b4f64fe82fe56bf
+    base_revision: a676dc755a2e4f22d7b4029958a571000a048f2d
     standards_lock_hash: 8b2d28e1d4894236e4b43e3c54766fcbdfaba0c89aab9fe39645dfa7c8e43713
     applicable_rules_hash: 15dad7d04fe2bec92f1ca2d922802d58b960e532316f3298496ebcee9e5b43bd
     profile_version: 1
-design_ref: docs/design/workflow-efficiency/design/manifest.yaml#ce76ce58f54455545950d9942c89b04fb0c160196e9e1a732bee228f478ed234
+design_ref: docs/design/workflow-efficiency/design/manifest.yaml#026b6aa62a182e5d475df791043da77536eca7178964209a84017fba6f18164c
 base_revision: fd495247c13734c606034220f777a58859a7e15a
 knowledge_scope: []
 phases:
@@ -1398,10 +1398,10 @@ self_check:
     confirmed_requirements: [R-1, R-2, R-3, R-4, R-5, R-6, R-7]
     applicable_standards: [ORQLET-ARCH-001, ORQLET-ARCH-002, ORQLET-ARCH-003, ORQLET-DET-002, ORQLET-DET-003, ORQLET-MODEL-001,
       ORQLET-MODEL-002, ORQLET-NOMODEL-001, ORQLET-QA-001, ORQLET-SAFE-001, ORQLET-SEC-001, ORQLET-SEC-002, ORQLET-SEC-003,
-      ORQLET-STYLE-001, ORQLET-TEST-001]
+      ORQLET-STYLE-001]
     acceptance_criteria: []
     evidence:
-    - docs/design/workflow-efficiency/design/manifest.yaml#ce76ce58f54455545950d9942c89b04fb0c160196e9e1a732bee228f478ed234
+    - docs/design/workflow-efficiency/design/manifest.yaml#026b6aa62a182e5d475df791043da77536eca7178964209a84017fba6f18164c
     - docs/design/workflow-efficiency/questions.yaml
     - .github/workflows/ci.yml
     - AGENTS.md
@@ -1464,6 +1464,18 @@ self_check:
     result: pass
   - what: Paths projected and the plan validated.
     how: orqlet validate plan docs/design/workflow-efficiency/plan.yaml
+    result: pass
+  - what: >-
+      Rebind at the person's request to the design as merged in pull request 78 (merge a676dc755a2e4f22d7b4029958a571000a048f2d,
+      parent d0a44601, on origin/main and HEAD; pull request 77 merged the manifest rebind first). The input check passed: the
+      design validates, its approved files, the AS-IS file, its cited evidence and the ledger are unchanged since the merge,
+      nothing is untracked, no ledger question blocks, and the design's base d0a44601 is an ancestor of HEAD. The header, the
+      design_ref and the applicable standards (ORQLET-TEST-001 no longer applies) changed; no phase, criterion, file operation
+      or check changed. The phases are merged. Their cited sources (.github/workflows/ci.yml, tests/**) describe the inputs at
+      the plan's own base revision: the person removed the tests and the CI workflow on 2026-11-25, so those files no longer
+      exist at HEAD and the pytest checks cannot run. The plan cites facts A-26, A-27 and A-71 as they stand in as-is.md at
+      86e07abc, which the design's ADRs now say; the current file restates them as A-118, A-110 and A-119.
+    how: orqlet gate status workflow-efficiency --json at a676dc75, before the branch's first commit; orqlet standards for --phase plan --role planner on the scope's paths; git merge-base, git diff and git ls-files against the merge; orqlet evidence hash on the design manifest
     result: pass
   unverified:
   - "BC-3: the design half (hash once before review, compare before stopping) is skill text checked by P-6 AC-3; whether agents follow it shows only on the next design."
