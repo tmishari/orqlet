@@ -217,3 +217,287 @@ questions:
     answerer: tmishari
     time: '2026-11-25T11:58:00+00:00'
     scope: task
+- id: Q-11
+  key: 560f7c4809d869443f4a85be063a17d3697399ffd22de00018f9cd6a17c68cf6
+  subject: Test requirement after the migration
+  raised_by: Cursor
+  phase: design
+  category: policy
+  text: After this task, what do the standards say about the Rust tests?
+  why: The person lifted the no-tests rule for this task only (Q-3); the quality standard is rewritten in this task (Q-10).
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: Keep the tests; cargo test must pass before a pull request is ready
+    answerer: tmishari
+    time: '2026-11-25T12:20:00+00:00'
+    scope: task
+- id: Q-12
+  key: c3dd0e873c1b66f22a66eb53c5a7395a7f606537dbb341e3b2a69ed7843cd450
+  subject: Project kind of Orqlet's own profile
+  raised_by: Cursor
+  phase: design
+  category: requirement
+  text: Orqlet's profile records kind python-cli with evidence in pyproject.toml, which is removed. What replaces it?
+  why: Orqlet recognises only Python project kinds (A-29), and Q-2 removes pyproject.toml.
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: Add a rust-cli project kind and read Cargo.toml and Cargo.lock for its facts
+    answerer: tmishari
+    time: '2026-11-25T12:20:00+00:00'
+    scope: task
+- id: Q-13
+  key: 9563a8665f4e4b70a38f810eb3007cfdc0d3d198d9e8a64c9b01db5757378b95
+  subject: Version of the Rust release
+  raised_by: Cursor
+  phase: design
+  category: requirement
+  text: Which version do the CLI and the workflow package carry?
+  why: Q-5 makes the Rust binary a new major version without byte compatibility.
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: 1.0.0 for the CLI and the workflow package
+    answerer: tmishari
+    time: '2026-11-25T12:20:00+00:00'
+    scope: task
+- id: Q-14
+  key: 513dc3ffac88837e09a716085de5b62004addc7a853be0a01dc2f16eae9fe6e0
+  subject: Supported operating systems
+  raised_by: Cursor
+  phase: design
+  category: requirement
+  text: Which operating systems must the Rust binary support?
+  why: The Python code holds Windows-specific handling (A-15, A-19).
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: macOS, Linux and Windows
+    answerer: tmishari
+    time: '2026-11-25T12:20:00+00:00'
+    scope: task
+- id: Q-15
+  key: cfed4e6186836872de6f588fd7ec1f92e548a3f2d66ad44839f384ddc4dc2299
+  subject: Verification on Linux and Windows
+  raised_by: Cursor
+  phase: design
+  category: test-expectation
+  text: How is the Rust build checked on Linux and Windows without CI on a macOS machine?
+  why: Q-14 requires macOS, Linux and Windows, Q-11 requires the tests, and the CI workflow was
+    removed (A-30, C-3).
+  options:
+  - Add a GitHub Actions workflow for the three systems
+  - No CI; full checks and tests on macOS, compile and lint only for the Linux and Windows targets
+  - No CI; the person runs the tests on Linux and Windows
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: No CI; full checks and tests on macOS, compile and lint only for the Linux and Windows
+      targets
+    answerer: tmishari
+    time: '2026-11-25T12:12:00+00:00'
+    scope: task
+- id: Q-16
+  key: 0e95550a2d86ef49d8984a760fecd7660f13f855174cffd51c6f0086fbec80f0
+  subject: Data directory inside the managed repository
+  raised_by: Cursor
+  phase: design
+  category: requirement
+  text: 0.5.2 accepts an ORQLET_DATA_DIR that points inside the managed repository. Should 1.0.0
+    refuse it?
+  why: The security review of the design noted that journals, backups and review packets would then
+    live in the untrusted repository; 0.5.2 does not check it (src/orqlet/interface/cli/wiring.py
+    lines 83-93).
+  options:
+  - Keep the 0.5.2 behaviour
+  - Refuse a data directory inside the repository (new behaviour)
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: Refuse a data directory inside the repository (new behaviour)
+    answerer: tmishari
+    time: '2026-11-25T16:13:05+00:00'
+    scope: task
+- id: Q-17
+  key: 89becb73fa5e400092eea1ef51cf4f824d47084925086d15db38319d9cf53e16
+  subject: Dependency for project and change ids
+  raised_by: Cursor
+  phase: design
+  category: policy
+  text: May the uuid crate, with only its v4 feature, join the allow-list of orqlet-adapters to make
+    project and change ids?
+  why: The round-4 architecture review found that no allowed crate makes random ids; 0.5.2 uses
+    uuid.uuid4 (src/orqlet/adapters/system.py lines 14-16).
+  options:
+  - Yes, add uuid (v4 only) to adapters
+  - 'No: use the standard library only, and the design must explain how ids stay unique'
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: Yes, add uuid (v4 only) to adapters
+    answerer: tmishari
+    time: '2026-11-25T16:42:34+00:00'
+    scope: task
+- id: Q-18
+  key: b8008185076ddaa20cf52aab58f9e0ab3690e3af6175f916d745d8d56855a22b
+  subject: Read-only commands with a data directory inside the repository
+  raised_by: Cursor
+  phase: design
+  category: requirement
+  text: When the data directory lies inside the repository, what should doctor, sync and explain
+    do? In 0.5.2 they are wired with the services that create the data directory.
+  why: The round-5 architecture review found that the applied design refused them, while the
+    approved round-4 response said they report a finding (src/orqlet/interface/cli/commands/lifecycle.py
+    lines 188, 203 and 243).
+  options:
+  - Refuse with ORQ-E105, exit 3, as the other writing commands do
+  - Report a finding, treat the data as missing and go on
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: Report a finding, treat the data as missing and go on
+    answerer: tmishari
+    time: '2026-11-25T17:35:07+00:00'
+    scope: task
+- id: Q-19
+  key: 4a61ba13ec04594818c56e9cba9a9627ecc3b97948288bb650708241ba189a1f
+  subject: Hook with a data directory inside the project
+  raised_by: Cursor
+  phase: design
+  category: requirement
+  text: The hook starts no Git, so it cannot find the repository top level. What should it do about
+    a data directory inside the repository?
+  why: The round-5 architecture review found that the applied design skipped the check, while the
+    approved round-4 response said the hook prints {} (src/orqlet/interface/cli/wiring.py lines
+    119-140).
+  options:
+  - 'Skip the check: the hook only reads'
+  - Print {} whenever the data directory lies inside the project root it can see
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: Print {} whenever the data directory lies inside the project root it can see
+    answerer: tmishari
+    time: '2026-11-25T17:35:07+00:00'
+    scope: task
+- id: Q-20
+  key: 4e67b54fa81139a81704da68cdec01835cc53a053c2e65823a7b3a046184478a
+  subject: Git error output in messages
+  raised_by: Cursor
+  phase: design
+  category: requirement
+  text: Git's error output can repeat repository-controlled text. Should the ORQ-E106 message keep
+    its first line?
+  why: The round-5 security review found that 0.5.2 quotes the first line of Git's error output
+    (src/orqlet/adapters/git/git_runner.py lines 132-136), against the rule that messages never
+    echo input.
+  options:
+  - Keep it, with control characters replaced and the text cut to 200 characters
+  - Drop it and give a fixed message (new behaviour)
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: Drop it and give a fixed message (new behaviour)
+    answerer: tmishari
+    time: '2026-11-25T17:35:07+00:00'
+    scope: task
+- id: Q-21
+  key: bca7e4adf74befdb88699652edb8f3e71f2402d11ef675e5a35c9be6ac7a44e6
+  subject: Scope of the escaping filter
+  raised_by: Cursor
+  phase: design
+  category: requirement
+  text: Which repository values should pass through the escaping filter printable()?
+  why: The round-7 reviews found that ADR-007 decision 15 states the scope two ways. 0.5.2 escapes
+    only some values (src/orqlet/domain/conventions.py lines 100-124 and its callers) and shows
+    others raw or in Python repr form, for example validate_design.py lines 127 and 130 and
+    paths.py lines 32-47.
+  options:
+  - Every repository value in a finding, not-run entry or refusal is escaped (limit 200) or left
+    out, never shown raw (new behaviour)
+  - Only the sites 0.5.2 escapes, plus the change id; other values stay as in 0.5.2
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: Every repository value in a finding, not-run entry or refusal is escaped (limit 200) or
+      left out, never shown raw (new behaviour)
+    answerer: tmishari
+    time: '2026-11-25T18:54:31+00:00'
+    scope: task
+- id: Q-22
+  key: 6981078dfcac424f143b3757025d077171f922b3ace0f77fa163801a1725c65e
+  subject: Coverage of the escaping rule
+  raised_by: Cursor
+  phase: design
+  category: requirement
+  text: The escaping rule of Q-21 is tested at three sample sites. How are the other sites covered?
+  why: The round-8 security review (SEC-D8-2) found that BC-24 tests only a commit subject, an
+    artifact path and a claim anchor, while ADR-007 claims every rule has a test.
+  options:
+  - A compile-time guard that builds messages only from fixed text and escaped values, with a
+    criterion
+  - The ORQLET-SEC-002 review covers the untested sites, as for the Clippy parser list
+  blocks:
+  - plan
+  status: answered
+  answer:
+    value: The ORQLET-SEC-002 review covers the untested sites, as for the Clippy parser list
+    answerer: tmishari
+    time: '2026-11-25T19:05:41+00:00'
+    scope: task
+- id: Q-23
+  key: b1caea9dc6ee042b12c41297ce5a53a70de68232750a3124f607dc69ac8b7096
+  subject: Escaping of data-directory values
+  raised_by: Cursor
+  phase: design
+  category: requirement
+  text: Should values from the data directory, such as the journal file name in ORQ-E136, also be
+    escaped?
+  why: The round-8 security review noted that Q-21 covers only repository values; 0.5.2 shows the
+    journal file name unquoted after a CanonicalPath parse (src/orqlet/adapters/fs/journal.py
+    lines 71-77).
+  options:
+  - Yes, escape them too (new behaviour)
+  - No, show them as 0.5.2 does
+  blocks:
+  - plan
+  status: answered
+  answer:
+    value: No, show them as 0.5.2 does
+    answerer: tmishari
+    time: '2026-11-25T19:05:41+00:00'
+    scope: task
+- id: Q-24
+  key: a45a4b2ce1587c86e65219be651f22ebac176062620eb0bd498ee1a9e0dbe5dc
+  subject: Filter for the finding path field
+  raised_by: Cursor
+  phase: design
+  category: requirement
+  text: Which filter applies to a finding's structured path field, which goes into the JSON
+    envelope?
+  why: The round-8 architecture review (R8-F1) found that Q-21 does not say whether the field is
+    covered; escaping can cut it, while 0.5.2 escapes it at validate_resources.py line 71 and
+    validate_integrations.py line 110.
+  options:
+  - All-or-nothing, shown whole or left out (new at two 0.5.2 sites)
+  - Escaped, as 0.5.2 does at those two sites
+  blocks:
+  - plan
+  status: answered
+  answer:
+    value: Escaped, as 0.5.2 does at those two sites
+    answerer: tmishari
+    time: '2026-11-25T19:05:41+00:00'
+    scope: task
