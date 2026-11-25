@@ -1,0 +1,189 @@
+schema: orqlet.as-is-fragment/v1
+fragment_id: refresh-context
+base_revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+scope:
+  paths:
+  - .orqlet/**
+  - .prompts/**
+  - .claude/**
+  - .codex/**
+  - .cursor/**
+  - src/orqlet/**
+  - docs/design/workflow-efficiency/**
+  request_ref: workflow-efficiency
+facts:
+- id: A-1
+  kind: structure
+  statement: The approved profile identifies a Python CLI using uv and Typer, with Claude Code/Codex/Cursor
+    enabled; .prompts supplies on-demand standards.
+  evidence:
+  - lines: 1-34
+    path: .orqlet/project-profile.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 055138d0fad8e5ae801daf5e83793ffadb01f2a2ef60b3169957ca896150dfc4
+  - lines: 158-170
+    path: .orqlet/project-profile.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 36d6fea58486ddab42854d9cb6abc4f9d2aa33544f58c7a720ae29f099c0f730
+  - lines: 3-10
+    path: .prompts/README.md
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 3610b425cde44e935e5479f8733f751058a545f555914302375c638f53bf7f09
+- id: A-2
+  kind: structure
+  statement: Repository CLI and packaged workflow both declare version 0.5.1.
+  evidence:
+  - lines: 1-3
+    path: src/orqlet/__init__.py
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 7583db6ddcc642db216b0d2a1c6a90ae2d6397b66b7aea2419cd42c757338091
+  - lines: 1-5
+    path: src/orqlet/workflow/identity.json
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 22db2f1b774eb7b09dc9f37f868fadfa96026bb1b748ccd43ace45e7101dc8ec
+- id: A-3
+  kind: operation
+  statement: The pre-implementation study reports medians of 15 full pytest segments and four review preparations
+    across 27 implementation sessions, not current per-phase counts.
+  evidence:
+  - lines: 24-46
+    path: docs/design/workflow-efficiency/evidence/transcripts/agent-sessions.md
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 45c80b0a824cab28ae0d5c0a8c75126677585cf29b0e7d2f7b1830f2a71b1f42
+- id: A-4
+  kind: operation
+  statement: Ledger Q-12/Q-13 record research re-citation and another refresh during design because squash
+    history and missing base-binding facts blocked progression.
+  evidence:
+  - lines: 215-264
+    path: docs/design/workflow-efficiency/questions.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: eb9d461f6343ccb5006a8b061aaedc733cc92d1cae7e8b34bb890b8d5de8ce66
+- id: A-5
+  kind: operation
+  statement: All 24 committed implementation reviewer records for P-1 through P-8 report advisory assurance
+    and NOT_RUN; they are not 24 successful independent gates.
+  evidence:
+  - lines: 3-7
+    path: docs/design/workflow-efficiency/reviews/architecture-reviewer-P-1-r1.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: a24a4e982f6cf1e81a4529f494aa75cc07d98047688919ddbbde7b75c7a0e02f
+  - lines: 3-7
+    path: docs/design/workflow-efficiency/reviews/architecture-reviewer-P-2-r1.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: a7a41f9382286abc408525ec99087ae66d4cd8eae3b135e00d44d88f7bcbc7f6
+  - lines: 3-7
+    path: docs/design/workflow-efficiency/reviews/architecture-reviewer-P-3-r1.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 51bb349f4f6e905704e0313d4982493898c804500e75de9d601068550f83b5b2
+  - lines: 3-7
+    path: docs/design/workflow-efficiency/reviews/architecture-reviewer-P-4-r1.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 79c239dd711284bf747e135f188fe8180685eae94beb8fa794c37d26a3355d7a
+  - lines: 3-7
+    path: docs/design/workflow-efficiency/reviews/architecture-reviewer-P-5-r1.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 389e46823241f7d04c2f90d80236dbdad12f18389385dfdb82f69b1d2755ccc3
+  - lines: 3-7
+    path: docs/design/workflow-efficiency/reviews/architecture-reviewer-P-6-r1.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 449d7f6d23adcddc405e62be84ecfbfc1f283085557f219a7498b461dfc7d769
+  - lines: 3-7
+    path: docs/design/workflow-efficiency/reviews/architecture-reviewer-P-7-r1.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 483d04afeaca97d31617860de252a1acfeb487c3e16f465c0cae5ccda532d897
+  - lines: 3-7
+    path: docs/design/workflow-efficiency/reviews/architecture-reviewer-P-8-r1.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 7b8e4736faa149ae4fdf5c46ff17252ae9e427b458c92dbb51772b4d33f41e36
+  - lines: 3-7
+    path: docs/design/workflow-efficiency/reviews/code-reviewer-P-1-r1.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: be099d72d99228c66f5222b71dc106f03a01052862a1cb5a52025bdae317f89a
+  - lines: 3-7
+    path: docs/design/workflow-efficiency/reviews/code-reviewer-P-2-r1.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: ef1ea732b8a4b6ca6f5accfb74a1781c458e73eaa26de6a2081992669018c3b6
+  - lines: 3-7
+    path: docs/design/workflow-efficiency/reviews/code-reviewer-P-3-r1.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: b8d5d9d95a963e6f1ef24a8545f78cb247da5672b7cb26ad46d6a29c45894629
+  - lines: 3-7
+    path: docs/design/workflow-efficiency/reviews/code-reviewer-P-4-r1.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 46098a2e25c3f2434fdfded38a6b2349f8b7b69f6a0ca29f1562f92c02a12108
+  - lines: 3-7
+    path: docs/design/workflow-efficiency/reviews/code-reviewer-P-5-r1.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: f6f522655a9d7b59f62ba52052b24ca2510d5ac5a765961df50493e7234e77b0
+  - lines: 3-7
+    path: docs/design/workflow-efficiency/reviews/code-reviewer-P-6-r1.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 64f72c1b8bb8ea0f367626b45bfd0bd7ceff452fffde11e307c87a54f3851efa
+  - lines: 3-7
+    path: docs/design/workflow-efficiency/reviews/code-reviewer-P-7-r1.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 64bb652c277e4117a5d1c5220a7fcb3d8808db10e758cc6f47a5fd56963747a5
+  - lines: 3-7
+    path: docs/design/workflow-efficiency/reviews/code-reviewer-P-8-r1.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 3aad96cd32f18de30414b9082cbd99285f8b254763aab0c5d6eb54428c2c753b
+  - lines: 3-7
+    path: docs/design/workflow-efficiency/reviews/security-reviewer-P-1-r1.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: bd40e5261021fa640cb88d48d05739ca7c93de0f32e59f4b9cb816ef169c61ad
+  - lines: 3-7
+    path: docs/design/workflow-efficiency/reviews/security-reviewer-P-2-r1.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 634940b9108b5b9333c4c367424a9fe7f9aef7966d371b94f0a24ff9874ec603
+  - lines: 3-7
+    path: docs/design/workflow-efficiency/reviews/security-reviewer-P-3-r1.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 5d3f2c8efa6dec5efab1d2a2a10247ede38316adbe8d2a3329af5b87848e8864
+  - lines: 3-7
+    path: docs/design/workflow-efficiency/reviews/security-reviewer-P-4-r1.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 73c6ecb7ac8d42494f5453947d5be8ae9a7ff0018bcd6b66e0144dec6429933d
+  - lines: 3-7
+    path: docs/design/workflow-efficiency/reviews/security-reviewer-P-5-r1.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 9cfd85b019e81e5181a2eebae2cd743275f3ebe02c0cfd4c539de70e872bab7b
+  - lines: 3-7
+    path: docs/design/workflow-efficiency/reviews/security-reviewer-P-6-r1.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 59c74745dd228d2509575b2e137c31018cbcce38bfd7927c5cfe71810c76a3b2
+  - lines: 3-7
+    path: docs/design/workflow-efficiency/reviews/security-reviewer-P-7-r1.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 0c0f4a6cad4e1acb2b105dca92d6f83e4999815e423a12e0868a2df9fb4d2b58
+  - lines: 3-7
+    path: docs/design/workflow-efficiency/reviews/security-reviewer-P-8-r1.yaml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 92301c709979eacf17c5b1b4a8d04850e40dbbf098764320bfee6e93841ceb07
+- id: A-6
+  kind: structure
+  statement: Claude context points to AGENTS.md; generated Cursor/Claude workflow rules also include the
+    baseline, while Codex role files define inventory and tracing instructions.
+  evidence:
+  - lines: 1-2
+    path: .claude/CLAUDE.md
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 73186fd479d932144f4eec865b49c0e8cd2d05e3e5e2595246b27bacd9a77f3a
+  - lines: 1-15
+    path: .cursor/rules/orqlet-workflow.mdc
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 89df479b7f0d537dc1a5bfbf57f942a542214958d8a67395e8da8901f146efd8
+  - lines: 1-12
+    path: .claude/rules/orqlet-workflow.md
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 49706884b0514a0839858dcb548a5376618e5f9dd26d8d68af1d85346a3d3007
+  - lines: 1-5
+    path: .codex/agents/orqlet-inventory.toml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 4fcb2f0646c0cc40005317f5819177c4224aaef850a1eb05606bb09e6a177dab
+  - lines: 1-5
+    path: .codex/agents/orqlet-tracer.toml
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 3334ca565b6d6469831738ccb7777d691c61b3a517a15e7aa9dbfcd8380bc31a
+unknowns: []
+contradictions: []

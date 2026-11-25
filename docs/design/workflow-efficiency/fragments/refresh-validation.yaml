@@ -1,0 +1,200 @@
+schema: orqlet.as-is-fragment/v1
+fragment_id: refresh-validation
+base_revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+scope:
+  paths:
+  - src/orqlet/application/**
+  - src/orqlet/adapters/git/**
+  - src/orqlet/domain/binding.py
+  - src/orqlet/interface/cli/**
+  - AGENTS.md
+  request_ref: workflow-efficiency
+facts:
+- id: A-1
+  kind: operation
+  statement: Project instructions require behavior tests, explicit not-run reports and human approval
+    of design and plan.
+  evidence:
+  - lines: 14-20
+    path: AGENTS.md
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 5826dbc7bf27a35ebaf6e1504a57f2b073e2d7dab5262a9e9d62f3b637643bd8
+- id: A-2
+  kind: flow
+  statement: Gate status assesses three task artifacts and reads locks/profile/HEAD; offline approval
+    is now informational rather than an unconditional not-run reason.
+  evidence:
+  - lines: 81-123
+    path: src/orqlet/application/usecases/gate_status.py
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: ed28feef343a3cae4ff0ab44a219ed3b88185083d5c6ef69c39a3437fbfc3316
+  - lines: 145-165
+    path: src/orqlet/application/usecases/gate_status.py
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 3089b8019cb4128f331211056de2641a450db577daee3d2672e190c142d89ed0
+- id: A-3
+  kind: flow
+  statement: Changes within artifact scope still produce staleness; a plan's scope includes all phases'
+    operation paths, so earlier phases can stale later input checks.
+  evidence:
+  - lines: 169-229
+    path: src/orqlet/application/usecases/gate_status.py
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 447d21d95d9f7b099906df5e15439443afefd6615cc783c61a4fa5238ffcbe47
+  - lines: 11-30
+    path: src/orqlet/application/usecases/staleness.py
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: ad1981d80b7483984d607ee8f46a6f0df70b7b8d6a2474068139830338c8de9e
+- id: A-4
+  kind: flow
+  statement: Stale-input exceptions still require human confirmation; edits to research or plan artifacts
+    are excluded from the planned-work exception.
+  evidence:
+  - lines: 75-81
+    path: src/orqlet/workflow/skills/orqlet-research/references/phase-contract.md
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 7e9921bcec4e14c19695eebb1a9a1ab1441e7a53c8a15a7842fd77df5b566ff5
+- id: A-5
+  kind: flow
+  statement: Review preparation enumerates the tree and reads eligible files before applying packet limits,
+    exporting snapshot, diff and duplicate context copies.
+  evidence:
+  - lines: 49-51
+    path: src/orqlet/application/usecases/review_prepare.py
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: a0e155c24a6cb782ae7936329428006edd2a6f671d4af6a075153a7b430c2e08
+  - lines: 131-184
+    path: src/orqlet/application/usecases/review_prepare.py
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 752d616d3bc1bfb103c28327bb0987f9177c9d46e03d9eae3505cea3f46b1b12
+- id: A-6
+  kind: flow
+  statement: Review preparation computes common bindings, analyzes knowledge, then recomputes components
+    for available reviewer/client pairs across three roles and three clients.
+  evidence:
+  - lines: 218-250
+    path: src/orqlet/application/usecases/review_prepare.py
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: b5241ac5ff352a540114983b958544e6f555f0713170a9ed0bc7407841ae5740
+  - lines: 52-57
+    path: src/orqlet/application/usecases/review_prepare.py
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: b4a44379de40879d3b67b5149a550bc717ff703590aaa4aa0dff6cab2dd51a95
+- id: A-7
+  kind: flow
+  statement: Record validators recompute bindings; review/test validation reconstructs changes, and knowledge
+    validation repeats candidate analysis.
+  evidence:
+  - lines: 122-158
+    path: src/orqlet/application/usecases/validate_records.py
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: b3c002862b031b82ba3062f49ec1bad5e841282f672a1063be824184880e64d8
+  - lines: 260-291
+    path: src/orqlet/application/usecases/validate_records.py
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 1bd4c22edfc3589e3997a9199c0c275b6eb861ef14145e2a1aa8b227294ad9ee
+  - lines: 409-436
+    path: src/orqlet/application/usecases/validate_records.py
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 6bdfd79e48b9e4e22e37d62056d7873d1aa962971a6fd7458bb7b06a925131b2
+  - lines: 482-509
+    path: src/orqlet/application/usecases/validate_records.py
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: e4d614e8e011edc9697ebcf787bd9e5023081abab06157881dea531fe67e5203
+- id: A-8
+  kind: flow
+  statement: Review bindings include test/knowledge record hashes; test bindings cover code/tests and
+    plan, so evidence edits can stale reviews without staling tests.
+  evidence:
+  - lines: 38-55
+    path: src/orqlet/domain/binding.py
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 291cb7c955363168367428f0d51268159f117d5086413a8c9e698a18d1b26863
+  - lines: 386-392
+    path: src/orqlet/application/usecases/binding_inputs.py
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 43652425b3f7425f2a5495a64cc4f517e54897bc01bbf96cc872090dc3d4812e
+  - lines: 144-150
+    path: src/orqlet/application/usecases/validate_records.py
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: cb7d91386285967d10e1f93b446b4093b91476bd6953c33f9470c12bcf3f5ff9
+- id: A-9
+  kind: flow
+  statement: Binding computation rereads design, plan, standards and evidence inputs; Git caches trees
+    per service instance, while blob-read calls start cat-file processes.
+  evidence:
+  - lines: 286-343
+    path: src/orqlet/application/usecases/binding_inputs.py
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: b18ad1f1e8032f940d7c3a5c7abfc1abf554acea6ebaeb57d98a9bc2561a9d17
+  - lines: 165-173
+    path: src/orqlet/interface/cli/wiring.py
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 58dfbf955e946c28c9aeb7978ff430344e1005faeb3c36473d1efd61a01ea503
+  - lines: 35-43
+    path: src/orqlet/adapters/git/vcs_git.py
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: dfa9c7ddac6507b488fed4586cd739d20e35d389322180bb5b3802cf64472c1c
+  - lines: 112-158
+    path: src/orqlet/adapters/git/vcs_git.py
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: dc5f5f5c66f170839ddd0ace4a34a2af5e75eeeff7ea545ee77c85ef25422ade
+  - lines: 20-33
+    path: src/orqlet/adapters/git/objects.py
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: beef060597103a29ce09d9f22333886c173f498289466257bd6ee572a4ed1ef1
+- id: A-10
+  kind: interface
+  statement: Evidence citation now accepts multiple file/range pairs in one invocation; each pair still
+    reads its file separately.
+  evidence:
+  - lines: 33-52
+    path: src/orqlet/application/usecases/evidence_cite.py
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 4beabfda1165bf6710c1a61f0174dbf3feee5cb8125bc4224b2d945b9177ad1c
+  - lines: 79-95
+    path: src/orqlet/application/usecases/evidence_cite.py
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 87dea2d420b4c0f7f3ee859915d901811ef736d8478abb3e02737b15e3ca60ee
+  - lines: 21-48
+    path: src/orqlet/interface/cli/commands/evidence.py
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: dd9de8cd10baa649a402b35af66b3e3002986582fd617586dc626600979f9445
+- id: A-11
+  kind: interface
+  statement: AS-IS validation permits task-owned evidence at another revision after scanning and hash-checking
+    its committed HEAD content; other evidence remains base-bound.
+  evidence:
+  - lines: 112-195
+    path: src/orqlet/application/usecases/validate_as_is.py
+    revision: 9d2053314ff32f459fdb17cb0f476bb0315e2e3c
+    sha256: 3f2d2e42a60dac11cdf002b00895f9964c7cc8d45788b2089bc387bb123cd8ab
+unknowns:
+- id: U-1
+  what: Packet export and validation time is unmeasured.
+  material: true
+- id: U-2
+  what: Actual reviewer/client pair counts and files read per reviewer are unknown.
+  material: true
+- id: U-3
+  what: Reuse eligibility and time waiting for stale-input approvals need session evidence.
+  material: true
+contradictions:
+- id: C-1
+  sources:
+  - docs/design/workflow-efficiency/as-is.md@9d2053314ff32f459fdb17cb0f476bb0315e2e3c:A-27
+  - src/orqlet/application/usecases/gate_status.py:118-123
+  note: The prior research said gate status always returned NOT_RUN; current code allows PASS. Superseded
+    historical claim, corrected by this refresh.
+- id: C-2
+  sources:
+  - docs/design/workflow-efficiency/as-is.md@9d2053314ff32f459fdb17cb0f476bb0315e2e3c:A-26
+  - src/orqlet/interface/cli/commands/evidence.py:21-48
+  note: The prior research said citation accepted one pair; current CLI accepts multiple pairs. Superseded
+    historical claim, corrected by this refresh.
+- id: C-3
+  sources:
+  - docs/design/workflow-efficiency/as-is.md@9d2053314ff32f459fdb17cb0f476bb0315e2e3c:A-71
+  - src/orqlet/application/usecases/validate_as_is.py:164-195
+  note: The prior research required every citation at base_revision; current code exempts checked task
+    evidence. Superseded historical claim, corrected by this refresh.
