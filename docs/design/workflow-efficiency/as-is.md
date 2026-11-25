@@ -3,7 +3,7 @@ schema: orqlet.as-is/v1
 header:
   schema: orqlet.artifact-header/v1
   task: workflow-efficiency
-  status: draft
+  status: approved
   workflow_version: 0.5.1
   protected_set_digest: 28696c66725c84b7a0cedf3969790aabeab8d45c10dada13dc7d6e4afd4fd763
   bound:
@@ -1554,7 +1554,7 @@ self_check:
     result: pass
   - what: Rebind authorized; previous acceptance removed
     how: The person answered "yes" to rebinding the AS-IS file to current main (Q-32, recorded in this chat on 2026-11-25).
-      The earlier acceptance entry is removed and header.status is draft.
+      The earlier acceptance entry was removed and header.status was set to draft for the rebind.
     result: pass
   - what: Bound values and re-citation
     how: orqlet gate status workflow-efficiency --json gave HEAD 43d94969b8c1d87936fcf03bd8de5cc5431a975a (main
@@ -1581,6 +1581,11 @@ self_check:
     how: No tests exist and none may be run (AGENTS.md). No hosted CI exists. Lint and type checks were not run
       in this phase.
     result: not-run
+  - what: The person accepted the rebound research
+    how: >-
+      tmishari, recorded 2026-11-25T10:46:00+00:00 in this chat: "yes I approve rebound".
+      This approves the research only; it does not approve a design, a plan or an implementation.
+    result: pass
   unverified:
   - Timing is incomplete and claimed; no percentage of end-to-end time or critical-path duration can be assigned.
   - Current global CLI mismatch is observed locally, not proof that earlier sessions used it.
@@ -1683,4 +1688,4 @@ Q-30 groups the remaining measurement questions: active versus waiting time and 
 
 ## Inputs for design
 
-The facts cover workflow requirements (A-85–A-96), recent execution/review records and the removed CI (A-97–A-109), current validation behavior (A-110–A-119), project/history context (A-120–A-125) and the standards after the removal of the tests (A-126). Q-28/Q-29 authorize the refresh and Q-32 the rebind to `main`. This file is a draft: the person's acceptance is not recorded and comes with the merge of the pull request that holds it. Design, plan and implementation approvals remain separate. The design manifest and the plan name the earlier hash of this file. All retained uncertainty and contradiction records remain available to design; no remedy is selected here.
+The facts cover workflow requirements (A-85–A-96), recent execution/review records and the removed CI (A-97–A-109), current validation behavior (A-110–A-119), project/history context (A-120–A-125) and the standards after the removal of the tests (A-126). Q-28/Q-29 authorize the refresh and Q-32 the rebind to `main`. The person accepted this file on 2026-11-25; the acceptance is recorded in self_check and the file is approved. Design, plan and implementation approvals remain separate. The design manifest and the plan name the earlier hash of this file. All retained uncertainty and contradiction records remain available to design; no remedy is selected here.
