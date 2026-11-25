@@ -217,3 +217,67 @@ questions:
     answerer: tmishari
     time: '2026-11-25T11:58:00+00:00'
     scope: task
+- id: Q-11
+  key: 560f7c4809d869443f4a85be063a17d3697399ffd22de00018f9cd6a17c68cf6
+  subject: Test requirement after the migration
+  raised_by: Cursor
+  phase: design
+  category: policy
+  text: After this task, what do the standards say about the Rust tests?
+  why: The person lifted the no-tests rule for this task only (Q-3); the quality standard is rewritten in this task (Q-10).
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: Keep the tests; cargo test must pass before a pull request is ready
+    answerer: tmishari
+    time: '2026-11-25T12:20:00+00:00'
+    scope: task
+- id: Q-12
+  key: c3dd0e873c1b66f22a66eb53c5a7395a7f606537dbb341e3b2a69ed7843cd450
+  subject: Project kind of Orqlet's own profile
+  raised_by: Cursor
+  phase: design
+  category: requirement
+  text: Orqlet's profile records kind python-cli with evidence in pyproject.toml, which is removed. What replaces it?
+  why: Orqlet recognises only Python project kinds (A-29), and Q-2 removes pyproject.toml.
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: Add a rust-cli project kind and read Cargo.toml and Cargo.lock for its facts
+    answerer: tmishari
+    time: '2026-11-25T12:20:00+00:00'
+    scope: task
+- id: Q-13
+  key: 9563a8665f4e4b70a38f810eb3007cfdc0d3d198d9e8a64c9b01db5757378b95
+  subject: Version of the Rust release
+  raised_by: Cursor
+  phase: design
+  category: requirement
+  text: Which version do the CLI and the workflow package carry?
+  why: Q-5 makes the Rust binary a new major version without byte compatibility.
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: 1.0.0 for the CLI and the workflow package
+    answerer: tmishari
+    time: '2026-11-25T12:20:00+00:00'
+    scope: task
+- id: Q-14
+  key: 513dc3ffac88837e09a716085de5b62004addc7a853be0a01dc2f16eae9fe6e0
+  subject: Supported operating systems
+  raised_by: Cursor
+  phase: design
+  category: requirement
+  text: Which operating systems must the Rust binary support?
+  why: The Python code holds Windows-specific handling (A-15, A-19).
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: macOS, Linux and Windows
+    answerer: tmishari
+    time: '2026-11-25T12:20:00+00:00'
+    scope: task
