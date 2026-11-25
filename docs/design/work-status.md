@@ -41,6 +41,10 @@ of each phase is still the person's merge.
   phase contract says `git status` is not used (finding F-7 of
   `workflow-efficiency/reviews/architecture-reviewer-P-6-r1.yaml`). The clause stays as
   it is until the person decides how a clean tree is shown or drops it.
+- The person declared Go migration feasibility and Harness2 fit not relevant, removed them
+  from the frozen backlog and deleted their folders under `docs/design/`. Records of other
+  tasks that cite those files keep the citation at the revision they name; read it from git
+  history.
 
 ## Frozen backlog
 
@@ -50,13 +54,11 @@ including the following. Completed and merged work keeps its existing status.
 | Workstream | Work on hold |
 | --- | --- |
 | [One-command setup](one-command-setup/plan.yaml) | Remaining P-7, P-8, P-10 and P-11, plus outstanding acceptance work. P-9 was removed from this plan. |
-| [Go migration feasibility](go-migration-feasibility/questions.yaml) | Q-7 and Q-8, research completion, and any subsequent design or implementation. |
 | [Open items](open-items/questions.yaml) | Research into approval/merge evidence, branch protection and artifact rebasing. |
 | [Graphify and tool preparation](one-command-setup/design/adr-006-bundled-skills-and-tool-preparation.md) | The separate task requested in Q-60; it is outside one-command setup. |
 | [Team conventions/resources](team-conventions-resources/plan.yaml) | P-9 native-client qualification. |
 | [Phase-skill contracts](phase-skill-contracts/plan.yaml) | Outstanding V-1, V-2 and V-3 session qualification. |
 | [MCP integrations](mcp-or-plugins/plan.yaml) | Outstanding portions of native-client qualification. |
-| [Harness2 fit](harness2-fit/tests/P-6.yaml) | Unverified P-6 acceptance items. |
 | [Dynamic model profiles](dynamic-model-profiles/questions.yaml) | Open Q-35, Q-36 and Q-38 and outstanding acceptance-record reconciliation. |
 | [Architecture roadmap](orqlet-architecture-proposal.md) | All undelivered roadmap work, including CI/merge enforcement, knowledge indexing/catalogue, wider MCP support, auditing, external sources, model refresh, scaffolding and evaluation. Previously deferred automation remains deferred. |
 
