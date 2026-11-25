@@ -13,6 +13,7 @@ For each phase the plan holds the test plan first, then the implementation check
 - A command that matches the warning list of `references/phase-contract.md` is marked in its `completion` entry and in the plan's self-check.
 - A check whose command the project does not define is a question.
 - Every `BC-n` of the design is covered by a criterion, or listed under `self_check.unverified` with a reason.
+- Keep the `objective`, the criteria text and the file-operation reasons of a phase within 400 words together; `orqlet validate plan` warns above that, and citations in `completion` entries do not count. Cite evidence ids instead of restating a document, and write each list once.
 
 ## The implementation checklist
 

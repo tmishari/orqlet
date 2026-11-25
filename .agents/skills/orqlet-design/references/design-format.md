@@ -34,6 +34,8 @@ Diagrams are Mermaid blocks. An ADR has the sections Context, Decision, Conseque
 8. The unresolved decisions.
 9. The constraints that the plan must respect.
 
+Keep `component.md` within 1,200 words outside fenced blocks; `orqlet validate design` warns above that. Cite `A-n`, `Q-n` and ADR ids instead of restating their content, write each list once, and draw small Mermaid diagrams where structure or flow matters.
+
 Each ADR compares the real alternatives, and its Consequences name the trade-offs of the choice. A consequential decision that the design cannot make is a ledger question that blocks design: `orqlet validate design` reports ORQ-E367 while it is open.
 
 A design contains no phase order: no phase list, build order or task list. An ordering that must hold is a constraint with its reason, and the plan sequences it.
