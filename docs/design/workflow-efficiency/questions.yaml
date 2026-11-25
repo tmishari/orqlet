@@ -662,3 +662,33 @@ questions:
   - docs/design/workflow-efficiency/as-is.md
   blocks: []
   status: open
+- id: Q-32
+  key: 2e1c2bdc94a90834a687142d44361c0c9b49ffbabc4e00759ea7866dbb15fc1e
+  subject: Rebind the Q-28 research to current main
+  raised_by: Codex
+  phase: research
+  category: requirement
+  text: 'Confirm my understanding: main removed the tests and the CI workflow after the Q-28 research was bound
+    at 9d20533, so rebind the AS-IS file to current main, rewrite the facts that those removals changed and keep
+    every unknown and contradiction?'
+  why: Records the person's authorization to bind the research to current main before design reads it.
+  status: answered
+  answer:
+    value: 'Yes, rebind the AS-IS file to current main.'
+    answerer: tmishari
+    time: '2026-11-25T10:34:00+00:00'
+    scope: task
+- id: Q-33
+  key: 3a5392ad9f69b4ba541cd4d3c26cc385ba8b8c226787b4621c22066dd83e9f87
+  subject: Effect of removing the tests and the CI workflow on verification time
+  raised_by: Codex
+  phase: research
+  category: missing-configuration
+  text: Which session records show how long the lint and type checks take now that no test suite or CI workflow
+    exists, and how reviews and approvals behave without a test record?
+  why: The records measure the removed pytest runs; none measures the verification that remains. The question
+    stays open and blocks nothing in this facts-only refresh.
+  evidence_refs:
+  - docs/design/workflow-efficiency/as-is.md
+  blocks: []
+  status: open
