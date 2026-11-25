@@ -1353,9 +1353,11 @@ phases:
     instruction-counts: the per-run word totals of P-7 AC-6 before and after, and the instructed runs counted from the four phase
     skills and the phase contract before and after, written in the phase report.
   - >-
-    gate-status-phase: `uv run orqlet gate status workflow-efficiency --phase P-8 --head staged` reports no ORQ-E450, ORQ-E451 or
-    ORQ-E453; its ORQ-W390 for earlier phases is confirmed under the planned-work row, and after the upgrade this task's
-    artifacts show ORQ-W390 under the upgrade row.
+    gate-status-phase: `uv run orqlet gate status workflow-efficiency --phase P-8 --head staged` reports ORQ-E450 only for the
+    two paths that the answers of Q-23 and Q-24 add to EC-8, `.orqlet/model-policy.yaml` and `.github/pull_request_template.md`,
+    and no ORQ-E451 or ORQ-E453; the verdict is FAIL with exit 5 until the person accepts those two deviations in the pull
+    request, and the report says so. Its ORQ-W390 for earlier phases is confirmed under the planned-work row, and after the
+    upgrade this task's artifacts show ORQ-W390 under the upgrade row.
   expected_outputs:
   - src/orqlet/__init__.py
   - src/orqlet/workflow/identity.json
