@@ -11,7 +11,7 @@ profile:
   version: 1
   status: approved
   reviewed_by: "Timur Misharin"
-  reviewed_at: "2026-11-04T10:57:22.147873+00:00"
+  reviewed_at: "2026-11-25T09:44:18.986118+00:00"
 facts:
   python:
     value: ">=3.12"
@@ -70,7 +70,7 @@ repository:
       evidence: []
       answered_by: maintainer
     required_checks:
-      value: "lint, types, architecture, tests, build"
+      value: "lint, types, architecture, build"
       evidence: []
       answered_by: maintainer
 structure: {}

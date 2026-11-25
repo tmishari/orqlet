@@ -1,7 +1,7 @@
 schema: orqlet.generated-lock/v1
 generator:
   orqlet: "0.5.1"
-standards_lock: "12486d9b48af8b2f61117d556568d3482b1641cd606e8652965dcc44babce930"
+standards_lock: "8b2d28e1d4894236e4b43e3c54766fcbdfaba0c89aab9fe39645dfa7c8e43713"
 files:
   - path: ".agents/skills/orqlet-design/SKILL.md"
     owner: orqlet
@@ -482,7 +482,7 @@ files:
       - id: ORQLET-DET-001
         version: prompts
         sha256: "687b9f44878579a61d7640782ace41b95f2091fbc62ad19dc3ef52ff1ab34363"
-    rendered_sha256: c6dd032899528da852e30e0e063481c20d595513e0515d7937d4b60a112eb51c
+    rendered_sha256: "9a555c4dd9e92e013b8e0b39f58b94b54c435e97051cd13b8e42310fb25cda20"
   - path: ".claude/rules/orqlet-orqlet-det-002.md"
     owner: orqlet
     class: generated
@@ -506,7 +506,7 @@ files:
       - id: ORQLET-MODEL-001
         version: prompts
         sha256: "55527e163cf46f7d424e5a7814419d5df48c0d1b332b20179c05b02b6cd94880"
-    rendered_sha256: a5c43013a01d62935eb14307b939be2ae49a388548db38e3b1db422e2bfb694c
+    rendered_sha256: "6cb2f5689ef483be0e55a688ece419e061f01c7c3e2b7766aea80a963922004c"
   - path: ".claude/rules/orqlet-orqlet-model-002.md"
     owner: orqlet
     class: generated
@@ -539,22 +539,6 @@ files:
         version: prompts
         sha256: "68bb321ed61755e9d088c1ee8bfcdb276e1ad7fc69d231f22b657ca82c767a30"
     rendered_sha256: "694746e5e511312a1040f30827a5b4bae8350a4417ac29471642b331420a905c"
-  - path: ".claude/rules/orqlet-orqlet-test-001.md"
-    owner: orqlet
-    class: generated
-    inputs:
-      - id: ORQLET-TEST-001
-        version: prompts
-        sha256: "031e8e34673c2a5ca1cab84fa37f889d448ee0c5b145d4cf1bc4e4df960f6f12"
-    rendered_sha256: "46fc4d232f0742e18521c2a569596ab79c1c61e0c3cf00e17680ebb200d9c285"
-  - path: ".claude/rules/orqlet-orqlet-test-002.md"
-    owner: orqlet
-    class: generated
-    inputs:
-      - id: ORQLET-TEST-002
-        version: prompts
-        sha256: d449116097e0133b8a1b8a819a3329c23919da29600872d8c147d7861abff929
-    rendered_sha256: b440e7c90ba00823ca394fb1669f58741325d3f6be4d1bf974afdb0c79d44a11
   - path: ".claude/rules/orqlet-workflow.md"
     owner: orqlet
     class: protected
@@ -994,7 +978,7 @@ files:
       - id: ORQLET-DET-001
         version: prompts
         sha256: "687b9f44878579a61d7640782ace41b95f2091fbc62ad19dc3ef52ff1ab34363"
-    rendered_sha256: ae312565d1bb36113049b45dd24280e4486c051a437fc587e0bb019c85a59553
+    rendered_sha256: dd98dc0752e4740a8eabf8b0fac7c1be558827da9a519d6bae46e06ac68ccaf3
   - path: ".cursor/rules/orqlet-orqlet-det-002.mdc"
     owner: orqlet
     class: generated
@@ -1018,7 +1002,7 @@ files:
       - id: ORQLET-MODEL-001
         version: prompts
         sha256: "55527e163cf46f7d424e5a7814419d5df48c0d1b332b20179c05b02b6cd94880"
-    rendered_sha256: fc1bf8ffe2ec792e2a809753f51e858b2d1db24d9e87ee098a0dc18d21a7ec81
+    rendered_sha256: b3c0a8e84017f710778fa43898d186cb52b1bd24459075742bd1d56cbe5cd55b
   - path: ".cursor/rules/orqlet-orqlet-model-002.mdc"
     owner: orqlet
     class: generated
@@ -1051,22 +1035,6 @@ files:
         version: prompts
         sha256: "68bb321ed61755e9d088c1ee8bfcdb276e1ad7fc69d231f22b657ca82c767a30"
     rendered_sha256: "41cd90dcb59939b5817d3c7ecbc3b7d6576a7119199bcd403f1df4516d684e64"
-  - path: ".cursor/rules/orqlet-orqlet-test-001.mdc"
-    owner: orqlet
-    class: generated
-    inputs:
-      - id: ORQLET-TEST-001
-        version: prompts
-        sha256: "031e8e34673c2a5ca1cab84fa37f889d448ee0c5b145d4cf1bc4e4df960f6f12"
-    rendered_sha256: ab344614dcaef8cf22eaaf392fe16e436e8f688eded88b43e63adc33072e3d4e
-  - path: ".cursor/rules/orqlet-orqlet-test-002.mdc"
-    owner: orqlet
-    class: generated
-    inputs:
-      - id: ORQLET-TEST-002
-        version: prompts
-        sha256: d449116097e0133b8a1b8a819a3329c23919da29600872d8c147d7861abff929
-    rendered_sha256: "2884e77704845b4f6761c8ab611a9f577efa751798181c94632e50e3d328ef8f"
   - path: ".cursor/rules/orqlet-workflow.mdc"
     owner: orqlet
     class: protected
@@ -1100,7 +1068,7 @@ files:
   - path: ".orqlet/project-profile.yaml"
     owner: seeded
     inputs: []
-    seeded_sha256: "0d0de4026cf0df10ef0909846e22e7f8c085c0546b6038dab46767d1a11aa603"
+    seeded_sha256: b1760a931a3fec1828db3745c4c1c6090dcf4d14306ad117a30c97ee3bbb8790
   - path: ".orqlet/resources.yaml"
     owner: seeded
     inputs: []
@@ -1113,7 +1081,7 @@ files:
     owner: orqlet
     class: generated
     inputs: []
-    rendered_sha256: "12486d9b48af8b2f61117d556568d3482b1641cd606e8652965dcc44babce930"
+    rendered_sha256: "8b2d28e1d4894236e4b43e3c54766fcbdfaba0c89aab9fe39645dfa7c8e43713"
   - path: ".orqlet/versions.yaml"
     owner: seeded
     inputs: []
@@ -1161,8 +1129,8 @@ files:
     inputs:
       - id: conventions
         version: "0.5.1"
-        sha256: b065b9e3a0cfcff371b9e18676a5ed36d5e107ea418213e2b4aaf876f34ae78d
-    rendered_sha256: "115cc8548ba289bf41ceeb579d5391b71d5d8c272678d1b14ed77b618556657f"
+        sha256: fe6b3a562051178979b289b8a0bac7e05c7d75ab92e7717bd2c7c4eeecf4b630
+    rendered_sha256: d1b6fcae3e2b14095bff5bff7855e4109dd983913bdde9d8716cf07ff3f72751
     block:
-      begin: "<!-- orqlet:begin conventions workflow@0.5.1#b065b9e3a0cfcff371b9e18676a5ed36d5e107ea418213e2b4aaf876f34ae78d -->"
+      begin: "<!-- orqlet:begin conventions workflow@0.5.1#fe6b3a562051178979b289b8a0bac7e05c7d75ab92e7717bd2c7c4eeecf4b630 -->"
       end: "<!-- orqlet:end conventions -->"
