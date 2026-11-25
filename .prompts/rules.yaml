@@ -97,9 +97,8 @@ rules:
       Generated output is deterministic: no timestamps, absolute paths or random values in
       rendered files, and golden files are changed only on purpose with --update-golden, never in
       CI.
-    scope: {paths: ["src/orqlet/adapters/clients/**", "tests/golden/**"]}
-    enforcement: deterministic
-    check_ref: uv run pytest -m golden
+    scope: {paths: ["src/orqlet/adapters/clients/**"]}
+    enforcement: review
 
   - id: ORQLET-DET-002
     level: MUST
@@ -120,31 +119,13 @@ rules:
     check_ref: uv run python tools/export_schemas.py --check
 
   # --- Quality ------------------------------------------------------------------------------
-  - id: ORQLET-TEST-001
-    level: MUST
-    text: >-
-      New or changed behaviour has tests. Unit tests use the fakes in tests/fakes and never touch
-      the network; the suite runs with sockets disabled.
-    scope: {paths: ["src/**", "tests/**"]}
-    enforcement: deterministic
-    check_ref: uv run pytest
-
-  - id: ORQLET-TEST-002
-    level: MUST
-    text: >-
-      Anything that writes files has a fault test that stops it after each step and proves a
-      re-run, or a rollback, converges to the same state.
-    scope: {paths: ["src/orqlet/application/usecases/apply_plan.py", "tests/fault/**"]}
-    enforcement: deterministic
-    check_ref: uv run pytest -m fault
-
   - id: ORQLET-QA-001
     level: MUST
     text: >-
-      Before a pull request is ready, ruff (lint and format), strict mypy, import-linter and the
-      full test suite pass on every supported Python version.
-    enforcement: deterministic
-    check_ref: .github/workflows/ci.yml
+      Before a pull request is ready, ruff (lint and format), strict mypy and import-linter pass.
+      The project has no test suite and no CI workflow, and writes no tests until the person says
+      otherwise.
+    enforcement: review
 
   - id: ORQLET-STYLE-001
     level: SHOULD
@@ -159,9 +140,8 @@ rules:
     text: >-
       A model name appears in a generated or packaged file only when the model policy assigned it,
       and never when the policy excludes it.
-    scope: {paths: ["src/orqlet/**", "tests/**"]}
-    enforcement: deterministic
-    check_ref: uv run pytest
+    scope: {paths: ["src/orqlet/**"]}
+    enforcement: review
 
   - id: ORQLET-MODEL-002
     level: MUST
