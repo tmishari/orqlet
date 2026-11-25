@@ -31,7 +31,7 @@
     },
     {
       "path": "identity.json",
-      "sha256": "a14685a93253269b8902948664d9e6841de1588a27e06d1cbde89afb831be6e5"
+      "sha256": "46672bbff28ec398923888dfdcbb453ba29695e31c62f961f923c2fb0f042ae3"
     },
     {
       "path": "pr_template/workflow-section.md",
@@ -215,7 +215,7 @@
     },
     {
       "path": "seeds/orqlet/model-policy.yaml",
-      "sha256": "99d7651ee2b7db22190ac7b1d8f1480612c941ae2e0f0942291d8ebb9a161d44"
+      "sha256": "4c5c29ed6b35e8442d93cbb3de5289264dedf4a7b1ae2cef3b421a30a85017ca"
     },
     {
       "path": "seeds/prompts/README.md",
@@ -383,5 +383,5 @@
     }
   ],
   "schema": "orqlet.workflow-manifest/v1",
-  "workflow_version": "0.5.0"
+  "workflow_version": "0.5.1"
 }

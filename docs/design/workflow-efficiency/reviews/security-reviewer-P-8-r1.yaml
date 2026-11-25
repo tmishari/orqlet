@@ -1,0 +1,108 @@
+schema: orqlet.review-result/v1
+task: workflow-efficiency
+phase: P-8
+role: security-reviewer
+round: 1
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: 1813c127f1cbb584cb3b1ac24849f4f5a95f4137e009624b6fb7232337c6805b
+    design: ca86b2a73b778b9e33a398bf70b0752be94a68da6d0718376cf8d971ff239e10
+    evidence_inputs: b4c374335b9966ea3b61a364996174b8a261c39439bc05ffdc5a6c718644a88f
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 132b50122acb46596651c19c6e03ad9f0df15aca5c7bdfc57090575160538ce0
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: ebd6d3e71ace6bb2520f4b87f761e6f164391b1462b2efd7cb28cbdf7d26af77
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: ef795e5f15fa1b58a2b0372bf207e26b7c65f516c951c2e39df696a7e4847316
+  merge_base: bb2a0b5aee0a355c2ca97a698300a5280daf7b2c
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I0
+capability_limits:
+- 'No approved security-reviewer binding for cursor in .orqlet/role-bindings.yaml: independence I0, below the I2 that a review
+  needs.'
+- 'Same client as the Coder (cursor): independence I1, below the I2 that a D3 change requires (ORQLET-MODEL-002); the verdict
+  is NOT_RUN.'
+- It was started as a typed subagent with the packet name workflow-efficiency-P-8-1d9bc04f as its prompt; that the context
+  is fresh is the Coder's claim. The packet's diff is against main bb2a0b5 and holds P-8 only.
+- The client does not show the reviewer's model, so the identity is unknown; no model is approved by the policy, so no --different-family-from
+  was passed.
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- The Coder wrote this record from the returned text. An earlier review round ran against packet workflow-efficiency-P-8-ea869326
+  and found stale 0.4.0 strings in the README; its reviewer text was not retained, so this record is the first kept and is
+  numbered r1, although it is the second round of the session. The person is told of this.
+- The reviewer's own conclusion was no blocking finding.
+- The first start did not find the packet from its name alone; it was resumed with the absolute packet path as the only added
+  input. The reviewer ran no command and recomputed no hash; it did not read about 2800 lines of regenerated copies.
+applicability:
+  examined:
+  - diff.patch, the plan, the test and knowledge records, and the snapshot copies of questions.yaml and review-format.md;
+    a search of the diff for credential shapes and URLs
+  conclusion: findings
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet read
+    how: orqlet review prepare workflow-efficiency P-8 (workflow-efficiency-P-8-1d9bc04f)
+    result: pass
+  - what: running the checks and quote digests
+    how: none run by the reviewer
+    result: not-run
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: info
+  category: security
+  claim: gate status --phase P-8 reports FAIL (exit 5, ORQ-E450) because two security paths are written outside the declared
+    expected changes; each changes one line (the reviewed_for_release value; the block marker version with the hash unchanged),
+    and Q-23 and Q-24 answer exactly those scopes.
+  suggested_action: The person accepts or rejects the two deviations at review; bumping reviewed_for_release attests a model-policy
+    review for 0.5.1, so it should be an informed yes.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: standards
+  claim: The review skill lost its Done-when line that no blocking finding is waived and the standalone Never waive a finding;
+    the rule survives in the merged Boundaries line and step 10. The text comes from earlier phases and P-8 only regenerates
+    it.
+  suggested_action: Decide whether the shorter text is enough.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: security
+  claim: The tester compares the whole-file evidence hash with a hash recorded when the phase first cited it, and the text
+    does not say where the Coder records it; work-status.md already lists the citation-hash handoff as an open P-7 finding.
+    The git diff --quiet HEAD and untracked-file checks are unchanged.
+  suggested_action: Decide the handoff in a later change.
+  confidence: medium

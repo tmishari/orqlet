@@ -10,7 +10,13 @@ leave open).
 These tests were written first, by the Tester of phase P-13, before the seed existed. They cover
 AC-10 (what the seed holds and that it passes `orqlet validate model-policy`), AC-11 (the guard
 tests, each shown to fail on a broken copy) and the identity part of AC-1 (`identity.json` states
-workflow version 0.5.0 at controls level 3, and the seed's `reviewed_for_release` equals it).
+workflow version 0.5.1 at controls level 3, and the seed's `reviewed_for_release` equals it).
+
+Task workflow-efficiency, phase P-8 (release 0.5.1) moves the identity, the CLI version and the
+`reviewed_for_release` marker of the seed and of the repository policy to 0.5.1. Those tests were
+written first, by the Tester of P-8; each cites AC-n of P-8 in
+docs/design/workflow-efficiency/plan.yaml, Q-n of docs/design/workflow-efficiency/questions.yaml,
+or EC-n of docs/design/workflow-efficiency/design/manifest.yaml.
 
 The guards of AC-11 live in `guard_problems`, one function that returns the set of problem codes
 of a parsed seed. The guard tests of the shipped seed and the broken-copy tests call that same
@@ -40,6 +46,7 @@ from typing import Any
 
 import pytest
 
+import orqlet
 from orqlet.adapters.fs.yaml_loader import StrictYamlLoader
 from orqlet.adapters.workflow_package import PackagedWorkflow
 from orqlet.application.contracts.loading import load_contract
@@ -69,6 +76,7 @@ SEED_SOURCE = "seeds/orqlet/model-policy.yaml"
 POLICY_PATH = ".orqlet/model-policy.yaml"
 ROOT = Path(__file__).resolve().parents[2]
 IDENTITY = ROOT / "src" / "orqlet" / "workflow" / "identity.json"
+MANIFEST = ROOT / "src" / "orqlet" / "workflow" / "MANIFEST.json"
 EVIDENCE_DIR = "docs/design/dynamic-model-profiles/evidence/web/"
 LOADER = StrictYamlLoader()
 CLIENTS = ("claude-code", "codex", "cursor")
@@ -261,14 +269,15 @@ def test_the_strict_reader_loads_the_seed_as_it_loads_a_team_file() -> None:
 
 def test_the_header_is_schema_v2_version_1_and_reviewed_for_the_release() -> None:
     """AC-10, AC-1. expected_behavior_source: the interface section 4 (schema
-    `orqlet.model-policy/v2`, `policy_version: 1`, `reviewed_for_release: 0.5.0`); ADR-002
-    decision 1; AC-1 (the workflow version is 0.5.0).
+    `orqlet.model-policy/v2`, `policy_version: 1`, `reviewed_for_release` equal to the workflow
+    version); ADR-002 decision 1; AC-1 (the workflow version is 0.5.1 since P-8 of
+    workflow-efficiency); Q-23 (the seed says `reviewed_for_release` 0.5.1).
     """
     policy = seed_policy()
 
     assert policy.schema_id == "orqlet.model-policy/v2"
     assert policy.policy_version == 1
-    assert policy.reviewed_for_release == "0.5.0"
+    assert policy.reviewed_for_release == "0.5.1"
 
 
 def test_the_catalog_holds_the_ten_models_with_their_families() -> None:
@@ -496,14 +505,61 @@ def test_the_selection_refuses_nothing_warns_of_nothing_and_pins_nothing() -> No
 # =============================================================================================
 
 
-def test_identity_states_workflow_version_0_5_0_at_controls_level_3() -> None:
-    """AC-1. expected_behavior_source: AC-1 ("`identity.json` states `workflow_version` 0.5.0 and
-    `controls_level` 3 as before"); ORQLET-DET-002; the interface section 6.
+def test_identity_states_workflow_version_0_5_1_at_controls_level_3() -> None:
+    """AC-1 of P-8. expected_behavior_source: P-8 AC-1 (BC-24; "identity.json ... name
+    workflow_version 0.5.1 ... controls_level stays 3"); Q-15 (both the CLI and the workflow
+    package become 0.5.1); EC-6 (identity.json names workflow_version 0.5.1).
     """
     identity = json.loads(IDENTITY.read_text(encoding="utf-8"))
 
-    assert identity["workflow_version"] == "0.5.0"
+    assert identity["workflow_version"] == "0.5.1"
     assert identity["controls_level"] == 3
+
+
+def test_the_cli_version_is_0_5_1_and_is_the_workflow_version() -> None:
+    """AC-1 of P-8. expected_behavior_source: P-8 AC-1 (BC-24; "`orqlet --version` and every JSON
+    result report 0.5.1"); Q-15 ("Both the CLI and the workflow package become 0.5.1"); EC-7
+    (`orqlet --version` and the `orqlet_version` field of every JSON result: 0.5.1). Both read
+    `orqlet.__version__`, so the one value is what they report.
+    """
+    assert orqlet.__version__ == "0.5.1"
+    assert orqlet.__version__ == identity_version()
+
+
+def test_the_manifest_names_workflow_version_0_5_1() -> None:
+    """AC-1 of P-8. expected_behavior_source: P-8 AC-1 ("MANIFEST.json name[s] workflow_version
+    0.5.1 and the manifest is rebuilt"); EC-6 ("MANIFEST.json is rebuilt from identity.json").
+    That the manifest is the rebuild of the sources is checked by tests/unit/test_manifest.py.
+    """
+    manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+
+    assert manifest["workflow_version"] == "0.5.1"
+    assert manifest["controls_level"] == 3
+
+
+def test_the_repository_policy_is_reviewed_for_the_release_and_raises_no_stale_review() -> None:
+    """AC-2 of P-8. expected_behavior_source: Q-23 (answer: raise `reviewed_for_release` to 0.5.1
+    in the seed and in `.orqlet/model-policy.yaml`, no other policy field changes; the repository
+    policy warned ORQ-W541 while it stayed at 0.5.0); P-8 AC-2. Only the marker and its effect
+    are asserted: the file is the team's, so no other field is compared with the seed.
+    """
+    raw = (ROOT / POLICY_PATH).read_bytes()
+    parsed = LOADER.load(raw, source=POLICY_PATH)
+    assert isinstance(parsed, dict)
+
+    result = validate(raw)
+
+    assert parsed["reviewed_for_release"] == "0.5.1"
+    assert "ORQ-W541" not in {f.code for f in result.findings}
+
+
+def test_the_shipped_seed_passes_the_release_guard_against_identity_0_5_1() -> None:
+    """AC-2 of P-8. expected_behavior_source: P-8 AC-2 ("the seed guard passes against identity
+    0.5.1"); Q-23; ADR-004 decision 4 of dynamic-model-profiles. The guard is called with the
+    literal version, so the check does not follow `identity.json` by accident.
+    """
+    assert identity_version() == "0.5.1"
+    assert guard_problems(seed_data(), "0.5.1") == set()
 
 
 def test_the_package_manifest_carries_the_version_of_the_identity() -> None:
@@ -693,8 +749,10 @@ def point_to_a_missing_file(data: Doc) -> None:
 
 # (case, the change of one value, the one problem that the guards must find)
 BROKEN_COPIES: tuple[tuple[str, Callable[[Doc], None], str], ...] = (
-    ("reviewed for the previous release", set_reviewed("0.4.0"), REVIEWED),
-    ("reviewed for a later release", set_reviewed("0.5.1"), REVIEWED),
+    ("reviewed for the previous release", set_reviewed("0.5.0"), REVIEWED),
+    # Later than the current release 0.5.1 (Q-23: 0.5.1 is the identity now, so it is no longer a
+    # broken copy), and 0.5.0 is the previous release.
+    ("reviewed for a later release", set_reviewed("0.5.2"), REVIEWED),
     ("a model whose id no page holds", set_model(0, "id", "gpt-6-nova"), ID_ABSENT),
     ("an id that is only the start of a longer word", set_model(3, "id", "gpt-6-lun"), ID_ABSENT),
     ("a model whose family no page holds", set_model(0, "family", "zqfamily"), FAMILY_ABSENT),
@@ -752,7 +810,7 @@ def test_a_text_of_exactly_400_printable_characters_is_allowed() -> None:
 def test_the_guard_for_the_release_follows_the_identity_it_is_given() -> None:
     """AC-11. expected_behavior_source: ADR-004 decision 4 ("`reviewed_for_release` ... to the new
     workflow version in the release pull request. A unit test fails when the seed's
-    `reviewed_for_release` differs from that version"). A seed reviewed for 0.5.0 is a problem
+    `reviewed_for_release` differs from that version"). A seed reviewed for 0.5.1 is a problem
     when the identity says 0.6.0.
     """
     assert guard_problems(seed_data(), "0.6.0") == {REVIEWED}

@@ -1,0 +1,66 @@
+schema: orqlet.knowledge-impact/v1
+task: workflow-efficiency
+phase: P-8
+review_input:
+  components:
+    candidates: 62ed5271ab633b7ba2b69f82b641b768c27e961a760f13d915e87d2ad86da64c
+    code_tests: 1813c127f1cbb584cb3b1ac24849f4f5a95f4137e009624b6fb7232337c6805b
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 132b50122acb46596651c19c6e03ad9f0df15aca5c7bdfc57090575160538ce0
+    standards: ebd6d3e71ace6bb2520f4b87f761e6f164391b1462b2efd7cb28cbdf7d26af77
+  covers:
+  - code_tests
+  - knowledge
+  - plan
+  - standards
+  - candidates
+  digest: aaaada6235cc8b2099d19974be1b85bdbcc4f788b5734f9ef265947c9ddfaf0c
+  merge_base: bb2a0b5aee0a355c2ca97a698300a5280daf7b2c
+  schema: orqlet.review-input/v1
+outcome: no-impact
+analysis:
+  command: orqlet knowledge impact
+  orqlet_version: 0.5.1
+  candidates_digest: 62ed5271ab633b7ba2b69f82b641b768c27e961a760f13d915e87d2ad86da64c
+  candidate_count: 1
+  input: pre-draft-tree
+  views:
+  - committed:HEAD
+  index_state: not-used
+entries:
+- id: K-1
+  candidate_ref: cand-4b241aef0a3d
+  action: unaffected
+  scope: project
+  reason: The candidate is the EC-8 deviation, the two security-path files that this phase writes outside the declared
+    ones, .orqlet/model-policy.yaml and .github/pull_request_template.md. The person answered both in the ledger (Q-23 and
+    Q-24) and the plan lists them as upgrade-written or reviewed-edit files, so the deviation is documented where the
+    decision was made. It holds no reusable knowledge that a new document would add.
+  evidence:
+  - kind: design
+    ref: docs/design/workflow-efficiency/questions.yaml:472-527
+    sha256: d1a7c1207eacad0d00fb8e9c4af1fabeb7d8ffd2d260af18584cd6e3c8d5d4b9
+no_impact:
+  category: already-documented
+  reason: The phase changes the version, the model-policy review marker and the installed copies, and edits README, the
+    architecture proposal's gate status passage and work-status.md. Those three documents are the maintained
+    documentation of the delivered behaviour, edited in the phase's own file list, so the phase writes no separate
+    knowledge document. The EC-8 deviation that the analysis reports is answered in Q-23 and Q-24 and named in the plan
+    (P-8 AC-3, self-check), so nothing reusable is left unwritten.
+  absence_record:
+    scopes_searched:
+    - .orqlet/knowledge.yaml sources
+    - the plan's knowledge_scope
+    views:
+    - committed:HEAD
+    revision: bb2a0b5aee0a355c2ca97a698300a5280daf7b2c
+    method: orqlet knowledge impact on the staged tree; the project configures no knowledge sources, the plan's knowledge_scope
+      is empty and the design names no public_api packages, so the only candidate is the expected-change EC-8 deviation
+      and no knowledge document exists that this phase could change.
+    index_state: not-used
+    candidates_found: 1
+  already_documented_refs:
+  - path: docs/design/workflow-efficiency/questions.yaml
+    sha256: 33ba8884255ca993ac00551e1a63582aa15c6db380e914a09e1f9ab6663e6d8a
+  - path: docs/design/workflow-efficiency/plan.yaml
+    sha256: 132b50122acb46596651c19c6e03ad9f0df15aca5c7bdfc57090575160538ce0

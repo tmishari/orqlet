@@ -1,0 +1,114 @@
+schema: orqlet.review-result/v1
+task: workflow-efficiency
+phase: P-8
+role: code-reviewer
+round: 1
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: 1813c127f1cbb584cb3b1ac24849f4f5a95f4137e009624b6fb7232337c6805b
+    design: ca86b2a73b778b9e33a398bf70b0752be94a68da6d0718376cf8d971ff239e10
+    evidence_inputs: b4c374335b9966ea3b61a364996174b8a261c39439bc05ffdc5a6c718644a88f
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 132b50122acb46596651c19c6e03ad9f0df15aca5c7bdfc57090575160538ce0
+    reviewer_definition: 6660b181a2ba46a0bbd8225a3449e2322f0030dea1fa146cb15dfd0e3ffcd94e
+    standards: ebd6d3e71ace6bb2520f4b87f761e6f164391b1462b2efd7cb28cbdf7d26af77
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 111e746e70d4f177a25015c578c3d00f04efb7d952cb3cb13b66ce821c0e111a
+  merge_base: bb2a0b5aee0a355c2ca97a698300a5280daf7b2c
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-code-reviewer
+  definition_sha256: d807b6881723a0c72151d12a514eb0506a2356d9e94d170daff3f53178dff488
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I0
+capability_limits:
+- 'No approved code-reviewer binding for cursor in .orqlet/role-bindings.yaml: independence I0, below the I2 that a review
+  needs.'
+- 'Same client as the Coder (cursor): independence I1, below the I2 that a D3 change requires (ORQLET-MODEL-002); the verdict
+  is NOT_RUN.'
+- It was started as a typed subagent with the packet name workflow-efficiency-P-8-1d9bc04f as its prompt; that the context
+  is fresh is the Coder's claim. The packet's diff is against main bb2a0b5 and holds P-8 only.
+- The client does not show the reviewer's model, so the identity is unknown; no model is approved by the policy, so no --different-family-from
+  was passed.
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- The Coder wrote this record from the returned text. An earlier review round ran against packet workflow-efficiency-P-8-ea869326
+  and found stale 0.4.0 strings in the README; its reviewer text was not retained, so this record is the first kept and is
+  numbered r1, although it is the second round of the session. The person is told of this.
+- The reviewer's own conclusion was no blocking finding.
+- The reviewer read src/orqlet/interface/cli/wiring.py and the architecture proposal in the working tree, outside the packet,
+  to find the packet and check one passage; it ran no check and computed no digest.
+applicability:
+  examined:
+  - diff.patch, the plan, the test and knowledge records, and the staged snapshot of the changed test, README, work-status,
+    models.py, gate_status.py, validate_as_is.py, wiring.py, MANIFEST.json and pyproject.toml
+  conclusion: findings
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: code-reviewer
+    phase: implement
+  checks:
+  - what: packet read
+    how: orqlet review prepare workflow-efficiency P-8 (workflow-efficiency-P-8-1d9bc04f)
+    result: pass
+  - what: running the checks and quote digests
+    how: none run by the reviewer
+    result: not-run
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: standards
+  claim: The phase check gate-status-phase fails (exit 5, ORQ-E450) because of the two answered deviations Q-23 (.orqlet/model-policy.yaml)
+    and Q-24 (.github/pull_request_template.md), so AC-8 is not met as the plan words it (tests/P-8.yaml gate-status-phase;
+    plan.yaml P-8 self_check).
+  suggested_action: The person accepts the two deviations at review; the plan needs an amendment that removes the contradiction.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: docs
+  claim: Architecture proposal lines 3113, 4288 and 4589 still describe gate status as re-checking approval presence or reporting
+    approval as NOT_RUN; only line 3030 was updated, and the plan scopes the file to that one line.
+  suggested_action: Decide in a later amendment whether to label those passages as proposed.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: docs
+  claim: AC-3, AC-6 and AC-7 and several claims (PR numbers, lock hashes, the --yes approval) cannot be checked from the packet;
+    the test record marks them not-run.
+  suggested_action: The person checks them against the code host and the phase report.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: non-blocking
+  category: tests
+  claim: The README finding-code table lists ORQ-E338 out of numeric order, and several tests hard-code the literal 0.5.1,
+    so each release edits them again.
+  suggested_action: Optional.
+  confidence: low

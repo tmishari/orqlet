@@ -26,7 +26,7 @@ have not drifted, and validates the documents that an agent produces.
 
 ## Status
 
-Version 0.4.0. What is built and tested in this repository:
+Version 0.5.1. What is built and tested in this repository:
 
 - `init`, `upgrade`, `rollback`, `sync`, `doctor`, `explain`, `release` and `profile`;
 - the workflow skills, role definitions and rules for the three clients;
@@ -51,9 +51,14 @@ Version 0.4.0. What is built and tested in this repository:
 What is **not** built yet: `orqlet ci check` and the merge-time gate, local Git hooks, the
 knowledge index and module catalogue, and MCP files for Cursor and Codex or for a server other
 than Atlassian. Also not built: `orqlet models refresh`. Approval cannot be verified by the
-tool today: `orqlet gate status <task>` always ends `NOT_RUN` for approval, because approval is meant
-to be a merge on the protected branch and that evidence comes from the code host. The generated files
-follow each client's published documentation; the tests check the files, not the clients.
+tool today: approval is meant to be a merge on the protected branch, and that evidence comes from the
+code host. `orqlet gate status <task>` reports `PASS` and exits 0 when the task's artifacts are
+current, and says in the info finding ORQ-I393 that the input check of the phase skills confirms
+approval from the merge commits that you name. `PASS` means current, not approved, so it is no merge
+gate. It reports `FAIL` and exits 5 when the staged or head tree changes a watched file outside the
+approved design (ORQ-E450, ORQ-E451), and `NOT_RUN` and exits 5 when an artifact was written
+against other inputs or a base revision is missing. The generated files follow each client's published documentation; the
+tests check the files, not the clients.
 
 Orqlet itself opens no connection and never reads a credential store. A page is read by the client's own web
 tool, as the developer, under the section "Looking things up" of the baseline. That text is advice
@@ -80,7 +85,7 @@ From a checkout of this repository:
 
 ```sh
 uv tool install .
-orqlet --version        # orqlet 0.4.0
+orqlet --version        # orqlet 0.5.1
 ```
 
 From a Git revision (pin a commit or a tag, never a moving branch name, when a team installs it):
@@ -211,7 +216,7 @@ orqlet init --client claude-code --client cursor \
 **3. See what happened to your files.** Your text stays; Orqlet adds a block with markers.
 
 ```text
-AGENTS.md                       your team text, then <!-- orqlet:begin baseline workflow@0.4.0#... --> ... <!-- orqlet:end baseline -->
+AGENTS.md                       your team text, then <!-- orqlet:begin baseline workflow@0.5.1#... --> ... <!-- orqlet:end baseline -->
 CLAUDE.md                       "@AGENTS.md" and your line, then <!-- orqlet:begin claude-import --> @AGENTS.md <!-- orqlet:end claude-import -->
 .github/pull_request_template.md  your "## What changed", the Orqlet block, your "## How it was tested"
 .orqlet/project-profile.yaml    python ">=3.12" (evidence: pyproject.toml line 4), FastAPI (evidence: line 5), kind python-service
@@ -303,7 +308,7 @@ After an upgrade, start a new session in the client.
 orqlet sync        # check this checkout against the manifest; writes nothing
 orqlet doctor      # what is missing, edited, stale or unknown; writes nothing
 orqlet explain     # what is declared, what is generated, what Orqlet cannot see
-orqlet explain --path src/orders --phase design --role architect   # and the rules that apply there
+orqlet explain --path src/orders --phase design --role architect   # and how many rules apply there, by source (ids only in --json)
 orqlet doctor --check-personal-names   # list personal skill and agent names against the reserved ones
 orqlet upgrade     # re-render from a newer release, keeping the team's edits
 orqlet rollback <change id>   # restore the files of one change
@@ -329,7 +334,7 @@ After `init`, the client offers these skills. Run them in order for a change tha
 | `orqlet-design` | Records the design and its decisions; `component.md` opens with the design brief | `docs/design/<task>/design/` |
 | `orqlet-plan` | Splits the design into phases. For each phase it writes the test plan first, the acceptance criteria and the checks, and then the exact file operations | `docs/design/<task>/plan.yaml` |
 | `orqlet-implement` | Checks its inputs first, then builds one approved phase inside its file list, tests first, with the knowledge step. It reports the files changed, the checks run, the checks not run, the acceptance coverage, the deviations and what remains uncertain | code, tests, records |
-| `orqlet-review` | Starts the independent architecture and security reviews of the staged change on a read-only packet | review records |
+| `orqlet-review` | Starts the independent code, architecture and security reviews of the staged change on a read-only packet | review records |
 
 Each phase skill stops at a person: you accept the AS-IS file, and you approve the design and the plan by
 merging them. Design, plan and implement check their inputs first: that the earlier output is
@@ -354,8 +359,8 @@ orqlet validate plan docs/design/<task>/plan.yaml
 # PASS: ...   9 phase(s), 87 file operation(s)
 orqlet evidence hash docs/design/<task>/plan.yaml     # path#sha256 that an artifact must carry
 orqlet gate status <task> --phase P-1                  # are the artifacts still current?
-orqlet standards for --path src/orqlet/domain --phase implement --role tester
-# 9 rule(s) apply. applicable_rules_hash: ...
+orqlet standards for --path src/orqlet/domain --phase implementation --role coder
+# 10 rule(s) apply. applicable_rules_hash: ...
 ```
 
 During a phase, the commands that tie the records to the change are:
@@ -367,7 +372,13 @@ orqlet validate test docs/design/<task>/tests/<phase>.yaml
 orqlet validate knowledge docs/design/<task>/knowledge/<phase>.yaml
 orqlet validate review docs/design/<task>/reviews/<role>-<phase>-r1.yaml
 orqlet evidence cite <file> 10-20         # an evidence entry for lines of a committed file
+orqlet evidence cite <file> 10-20 <file> 3  # one entry for each file and lines pair, in order
 ```
+
+`evidence cite` takes any number of `FILE LINES` pairs and prints one entry for each, so a phase cites all
+its sources in one call. An odd number of arguments exits 2. A pair that fails is reported and the others
+still print; the exit status is then 5. Every validator and `gate status` ends its text with one line
+that says what to do next (`No action needed.` or `Action needed: ...`); the `--json` fields do not change.
 
 `validate` also checks the question ledger (`validate ledger`), the registry of links
 (`validate resources`), the MCP declaration (`validate integrations`) and the model policy
@@ -391,21 +402,21 @@ candidates per client) and `assignments` of a profile or a model to a role or a 
 ### The two commands
 
 `orqlet models resolve --client <client>` with one of `--role`, `--skill` and `--profile` prints what
-the policy gives for that target and where the answer comes from. It changes nothing. This is the
-output for a role that the team put in the mode `manual`, with the placeholder names of the example:
+the policy gives for that target and where the answer comes from. It changes nothing. The text is
+one sentence and then a `label: value` line for each field that has a value; the rejected models, the
+reasons and the hint are in `--json` only. This is the output for a role that the team put in the mode
+`manual`, with the placeholder names of the example:
 
 ```text
 $ orqlet models resolve --client claude-code --role orqlet-tester
+Suggested profile: engineering; a model is suggested; the client keeps the choice and nothing here changes the model.
 target: role orqlet-tester for claude-code
 policy: present
 profile: engineering, mode manual
 source: profile-assignment
 selected: example-large-1 (id route, no effort), catalog id example-large
 candidates: example-large-1 (id route, no effort), catalog id example-large; example-small-1 (id route, no effort), catalog id example-small
-fallbacks: none
 escalation: quality
-rejected: none
-hint: Suggested for this work: profile engineering; the client keeps the choice and nothing here changes the model.
 ```
 
 `orqlet validate model-policy [file]` checks the file against its contract, checks that every
@@ -417,7 +428,7 @@ The exit statuses are:
 | Command | Exit | Meaning |
 |---|---|---|
 | `orqlet models resolve` | 0 | An answer was printed: a model is selected, or the client chooses (the mode is `automatic` or `automatic-with-fallbacks`, or there is no policy) |
-| `orqlet models resolve` | 1 | No candidate qualifies; the rejected candidates and their reasons are printed |
+| `orqlet models resolve` | 1 | No candidate qualifies; the rejected candidates and their reasons are in the `--json` result |
 | `orqlet models resolve` | 2 | Wrong options, for example not exactly one of `--role`, `--skill` and `--profile` |
 | `orqlet models resolve` | 3 | Refused: the policy cannot be used (for example ORQ-E541 or ORQ-E545), so no selection is shown |
 | `orqlet validate model-policy` | 0 | `PASS`; warnings may be printed |
@@ -954,7 +965,7 @@ asking) and, except `release`, `--dry-run` (show the plan, write nothing).
 | `standards for` | `--path`, `--role`, `--phase`, `--packs-dir` |
 | `validate <kind> [file]` | the kinds are `as-is`, `design`, `plan`, `ledger`, `resources`, `integrations`, `model-policy`, `review`, `test` and `knowledge`; `as-is` also takes `--against`, `--fragments` and `--ledger`; `review` takes `--base` and `--head`; `model-policy` takes `--base` |
 | `gate status [task]` | `--phase`, `--base`, `--head` |
-| `evidence cite <file> <lines>` | `--revision`; `evidence hash <files>...` |
+| `evidence cite <file> <lines> [<file> <lines>]...` | `--revision`; `evidence hash <files>...` |
 | `knowledge impact <task> <phase>` | `--base`, `--head` |
 | `review prepare <task> <phase>` | `--base`, `--head` (`staged`, `HEAD` or a commit id) |
 | `models resolve` | `--client` (required) and exactly one of `--role`, `--skill` and `--profile`; `--task`, `--override`, `--different-family-from` (a catalog id), `--coder-profile` |
@@ -1048,7 +1059,7 @@ What is checked, and what is not:
 - A path glob of a link cannot hold a space, `@`, a backtick or angle brackets, and a convention
   answer cannot hold `@`, a link, markup or a backtick.
 
-### Finding codes of the registry, the conventions and the check
+### Finding codes of the registry, the conventions, the check and the documents
 
 | Code | Meaning |
 |---|---|
@@ -1061,8 +1072,11 @@ What is checked, and what is not:
 | ORQ-E508 | An item under `docs/resources` is not a regular `<id>.md` named by an entry that records a copy |
 | ORQ-E509 | An edit command is refused (also a skipped link at `init`, as a warning) |
 | ORQ-E510 | `resources attach` for an entry behind a login needs a terminal |
-| ORQ-E511 | `evidence cite` refuses a file under `docs/design/*/evidence/web/` with a credential shape, a hidden character or more than 256 KiB; the file is already in a local commit, so amend it before a push |
+| ORQ-E511 | `evidence cite` refuses a file under `docs/design/*/evidence/web/` with a credential shape, a hidden character or more than 256 KiB; the file is already in a local commit, so amend or reset it before a push, revoke or rotate a credential it shows and remove the text |
+| ORQ-E338 | `validate as-is` read a cited evidence file of the task's own `evidence/` folder at another commit, and it holds a credential shape, a hidden character or more than 256 KiB; revoke or rotate a credential it shows, remove the text and cite the file again |
 | ORQ-E520, E521 | A branch name is not allowed by the patterns; a commit subject has the wrong shape |
+| ORQ-W368 | `validate design`: the design brief `component.md` has more than 1,200 words outside fenced blocks; a warning, the exit status does not change |
+| ORQ-W388 | `validate plan`: a phase has more than 400 words in its objective, criteria and file reasons; a warning, the exit status does not change |
 | ORQ-W500 | A stored copy is past its time-to-live (advice: a hand edit of the record can hide it) |
 | ORQ-I500 | An entry behind a login: its page text goes to the client's model vendor |
 | ORQ-I501 | A copy whose entry is gone (Orqlet never deletes a copy) |
@@ -1088,7 +1102,9 @@ What stays with the team:
 - The guard of `evidence cite` runs when a file is cited and not before: a file under
   `evidence/web/` that is never cited is never scanned, `evidence hash` is not guarded, no CI step
   walks the folder, and a design cites its evidence as `path:lines` strings. A file with invalid
-  UTF-8 and nothing else wrong is cited.
+  UTF-8 and nothing else wrong is cited. The one later scan is `validate as-is`, which scans a cited
+  file of the task's own `evidence/` folder when the entry names a commit other than the base
+  revision (ORQ-E338); an entry at the base revision is not scanned again.
 - A stored copy has a licence and a permission of its own; the registry does not record either. A
   convention answer such as the reviewers reaches `AGENTS.md`, so do not put a personal name in it
   that the team does not want in the repository.

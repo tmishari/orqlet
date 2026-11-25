@@ -1,0 +1,112 @@
+schema: orqlet.review-result/v1
+task: workflow-efficiency
+phase: P-8
+role: architecture-reviewer
+round: 1
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: 1813c127f1cbb584cb3b1ac24849f4f5a95f4137e009624b6fb7232337c6805b
+    design: ca86b2a73b778b9e33a398bf70b0752be94a68da6d0718376cf8d971ff239e10
+    evidence_inputs: b4c374335b9966ea3b61a364996174b8a261c39439bc05ffdc5a6c718644a88f
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: 132b50122acb46596651c19c6e03ad9f0df15aca5c7bdfc57090575160538ce0
+    reviewer_definition: 83e52f1a68fceddc7beb1d83654661fd34a1e3b3028c4fcc3dd7b6dadd8f3463
+    standards: ebd6d3e71ace6bb2520f4b87f761e6f164391b1462b2efd7cb28cbdf7d26af77
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: f216c30d02fc00216c109b14722c8efe3b620b8bab33e6980383074988806707
+  merge_base: bb2a0b5aee0a355c2ca97a698300a5280daf7b2c
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: 751953d100777e7ad1ae8ea41d8f096972ff2d2818b84213b87d027c1a3f9beb
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I0
+capability_limits:
+- 'No approved architecture-reviewer binding for cursor in .orqlet/role-bindings.yaml: independence I0, below the I2 that
+  a review needs.'
+- 'Same client as the Coder (cursor): independence I1, below the I2 that a D3 change requires (ORQLET-MODEL-002); the verdict
+  is NOT_RUN.'
+- It was started as a typed subagent with the packet name workflow-efficiency-P-8-1d9bc04f as its prompt; that the context
+  is fresh is the Coder's claim. The packet's diff is against main bb2a0b5 and holds P-8 only.
+- The client does not show the reviewer's model, so the identity is unknown; no model is approved by the policy, so no --different-family-from
+  was passed.
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- The Coder wrote this record from the returned text. An earlier review round ran against packet workflow-efficiency-P-8-ea869326
+  and found stale 0.4.0 strings in the README; its reviewer text was not retained, so this record is the first kept and is
+  numbered r1, although it is the second round of the session. The person is told of this.
+- The reviewer's own conclusion was no blocking finding.
+- The reviewer ran no command and computed no quote digest, so evidence is by path and line.
+applicability:
+  examined:
+  - diff.patch, snapshot and context records against the plan file list, Q-23, Q-24, the version sources, the generated-copy
+    hashes and the README against the code
+  conclusion: findings
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+  checks:
+  - what: packet read
+    how: orqlet review prepare workflow-efficiency P-8 (workflow-efficiency-P-8-1d9bc04f)
+    result: pass
+  - what: running the checks and quote digests
+    how: none run by the reviewer
+    result: not-run
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: non-blocking
+  category: standards
+  claim: The plan demands no ORQ-E450 from gate-status-phase, yet its own file list (Q-23, Q-24) makes ORQ-E450 certain, so
+    AC-8 fails by construction (plan.yaml P-8 completion and file_operations; tests/P-8.yaml).
+  suggested_action: Name the two paths as accepted deviations in the pull request.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: non-blocking
+  category: docs
+  claim: AC-3 to AC-7 are not-run in the test record; AC-7 and the task-wide AC-6 need the phase report and the task-wide
+    diff, which the packet does not carry.
+  suggested_action: Check them from the phase report.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: non-blocking
+  category: docs
+  claim: 'work-status.md claims pull requests #60 to #65 and #67 and five open P-7 findings; nothing in the packet supports
+    either.'
+  suggested_action: The person confirms both against the code host.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: non-blocking
+  category: docs
+  claim: K-1 cites questions.yaml:472-527 although the Q-23 and Q-24 answers end at line 523, and already_documented_refs
+    do not cite the README, the proposal or work-status.md that the reason text names.
+  suggested_action: Narrow the range and cite the maintained documents if the record is reissued.
+  confidence: medium
