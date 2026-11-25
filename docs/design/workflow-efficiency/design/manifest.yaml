@@ -3,12 +3,12 @@ header:
   schema: orqlet.artifact-header/v1
   task: workflow-efficiency
   status: draft
-  workflow_version: 0.5.0
-  protected_set_digest: 20ba901af0832f59a7fef20323128b6d8a53d5e76ea45a64a6a5e7123816630a
+  workflow_version: 0.5.1
+  protected_set_digest: 28696c66725c84b7a0cedf3969790aabeab8d45c10dada13dc7d6e4afd4fd763
   bound:
-    base_revision: 86e07abc18e95eef98d11923fd1aff72451ad7c2
-    standards_lock_hash: 12486d9b48af8b2f61117d556568d3482b1641cd606e8652965dcc44babce930
-    applicable_rules_hash: e5618439f62ec2b01a2a1719ee3902a92ca1829827de0b41242cb351c37e4e15
+    base_revision: 62231b8deb419c1f579c31ce4b4f64fe82fe56bf
+    standards_lock_hash: 8b2d28e1d4894236e4b43e3c54766fcbdfaba0c89aab9fe39645dfa7c8e43713
+    applicable_rules_hash: 15dad7d04fe2bec92f1ca2d922802d58b960e532316f3298496ebcee9e5b43bd
     profile_version: 1
     upstream:
       - {ref: docs/design/workflow-efficiency/as-is.md, sha256: 3fe613104a96638cd6fbae1b862092f3df563ab1fcfd71ca438b8c78ae4bfd3f}

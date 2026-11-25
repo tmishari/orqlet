@@ -3,14 +3,14 @@ header:
   schema: orqlet.artifact-header/v1
   task: workflow-efficiency
   status: draft
-  workflow_version: 0.5.0
-  protected_set_digest: 20ba901af0832f59a7fef20323128b6d8a53d5e76ea45a64a6a5e7123816630a
+  workflow_version: 0.5.1
+  protected_set_digest: 28696c66725c84b7a0cedf3969790aabeab8d45c10dada13dc7d6e4afd4fd763
   bound:
-    base_revision: fd495247c13734c606034220f777a58859a7e15a
-    standards_lock_hash: 12486d9b48af8b2f61117d556568d3482b1641cd606e8652965dcc44babce930
-    applicable_rules_hash: e5618439f62ec2b01a2a1719ee3902a92ca1829827de0b41242cb351c37e4e15
+    base_revision: 62231b8deb419c1f579c31ce4b4f64fe82fe56bf
+    standards_lock_hash: 8b2d28e1d4894236e4b43e3c54766fcbdfaba0c89aab9fe39645dfa7c8e43713
+    applicable_rules_hash: 15dad7d04fe2bec92f1ca2d922802d58b960e532316f3298496ebcee9e5b43bd
     profile_version: 1
-design_ref: docs/design/workflow-efficiency/design/manifest.yaml#923204fecade1ee5e2e8f9707cd8fbfe4bfb3fa7a1d3b5980231889657c86200
+design_ref: docs/design/workflow-efficiency/design/manifest.yaml#ce76ce58f54455545950d9942c89b04fb0c160196e9e1a732bee228f478ed234
 base_revision: fd495247c13734c606034220f777a58859a7e15a
 knowledge_scope: []
 phases:
@@ -1401,7 +1401,7 @@ self_check:
       ORQLET-STYLE-001, ORQLET-TEST-001]
     acceptance_criteria: []
     evidence:
-    - docs/design/workflow-efficiency/design/manifest.yaml#923204fecade1ee5e2e8f9707cd8fbfe4bfb3fa7a1d3b5980231889657c86200
+    - docs/design/workflow-efficiency/design/manifest.yaml#ce76ce58f54455545950d9942c89b04fb0c160196e9e1a732bee228f478ed234
     - docs/design/workflow-efficiency/questions.yaml
     - .github/workflows/ci.yml
     - AGENTS.md
