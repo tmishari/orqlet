@@ -1,0 +1,219 @@
+schema: orqlet.question-ledger/v1
+task: rust-migration
+questions:
+- id: Q-1
+  key: 41986e0ca95acb7458adbb10fe69613f3544677b969c994147c16f29a0846607
+  subject: Task authorization and approval gates
+  raised_by: Cursor
+  phase: research
+  category: requirement
+  text: The work status freezes all work except release 0.5.2. How is the Rust migration treated?
+  why: docs/design/work-status.md lets only release 0.5.2 advance until the person resumes or
+    starts another task, and research, design and plan each need an approval.
+  options:
+  - Start a new task rust-migration and follow the research, design and plan gates
+  - Start a new task and waive research, design and plan
+  - Do not start; finish release 0.5.2 first
+  blocks:
+  - research
+  status: answered
+  answer:
+    value: Start a new task rust-migration and follow the gates; research, then design, then plan,
+      each approved by the person before any code
+    answerer: tmishari
+    time: '2026-11-25T11:47:00+00:00'
+    scope: task
+- id: Q-2
+  key: 57959b8b104649dc53aede7eaeb7783a7b7b9d34f4179c9affedb36daa754c38
+  subject: Scope of the removal of old data
+  raised_by: Cursor
+  phase: research
+  category: requirement
+  text: After the migration, what does "remove all old data" delete?
+  why: The request asks to remove irrelevant files and all old data after the migration; the
+    repository also holds design records and generated client files.
+  options:
+  - Only the Python code and tooling (src/*.py, pyproject.toml, uv.lock, .venv, Python caches)
+  - Also docs/design
+  - Everything except the Rust code, README and AGENTS.md
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: Only the Python code and tooling; src/*.py, pyproject.toml, uv.lock, .venv and the Python
+      caches. Git history is kept.
+    answerer: tmishari
+    time: '2026-11-25T11:47:00+00:00'
+    scope: task
+- id: Q-3
+  key: 12eda0b0328e59f353f74f06f11d99be5aa2257d14968b33bd3991c7fe633a3b
+  subject: Verification of behaviour parity
+  raised_by: Cursor
+  phase: research
+  category: test-expectation
+  text: How is it shown that the Rust version behaves like the Python version?
+  why: The person's instruction of 2026-11-25 forbids writing and running tests in this project.
+  options:
+  - Temporary output comparison of the two CLIs, no test files
+  - Lift the no-tests rule for this task and add Rust tests
+  - No checks
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: Lift the no-tests rule for this task and add Rust tests
+    answerer: tmishari
+    time: '2026-11-25T11:47:00+00:00'
+    scope: task
+- id: Q-4
+  key: 29a3df1426467f2592ba5036de2af58e3e7c908c591dcd0e03c12cd71cd6a15c
+  subject: Distribution of the Rust release
+  raised_by: Cursor
+  phase: research
+  category: requirement
+  text: Orqlet is installed today as a Python package. How is the Rust version distributed?
+  why: The entry point and the packaging are declared in pyproject.toml.
+  options:
+  - A single native binary from cargo, GitHub release builds later
+  - A PyPI wheel that bundles the Rust binary (maturin)
+  - Decide during design
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: A single native binary from cargo, with GitHub release builds later
+    answerer: tmishari
+    time: '2026-11-25T11:47:00+00:00'
+    scope: task
+- id: Q-5
+  key: e306719b99496c9b0a90c2416b9e11164fe66451f50ec8c271561d6c25026672
+  subject: Byte compatibility of hashes and emitted files
+  raised_by: Cursor
+  phase: research
+  category: requirement
+  text: Must the Rust binary produce byte-identical canonical digests, line-range hashes, emitted
+    YAML and JSON, and generated files, so that projects set up by the Python release, their
+    generated.lock.yaml and their recorded evidence still validate without a re-render?
+  why: Stored hashes depend on the canonical JSON form, the CRLF rule, the YAML emitter and the
+    JSON dump settings (AS-IS facts A-9, A-10, A-20, A-21).
+  options:
+  - Byte-identical for every stored hash and generated file
+  - Byte-identical for digests and evidence hashes only; generated files may change once with an
+    upgrade
+  - No compatibility; a new major version
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: No compatibility; the Rust binary is released as a new major version
+    answerer: tmishari
+    time: '2026-11-25T11:58:00+00:00'
+    scope: task
+- id: Q-6
+  key: 80b39f3055d7ca23d7a2936591f964e20730be67b67bb05f8a9193983bb7887e
+  subject: Text compatibility of messages and help output
+  raised_by: Cursor
+  phase: research
+  category: requirement
+  text: Must finding messages that today come from PyYAML, Pydantic and Click, and the help and
+    usage text that Typer prints, stay the same word for word?
+  why: Validation messages embed library text (A-12, A-13) and usage errors come from Click.
+  options:
+  - Keep ORQ codes, exit statuses and the JSON envelope; library wording may change
+  - Word for word
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: Keep the ORQ codes, exit statuses and the JSON envelope; library wording may change
+    answerer: tmishari
+    time: '2026-11-25T11:58:00+00:00'
+    scope: task
+- id: Q-7
+  key: 77aa09554c5ee571a543bf258787cc761e103a2575f3edd2efbc47fd31005799
+  subject: Python-specific capabilities in the port
+  raised_by: Cursor
+  phase: research
+  category: requirement
+  text: The knowledge feature reads Python module APIs with Python's ast parser, and the project
+    profile knows only the kinds python-cli, python-service and unknown. Does the Rust port keep
+    Python API extraction, and does it add other project kinds?
+  why: A Rust port needs a Python parser to keep this behaviour (A-24).
+  options:
+  - Keep Python API extraction with a Rust Python parser; keep the project kinds
+  - Drop Python API extraction
+  - Decide during design
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: Drop Python API extraction
+    answerer: tmishari
+    time: '2026-11-25T11:58:00+00:00'
+    scope: task
+- id: Q-8
+  key: 31ef2f408bbed9ab65684324d34b6e880ec8a7251e6a406a38629703e83d8802
+  subject: Unwired code in the port
+  raised_by: Cursor
+  phase: research
+  category: requirement
+  text: The Rich presenter for install and uninstall, the user-scope file system and journal, and
+    the empty Copilot adapter are present but not wired into the CLI. Are they ported?
+  why: Porting them adds code with no reachable behaviour (C-1, C-2).
+  options:
+  - Do not port unwired code
+  - Port everything as it is
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: Do not port unwired code
+    answerer: tmishari
+    time: '2026-11-25T11:58:00+00:00'
+    scope: task
+- id: Q-9
+  key: 5e12c527a4f4446e39f10dd5cb9abf4dbdbd416fbadc3041613c296ae19b25ef
+  subject: Replacement of the tools scripts and schema source
+  raised_by: Cursor
+  phase: research
+  category: requirement
+  text: tools/build_manifest.py and tools/export_schemas.py are Python, and the 35 shipped JSON
+    Schemas are generated from the Pydantic contracts. After the Python tooling is removed, what
+    builds MANIFEST.json and what is the source of the schemas?
+  why: Q-2 removes the Python tooling; the schemas and the manifest are shipped data (A-11, A-22).
+  options:
+  - Rust replacements; schemas generated from the Rust types
+  - Rust manifest builder; the current schema files become hand-kept sources
+  - Decide during design
+  blocks:
+  - design
+  status: answered
+  answer:
+    value: Rust replacements; schemas generated from the Rust types
+    answerer: tmishari
+    time: '2026-11-25T11:58:00+00:00'
+    scope: task
+- id: Q-10
+  key: 93945d26b86d7bef1763d2ed69b35e3b0c170dc29bddce70490eb6680ec82dd7
+  subject: Standards and documents that name Python tooling
+  raised_by: Cursor
+  phase: research
+  category: policy
+  text: The team standards in .prompts/rules.yaml require ruff, strict mypy and import-linter and
+    say the project writes no tests; README installs with uv and the project profile records
+    python-cli. Who approves replacing them with Rust checks (cargo fmt, clippy, cargo test), and
+    are they changed in this task?
+  why: The standards are team-owned seeded files, and Q-3 lifts the no-tests rule for this task
+    only (A-27, A-28, A-29).
+  options:
+  - Change the standards, profile and README in this task, reviewed by tmishari
+  - A separate task
+  blocks:
+  - design
+  route_to: standards-owner
+  status: answered
+  answer:
+    value: Change the standards, profile and README in this task, reviewed by tmishari
+    answerer: tmishari
+    time: '2026-11-25T11:58:00+00:00'
+    scope: task
