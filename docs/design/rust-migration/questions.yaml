@@ -527,3 +527,26 @@ questions:
     answerer: tmishari
     time: '2026-11-25T19:14:46+00:00'
     scope: task
+- id: Q-26
+  key: fe9bdd707aa84a40ac96e0d6f3645efe4c83123faa20c149e2169f0053106f21
+  subject: Impact of the AGENTS.md commands change on the design
+  raised_by: Cursor
+  phase: plan
+  category: policy
+  text: Does the design approval stay valid after ba935c6, which inserted the Rust commands section
+    into AGENTS.md, a file in the design scope?
+  why: Gate status reported ORQ-W390 for the AS-IS file and the design (base_revision). The only scope
+    commit since 3e3c311 is ba935c6, which changed only AGENTS.md. AS-IS fact A-30 cites AGENTS.md
+    lines 100-106 at 3196914; the same text, sha256 415faa66, is now at lines 149-155. C-3 cites
+    lines 75-77, which are unchanged. ADR-006 decision 5 is unaffected.
+  options:
+  - Yes, the approval stays valid and the plan goes on
+  - No, refresh the AS-IS file first
+  blocks:
+  - plan
+  status: answered
+  answer:
+    value: Yes, the approval stays valid and the plan goes on
+    answerer: tmishari
+    time: '2026-11-25T19:26:22+00:00'
+    scope: task
