@@ -3,12 +3,12 @@ task: workflow-efficiency
 phase: P-8
 review_input:
   components:
-    code_tests: 1813c127f1cbb584cb3b1ac24849f4f5a95f4137e009624b6fb7232337c6805b
-    plan: 132b50122acb46596651c19c6e03ad9f0df15aca5c7bdfc57090575160538ce0
+    code_tests: 879f520a0e1afc04fb66b11b568c0bcc9f9bdff78316fb44cc10faf3b70be959
+    plan: 72a18d13054c5fa9074106fdc925ced3a7e66c86fc4526b0b5db27d8f5bf08bb
   covers:
   - code_tests
   - plan
-  digest: 705a1a13cc200d4da348afde141bb57c145e32c3fdbd5a122683187e42d2a4b3
+  digest: 1de433c7a530f9b7fb91656a7163bbf63fe5e1527e34a0104b6e7fff6a2150b8
   merge_base: bb2a0b5aee0a355c2ca97a698300a5280daf7b2c
   schema: orqlet.review-input/v1
 verdict: NOT_RUN
@@ -17,8 +17,9 @@ commands:
 - id: ruff-check
   exit_code: 1
   summary: Found 3 errors, all in the two frozen files tests/unit/render/test_user_scope_render.py and tests/unit/application/test_user_render_request.py
-    (Q-14 known failure, import order and one long line). No error in a file of this phase.
-  result_digest: 71786563b1a37f9edb4302d0db888d315f2313955c949d810392c5db3f44530e
+    (Q-14 known failure, import order and one long line). No error in a file of this phase. Run on main after the merge
+    of pull requests 68 and 69, with the output as `--color never --output-format concise`.
+  result_digest: 4936d3f02d06b5301e8ccb11dd0509f61ddcac3d2c89752955475b58723bfb15
 - id: ruff-format
   exit_code: 0
   summary: 829 files already formatted
@@ -38,26 +39,35 @@ commands:
   result_digest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
 - id: build-manifest
   exit_code: 0
-  summary: No output and exit 0, so MANIFEST.json is what the build tool renders from the workflow files at 0.5.1. It was
-    written once with `uv run python tools/build_manifest.py` after the version, identity and seed edits (Q-27).
+  summary: No output and exit 0, so MANIFEST.json is what the build tool renders from the workflow files at 0.5.1.
   result_digest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
 - id: pytest
   exit_code: 1
-  summary: 14293 passed, 1 skipped, 2 errors in 1846.38s on Python 3.12.11, one Python only, with the local form `uv run
-    pytest --continue-on-collection-errors` (Q-25). The 2 errors are the collection errors of the two frozen test files
-    (Q-14). The Tester wrote the tests before the version bump existed; seven of them failed until it. The goldens were
-    written once with `uv run pytest --update-golden tests/unit/render/test_clients_golden.py
-    tests/unit/render/test_pr_template.py tests/unit/render/test_resources_golden.py tests/unit/render/test_model_policy_seed.py`
-    (Q-27), then `uv run orqlet upgrade --yes` (the person approved the flag in this session).
-  result_digest: 43f06bdd1375bd3c9465ac559465b121a29e7973f5794ee65434bc96bb1a7d4a
+  summary: 14293 passed, 1 skipped, 2 errors in 1727.50s on Python 3.12.11, one Python only, with the local form `uv run
+    pytest --continue-on-collection-errors` (Q-25), run on main after the merge of pull requests 68 and 69. The 2 errors
+    are the collection errors of the two frozen test files (Q-14). The digest is that of the text "14293 passed, 1 skipped,
+    2 errors".
+  result_digest: 2748ff8c41369317bf9f0333d0f5f36ebd44046689d5bc622ee4ce6d27fd100f
 - id: gate-status-phase
   exit_code: 5
-  summary: 'FAIL with exit 5 on the staged tree: ORQ-E450 on EC-8, security paths outside the declared ones, which are
-    .github/pull_request_template.md (Q-24) and .orqlet/model-policy.yaml (Q-23), the two files that the plan lists as the
-    answered deviations for the person to accept. No ORQ-E451 or ORQ-E453. The ORQ-W390 warnings for as-is, design and
-    plan name workflow_version, protected_set_digest (the upgrade row) and base_revision (the planned-work row).
-    ORQ-I393 is info.'
+  summary: 'Run as `orqlet gate status workflow-efficiency --phase P-8 --base bb2a0b5 --head HEAD`, because the phase is
+    merged and nothing is staged. FAIL with exit 5: ORQ-E450 on EC-8 for exactly .github/pull_request_template.md (Q-24)
+    and .orqlet/model-policy.yaml (Q-23), the two paths that the amended check expects. No ORQ-E451 or ORQ-E453. The
+    person accepted both deviations on 2026-11-25. The ORQ-W390 warnings for as-is, design and plan name workflow_version,
+    protected_set_digest (the upgrade row) and base_revision (the planned-work row). ORQ-I393 is info.'
   result_digest: 6910b3e590ab4b0a5c8474594ec114e40e955a8037d13cb59f4364f58728e431
+- id: upgrade-writes
+  exit_code: 0
+  summary: '`git diff --name-only bb2a0b5 c2e2cb4` lists 60 files; none is outside the P-8 file operations, the P-8
+    test and knowledge records and the P-8 r1 review records. `git diff` of .github/pull_request_template.md changes
+    one line, the marker version 0.5.0 to 0.5.1 with the hash after the number unchanged. Whether the installed copies
+    equal the packaged sources is not shown by this command.'
+  result_digest: db62e23c2ccee9035d577016f2afce5ce1b5e5e6bf68fb68289a4018e7ec2789
+- id: frozen-files
+  exit_code: 0
+  summary: '`git diff --name-only fd495247 --` the seven frozen files prints nothing. The same command for the document
+    folders of the tasks on hold and the search for references to removed code were not run.'
+  result_digest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
 acceptance_coverage:
 - ac: AC-1
   check_ref: pytest
@@ -82,4 +92,4 @@ acceptance_coverage:
   result: not-run
 - ac: AC-8
   check_ref: gate-status-phase
-  result: fail
+  result: pass
