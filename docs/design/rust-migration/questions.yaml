@@ -501,3 +501,29 @@ questions:
     answerer: tmishari
     time: '2026-11-25T19:05:41+00:00'
     scope: task
+- id: Q-25
+  key: a1f7afc93bc476af6962d59b48261ef01e33ca41b0b4502272241a43c07c8c85
+  subject: Source of the Rust check commands
+  raised_by: Cursor
+  phase: plan
+  category: policy
+  text: Where does the project define the check commands the plan cites (cargo fmt, Clippy, cargo
+    test, the Linux and Windows checks, xtask check)?
+  why: Each plan check must cite a command the project defines, in a CI step, a build script, the
+    profile's commands or AGENTS.md team text. The profile's commands map is empty
+    (.orqlet/project-profile.yaml line 175), the CI file was removed and no CI is wanted (Q-15),
+    there is no Cargo.toml yet, and the AGENTS.md entries name only ruff and mypy. Only the design
+    names the Rust commands (adr-006 lines 22-24, adr-005 line 10, component.md lines 71-72).
+  options:
+  - The person records them as AGENTS.md team text in a small reviewed pull request first; the
+    plan cites those lines
+  - The plan cites the merged design lines as the command source, a deviation the person accepts
+  blocks:
+  - plan
+  status: answered
+  answer:
+    value: The person records them as AGENTS.md team text in a small reviewed pull request first; the
+      plan cites those lines
+    answerer: tmishari
+    time: '2026-11-25T19:14:46+00:00'
+    scope: task
