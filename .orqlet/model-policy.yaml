@@ -1,4 +1,4 @@
-# Starting model policy of Orqlet. Every model is proposed: none is approved, and a pin needs an approved model.
+# Model policy of this project. A model stays proposed until a reviewed change approves it; a pin needs an approved model.
 # Orqlet writes this file once. It is the team's from then on: a later release proposes changes in a diff file.
 schema: orqlet.model-policy/v2
 policy_version: 1
@@ -75,9 +75,9 @@ models:
   - id: claude-opus-5-5
     family: anthropic
     approval:
-      state: proposed
-      approved_by: null
-      approval_ref: null
+      state: approved
+      approved_by: tmishari
+      approval_ref: pr:88
     documented:
       evidence: docs/design/dynamic-model-profiles/evidence/web/anthropic-models-overview.md
       date: '2026-11-04'
@@ -155,9 +155,9 @@ models:
   - id: grok-4.7
     family: xai
     approval:
-      state: proposed
-      approved_by: null
-      approval_ref: null
+      state: approved
+      approved_by: tmishari
+      approval_ref: pr:88
     documented:
       evidence: docs/design/dynamic-model-profiles/evidence/web/xai-models.md
       date: '2026-11-04'
