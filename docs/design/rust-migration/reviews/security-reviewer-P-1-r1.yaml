@@ -1,0 +1,167 @@
+schema: orqlet.review-result/v1
+task: rust-migration
+phase: P-1
+role: security-reviewer
+round: 1
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: ff8ced8afdd3d0887866826ac6378861e194924457394768a8368277683a874b
+    design: 7089670672dcff7ab8f22b5598d0ebead9f23dfc3678dc0396193a9a9e291aad
+    evidence_inputs: 78ea46903971f7eafd85ae00b37ec7aab606c2c87eb37ef61704449691fdb7b7
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: e4504afd6fbce2026fc7a7935cbb8b47a7fca62c4cf9e92dd02e7d8f39d44f89
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: 1366ae318c871636195d7e47268ef274e6e89f6dfd67d066f2960cf4b9ade097
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 214c5e764f43695e27f6303b259e494cc07bf0965650599cb87d91164a21aa5b
+  merge_base: 1673d1ff00b3c786a31d5c01aba7230d49821b88
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- 'Same client and, by the client''s default, the same model family as the Coder: independence I1, below the I2 that a D3
+  change requires of a review; the verdict is NOT_RUN.'
+- The reviewer's own conclusion was PASS with no blocking finding.
+- 'Under the ruling Q-28 the reviewer compared the three paths of ORQ-E451 (.github/CODEOWNERS, .orqlet/generated.lock.yaml,
+  .orqlet/standards.lock.yaml) with EC-6 and ADR-007: all three are P-1 file operations on the security globs and none implements
+  or changes a control.'
+- The reviewer did not examine the Python snapshot code or recompute hashes beyond the standards lock.
+- Started as a typed Cursor subagent with only the packet path rust-migration-P-1-910c6e62 as its prompt; that the context
+  is fresh is the Coder's claim.
+- 'No model was requested: orqlet models resolve --role orqlet-code-reviewer --client cursor suggested none (the engineering
+  profile has no approved candidate). The client does not show the reviewer''s model, so its identity is unknown; with no
+  model given, Cursor runs a subagent on the parent''s model.'
+- The Coder runs Claude Opus 5.5 in Cursor, as the client states; it matches no catalog candidate that the policy lists, so
+  no --different-family-from was passed.
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- The Coder wrote this record from the returned text.
+- The reviewer could not run shell commands, so it computed no quote digest. The Coder computed each digest with orqlet evidence
+  cite at the merge base for text the phase does not change, with the line numbers there; a quote of staged text, which no
+  commit holds yet, is recorded as an absence search of the staged tree instead.
+applicability:
+  examined:
+  - diff.patch (30 files), plan P-1, the design security globs and EC-6, ADR-006, ADR-007, the staged .prompts/rules.yaml
+    and .github/CODEOWNERS, the test and knowledge records, the ledger Q-28 and Q-29
+  conclusion: findings
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet read
+    how: orqlet review prepare rust-migration P-1 --head staged (rust-migration-P-1-910c6e62)
+    result: pass
+  - what: quote digests
+    how: computed by the Coder with orqlet evidence cite at the merge base; none by the reviewer
+    result: pass
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: security
+  rule_ref: ORQLET-SEC-001
+  evidence:
+  - kind: quote
+    path: docs/design/rust-migration/design/adr-006-standards-profile-documents.md
+    lines: '9'
+    revision: 1673d1ff00b3c786a31d5c01aba7230d49821b88
+    quote_sha256: 0f51a44cc6b41b0695d462fb93c92a90c6dc2f5f9bcc905f759468ba6d14d853
+  - kind: quote
+    path: docs/design/rust-migration/design/manifest.yaml
+    lines: '67'
+    revision: 1673d1ff00b3c786a31d5c01aba7230d49821b88
+    quote_sha256: 74b62f40557bedd57e05073c7100a8c6add2dd9ab875d64ee22795022b4e87fa
+  - kind: absence
+    searched:
+    - .prompts/rules.yaml
+    - .github/CODEOWNERS
+    method: searched the staged scopes and owner lines for src/orqlet, tools and pyproject.toml
+    revision: 1673d1ff00b3c786a31d5c01aba7230d49821b88
+  claim: SEC-001, SEC-002, SAFE-001 and CODEOWNERS no longer cover src/orqlet/**, tools/** or pyproject.toml, while the 0.5.2
+    Python security code (src/orqlet/adapters/**, still a security glob) ships until P-17. A 0.5.2 fix in that window would
+    get none of those rules and no code-owner line. ADR-006 accepts this on the premise that no Python change lands during
+    the task.
+  suggested_action: Keep the premise; review any unavoidable Python change against the rule text at the merge base.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: security
+  evidence:
+  - kind: quote
+    path: docs/design/rust-migration/design/manifest.yaml
+    lines: '60'
+    revision: 1673d1ff00b3c786a31d5c01aba7230d49821b88
+    quote_sha256: f30db50eba4d0c7312ffe0bffc24aa49b23c1267685bc08f5fafe15f670ec2cd
+  - kind: absence
+    searched:
+    - .github/CODEOWNERS
+    - docs/design/rust-migration/plan.yaml
+    method: searched for .cargo entries and file operations
+    revision: 1673d1ff00b3c786a31d5c01aba7230d49821b88
+  claim: .cargo/** is a security glob, since Cargo configuration can set runners and flags, but CODEOWNERS does not list it;
+    no phase creates it, so there is no gap today.
+  suggested_action: Add .cargo/** to CODEOWNERS if a later change creates the folder.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: security
+  evidence:
+  - kind: absence
+    searched:
+    - docs/design/rust-migration/design/manifest.yaml
+    method: read extractor_config.security_globs for .prompts
+    revision: 1673d1ff00b3c786a31d5c01aba7230d49821b88
+  claim: The security rules are rewritten in .prompts/rules.yaml, which is not a security glob, so the gate flagged only CODEOWNERS
+    and the locks; this review covers the rule change.
+  suggested_action: Consider .prompts/rules.yaml as a security glob in a later design amendment.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: standards
+  rule_ref: ORQLET-SEC-001
+  evidence:
+  - kind: quote
+    path: docs/design/rust-migration/design/adr-006-standards-profile-documents.md
+    lines: '16'
+    revision: 1673d1ff00b3c786a31d5c01aba7230d49821b88
+    quote_sha256: bae1755b82e97f061e22a33d38a2fa7c78d3eb512380d646ad4d0724d87110dc
+  - kind: absence
+    searched:
+    - .prompts/rules.yaml
+    method: searched the staged SEC-001 text for a reference to ADR-007
+    revision: 1673d1ff00b3c786a31d5c01aba7230d49821b88
+  claim: ADR-006 says Git runs with the rules of ADR-007; the staged SEC-001 text lists four controls and drops that reference,
+    so the rendered rule does not mention the stricter new controls (refused option prefixes, no Git error output in messages).
+  suggested_action: Add a reference to ADR-007 to SEC-001 when the standards are next changed.
+  confidence: medium

@@ -1,0 +1,59 @@
+schema: orqlet.knowledge-impact/v1
+task: rust-migration
+phase: P-1
+review_input:
+  components:
+    candidates: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    code_tests: ff8ced8afdd3d0887866826ac6378861e194924457394768a8368277683a874b
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: e4504afd6fbce2026fc7a7935cbb8b47a7fca62c4cf9e92dd02e7d8f39d44f89
+    standards: 1366ae318c871636195d7e47268ef274e6e89f6dfd67d066f2960cf4b9ade097
+  covers:
+  - code_tests
+  - knowledge
+  - plan
+  - standards
+  - candidates
+  digest: 1e8d054dfc55d9db24944a8a0c8baca13a0e73a47fa5401123c27f6c96d94e49
+  merge_base: df94d2d013535c48848e8b4f6b47f08038988041
+  schema: orqlet.review-input/v1
+outcome: no-impact
+analysis:
+  command: orqlet knowledge impact
+  orqlet_version: 0.5.2
+  candidates_digest: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+  candidate_count: 0
+  input: pre-draft-tree
+  views:
+  - staged
+  index_state: not-used
+entries: []
+no_impact:
+  category: already-documented
+  reason: The phase rewrites the team standards, the repository files that name the Python layout,
+    the work status and the rendered rule files. The standards file and the work status are
+    themselves the maintained documentation of what changed, edited in the phase's own file list,
+    and the rule files are rendered from the standards. The decisions behind the change are in
+    ADR-006 and the ledger (Q-28, Q-29), so no separate knowledge document is needed.
+  absence_record:
+    scopes_searched:
+    - .orqlet/knowledge.yaml sources
+    - the plan's knowledge_scope
+    views:
+    - staged
+    revision: df94d2d013535c48848e8b4f6b47f08038988041
+    method: orqlet knowledge impact rust-migration P-1 on the staged tree; the project configures no
+      knowledge sources, the plan's knowledge_scope is empty and the design names no public_api
+      packages, so the analysis found no candidate and no knowledge document exists that this phase
+      could change.
+    index_state: not-used
+    candidates_found: 0
+  already_documented_refs:
+  - path: .prompts/rules.yaml
+    sha256: a8245926c19687efd1f2df906d75f3fad7bf3375b4478ca1989915bc56101ecb
+  - path: docs/design/work-status.md
+    sha256: 73cee1ae9ffa3c2ffb646786a6c996e3171c6f88d769d90b8fe8aef024d0080c
+  - path: docs/design/rust-migration/design/adr-006-standards-profile-documents.md
+    sha256: e3bd59b65704ae83e8b88157f9fbca0603eb35ec72f9aa236dec6017029ed9a1
+  - path: docs/design/rust-migration/questions.yaml
+    sha256: fe993e7caced07a66ec7f723382d5dcbf6687d21887437571ce7e87cb9de481d

@@ -1,0 +1,36 @@
+schema: orqlet.test-record/v1
+task: rust-migration
+phase: P-1
+review_input:
+  schema: orqlet.review-input/v1
+  covers: [code_tests, plan]
+  components:
+    code_tests: ff8ced8afdd3d0887866826ac6378861e194924457394768a8368277683a874b
+    plan: e4504afd6fbce2026fc7a7935cbb8b47a7fca62c4cf9e92dd02e7d8f39d44f89
+  digest: c94a76b76d5757cb7aa762ac3a1ccf631e3e21dbd62beeddfc92f4e8a3c6e78f
+  merge_base: df94d2d013535c48848e8b4f6b47f08038988041
+verdict: NOT_RUN
+evidence_kind: claimed
+commands:
+  - id: standards-for
+    exit_code: 0
+    summary: "orqlet standards for --path <path> --phase implement --role implementer (installed 0.5.2, planned), rerun because the rebase onto df94d2d changed HEAD, for crates/orqlet-application/src/lib.rs, crates/orqlet-adapters/src/lib.rs and workflow/identity.json: exit 0 each; 10, 9 and 7 rules with the new ADR-006 scopes and texts; rg finds no ruff, mypy, uv, pytest or import-linter in the output or in .prompts/rules.yaml (AC-2). No unit tests were written: no criterion of P-1 names cargo-test. The digest is of the three outputs together."
+    result_digest: d6c6e4295fd0dac9afe9b7763d76c86e90e590b3fd9fa785eab7b4bd98581698
+  - id: orqlet-upgrade-dry-run
+    exit_code: 0
+    summary: "orqlet upgrade --dry-run --json (installed 0.5.2, agreed: the person's yes in this phase), rerun after the rebase: status up-to-date, workflow 0.5.2 to 0.5.2, 0 writes, so the rule files and the two locks still match their sources on df94d2d; client limits ORQ-L001 to ORQ-L006, ORQ-I031 and ORQ-I020. Before the rebase the apply (change 37917d8f-af80-48be-8e2b-245a2d3f5e86) wrote exactly the 20 rule files and the two locks of the phase's list (AC-3). The digest is of the whole output."
+    result_digest: b60b4bbea4469632c8476e7959615bb40de6867c1186a92d55ae83bc545fe60d
+  - id: orqlet-doctor
+    exit_code: 0
+    summary: "orqlet doctor --json (installed 0.5.2, planned), rerun after the rebase: ok, no error or warning; notes ORQ-I503, ORQ-I200 and ORQ-I020; not run: client versions, which this release does not detect (AC-3). The digest is of the whole output."
+    result_digest: 8602ad2f807788f80b87799116f16f5341c2ffb04986cfe62c41879c76b077d8
+  - id: gate-status-phase
+    exit_code: 5
+    summary: "orqlet gate status rust-migration --phase P-1 --head staged --json (installed 0.5.2, planned), rerun after the rebase with the reissued knowledge record staged: ORQ-W390 on as-is, design and plan (standards_lock_hash, applicable_rules_hash, base_revision), EC-1 to EC-6 manual, no ORQ-E450 or ORQ-E453, and one ORQ-E451 'security paths changed' listing .github/CODEOWNERS, .orqlet/generated.lock.yaml and .orqlet/standards.lock.yaml. All three are file operations of P-1 on the design's security globs, so under the person's ruling Q-28 it is compared by hand against EC-6 by the security reviewer instead of stopping the phase; the hash staleness is the impact review the person confirmed as Q-29, and the plan's base_revision staleness comes from df94d2d, which changes only .orqlet/model-policy.yaml, a file no design decision cites and no plan operation names. The digest is of the whole output."
+    result_digest: 348102591d544e341e185692fcaa157c1ce17978e499ce4b21489bc2a1a5b524
+acceptance_coverage:
+  - {ac: AC-1, check_ref: "review:standards-table", result: pass}
+  - {ac: AC-2, check_ref: standards-for, result: pass}
+  - {ac: AC-3, check_ref: orqlet-doctor, result: pass}
+  - {ac: AC-4, check_ref: "review:repository-files", result: pass}
+  - {ac: AC-5, check_ref: "review:impact-review", result: pass}
