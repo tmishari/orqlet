@@ -167,7 +167,7 @@ models:
     routes:
       - client: cursor
         kind: id
-        name: null
+        name: grok-4.7-high
         access: unknown
   - id: composer-2.5
     family: cursor
