@@ -550,3 +550,27 @@ questions:
     answerer: tmishari
     time: '2026-11-25T19:26:22+00:00'
     scope: task
+- id: Q-27
+  key: 3ee44963b67e1ad2f911cfa8eda7464ddb83bf31949e23ca53018828fa23872c
+  subject: Format of journal change ids
+  raised_by: Cursor
+  phase: plan
+  category: requirement
+  text: Should 1.0.0 require every journal change id to be a lowercase hyphenated UUID, so that a
+    record with any other id is unreadable (ORQ-E136), as ADR-007 decision 10 already requires for
+    project ids?
+  why: The round-8 security note lists it as an open item for the plan. ADR-007 decision 11 only
+    requires the change id to equal the file name. The ORQ-E131 advice prints the change id in a
+    command a person may copy (upgrade.py lines 85-86), and the escaping filter keeps semicolons,
+    command substitution and backticks. 0.5.2 creates change ids as UUIDs (system.py line 16).
+  options:
+  - Yes, require a UUID change id, listed in the parity fixture as an expected difference
+  - No, keep the design as it is; the change id must only match its file name
+  blocks:
+  - plan
+  status: answered
+  answer:
+    value: No, keep the design as it is; the change id must only match its file name
+    answerer: tmishari
+    time: '2026-11-25T19:35:38+00:00'
+    scope: task
