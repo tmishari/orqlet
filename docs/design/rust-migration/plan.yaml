@@ -1,0 +1,4328 @@
+schema: orqlet.implementation-plan/v1
+header:
+  schema: orqlet.artifact-header/v1
+  task: rust-migration
+  status: draft
+  workflow_version: 0.5.2
+  protected_set_digest: 6a25aa85a870cd58ec812890ea6dded9f0e83c3b15e8f7bbb79eacb17546c808
+  bound:
+    base_revision: ba935c62ae81130e9b4c080431b462957f5aa68a
+    standards_lock_hash: 8b2d28e1d4894236e4b43e3c54766fcbdfaba0c89aab9fe39645dfa7c8e43713
+    applicable_rules_hash: 15dad7d04fe2bec92f1ca2d922802d58b960e532316f3298496ebcee9e5b43bd
+    profile_version: 1
+design_ref: >-
+  docs/design/rust-migration/design/manifest.yaml#9100dd0553915b0d43a8e07148056c59597338c71faa1d13f57b0824262e0d7b
+base_revision: ba935c62ae81130e9b4c080431b462957f5aa68a
+knowledge_scope: []
+phases:
+- id: P-1
+  objective: >-
+    The standards, CODEOWNERS, .gitattributes, .gitignore and the work status describe the Rust project (ADR-006 decisions
+    1, 6 and 7), and the installed 0.5.2 re-renders the rule files from them.
+  depends_on: []
+  implements:
+  - EC-4
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      `.prompts/rules.yaml` holds the rules of the ADR-006 table with their text, scope and enforcement; no scope names src/orqlet/**,
+      src/** or tests/**, and the header names neither pyproject.toml nor CI.
+    source: R-9
+    check_ref: review:standards-table
+  - id: AC-2
+    text: >-
+      `orqlet standards for` on an application, an adapters and a workflow path prints the new rules, and none names ruff,
+      mypy, uv, pytest or import-linter.
+    source: BC-15
+    check_ref: standards-for
+  - id: AC-3
+    text: >-
+      After `orqlet upgrade` (installed 0.5.2, with the person's yes) only the listed rule files and the two locks change,
+      and doctor reports no error.
+    source: BC-5
+    check_ref: orqlet-doctor
+  - id: AC-4
+    text: >-
+      CODEOWNERS, .gitattributes and .gitignore match ADR-006 decision 7; the work status records that the person started
+      rust-migration on 2026-11-25.
+    source: R-9
+    check_ref: review:repository-files
+  - id: AC-5
+    text: >-
+      The impact review of this task's artifacts for the changed lock and rules hashes is in the ledger and confirmed by the
+      person before the commit.
+    source: R-9
+    check_ref: review:impact-review
+  checks:
+  - standards-for
+  - orqlet-doctor
+  - gate-status-phase
+  file_operations:
+  - op: modify
+    path: .prompts/rules.yaml
+    why: The ADR-006 rules.
+  - op: modify
+    path: .github/CODEOWNERS
+    why: Rust paths.
+  - op: modify
+    path: .gitattributes
+    why: Drop Python entries.
+  - op: modify
+    path: .gitignore
+    why: Ignore /target.
+  - op: modify
+    path: docs/design/work-status.md
+    why: Task started.
+  - op: modify
+    path: .claude/rules/orqlet-orqlet-arch-001.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/rules/orqlet-orqlet-arch-002.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/rules/orqlet-orqlet-arch-003.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/rules/orqlet-orqlet-det-001.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/rules/orqlet-orqlet-det-002.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/rules/orqlet-orqlet-det-003.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/rules/orqlet-orqlet-model-001.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/rules/orqlet-orqlet-safe-001.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/rules/orqlet-orqlet-sec-001.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/rules/orqlet-orqlet-sec-002.md
+    why: Re-rendered.
+  - op: modify
+    path: .cursor/rules/orqlet-orqlet-arch-001.mdc
+    why: Re-rendered.
+  - op: modify
+    path: .cursor/rules/orqlet-orqlet-arch-002.mdc
+    why: Re-rendered.
+  - op: modify
+    path: .cursor/rules/orqlet-orqlet-arch-003.mdc
+    why: Re-rendered.
+  - op: modify
+    path: .cursor/rules/orqlet-orqlet-det-001.mdc
+    why: Re-rendered.
+  - op: modify
+    path: .cursor/rules/orqlet-orqlet-det-002.mdc
+    why: Re-rendered.
+  - op: modify
+    path: .cursor/rules/orqlet-orqlet-det-003.mdc
+    why: Re-rendered.
+  - op: modify
+    path: .cursor/rules/orqlet-orqlet-model-001.mdc
+    why: Re-rendered.
+  - op: modify
+    path: .cursor/rules/orqlet-orqlet-safe-001.mdc
+    why: Re-rendered.
+  - op: modify
+    path: .cursor/rules/orqlet-orqlet-sec-001.mdc
+    why: Re-rendered.
+  - op: modify
+    path: .cursor/rules/orqlet-orqlet-sec-002.mdc
+    why: Re-rendered.
+  - op: modify
+    path: .orqlet/standards.lock.yaml
+    why: Re-rendered.
+  - op: modify
+    path: .orqlet/generated.lock.yaml
+    why: Re-rendered.
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  - code-reviewer
+  knowledge_step: required
+  completion:
+  - >-
+    standards-for: `orqlet standards for --path <path> --phase implement --role implementer` for crates/orqlet-application/src/lib.rs,
+    crates/orqlet-adapters/src/lib.rs and workflow/identity.json. Orqlet's own command (installed 0.5.2).
+  - >-
+    orqlet-doctor: `orqlet doctor` reports no error. Orqlet's own command, not a project command: the installed 0.5.2 copy
+    up to P-15, the built `target/release/orqlet` from P-16.
+  - >-
+    gate-status-phase: `orqlet gate status rust-migration --phase <phase id> --head staged` reports no ORQ-E450, ORQ-E451
+    or ORQ-E453. Orqlet's own command, not a project command: the installed 0.5.2 copy up to P-15, the built `target/release/orqlet`
+    from P-16.
+  expected_outputs:
+  - .prompts/rules.yaml
+  - .orqlet/standards.lock.yaml
+- id: P-2
+  objective: >-
+    Capture the three fixtures of ADR-002 decision 2 from 0.5.2 before any Python moves, so the Rust tests keep them.
+  depends_on:
+  - P-1
+  implements:
+  - EC-1
+  - EC-4
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      hash_vectors.json holds digest_of, line-range, file and block-marker vectors from 0.5.2, with CRLF, lone CR, trailing
+      newlines, UTF-16 key order, non-ASCII text and the integer bounds.
+    source: BC-3
+    check_ref: review:fixture-content
+  - id: AC-2
+    text: >-
+      yaml_scalars.json holds the value and type 0.5.2's strict loader gives each plain scalar form of ADR-007 decision 3,
+      leading zeros, dates and 0x forms included.
+    source: BC-6
+    check_ref: review:fixture-content
+  - id: AC-3
+    text: >-
+      parity.json lists verdict and codes of validate as-is, design, plan and ledger for every artifact under docs/design/
+      of a detached 3e3c311 worktree, and the expected differences: ORQ-W541, ADR-007 rules marked new, lax-coercion verdicts,
+      Python-API extraction, and a version part over 4,300 digits now an invalid version where 0.5.2 raised ValueError.
+    source: BC-4
+    check_ref: review:fixture-content
+  - id: AC-4
+    text: help.json holds the help text of every command and group, without colour, at 80 columns.
+    source: BC-1
+    check_ref: review:fixture-content
+  - id: AC-5
+    text: The fixtures hold only verdicts, codes, digests, scalar forms and help text; the secret review finds nothing.
+    source: R-8
+    check_ref: security-reviewer
+  checks:
+  - gate-status-phase
+  file_operations:
+  - op: create
+    path: crates/orqlet-cli/tests/fixtures/hash_vectors.json
+    why: 0.5.2 fixture.
+  - op: create
+    path: crates/orqlet-cli/tests/fixtures/yaml_scalars.json
+    why: 0.5.2 fixture.
+  - op: create
+    path: crates/orqlet-cli/tests/fixtures/parity.json
+    why: 0.5.2 fixture.
+  - op: create
+    path: crates/orqlet-cli/tests/fixtures/help.json
+    why: 0.5.2 fixture.
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  - code-reviewer
+  knowledge_step: required
+  completion:
+  - >-
+    gate-status-phase: `orqlet gate status rust-migration --phase <phase id> --head staged` reports no ORQ-E450, ORQ-E451
+    or ORQ-E453. Orqlet's own command, not a project command: the installed 0.5.2 copy up to P-15, the built `target/release/orqlet`
+    from P-16.
+  expected_outputs:
+  - crates/orqlet-cli/tests/fixtures/parity.json
+- id: P-3
+  objective: >-
+    The workspace exists with the no_std domain crate holding hashing, paths, versions, the output filters, globs and timestamps.
+  depends_on:
+  - P-2
+  implements:
+  - EC-4
+  - EC-5
+  - EC-6
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      At the pinned versions, sha2, unicode-normalization and the category crate build without std or default features for
+      the three targets, the category crate covers Cc, Cf, Cs, Co, Cn, Zl and Zp, and toolchain 1.100.0 has a stable File::try_lock,
+      each confirmed from its documentation and stated in the pull request; on a mismatch the phase stops and asks.
+    source: BC-8
+    check_ref: review:library-confirmation
+  - id: AC-2
+    text: 'The domain is #![no_std] with alloc and the workspace sets unsafe_code = forbid, inherited by every crate.'
+    source: BC-16
+    check_ref: cargo-clippy
+  - id: AC-3
+    text: >-
+      digest_of and the line-range, file and block-marker hashes give the values of vectors copied from hash_vectors.json.
+    source: BC-3
+    check_ref: cargo-test
+  - id: AC-4
+    text: CanonicalPath refuses every case of ADR-007 decision 14 and compares by NFC plus to_lowercase.
+    source: BC-20
+    check_ref: cargo-test
+  - id: AC-5
+    text: >-
+      The all-or-nothing filter shows only ASCII major.minor.patch versions and paths of 1 to 200 scalar values without a
+      hidden character; a version part over 4,300 digits is an invalid version; the escaped filter writes the three escape
+      forms, doubles backslashes and cuts at the limit, then '...'.
+    source: BC-24
+    check_ref: cargo-test
+  - id: AC-6
+    text: versions.rs is reviewed as security-relevant, with paths.rs, representable.rs and conventions.rs.
+    source: BC-24
+    check_ref: security-reviewer
+  - id: AC-7
+    text: >-
+      Timestamps match isoformat with microseconds and +00:00, drop zero microseconds, and cover a leap day and a year end;
+      globs match as fnmatchcase.
+    source: R-1
+    check_ref: cargo-test
+  checks:
+  - cargo-fmt
+  - cargo-clippy
+  - cargo-test
+  - clippy-linux
+  - clippy-windows
+  - gate-status-phase
+  file_operations:
+  - op: create
+    path: Cargo.toml
+    why: Workspace setup.
+  - op: create
+    path: Cargo.lock
+    why: Workspace setup.
+  - op: create
+    path: rust-toolchain.toml
+    why: Workspace setup.
+  - op: create
+    path: crates/orqlet-domain/Cargo.toml
+    why: Workspace setup.
+  - op: create
+    path: crates/orqlet-domain/src/lib.rs
+    why: Domain core.
+  - op: create
+    path: crates/orqlet-domain/src/errors.rs
+    why: Domain core.
+  - op: create
+    path: crates/orqlet-domain/src/digest.rs
+    why: Domain core.
+  - op: create
+    path: crates/orqlet-domain/src/paths.rs
+    why: Domain core.
+  - op: create
+    path: crates/orqlet-domain/src/versions.rs
+    why: Domain core.
+  - op: create
+    path: crates/orqlet-domain/src/representable.rs
+    why: Domain core.
+  - op: create
+    path: crates/orqlet-domain/src/conventions.rs
+    why: Domain core.
+  - op: create
+    path: crates/orqlet-domain/src/globs.rs
+    why: Domain core.
+  - op: create
+    path: crates/orqlet-domain/src/findings.rs
+    why: Domain core.
+  - op: create
+    path: crates/orqlet-domain/src/ownership.rs
+    why: Domain core.
+  - op: create
+    path: crates/orqlet-domain/src/facts.rs
+    why: Domain core.
+  - op: create
+    path: crates/orqlet-domain/src/evidence.rs
+    why: Domain core.
+  - op: create
+    path: crates/orqlet-domain/src/blocks.rs
+    why: Domain core.
+  - op: create
+    path: crates/orqlet-domain/src/timestamps.rs
+    why: Domain core.
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  - code-reviewer
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every cargo command below reads rust-toolchain.toml (P-3) and may download the pinned 1.100.0 toolchain,
+    its x86_64-unknown-linux-gnu and x86_64-pc-windows-msvc targets and the crates locked in Cargo.lock (warning list: fetches
+    from the network). Only aarch64-apple-darwin is installed today. The implementer asks the person before the first run
+    in a session.
+  - >-
+    cargo-fmt: `cargo fmt --all --check` (AGENTS.md:90 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 adcaa2ae7cfb10c74a1e8b082440640aa16895af758ca05df7fb847a5fd1ad83).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision.
+  - >-
+    cargo-clippy: `cargo clippy --workspace --all-targets -- -D warnings` (AGENTS.md:96 at ba935c62ae81130e9b4c080431b462957f5aa68a,
+    sha256 e59d9d29943ce01476d2a47dc9067370b8b5f88fd08407b9bbef6f32d93afa2f). It reads the root Cargo.toml, each crate's Cargo.toml
+    and clippy.toml and rust-toolchain.toml, which this plan creates, so they cannot be cited at the base revision. Warning
+    list: fetches from the network.
+  - >-
+    cargo-test: `cargo test --workspace` (AGENTS.md:102 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 8ffea13a33c3880b26d5ce1ae6bf11f4ea90414de6d1c19bc16c11f36b6ebf59).
+    Allowed for this task only (Q-3, Q-11); the project's Testing section (AGENTS.md:149-155 at ba935c62ae81130e9b4c080431b462957f5aa68a,
+    sha256 415faa662b38fdb40a53d85437f3622562c3e9e3b7ed24afb5cfb7cb05ec6112) stays until P-15. Integration tests start git
+    and the built binary under a scoped allow. It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml,
+    which this plan creates, so they cannot be cited at the base revision. Warning list: fetches from the network.
+  - >-
+    clippy-linux: `cargo clippy --workspace --all-targets --target x86_64-unknown-linux-gnu -- -D warnings` (AGENTS.md:108
+    at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 dcef48202af0406c9d91d9e57e5ba2afa93d96cbd6a3709f8c87ae25514c5153).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision. Warning list: fetches from the network (the target).
+  - >-
+    clippy-windows: `cargo clippy --workspace --all-targets --target x86_64-pc-windows-msvc -- -D warnings` (AGENTS.md:114
+    at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 b9e0002c655593365ebf7e5ecda78ccffd7e04fd75db5c792144d0daf50c6dce).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision. Warning list: fetches from the network (the target).
+  - >-
+    gate-status-phase: `orqlet gate status rust-migration --phase <phase id> --head staged` reports no ORQ-E450, ORQ-E451
+    or ORQ-E453. Orqlet's own command, not a project command: the installed 0.5.2 copy up to P-15, the built `target/release/orqlet`
+    from P-16.
+  expected_outputs:
+  - Cargo.toml
+  - crates/orqlet-domain/src/digest.rs
+  - crates/orqlet-domain/src/representable.rs
+- id: P-4
+  objective: >-
+    The remaining domain modules are ported with their 0.5.2 behaviour; the unified diff leaves the change plan for the application
+    crate.
+  depends_on:
+  - P-3
+  implements:
+  - EC-1
+  - EC-6
+  acceptance_criteria:
+  - id: AC-1
+    text: Unit tests give each ported module's 0.5.2 results and error kinds for its documented cases.
+    source: R-1
+    check_ref: cargo-test
+  - id: AC-2
+    text: >-
+      dependencies.rs works on parsed values only; TOML reaches it through the documents port, and the domain gains no dependency.
+    source: BC-8
+    check_ref: architecture-reviewer
+  - id: AC-3
+    text: A Python-API surface gives NOT_RUN with a finding, never PASS.
+    source: BC-12
+    check_ref: cargo-test
+  - id: AC-4
+    text: Credential checks report only the rule and the line, never the value.
+    source: BC-21
+    check_ref: cargo-test
+  checks:
+  - cargo-fmt
+  - cargo-clippy
+  - cargo-test
+  - clippy-linux
+  - clippy-windows
+  - gate-status-phase
+  file_operations:
+  - op: modify
+    path: crates/orqlet-domain/src/lib.rs
+    why: New modules.
+  - op: create
+    path: crates/orqlet-domain/src/binding.rs
+    why: Domain module.
+  - op: create
+    path: crates/orqlet-domain/src/change_class.rs
+    why: Domain module.
+  - op: create
+    path: crates/orqlet-domain/src/changeplan.rs
+    why: Domain module.
+  - op: create
+    path: crates/orqlet-domain/src/classify.rs
+    why: Domain module.
+  - op: create
+    path: crates/orqlet-domain/src/dependencies.rs
+    why: Domain module.
+  - op: create
+    path: crates/orqlet-domain/src/evidence_artifacts.rs
+    why: Domain module.
+  - op: create
+    path: crates/orqlet-domain/src/expected_change.rs
+    why: Domain module.
+  - op: create
+    path: crates/orqlet-domain/src/independence.rs
+    why: Domain module.
+  - op: create
+    path: crates/orqlet-domain/src/knowledge.rs
+    why: Domain module.
+  - op: create
+    path: crates/orqlet-domain/src/mcp_credentials.rs
+    why: Domain module.
+  - op: create
+    path: crates/orqlet-domain/src/model_identity.rs
+    why: Domain module.
+  - op: create
+    path: crates/orqlet-domain/src/model_policy_scan.rs
+    why: Domain module.
+  - op: create
+    path: crates/orqlet-domain/src/model_resolution.rs
+    why: Domain module.
+  - op: create
+    path: crates/orqlet-domain/src/plan_projection.rs
+    why: Domain module.
+  - op: create
+    path: crates/orqlet-domain/src/prescriptive.rs
+    why: Domain module.
+  - op: create
+    path: crates/orqlet-domain/src/resolver.rs
+    why: Domain module.
+  - op: create
+    path: crates/orqlet-domain/src/resources.rs
+    why: Domain module.
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  - code-reviewer
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every cargo command below reads rust-toolchain.toml (P-3) and may download the pinned 1.100.0 toolchain,
+    its x86_64-unknown-linux-gnu and x86_64-pc-windows-msvc targets and the crates locked in Cargo.lock (warning list: fetches
+    from the network). Only aarch64-apple-darwin is installed today. The implementer asks the person before the first run
+    in a session.
+  - >-
+    cargo-fmt: `cargo fmt --all --check` (AGENTS.md:90 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 adcaa2ae7cfb10c74a1e8b082440640aa16895af758ca05df7fb847a5fd1ad83).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision.
+  - >-
+    cargo-clippy: `cargo clippy --workspace --all-targets -- -D warnings` (AGENTS.md:96 at ba935c62ae81130e9b4c080431b462957f5aa68a,
+    sha256 e59d9d29943ce01476d2a47dc9067370b8b5f88fd08407b9bbef6f32d93afa2f). It reads the root Cargo.toml, each crate's Cargo.toml
+    and clippy.toml and rust-toolchain.toml, which this plan creates, so they cannot be cited at the base revision. Warning
+    list: fetches from the network.
+  - >-
+    cargo-test: `cargo test --workspace` (AGENTS.md:102 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 8ffea13a33c3880b26d5ce1ae6bf11f4ea90414de6d1c19bc16c11f36b6ebf59).
+    Allowed for this task only (Q-3, Q-11); the project's Testing section (AGENTS.md:149-155 at ba935c62ae81130e9b4c080431b462957f5aa68a,
+    sha256 415faa662b38fdb40a53d85437f3622562c3e9e3b7ed24afb5cfb7cb05ec6112) stays until P-15. Integration tests start git
+    and the built binary under a scoped allow. It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml,
+    which this plan creates, so they cannot be cited at the base revision. Warning list: fetches from the network.
+  - >-
+    clippy-linux: `cargo clippy --workspace --all-targets --target x86_64-unknown-linux-gnu -- -D warnings` (AGENTS.md:108
+    at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 dcef48202af0406c9d91d9e57e5ba2afa93d96cbd6a3709f8c87ae25514c5153).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision. Warning list: fetches from the network (the target).
+  - >-
+    clippy-windows: `cargo clippy --workspace --all-targets --target x86_64-pc-windows-msvc -- -D warnings` (AGENTS.md:114
+    at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 b9e0002c655593365ebf7e5ecda78ccffd7e04fd75db5c792144d0daf50c6dce).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision. Warning list: fetches from the network (the target).
+  - >-
+    gate-status-phase: `orqlet gate status rust-migration --phase <phase id> --head staged` reports no ORQ-E450, ORQ-E451
+    or ORQ-E453. Orqlet's own command, not a project command: the installed 0.5.2 copy up to P-15, the built `target/release/orqlet`
+    from P-16.
+  expected_outputs:
+  - crates/orqlet-domain/src/changeplan.rs
+  - crates/orqlet-domain/src/expected_change.rs
+- id: P-5
+  objective: The workflow data moves unchanged from src/orqlet/workflow/ to workflow/.
+  depends_on:
+  - P-4
+  implements:
+  - EC-3
+  acceptance_criteria:
+  - id: AC-1
+    text: Every listed file moves byte for byte; git reports only renames at 100% similarity.
+    source: R-6
+    check_ref: review:byte-identical
+  - id: AC-2
+    text: From here on every orqlet command uses the installed 0.5.2 copy; doctor reports no error after the move.
+    source: R-10
+    check_ref: orqlet-doctor
+  checks:
+  - orqlet-doctor
+  - gate-status-phase
+  file_operations:
+  - op: create
+    path: workflow/MANIFEST.json
+    why: Moved.
+    moved_from: src/orqlet/workflow/MANIFEST.json
+  - op: delete
+    path: src/orqlet/workflow/MANIFEST.json
+    why: Moved.
+  - op: create
+    path: workflow/baseline/baseline.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/baseline/baseline.md
+  - op: delete
+    path: src/orqlet/workflow/baseline/baseline.md
+    why: Moved.
+  - op: create
+    path: workflow/baseline/foundation.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/baseline/foundation.md
+  - op: delete
+    path: src/orqlet/workflow/baseline/foundation.md
+    why: Moved.
+  - op: create
+    path: workflow/commands/doctor.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/commands/doctor.md
+  - op: delete
+    path: src/orqlet/workflow/commands/doctor.md
+    why: Moved.
+  - op: create
+    path: workflow/commands/profile.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/commands/profile.md
+  - op: delete
+    path: src/orqlet/workflow/commands/profile.md
+    why: Moved.
+  - op: create
+    path: workflow/commands/standards.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/commands/standards.md
+  - op: delete
+    path: src/orqlet/workflow/commands/standards.md
+    why: Moved.
+  - op: create
+    path: workflow/commands/upgrade.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/commands/upgrade.md
+  - op: delete
+    path: src/orqlet/workflow/commands/upgrade.md
+    why: Moved.
+  - op: create
+    path: workflow/exempt.yaml
+    why: Moved.
+    moved_from: src/orqlet/workflow/exempt.yaml
+  - op: delete
+    path: src/orqlet/workflow/exempt.yaml
+    why: Moved.
+  - op: create
+    path: workflow/identity.json
+    why: Moved.
+    moved_from: src/orqlet/workflow/identity.json
+  - op: delete
+    path: src/orqlet/workflow/identity.json
+    why: Moved.
+  - op: create
+    path: workflow/pr_template/workflow-section.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/pr_template/workflow-section.md
+  - op: delete
+    path: src/orqlet/workflow/pr_template/workflow-section.md
+    why: Moved.
+  - op: create
+    path: workflow/releases.json
+    why: Moved.
+    moved_from: src/orqlet/workflow/releases.json
+  - op: delete
+    path: src/orqlet/workflow/releases.json
+    why: Moved.
+  - op: create
+    path: workflow/roles/orqlet-arch-reviewer.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/roles/orqlet-arch-reviewer.md
+  - op: delete
+    path: src/orqlet/workflow/roles/orqlet-arch-reviewer.md
+    why: Moved.
+  - op: create
+    path: workflow/roles/orqlet-code-reviewer.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/roles/orqlet-code-reviewer.md
+  - op: delete
+    path: src/orqlet/workflow/roles/orqlet-code-reviewer.md
+    why: Moved.
+  - op: create
+    path: workflow/roles/orqlet-inventory.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/roles/orqlet-inventory.md
+  - op: delete
+    path: src/orqlet/workflow/roles/orqlet-inventory.md
+    why: Moved.
+  - op: create
+    path: workflow/roles/orqlet-pr-writer.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/roles/orqlet-pr-writer.md
+  - op: delete
+    path: src/orqlet/workflow/roles/orqlet-pr-writer.md
+    why: Moved.
+  - op: create
+    path: workflow/roles/orqlet-security-reviewer.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/roles/orqlet-security-reviewer.md
+  - op: delete
+    path: src/orqlet/workflow/roles/orqlet-security-reviewer.md
+    why: Moved.
+  - op: create
+    path: workflow/roles/orqlet-tester.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/roles/orqlet-tester.md
+  - op: delete
+    path: src/orqlet/workflow/roles/orqlet-tester.md
+    why: Moved.
+  - op: create
+    path: workflow/roles/orqlet-tracer.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/roles/orqlet-tracer.md
+  - op: delete
+    path: src/orqlet/workflow/roles/orqlet-tracer.md
+    why: Moved.
+  - op: create
+    path: workflow/rules/orqlet-workflow.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/rules/orqlet-workflow.md
+  - op: delete
+    path: src/orqlet/workflow/rules/orqlet-workflow.md
+    why: Moved.
+  - op: create
+    path: workflow/rules/orqlet-workflow.meta.yaml
+    why: Moved.
+    moved_from: src/orqlet/workflow/rules/orqlet-workflow.meta.yaml
+  - op: delete
+    path: src/orqlet/workflow/rules/orqlet-workflow.meta.yaml
+    why: Moved.
+  - op: create
+    path: workflow/schemas/orqlet.artifact-header.v1.json
+    why: Moved.
+    moved_from: src/orqlet/workflow/schemas/orqlet.artifact-header.v1.json
+  - op: delete
+    path: src/orqlet/workflow/schemas/orqlet.artifact-header.v1.json
+    why: Moved.
+  - op: create
+    path: workflow/schemas/orqlet.as-is-fragment.v1.json
+    why: Moved.
+    moved_from: src/orqlet/workflow/schemas/orqlet.as-is-fragment.v1.json
+  - op: delete
+    path: src/orqlet/workflow/schemas/orqlet.as-is-fragment.v1.json
+    why: Moved.
+  - op: create
+    path: workflow/schemas/orqlet.as-is.v1.json
+    why: Moved.
+    moved_from: src/orqlet/workflow/schemas/orqlet.as-is.v1.json
+  - op: delete
+    path: src/orqlet/workflow/schemas/orqlet.as-is.v1.json
+    why: Moved.
+  - op: create
+    path: workflow/schemas/orqlet.cli-result.v1.json
+    why: Moved.
+    moved_from: src/orqlet/workflow/schemas/orqlet.cli-result.v1.json
+  - op: delete
+    path: src/orqlet/workflow/schemas/orqlet.cli-result.v1.json
+    why: Moved.
+  - op: create
+    path: workflow/schemas/orqlet.design-set.v1.json
+    why: Moved.
+    moved_from: src/orqlet/workflow/schemas/orqlet.design-set.v1.json
+  - op: delete
+    path: src/orqlet/workflow/schemas/orqlet.design-set.v1.json
+    why: Moved.
+  - op: create
+    path: workflow/schemas/orqlet.docs-map.v1.json
+    why: Moved.
+    moved_from: src/orqlet/workflow/schemas/orqlet.docs-map.v1.json
+  - op: delete
+    path: src/orqlet/workflow/schemas/orqlet.docs-map.v1.json
+    why: Moved.
+  - op: create
+    path: workflow/schemas/orqlet.exempt.v1.json
+    why: Moved.
+    moved_from: src/orqlet/workflow/schemas/orqlet.exempt.v1.json
+  - op: delete
+    path: src/orqlet/workflow/schemas/orqlet.exempt.v1.json
+    why: Moved.
+  - op: create
+    path: workflow/schemas/orqlet.finding.v1.json
+    why: Moved.
+    moved_from: src/orqlet/workflow/schemas/orqlet.finding.v1.json
+  - op: delete
+    path: src/orqlet/workflow/schemas/orqlet.finding.v1.json
+    why: Moved.
+  - op: create
+    path: workflow/schemas/orqlet.generated-lock.v1.json
+    why: Moved.
+    moved_from: src/orqlet/workflow/schemas/orqlet.generated-lock.v1.json
+  - op: delete
+    path: src/orqlet/workflow/schemas/orqlet.generated-lock.v1.json
+    why: Moved.
+  - op: create
+    path: workflow/schemas/orqlet.implementation-plan.v1.json
+    why: Moved.
+    moved_from: src/orqlet/workflow/schemas/orqlet.implementation-plan.v1.json
+  - op: delete
+    path: src/orqlet/workflow/schemas/orqlet.implementation-plan.v1.json
+    why: Moved.
+  - op: create
+    path: workflow/schemas/orqlet.integrations.v1.json
+    why: Moved.
+    moved_from: src/orqlet/workflow/schemas/orqlet.integrations.v1.json
+  - op: delete
+    path: src/orqlet/workflow/schemas/orqlet.integrations.v1.json
+    why: Moved.
+  - op: create
+    path: workflow/schemas/orqlet.knowledge-impact.v1.json
+    why: Moved.
+    moved_from: src/orqlet/workflow/schemas/orqlet.knowledge-impact.v1.json
+  - op: delete
+    path: src/orqlet/workflow/schemas/orqlet.knowledge-impact.v1.json
+    why: Moved.
+  - op: create
+    path: workflow/schemas/orqlet.knowledge.v2.json
+    why: Moved.
+    moved_from: src/orqlet/workflow/schemas/orqlet.knowledge.v2.json
+  - op: delete
+    path: src/orqlet/workflow/schemas/orqlet.knowledge.v2.json
+    why: Moved.
+  - op: create
+    path: workflow/schemas/orqlet.model-policy.v2.json
+    why: Moved.
+    moved_from: src/orqlet/workflow/schemas/orqlet.model-policy.v2.json
+  - op: delete
+    path: src/orqlet/workflow/schemas/orqlet.model-policy.v2.json
+    why: Moved.
+  - op: create
+    path: workflow/schemas/orqlet.module-card.v1.json
+    why: Moved.
+    moved_from: src/orqlet/workflow/schemas/orqlet.module-card.v1.json
+  - op: delete
+    path: src/orqlet/workflow/schemas/orqlet.module-card.v1.json
+    why: Moved.
+  - op: create
+    path: workflow/schemas/orqlet.project-profile.v1.json
+    why: Moved.
+    moved_from: src/orqlet/workflow/schemas/orqlet.project-profile.v1.json
+  - op: delete
+    path: src/orqlet/workflow/schemas/orqlet.project-profile.v1.json
+    why: Moved.
+  - op: create
+    path: workflow/schemas/orqlet.question-ledger.v1.json
+    why: Moved.
+    moved_from: src/orqlet/workflow/schemas/orqlet.question-ledger.v1.json
+  - op: delete
+    path: src/orqlet/workflow/schemas/orqlet.question-ledger.v1.json
+    why: Moved.
+  - op: create
+    path: workflow/schemas/orqlet.released.v1.json
+    why: Moved.
+    moved_from: src/orqlet/workflow/schemas/orqlet.released.v1.json
+  - op: delete
+    path: src/orqlet/workflow/schemas/orqlet.released.v1.json
+    why: Moved.
+  - op: create
+    path: workflow/schemas/orqlet.resources.v1.json
+    why: Moved.
+    moved_from: src/orqlet/workflow/schemas/orqlet.resources.v1.json
+  - op: delete
+    path: src/orqlet/workflow/schemas/orqlet.resources.v1.json
+    why: Moved.
+  - op: create
+    path: workflow/schemas/orqlet.review-input.v1.json
+    why: Moved.
+    moved_from: src/orqlet/workflow/schemas/orqlet.review-input.v1.json
+  - op: delete
+    path: src/orqlet/workflow/schemas/orqlet.review-input.v1.json
+    why: Moved.
+  - op: create
+    path: workflow/schemas/orqlet.review-result.v1.json
+    why: Moved.
+    moved_from: src/orqlet/workflow/schemas/orqlet.review-result.v1.json
+  - op: delete
+    path: src/orqlet/workflow/schemas/orqlet.review-result.v1.json
+    why: Moved.
+  - op: create
+    path: workflow/schemas/orqlet.role-bindings.v1.json
+    why: Moved.
+    moved_from: src/orqlet/workflow/schemas/orqlet.role-bindings.v1.json
+  - op: delete
+    path: src/orqlet/workflow/schemas/orqlet.role-bindings.v1.json
+    why: Moved.
+  - op: create
+    path: workflow/schemas/orqlet.rules.v1.json
+    why: Moved.
+    moved_from: src/orqlet/workflow/schemas/orqlet.rules.v1.json
+  - op: delete
+    path: src/orqlet/workflow/schemas/orqlet.rules.v1.json
+    why: Moved.
+  - op: create
+    path: workflow/schemas/orqlet.self-check.v1.json
+    why: Moved.
+    moved_from: src/orqlet/workflow/schemas/orqlet.self-check.v1.json
+  - op: delete
+    path: src/orqlet/workflow/schemas/orqlet.self-check.v1.json
+    why: Moved.
+  - op: create
+    path: workflow/schemas/orqlet.standards-lock.v1.json
+    why: Moved.
+    moved_from: src/orqlet/workflow/schemas/orqlet.standards-lock.v1.json
+  - op: delete
+    path: src/orqlet/workflow/schemas/orqlet.standards-lock.v1.json
+    why: Moved.
+  - op: create
+    path: workflow/schemas/orqlet.standards-pack.v1.json
+    why: Moved.
+    moved_from: src/orqlet/workflow/schemas/orqlet.standards-pack.v1.json
+  - op: delete
+    path: src/orqlet/workflow/schemas/orqlet.standards-pack.v1.json
+    why: Moved.
+  - op: create
+    path: workflow/schemas/orqlet.test-record.v1.json
+    why: Moved.
+    moved_from: src/orqlet/workflow/schemas/orqlet.test-record.v1.json
+  - op: delete
+    path: src/orqlet/workflow/schemas/orqlet.test-record.v1.json
+    why: Moved.
+  - op: create
+    path: workflow/schemas/orqlet.user-manifest.v1.json
+    why: Moved.
+    moved_from: src/orqlet/workflow/schemas/orqlet.user-manifest.v1.json
+  - op: delete
+    path: src/orqlet/workflow/schemas/orqlet.user-manifest.v1.json
+    why: Moved.
+  - op: create
+    path: workflow/schemas/orqlet.versions.v1.json
+    why: Moved.
+    moved_from: src/orqlet/workflow/schemas/orqlet.versions.v1.json
+  - op: delete
+    path: src/orqlet/workflow/schemas/orqlet.versions.v1.json
+    why: Moved.
+  - op: create
+    path: workflow/schemas/orqlet.workflow-identity.v1.json
+    why: Moved.
+    moved_from: src/orqlet/workflow/schemas/orqlet.workflow-identity.v1.json
+  - op: delete
+    path: src/orqlet/workflow/schemas/orqlet.workflow-identity.v1.json
+    why: Moved.
+  - op: create
+    path: workflow/schemas/orqlet.workflow-lock.v1.json
+    why: Moved.
+    moved_from: src/orqlet/workflow/schemas/orqlet.workflow-lock.v1.json
+  - op: delete
+    path: src/orqlet/workflow/schemas/orqlet.workflow-lock.v1.json
+    why: Moved.
+  - op: create
+    path: workflow/schemas/orqlet.workflow-manifest.v1.json
+    why: Moved.
+    moved_from: src/orqlet/workflow/schemas/orqlet.workflow-manifest.v1.json
+  - op: delete
+    path: src/orqlet/workflow/schemas/orqlet.workflow-manifest.v1.json
+    why: Moved.
+  - op: create
+    path: workflow/schemas/orqlet.workflow-policy.v2.json
+    why: Moved.
+    moved_from: src/orqlet/workflow/schemas/orqlet.workflow-policy.v2.json
+  - op: delete
+    path: src/orqlet/workflow/schemas/orqlet.workflow-policy.v2.json
+    why: Moved.
+  - op: create
+    path: workflow/schemas/orqlet.workflow-releases.v1.json
+    why: Moved.
+    moved_from: src/orqlet/workflow/schemas/orqlet.workflow-releases.v1.json
+  - op: delete
+    path: src/orqlet/workflow/schemas/orqlet.workflow-releases.v1.json
+    why: Moved.
+  - op: create
+    path: workflow/schemas/orqlet.workflow-rule.v1.json
+    why: Moved.
+    moved_from: src/orqlet/workflow/schemas/orqlet.workflow-rule.v1.json
+  - op: delete
+    path: src/orqlet/workflow/schemas/orqlet.workflow-rule.v1.json
+    why: Moved.
+  - op: create
+    path: workflow/seeds/orqlet/model-policy.yaml
+    why: Moved.
+    moved_from: src/orqlet/workflow/seeds/orqlet/model-policy.yaml
+  - op: delete
+    path: src/orqlet/workflow/seeds/orqlet/model-policy.yaml
+    why: Moved.
+  - op: create
+    path: workflow/seeds/prompts/README.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/seeds/prompts/README.md
+  - op: delete
+    path: src/orqlet/workflow/seeds/prompts/README.md
+    why: Moved.
+  - op: create
+    path: workflow/seeds/prompts/foundations.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/seeds/prompts/foundations.md
+  - op: delete
+    path: src/orqlet/workflow/seeds/prompts/foundations.md
+    why: Moved.
+  - op: create
+    path: workflow/seeds/prompts/rules.yaml
+    why: Moved.
+    moved_from: src/orqlet/workflow/seeds/prompts/rules.yaml
+  - op: delete
+    path: src/orqlet/workflow/seeds/prompts/rules.yaml
+    why: Moved.
+  - op: create
+    path: workflow/skills/orqlet-design/references/design-format.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/skills/orqlet-design/references/design-format.md
+  - op: delete
+    path: src/orqlet/workflow/skills/orqlet-design/references/design-format.md
+    why: Moved.
+  - op: create
+    path: workflow/skills/orqlet-design/references/phase-contract.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/skills/orqlet-design/references/phase-contract.md
+  - op: delete
+    path: src/orqlet/workflow/skills/orqlet-design/references/phase-contract.md
+    why: Moved.
+  - op: create
+    path: workflow/skills/orqlet-design/skill.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/skills/orqlet-design/skill.md
+  - op: delete
+    path: src/orqlet/workflow/skills/orqlet-design/skill.md
+    why: Moved.
+  - op: create
+    path: workflow/skills/orqlet-implement/references/phase-contract.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/skills/orqlet-implement/references/phase-contract.md
+  - op: delete
+    path: src/orqlet/workflow/skills/orqlet-implement/references/phase-contract.md
+    why: Moved.
+  - op: create
+    path: workflow/skills/orqlet-implement/skill.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/skills/orqlet-implement/skill.md
+  - op: delete
+    path: src/orqlet/workflow/skills/orqlet-implement/skill.md
+    why: Moved.
+  - op: create
+    path: workflow/skills/orqlet-onboard/skill.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/skills/orqlet-onboard/skill.md
+  - op: delete
+    path: src/orqlet/workflow/skills/orqlet-onboard/skill.md
+    why: Moved.
+  - op: create
+    path: workflow/skills/orqlet-plan/references/phase-contract.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/skills/orqlet-plan/references/phase-contract.md
+  - op: delete
+    path: src/orqlet/workflow/skills/orqlet-plan/references/phase-contract.md
+    why: Moved.
+  - op: create
+    path: workflow/skills/orqlet-plan/references/plan-format.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/skills/orqlet-plan/references/plan-format.md
+  - op: delete
+    path: src/orqlet/workflow/skills/orqlet-plan/references/plan-format.md
+    why: Moved.
+  - op: create
+    path: workflow/skills/orqlet-plan/skill.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/skills/orqlet-plan/skill.md
+  - op: delete
+    path: src/orqlet/workflow/skills/orqlet-plan/skill.md
+    why: Moved.
+  - op: create
+    path: workflow/skills/orqlet-research/references/as-is-format.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/skills/orqlet-research/references/as-is-format.md
+  - op: delete
+    path: src/orqlet/workflow/skills/orqlet-research/references/as-is-format.md
+    why: Moved.
+  - op: create
+    path: workflow/skills/orqlet-research/references/phase-contract.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/skills/orqlet-research/references/phase-contract.md
+  - op: delete
+    path: src/orqlet/workflow/skills/orqlet-research/references/phase-contract.md
+    why: Moved.
+  - op: create
+    path: workflow/skills/orqlet-research/skill.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/skills/orqlet-research/skill.md
+  - op: delete
+    path: src/orqlet/workflow/skills/orqlet-research/skill.md
+    why: Moved.
+  - op: create
+    path: workflow/skills/orqlet-review/references/review-format.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/skills/orqlet-review/references/review-format.md
+  - op: delete
+    path: src/orqlet/workflow/skills/orqlet-review/references/review-format.md
+    why: Moved.
+  - op: create
+    path: workflow/skills/orqlet-review/skill.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/skills/orqlet-review/skill.md
+  - op: delete
+    path: src/orqlet/workflow/skills/orqlet-review/skill.md
+    why: Moved.
+  - op: create
+    path: workflow/skills/ponytail-audit/references/LICENSE.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/skills/ponytail-audit/references/LICENSE.md
+  - op: delete
+    path: src/orqlet/workflow/skills/ponytail-audit/references/LICENSE.md
+    why: Moved.
+  - op: create
+    path: workflow/skills/ponytail-audit/references/PROVENANCE.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/skills/ponytail-audit/references/PROVENANCE.md
+  - op: delete
+    path: src/orqlet/workflow/skills/ponytail-audit/references/PROVENANCE.md
+    why: Moved.
+  - op: create
+    path: workflow/skills/ponytail-audit/skill.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/skills/ponytail-audit/skill.md
+  - op: delete
+    path: src/orqlet/workflow/skills/ponytail-audit/skill.md
+    why: Moved.
+  - op: create
+    path: workflow/skills/ponytail-debt/references/LICENSE.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/skills/ponytail-debt/references/LICENSE.md
+  - op: delete
+    path: src/orqlet/workflow/skills/ponytail-debt/references/LICENSE.md
+    why: Moved.
+  - op: create
+    path: workflow/skills/ponytail-debt/references/PROVENANCE.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/skills/ponytail-debt/references/PROVENANCE.md
+  - op: delete
+    path: src/orqlet/workflow/skills/ponytail-debt/references/PROVENANCE.md
+    why: Moved.
+  - op: create
+    path: workflow/skills/ponytail-debt/skill.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/skills/ponytail-debt/skill.md
+  - op: delete
+    path: src/orqlet/workflow/skills/ponytail-debt/skill.md
+    why: Moved.
+  - op: create
+    path: workflow/skills/ponytail-gain/references/LICENSE.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/skills/ponytail-gain/references/LICENSE.md
+  - op: delete
+    path: src/orqlet/workflow/skills/ponytail-gain/references/LICENSE.md
+    why: Moved.
+  - op: create
+    path: workflow/skills/ponytail-gain/references/PROVENANCE.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/skills/ponytail-gain/references/PROVENANCE.md
+  - op: delete
+    path: src/orqlet/workflow/skills/ponytail-gain/references/PROVENANCE.md
+    why: Moved.
+  - op: create
+    path: workflow/skills/ponytail-gain/skill.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/skills/ponytail-gain/skill.md
+  - op: delete
+    path: src/orqlet/workflow/skills/ponytail-gain/skill.md
+    why: Moved.
+  - op: create
+    path: workflow/skills/ponytail-help/references/LICENSE.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/skills/ponytail-help/references/LICENSE.md
+  - op: delete
+    path: src/orqlet/workflow/skills/ponytail-help/references/LICENSE.md
+    why: Moved.
+  - op: create
+    path: workflow/skills/ponytail-help/references/PROVENANCE.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/skills/ponytail-help/references/PROVENANCE.md
+  - op: delete
+    path: src/orqlet/workflow/skills/ponytail-help/references/PROVENANCE.md
+    why: Moved.
+  - op: create
+    path: workflow/skills/ponytail-help/skill.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/skills/ponytail-help/skill.md
+  - op: delete
+    path: src/orqlet/workflow/skills/ponytail-help/skill.md
+    why: Moved.
+  - op: create
+    path: workflow/skills/ponytail-review/references/LICENSE.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/skills/ponytail-review/references/LICENSE.md
+  - op: delete
+    path: src/orqlet/workflow/skills/ponytail-review/references/LICENSE.md
+    why: Moved.
+  - op: create
+    path: workflow/skills/ponytail-review/references/PROVENANCE.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/skills/ponytail-review/references/PROVENANCE.md
+  - op: delete
+    path: src/orqlet/workflow/skills/ponytail-review/references/PROVENANCE.md
+    why: Moved.
+  - op: create
+    path: workflow/skills/ponytail-review/skill.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/skills/ponytail-review/skill.md
+  - op: delete
+    path: src/orqlet/workflow/skills/ponytail-review/skill.md
+    why: Moved.
+  - op: create
+    path: workflow/skills/ponytail/references/LICENSE.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/skills/ponytail/references/LICENSE.md
+  - op: delete
+    path: src/orqlet/workflow/skills/ponytail/references/LICENSE.md
+    why: Moved.
+  - op: create
+    path: workflow/skills/ponytail/references/PROVENANCE.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/skills/ponytail/references/PROVENANCE.md
+  - op: delete
+    path: src/orqlet/workflow/skills/ponytail/references/PROVENANCE.md
+    why: Moved.
+  - op: create
+    path: workflow/skills/ponytail/skill.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/skills/ponytail/skill.md
+  - op: delete
+    path: src/orqlet/workflow/skills/ponytail/skill.md
+    why: Moved.
+  - op: create
+    path: workflow/templates/catalogue-skill.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/templates/catalogue-skill.md
+  - op: delete
+    path: src/orqlet/workflow/templates/catalogue-skill.md
+    why: Moved.
+  - op: create
+    path: workflow/templates/conventions-block.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/templates/conventions-block.md
+  - op: delete
+    path: src/orqlet/workflow/templates/conventions-block.md
+    why: Moved.
+  - op: create
+    path: workflow/templates/hook-post-edit.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/templates/hook-post-edit.md
+  - op: delete
+    path: src/orqlet/workflow/templates/hook-post-edit.md
+    why: Moved.
+  - op: create
+    path: workflow/templates/hook-session-start.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/templates/hook-session-start.md
+  - op: delete
+    path: src/orqlet/workflow/templates/hook-session-start.md
+    why: Moved.
+  - op: create
+    path: workflow/templates/resource-rule.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/templates/resource-rule.md
+  - op: delete
+    path: src/orqlet/workflow/templates/resource-rule.md
+    why: Moved.
+  - op: create
+    path: workflow/templates/tool-skill.md
+    why: Moved.
+    moved_from: src/orqlet/workflow/templates/tool-skill.md
+  - op: delete
+    path: src/orqlet/workflow/templates/tool-skill.md
+    why: Moved.
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  - code-reviewer
+  knowledge_step: required
+  completion:
+  - >-
+    orqlet-doctor: `orqlet doctor` reports no error. Orqlet's own command, not a project command: the installed 0.5.2 copy
+    up to P-15, the built `target/release/orqlet` from P-16.
+  - >-
+    gate-status-phase: `orqlet gate status rust-migration --phase <phase id> --head staged` reports no ORQ-E450, ORQ-E451
+    or ORQ-E453. Orqlet's own command, not a project command: the installed 0.5.2 copy up to P-15, the built `target/release/orqlet`
+    from P-16.
+  expected_outputs:
+  - workflow/MANIFEST.json
+- id: P-6
+  objective: The application crate holds the contracts as serde and schemars types and the ports as traits.
+  depends_on:
+  - P-5
+  implements:
+  - EC-1
+  - EC-2
+  - EC-6
+  acceptance_criteria:
+  - id: AC-1
+    text: Each contract denies unknown fields and keeps its 0.5.2 patterns and cross-field rules, on embedded inputs.
+    source: BC-4
+    check_ref: cargo-test
+  - id: AC-2
+    text: >-
+      A secret-shaped value in a wrongly typed field and an unknown key give a location: rule message holding neither.
+    source: BC-21
+    check_ref: cargo-test
+  - id: AC-3
+    text: >-
+      The profile accepts rust-cli, an optional python fact, a rust fact and cargo; rust-cli needs rust, Python kinds need
+      python; every 0.5.2 profile stays valid.
+    source: BC-11
+    check_ref: cargo-test
+  - id: AC-4
+    text: A finding's path field is escaped, as 0.5.2 does; the escaped value may name no existing file.
+    source: Q-24
+    check_ref: cargo-test
+  - id: AC-5
+    text: >-
+      clippy.toml lists every path of ADR-001 decision 3 and the serde_json entry points of ADR-007 decision 7; the crate
+      root denies print_stdout and print_stderr; there is no process port.
+    source: BC-7
+    check_ref: review:clippy-lists
+  checks:
+  - cargo-fmt
+  - cargo-clippy
+  - cargo-test
+  - clippy-linux
+  - clippy-windows
+  - gate-status-phase
+  file_operations:
+  - op: modify
+    path: Cargo.toml
+    why: New member.
+  - op: modify
+    path: Cargo.lock
+    why: New crates.
+  - op: create
+    path: crates/orqlet-application/Cargo.toml
+    why: Crate setup.
+  - op: create
+    path: crates/orqlet-application/clippy.toml
+    why: Crate setup.
+  - op: create
+    path: crates/orqlet-application/src/lib.rs
+    why: Crate setup.
+  - op: create
+    path: crates/orqlet-application/src/contracts/mod.rs
+    why: Contract.
+  - op: create
+    path: crates/orqlet-application/src/contracts/artifact_header.rs
+    why: Contract.
+  - op: create
+    path: crates/orqlet-application/src/contracts/as_is.rs
+    why: Contract.
+  - op: create
+    path: crates/orqlet-application/src/contracts/cli_result.rs
+    why: Contract.
+  - op: create
+    path: crates/orqlet-application/src/contracts/common.rs
+    why: Contract.
+  - op: create
+    path: crates/orqlet-application/src/contracts/design_set.rs
+    why: Contract.
+  - op: create
+    path: crates/orqlet-application/src/contracts/finding.rs
+    why: Contract.
+  - op: create
+    path: crates/orqlet-application/src/contracts/generated_lock.rs
+    why: Contract.
+  - op: create
+    path: crates/orqlet-application/src/contracts/hook_payload.rs
+    why: Contract.
+  - op: create
+    path: crates/orqlet-application/src/contracts/integrations.rs
+    why: Contract.
+  - op: create
+    path: crates/orqlet-application/src/contracts/knowledge_config.rs
+    why: Contract.
+  - op: create
+    path: crates/orqlet-application/src/contracts/knowledge_impact.rs
+    why: Contract.
+  - op: create
+    path: crates/orqlet-application/src/contracts/loading.rs
+    why: Contract.
+  - op: create
+    path: crates/orqlet-application/src/contracts/model_policy.rs
+    why: Contract.
+  - op: create
+    path: crates/orqlet-application/src/contracts/module_card.rs
+    why: Contract.
+  - op: create
+    path: crates/orqlet-application/src/contracts/plan.rs
+    why: Contract.
+  - op: create
+    path: crates/orqlet-application/src/contracts/policy.rs
+    why: Contract.
+  - op: create
+    path: crates/orqlet-application/src/contracts/profile.rs
+    why: Contract.
+  - op: create
+    path: crates/orqlet-application/src/contracts/question_ledger.rs
+    why: Contract.
+  - op: create
+    path: crates/orqlet-application/src/contracts/resources.rs
+    why: Contract.
+  - op: create
+    path: crates/orqlet-application/src/contracts/review_input.rs
+    why: Contract.
+  - op: create
+    path: crates/orqlet-application/src/contracts/review_result.rs
+    why: Contract.
+  - op: create
+    path: crates/orqlet-application/src/contracts/role_bindings.rs
+    why: Contract.
+  - op: create
+    path: crates/orqlet-application/src/contracts/schemas.rs
+    why: Contract.
+  - op: create
+    path: crates/orqlet-application/src/contracts/self_check.rs
+    why: Contract.
+  - op: create
+    path: crates/orqlet-application/src/contracts/standards_lock.rs
+    why: Contract.
+  - op: create
+    path: crates/orqlet-application/src/contracts/standards_pack.rs
+    why: Contract.
+  - op: create
+    path: crates/orqlet-application/src/contracts/test_record.rs
+    why: Contract.
+  - op: create
+    path: crates/orqlet-application/src/contracts/user_scope.rs
+    why: Contract.
+  - op: create
+    path: crates/orqlet-application/src/contracts/versions_file.rs
+    why: Contract.
+  - op: create
+    path: crates/orqlet-application/src/contracts/workflow_package.rs
+    why: Contract.
+  - op: create
+    path: crates/orqlet-application/src/ports/mod.rs
+    why: Port.
+  - op: create
+    path: crates/orqlet-application/src/ports/ancestors.rs
+    why: Port.
+  - op: create
+    path: crates/orqlet-application/src/ports/change_journal.rs
+    why: Port.
+  - op: create
+    path: crates/orqlet-application/src/ports/clock.rs
+    why: Port.
+  - op: create
+    path: crates/orqlet-application/src/ports/documents.rs
+    why: Port.
+  - op: create
+    path: crates/orqlet-application/src/ports/executables.rs
+    why: Port.
+  - op: create
+    path: crates/orqlet-application/src/ports/filesystem.rs
+    why: Port.
+  - op: create
+    path: crates/orqlet-application/src/ports/ids.rs
+    why: Port.
+  - op: create
+    path: crates/orqlet-application/src/ports/instruction_adapter.rs
+    why: Port.
+  - op: create
+    path: crates/orqlet-application/src/ports/lock.rs
+    why: Port.
+  - op: create
+    path: crates/orqlet-application/src/ports/personal.rs
+    why: Port.
+  - op: create
+    path: crates/orqlet-application/src/ports/prompter.rs
+    why: Port.
+  - op: create
+    path: crates/orqlet-application/src/ports/renderers.rs
+    why: Port.
+  - op: create
+    path: crates/orqlet-application/src/ports/scanner.rs
+    why: Port.
+  - op: create
+    path: crates/orqlet-application/src/ports/standards.rs
+    why: Port.
+  - op: create
+    path: crates/orqlet-application/src/ports/vcs.rs
+    why: Port.
+  - op: create
+    path: crates/orqlet-application/src/ports/workflow.rs
+    why: Port.
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  - code-reviewer
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every cargo command below reads rust-toolchain.toml (P-3) and may download the pinned 1.100.0 toolchain,
+    its x86_64-unknown-linux-gnu and x86_64-pc-windows-msvc targets and the crates locked in Cargo.lock (warning list: fetches
+    from the network). Only aarch64-apple-darwin is installed today. The implementer asks the person before the first run
+    in a session.
+  - >-
+    cargo-fmt: `cargo fmt --all --check` (AGENTS.md:90 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 adcaa2ae7cfb10c74a1e8b082440640aa16895af758ca05df7fb847a5fd1ad83).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision.
+  - >-
+    cargo-clippy: `cargo clippy --workspace --all-targets -- -D warnings` (AGENTS.md:96 at ba935c62ae81130e9b4c080431b462957f5aa68a,
+    sha256 e59d9d29943ce01476d2a47dc9067370b8b5f88fd08407b9bbef6f32d93afa2f). It reads the root Cargo.toml, each crate's Cargo.toml
+    and clippy.toml and rust-toolchain.toml, which this plan creates, so they cannot be cited at the base revision. Warning
+    list: fetches from the network.
+  - >-
+    cargo-test: `cargo test --workspace` (AGENTS.md:102 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 8ffea13a33c3880b26d5ce1ae6bf11f4ea90414de6d1c19bc16c11f36b6ebf59).
+    Allowed for this task only (Q-3, Q-11); the project's Testing section (AGENTS.md:149-155 at ba935c62ae81130e9b4c080431b462957f5aa68a,
+    sha256 415faa662b38fdb40a53d85437f3622562c3e9e3b7ed24afb5cfb7cb05ec6112) stays until P-15. Integration tests start git
+    and the built binary under a scoped allow. It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml,
+    which this plan creates, so they cannot be cited at the base revision. Warning list: fetches from the network.
+  - >-
+    clippy-linux: `cargo clippy --workspace --all-targets --target x86_64-unknown-linux-gnu -- -D warnings` (AGENTS.md:108
+    at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 dcef48202af0406c9d91d9e57e5ba2afa93d96cbd6a3709f8c87ae25514c5153).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision. Warning list: fetches from the network (the target).
+  - >-
+    clippy-windows: `cargo clippy --workspace --all-targets --target x86_64-pc-windows-msvc -- -D warnings` (AGENTS.md:114
+    at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 b9e0002c655593365ebf7e5ecda78ccffd7e04fd75db5c792144d0daf50c6dce).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision. Warning list: fetches from the network (the target).
+  - >-
+    gate-status-phase: `orqlet gate status rust-migration --phase <phase id> --head staged` reports no ORQ-E450, ORQ-E451
+    or ORQ-E453. Orqlet's own command, not a project command: the installed 0.5.2 copy up to P-15, the built `target/release/orqlet`
+    from P-16.
+  expected_outputs:
+  - crates/orqlet-application/src/contracts/profile.rs
+  - crates/orqlet-application/src/contracts/loading.rs
+- id: P-7
+  objective: >-
+    The xtask generates the schemas and MANIFEST.json and checks the crate boundaries (ADR-005, ADR-001 decision 6).
+  depends_on:
+  - P-6
+  implements:
+  - EC-3
+  - EC-5
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      `xtask schemas` writes the 35 schemas from the contract types with sorted keys, two-space indent, raw UTF-8 and one
+      trailing newline; ids and additionalProperties false stay; the check form passes.
+    source: BC-10
+    check_ref: xtask-check
+  - id: AC-2
+    text: >-
+      `xtask manifest` rebuilds MANIFEST.json from identity.json and the listed files with SHA-256 over CRLF read as LF; its
+      check form passes.
+    source: BC-10
+    check_ref: xtask-check
+  - id: AC-3
+    text: >-
+      `xtask arch` checks the edges, the exact allow-lists, uuid's v4-only feature and the domain's default features; no approved
+      check runs it.
+    source: BC-8
+    check_ref: review:xtask-arch
+  - id: AC-4
+    text: The xtask starts cargo metadata under a scoped allow with a reason and writes workflow/ only without --check.
+    source: BC-7
+    check_ref: security-reviewer
+  checks:
+  - cargo-fmt
+  - cargo-clippy
+  - cargo-test
+  - clippy-linux
+  - clippy-windows
+  - xtask-check
+  - gate-status-phase
+  file_operations:
+  - op: modify
+    path: Cargo.toml
+    why: New member.
+  - op: modify
+    path: Cargo.lock
+    why: New crates.
+  - op: create
+    path: xtask/Cargo.toml
+    why: Xtask.
+  - op: create
+    path: xtask/src/main.rs
+    why: Xtask.
+  - op: create
+    path: xtask/src/arch.rs
+    why: Xtask.
+  - op: create
+    path: xtask/src/manifest.rs
+    why: Xtask.
+  - op: create
+    path: xtask/src/schemas.rs
+    why: Xtask.
+  - op: modify
+    path: workflow/schemas/orqlet.artifact-header.v1.json
+    why: Regenerated.
+  - op: modify
+    path: workflow/schemas/orqlet.as-is-fragment.v1.json
+    why: Regenerated.
+  - op: modify
+    path: workflow/schemas/orqlet.as-is.v1.json
+    why: Regenerated.
+  - op: modify
+    path: workflow/schemas/orqlet.cli-result.v1.json
+    why: Regenerated.
+  - op: modify
+    path: workflow/schemas/orqlet.design-set.v1.json
+    why: Regenerated.
+  - op: modify
+    path: workflow/schemas/orqlet.docs-map.v1.json
+    why: Regenerated.
+  - op: modify
+    path: workflow/schemas/orqlet.exempt.v1.json
+    why: Regenerated.
+  - op: modify
+    path: workflow/schemas/orqlet.finding.v1.json
+    why: Regenerated.
+  - op: modify
+    path: workflow/schemas/orqlet.generated-lock.v1.json
+    why: Regenerated.
+  - op: modify
+    path: workflow/schemas/orqlet.implementation-plan.v1.json
+    why: Regenerated.
+  - op: modify
+    path: workflow/schemas/orqlet.integrations.v1.json
+    why: Regenerated.
+  - op: modify
+    path: workflow/schemas/orqlet.knowledge-impact.v1.json
+    why: Regenerated.
+  - op: modify
+    path: workflow/schemas/orqlet.knowledge.v2.json
+    why: Regenerated.
+  - op: modify
+    path: workflow/schemas/orqlet.model-policy.v2.json
+    why: Regenerated.
+  - op: modify
+    path: workflow/schemas/orqlet.module-card.v1.json
+    why: Regenerated.
+  - op: modify
+    path: workflow/schemas/orqlet.project-profile.v1.json
+    why: Regenerated.
+  - op: modify
+    path: workflow/schemas/orqlet.question-ledger.v1.json
+    why: Regenerated.
+  - op: modify
+    path: workflow/schemas/orqlet.released.v1.json
+    why: Regenerated.
+  - op: modify
+    path: workflow/schemas/orqlet.resources.v1.json
+    why: Regenerated.
+  - op: modify
+    path: workflow/schemas/orqlet.review-input.v1.json
+    why: Regenerated.
+  - op: modify
+    path: workflow/schemas/orqlet.review-result.v1.json
+    why: Regenerated.
+  - op: modify
+    path: workflow/schemas/orqlet.role-bindings.v1.json
+    why: Regenerated.
+  - op: modify
+    path: workflow/schemas/orqlet.rules.v1.json
+    why: Regenerated.
+  - op: modify
+    path: workflow/schemas/orqlet.self-check.v1.json
+    why: Regenerated.
+  - op: modify
+    path: workflow/schemas/orqlet.standards-lock.v1.json
+    why: Regenerated.
+  - op: modify
+    path: workflow/schemas/orqlet.standards-pack.v1.json
+    why: Regenerated.
+  - op: modify
+    path: workflow/schemas/orqlet.test-record.v1.json
+    why: Regenerated.
+  - op: modify
+    path: workflow/schemas/orqlet.user-manifest.v1.json
+    why: Regenerated.
+  - op: modify
+    path: workflow/schemas/orqlet.versions.v1.json
+    why: Regenerated.
+  - op: modify
+    path: workflow/schemas/orqlet.workflow-identity.v1.json
+    why: Regenerated.
+  - op: modify
+    path: workflow/schemas/orqlet.workflow-lock.v1.json
+    why: Regenerated.
+  - op: modify
+    path: workflow/schemas/orqlet.workflow-manifest.v1.json
+    why: Regenerated.
+  - op: modify
+    path: workflow/schemas/orqlet.workflow-policy.v2.json
+    why: Regenerated.
+  - op: modify
+    path: workflow/schemas/orqlet.workflow-releases.v1.json
+    why: Regenerated.
+  - op: modify
+    path: workflow/schemas/orqlet.workflow-rule.v1.json
+    why: Regenerated.
+  - op: modify
+    path: workflow/MANIFEST.json
+    why: Rebuilt.
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  - code-reviewer
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every cargo command below reads rust-toolchain.toml (P-3) and may download the pinned 1.100.0 toolchain,
+    its x86_64-unknown-linux-gnu and x86_64-pc-windows-msvc targets and the crates locked in Cargo.lock (warning list: fetches
+    from the network). Only aarch64-apple-darwin is installed today. The implementer asks the person before the first run
+    in a session.
+  - >-
+    cargo-fmt: `cargo fmt --all --check` (AGENTS.md:90 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 adcaa2ae7cfb10c74a1e8b082440640aa16895af758ca05df7fb847a5fd1ad83).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision.
+  - >-
+    cargo-clippy: `cargo clippy --workspace --all-targets -- -D warnings` (AGENTS.md:96 at ba935c62ae81130e9b4c080431b462957f5aa68a,
+    sha256 e59d9d29943ce01476d2a47dc9067370b8b5f88fd08407b9bbef6f32d93afa2f). It reads the root Cargo.toml, each crate's Cargo.toml
+    and clippy.toml and rust-toolchain.toml, which this plan creates, so they cannot be cited at the base revision. Warning
+    list: fetches from the network.
+  - >-
+    cargo-test: `cargo test --workspace` (AGENTS.md:102 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 8ffea13a33c3880b26d5ce1ae6bf11f4ea90414de6d1c19bc16c11f36b6ebf59).
+    Allowed for this task only (Q-3, Q-11); the project's Testing section (AGENTS.md:149-155 at ba935c62ae81130e9b4c080431b462957f5aa68a,
+    sha256 415faa662b38fdb40a53d85437f3622562c3e9e3b7ed24afb5cfb7cb05ec6112) stays until P-15. Integration tests start git
+    and the built binary under a scoped allow. It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml,
+    which this plan creates, so they cannot be cited at the base revision. Warning list: fetches from the network.
+  - >-
+    clippy-linux: `cargo clippy --workspace --all-targets --target x86_64-unknown-linux-gnu -- -D warnings` (AGENTS.md:108
+    at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 dcef48202af0406c9d91d9e57e5ba2afa93d96cbd6a3709f8c87ae25514c5153).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision. Warning list: fetches from the network (the target).
+  - >-
+    clippy-windows: `cargo clippy --workspace --all-targets --target x86_64-pc-windows-msvc -- -D warnings` (AGENTS.md:114
+    at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 b9e0002c655593365ebf7e5ecda78ccffd7e04fd75db5c792144d0daf50c6dce).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision. Warning list: fetches from the network (the target).
+  - >-
+    xtask-check: `cargo run -p xtask -- check` (AGENTS.md:120 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 69b113c8d912395efd01aeed0b26f87dab482b683d3fe0637bfbb51cb8a5e6e7).
+    It runs xtask/src/main.rs (P-7), which only reads workflow/ in this mode. It reads the root Cargo.toml, each crate's Cargo.toml
+    and clippy.toml and rust-toolchain.toml, which this plan creates, so they cannot be cited at the base revision. Warning
+    list: fetches from the network.
+  - >-
+    gate-status-phase: `orqlet gate status rust-migration --phase <phase id> --head staged` reports no ORQ-E450, ORQ-E451
+    or ORQ-E453. Orqlet's own command, not a project command: the installed 0.5.2 copy up to P-15, the built `target/release/orqlet`
+    from P-16.
+  expected_outputs:
+  - xtask/src/arch.rs
+  - workflow/MANIFEST.json
+- id: P-8
+  objective: 'Port the shared use cases: validation, sources, rendering, the journalled apply and the unified diff.'
+  depends_on:
+  - P-7
+  implements:
+  - EC-4
+  - EC-6
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      A second render plan over its own output writes nothing, and a file whose hash differs from the recorded one is kept
+      as edited.
+    source: BC-5
+    check_ref: cargo-test
+  - id: AC-2
+    text: >-
+      A journalled apply writes inside the root, backup first and lock file last; an open 0.x record refuses with ORQ-E131
+      and 0.5.2 advice before the lock or a backup; open 1.0.0 records are superseded; an unreadable record gives ORQ-E136.
+    source: BC-22
+    check_ref: cargo-test
+  - id: AC-3
+    text: >-
+      Every repository value in a finding, not-run entry or refusal is left out or escaped with a limit of 200, never formatted
+      directly with Debug or Display.
+    source: Q-21
+    check_ref: cargo-test
+  - id: AC-4
+    text: Sites that BC-24 does not test are covered by the review of untrusted input.
+    source: Q-22
+    check_ref: security-reviewer
+  - id: AC-5
+    text: Size limits read at most the limit plus one byte through the file-system port.
+    source: BC-17
+    check_ref: cargo-test
+  checks:
+  - cargo-fmt
+  - cargo-clippy
+  - cargo-test
+  - clippy-linux
+  - clippy-windows
+  - xtask-check
+  - gate-status-phase
+  file_operations:
+  - op: modify
+    path: crates/orqlet-application/Cargo.toml
+    why: Add similar.
+  - op: modify
+    path: Cargo.lock
+    why: New crates.
+  - op: modify
+    path: crates/orqlet-application/src/lib.rs
+    why: Use cases.
+  - op: create
+    path: crates/orqlet-application/src/usecases/mod.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/validation.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/bounded_read.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/capabilities.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/design_scope.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/discover.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/draft_profile.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/init_files.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/init_state.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/init_questions.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/integrations_source.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/model_policy_source.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/model_selection.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/resources_source.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/resources_view.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/render_request.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/standards_for.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/workflow_sources.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/workflow_manifest.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/services.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/staleness.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/apply_plan.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/foundation.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/render_all.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/installation.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/unified_diff.rs
+    why: Use case.
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  - code-reviewer
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every cargo command below reads rust-toolchain.toml (P-3) and may download the pinned 1.100.0 toolchain,
+    its x86_64-unknown-linux-gnu and x86_64-pc-windows-msvc targets and the crates locked in Cargo.lock (warning list: fetches
+    from the network). Only aarch64-apple-darwin is installed today. The implementer asks the person before the first run
+    in a session.
+  - >-
+    cargo-fmt: `cargo fmt --all --check` (AGENTS.md:90 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 adcaa2ae7cfb10c74a1e8b082440640aa16895af758ca05df7fb847a5fd1ad83).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision.
+  - >-
+    cargo-clippy: `cargo clippy --workspace --all-targets -- -D warnings` (AGENTS.md:96 at ba935c62ae81130e9b4c080431b462957f5aa68a,
+    sha256 e59d9d29943ce01476d2a47dc9067370b8b5f88fd08407b9bbef6f32d93afa2f). It reads the root Cargo.toml, each crate's Cargo.toml
+    and clippy.toml and rust-toolchain.toml, which this plan creates, so they cannot be cited at the base revision. Warning
+    list: fetches from the network.
+  - >-
+    cargo-test: `cargo test --workspace` (AGENTS.md:102 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 8ffea13a33c3880b26d5ce1ae6bf11f4ea90414de6d1c19bc16c11f36b6ebf59).
+    Allowed for this task only (Q-3, Q-11); the project's Testing section (AGENTS.md:149-155 at ba935c62ae81130e9b4c080431b462957f5aa68a,
+    sha256 415faa662b38fdb40a53d85437f3622562c3e9e3b7ed24afb5cfb7cb05ec6112) stays until P-15. Integration tests start git
+    and the built binary under a scoped allow. It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml,
+    which this plan creates, so they cannot be cited at the base revision. Warning list: fetches from the network.
+  - >-
+    clippy-linux: `cargo clippy --workspace --all-targets --target x86_64-unknown-linux-gnu -- -D warnings` (AGENTS.md:108
+    at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 dcef48202af0406c9d91d9e57e5ba2afa93d96cbd6a3709f8c87ae25514c5153).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision. Warning list: fetches from the network (the target).
+  - >-
+    clippy-windows: `cargo clippy --workspace --all-targets --target x86_64-pc-windows-msvc -- -D warnings` (AGENTS.md:114
+    at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 b9e0002c655593365ebf7e5ecda78ccffd7e04fd75db5c792144d0daf50c6dce).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision. Warning list: fetches from the network (the target).
+  - >-
+    xtask-check: `cargo run -p xtask -- check` (AGENTS.md:120 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 69b113c8d912395efd01aeed0b26f87dab482b683d3fe0637bfbb51cb8a5e6e7).
+    It runs xtask/src/main.rs (P-7), which only reads workflow/ in this mode. It reads the root Cargo.toml, each crate's Cargo.toml
+    and clippy.toml and rust-toolchain.toml, which this plan creates, so they cannot be cited at the base revision. Warning
+    list: fetches from the network.
+  - >-
+    gate-status-phase: `orqlet gate status rust-migration --phase <phase id> --head staged` reports no ORQ-E450, ORQ-E451
+    or ORQ-E453. Orqlet's own command, not a project command: the installed 0.5.2 copy up to P-15, the built `target/release/orqlet`
+    from P-16.
+  expected_outputs:
+  - crates/orqlet-application/src/usecases/render_all.rs
+  - crates/orqlet-application/src/usecases/apply_plan.rs
+- id: P-9
+  objective: Port the validators, gate status, review preparation, status and the hook.
+  depends_on:
+  - P-8
+  implements:
+  - EC-1
+  - EC-6
+  acceptance_criteria:
+  - id: AC-1
+    text: Each validator gives the 0.5.2 verdict and codes for embedded samples of its artifact kind.
+    source: BC-4
+    check_ref: cargo-test
+  - id: AC-2
+    text: Python-API surfaces give NOT_RUN with a finding; the three manifests declaring public_api pass the schema.
+    source: BC-12
+    check_ref: cargo-test
+  - id: AC-3
+    text: >-
+      Hook context shows a workflow.lock version only in ASCII major.minor.patch form, drops text over 1,200 characters and
+      hides paths with a hidden character.
+    source: BC-24
+    check_ref: cargo-test
+  - id: AC-4
+    text: >-
+      A commit subject with control characters, and an artifact path or claim anchor holding U+2028 or U+FE0F, are shown escaped.
+    source: BC-24
+    check_ref: cargo-test
+  - id: AC-5
+    text: Data-directory values are shown as 0.5.2 shows them; status shows its not-run entry for missing user data.
+    source: Q-23
+    check_ref: cargo-test
+  - id: AC-6
+    text: Model policy TOML is read through the documents port, bounded at 256 KiB.
+    source: BC-7
+    check_ref: cargo-test
+  - id: AC-7
+    text: Sites that BC-24 does not test are covered by the review of untrusted input.
+    source: Q-22
+    check_ref: security-reviewer
+  checks:
+  - cargo-fmt
+  - cargo-clippy
+  - cargo-test
+  - clippy-linux
+  - clippy-windows
+  - xtask-check
+  - gate-status-phase
+  file_operations:
+  - op: modify
+    path: crates/orqlet-application/src/usecases/mod.rs
+    why: New use cases.
+  - op: create
+    path: crates/orqlet-application/src/usecases/binding_inputs.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/expected_change.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/evidence_cite.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/validate_ledger.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/validate_as_is.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/validate_design.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/validate_plan.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/validate_integrations.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/validate_resources.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/validate_model_policy.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/conventions_check.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/knowledge_impact.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/review_identity.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/review_prepare.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/validate_records.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/gate_status.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/pin_staleness.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/models_resolve.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/status.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/hook_event.rs
+    why: Use case.
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  - code-reviewer
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every cargo command below reads rust-toolchain.toml (P-3) and may download the pinned 1.100.0 toolchain,
+    its x86_64-unknown-linux-gnu and x86_64-pc-windows-msvc targets and the crates locked in Cargo.lock (warning list: fetches
+    from the network). Only aarch64-apple-darwin is installed today. The implementer asks the person before the first run
+    in a session.
+  - >-
+    cargo-fmt: `cargo fmt --all --check` (AGENTS.md:90 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 adcaa2ae7cfb10c74a1e8b082440640aa16895af758ca05df7fb847a5fd1ad83).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision.
+  - >-
+    cargo-clippy: `cargo clippy --workspace --all-targets -- -D warnings` (AGENTS.md:96 at ba935c62ae81130e9b4c080431b462957f5aa68a,
+    sha256 e59d9d29943ce01476d2a47dc9067370b8b5f88fd08407b9bbef6f32d93afa2f). It reads the root Cargo.toml, each crate's Cargo.toml
+    and clippy.toml and rust-toolchain.toml, which this plan creates, so they cannot be cited at the base revision. Warning
+    list: fetches from the network.
+  - >-
+    cargo-test: `cargo test --workspace` (AGENTS.md:102 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 8ffea13a33c3880b26d5ce1ae6bf11f4ea90414de6d1c19bc16c11f36b6ebf59).
+    Allowed for this task only (Q-3, Q-11); the project's Testing section (AGENTS.md:149-155 at ba935c62ae81130e9b4c080431b462957f5aa68a,
+    sha256 415faa662b38fdb40a53d85437f3622562c3e9e3b7ed24afb5cfb7cb05ec6112) stays until P-15. Integration tests start git
+    and the built binary under a scoped allow. It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml,
+    which this plan creates, so they cannot be cited at the base revision. Warning list: fetches from the network.
+  - >-
+    clippy-linux: `cargo clippy --workspace --all-targets --target x86_64-unknown-linux-gnu -- -D warnings` (AGENTS.md:108
+    at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 dcef48202af0406c9d91d9e57e5ba2afa93d96cbd6a3709f8c87ae25514c5153).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision. Warning list: fetches from the network (the target).
+  - >-
+    clippy-windows: `cargo clippy --workspace --all-targets --target x86_64-pc-windows-msvc -- -D warnings` (AGENTS.md:114
+    at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 b9e0002c655593365ebf7e5ecda78ccffd7e04fd75db5c792144d0daf50c6dce).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision. Warning list: fetches from the network (the target).
+  - >-
+    xtask-check: `cargo run -p xtask -- check` (AGENTS.md:120 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 69b113c8d912395efd01aeed0b26f87dab482b683d3fe0637bfbb51cb8a5e6e7).
+    It runs xtask/src/main.rs (P-7), which only reads workflow/ in this mode. It reads the root Cargo.toml, each crate's Cargo.toml
+    and clippy.toml and rust-toolchain.toml, which this plan creates, so they cannot be cited at the base revision. Warning
+    list: fetches from the network.
+  - >-
+    gate-status-phase: `orqlet gate status rust-migration --phase <phase id> --head staged` reports no ORQ-E450, ORQ-E451
+    or ORQ-E453. Orqlet's own command, not a project command: the installed 0.5.2 copy up to P-15, the built `target/release/orqlet`
+    from P-16.
+  expected_outputs:
+  - crates/orqlet-application/src/usecases/gate_status.rs
+  - crates/orqlet-application/src/usecases/hook_event.rs
+- id: P-10
+  objective: >-
+    Port the lifecycle use cases: init, upgrade, rollback, doctor, sync, explain, release and the profile and resource edits.
+  depends_on:
+  - P-9
+  implements:
+  - EC-2
+  - EC-4
+  - EC-6
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      Upgrade refuses an open 1.0.0 record with ORQ-E131 and the advice of upgrade.py lines 80-88, the change id escaped;
+      resuming or rolling back a 0.x record gives ORQ-E136; finished records are ignored; no 0.x record is rewritten.
+    source: BC-22
+    check_ref: cargo-test
+  - id: AC-2
+    text: >-
+      Doctor and sync report open records as ORQ-E170 with the advice for their version, and a data directory inside the repository
+      as ORQ-E105 or ORQ-E106, creating nothing and reading no journal.
+    source: BC-23
+    check_ref: cargo-test
+  - id: AC-3
+    text: A second upgrade writes nothing, a team-edited file is kept, and a weaker controls level is refused.
+    source: BC-5
+    check_ref: cargo-test
+  - id: AC-4
+    text: >-
+      A project id that is not a lowercase UUID, from the profile or --project-id, gives ORQ-E136 naming the source, not the
+      value.
+    source: BC-23
+    check_ref: cargo-test
+  - id: AC-5
+    text: Sites that BC-24 does not test are covered by the review of untrusted input.
+    source: Q-22
+    check_ref: security-reviewer
+  checks:
+  - cargo-fmt
+  - cargo-clippy
+  - cargo-test
+  - clippy-linux
+  - clippy-windows
+  - xtask-check
+  - gate-status-phase
+  file_operations:
+  - op: modify
+    path: crates/orqlet-application/src/usecases/mod.rs
+    why: New use cases.
+  - op: create
+    path: crates/orqlet-application/src/usecases/diagnose.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/explain.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/init_project.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/profile_edit.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/release.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/resources_edit.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/rollback.rs
+    why: Use case.
+  - op: create
+    path: crates/orqlet-application/src/usecases/upgrade.rs
+    why: Use case.
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  - code-reviewer
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every cargo command below reads rust-toolchain.toml (P-3) and may download the pinned 1.100.0 toolchain,
+    its x86_64-unknown-linux-gnu and x86_64-pc-windows-msvc targets and the crates locked in Cargo.lock (warning list: fetches
+    from the network). Only aarch64-apple-darwin is installed today. The implementer asks the person before the first run
+    in a session.
+  - >-
+    cargo-fmt: `cargo fmt --all --check` (AGENTS.md:90 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 adcaa2ae7cfb10c74a1e8b082440640aa16895af758ca05df7fb847a5fd1ad83).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision.
+  - >-
+    cargo-clippy: `cargo clippy --workspace --all-targets -- -D warnings` (AGENTS.md:96 at ba935c62ae81130e9b4c080431b462957f5aa68a,
+    sha256 e59d9d29943ce01476d2a47dc9067370b8b5f88fd08407b9bbef6f32d93afa2f). It reads the root Cargo.toml, each crate's Cargo.toml
+    and clippy.toml and rust-toolchain.toml, which this plan creates, so they cannot be cited at the base revision. Warning
+    list: fetches from the network.
+  - >-
+    cargo-test: `cargo test --workspace` (AGENTS.md:102 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 8ffea13a33c3880b26d5ce1ae6bf11f4ea90414de6d1c19bc16c11f36b6ebf59).
+    Allowed for this task only (Q-3, Q-11); the project's Testing section (AGENTS.md:149-155 at ba935c62ae81130e9b4c080431b462957f5aa68a,
+    sha256 415faa662b38fdb40a53d85437f3622562c3e9e3b7ed24afb5cfb7cb05ec6112) stays until P-15. Integration tests start git
+    and the built binary under a scoped allow. It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml,
+    which this plan creates, so they cannot be cited at the base revision. Warning list: fetches from the network.
+  - >-
+    clippy-linux: `cargo clippy --workspace --all-targets --target x86_64-unknown-linux-gnu -- -D warnings` (AGENTS.md:108
+    at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 dcef48202af0406c9d91d9e57e5ba2afa93d96cbd6a3709f8c87ae25514c5153).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision. Warning list: fetches from the network (the target).
+  - >-
+    clippy-windows: `cargo clippy --workspace --all-targets --target x86_64-pc-windows-msvc -- -D warnings` (AGENTS.md:114
+    at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 b9e0002c655593365ebf7e5ecda78ccffd7e04fd75db5c792144d0daf50c6dce).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision. Warning list: fetches from the network (the target).
+  - >-
+    xtask-check: `cargo run -p xtask -- check` (AGENTS.md:120 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 69b113c8d912395efd01aeed0b26f87dab482b683d3fe0637bfbb51cb8a5e6e7).
+    It runs xtask/src/main.rs (P-7), which only reads workflow/ in this mode. It reads the root Cargo.toml, each crate's Cargo.toml
+    and clippy.toml and rust-toolchain.toml, which this plan creates, so they cannot be cited at the base revision. Warning
+    list: fetches from the network.
+  - >-
+    gate-status-phase: `orqlet gate status rust-migration --phase <phase id> --head staged` reports no ORQ-E450, ORQ-E451
+    or ORQ-E453. Orqlet's own command, not a project command: the installed 0.5.2 copy up to P-15, the built `target/release/orqlet`
+    from P-16.
+  expected_outputs:
+  - crates/orqlet-application/src/usecases/upgrade.rs
+  - crates/orqlet-application/src/usecases/rollback.rs
+- id: P-11
+  objective: >-
+    The adapters crate holds the documents module, the confined file system, the journal, the apply lock, the data directory,
+    the clock, ids and the prompter.
+  depends_on:
+  - P-10
+  implements:
+  - EC-5
+  - EC-6
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      At the pinned versions: serde-saphyr's events give scalar text and style (else its parser crate joins the allow-list
+      by review, else stop and ask); toml's nesting is bounded or a depth check is added; serde_json refuses 1e400; dirs gives
+      the expected folders; uuid prints lowercase hyphenated ids. Stated in the pull request.
+    source: BC-6
+    check_ref: review:library-confirmation
+  - id: AC-2
+    text: >-
+      Strict YAML refuses each case of ADR-007 decision 3 and gives copied scalar vectors their 0.5.2 value and type.
+    source: BC-6
+    check_ref: cargo-test
+  - id: AC-3
+    text: Strict JSON refuses each case of ADR-007 decision 4.
+    source: BC-17
+    check_ref: cargo-test
+  - id: AC-4
+    text: No message quotes an input value, a key name or library error text.
+    source: BC-21
+    check_ref: cargo-test
+  - id: AC-5
+    text: >-
+      A link on any component is refused; a failed write leaves the target unchanged; a 0600 file stays 0600; data-directory
+      files are 0600 and folders 0700.
+    source: BC-19
+    check_ref: cargo-test
+  - id: AC-6
+    text: >-
+      The data-directory check holds the cases of ADR-007 decision 10, a case-different spelling on macOS, a missing . or
+      .. component (ORQ-E105) and a project root below the Git top level.
+    source: BC-23
+    check_ref: cargo-test
+  - id: AC-7
+    text: Journal records follow ADR-007 decision 11, a change id differing from its file name included.
+    source: BC-22
+    check_ref: cargo-test
+  - id: AC-8
+    text: clippy.toml disallows Command and the parser entry points; only the documents module carries an allow.
+    source: BC-7
+    check_ref: review:clippy-lists
+  checks:
+  - cargo-fmt
+  - cargo-clippy
+  - cargo-test
+  - clippy-linux
+  - clippy-windows
+  - xtask-check
+  - gate-status-phase
+  file_operations:
+  - op: modify
+    path: Cargo.toml
+    why: New member.
+  - op: modify
+    path: Cargo.lock
+    why: New crates.
+  - op: create
+    path: crates/orqlet-adapters/Cargo.toml
+    why: Crate setup.
+  - op: create
+    path: crates/orqlet-adapters/clippy.toml
+    why: Crate setup.
+  - op: create
+    path: crates/orqlet-adapters/src/lib.rs
+    why: Crate setup.
+  - op: create
+    path: crates/orqlet-adapters/src/documents/mod.rs
+    why: Adapter.
+  - op: create
+    path: crates/orqlet-adapters/src/documents/yaml.rs
+    why: Adapter.
+  - op: create
+    path: crates/orqlet-adapters/src/documents/json.rs
+    why: Adapter.
+  - op: create
+    path: crates/orqlet-adapters/src/documents/toml.rs
+    why: Adapter.
+  - op: create
+    path: crates/orqlet-adapters/src/fs/mod.rs
+    why: Adapter.
+  - op: create
+    path: crates/orqlet-adapters/src/fs/local_fs.rs
+    why: Adapter.
+  - op: create
+    path: crates/orqlet-adapters/src/fs/ancestors.rs
+    why: Adapter.
+  - op: create
+    path: crates/orqlet-adapters/src/fs/apply_lock.rs
+    why: Adapter.
+  - op: create
+    path: crates/orqlet-adapters/src/fs/journal.rs
+    why: Adapter.
+  - op: create
+    path: crates/orqlet-adapters/src/fs/data_dir.rs
+    why: Adapter.
+  - op: create
+    path: crates/orqlet-adapters/src/system.rs
+    why: Adapter.
+  - op: create
+    path: crates/orqlet-adapters/src/prompt.rs
+    why: Adapter.
+  - op: create
+    path: crates/orqlet-adapters/tests/documents.rs
+    why: Test.
+  - op: create
+    path: crates/orqlet-adapters/tests/file_system.rs
+    why: Test.
+  - op: create
+    path: crates/orqlet-adapters/tests/journal.rs
+    why: Test.
+  - op: create
+    path: crates/orqlet-adapters/tests/data_dir.rs
+    why: Test.
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  - code-reviewer
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every cargo command below reads rust-toolchain.toml (P-3) and may download the pinned 1.100.0 toolchain,
+    its x86_64-unknown-linux-gnu and x86_64-pc-windows-msvc targets and the crates locked in Cargo.lock (warning list: fetches
+    from the network). Only aarch64-apple-darwin is installed today. The implementer asks the person before the first run
+    in a session.
+  - >-
+    cargo-fmt: `cargo fmt --all --check` (AGENTS.md:90 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 adcaa2ae7cfb10c74a1e8b082440640aa16895af758ca05df7fb847a5fd1ad83).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision.
+  - >-
+    cargo-clippy: `cargo clippy --workspace --all-targets -- -D warnings` (AGENTS.md:96 at ba935c62ae81130e9b4c080431b462957f5aa68a,
+    sha256 e59d9d29943ce01476d2a47dc9067370b8b5f88fd08407b9bbef6f32d93afa2f). It reads the root Cargo.toml, each crate's Cargo.toml
+    and clippy.toml and rust-toolchain.toml, which this plan creates, so they cannot be cited at the base revision. Warning
+    list: fetches from the network.
+  - >-
+    cargo-test: `cargo test --workspace` (AGENTS.md:102 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 8ffea13a33c3880b26d5ce1ae6bf11f4ea90414de6d1c19bc16c11f36b6ebf59).
+    Allowed for this task only (Q-3, Q-11); the project's Testing section (AGENTS.md:149-155 at ba935c62ae81130e9b4c080431b462957f5aa68a,
+    sha256 415faa662b38fdb40a53d85437f3622562c3e9e3b7ed24afb5cfb7cb05ec6112) stays until P-15. Integration tests start git
+    and the built binary under a scoped allow. It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml,
+    which this plan creates, so they cannot be cited at the base revision. Warning list: fetches from the network.
+  - >-
+    clippy-linux: `cargo clippy --workspace --all-targets --target x86_64-unknown-linux-gnu -- -D warnings` (AGENTS.md:108
+    at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 dcef48202af0406c9d91d9e57e5ba2afa93d96cbd6a3709f8c87ae25514c5153).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision. Warning list: fetches from the network (the target).
+  - >-
+    clippy-windows: `cargo clippy --workspace --all-targets --target x86_64-pc-windows-msvc -- -D warnings` (AGENTS.md:114
+    at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 b9e0002c655593365ebf7e5ecda78ccffd7e04fd75db5c792144d0daf50c6dce).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision. Warning list: fetches from the network (the target).
+  - >-
+    xtask-check: `cargo run -p xtask -- check` (AGENTS.md:120 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 69b113c8d912395efd01aeed0b26f87dab482b683d3fe0637bfbb51cb8a5e6e7).
+    It runs xtask/src/main.rs (P-7), which only reads workflow/ in this mode. It reads the root Cargo.toml, each crate's Cargo.toml
+    and clippy.toml and rust-toolchain.toml, which this plan creates, so they cannot be cited at the base revision. Warning
+    list: fetches from the network.
+  - >-
+    gate-status-phase: `orqlet gate status rust-migration --phase <phase id> --head staged` reports no ORQ-E450, ORQ-E451
+    or ORQ-E453. Orqlet's own command, not a project command: the installed 0.5.2 copy up to P-15, the built `target/release/orqlet`
+    from P-16.
+  expected_outputs:
+  - crates/orqlet-adapters/src/documents/yaml.rs
+  - crates/orqlet-adapters/src/fs/data_dir.rs
+- id: P-12
+  objective: >-
+    Git runs through GitRunner, whose private process module is the only code that starts a process (ADR-007 decisions 1 and
+    2).
+  depends_on:
+  - P-11
+  implements:
+  - EC-6
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      Hostile configuration (clean filter, external diff, textconv, fsmonitor, hooks) runs nothing through any allowed call.
+    source: BC-18
+    check_ref: cargo-test
+  - id: AC-2
+    text: >-
+      Each argument check of ADR-007 decision 2, prefixes of forbidden options included, refuses before a process starts.
+    source: BC-18
+    check_ref: cargo-test
+  - id: AC-3
+    text: >-
+      The child environment holds only the allow-list and the four fixed variables; a timeout or the output cap kills the
+      child.
+    source: BC-18
+    check_ref: cargo-test
+  - id: AC-4
+    text: A failed call gives ORQ-E106 naming only the subcommand and exit status.
+    source: BC-21
+    check_ref: cargo-test
+  - id: AC-5
+    text: rev-parse output is strict UTF-8 (vcs_git.py lines 52, 77, 91); other Git text keeps replacement decoding.
+    source: BC-24
+    check_ref: cargo-test
+  - id: AC-6
+    text: A Vcs error other than 'not a repository' is never read as no repository.
+    source: BC-23
+    check_ref: cargo-test
+  - id: AC-7
+    text: Command appears only in the private process module, under an allow with a reason.
+    source: BC-7
+    check_ref: cargo-clippy
+  checks:
+  - cargo-fmt
+  - cargo-clippy
+  - cargo-test
+  - clippy-linux
+  - clippy-windows
+  - xtask-check
+  - gate-status-phase
+  file_operations:
+  - op: modify
+    path: crates/orqlet-adapters/src/lib.rs
+    why: Git module.
+  - op: create
+    path: crates/orqlet-adapters/src/git/mod.rs
+    why: Git adapter.
+  - op: create
+    path: crates/orqlet-adapters/src/git/runner.rs
+    why: Git adapter.
+  - op: create
+    path: crates/orqlet-adapters/src/git/process.rs
+    why: Git adapter.
+  - op: create
+    path: crates/orqlet-adapters/src/git/objects.rs
+    why: Git adapter.
+  - op: create
+    path: crates/orqlet-adapters/src/git/vcs.rs
+    why: Git adapter.
+  - op: create
+    path: crates/orqlet-adapters/tests/git_runner.rs
+    why: Test.
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  - code-reviewer
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every cargo command below reads rust-toolchain.toml (P-3) and may download the pinned 1.100.0 toolchain,
+    its x86_64-unknown-linux-gnu and x86_64-pc-windows-msvc targets and the crates locked in Cargo.lock (warning list: fetches
+    from the network). Only aarch64-apple-darwin is installed today. The implementer asks the person before the first run
+    in a session.
+  - >-
+    cargo-fmt: `cargo fmt --all --check` (AGENTS.md:90 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 adcaa2ae7cfb10c74a1e8b082440640aa16895af758ca05df7fb847a5fd1ad83).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision.
+  - >-
+    cargo-clippy: `cargo clippy --workspace --all-targets -- -D warnings` (AGENTS.md:96 at ba935c62ae81130e9b4c080431b462957f5aa68a,
+    sha256 e59d9d29943ce01476d2a47dc9067370b8b5f88fd08407b9bbef6f32d93afa2f). It reads the root Cargo.toml, each crate's Cargo.toml
+    and clippy.toml and rust-toolchain.toml, which this plan creates, so they cannot be cited at the base revision. Warning
+    list: fetches from the network.
+  - >-
+    cargo-test: `cargo test --workspace` (AGENTS.md:102 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 8ffea13a33c3880b26d5ce1ae6bf11f4ea90414de6d1c19bc16c11f36b6ebf59).
+    Allowed for this task only (Q-3, Q-11); the project's Testing section (AGENTS.md:149-155 at ba935c62ae81130e9b4c080431b462957f5aa68a,
+    sha256 415faa662b38fdb40a53d85437f3622562c3e9e3b7ed24afb5cfb7cb05ec6112) stays until P-15. Integration tests start git
+    and the built binary under a scoped allow. It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml,
+    which this plan creates, so they cannot be cited at the base revision. Warning list: fetches from the network.
+  - >-
+    clippy-linux: `cargo clippy --workspace --all-targets --target x86_64-unknown-linux-gnu -- -D warnings` (AGENTS.md:108
+    at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 dcef48202af0406c9d91d9e57e5ba2afa93d96cbd6a3709f8c87ae25514c5153).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision. Warning list: fetches from the network (the target).
+  - >-
+    clippy-windows: `cargo clippy --workspace --all-targets --target x86_64-pc-windows-msvc -- -D warnings` (AGENTS.md:114
+    at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 b9e0002c655593365ebf7e5ecda78ccffd7e04fd75db5c792144d0daf50c6dce).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision. Warning list: fetches from the network (the target).
+  - >-
+    xtask-check: `cargo run -p xtask -- check` (AGENTS.md:120 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 69b113c8d912395efd01aeed0b26f87dab482b683d3fe0637bfbb51cb8a5e6e7).
+    It runs xtask/src/main.rs (P-7), which only reads workflow/ in this mode. It reads the root Cargo.toml, each crate's Cargo.toml
+    and clippy.toml and rust-toolchain.toml, which this plan creates, so they cannot be cited at the base revision. Warning
+    list: fetches from the network.
+  - >-
+    gate-status-phase: `orqlet gate status rust-migration --phase <phase id> --head staged` reports no ORQ-E450, ORQ-E451
+    or ORQ-E453. Orqlet's own command, not a project command: the installed 0.5.2 copy up to P-15, the built `target/release/orqlet`
+    from P-16.
+  expected_outputs:
+  - crates/orqlet-adapters/src/git/runner.rs
+  - crates/orqlet-adapters/src/git/process.rs
+- id: P-13
+  objective: >-
+    Port the scanners with the new Rust project scanner, the standards source, rendering, the three clients and the embedded
+    workflow package.
+  depends_on:
+  - P-12
+  implements:
+  - EC-2
+  - EC-4
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      The Rust scanner reports rust-cli and the rust fact as ADR-006 decision 2 says, and refuses an oversized Cargo.toml,
+      a bad rust-version and a globbed, escaping or 33rd member.
+    source: BC-20
+    check_ref: cargo-test
+  - id: AC-2
+    text: On this repository's layout the scanners record rust-cli with facts citing Cargo.toml and Cargo.lock.
+    source: BC-11
+    check_ref: cargo-test
+  - id: AC-3
+    text: The workflow package embeds workflow/ and serves only paths MANIFEST.json lists.
+    source: R-6
+    check_ref: cargo-test
+  - id: AC-4
+    text: Two renders give the same bytes and the 0.5.2 file and block-marker hashes.
+    source: BC-3
+    check_ref: cargo-test
+  - id: AC-5
+    text: The client modules never use one another.
+    source: R-1
+    check_ref: architecture-reviewer
+  checks:
+  - cargo-fmt
+  - cargo-clippy
+  - cargo-test
+  - clippy-linux
+  - clippy-windows
+  - xtask-check
+  - gate-status-phase
+  file_operations:
+  - op: modify
+    path: crates/orqlet-adapters/Cargo.toml
+    why: Add include_dir.
+  - op: modify
+    path: Cargo.lock
+    why: New crates.
+  - op: modify
+    path: crates/orqlet-adapters/src/lib.rs
+    why: New modules.
+  - op: create
+    path: crates/orqlet-adapters/src/scan/mod.rs
+    why: Scanner.
+  - op: create
+    path: crates/orqlet-adapters/src/scan/common.rs
+    why: Scanner.
+  - op: create
+    path: crates/orqlet-adapters/src/scan/executables.rs
+    why: Scanner.
+  - op: create
+    path: crates/orqlet-adapters/src/scan/known_technologies.rs
+    why: Scanner.
+  - op: create
+    path: crates/orqlet-adapters/src/scan/personal_names.rs
+    why: Scanner.
+  - op: create
+    path: crates/orqlet-adapters/src/scan/python_project.rs
+    why: Scanner.
+  - op: create
+    path: crates/orqlet-adapters/src/scan/rust_project.rs
+    why: Scanner.
+  - op: create
+    path: crates/orqlet-adapters/src/scan/scoped.rs
+    why: Scanner.
+  - op: create
+    path: crates/orqlet-adapters/src/scan/stack_tables.rs
+    why: Scanner.
+  - op: create
+    path: crates/orqlet-adapters/src/scan/technology.rs
+    why: Scanner.
+  - op: create
+    path: crates/orqlet-adapters/src/standards.rs
+    why: Adapter.
+  - op: create
+    path: crates/orqlet-adapters/src/workflow_package.rs
+    why: Adapter.
+  - op: create
+    path: crates/orqlet-adapters/src/render/mod.rs
+    why: Renderer.
+  - op: create
+    path: crates/orqlet-adapters/src/render/emit.rs
+    why: Renderer.
+  - op: create
+    path: crates/orqlet-adapters/src/render/instructions.rs
+    why: Renderer.
+  - op: create
+    path: crates/orqlet-adapters/src/render/mcp.rs
+    why: Renderer.
+  - op: create
+    path: crates/orqlet-adapters/src/render/pr_template.rs
+    why: Renderer.
+  - op: create
+    path: crates/orqlet-adapters/src/render/prompts_seed.rs
+    why: Renderer.
+  - op: create
+    path: crates/orqlet-adapters/src/render/renderers.rs
+    why: Renderer.
+  - op: create
+    path: crates/orqlet-adapters/src/render/roles.rs
+    why: Renderer.
+  - op: create
+    path: crates/orqlet-adapters/src/render/rules.rs
+    why: Renderer.
+  - op: create
+    path: crates/orqlet-adapters/src/render/skills.rs
+    why: Renderer.
+  - op: create
+    path: crates/orqlet-adapters/src/clients/mod.rs
+    why: Client.
+  - op: create
+    path: crates/orqlet-adapters/src/clients/claude_code.rs
+    why: Client.
+  - op: create
+    path: crates/orqlet-adapters/src/clients/codex.rs
+    why: Client.
+  - op: create
+    path: crates/orqlet-adapters/src/clients/cursor.rs
+    why: Client.
+  - op: create
+    path: crates/orqlet-adapters/tests/project_scanner.rs
+    why: Test.
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  - code-reviewer
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every cargo command below reads rust-toolchain.toml (P-3) and may download the pinned 1.100.0 toolchain,
+    its x86_64-unknown-linux-gnu and x86_64-pc-windows-msvc targets and the crates locked in Cargo.lock (warning list: fetches
+    from the network). Only aarch64-apple-darwin is installed today. The implementer asks the person before the first run
+    in a session.
+  - >-
+    cargo-fmt: `cargo fmt --all --check` (AGENTS.md:90 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 adcaa2ae7cfb10c74a1e8b082440640aa16895af758ca05df7fb847a5fd1ad83).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision.
+  - >-
+    cargo-clippy: `cargo clippy --workspace --all-targets -- -D warnings` (AGENTS.md:96 at ba935c62ae81130e9b4c080431b462957f5aa68a,
+    sha256 e59d9d29943ce01476d2a47dc9067370b8b5f88fd08407b9bbef6f32d93afa2f). It reads the root Cargo.toml, each crate's Cargo.toml
+    and clippy.toml and rust-toolchain.toml, which this plan creates, so they cannot be cited at the base revision. Warning
+    list: fetches from the network.
+  - >-
+    cargo-test: `cargo test --workspace` (AGENTS.md:102 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 8ffea13a33c3880b26d5ce1ae6bf11f4ea90414de6d1c19bc16c11f36b6ebf59).
+    Allowed for this task only (Q-3, Q-11); the project's Testing section (AGENTS.md:149-155 at ba935c62ae81130e9b4c080431b462957f5aa68a,
+    sha256 415faa662b38fdb40a53d85437f3622562c3e9e3b7ed24afb5cfb7cb05ec6112) stays until P-15. Integration tests start git
+    and the built binary under a scoped allow. It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml,
+    which this plan creates, so they cannot be cited at the base revision. Warning list: fetches from the network.
+  - >-
+    clippy-linux: `cargo clippy --workspace --all-targets --target x86_64-unknown-linux-gnu -- -D warnings` (AGENTS.md:108
+    at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 dcef48202af0406c9d91d9e57e5ba2afa93d96cbd6a3709f8c87ae25514c5153).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision. Warning list: fetches from the network (the target).
+  - >-
+    clippy-windows: `cargo clippy --workspace --all-targets --target x86_64-pc-windows-msvc -- -D warnings` (AGENTS.md:114
+    at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 b9e0002c655593365ebf7e5ecda78ccffd7e04fd75db5c792144d0daf50c6dce).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision. Warning list: fetches from the network (the target).
+  - >-
+    xtask-check: `cargo run -p xtask -- check` (AGENTS.md:120 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 69b113c8d912395efd01aeed0b26f87dab482b683d3fe0637bfbb51cb8a5e6e7).
+    It runs xtask/src/main.rs (P-7), which only reads workflow/ in this mode. It reads the root Cargo.toml, each crate's Cargo.toml
+    and clippy.toml and rust-toolchain.toml, which this plan creates, so they cannot be cited at the base revision. Warning
+    list: fetches from the network.
+  - >-
+    gate-status-phase: `orqlet gate status rust-migration --phase <phase id> --head staged` reports no ORQ-E450, ORQ-E451
+    or ORQ-E453. Orqlet's own command, not a project command: the installed 0.5.2 copy up to P-15, the built `target/release/orqlet`
+    from P-16.
+  expected_outputs:
+  - crates/orqlet-adapters/src/scan/rust_project.rs
+  - crates/orqlet-adapters/src/workflow_package.rs
+- id: P-14
+  objective: The orqlet binary exposes every 0.5.2 command, and integration tests prove parity against the fixtures.
+  depends_on:
+  - P-13
+  implements:
+  - EC-1
+  - EC-4
+  - EC-6
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      Every command, group and option of help.json exists; --json prints orqlet.cli-result/v1 with the same fields, sorted
+      keys, two-space indent and raw UTF-8.
+    source: BC-1
+    check_ref: cargo-test
+  - id: AC-2
+    text: >-
+      Init, upgrade, rollback, sync, doctor and hook in temporary repositories give 0.5.2's exit statuses and codes; usage
+      errors exit 2.
+    source: BC-2
+    check_ref: cargo-test
+  - id: AC-3
+    text: Every vector of hash_vectors.json and yaml_scalars.json matches.
+    source: BC-3
+    check_ref: cargo-test
+  - id: AC-4
+    text: >-
+      The parity test matches parity.json for every artifact except listed differences, and fails naming 3e3c311 when it is
+      missing.
+    source: BC-4
+    check_ref: cargo-test
+  - id: AC-5
+    text: A second upgrade on a copy of this repository changes nothing.
+    source: BC-5
+    check_ref: cargo-test
+  - id: AC-6
+    text: >-
+      Each data-directory case of P-11 holds through the binary, plus the hook case: a data directory inside the project root
+      that the hook finds prints {}.
+    source: BC-23
+    check_ref: cargo-test
+  - id: AC-7
+    text: >-
+      The journal cases hold for upgrade, a profile edit, doctor and rollback; a panic prints no payload (ORQ-E900, exit 70),
+      and in the hook prints {} and exits 0.
+    source: BC-22
+    check_ref: cargo-test
+  - id: AC-8
+    text: cargo test fails when a schema or MANIFEST.json is stale.
+    source: BC-10
+    check_ref: cargo-test
+  - id: AC-9
+    text: The release build passes.
+    source: BC-9
+    check_ref: release-build
+  checks:
+  - cargo-fmt
+  - cargo-clippy
+  - cargo-test
+  - clippy-linux
+  - clippy-windows
+  - xtask-check
+  - release-build
+  - gate-status-phase
+  file_operations:
+  - op: modify
+    path: Cargo.toml
+    why: New member.
+  - op: modify
+    path: Cargo.lock
+    why: New crates.
+  - op: create
+    path: crates/orqlet-cli/Cargo.toml
+    why: Crate setup.
+  - op: create
+    path: crates/orqlet-cli/clippy.toml
+    why: Crate setup.
+  - op: create
+    path: crates/orqlet-cli/src/main.rs
+    why: Interface.
+  - op: create
+    path: crates/orqlet-cli/src/app.rs
+    why: Interface.
+  - op: create
+    path: crates/orqlet-cli/src/errors.rs
+    why: Interface.
+  - op: create
+    path: crates/orqlet-cli/src/exit_codes.rs
+    why: Interface.
+  - op: create
+    path: crates/orqlet-cli/src/render_human.rs
+    why: Interface.
+  - op: create
+    path: crates/orqlet-cli/src/render_json.rs
+    why: Interface.
+  - op: create
+    path: crates/orqlet-cli/src/runner.rs
+    why: Interface.
+  - op: create
+    path: crates/orqlet-cli/src/wiring.rs
+    why: Interface.
+  - op: create
+    path: crates/orqlet-cli/src/commands/mod.rs
+    why: Command.
+  - op: create
+    path: crates/orqlet-cli/src/commands/conventions.rs
+    why: Command.
+  - op: create
+    path: crates/orqlet-cli/src/commands/evidence.rs
+    why: Command.
+  - op: create
+    path: crates/orqlet-cli/src/commands/gate.rs
+    why: Command.
+  - op: create
+    path: crates/orqlet-cli/src/commands/hook.rs
+    why: Command.
+  - op: create
+    path: crates/orqlet-cli/src/commands/init.rs
+    why: Command.
+  - op: create
+    path: crates/orqlet-cli/src/commands/knowledge.rs
+    why: Command.
+  - op: create
+    path: crates/orqlet-cli/src/commands/lifecycle.rs
+    why: Command.
+  - op: create
+    path: crates/orqlet-cli/src/commands/models.rs
+    why: Command.
+  - op: create
+    path: crates/orqlet-cli/src/commands/profile.rs
+    why: Command.
+  - op: create
+    path: crates/orqlet-cli/src/commands/resources.rs
+    why: Command.
+  - op: create
+    path: crates/orqlet-cli/src/commands/review.rs
+    why: Command.
+  - op: create
+    path: crates/orqlet-cli/src/commands/standards.rs
+    why: Command.
+  - op: create
+    path: crates/orqlet-cli/src/commands/status.rs
+    why: Command.
+  - op: create
+    path: crates/orqlet-cli/src/commands/validate.rs
+    why: Command.
+  - op: create
+    path: crates/orqlet-cli/tests/hash_vectors.rs
+    why: Test.
+  - op: create
+    path: crates/orqlet-cli/tests/yaml_scalars.rs
+    why: Test.
+  - op: create
+    path: crates/orqlet-cli/tests/parity.rs
+    why: Test.
+  - op: create
+    path: crates/orqlet-cli/tests/help.rs
+    why: Test.
+  - op: create
+    path: crates/orqlet-cli/tests/lifecycle.rs
+    why: Test.
+  - op: create
+    path: crates/orqlet-cli/tests/data_dir.rs
+    why: Test.
+  - op: create
+    path: crates/orqlet-cli/tests/journal.rs
+    why: Test.
+  - op: create
+    path: crates/orqlet-cli/tests/hook.rs
+    why: Test.
+  - op: create
+    path: crates/orqlet-cli/tests/generated_fresh.rs
+    why: Test.
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  - code-reviewer
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every cargo command below reads rust-toolchain.toml (P-3) and may download the pinned 1.100.0 toolchain,
+    its x86_64-unknown-linux-gnu and x86_64-pc-windows-msvc targets and the crates locked in Cargo.lock (warning list: fetches
+    from the network). Only aarch64-apple-darwin is installed today. The implementer asks the person before the first run
+    in a session.
+  - >-
+    cargo-fmt: `cargo fmt --all --check` (AGENTS.md:90 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 adcaa2ae7cfb10c74a1e8b082440640aa16895af758ca05df7fb847a5fd1ad83).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision.
+  - >-
+    cargo-clippy: `cargo clippy --workspace --all-targets -- -D warnings` (AGENTS.md:96 at ba935c62ae81130e9b4c080431b462957f5aa68a,
+    sha256 e59d9d29943ce01476d2a47dc9067370b8b5f88fd08407b9bbef6f32d93afa2f). It reads the root Cargo.toml, each crate's Cargo.toml
+    and clippy.toml and rust-toolchain.toml, which this plan creates, so they cannot be cited at the base revision. Warning
+    list: fetches from the network.
+  - >-
+    cargo-test: `cargo test --workspace` (AGENTS.md:102 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 8ffea13a33c3880b26d5ce1ae6bf11f4ea90414de6d1c19bc16c11f36b6ebf59).
+    Allowed for this task only (Q-3, Q-11); the project's Testing section (AGENTS.md:149-155 at ba935c62ae81130e9b4c080431b462957f5aa68a,
+    sha256 415faa662b38fdb40a53d85437f3622562c3e9e3b7ed24afb5cfb7cb05ec6112) stays until P-15. Integration tests start git
+    and the built binary under a scoped allow. It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml,
+    which this plan creates, so they cannot be cited at the base revision. Warning list: fetches from the network.
+  - >-
+    clippy-linux: `cargo clippy --workspace --all-targets --target x86_64-unknown-linux-gnu -- -D warnings` (AGENTS.md:108
+    at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 dcef48202af0406c9d91d9e57e5ba2afa93d96cbd6a3709f8c87ae25514c5153).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision. Warning list: fetches from the network (the target).
+  - >-
+    clippy-windows: `cargo clippy --workspace --all-targets --target x86_64-pc-windows-msvc -- -D warnings` (AGENTS.md:114
+    at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 b9e0002c655593365ebf7e5ecda78ccffd7e04fd75db5c792144d0daf50c6dce).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision. Warning list: fetches from the network (the target).
+  - >-
+    xtask-check: `cargo run -p xtask -- check` (AGENTS.md:120 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 69b113c8d912395efd01aeed0b26f87dab482b683d3fe0637bfbb51cb8a5e6e7).
+    It runs xtask/src/main.rs (P-7), which only reads workflow/ in this mode. It reads the root Cargo.toml, each crate's Cargo.toml
+    and clippy.toml and rust-toolchain.toml, which this plan creates, so they cannot be cited at the base revision. Warning
+    list: fetches from the network.
+  - >-
+    release-build: `cargo build --workspace --release` (AGENTS.md:126 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256
+    a47e52402863dc978aeaab20fe45a48a2944da52c52195111adc93dc14cf4d10). It reads the root Cargo.toml, each crate's Cargo.toml
+    and clippy.toml and rust-toolchain.toml, which this plan creates, so they cannot be cited at the base revision. Warning
+    list: fetches from the network.
+  - >-
+    gate-status-phase: `orqlet gate status rust-migration --phase <phase id> --head staged` reports no ORQ-E450, ORQ-E451
+    or ORQ-E453. Orqlet's own command, not a project command: the installed 0.5.2 copy up to P-15, the built `target/release/orqlet`
+    from P-16.
+  expected_outputs:
+  - crates/orqlet-cli/src/main.rs
+  - crates/orqlet-cli/tests/parity.rs
+- id: P-15
+  objective: >-
+    The workflow package says 1.0.0, and README and the AGENTS.md team text describe the Rust project (ADR-004 decision 1,
+    ADR-006 decisions 4 and 5).
+  depends_on:
+  - P-14
+  implements:
+  - EC-1
+  - EC-3
+  acceptance_criteria:
+  - id: AC-1
+    text: identity.json says 1.0.0 with its controls level kept, and MANIFEST.json is rebuilt by the xtask.
+    source: BC-13
+    check_ref: xtask-check
+  - id: AC-2
+    text: >-
+      README installs with cargo install --path crates/orqlet-cli or a binary, lists the QA-001 checks, and has no Python
+      or uv text.
+    source: BC-15
+    check_ref: review:documents
+  - id: AC-3
+    text: >-
+      The AGENTS.md team text requires the Rust tests, names this task as resumed, re-records the onboard commands through
+      /orqlet-onboard with the person's yes, and names no ruff, mypy, uv, pytest or import-linter; generated blocks stay.
+    source: BC-15
+    check_ref: review:documents
+  checks:
+  - cargo-fmt
+  - cargo-clippy
+  - cargo-test
+  - clippy-linux
+  - clippy-windows
+  - xtask-check
+  - release-build
+  - gate-status-phase
+  file_operations:
+  - op: modify
+    path: workflow/identity.json
+    why: Version 1.0.0.
+  - op: modify
+    path: workflow/MANIFEST.json
+    why: Rebuilt.
+  - op: modify
+    path: README.md
+    why: Rust install.
+  - op: modify
+    path: AGENTS.md
+    why: Team text.
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  - code-reviewer
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every cargo command below reads rust-toolchain.toml (P-3) and may download the pinned 1.100.0 toolchain,
+    its x86_64-unknown-linux-gnu and x86_64-pc-windows-msvc targets and the crates locked in Cargo.lock (warning list: fetches
+    from the network). Only aarch64-apple-darwin is installed today. The implementer asks the person before the first run
+    in a session.
+  - >-
+    cargo-fmt: `cargo fmt --all --check` (AGENTS.md:90 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 adcaa2ae7cfb10c74a1e8b082440640aa16895af758ca05df7fb847a5fd1ad83).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision.
+  - >-
+    cargo-clippy: `cargo clippy --workspace --all-targets -- -D warnings` (AGENTS.md:96 at ba935c62ae81130e9b4c080431b462957f5aa68a,
+    sha256 e59d9d29943ce01476d2a47dc9067370b8b5f88fd08407b9bbef6f32d93afa2f). It reads the root Cargo.toml, each crate's Cargo.toml
+    and clippy.toml and rust-toolchain.toml, which this plan creates, so they cannot be cited at the base revision. Warning
+    list: fetches from the network.
+  - >-
+    cargo-test: `cargo test --workspace` (AGENTS.md:102 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 8ffea13a33c3880b26d5ce1ae6bf11f4ea90414de6d1c19bc16c11f36b6ebf59).
+    Allowed for this task only (Q-3, Q-11); the project's Testing section (AGENTS.md:149-155 at ba935c62ae81130e9b4c080431b462957f5aa68a,
+    sha256 415faa662b38fdb40a53d85437f3622562c3e9e3b7ed24afb5cfb7cb05ec6112) stays until P-15. Integration tests start git
+    and the built binary under a scoped allow. It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml,
+    which this plan creates, so they cannot be cited at the base revision. Warning list: fetches from the network.
+  - >-
+    clippy-linux: `cargo clippy --workspace --all-targets --target x86_64-unknown-linux-gnu -- -D warnings` (AGENTS.md:108
+    at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 dcef48202af0406c9d91d9e57e5ba2afa93d96cbd6a3709f8c87ae25514c5153).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision. Warning list: fetches from the network (the target).
+  - >-
+    clippy-windows: `cargo clippy --workspace --all-targets --target x86_64-pc-windows-msvc -- -D warnings` (AGENTS.md:114
+    at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 b9e0002c655593365ebf7e5ecda78ccffd7e04fd75db5c792144d0daf50c6dce).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision. Warning list: fetches from the network (the target).
+  - >-
+    xtask-check: `cargo run -p xtask -- check` (AGENTS.md:120 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 69b113c8d912395efd01aeed0b26f87dab482b683d3fe0637bfbb51cb8a5e6e7).
+    It runs xtask/src/main.rs (P-7), which only reads workflow/ in this mode. It reads the root Cargo.toml, each crate's Cargo.toml
+    and clippy.toml and rust-toolchain.toml, which this plan creates, so they cannot be cited at the base revision. Warning
+    list: fetches from the network.
+  - >-
+    release-build: `cargo build --workspace --release` (AGENTS.md:126 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256
+    a47e52402863dc978aeaab20fe45a48a2944da52c52195111adc93dc14cf4d10). It reads the root Cargo.toml, each crate's Cargo.toml
+    and clippy.toml and rust-toolchain.toml, which this plan creates, so they cannot be cited at the base revision. Warning
+    list: fetches from the network.
+  - >-
+    gate-status-phase: `orqlet gate status rust-migration --phase <phase id> --head staged` reports no ORQ-E450, ORQ-E451
+    or ORQ-E453. Orqlet's own command, not a project command: the installed 0.5.2 copy up to P-15, the built `target/release/orqlet`
+    from P-16.
+  expected_outputs:
+  - workflow/identity.json
+  - README.md
+- id: P-16
+  objective: >-
+    The built 1.0.0 binary re-renders this repository and re-derives its profile; every criterion except BC-14 passes.
+  depends_on:
+  - P-15
+  implements:
+  - EC-2
+  - EC-4
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      `target/release/orqlet upgrade` (with the person's yes) re-renders; a second run changes nothing, team edits stay, and
+      doctor reports no error.
+    source: BC-5
+    check_ref: orqlet-doctor
+  - id: AC-2
+    text: --version, workflow.lock and .orqlet/versions.yaml say 1.0.0.
+    source: BC-13
+    check_ref: orqlet-version
+  - id: AC-3
+    text: >-
+      The profile re-derived with 1.0.0 records rust-cli citing Cargo.toml and Cargo.lock, and the person approves it; if
+      1.0.0 cannot re-draft an initialized profile, the phase stops and asks.
+    source: BC-11
+    check_ref: review:profile
+  - id: AC-4
+    text: >-
+      The impact review of this task's artifacts for the new version and hashes is in the ledger, confirmed by the person.
+    source: R-3
+    check_ref: review:impact-review
+  - id: AC-5
+    text: Every check passes on this commit, so the removal gate of ADR-002 holds.
+    source: R-10
+    check_ref: review:removal-gate
+  checks:
+  - cargo-fmt
+  - cargo-clippy
+  - cargo-test
+  - clippy-linux
+  - clippy-windows
+  - xtask-check
+  - release-build
+  - orqlet-version
+  - orqlet-doctor
+  - gate-status-phase
+  file_operations:
+  - op: modify
+    path: .agents/skills/orqlet-design/SKILL.md
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/orqlet-design/agents/openai.yaml
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/orqlet-design/references/design-format.md
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/orqlet-design/references/phase-contract.md
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/orqlet-implement/SKILL.md
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/orqlet-implement/agents/openai.yaml
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/orqlet-implement/references/phase-contract.md
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/orqlet-onboard/SKILL.md
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/orqlet-onboard/agents/openai.yaml
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/orqlet-plan/SKILL.md
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/orqlet-plan/agents/openai.yaml
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/orqlet-plan/references/phase-contract.md
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/orqlet-plan/references/plan-format.md
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/orqlet-research/SKILL.md
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/orqlet-research/agents/openai.yaml
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/orqlet-research/references/as-is-format.md
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/orqlet-research/references/phase-contract.md
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/orqlet-review/SKILL.md
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/orqlet-review/agents/openai.yaml
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/orqlet-review/references/review-format.md
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/ponytail-audit/SKILL.md
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/ponytail-audit/agents/openai.yaml
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/ponytail-audit/references/LICENSE.md
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/ponytail-audit/references/PROVENANCE.md
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/ponytail-debt/SKILL.md
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/ponytail-debt/agents/openai.yaml
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/ponytail-debt/references/LICENSE.md
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/ponytail-debt/references/PROVENANCE.md
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/ponytail-gain/SKILL.md
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/ponytail-gain/agents/openai.yaml
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/ponytail-gain/references/LICENSE.md
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/ponytail-gain/references/PROVENANCE.md
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/ponytail-help/SKILL.md
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/ponytail-help/agents/openai.yaml
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/ponytail-help/references/LICENSE.md
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/ponytail-help/references/PROVENANCE.md
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/ponytail-review/SKILL.md
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/ponytail-review/agents/openai.yaml
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/ponytail-review/references/LICENSE.md
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/ponytail-review/references/PROVENANCE.md
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/ponytail/SKILL.md
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/ponytail/agents/openai.yaml
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/ponytail/references/LICENSE.md
+    why: Re-rendered.
+  - op: modify
+    path: .agents/skills/ponytail/references/PROVENANCE.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/CLAUDE.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/agents/orqlet-arch-reviewer.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/agents/orqlet-code-reviewer.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/agents/orqlet-inventory.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/agents/orqlet-pr-writer.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/agents/orqlet-security-reviewer.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/agents/orqlet-tester.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/agents/orqlet-tracer.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/commands/orqlet-doctor.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/commands/orqlet-profile.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/commands/orqlet-standards.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/commands/orqlet-upgrade.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/rules/orqlet-orqlet-arch-001.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/rules/orqlet-orqlet-arch-002.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/rules/orqlet-orqlet-arch-003.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/rules/orqlet-orqlet-det-001.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/rules/orqlet-orqlet-det-002.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/rules/orqlet-orqlet-det-003.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/rules/orqlet-orqlet-model-001.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/rules/orqlet-orqlet-model-002.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/rules/orqlet-orqlet-safe-001.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/rules/orqlet-orqlet-sec-001.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/rules/orqlet-orqlet-sec-002.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/rules/orqlet-workflow.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/skills/orqlet-design/SKILL.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/skills/orqlet-design/references/design-format.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/skills/orqlet-design/references/phase-contract.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/skills/orqlet-implement/SKILL.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/skills/orqlet-implement/references/phase-contract.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/skills/orqlet-onboard/SKILL.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/skills/orqlet-plan/SKILL.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/skills/orqlet-plan/references/phase-contract.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/skills/orqlet-plan/references/plan-format.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/skills/orqlet-research/SKILL.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/skills/orqlet-research/references/as-is-format.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/skills/orqlet-research/references/phase-contract.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/skills/orqlet-review/SKILL.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/skills/orqlet-review/references/review-format.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/skills/ponytail-audit/SKILL.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/skills/ponytail-audit/references/LICENSE.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/skills/ponytail-audit/references/PROVENANCE.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/skills/ponytail-debt/SKILL.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/skills/ponytail-debt/references/LICENSE.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/skills/ponytail-debt/references/PROVENANCE.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/skills/ponytail-gain/SKILL.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/skills/ponytail-gain/references/LICENSE.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/skills/ponytail-gain/references/PROVENANCE.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/skills/ponytail-help/SKILL.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/skills/ponytail-help/references/LICENSE.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/skills/ponytail-help/references/PROVENANCE.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/skills/ponytail-review/SKILL.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/skills/ponytail-review/references/LICENSE.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/skills/ponytail-review/references/PROVENANCE.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/skills/ponytail/SKILL.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/skills/ponytail/references/LICENSE.md
+    why: Re-rendered.
+  - op: modify
+    path: .claude/skills/ponytail/references/PROVENANCE.md
+    why: Re-rendered.
+  - op: modify
+    path: .codex/agents/orqlet-arch-reviewer.toml
+    why: Re-rendered.
+  - op: modify
+    path: .codex/agents/orqlet-code-reviewer.toml
+    why: Re-rendered.
+  - op: modify
+    path: .codex/agents/orqlet-inventory.toml
+    why: Re-rendered.
+  - op: modify
+    path: .codex/agents/orqlet-pr-writer.toml
+    why: Re-rendered.
+  - op: modify
+    path: .codex/agents/orqlet-security-reviewer.toml
+    why: Re-rendered.
+  - op: modify
+    path: .codex/agents/orqlet-tester.toml
+    why: Re-rendered.
+  - op: modify
+    path: .codex/agents/orqlet-tracer.toml
+    why: Re-rendered.
+  - op: modify
+    path: .cursor/agents/orqlet-arch-reviewer.md
+    why: Re-rendered.
+  - op: modify
+    path: .cursor/agents/orqlet-code-reviewer.md
+    why: Re-rendered.
+  - op: modify
+    path: .cursor/agents/orqlet-inventory.md
+    why: Re-rendered.
+  - op: modify
+    path: .cursor/agents/orqlet-pr-writer.md
+    why: Re-rendered.
+  - op: modify
+    path: .cursor/agents/orqlet-security-reviewer.md
+    why: Re-rendered.
+  - op: modify
+    path: .cursor/agents/orqlet-tester.md
+    why: Re-rendered.
+  - op: modify
+    path: .cursor/agents/orqlet-tracer.md
+    why: Re-rendered.
+  - op: modify
+    path: .cursor/commands/orqlet-doctor.md
+    why: Re-rendered.
+  - op: modify
+    path: .cursor/commands/orqlet-profile.md
+    why: Re-rendered.
+  - op: modify
+    path: .cursor/commands/orqlet-standards.md
+    why: Re-rendered.
+  - op: modify
+    path: .cursor/commands/orqlet-upgrade.md
+    why: Re-rendered.
+  - op: modify
+    path: .cursor/rules/orqlet-orqlet-arch-001.mdc
+    why: Re-rendered.
+  - op: modify
+    path: .cursor/rules/orqlet-orqlet-arch-002.mdc
+    why: Re-rendered.
+  - op: modify
+    path: .cursor/rules/orqlet-orqlet-arch-003.mdc
+    why: Re-rendered.
+  - op: modify
+    path: .cursor/rules/orqlet-orqlet-det-001.mdc
+    why: Re-rendered.
+  - op: modify
+    path: .cursor/rules/orqlet-orqlet-det-002.mdc
+    why: Re-rendered.
+  - op: modify
+    path: .cursor/rules/orqlet-orqlet-det-003.mdc
+    why: Re-rendered.
+  - op: modify
+    path: .cursor/rules/orqlet-orqlet-model-001.mdc
+    why: Re-rendered.
+  - op: modify
+    path: .cursor/rules/orqlet-orqlet-model-002.mdc
+    why: Re-rendered.
+  - op: modify
+    path: .cursor/rules/orqlet-orqlet-safe-001.mdc
+    why: Re-rendered.
+  - op: modify
+    path: .cursor/rules/orqlet-orqlet-sec-001.mdc
+    why: Re-rendered.
+  - op: modify
+    path: .cursor/rules/orqlet-orqlet-sec-002.mdc
+    why: Re-rendered.
+  - op: modify
+    path: .cursor/rules/orqlet-workflow.mdc
+    why: Re-rendered.
+  - op: modify
+    path: .github/pull_request_template.md
+    why: Re-rendered.
+  - op: modify
+    path: .orqlet/standards.lock.yaml
+    why: Re-rendered.
+  - op: modify
+    path: .orqlet/workflow.lock
+    why: Re-rendered.
+  - op: modify
+    path: AGENTS.md
+    why: Re-rendered.
+  - op: modify
+    path: .orqlet/generated.lock.yaml
+    why: Re-rendered.
+  - op: modify
+    path: .orqlet/versions.yaml
+    why: Re-rendered.
+  - op: modify
+    path: .orqlet/project-profile.yaml
+    why: Re-derived.
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  - code-reviewer
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every cargo command below reads rust-toolchain.toml (P-3) and may download the pinned 1.100.0 toolchain,
+    its x86_64-unknown-linux-gnu and x86_64-pc-windows-msvc targets and the crates locked in Cargo.lock (warning list: fetches
+    from the network). Only aarch64-apple-darwin is installed today. The implementer asks the person before the first run
+    in a session.
+  - >-
+    cargo-fmt: `cargo fmt --all --check` (AGENTS.md:90 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 adcaa2ae7cfb10c74a1e8b082440640aa16895af758ca05df7fb847a5fd1ad83).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision.
+  - >-
+    cargo-clippy: `cargo clippy --workspace --all-targets -- -D warnings` (AGENTS.md:96 at ba935c62ae81130e9b4c080431b462957f5aa68a,
+    sha256 e59d9d29943ce01476d2a47dc9067370b8b5f88fd08407b9bbef6f32d93afa2f). It reads the root Cargo.toml, each crate's Cargo.toml
+    and clippy.toml and rust-toolchain.toml, which this plan creates, so they cannot be cited at the base revision. Warning
+    list: fetches from the network.
+  - >-
+    cargo-test: `cargo test --workspace` (AGENTS.md:102 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 8ffea13a33c3880b26d5ce1ae6bf11f4ea90414de6d1c19bc16c11f36b6ebf59).
+    Allowed for this task only (Q-3, Q-11); the project's Testing section (AGENTS.md:149-155 at ba935c62ae81130e9b4c080431b462957f5aa68a,
+    sha256 415faa662b38fdb40a53d85437f3622562c3e9e3b7ed24afb5cfb7cb05ec6112) stays until P-15. Integration tests start git
+    and the built binary under a scoped allow. It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml,
+    which this plan creates, so they cannot be cited at the base revision. Warning list: fetches from the network.
+  - >-
+    clippy-linux: `cargo clippy --workspace --all-targets --target x86_64-unknown-linux-gnu -- -D warnings` (AGENTS.md:108
+    at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 dcef48202af0406c9d91d9e57e5ba2afa93d96cbd6a3709f8c87ae25514c5153).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision. Warning list: fetches from the network (the target).
+  - >-
+    clippy-windows: `cargo clippy --workspace --all-targets --target x86_64-pc-windows-msvc -- -D warnings` (AGENTS.md:114
+    at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 b9e0002c655593365ebf7e5ecda78ccffd7e04fd75db5c792144d0daf50c6dce).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision. Warning list: fetches from the network (the target).
+  - >-
+    xtask-check: `cargo run -p xtask -- check` (AGENTS.md:120 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 69b113c8d912395efd01aeed0b26f87dab482b683d3fe0637bfbb51cb8a5e6e7).
+    It runs xtask/src/main.rs (P-7), which only reads workflow/ in this mode. It reads the root Cargo.toml, each crate's Cargo.toml
+    and clippy.toml and rust-toolchain.toml, which this plan creates, so they cannot be cited at the base revision. Warning
+    list: fetches from the network.
+  - >-
+    release-build: `cargo build --workspace --release` (AGENTS.md:126 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256
+    a47e52402863dc978aeaab20fe45a48a2944da52c52195111adc93dc14cf4d10). It reads the root Cargo.toml, each crate's Cargo.toml
+    and clippy.toml and rust-toolchain.toml, which this plan creates, so they cannot be cited at the base revision. Warning
+    list: fetches from the network.
+  - >-
+    orqlet-version: `target/release/orqlet --version` prints `orqlet 1.0.0`. The binary this phase builds; Orqlet's own command.
+  - >-
+    orqlet-doctor: `orqlet doctor` reports no error. Orqlet's own command, not a project command: the installed 0.5.2 copy
+    up to P-15, the built `target/release/orqlet` from P-16.
+  - >-
+    gate-status-phase: `orqlet gate status rust-migration --phase <phase id> --head staged` reports no ORQ-E450, ORQ-E451
+    or ORQ-E453. Orqlet's own command, not a project command: the installed 0.5.2 copy up to P-15, the built `target/release/orqlet`
+    from P-16.
+  expected_outputs:
+  - .orqlet/workflow.lock
+  - .orqlet/versions.yaml
+- id: P-17
+  objective: Remove the Python code and tooling once the removal gate holds (ADR-002 decision 5).
+  depends_on:
+  - P-16
+  implements:
+  - EC-5
+  acceptance_criteria:
+  - id: AC-1
+    text: >-
+      No src/orqlet/, pyproject.toml, uv.lock, tools/, .venv or Python cache remains; .venv and the caches are deleted only
+      after the person's yes.
+    source: BC-14
+    check_ref: review:removal
+  - id: AC-2
+    text: No file under docs/design/ outside rust-migration changes in this task.
+    source: BC-14
+    check_ref: review:removal
+  - id: AC-3
+    text: Every Rust check still passes without the Python files.
+    source: BC-9
+    check_ref: cargo-test
+  checks:
+  - cargo-fmt
+  - cargo-clippy
+  - cargo-test
+  - clippy-linux
+  - clippy-windows
+  - xtask-check
+  - release-build
+  - gate-status-phase
+  file_operations:
+  - op: delete
+    path: src/orqlet/__init__.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/__main__.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/__init__.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/clients/__init__.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/clients/claude_code.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/clients/codex.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/clients/copilot.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/clients/cursor.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/fs/__init__.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/fs/ancestors.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/fs/apply_lock.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/fs/journal.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/fs/local_fs.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/fs/user_scope.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/fs/yaml_loader.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/git/__init__.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/git/git_runner.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/git/objects.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/git/vcs_git.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/process/__init__.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/process/environment.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/process/subprocess_runner.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/prompt/__init__.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/prompt/tty_prompter.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/render/__init__.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/render/emit.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/render/instructions.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/render/mcp.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/render/pr_template.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/render/prompts_seed.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/render/renderers.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/render/roles.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/render/rules.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/render/skills.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/scan/__init__.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/scan/common.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/scan/executables.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/scan/known_technologies.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/scan/personal_names.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/scan/python_scanner.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/scan/scoped.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/scan/stack_tables.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/scan/technology_scanners.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/standards/__init__.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/standards/pack_source.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/system.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/adapters/workflow_package.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/__init__.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/contracts/__init__.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/contracts/artifact_header.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/contracts/as_is.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/contracts/cli_result.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/contracts/common.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/contracts/design_set.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/contracts/finding.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/contracts/generated_lock.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/contracts/hook_payload.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/contracts/integrations.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/contracts/knowledge_config.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/contracts/knowledge_impact.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/contracts/loading.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/contracts/model_policy.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/contracts/module_card.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/contracts/plan.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/contracts/policy.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/contracts/profile.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/contracts/question_ledger.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/contracts/resources.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/contracts/review_input.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/contracts/review_result.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/contracts/role_bindings.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/contracts/schemas.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/contracts/self_check.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/contracts/standards_lock.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/contracts/standards_pack.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/contracts/test_record.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/contracts/user_scope.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/contracts/versions_file.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/contracts/workflow_package.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/ports/__init__.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/ports/ancestors.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/ports/change_journal.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/ports/clock.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/ports/documents.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/ports/executables.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/ports/filesystem.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/ports/ids.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/ports/instruction_adapter.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/ports/lock.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/ports/personal.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/ports/process.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/ports/prompter.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/ports/renderers.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/ports/scanner.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/ports/standards.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/ports/user_scope.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/ports/vcs.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/ports/workflow.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/__init__.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/apply_plan.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/binding_inputs.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/bounded_read.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/capabilities.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/conventions_check.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/design_scope.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/diagnose.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/discover.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/draft_profile.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/evidence_cite.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/expected_change.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/explain.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/foundation.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/gate_status.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/hook_event.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/init_files.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/init_project.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/init_questions.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/init_state.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/installation.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/integrations_source.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/knowledge_impact.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/model_policy_source.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/model_selection.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/models_resolve.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/pin_staleness.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/profile_edit.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/release.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/render_all.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/render_request.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/resources_edit.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/resources_source.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/resources_view.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/review_identity.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/review_prepare.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/rollback.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/services.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/staleness.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/standards_for.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/status.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/upgrade.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/validate_as_is.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/validate_design.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/validate_integrations.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/validate_ledger.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/validate_model_policy.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/validate_plan.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/validate_records.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/validate_resources.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/validation.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/workflow_manifest.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/application/usecases/workflow_sources.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/domain/__init__.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/domain/binding.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/domain/blocks.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/domain/change_class.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/domain/changeplan.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/domain/classify.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/domain/conventions.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/domain/dependencies.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/domain/digest.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/domain/errors.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/domain/evidence.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/domain/evidence_artifacts.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/domain/expected_change.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/domain/facts.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/domain/findings.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/domain/front_matter.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/domain/globs.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/domain/independence.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/domain/knowledge.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/domain/mcp_credentials.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/domain/model_identity.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/domain/model_policy_scan.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/domain/model_resolution.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/domain/ownership.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/domain/paths.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/domain/plan_projection.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/domain/prescriptive.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/domain/python_api.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/domain/representable.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/domain/resolver.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/domain/resources.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/domain/strict_json.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/domain/versions.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/interface/__init__.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/interface/cli/__init__.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/interface/cli/app.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/interface/cli/commands/__init__.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/interface/cli/commands/conventions.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/interface/cli/commands/evidence.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/interface/cli/commands/gate.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/interface/cli/commands/hook.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/interface/cli/commands/init.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/interface/cli/commands/knowledge.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/interface/cli/commands/lifecycle.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/interface/cli/commands/models.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/interface/cli/commands/profile.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/interface/cli/commands/resources.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/interface/cli/commands/review.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/interface/cli/commands/standards.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/interface/cli/commands/status.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/interface/cli/commands/validate.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/interface/cli/errors.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/interface/cli/exit_codes.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/interface/cli/render_human.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/interface/cli/render_json.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/interface/cli/render_rich.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/interface/cli/runner.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/interface/cli/wiring.py
+    why: Removed.
+  - op: delete
+    path: src/orqlet/py.typed
+    why: Removed.
+  - op: delete
+    path: src/orqlet/workflow/__init__.py
+    why: Removed.
+  - op: delete
+    path: pyproject.toml
+    why: Removed.
+  - op: delete
+    path: tools/__init__.py
+    why: Removed.
+  - op: delete
+    path: tools/build_manifest.py
+    why: Removed.
+  - op: delete
+    path: tools/export_schemas.py
+    why: Removed.
+  - op: delete
+    path: uv.lock
+    why: Removed.
+  review_evidence:
+  - architecture-reviewer
+  - security-reviewer
+  - tester
+  - code-reviewer
+  knowledge_step: required
+  completion:
+  - >-
+    Environment: every cargo command below reads rust-toolchain.toml (P-3) and may download the pinned 1.100.0 toolchain,
+    its x86_64-unknown-linux-gnu and x86_64-pc-windows-msvc targets and the crates locked in Cargo.lock (warning list: fetches
+    from the network). Only aarch64-apple-darwin is installed today. The implementer asks the person before the first run
+    in a session.
+  - >-
+    cargo-fmt: `cargo fmt --all --check` (AGENTS.md:90 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 adcaa2ae7cfb10c74a1e8b082440640aa16895af758ca05df7fb847a5fd1ad83).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision.
+  - >-
+    cargo-clippy: `cargo clippy --workspace --all-targets -- -D warnings` (AGENTS.md:96 at ba935c62ae81130e9b4c080431b462957f5aa68a,
+    sha256 e59d9d29943ce01476d2a47dc9067370b8b5f88fd08407b9bbef6f32d93afa2f). It reads the root Cargo.toml, each crate's Cargo.toml
+    and clippy.toml and rust-toolchain.toml, which this plan creates, so they cannot be cited at the base revision. Warning
+    list: fetches from the network.
+  - >-
+    cargo-test: `cargo test --workspace` (AGENTS.md:102 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 8ffea13a33c3880b26d5ce1ae6bf11f4ea90414de6d1c19bc16c11f36b6ebf59).
+    Allowed for this task only (Q-3, Q-11); the project's Testing section (AGENTS.md:149-155 at ba935c62ae81130e9b4c080431b462957f5aa68a,
+    sha256 415faa662b38fdb40a53d85437f3622562c3e9e3b7ed24afb5cfb7cb05ec6112) stays until P-15. Integration tests start git
+    and the built binary under a scoped allow. It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml,
+    which this plan creates, so they cannot be cited at the base revision. Warning list: fetches from the network.
+  - >-
+    clippy-linux: `cargo clippy --workspace --all-targets --target x86_64-unknown-linux-gnu -- -D warnings` (AGENTS.md:108
+    at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 dcef48202af0406c9d91d9e57e5ba2afa93d96cbd6a3709f8c87ae25514c5153).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision. Warning list: fetches from the network (the target).
+  - >-
+    clippy-windows: `cargo clippy --workspace --all-targets --target x86_64-pc-windows-msvc -- -D warnings` (AGENTS.md:114
+    at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 b9e0002c655593365ebf7e5ecda78ccffd7e04fd75db5c792144d0daf50c6dce).
+    It reads the root Cargo.toml, each crate's Cargo.toml and clippy.toml and rust-toolchain.toml, which this plan creates,
+    so they cannot be cited at the base revision. Warning list: fetches from the network (the target).
+  - >-
+    xtask-check: `cargo run -p xtask -- check` (AGENTS.md:120 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256 69b113c8d912395efd01aeed0b26f87dab482b683d3fe0637bfbb51cb8a5e6e7).
+    It runs xtask/src/main.rs (P-7), which only reads workflow/ in this mode. It reads the root Cargo.toml, each crate's Cargo.toml
+    and clippy.toml and rust-toolchain.toml, which this plan creates, so they cannot be cited at the base revision. Warning
+    list: fetches from the network.
+  - >-
+    release-build: `cargo build --workspace --release` (AGENTS.md:126 at ba935c62ae81130e9b4c080431b462957f5aa68a, sha256
+    a47e52402863dc978aeaab20fe45a48a2944da52c52195111adc93dc14cf4d10). It reads the root Cargo.toml, each crate's Cargo.toml
+    and clippy.toml and rust-toolchain.toml, which this plan creates, so they cannot be cited at the base revision. Warning
+    list: fetches from the network.
+  - >-
+    gate-status-phase: `orqlet gate status rust-migration --phase <phase id> --head staged` reports no ORQ-E450, ORQ-E451
+    or ORQ-E453. Orqlet's own command, not a project command: the installed 0.5.2 copy up to P-15, the built `target/release/orqlet`
+    from P-16.
+  expected_outputs:
+  - Cargo.toml
+reuse_decisions:
+- candidate: orqlet upgrade (installed 0.5.2)
+  decision: use
+  reason: P-1 re-renders the rule files and locks with the existing command, never by hand.
+- candidate: orqlet evidence cite and hash
+  decision: use
+  reason: Fixture capture and citations use the existing commands.
+- candidate: 0.5.2 Python code
+  decision: use
+  reason: It produces the P-2 fixtures and stays the normative source until P-17 (ADR-002).
+- candidate: tools/build_manifest.py and tools/export_schemas.py
+  decision: not-applicable
+  reason: ADR-005 replaces them with the xtask; both are removed in P-17.
+- candidate: src/orqlet/workflow data
+  decision: use
+  reason: Moved unchanged to workflow/ and embedded (P-5, P-13).
+- candidate: unwired Python modules (copilot client, user-scope writer, front matter, rich presenter, Python API)
+  decision: not-applicable
+  reason: Not ported (Q-7, Q-8, ADR-001 decision 8).
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: planner
+    phase: plan
+    confirmed_requirements:
+    - R-1
+    - R-2
+    - R-3
+    - R-4
+    - R-5
+    - R-6
+    - R-7
+    - R-8
+    - R-9
+    - R-10
+    - R-11
+    - Q-1
+    - Q-2
+    - Q-3
+    - Q-4
+    - Q-5
+    - Q-6
+    - Q-7
+    - Q-8
+    - Q-9
+    - Q-10
+    - Q-11
+    - Q-12
+    - Q-13
+    - Q-14
+    - Q-15
+    - Q-16
+    - Q-17
+    - Q-18
+    - Q-19
+    - Q-20
+    - Q-21
+    - Q-22
+    - Q-23
+    - Q-24
+    - Q-25
+    - Q-26
+    - Q-27
+    applicable_standards:
+    - src/orqlet applicable_rules_hash 230f5f5872a9449d6cc62ed7a777f188df18223adb281809121bb83550a49a4f
+    - other scope paths applicable_rules_hash 09024bca0bb6e4809695c1c5d93c61005339657137b0aa2f924fd7f9648f6931
+    - >-
+      docs/design/work-status.md applicable_rules_hash 21161b376ed89d01f51784c7b6c9d65acf01afaacc36c2f5ff225974e21eff19
+    acceptance_criteria: []
+    evidence:
+    - >-
+      docs/design/rust-migration/design/manifest.yaml#9100dd0553915b0d43a8e07148056c59597338c71faa1d13f57b0824262e0d7b
+    - docs/design/rust-migration/questions.yaml
+    - docs/design/rust-migration/reviews/architecture-reviewer-design.md
+    - docs/design/rust-migration/reviews/security-reviewer-design.md
+    - AGENTS.md
+  checks:
+  - what: >-
+      Input check. The design merge c148acfc1b3534165a99b2e4c4437ad4d2b3f909, which the person named, is on origin/main and
+      HEAD; the design files are unchanged since; ba935c6 (#86) changed AGENTS.md in the design scope, and the person confirmed
+      after an impact review that the approval stays valid (Q-26); the ledger has no open question.
+    how: git merge-base, git diff and git ls-files against the merge; orqlet validate ledger
+    result: pass
+  - what: >-
+      Standards read with orqlet standards for --phase plan --role planner for each scope path; the current rules still name
+      the Python tools, which P-1 replaces before any crate code.
+    how: orqlet standards for --path <path> --phase plan --role planner
+    result: pass
+  - what: >-
+      Check commands come from the AGENTS.md section the person recorded in #86 (lines 90, 96, 102, 108, 114, 120 and 126
+      at ba935c6), cited with orqlet evidence cite; the person did not approve `cargo run -p xtask -- arch`.
+    how: orqlet evidence cite AGENTS.md <line> --revision ba935c62ae81130e9b4c080431b462957f5aa68a
+    result: pass
+  - what: >-
+      Commands on the warning list: every cargo command may fetch the toolchain, its targets and crates from the network (each
+      completion entry is marked). Write steps that need the person's yes before they run: orqlet upgrade in P-1 and P-16,
+      the fixture capture in P-2, /orqlet-onboard in P-15, and deleting .venv and the caches in P-17.
+    how: completion entries of P-1 to P-17
+    result: pass
+  - what: >-
+      Round-8 conditions carried: the extra data-directory cases (P-11, P-14), Q-22 review coverage (P-8 to P-10), the escaped
+      path field (P-6), strict UTF-8 only for rev-parse (P-12), versions.rs as security-relevant (P-3). Open items resolved:
+      the nested-root case is added (P-11); the 4,300-digit refusal is an invalid version at every caller with the exit difference
+      listed (P-2, P-3); the separate Git folder stays the accepted gap of ADR-007 decision 10; 'never formatted with Debug
+      or Display' is read as 'never formatted directly'; change ids keep the design's rule (Q-27).
+    how: docs/design/rust-migration/reviews/*-design.md, Person's decision
+    result: pass
+  - what: >-
+      The phases form one chain, so no two independent phases touch the same path; the standards rewrite precedes the first
+      crate code; fixtures are captured before the workflow move; removal comes last.
+    how: depends_on and file_operations
+    result: pass
+  - what: Paths projected and the plan validated.
+    how: orqlet validate plan docs/design/rust-migration/plan.yaml
+    result: pass
+  unverified:
+  - >-
+    BC-8: `xtask arch` has no approved check command; P-7 AC-3 rests on review, and the person may add the command to AGENTS.md
+    later.
+  - >-
+    BC-8, BC-6, BC-17: the library confirmations that the design left to the plan (no_std builds, the category crate's coverage,
+    serde-saphyr's event source, toml nesting, serde_json's float refusal, dirs folders, toolchain 1.100.0 with File::try_lock)
+    need the pinned versions, which exist only in implementation; P-3 AC-1 and P-11 AC-1 confirm them and stop on a mismatch.
+  - >-
+    BC-7: that a listed path fails Clippy is shown by the lists and Clippy passing, not by a negative test; the reviewer checks
+    that each entry resolves.
+  - 'BC-9: Linux and Windows are compiled and linted only (Q-15).'
+  - 'BC-24 and Q-21: escaping at sites other than those BC-24 names rests on the review of untrusted input (Q-22).'
+  - >-
+    Re-binding: the re-renders in P-1 and P-16 change the hashes this task's artifacts bind; they are re-bound through the
+    impact review recorded in the ledger, since docs/design/rust-migration/ is outside the design scope.
