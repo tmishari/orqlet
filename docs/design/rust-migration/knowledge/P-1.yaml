@@ -15,7 +15,7 @@ review_input:
   - standards
   - candidates
   digest: 1e8d054dfc55d9db24944a8a0c8baca13a0e73a47fa5401123c27f6c96d94e49
-  merge_base: 1673d1ff00b3c786a31d5c01aba7230d49821b88
+  merge_base: df94d2d013535c48848e8b4f6b47f08038988041
   schema: orqlet.review-input/v1
 outcome: no-impact
 analysis:
@@ -41,7 +41,7 @@ no_impact:
     - the plan's knowledge_scope
     views:
     - staged
-    revision: 1673d1ff00b3c786a31d5c01aba7230d49821b88
+    revision: df94d2d013535c48848e8b4f6b47f08038988041
     method: orqlet knowledge impact rust-migration P-1 on the staged tree; the project configures no
       knowledge sources, the plan's knowledge_scope is empty and the design names no public_api
       packages, so the analysis found no candidate and no knowledge document exists that this phase

@@ -1,0 +1,90 @@
+schema: orqlet.review-result/v1
+task: rust-migration
+phase: P-1
+role: architecture-reviewer
+round: 2
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: ff8ced8afdd3d0887866826ac6378861e194924457394768a8368277683a874b
+    design: 7089670672dcff7ab8f22b5598d0ebead9f23dfc3678dc0396193a9a9e291aad
+    evidence_inputs: 8a69ab7fb0b9608e0159ffe130e995a203d7053251e1fa3762d4ba1cf66416e7
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: e4504afd6fbce2026fc7a7935cbb8b47a7fca62c4cf9e92dd02e7d8f39d44f89
+    reviewer_definition: 83e52f1a68fceddc7beb1d83654661fd34a1e3b3028c4fcc3dd7b6dadd8f3463
+    standards: 1366ae318c871636195d7e47268ef274e6e89f6dfd67d066f2960cf4b9ade097
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 8f89859d87bdaa11a5467e9f95dd0b1d306e7a95f79d2157b5accb3fa1e896ec
+  merge_base: df94d2d013535c48848e8b4f6b47f08038988041
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: 751953d100777e7ad1ae8ea41d8f096972ff2d2818b84213b87d027c1a3f9beb
+  client: cursor
+  model_requested: grok-4.7-high
+  model_observed: grok-4.7-high
+  identity_source: person-observed
+  selection_source: explicit-fallback
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: Claude Opus 5.5
+  identity_source: client-reported
+independence: I1
+capability_limits:
+- 'The person observed the reviewer model as grok-4.7-high. In the model policy at the base df94d2d the only route of grok-4.7,
+  for cursor, has no name and no also_known_as, and the logical id is not a reported name, so no observed string matches
+  the entry. No family is known for the reviewer and the class stays I1, below the I2 that a D3 change requires of a review;
+  the verdict is NOT_RUN.'
+- The reviewer's own conclusion was no finding and no blocking finding.
+- 'The model was the person''s choice for this rework: orqlet models resolve suggests none for cursor, because the policy
+  gives grok-4.7 no cursor route name and the quality profile assigned to this role does not list it.'
+- 'The Coder runs Claude Opus 5.5 in Cursor, as the client states; it matches the approved catalog entry claude-opus-5-5
+  (family anthropic).'
+- Started as a typed Cursor subagent with only the packet path rust-migration-P-1-870038fe as its prompt; that the context
+  is fresh is the Coder's claim.
+- The reviewer did not rerun orqlet standards for, orqlet upgrade, orqlet doctor or gate status, did not recompute the work
+  status or ledger hashes, and saw command outputs only as summaries and digests.
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- The Coder wrote this record from the returned text.
+applicability:
+  examined:
+  - diff.patch (30 files), plan P-1, the design manifest, ADR-006, the staged .prompts/rules.yaml and rendered rule files,
+    CODEOWNERS, .gitattributes, .gitignore, work-status.md, the ledger (Q-28, Q-29), the test and knowledge records, AGENTS.md
+  conclusion: findings
+findings: []
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+    acceptance_criteria: [AC-1, AC-2, AC-3, AC-4, AC-5]
+  checks:
+  - what: packet read
+    how: orqlet review prepare rust-migration P-1 --head staged (rust-migration-P-1-870038fe, base df94d2d)
+    result: pass
+  - what: diff inside the phase file list plus the task records
+    how: 27 plan file operations; the other three paths are knowledge/P-1.yaml, tests/P-1.yaml and the ledger additions Q-28
+      and Q-29
+    result: pass
+  - what: .prompts/rules.yaml and the rendered rules against the ADR-006 table
+    how: compared the staged rules and the rule diffs with ADR-006 decision 1; no scope names src/orqlet/**, src/** or tests/**
+    result: pass
+  - what: repository files against ADR-006 decisions 6 and 7
+    how: read the CODEOWNERS, .gitattributes, .gitignore and work-status hunks
+    result: pass
+  - what: ORQ-E451 handling
+    how: the three listed paths are P-1 operations on the security globs .github/** and .orqlet/**; Q-28 applies and the EC-6
+      comparison belongs to the security review
+    result: pass

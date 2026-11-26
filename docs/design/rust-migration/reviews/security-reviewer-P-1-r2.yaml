@@ -1,0 +1,123 @@
+schema: orqlet.review-result/v1
+task: rust-migration
+phase: P-1
+role: security-reviewer
+round: 2
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: ff8ced8afdd3d0887866826ac6378861e194924457394768a8368277683a874b
+    design: 7089670672dcff7ab8f22b5598d0ebead9f23dfc3678dc0396193a9a9e291aad
+    evidence_inputs: 8a69ab7fb0b9608e0159ffe130e995a203d7053251e1fa3762d4ba1cf66416e7
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: e4504afd6fbce2026fc7a7935cbb8b47a7fca62c4cf9e92dd02e7d8f39d44f89
+    reviewer_definition: a1cfc8847d7e3b93188f7561320431cab30c57680d11c28256be5754a15afb14
+    standards: 1366ae318c871636195d7e47268ef274e6e89f6dfd67d066f2960cf4b9ade097
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: 15b0f9c2dedca80224be5b8efe08a42cfc3be547c1e66cb5e682da441435937c
+  merge_base: df94d2d013535c48848e8b4f6b47f08038988041
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-security-reviewer
+  definition_sha256: bb8f00c3ed76ea55383142cdee127382fb57f60037efc947e1f5681ca24186dc
+  client: cursor
+  model_requested: grok-4.7-high
+  model_observed: grok-4.7-high
+  identity_source: person-observed
+  selection_source: explicit-fallback
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: Claude Opus 5.5
+  identity_source: client-reported
+independence: I1
+capability_limits:
+- 'The person observed the reviewer model as grok-4.7-high. In the model policy at the base df94d2d the only route of grok-4.7,
+  for cursor, has no name and no also_known_as, and the logical id is not a reported name, so no observed string matches
+  the entry. No family is known for the reviewer and the class stays I1, below the I2 that a D3 change requires of a review;
+  the verdict is NOT_RUN.'
+- The reviewer's own conclusion was no blocking finding.
+- 'Under the ruling Q-28 the reviewer compared the three paths of ORQ-E451 (.github/CODEOWNERS, .orqlet/generated.lock.yaml,
+  .orqlet/standards.lock.yaml) with EC-6 and ADR-007: all three are P-1 file operations on the security globs and none changes
+  a process, Git, parsing, path or file-system control.'
+- The reviewer did not recompute the rendered SHA-256 values in .orqlet/generated.lock.yaml and did not re-read src/orqlet/adapters,
+  which the diff does not change.
+- 'The model was the person''s choice for this rework: orqlet models resolve suggests none for cursor, because the policy
+  gives grok-4.7 no cursor route name and the quality profile assigned to this role does not list it.'
+- 'The Coder runs Claude Opus 5.5 in Cursor, as the client states; it matches the approved catalog entry claude-opus-5-5
+  (family anthropic).'
+- Started as a typed Cursor subagent with only the packet path rust-migration-P-1-870038fe as its prompt; that the context
+  is fresh is the Coder's claim.
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- The Coder wrote this record from the returned text.
+applicability:
+  examined:
+  - diff.patch (30 files) and the snapshot of .github/CODEOWNERS, .orqlet/standards.lock.yaml, .prompts/rules.yaml, the design
+    manifest, ADR-006 and ADR-007
+  - a pattern search of the diff for credential shapes and for added code or dependency manifests
+  conclusion: findings
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: observation
+  severity: info
+  category: security
+  rule_ref: ORQLET-SEC-001
+  evidence:
+  - kind: absence
+    searched:
+    - diff.patch
+    - .github/CODEOWNERS
+    - .orqlet/standards.lock.yaml
+    - .prompts/rules.yaml
+    - docs/design/rust-migration/design/manifest.yaml
+    - docs/design/rust-migration/design/adr-006-standards-profile-documents.md
+    - docs/design/rust-migration/design/adr-007-security-controls.md
+    method: read the phase diff and compared the three ORQ-E451 paths with the design's security globs, EC-6, ADR-006 decisions
+      1 and 7, and ADR-007
+    revision: df94d2d013535c48848e8b4f6b47f08038988041
+  - kind: absence
+    searched:
+    - diff.patch
+    method: searched the phase diff for password, secret, token, API key, private key and credential patterns, and for added
+      code or dependency manifests (Cargo.toml, Cargo.lock, pyproject.toml, uv.lock, .rs, .py)
+    revision: df94d2d013535c48848e8b4f6b47f08038988041
+  claim: 'Hand comparison under Q-28: the three paths do not change the EC-6 controls. CODEOWNERS replaces the Python layout
+    owners with the Rust layout owners of ADR-006 decision 7, and .orqlet/**, .github/workflows/** and .github/CODEOWNERS stay
+    owned. standards.lock.yaml changes only applicable_rules_hash; generated.lock.yaml changes SHA-256 fields and the standards
+    lock pointer, with an unchanged path list. SEC-001 and SEC-002 scopes move from src/ to crates/ and xtask/ as ADR-006 decision
+    1 requires; the phase does not edit src/orqlet/adapters.'
+  suggested_action: No change in this phase. Later phases that implement EC-6 keep the full ADR-007 rule set.
+  confidence: high
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: security-reviewer
+    phase: implement
+  checks:
+  - what: packet read
+    how: orqlet review prepare rust-migration P-1 --head staged (rust-migration-P-1-870038fe, base df94d2d)
+    result: pass
+  - what: ORQ-E451 paths against EC-6 and ADR-007
+    how: read the packet diff, CODEOWNERS, rules, the design's security globs, EC-6, ADR-006 and ADR-007
+    result: pass
+  - what: secrets, dependencies and executable changes in the phase diff
+    how: searched diff.patch for credential patterns and for code or lock-manifest paths
+    result: pass
+  - what: knowledge record for private data
+    how: read docs/design/rust-migration/knowledge/P-1.yaml in the diff
+    result: pass
+  - what: rendered hashes in .orqlet/generated.lock.yaml
+    how: not recomputed from the rule files; the diff shows hash-field updates only
+    result: not-run
