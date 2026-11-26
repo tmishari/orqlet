@@ -1,0 +1,165 @@
+schema: orqlet.review-result/v1
+task: rust-migration
+phase: P-1
+role: architecture-reviewer
+round: 1
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: ff8ced8afdd3d0887866826ac6378861e194924457394768a8368277683a874b
+    design: 7089670672dcff7ab8f22b5598d0ebead9f23dfc3678dc0396193a9a9e291aad
+    evidence_inputs: 78ea46903971f7eafd85ae00b37ec7aab606c2c87eb37ef61704449691fdb7b7
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: e4504afd6fbce2026fc7a7935cbb8b47a7fca62c4cf9e92dd02e7d8f39d44f89
+    reviewer_definition: 83e52f1a68fceddc7beb1d83654661fd34a1e3b3028c4fcc3dd7b6dadd8f3463
+    standards: 1366ae318c871636195d7e47268ef274e6e89f6dfd67d066f2960cf4b9ade097
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: e45f83491ceaf5e328f68b42299e31ddc93aee75e50979d784a5bae01516be85
+  merge_base: 1673d1ff00b3c786a31d5c01aba7230d49821b88
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-arch-reviewer
+  definition_sha256: 751953d100777e7ad1ae8ea41d8f096972ff2d2818b84213b87d027c1a3f9beb
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I1
+capability_limits:
+- 'Same client and, by the client''s default, the same model family as the Coder: independence I1, below the I2 that a D3
+  change requires of a review; the verdict is NOT_RUN.'
+- The reviewer's own conclusion was PASS with no blocking finding.
+- The reviewer did not recompute rendered or lock hashes and saw command outputs only as summaries and digests.
+- Started as a typed Cursor subagent with only the packet path rust-migration-P-1-910c6e62 as its prompt; that the context
+  is fresh is the Coder's claim.
+- 'No model was requested: orqlet models resolve --role orqlet-code-reviewer --client cursor suggested none (the engineering
+  profile has no approved candidate). The client does not show the reviewer''s model, so its identity is unknown; with no
+  model given, Cursor runs a subagent on the parent''s model.'
+- The Coder runs Claude Opus 5.5 in Cursor, as the client states; it matches no catalog candidate that the policy lists, so
+  no --different-family-from was passed.
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- The Coder wrote this record from the returned text.
+- The reviewer could not run shell commands, so it computed no quote digest. The Coder computed each digest with orqlet evidence
+  cite at the merge base for text the phase does not change, with the line numbers there; a quote of staged text, which no
+  commit holds yet, is recorded as an absence search of the staged tree instead.
+applicability:
+  examined:
+  - diff.patch (30 files), plan P-1, the design manifest, ADR-001, ADR-004 and ADR-006, the staged files, the test and knowledge
+    records
+  conclusion: findings
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: architecture-reviewer
+    phase: implement
+  checks:
+  - what: packet read
+    how: orqlet review prepare rust-migration P-1 --head staged (rust-migration-P-1-910c6e62)
+    result: pass
+  - what: quote digests
+    how: computed by the Coder with orqlet evidence cite at the merge base; none by the reviewer
+    result: pass
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: architecture
+  evidence:
+  - kind: quote
+    path: docs/design/rust-migration/design/adr-006-standards-profile-documents.md
+    lines: '31'
+    revision: 1673d1ff00b3c786a31d5c01aba7230d49821b88
+    quote_sha256: c06557cddc90a8f2e1f4fd170cbf66335bd40dc45052577e9856163f19a32e06
+  - kind: quote
+    path: docs/design/rust-migration/plan.yaml
+    lines: 10-11
+    revision: 1673d1ff00b3c786a31d5c01aba7230d49821b88
+    quote_sha256: c5f2d554ccd5415758bf195d82256249554f54a8e83305f44379338a5dc7c469
+  - kind: quote
+    path: .claude/skills/orqlet-implement/references/phase-contract.md
+    lines: '75'
+    revision: 1673d1ff00b3c786a31d5c01aba7230d49821b88
+    quote_sha256: 1b9122f7933bbb12c95ee8f87d38a6e47c28444419e4e167aee4975e80be1309
+  claim: 'ADR-006 decision 1 says this task''s approved artifacts are re-bound in the same change at each re-render. The change
+    re-binds no header: the plan stays bound to 8b2d28e1 and 15dad7d0. The implementation follows the plan, the phase contract
+    (never change bound values) and the impact review Q-29, but the ADR''s sentence no longer describes what was done, and
+    later phases keep reporting ORQ-W390.'
+  suggested_action: The person decides whether the Q-29 impact review satisfies the ADR's re-bind, or records when the re-bind
+    happens. P-1 needs no change.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: finding
+  severity: non-blocking
+  category: docs
+  evidence:
+  - kind: quote
+    path: docs/design/work-status.md
+    lines: 6-12
+    revision: 1673d1ff00b3c786a31d5c01aba7230d49821b88
+    quote_sha256: 7878876b1acd02bf73bd00212e784467d1258ede44e3adc4631dc14659ddf7a6
+  - kind: quote
+    path: docs/design/work-status.md
+    lines: 85-86
+    revision: 1673d1ff00b3c786a31d5c01aba7230d49821b88
+    quote_sha256: 8d9219e606e1530516cac68b30e29ed6582cff8c2e0eb5ed878431421fa2fcc7
+  claim: The work status now records that rust-migration started, but its Active priority section still names workflow-efficiency,
+    which the same file calls finished, and a hold rule still allows artifacts to be read as evidence only for workflow-efficiency.
+    AGENTS.md sends readers to this file before task work, so it now names two current tasks.
+  suggested_action: The person decides whether to correct Active priority in P-1, whose file list holds the file, or later.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: architecture
+  evidence:
+  - kind: quote
+    path: docs/design/rust-migration/design/adr-006-standards-profile-documents.md
+    lines: '9'
+    revision: 1673d1ff00b3c786a31d5c01aba7230d49821b88
+    quote_sha256: 0f51a44cc6b41b0695d462fb93c92a90c6dc2f5f9bcc905f759468ba6d14d853
+  - kind: absence
+    searched:
+    - .prompts/rules.yaml
+    - .github/CODEOWNERS
+    method: searched the staged files for src/orqlet, tools, pyproject.toml, uv.lock and .cargo entries
+    revision: 1673d1ff00b3c786a31d5c01aba7230d49821b88
+  claim: Until the crates and the xtask exist, the deterministic rules name commands that cannot run. src/orqlet/**, tools/**,
+    pyproject.toml and uv.lock lose every rule scope and their CODEOWNERS lines although later phases move or remove them;
+    .cargo/**, a security glob, has no CODEOWNERS line. ADR-006 decisions 1 and 7 accept this.
+  suggested_action: Reviewers of later phases that touch Python paths check them against EC-3 and EC-5; the security reviewer
+    judges .cargo/**.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: architecture
+  evidence:
+  - kind: quote
+    path: docs/design/rust-migration/plan.yaml
+    lines: 23-24
+    revision: 1673d1ff00b3c786a31d5c01aba7230d49821b88
+    quote_sha256: 3c615751ef5f2ef9a141fc3507a5ce8abe3604d6d3fceff330c88e4863b48a3b
+  claim: P-1 declares that it implements EC-4, the 1.0.0 lock and render compatibility, while it only re-renders with 0.5.2;
+    the link is weak and changes no result.
+  suggested_action: None for P-1.
+  confidence: medium

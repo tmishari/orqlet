@@ -574,3 +574,59 @@ questions:
     answerer: tmishari
     time: '2026-11-25T19:35:38+00:00'
     scope: task
+- id: Q-28
+  key: fad1af2b78b00ce2bd1114453166332337eb442e05903c06d5daa2607e568144
+  subject: Handling of ORQ-E451 for security-glob paths
+  raised_by: Cursor
+  phase: implement
+  category: policy
+  text: How should the task handle ORQ-E451 for security-glob paths, which every phase touching
+    those globs raises because EC-6 is a manual entry?
+  why: In P-1, gate status with --phase P-1 --head staged reported ORQ-E451 "security paths
+    changed" for .github/CODEOWNERS, .orqlet/generated.lock.yaml and .orqlet/standards.lock.yaml.
+    0.5.2 counts security paths as expected only through a security entry with verification
+    extractor (src/orqlet/domain/expected_change.py lines 102-114 and 253-261); EC-6 is manual. 13
+    of the 17 phases touch the design's security globs (158 paths), so each would raise it.
+  options:
+  - Design and plan amendment adding an automatically checked security entry with one stage per
+    phase
+  - The person's ruling to compare this ORQ-E451 by hand against EC-6 and continue
+  - Stop and decide later
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: The person's ruling. For this task, an ORQ-E451 whose outcome is "security paths
+      changed" is compared by hand against EC-6 instead of stopping the phase, when every path it
+      lists is a file operation of the phase on the design's security globs. The security
+      reviewer checks those paths against EC-6 and ADR-007. Any other ORQ-E451, any ORQ-E450 or
+      ORQ-E453, or a listed path outside the phase's operations still stops the phase.
+    answerer: tmishari
+    time: '2026-11-26T10:03:06+00:00'
+    scope: task
+- id: Q-29
+  key: 86c2e364eababc577b25550748c6706fe99f987ebecf4778afb872fcc621d627
+  subject: Impact of the P-1 standards rewrite on this task
+  raised_by: Cursor
+  phase: implement
+  category: policy
+  text: Do the approvals of this task's AS-IS file, design and plan stay valid after P-1 changed
+    the standards lock hash and the applicable rules hash?
+  why: Gate status reports ORQ-W390 for all three artifacts. The standards lock hash moved from
+    8b2d28e1 to 3ae3b7ca and the applicable rules hash from 15dad7d0 to 9b283f40, caused only by
+    P-1's planned rewrite of .prompts/rules.yaml and the re-render (ADR-006 decision 1). The AS-IS
+    facts describe the standards at 3e3c311 and stay true there; the design's decisions and its
+    applied standards are unchanged, since the new rules are the ADR-006 table; no plan check,
+    criterion or file operation depends on the rule text. docs/design/rust-migration/ is outside
+    the design scope, so no header is re-bound.
+  options:
+  - Yes, the approvals stay valid and P-1 goes on
+  - No, an artifact needs a refresh first
+  blocks:
+  - implement
+  status: answered
+  answer:
+    value: Yes, the approvals stay valid and P-1 goes on
+    answerer: tmishari
+    time: '2026-11-26T10:04:00+00:00'
+    scope: task

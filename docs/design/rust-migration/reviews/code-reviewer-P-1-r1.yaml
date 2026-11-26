@@ -1,0 +1,147 @@
+schema: orqlet.review-result/v1
+task: rust-migration
+phase: P-1
+role: code-reviewer
+round: 1
+verdict: NOT_RUN
+assurance: advisory
+review_input:
+  components:
+    code_tests: ff8ced8afdd3d0887866826ac6378861e194924457394768a8368277683a874b
+    design: 7089670672dcff7ab8f22b5598d0ebead9f23dfc3678dc0396193a9a9e291aad
+    evidence_inputs: 78ea46903971f7eafd85ae00b37ec7aab606c2c87eb37ef61704449691fdb7b7
+    knowledge: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    plan: e4504afd6fbce2026fc7a7935cbb8b47a7fca62c4cf9e92dd02e7d8f39d44f89
+    reviewer_definition: 6660b181a2ba46a0bbd8225a3449e2322f0030dea1fa146cb15dfd0e3ffcd94e
+    standards: 1366ae318c871636195d7e47268ef274e6e89f6dfd67d066f2960cf4b9ade097
+  covers:
+  - code_tests
+  - knowledge
+  - design
+  - plan
+  - standards
+  - reviewer_definition
+  - evidence_inputs
+  digest: a1f3d2ab373bac64d07de4c184f580d3fe70fc7c09837ba59c5a531cec00e271
+  merge_base: 1673d1ff00b3c786a31d5c01aba7230d49821b88
+  schema: orqlet.review-input/v1
+agent:
+  binding_ref: orqlet-code-reviewer
+  definition_sha256: d807b6881723a0c72151d12a514eb0506a2356d9e94d170daff3f53178dff488
+  client: cursor
+  model_requested: null
+  model_observed: null
+  identity_source: unknown
+  selection_source: automatic
+  context:
+    fresh: true
+    input: packet-only
+coder_binding:
+  client: cursor
+  model_requested: null
+  model_observed: null
+independence: I0
+capability_limits:
+- 'No approved code-reviewer binding for cursor in .orqlet/role-bindings.yaml: independence I0, below the I2 that a code review
+  needs.'
+- 'Same client and, by the client''s default, the same model as the Coder: independence I1 at best, below I2; the verdict
+  is NOT_RUN.'
+- The reviewer stated in its text that it ran on Claude Opus 5.5; that is the model's own statement, not the client's report.
+- The reviewer's own conclusion was no blocking finding and no code defect.
+- Started as a typed Cursor subagent with only the packet path rust-migration-P-1-910c6e62 as its prompt; that the context
+  is fresh is the Coder's claim.
+- 'No model was requested: orqlet models resolve --role orqlet-code-reviewer --client cursor suggested none (the engineering
+  profile has no approved candidate). The client does not show the reviewer''s model, so its identity is unknown; with no
+  model given, Cursor runs a subagent on the parent''s model.'
+- The Coder runs Claude Opus 5.5 in Cursor, as the client states; it matches no catalog candidate that the policy lists, so
+  no --different-family-from was passed.
+- Read-only is declared by the agent definition, not enforced by Orqlet.
+- The Coder wrote this record from the returned text.
+- The reviewer could not run shell commands, so it computed no quote digest. The Coder computed each digest with orqlet evidence
+  cite at the merge base for text the phase does not change, with the line numbers there; a quote of staged text, which no
+  commit holds yet, is recorded as an absence search of the staged tree instead.
+applicability:
+  examined:
+  - diff.patch (30 files), the staged .prompts/rules.yaml, .github/CODEOWNERS, .gitignore and work-status.md, ADR-006, plan
+    P-1 and its unverified list, EC-4 and EC-6, the test and knowledge records
+  conclusion: findings
+self_check:
+  schema: orqlet.self-check/v1
+  checked_against:
+    role: code-reviewer
+    phase: implement
+  checks:
+  - what: packet read
+    how: orqlet review prepare rust-migration P-1 --head staged (rust-migration-P-1-910c6e62)
+    result: pass
+  - what: quote digests
+    how: computed by the Coder with orqlet evidence cite at the merge base; none by the reviewer
+    result: pass
+findings:
+- schema: orqlet.finding/v1
+  id: F-1
+  kind: finding
+  severity: non-blocking
+  category: docs
+  evidence:
+  - kind: quote
+    path: docs/design/work-status.md
+    lines: 6-12
+    revision: 1673d1ff00b3c786a31d5c01aba7230d49821b88
+    quote_sha256: 7878876b1acd02bf73bd00212e784467d1258ede44e3adc4631dc14659ddf7a6
+  - kind: quote
+    path: docs/design/work-status.md
+    lines: 85-86
+    revision: 1673d1ff00b3c786a31d5c01aba7230d49821b88
+    quote_sha256: 8d9219e606e1530516cac68b30e29ed6582cff8c2e0eb5ed878431421fa2fcc7
+  claim: The work status now records that rust-migration started, but its Active priority section still names workflow-efficiency,
+    which the same file calls finished, and a hold rule still allows artifacts to be read as evidence only for workflow-efficiency.
+    AGENTS.md sends readers to this file before task work, so it now names two current tasks.
+  suggested_action: Name rust-migration in Active priority and the matching hold rule in this phase, or record that it belongs
+    to the AGENTS.md change of ADR-006 decision 5.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-2
+  kind: observation
+  severity: info
+  category: standards
+  claim: The plan's gate-status-phase check expects no ORQ-E451 and reported one (exit 5); the ruling Q-28 covers it only
+    if the security reviewer compares the three listed paths with EC-6.
+  suggested_action: The security reviewer confirms the comparison.
+  confidence: high
+- schema: orqlet.finding/v1
+  id: F-3
+  kind: observation
+  severity: info
+  category: security
+  claim: CODEOWNERS no longer owns src/orqlet/**, tools/**, pyproject.toml or uv.lock while the Python code stays in the tree
+    until P-17, as ADR-006 decision 7 says.
+  suggested_action: None for P-1.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-4
+  kind: observation
+  severity: info
+  category: architecture
+  claim: The staged change adds three task records outside the file list (the ledger, knowledge/P-1.yaml, tests/P-1.yaml);
+    the tester's statement that exactly 27 files changed refers to the moment after the upgrade.
+  suggested_action: None; the phase contract allows the records.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-5
+  kind: observation
+  severity: info
+  category: architecture
+  claim: The gate keeps reporting the AS-IS file, the design and the plan as stale until P-16, because the plan accepts the
+    hash change through the ledger instead of re-binding.
+  suggested_action: None for P-1.
+  confidence: medium
+- schema: orqlet.finding/v1
+  id: F-6
+  kind: observation
+  severity: info
+  category: architecture
+  claim: 'ARCH-002 names Clippy as its check; Clippy''s default lints would not fail if #![no_std] were removed from the domain
+    crate.'
+  suggested_action: The P-3 reviewers check how no_std is kept.
+  confidence: low

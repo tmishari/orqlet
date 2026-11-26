@@ -1,7 +1,17 @@
 # Work status
 
-Updated: 2026-11-25. Authority: the person's instruction of 2026-11-23 to
-freeze the unfinished work and prioritize the workflow-efficiency request.
+Updated: 2026-11-26. Authority: the person's instruction of 2026-11-23 to
+freeze the unfinished work and prioritize the workflow-efficiency request, and
+the person's start of `rust-migration` on 2026-11-25.
+
+## Recorded on 2026-11-25 (rust-migration)
+
+The person started the task `rust-migration`: rewrite Orqlet as a Rust cargo
+binary at version 1.0.0, then remove the Python code. Research, design and plan
+are approved and merged (pull requests #84, #85 and #87; #86 recorded the Rust
+check commands in AGENTS.md). Implementation follows the plan's phases P-1 to
+P-17 on the branch `rust-migration-implement`. The frozen backlog below stays on
+hold; this task resumes none of it.
 
 ## Active priority
 

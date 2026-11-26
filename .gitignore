@@ -11,6 +11,7 @@ build/
 .hypothesis/
 .coverage
 .DS_Store
+/target
 
 # graphify output too large for the review packet (16 MB git output cap)
 graphify-out/graph.json

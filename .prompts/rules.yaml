@@ -1,59 +1,60 @@
 # Rules of this team. Add MUST, SHOULD and MAY rules below.
 # Each rule has: id, level, text, and optionally scope, enforcement and waiver.
 #
-# These are the rules Orqlet already enforces on itself. Each "deterministic" rule names the
-# check that fails the build when it is broken (see pyproject.toml and CI); "review" rules are
-# checked by a person on the pull request.
+# These are the rules Orqlet enforces on itself. Each "deterministic" rule names the command
+# that fails when it is broken; "review" rules are checked by a person on the pull request.
 schema: orqlet.rules/v1
 rules:
   # --- Architecture -------------------------------------------------------------------------
   - id: ORQLET-ARCH-001
     level: MUST
     text: >-
-      Imports point inward only: interface -> adapters -> application -> domain. A lower layer
-      never imports a higher one.
-    scope: {paths: ["src/orqlet/**"]}
+      Crate dependencies point inward only: orqlet-cli -> orqlet-adapters -> orqlet-application
+      -> orqlet-domain, and the xtask uses only orqlet-application and orqlet-domain. Each
+      crate's direct third-party dependencies (normal, dev and build) are on its own allow-list
+      in xtask/src/arch.rs.
+    scope: {paths: ["crates/**", "xtask/**", "Cargo.toml"]}
     enforcement: deterministic
-    check_ref: uv run lint-imports
+    check_ref: cargo run -p xtask -- arch
 
   - id: ORQLET-ARCH-002
     level: MUST
     text: >-
-      Domain code is pure: no I/O and no third-party imports. Application code imports no file,
-      process or network module and reaches the outside world only through the ports in
-      application/ports.
-    scope: {paths: ["src/orqlet/domain/**", "src/orqlet/application/**"]}
+      The orqlet-domain crate is no_std with alloc. The orqlet-application crate reaches files,
+      processes, the network, the environment and the standard streams only through its ports;
+      its clippy.toml disallows those standard-library paths.
+    scope: {paths: ["crates/orqlet-domain/**", "crates/orqlet-application/**"]}
     enforcement: deterministic
-    check_ref: uv run lint-imports
+    check_ref: cargo clippy --workspace --all-targets -- -D warnings
 
   - id: ORQLET-ARCH-003
     level: MUST
     text: >-
-      The four client adapters (Claude Code, Codex, Cursor, Copilot) never import one another, and
-      the workflow package under orqlet/workflow is read-only data used only by adapters and the
-      interface.
-    scope: {paths: ["src/orqlet/adapters/clients/**", "src/orqlet/workflow/**"]}
-    enforcement: deterministic
-    check_ref: uv run lint-imports
+      The client adapter modules (Claude Code, Codex, Cursor) never use one another. workflow/ is
+      read-only data, embedded only by orqlet-adapters, never through include_str! or
+      include_bytes! elsewhere.
+    scope: {paths: ["crates/orqlet-adapters/src/clients/**", "workflow/**"]}
+    enforcement: review
 
   # --- Safety and security ------------------------------------------------------------------
   - id: ORQLET-SEC-001
     level: MUST
     text: >-
-      Every process is started through the ProcessRunner port, and Git only through the hardened
-      GitRunner (allow-listed subcommands, fixed config overrides, scrubbed environment). Do not
-      call subprocess, os.system or shell=True anywhere else. The import checks keep domain and
-      application free of process modules; a reviewer checks the adapters.
-    scope: {paths: ["src/**"]}
+      Only the process module, a private child of the Git module in orqlet-adapters, creates
+      processes. Git runs only through GitRunner: allow-listed subcommands, fixed config
+      overrides, a cleared environment plus an allow-list, and arguments checked before any
+      process starts. Tests and the xtask may start processes only under a scoped allow with a
+      reason.
+    scope: {paths: ["crates/**", "xtask/**"]}
     enforcement: review
 
   - id: ORQLET-SEC-002
     level: MUST
     text: >-
-      Files in the repository being managed are untrusted input. Read them through the FileSystem
-      port, parse YAML only with the strict loader, and never execute, import or evaluate their
-      content.
-    scope: {paths: ["src/orqlet/**"]}
+      Files in the repository being managed are untrusted input. Shipped code reads them through
+      the FileSystem port, parses YAML, JSON and TOML only through the documents module of
+      orqlet-adapters, and never executes, imports or evaluates their content.
+    scope: {paths: ["crates/*/src/**"]}
     enforcement: review
 
   - id: ORQLET-SEC-003
@@ -66,21 +67,12 @@ rules:
   - id: ORQLET-SAFE-001
     level: MUST
     text: >-
-      Every write goes through a journalled change plan: a backup is taken first, and the manifest
-      is written last so a re-run converges. Project writes stay inside the project root.
-      User-scope writes stay inside the allow-listed client folders and the data directory's
-      `user` folder, each limited to its listed sub-paths, after the root checks: under the real
-      home (the data directory may be elsewhere), not a link, owned by the user on POSIX, and not
-      inside a Git work tree. On Windows, ownership is not checked, and a data directory outside
-      home is allowed only with a warning that its access is not checked. The allow-listed roots
-      and sub-paths are those that the user-scope file-system adapter declares; adding a root or
-      widening a sub-path needs a reviewed design. Nothing is created or changed in the user scope
-      before the person consents. Exempt from both the journal and the sub-path limit are only:
-      creating, after consent and with mode 0700, a missing allow-listed root and its missing
-      parents under home, and the data directory, its missing parents and its `user` folder;
-      tightening Orqlet's own `user`, `journal` and `backups` folders to 0700 after consent; the
-      apply lock, journal and backups under the `user` folder, and their pruning.
-    scope: {paths: ["src/orqlet/application/**", "src/orqlet/adapters/**"]}
+      Every project write goes through a journalled change plan: a backup is taken first, and the
+      lock file is written last so a re-run converges. Project writes stay inside the project
+      root. Outside the root Orqlet writes only its data directory (journals, backups, apply locks
+      and review packets), which never lies inside the repository; on Unix its files are created
+      with mode 0600 and its folders with mode 0700.
+    scope: {paths: ["crates/orqlet-application/src/**", "crates/orqlet-adapters/src/**"]}
     enforcement: review
 
   - id: ORQLET-NOMODEL-001
@@ -95,36 +87,40 @@ rules:
     level: MUST
     text: >-
       Generated output is deterministic: no timestamps, absolute paths or random values in
-      rendered files, and golden files are changed only on purpose with --update-golden, never in
-      CI.
-    scope: {paths: ["src/orqlet/adapters/clients/**"]}
+      rendered files. Golden fixtures change only in a reviewed commit that says why.
+    scope:
+      paths:
+        - "crates/orqlet-adapters/src/clients/**"
+        - "crates/orqlet-adapters/src/render/**"
+        - "workflow/**"
     enforcement: review
 
   - id: ORQLET-DET-002
     level: MUST
     text: >-
-      Any change to the workflow package rebuilds its MANIFEST.json and bumps the package version
-      before release.
-    scope: {paths: ["src/orqlet/workflow/**"]}
+      Any change to workflow/ rebuilds its MANIFEST.json and bumps the package version before
+      release.
+    scope: {paths: ["workflow/**"]}
     enforcement: deterministic
-    check_ref: uv run python tools/build_manifest.py --check
+    check_ref: cargo run -p xtask -- manifest --check
 
   - id: ORQLET-DET-003
     level: MUST
     text: >-
-      Committed JSON schemas match the Pydantic contracts. Regenerate them with
-      tools/export_schemas.py when a contract changes.
-    scope: {paths: ["src/orqlet/application/contracts/**"]}
+      Committed JSON schemas match the Rust contract types. Regenerate them with
+      `cargo run -p xtask -- schemas` when a contract changes.
+    scope: {paths: ["crates/orqlet-application/src/contracts/**", "workflow/schemas/**"]}
     enforcement: deterministic
-    check_ref: uv run python tools/export_schemas.py --check
+    check_ref: cargo run -p xtask -- schemas --check
 
   # --- Quality ------------------------------------------------------------------------------
   - id: ORQLET-QA-001
     level: MUST
     text: >-
-      Before a pull request is ready, ruff (lint and format), strict mypy and import-linter pass.
-      The project has no test suite and no CI workflow, and writes no tests until the person says
-      otherwise.
+      Before a pull request is ready, cargo fmt --check, Clippy with -D warnings and cargo test
+      pass on macOS, and cargo check and Clippy pass for x86_64-unknown-linux-gnu and
+      x86_64-pc-windows-msvc. Linux and Windows are compiled and linted, not run. The project has
+      no CI workflow.
     enforcement: review
 
   - id: ORQLET-STYLE-001
@@ -132,7 +128,7 @@ rules:
     text: >-
       Keep functions small with one reason to change, name things for what they mean, and write
       comments that explain why, not what.
-    scope: {paths: ["src/**", "tests/**"]}
+    scope: {paths: ["crates/**", "xtask/**"]}
     enforcement: guidance
 
   - id: ORQLET-MODEL-001
@@ -140,7 +136,7 @@ rules:
     text: >-
       A model name appears in a generated or packaged file only when the model policy assigned it,
       and never when the policy excludes it.
-    scope: {paths: ["src/orqlet/**"]}
+    scope: {paths: ["crates/**", "workflow/**"]}
     enforcement: review
 
   - id: ORQLET-MODEL-002
